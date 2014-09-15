@@ -7,14 +7,14 @@
 		</table>
 		<input type = "submit" name = "submit" value = "submit"/>
 		</form>
-		{% if 'propsTable' in locals %}
+		{% if propsTable %}
 		<table border="1" style="width:100%">
 			<tr>
-			{% for colName in locals.columnNames %}
+			{% for colName in columnNames %}
 			<th>{{colName}}</th>
 			{% endfor %}
 			</tr>
-			{% for row in locals.propsTable %}
+			{% for row in propsTable %}
 			<tr>
 			{% for c in row%}
 				<td>{{c}}</td>
