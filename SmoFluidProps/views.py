@@ -11,7 +11,8 @@ class FluidProps_SetUpView(TemplateView):
 		form = FluidProps_SetUpForm()
 		
 		return render_to_response(self.template_name, locals(), 
-								context_instance=RequestContext(self.request))
+				context_instance=RequestContext(self.request))
+		
 	def post(self, request):
 		form = FluidProps_SetUpForm(self.request.POST)
 		if not form.is_valid():
@@ -20,7 +21,7 @@ class FluidProps_SetUpView(TemplateView):
 		columnNames, propsTable = instance.computeFluidProps()
 		
 		return render_to_response(self.template_name, locals(), 
-								context_instance=RequestContext(self.request))		
+				context_instance=RequestContext(self.request))		
 		
 	
 	
