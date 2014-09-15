@@ -1,5 +1,5 @@
 from django.db import models
-from smo.Media import MediumState, Medium
+
 # Create your models here.
 
 
@@ -25,6 +25,7 @@ class FluidProps_SetUpModel(models.Model):
 	
 	
 	def computeFluidProps(self):
+		from smo.Media import MediumState, Medium
 		import numpy as np
 		state1Values = np.linspace(
 			self.stateVariable1MinValue, self.stateVariable1MaxValue, 
