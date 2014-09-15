@@ -1,5 +1,5 @@
 from django.db import models
-from smo.Media import MediumState, Medium
+from SmoFluidProps.SmoFlow3D.Media import MediumState, Medium
 # Create your models here.
 
 
@@ -58,9 +58,6 @@ class FluidProps_SetUpModel(models.Model):
 					fp.dpdt_v(), fp.dpdv_t(), fp.dvdt_p(), fp.beta(),
 					fp.mu(), fp.cond(), fp.Pr(), fp.gamma(), 
 				)
-			#tableValues[i]['T'] = fp.T()
-			#tableValues[i]['rho'] = fp.rho()
-			#tableValues[i]['h'] = fp.h()
 		return columnNames, tableValues
 	
 RegisteredFluids = {}
