@@ -3,21 +3,26 @@
 		<form action = {% url  'SmoFluidProps:FluidProps_SetUp' %} method = "post">
 		{% csrf_token %}
 		<table>
-			{{form.as_table}}
+			{% for field in form %}
+			<tr>
+			<td style=" text-align: right; font-weight: bold;">{{ field.label }} &nbsp</td><td style=" text-align: left;">{{ field }}</td>
+			</tr>
+			{% endfor %}	
 		</table>
 		<input type = "submit" name = "submit" value = "submit"/>
 		</form>
-		{% if 'propsTable' in locals %}
+		{% if propsTable != None %}
+		
 		<table border="1" style="width:100%">
 			<tr>
-			{% for colName in locals.columnNames %}
+			{% for colName in columnNames %}
 			<th>{{colName}}</th>
 			{% endfor %}
 			</tr>
-			{% for row in locals.propsTable %}
+			{% for row in propsTable %}
 			<tr>
 			{% for c in row%}
-				<td>{{c}}</td>
+				<td>{{ c|stringformat:".2E" }}</td>
 			{% endfor %}
 			</tr>
 			{% endfor %}

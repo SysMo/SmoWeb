@@ -1,5 +1,4 @@
 from django.db import models
-from SmoFluidProps.SmoFlow3D.Media import MediumState, Medium
 # Create your models here.
 
 
@@ -26,17 +25,17 @@ class FluidProps_SetUpModel(models.Model):
 	
 	def computeFluidProps(self):
 		import numpy as np
+		from SmoFluidProps.SmoFlow3D.Media import MediumState, Medium
 		state1Values = np.linspace(
 			self.stateVariable1MinValue, self.stateVariable1MaxValue, 
 			self.stateVariable1NumValues, True)
-		rowDType = np.dtype([
-				('p', np.float), ('T', np.float),
-				('rho', np.float), ('h', np.float),
-				
-				])
+# 		rowDType = np.dtype([
+# 				('p', np.float), ('T', np.float),
+# 				('rho', np.float), ('h', np.float),				
+# 				])
 		#'s', 'u', 'cp', 'cv', 'dpdt_v', 'dpdv_t', 'dvdt_p', 'beta', 'mu', 'cond', 'Pr', 'gamma' 
 		columnNames = ['Pressure', 'Temperature', 'Density', 'Spec. Enthalpy', 
-					'Internal Energy', 'Spec. Heat Capacity cp', 'Spec. Heat Capacity cv', 
+					'Internal Energy', 'Spec. Heat\nCapacity cp', 'Spec. Heat\nCapacity cv', 
 					'(dp/dt)_v', '(dp/dv)_t', '(dv/dt)_p', 'beta', 
 					'Dyn. viscosity', 'Thermal conductivity', 'Prandtl', 'Gamma']
 		tableValues = np.zeros(
