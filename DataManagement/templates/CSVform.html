@@ -1,0 +1,20 @@
+{% extends "Platform.html" %}
+{% load bootstrap_toolkit %}
+
+{% block content %}
+		<form action = '' method = "POST" enctype='multipart/form-data'>
+		{% csrf_token %}
+		<table>
+			{% for field in form %}
+			<tr>
+			<td style=" text-align: right; font-weight: bold;">{{ field.label }} &nbsp</td><td style=" text-align: left;">{{ field }}</td>
+			</tr>
+			{% endfor %}
+			<tr>
+			<td></td>	
+			<td><input style=" text-align: left;" type = "submit" name = "submit" value = "Submit"/></td>
+			</tr>
+		</table>
+		</form>
+		<br>
+{% endblock %}
