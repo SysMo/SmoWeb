@@ -2,21 +2,16 @@ from django.shortcuts import render_to_response, RequestContext
 from DataManagement.forms import ImportCSV_Form
 from  SmoWeb.settings import MEDIA_ROOT
 import os.path
+from utils import handle_uploaded_file
 
 # Create your views here.
-
-def handle_uploaded_file(f):
-    destination = open(os.path.join(MEDIA_ROOT,'csv/temp.csv'), 'wb+')
-    for chunk in f.chunks():
-        destination.write(chunk)
-    destination.close()
 
 def importCSV(request):
     if request.method == "POST":
         form = ImportCSV_Form(request.POST, request.FILES)
         if form.is_valid():
-            print request.FILES['csvFile']
-            handle_uploaded_file(request.FILES['csvFile'])
+            handle_uploaded_file(form.cleaned_data['csvFile'], 
+                                 os.path.join(MEDIA_ROOT, 'DataManagement', 'csv'))
         else:
             raise ValueError("Invalid form data")
         #print request.FILES
