@@ -1,7 +1,14 @@
 {% extends "Platform.html" %}
 {% load bootstrap_toolkit %}
 
+
 {% block content %}
+		<script>
+		if ("{{ errMessage }}")
+				{alert("{{ errMessage }}")};
+			
+		</script>
+
 		<form action = '' method = "POST" enctype='multipart/form-data'>
 		{% csrf_token %}
 		<table>
@@ -15,6 +22,11 @@
 			<td><input style=" text-align: left;" type = "submit" name = "submit" value = "Submit"/></td>
 			</tr>
 		</table>
-		</form>
+		</form>		
 		<br>
+	
+		
+			
 {% endblock %}
+
+		
