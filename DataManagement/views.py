@@ -23,4 +23,4 @@ def importCSV(request):
     else:
         form = ImportCSV_Form()
         errMessage = ""
-    return render_to_response('CSVform.html', locals(), context_instance=RequestContext(request))
+    return render_to_response('DataManagement/CSVform.html', locals(), context_instance=RequestContext(request))
