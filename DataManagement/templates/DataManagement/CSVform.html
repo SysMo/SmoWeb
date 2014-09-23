@@ -2,24 +2,31 @@
 {% load bootstrap_toolkit %}
 
 {% block scripts_and_styles %}
+
+<script>
+	if ("{{ errMessage }}")
+			{alert("{{ errMessage }}")};			
+</script>
+
 {% endblock %}
 
-{% block content %}	
-		<form action = '' method = "POST" enctype='multipart/form-data'>
-		{% csrf_token %}
-		<table>
-			{% for field in form %}
-			<tr>
-			<td style=" text-align: right; font-weight: bold;">{{ field.label }} &nbsp</td><td style=" text-align: left;">{{ field }}</td>
-			</tr>
-			{% endfor %}
-			<tr>
-			<td></td>	
-			<td><input style=" text-align: left;" type = "submit" name = "submit" value = "Submit"/></td>
-			</tr>
-		</table>
-		</form>		
-		<br>
+{% block content %}			
+	<form action = '' method = "POST" enctype='multipart/form-data'>
+	{% csrf_token %}
+	<table>
+		{% for field in form %}
+		<tr>
+		<td style=" text-align: right; font-weight: bold;">{{ field.label }} &nbsp</td><td style=" text-align: left;">{{ field }}</td>
+		</tr>
+		{% endfor %}
+		<tr>
+		<td></td>	
+		<td><input style=" text-align: left;" type = "submit" name = "submit" value = "Submit"/></td>
+		</tr>
+	</table>
+	</form>		
+	<br>
+	
 
 {% endblock %}
 
