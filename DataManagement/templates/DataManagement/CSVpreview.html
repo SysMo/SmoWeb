@@ -1,50 +1,16 @@
 {% extends "Platform.html" %}
 {% load bootstrap_toolkit %}
+{% load staticfiles %}
 
 {% block scripts_and_styles %}
-<style>
-	.empty = {}		
-	
-	.output, .tableInput {
-		font-family: sans-serif;
-		font-size: 10pt;
-		background: white; 
-		width: 100pt;
-		height: 16pt;
-		overflow: hidden;
-		padding-left: 5pt;
-	}
-	.tableInput { 
-		border: none;
-	}
-	.output { 
-		background: white;
-		pointer-events: none;
-		text-align: left;
-	}
-	.dataTable { 
-		border: 1px solid #000;
-		border-collapse: collapse;
-	}
-	.dataRow {}
-	.dataRow > td { 
-		height: 16pt;
-		border: 1px solid #000; 
-	}
-	.column-label, .row-label {
-		text-align: center;
-		background: #EEE;
- 		}
-	.row-label { width: 100pt; }
-	.selected {
-		background: blue;
-	}
-</style>
-
+<link rel="stylesheet" href="{% static "DataManagement/CSVpreview.css" %}"> 
+<!-- <script src="{% static "DataManagement/DumpObjectIndented.js" %}"></script> -->
+<script src="{% static "DataManagement/CSVpreview.js" %}"></script>
 {% endblock %}
+
 {% block content %}
 	<br>
-	<div ng-app="app" ng-controller="sheet">
+	<div ng-app="csvPreviewApp" ng-controller="CsvPreviewController">
 		<table class="dataTable"> 
 			<tr>
 				<td class="row-label">Use column</td>
@@ -77,100 +43,4 @@
 		If you don't want to use a column, uncheck the box above its name. With a single mouse click  select the first data row and submit.</p>
 		<p >Data starts from row number <span ng-bind="firstDataRow"></span></p>	
 	</div>
-
-	<script>	
-	(function(){
-		var app = angular.module('app', ['ui.bootstrap']);
-		app.controller('sheet', ['$scope', function ($scope) {
-			$scope.tableValues = [
-			          		    ['sdahdffsdufhsidufhisdfusdhfsdf'],
-			          			['time', 'temperature', 'pressure'],
-			          			[0, 125, 213],
-			          			[1, 124, 212],
-			          			[2, 123, 211],
-			          			[3, 122, 210],
-			          			[4, 345, 300]
-			          		];
-			$scope.rowsInDisplay = 10;
-			$scope.numColumns = 3;
-       		$scope.columnPossibleTypes = ['float', 'integer', 'string'];      		
-       		$scope.columnNames = new Array($scope.numColumns);
-       		$scope.useColumn = new Array($scope.numColumns);
-       		$scope.columnTypes = new Array($scope.numColumns);
-       		for (var i = 0; i < $scope.numColumns; i++) {
-       			$scope.columnNames[i] = "C" + (i + 1);
-       			$scope.useColumn[i] = true;
-       			$scope.columnTypes[i] = "float";
-       		}
-       		$scope.firstDataRow = 1;
-       		$scope.onRowHeaderClick = function(row) {
-       			$scope.firstDataRow = row;
-       		}
-       		$scope.onRowHeaderDblClick = function(row) {
-       			for (var i = 0; i < $scope.numColumns; i++) {
-       				$scope.columnNames[i] = $scope.tableValues[row - 1][i];
-       			}
-       		}
-       		$scope.cellStyle = function(row, col) {
-       			var style = {};
-       			if (row >= $scope.firstDataRow)
-       				style['background-color'] = '#CCCCFF';
-       			else
-       				style['background-color'] = 'white';
-       			if ($scope.useColumn[col - 1]) {
-       				style['color'] = 'black';
-       			} else {
-       				style['color'] = '#AAAAAA';
-       			}
-       			return style;
-       		}
-			          		
-       		$scope.send = function() {
-       			//alert("Column names: " + $scope.columnNames + "\n" + "First data row: " + $scope.firstDataRow);
-       			var postData = {
-       				columnNames : $scope.columnNames,
-       				useColumn : $scope.useColumn,
-       				columnTypes : $scope.columnTypes,
-       				firstDataRow : $scope.firstDataRow
-       			};
-       			alert($scope.DumpObjectIndented(postData, "    "));
-       		}
-       		$scope.DumpObjectIndented = function(obj, indent)
-    		{
-    		  var result = "";
-    		  if (indent == null) indent = "";
-
-    		  for (var property in obj)
-    		  {
-    		    var value = obj[property];
-    		    if (typeof value == 'string')
-    		      value = "'" + value + "'";
-    		    else if (typeof value == 'object')
-    		    {
-    		      if (value instanceof Array)
-    		      {
-    		        // Just let JS convert the Array to a string!
-    		        value = "[ " + value + " ]";
-    		      }
-    		      else
-    		      {
-    		        // Recursive dump
-    		        // (replace "  " by "\t" or something else if you prefer)
-    		        var od = DumpObjectIndented(value, indent + "  ");
-    		        // If you like { on the same line as the key
-    		        //value = "{\n" + od + "\n" + indent + "}";
-    		        // If you prefer { and } to be aligned
-    		        value = "\n" + indent + "{\n" + od + "\n" + indent + "}";
-    		      }
-    		    }
-    		    result += indent + "'" + property + "' : " + value + ",\n";
-    		  }
-    		  return result.replace(/,\n$/, "");
-    		}
-    	}]);
-		
-	
-	})();
-	</script>
-
 {% endblock %}

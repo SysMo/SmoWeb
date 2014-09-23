@@ -1,0 +1,36 @@
+.empty = {}		
+	
+	.output, .tableInput {
+		font-family: sans-serif;
+		font-size: 10pt;
+		background: white; 
+		width: 100pt;
+		height: 16pt;
+		overflow: hidden;
+		padding-left: 5pt;
+	}
+	.tableInput { 
+		border: none;
+	}
+	.output { 
+		background: white;
+		pointer-events: none;
+		text-align: left;
+	}
+	.dataTable { 
+		border: 1px solid #000;
+		border-collapse: collapse;
+	}
+	.dataRow {}
+	.dataRow > td { 
+		height: 16pt;
+		border: 1px solid #000; 
+	}
+	.column-label, .row-label {
+		text-align: center;
+		background: #EEE;
+ 		}
+	.row-label { width: 100pt; }
+	.selected {
+		background: blue;
+	}
