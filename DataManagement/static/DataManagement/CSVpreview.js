@@ -1,5 +1,11 @@
-angular.module('csvPreviewApp', ['smo', 'ui.bootstrap']).
-	controller('CsvPreviewController', ['$scope', 'util', function ($scope, util) {
+var csvPreviewApp = angular.module('csvPreviewApp', ['smo', 'ui.bootstrap'])
+	
+	csvPreviewApp.config(['$httpProvider', function($httpProvider) {
+	    $httpProvider.defaults.xsrfCookieName = 'csrftoken';
+	    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+	}]);
+
+	csvPreviewApp.controller('CsvPreviewController', ['$scope', '$http', 'util', function ($scope, $http, util) {
 			$scope.tableValues = [
 			          		    ['sdahdffsdufhsidufhisdfusdhfsdf'],
 			          			['time', 'temperature', 'pressure'],
@@ -52,7 +58,8 @@ angular.module('csvPreviewApp', ['smo', 'ui.bootstrap']).
        				firstDataRow : $scope.firstDataRow
        			};
        			alert(util.dumpObject(postData, "    "));
-       		}
+       			$http.post('/DataManagement/CSVtoHDF/', postData);
+       		  }
     	}]);
 		
 		

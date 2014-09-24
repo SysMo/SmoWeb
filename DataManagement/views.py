@@ -5,6 +5,7 @@ import os.path
 from utils import handle_uploaded_file
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
+import json
 
 # Create your views here.
 
@@ -26,3 +27,13 @@ def importCSV(request):
         rowsInDisplay = 10 
     return render_to_response('DataManagement/CSVform.html', 
                               locals(), context_instance=RequestContext(request))
+
+def CSVtoHDF(request):
+    if request.method == "POST":
+        print "POST Success!!!!"
+        data = json.loads(request.body)
+        print data
+    else:
+        print "Success!!!!"
+    return HttpResponseRedirect(reverse('home'))
+    
