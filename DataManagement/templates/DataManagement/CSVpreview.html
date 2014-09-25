@@ -4,6 +4,18 @@
 
 {% block scripts_and_styles %}
 <link rel="stylesheet" href="{% static "DataManagement/CSVpreview.css" %}"> 
+
+<script>
+{% autoescape off %}
+	var csvPreviewData = {
+			rowsInDisplay: {{ rowsInDisplay }},
+			numRows: {{ numRows }},
+			numColumns: {{ numColumns }},
+			tableValues: {{ tableValues }}			
+	};
+{% endautoescape %}
+</script>
+
 <script src="{% static "SmoUtil.js" %}"></script>
 <script src="{% static "DataManagement/CSVpreview.js" %}"></script>
 

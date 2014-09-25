@@ -1,23 +1,17 @@
-var csvPreviewApp = angular.module('csvPreviewApp', ['smo', 'ui.bootstrap'])
+var csvPreviewApp = angular.module('csvPreviewApp', ['ui.bootstrap'])
+//var csvPreviewApp = angular.module('csvPreviewApp', ['smo', 'ui.bootstrap'])
 	
 	csvPreviewApp.config(['$httpProvider', function($httpProvider) {
 	    $httpProvider.defaults.xsrfCookieName = 'csrftoken';
 	    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
 	}]);
 
-	csvPreviewApp.controller('CsvPreviewController', ['$scope', '$window', '$http', 'util', 
-	                                                  function ($scope, $window, $http, util) {
-			$scope.tableValues = [
-			          		    ['sdahdffsdufhsidufhisdfusdhfsdf'],
-			          			['time', 'temperature', 'pressure'],
-			          			[0, 125, 213],
-			          			[1, 124, 212],
-			          			[2, 123, 211],
-			          			[3, 122, 210],
-			          			[4, 345, 300]
-			          		];
+	csvPreviewApp.controller('CsvPreviewController', ['$scope', '$window', '$http', 
+	                                                  function ($scope, $window, $http) {
+			$scope.tableValues = csvPreviewData.tableValues;
+			$scope.headerRow = 1;
 			$scope.rowsInDisplay = 10;
-			$scope.numColumns = 3;
+			$scope.numColumns = csvPreviewData.numColumns;
        		$scope.columnPossibleTypes = ['float', 'integer', 'string'];      		
        		$scope.columnNames = new Array($scope.numColumns);
        		$scope.useColumn = new Array($scope.numColumns);
@@ -32,6 +26,7 @@ var csvPreviewApp = angular.module('csvPreviewApp', ['smo', 'ui.bootstrap'])
        			$scope.firstDataRow = row;
        		}
        		$scope.onRowHeaderDblClick = function(row) {
+       			$scope.headerRow = row;
        			for (var i = 0; i < $scope.numColumns; i++) {
        				$scope.columnNames[i] = $scope.tableValues[row - 1][i];
        			}
@@ -56,9 +51,11 @@ var csvPreviewApp = angular.module('csvPreviewApp', ['smo', 'ui.bootstrap'])
        				columnNames : $scope.columnNames,
        				useColumn : $scope.useColumn,
        				columnTypes : $scope.columnTypes,
-       				firstDataRow : $scope.firstDataRow
+       				firstDataRow : $scope.firstDataRow,
+       				headerRow: $scope.headerRow
        			};
-       			alert(util.dumpObject(postData, "    "));
+//       			alert(util.dumpObject(postData, "    "));
+       				alert(angular.toJson(postData, true));
        			$http.post('/DataManagement/CSVtoHDF/', postData).success(function(data){
        				$window.location.href = "/";
        			});
