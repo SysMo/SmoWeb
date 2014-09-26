@@ -3,7 +3,7 @@ from DataManagement.forms import ImportCSV_Form
 from  SmoWeb.settings import MEDIA_ROOT
 import os.path
 from utils import handle_uploaded_file, CSVReader
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 import json
 
@@ -11,42 +11,42 @@ import json
 
 def importCSV(request):    
     if request.method == "POST":
-        form = ImportCSV_Form(request.POST, request.FILES)
-        if form.is_valid():
-            errMessage = ""
-            file = handle_uploaded_file(form.cleaned_data['csvFile'], 
-                                 os.path.join(MEDIA_ROOT, 'DataManagement', 'csv'))
+#         print type(request.POST)
+        rowsInDisplay = int(request.POST.get('rowsInDisplay', 10))
+        uploadFile = request.FILES.get('file', '')
+        csvFile = handle_uploaded_file(uploadFile, 
+                             os.path.join(MEDIA_ROOT, 'DataManagement', 'csv'))
 
-            print file
-            readerInstance = CSVReader(file.name)
-            
-            rowsInDisplay = form.cleaned_data['rowsInDisplay']     
-            numRows = readerInstance.initialRead()['numRows']
-            numColumns = readerInstance.initialRead()['numColumns']
-            tableValues = readerInstance.initialRead()['tableValues']
-            if rowsInDisplay > len(tableValues):
-                rowsInDisplay = len(tableValues)
-            else:
-                tableValues = tableValues[:rowsInDisplay]
-            
+        readerInstance = CSVReader(csvFile.name) 
+        numRows = readerInstance.initialRead()['numRows']
+        numColumns = readerInstance.initialRead()['numColumns']
+        tableValues = readerInstance.initialRead()['tableValues']
+        print len(tableValues)
+        print rowsInDisplay
+        print (rowsInDisplay > len(tableValues))
+        if rowsInDisplay > len(tableValues):
+            rowsInDisplay = len(tableValues)
+        
+        print rowsInDisplay
+        tableValues = tableValues[:rowsInDisplay]
+#         print tableValues
+#         print tableValues[0:5]
+           
+        
         
 #             return HttpResponse(json.dumps(response_data), content_type="application/json")
 #             return HttpResponseRedirect(reverse('DataManagement:PreviewCSV'), 
 #                                         content=json.dumps(response_data), content_type="application/json")
-            print numRows
-            print numColumns
-            print tableValues
-            print rowsInDisplay
-            return render_to_response('DataManagement/CSVpreview.html', 
-                            locals(), context_instance=RequestContext(request))
-        else:
-            errMessage = "Invalid form data"                              
-    else:              
-        errMessage = ""
-        form = ImportCSV_Form()        
-        rowsInDisplay = 10 
-    return render_to_response('DataManagement/CSVform.html', 
-                              locals(), context_instance=RequestContext(request))
+        response_data = {}
+        response_data['numRows'] = numRows
+        response_data['numColumns'] = numColumns
+        response_data['tableValues'] = tableValues
+#         print tableValues;
+#         response_data['rowsInDisplay'] = rowsInDisplay
+        return HttpResponse(json.dumps(response_data), content_type="application/json")                     
+        
+    return render_to_response('DataManagement/CSVpreview.html', 
+                              context_instance=RequestContext(request))
 
 def CSVtoHDF(request):
     if request.method == "POST":

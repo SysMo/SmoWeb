@@ -1,27 +1,49 @@
-var csvPreviewApp = angular.module('csvPreviewApp', ['ui.bootstrap'])
-//var csvPreviewApp = angular.module('csvPreviewApp', ['smo', 'ui.bootstrap'])
+var csvImportApp = angular.module('csvImportApp', ['angularFileUpload', 'ui.bootstrap']);
 	
-	csvPreviewApp.config(['$httpProvider', function($httpProvider) {
+	csvImportApp.config(['$httpProvider', function($httpProvider) {
 	    $httpProvider.defaults.xsrfCookieName = 'csrftoken';
 	    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
 	}]);
 
-	csvPreviewApp.controller('CsvPreviewController', ['$scope', '$window', '$http', 
-	                                                  function ($scope, $window, $http) {
-			$scope.tableValues = csvPreviewData.tableValues;
-			$scope.headerRow = 1;
-			$scope.rowsInDisplay = 10;
-			$scope.numColumns = csvPreviewData.numColumns;
-       		$scope.columnPossibleTypes = ['float', 'integer', 'string'];      		
-       		$scope.columnNames = new Array($scope.numColumns);
-       		$scope.useColumn = new Array($scope.numColumns);
-       		$scope.columnTypes = new Array($scope.numColumns);
-       		for (var i = 0; i < $scope.numColumns; i++) {
-       			$scope.columnNames[i] = "C" + (i + 1);
-       			$scope.useColumn[i] = true;
-       			$scope.columnTypes[i] = "float";
-       		}
-       		$scope.firstDataRow = 1;
+	csvImportApp.controller('CsvImportController', [ '$scope', '$upload', '$window', '$http', 
+	                                                  function($scope, $upload, $window, $http) {
+		
+		$scope.rowsInDisplay = 10;
+		$scope.hidden = true;
+		
+		$scope.fileSelect = function($files){
+			console.log($files);
+			$scope.uploadFile = $files;	
+			}
+		
+		$scope.fileSend= function() { //$file: a file selected, having name, size, and type.
+		      var file = $scope.uploadFile;		      
+		      $scope.upload = $upload.upload({
+		        url: '/DataManagement/ImportCSV/',//'server/upload/url', upload.php script, node.js route, or servlet url
+		        method: 'POST',
+		        data: {rowsInDisplay: $scope.rowsInDisplay},
+		        file: file, // or list of files ($files) for html5 only
+		      }).progress(function(evt) {
+		        console.log('percent: ' + parseInt(100.0 * evt.loaded / evt.total));
+		      }).success(function(data, status, headers, config) {
+			    	csvPreviewData = data;
+			    	$scope.hidden = false;
+			    	$scope.numColumns = csvPreviewData.numColumns;
+			    	$scope.tableValues = csvPreviewData.tableValues;
+			    	$scope.headerRow = 1;						
+		       		$scope.columnPossibleTypes = ['float', 'integer', 'string'];      		
+		       		$scope.columnNames = new Array($scope.numColumns);
+		       		$scope.useColumn = new Array($scope.numColumns);
+		       		$scope.columnTypes = new Array($scope.numColumns);
+		       		for (var i = 0; i < $scope.numColumns; i++) {
+		       			$scope.columnNames[i] = "C" + (i + 1);
+		       			$scope.useColumn[i] = true;
+		       			$scope.columnTypes[i] = "float";
+		       		}
+		       		$scope.firstDataRow = 1;
+		      });
+		    }
+			
        		$scope.onRowHeaderClick = function(row) {
        			$scope.firstDataRow = row;
        		}
@@ -47,6 +69,7 @@ var csvPreviewApp = angular.module('csvPreviewApp', ['ui.bootstrap'])
 			          		
        		$scope.send = function() {
        			//alert("Column names: " + $scope.columnNames + "\n" + "First data row: " + $scope.firstDataRow);
+//       			console.log(csvPreviewData);
        			var postData = {
        				columnNames : $scope.columnNames,
        				useColumn : $scope.useColumn,
@@ -60,8 +83,7 @@ var csvPreviewApp = angular.module('csvPreviewApp', ['ui.bootstrap'])
        				$window.location.href = "/";
        			});
        		  }
-    	}]);
-		
+	}]);		
 		
 //		csvPreviewApp.config(function($provide) {
 //			  $provide.value('DumpObjectIndentedService', function(obj, indent){

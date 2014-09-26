@@ -4,26 +4,38 @@
 
 {% block scripts_and_styles %}
 <link rel="stylesheet" href="{% static "DataManagement/CSVpreview.css" %}"> 
-
-<script>
-{% autoescape off %}
-	var csvPreviewData = {
-			rowsInDisplay: {{ rowsInDisplay }},
-			numRows: {{ numRows }},
-			numColumns: {{ numColumns }},
-			tableValues: {{ tableValues }}			
-	};
-{% endautoescape %}
-</script>
-
+<script src="{% static "angular-file-upload.min.js" %}"></script>
 <script src="{% static "SmoUtil.js" %}"></script>
 <script src="{% static "DataManagement/CSVpreview.js" %}"></script>
-
 {% endblock %}
 
 {% block content %}
+<br>
+
+<div ng-app="csvImportApp" ng-controller="CsvImportController">	
+	<table>		
+		<tr>
+		<td style=" text-align: right; font-weight: bold;">CSV File &nbsp</td><td style=" text-align: left;"><input ng-file-select="fileSelect($files)" type="file" /></td>
+		</tr>
+
+		<tr>
+		<td style=" text-align: right; font-weight: bold;">Rows to Display &nbsp</td><td style=" text-align: left;"><input ng-model="rowsInDisplay" name="rowsInDisplay" type="number" value="10" /></td>
+		</tr>
+		
+		<tr>
+		<td></td>	
+		<td><button  ng-click="fileSend()" >Submit</button></td>
+		</tr>
+		
+	  	<tr>
+			<td></td>	
+			<td><button ng-click="upload.abort()">Cancel Upload</button>
+		</tr> 
+		
+	</table>
+
 	<br>
-	<div ng-app="csvPreviewApp" ng-controller="CsvPreviewController">
+	<div ng-hide="hidden">	
 		<table class="dataTable"> 
 			<tr>
 				<td class="row-label">Use column</td>
@@ -54,6 +66,7 @@
 		<button ng-click="send()">Submit</button>
 		<p>Double click on a row header (leftmost cell with row number) to take the values and use them as column names. Afterwards you can additionally edit them on the column headers, and select a storage type for the column. 
 		If you don't want to use a column, uncheck the box above its name. With a single mouse click  select the first data row and submit.</p>
-		<p >Data starts from row number <span ng-bind="firstDataRow"></span></p>	
-	</div>
+		<p >Data starts from row number <span ng-bind="firstDataRow"></span></p>
+	</div>	
+</div>
 {% endblock %}
