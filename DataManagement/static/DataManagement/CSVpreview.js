@@ -1,36 +1,54 @@
-var csvPreviewApp = angular.module('csvPreviewApp', ['smo', 'ui.bootstrap'])
+var csvImportApp = angular.module('csvImportApp', ['angularFileUpload', 'ui.bootstrap']);
 	
-	csvPreviewApp.config(['$httpProvider', function($httpProvider) {
+	csvImportApp.config(['$httpProvider', function($httpProvider) {
 	    $httpProvider.defaults.xsrfCookieName = 'csrftoken';
 	    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
 	}]);
 
-	csvPreviewApp.controller('CsvPreviewController', ['$scope', '$http', 'util', function ($scope, $http, util) {
-			$scope.tableValues = [
-			          		    ['sdahdffsdufhsidufhisdfusdhfsdf'],
-			          			['time', 'temperature', 'pressure'],
-			          			[0, 125, 213],
-			          			[1, 124, 212],
-			          			[2, 123, 211],
-			          			[3, 122, 210],
-			          			[4, 345, 300]
-			          		];
-			$scope.rowsInDisplay = 10;
-			$scope.numColumns = 3;
-       		$scope.columnPossibleTypes = ['float', 'integer', 'string'];      		
-       		$scope.columnNames = new Array($scope.numColumns);
-       		$scope.useColumn = new Array($scope.numColumns);
-       		$scope.columnTypes = new Array($scope.numColumns);
-       		for (var i = 0; i < $scope.numColumns; i++) {
-       			$scope.columnNames[i] = "C" + (i + 1);
-       			$scope.useColumn[i] = true;
-       			$scope.columnTypes[i] = "float";
-       		}
-       		$scope.firstDataRow = 1;
+	csvImportApp.controller('CsvImportController', [ '$scope', '$upload', '$window', '$http', 
+	                                                  function($scope, $upload, $window, $http) {
+		
+		$scope.rowsInDisplay = 10;
+		$scope.hidden = true;
+		
+		$scope.fileSelect = function($files){
+			console.log($files);
+			$scope.uploadFile = $files;	
+			}
+		
+		$scope.fileSend= function() { //$file: a file selected, having name, size, and type.
+		      var file = $scope.uploadFile;		      
+		      $scope.upload = $upload.upload({
+		        url: '/DataManagement/ImportCSV/',//'server/upload/url', upload.php script, node.js route, or servlet url
+		        method: 'POST',
+		        data: {rowsInDisplay: $scope.rowsInDisplay},
+		        file: file, // or list of files ($files) for html5 only
+		      }).progress(function(evt) {
+		        console.log('percent: ' + parseInt(100.0 * evt.loaded / evt.total));
+		      }).success(function(data, status, headers, config) {
+			    	csvPreviewData = data;
+			    	$scope.hidden = false;
+			    	$scope.numColumns = csvPreviewData.numColumns;
+			    	$scope.tableValues = csvPreviewData.tableValues;
+			    	$scope.headerRow = 1;						
+		       		$scope.columnPossibleTypes = ['float', 'integer', 'string'];      		
+		       		$scope.columnNames = new Array($scope.numColumns);
+		       		$scope.useColumn = new Array($scope.numColumns);
+		       		$scope.columnTypes = new Array($scope.numColumns);
+		       		for (var i = 0; i < $scope.numColumns; i++) {
+		       			$scope.columnNames[i] = "C" + (i + 1);
+		       			$scope.useColumn[i] = true;
+		       			$scope.columnTypes[i] = "float";
+		       		}
+		       		$scope.firstDataRow = 1;
+		      });
+		    }
+			
        		$scope.onRowHeaderClick = function(row) {
        			$scope.firstDataRow = row;
        		}
        		$scope.onRowHeaderDblClick = function(row) {
+       			$scope.headerRow = row;
        			for (var i = 0; i < $scope.numColumns; i++) {
        				$scope.columnNames[i] = $scope.tableValues[row - 1][i];
        			}
@@ -51,17 +69,21 @@ var csvPreviewApp = angular.module('csvPreviewApp', ['smo', 'ui.bootstrap'])
 			          		
        		$scope.send = function() {
        			//alert("Column names: " + $scope.columnNames + "\n" + "First data row: " + $scope.firstDataRow);
+//       			console.log(csvPreviewData);
        			var postData = {
        				columnNames : $scope.columnNames,
        				useColumn : $scope.useColumn,
        				columnTypes : $scope.columnTypes,
-       				firstDataRow : $scope.firstDataRow
+       				firstDataRow : $scope.firstDataRow,
+       				headerRow: $scope.headerRow
        			};
-       			alert(util.dumpObject(postData, "    "));
-       			$http.post('/DataManagement/CSVtoHDF/', postData);
+//       			alert(util.dumpObject(postData, "    "));
+       				alert(angular.toJson(postData, true));
+       			$http.post('/DataManagement/CSVtoHDF/', postData).success(function(data){
+       				$window.location.href = "/";
+       			});
        		  }
-    	}]);
-		
+	}]);		
 		
 //		csvPreviewApp.config(function($provide) {
 //			  $provide.value('DumpObjectIndentedService', function(obj, indent){
