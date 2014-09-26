@@ -35,7 +35,8 @@ class CSVReader:
             tableValues.append(row)
 #             tableValues.append([float(elem) for elem in row])
 #         print (numRows, numColumns, tableValues[0], tableValues[1], tableValues[numRows-1])      
-        return {'numRows': numRows, 'numColumns': numColumns, 'tableValues': tableValues}
+        return (numRows, numColumns, tableValues)
+    
     
     @staticmethod
     def test(filePath):

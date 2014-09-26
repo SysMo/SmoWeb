@@ -64,9 +64,12 @@
 			</tr>
 		</table>
 		<button ng-click="send()">Submit</button>
+		<p>The file contains <span ng-bind="numRows"></span> rows<p>
 		<p>Double click on a row header (leftmost cell with row number) to take the values and use them as column names. Afterwards you can additionally edit them on the column headers, and select a storage type for the column. 
 		If you don't want to use a column, uncheck the box above its name. With a single mouse click  select the first data row and submit.</p>
 		<p >Data starts from row number <span ng-bind="firstDataRow"></span></p>
+		<div ng-bind-html-unsafe="errorMessage"></div>
+
 	</div>	
 </div>
 {% endblock %}

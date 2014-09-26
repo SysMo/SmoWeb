@@ -25,11 +25,11 @@ var csvImportApp = angular.module('csvImportApp', ['angularFileUpload', 'ui.boot
 		        file: file, // or list of files ($files) for html5 only
 		      }).progress(function(evt) {
 		        console.log('percent: ' + parseInt(100.0 * evt.loaded / evt.total));
-		      }).success(function(data, status, headers, config) {
-			    	csvPreviewData = data;
-			    	$scope.hidden = false;
+		      }).success(function(csvPreviewData, status, headers, config) {
 			    	$scope.numColumns = csvPreviewData.numColumns;
 			    	$scope.tableValues = csvPreviewData.tableValues;
+			    	$scope.numRows = csvPreviewData.numRows;
+			    	$scope.filePath = csvPreviewData.filePath;
 			    	$scope.headerRow = 1;						
 		       		$scope.columnPossibleTypes = ['float', 'integer', 'string'];      		
 		       		$scope.columnNames = new Array($scope.numColumns);
@@ -41,6 +41,7 @@ var csvImportApp = angular.module('csvImportApp', ['angularFileUpload', 'ui.boot
 		       			$scope.columnTypes[i] = "float";
 		       		}
 		       		$scope.firstDataRow = 1;
+			    	$scope.hidden = false;
 		      });
 		    }
 			
@@ -75,45 +76,20 @@ var csvImportApp = angular.module('csvImportApp', ['angularFileUpload', 'ui.boot
        				useColumn : $scope.useColumn,
        				columnTypes : $scope.columnTypes,
        				firstDataRow : $scope.firstDataRow,
-       				headerRow: $scope.headerRow
-       			};
-//       			alert(util.dumpObject(postData, "    "));
-       				alert(angular.toJson(postData, true));
-       			$http.post('/DataManagement/CSVtoHDF/', postData).success(function(data){
-       				$window.location.href = "/";
-       			});
+			    	numRows : $scope.numRows,
+       				filePath : $scope.filePath
+      			};
+      				//alert(angular.toJson(postData, true));
+       			$http.post('/DataManagement/CSVtoHDF/', postData)
+       				.success(function(data){
+       					//$window.location.href = "/";
+       					console.log("success")
+       					console.log(data);
+       				})
+       				.error(function(data){
+       					console.log("error")
+       					console.log(data);
+       					$scope.errorMessage = data;
+       				});
        		  }
 	}]);		
-		
-//		csvPreviewApp.config(function($provide) {
-//			  $provide.value('DumpObjectIndentedService', function(obj, indent){
-//		  		  var result = "";
-//				  if (indent == null) indent = "";
-//				  for (var property in obj)
-//				  {
-//				    var value = obj[property];
-//				    if (typeof value == 'string')
-//				      value = "'" + value + "'";
-//				    else if (typeof value == 'object')
-//				    {
-//				      if (value instanceof Array)
-//				      {
-//				        // Just let JS convert the Array to a string!
-//				        value = "[ " + value + " ]";
-//				      }
-//				      else
-//				      {
-//				        // Recursive dump
-//				        // (replace "  " by "\t" or something else if you prefer)
-//				        var od = DumpObjectIndented(value, indent + "  ");
-//				        // If you like { on the same line as the key
-//				        //value = "{\n" + od + "\n" + indent + "}";
-//				        // If you prefer { and } to be aligned
-//				        value = "\n" + indent + "{\n" + od + "\n" + indent + "}";
-//				      }
-//				    }
-//				    result += indent + "'" + property + "' : " + value + ",\n";
-//				  }
-//				  return result.replace(/,\n$/, "");});
-//			});
-		
