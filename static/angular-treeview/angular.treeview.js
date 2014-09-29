@@ -43,14 +43,17 @@
 
 				//children
 				var nodeChildren = attrs.nodeChildren || 'children';
-
+				
+				//var nodeType = attrs.nodeType || 'type';
+				
+				
 				//tree template
 				var template =
 					'<ul>' +
 						'<li data-ng-repeat="node in ' + treeModel + '">' +
 							'<i class="collapsed" data-ng-show="node.' + nodeChildren + '.length && node.collapsed" data-ng-click="' + treeId + '.selectNodeHead(node)"></i>' +
 							'<i class="expanded" data-ng-show="node.' + nodeChildren + '.length && !node.collapsed" data-ng-click="' + treeId + '.selectNodeHead(node)"></i>' +
-							'<i class="normal" data-ng-hide="node.' + nodeChildren + '.length"></i> ' +
+							'<i  class="normal" data-ng-show="' + treeId + '.isDataset(node)"></i> ' +
 							'<span data-ng-class="node.selected" data-ng-click="' + treeId + '.selectNodeLabel(node)">{{node.' + nodeLabel + '}}</span>' +
 							'<div data-ng-hide="node.collapsed" data-tree-id="' + treeId + '" data-tree-model="node.' + nodeChildren + '" data-node-id=' + nodeId + ' data-node-label=' + nodeLabel + ' data-node-children=' + nodeChildren + '></div>' +
 						'</li>' +
@@ -62,7 +65,7 @@
 
 					//root node
 					if( attrs.angularTreeview ) {
-					
+						
 						//create tree object if not exists
 						scope[treeId] = scope[treeId] || {};
 
@@ -86,6 +89,26 @@
 
 							//set currentNode
 							scope[treeId].currentNode = selectedNode;
+							
+							
+						};
+						
+						scope[treeId].isDataset = scope[treeId].isDataset || function (node) {
+							return (node.type == 'dataset');
+						};
+						
+						scope[treeId].setImgStyle = scope[treeId].setImgStyle || function (node) {
+//							if (node.type == 'dataset'){
+//								return 
+//									{ 
+//										"background-image": "url('../img/file.png')"
+//									};
+//							} else {
+//								return 
+//								{ 
+//									"background-image": "url('../img/folder-closed.png')"
+//								};
+//							}
 						};
 					}
 

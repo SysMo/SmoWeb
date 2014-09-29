@@ -16,7 +16,7 @@ def testView(request):
 		postData = json.loads(request.body)
 		executeMethod = postData["executeMethod"]
 		if (executeMethod == "getHdfFileContent"):
-			filePath = "/data/Workspace/Django/SmoWeb/django-example/SmoWeb/media/DataManagement/csv/hdf/Rectangle_QuadrilateralMesh.hdf"
+			filePath = "/data/Workspace/Django/django-example/SmoWeb/media/DataManagement/csv/hdf/myData.hdf"
 			hdfIface = HDFInterface(filePath)
 			fileContent = [hdfIface.getFileContent()]
 			return JsonResponse({'fileContent' : fileContent})
