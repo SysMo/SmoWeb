@@ -23,13 +23,10 @@ angular.module('csvImportApp', ['angularFileUpload', 'ui.bootstrap'])
 			$scope.sendFile = function() { //$file: a file selected, having name, size, and type.
 				var file = $scope.uploadFile;		      
 				$scope.upload = $upload.upload({
-					url: '/DataManagement/ImportCSV/',//'server/upload/url', upload.php script, node.js route, or servlet url
+					url: '/DataManagement/ImportCSV/',
 					method: 'POST',
 					data: {numRowsInPreview: $scope.numRowsInPreview},
 					file: file, // or list of files ($files) for html5 only
-				}).progress(function(evt) {
-					$scope.progress = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));
-					//console.log('percent: ' + parseInt(100.0 * evt.loaded / evt.total));
 				}).success(function(csvPreviewData, status, headers, config) {
 					$scope.columnProps = [];
 					$scope.csvPreviewData = csvPreviewData;
@@ -39,8 +36,15 @@ angular.module('csvImportApp', ['angularFileUpload', 'ui.bootstrap'])
 					$scope.firstDataRow = 1;
 					$scope.showPreviewTable = true;
 				});
-			}
+				/*
+				$scope.upload.then(function (){}function (evt) {
+					$scope.progress = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));
+					console.log('percent: ' + parseInt(100.0 * evt.loaded / evt.total));
+				});
+				*/
 
+			}
+						
 			$scope.onRowHeaderClick = function(row) {
 				$scope.firstDataRow = row;
 			}
@@ -66,7 +70,7 @@ angular.module('csvImportApp', ['angularFileUpload', 'ui.bootstrap'])
 			}
           		
 			$scope.importHdf = function() {
-				alert(angular.toJson($scope.columnProps));
+				//alert(angular.toJson($scope.columnProps));
 				$http.post('/DataManagement/CSVtoHDF/', {
 					columnProps : $scope.columnProps,
 					firstDataRow : $scope.firstDataRow,

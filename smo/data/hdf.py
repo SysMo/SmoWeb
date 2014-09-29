@@ -1,46 +1,48 @@
 '''
-Created on Sep 17, 2014
+Created on Sep 28, 2014
 
-@author: ivaylo
 '''
-import csv
-import numpy as np
-import glob
 import os
-from django.db.utils import OperationalError
-
-def handle_uploaded_file(f, media_path):
-	destination = open(os.path.join(media_path, f.name), 'wb+')
-	for chunk in f.chunks():
-		destination.write(chunk)
-	destination.close()
-	return destination
-
-
-import uuid
-class TemporaryKeyValueCollection:
-	def __init__(self, klass = object):
-		self.klass = klass
-		self.collection = {}
-		
-	def push(self, instance, key = None):
-		if (not isinstance(instance, self.klass)):
-			raise TypeError('Attempt to add instance of type ' + type(instance)
-					+ ' to collection of type ' + self.klass)
-		if (key == None):
-			key = uuid.uuid4().hex
-		self.collection[key] = instance
-		return key
-	
-	def get(self, key):
-		return self.collection.get(key)
-	
-	def pop(self, key):
-		return self.collection.pop(key)
-
+import csv
 import h5py
 import numpy as np
-from  SmoWeb.settings import MEDIA_ROOT
+import json
+
+class HDFInterface(object):
+	def __init__(self, filePath):
+		self.filePath = filePath
+		self.fileName = os.path.basename(filePath)
+		
+	def getGroupContent(self, baseGroup, level = 0):
+		if (level == 0):
+			hdfFile = h5py.File(self.filePath)
+			baseGroup = hdfFile[baseGroup]
+		resultDict = []
+		for name, item in baseGroup.iteritems():
+			if (isinstance(item, h5py.Dataset)):
+				resultDict.append({'type' : 'dataset', 'id' : hash(name), 'path' : item.name, 'name' : name, 'children' : []})
+			elif (isinstance(item, h5py.Group)):
+				children = self.getGroupContent(item, level + 1) 
+				resultDict.append({'type' : 'group', 'id' : hash(name), 'path' : item.name, 'name' : name, 'children' : children, 'level' : level})
+		if (level == 0):
+			hdfFile.close()
+		return resultDict
+	
+	def getFileContent(self, fileAsRoot = True):
+		fileContent = self.getGroupContent('/')
+		if (fileAsRoot):
+			fileContent = {'type' : 'hdf_file', 'id' : hash(self.filePath), 'path' : self.filePath, 'name' : self.fileName, 'children' : fileContent}
+		return fileContent
+
+	@staticmethod
+	def test():
+		print ('test begin')
+		filePath = "/data/Workspace/Django/SmoWeb/django-example/SmoWeb/media/DataManagement/csv/hdf/Rectangle_QuadrilateralMesh.hdf"
+		a = HDFInterface(filePath)
+		b = a.getFileContent()
+		print (json.dumps(b, sort_keys=False, indent=4, separators=(',', ': ')))
+		print ('test done')
+	
 class CSV2HDFImporter(object):
 	typeDict = {'float' : 'f', 'integer' : 'i', 'string' : 'S100'}
 	typeCastFunc = {'float' : float, 'integer' : int, 'string' : str}
@@ -64,9 +66,9 @@ class CSV2HDFImporter(object):
 		f.close()
 		return (self.numRows, numColumns, previewValues)
 	
-	def import2Hdf(self, groupPath, datasetName, columnProps, 
+	def import2Hdf(self, filePath, groupPath, datasetName, columnProps, 
 				firstDataRow, forceOverride):
-		hdfFile = h5py.File(os.path.join(MEDIA_ROOT, 'DataManagement', 'csv', 'hdf', 'myData.hdf'))
+		hdfFile = h5py.File(filePath)
 
 		group = hdfFile[groupPath]
 		if (datasetName in group):
@@ -100,12 +102,15 @@ class CSV2HDFImporter(object):
 				if (colProp['use']):
 					datasetRowValues.append(self.typeCastFunc[colProp['dataType']](data))
 				columnIndex +=1
-			dataset[rowIndex - firstDataRow] = tuple(datasetRowValues)
-					
+			dataset[rowIndex - firstDataRow] = tuple(datasetRowValues)					
 		f.close()
+		
 		hdfFile.close()
 
 	@staticmethod
 	def test(filePath):
 		reader = CSV2HDFImporter(filePath)
 		reader.initialRead()
+		
+if __name__ == '__main__':
+	HDFInterface.test() 

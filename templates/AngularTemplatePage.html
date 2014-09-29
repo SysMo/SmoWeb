@@ -1,0 +1,25 @@
+{% extends "Platform.html" %}
+{% load bootstrap_toolkit %}
+{% load staticfiles %}
+
+{% block scripts_and_styles %}
+<script src="{% static "angular-treeview/angular.treeview.js" %}"></script>
+<script>
+angular.module('testApp', ['ui.bootstrap'])	
+	.config(['$httpProvider', function($httpProvider) {
+		$httpProvider.defaults.xsrfCookieName = 'csrftoken';
+		$httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+	}])
+	.controller('testController', [ '$scope', '$http', '$window', function($scope, $http, $window) {
+		$scope.testVar = "Hello world";		
+	}]);
+</script>
+{% endblock %}
+
+{% block content %}
+<br>
+<h1>Test page</h1>
+<div ng-app="testApp" ng-controller="testController">
+<p ng-bind="testVar"></p>
+</div>
+{% endblock %}

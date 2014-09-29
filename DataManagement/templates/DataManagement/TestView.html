@@ -1,0 +1,54 @@
+{% extends "Platform.html" %}
+{% load bootstrap_toolkit %}
+{% load staticfiles %}
+
+{% block scripts_and_styles %}
+<script src="{% static 'angular-treeview/angular.treeview.js' %}"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'angular-treeview/css/angular.treeview.css' %}">
+<script>
+angular.module('testApp', ['ui.bootstrap', 'angularTreeview'])	
+	.config(['$httpProvider', function($httpProvider) {
+		$httpProvider.defaults.xsrfCookieName = 'csrftoken';
+		$httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+	}])
+	.controller('testController', [ '$scope', '$http', '$window', function($scope, $http, $window) {
+		$scope.fileContent = null;
+		getHdfFileContent = function() {
+			$scope.fileContent = null;
+			$http.post('/DataManagement/TestView/', {
+				executeMethod : 'getHdfFileContent' 
+			})
+			.success(function(data){
+				$scope.fileContent = data.fileContent;
+			})
+			.error(function(data){
+				console.log('error');
+			});
+		};		
+		$scope.refreshTree = function() {
+			getHdfFileContent();
+		}
+		$scope.refreshTree();
+	}]);
+	
+</script>
+{% endblock %}
+
+{% block content %}
+<br>
+<h1>Test page</h1>
+<div ng-app="testApp" ng-controller="testController">
+<!-- 	<div ng-if="fileContent"> -->
+		<div
+			data-angular-treeview="true"
+		    data-tree-id="hdfView"	
+			data-tree-model="fileContent"
+			data-node-id="id"
+			data-node-label="name"
+			data-node-children="children" >
+		</div>
+<!-- 	</div> -->
+<div ng-bind="hdfView.currentNode.path"></div>
+<button ng-click="refreshTree()">Refresh</button>
+</div>
+{% endblock %}

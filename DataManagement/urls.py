@@ -9,4 +9,5 @@ from DataManagement import views
 urlpatterns = patterns('',
     url(r'^ImportCSV/$', views.importCSV, name='ImportCSV'),
     url(r'^CSVtoHDF/$', views.CSVtoHDF, name='CSVtoHDF'),
+	url(r'^TestView/$', views.testView, name='TestView'),
 )
