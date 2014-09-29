@@ -1,5 +1,4 @@
 /*
- * SMO Treeview
 	@license Angular Treeview version 0.1.6
 	ⓒ 2013 AHN JAE-HA http://github.com/eu81273/angular.treeview
 	License: MIT
@@ -44,14 +43,15 @@
 
 				//children
 				var nodeChildren = attrs.nodeChildren || 'children';
-
+				
+				//var nodeType = attrs.nodeType || 'type';
+				
+				
 				//tree template
 				var template =
 					'<ul>' +
 						'<li data-ng-repeat="node in ' + treeModel + '">' +
-							'<i class="collapsed" data-ng-show="node.' + nodeChildren + '.length && node.collapsed" data-ng-click="' + treeId + '.selectNodeHead(node)"></i>' +
-							'<i class="expanded" data-ng-show="node.' + nodeChildren + '.length && !node.collapsed" data-ng-click="' + treeId + '.selectNodeHead(node)"></i>' +
-							'<i class="normal" data-ng-hide="node.' + nodeChildren + '.length"></i> ' +
+							'<i data-ng-style="' + treeId + '.setImgStyle(node)" data-ng-click="' + treeId + '.selectNodeHead(node)"></i> ' +
 							'<span data-ng-class="node.selected" data-ng-click="' + treeId + '.selectNodeLabel(node)">{{node.' + nodeLabel + '}}</span>' +
 							'<div data-ng-hide="node.collapsed" data-tree-id="' + treeId + '" data-tree-model="node.' + nodeChildren + '" data-node-id=' + nodeId + ' data-node-label=' + nodeLabel + ' data-node-children=' + nodeChildren + '></div>' +
 						'</li>' +
@@ -63,7 +63,7 @@
 
 					//root node
 					if( attrs.angularTreeview ) {
-					
+						
 						//create tree object if not exists
 						scope[treeId] = scope[treeId] || {};
 
@@ -87,6 +87,32 @@
 
 							//set currentNode
 							scope[treeId].currentNode = selectedNode;
+							
+							
+						};
+						
+						scope[treeId].setImgStyle = scope[treeId].setImgStyle || function (node) {
+							var img;
+							if (node.type == 'dataset') {
+								img = "url('/static/smo-treeview/img/file.png')";
+							} else if (node.type == 'group') { 
+								if (node.collapsed) { 
+									img = "url('/static/smo-treeview/img/folder-closed.png')";
+								} else {
+									img = "url('/static/smo-treeview/img/folder.png')";
+								}
+							} else if (node.type == 'hdf_file') { 
+								if (node.collapsed) { 
+									img = "url('/static/smo-treeview/img/folder-closed.png')";
+								} else {
+									img = "url('/static/smo-treeview/img/folder.png')";
+								}								
+							}
+							var imgStyle = { "padding" : "1px 10px",
+						  		"background-repeat": "no-repeat",
+						  		"background-image" : img
+				  			};
+							return imgStyle;
 						};
 					}
 

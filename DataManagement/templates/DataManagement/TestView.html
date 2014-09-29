@@ -3,8 +3,11 @@
 {% load staticfiles %}
 
 {% block scripts_and_styles %}
-<script src="{% static 'angular-treeview/angular.treeview.js' %}"></script>
-<link rel="stylesheet" type="text/css" href="{% static 'angular-treeview/css/angular.treeview.css' %}">
+<!-- <script src="{% static 'angular-treeview/angular.treeview.js' %}"></script> -->
+<!-- <link rel="stylesheet" type="text/css" href="{% static 'angular-treeview/css/angular.treeview.css' %}"> -->
+<script src="{% static 'smo-treeview/smo.treeview.js' %}"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'smo-treeview/smo.treeview.css' %}">
+
 <script>
 angular.module('testApp', ['ui.bootstrap', 'angularTreeview'])	
 	.config(['$httpProvider', function($httpProvider) {
