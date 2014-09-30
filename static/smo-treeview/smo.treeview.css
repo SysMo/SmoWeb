@@ -18,7 +18,7 @@ div[data-tree-model] ul {
   padding: 0;
   list-style: none; 
   border: none;
-  overflow: hidden;
+/*   overflow: hidden; */
   list-style-type: none;
 }
 

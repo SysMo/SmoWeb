@@ -33,11 +33,11 @@
 		</tr> 
 		<tr>
 			<td>
-{% verbatim %}			
+<!-- {% verbatim %}			 -->
 				<div class="progress">
-					<div style="width:{{progress}}%">{{progress}}%</div>
+					<div style="width:{{ progress }}%" ng-bind="progress"></div>
 				</div>
-{% endverbatim %}
+<!-- {% endverbatim %} -->
 			</td>
 			<td>
 				<button ng-click="upload.abort()">Cancel Upload</button>

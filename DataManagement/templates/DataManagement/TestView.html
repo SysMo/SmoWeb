@@ -23,15 +23,43 @@ angular.module('testApp', ['ui.bootstrap', 'angularTreeview'])
 			})
 			.success(function(data){
 				$scope.fileContent = data.fileContent;
-				console.log(angular.toJson($scope.fileContent, true));
+// 				console.log(angular.toJson($scope.fileContent, true));
 			})
 			.error(function(data){
 				console.log('error');
 			});
 		};		
 		$scope.refreshTree = function() {
+			console.log("Refresh");
 			getHdfFileContent();
 		}
+		$scope.isDataSet = function(nodeType) {
+			if (nodeType == 'dataset'){
+				return true;
+			} else {
+				return false;
+			}
+		}
+		
+		$scope.isFile = function(nodeType) {
+			if (nodeType == 'hdf_file'){
+				return true;
+			} else {
+				return false;
+			}
+		}
+		
+		$scope.isInputAction = function(action) {
+			console.log(action);
+			if (action == "copy" || action == "move" || action == "rename" || 
+					action == "createGroup" || action == "createDataset"){
+				return true;
+			} else {
+				return false;
+			}
+		}
+		
+		$scope.imput = null;
 		$scope.refreshTree();
 	}]);
 	
@@ -52,7 +80,26 @@ angular.module('testApp', ['ui.bootstrap', 'angularTreeview'])
 			data-node-children="children" >
 		</div>
 <!-- 	</div> -->
-<div ng-bind="hdfView.currentNode.path"></div>
-<button ng-click="refreshTree()">Refresh</button>
+
+ 
+<form action=".">
+  <div ng-show="isInputAction(hdfView.action)">
+  <span ng-bind="hdfView.action"></span> <input ng-model="input"></input>
+  <input type="submit" value="Submit">
+  </div>
+</form> 
+
+<!-- <button ng-click="setCurrentNode(hdfView.currentNode.path)">Refresh</button> -->
+<!-- <div ng-bind="currentNode"></div> -->
+<!-- 		<button ng-click="refreshTree()">Refresh</button> -->
+		
+<!-- 		<table> -->
+<!-- 			<tr> -->
+<!-- 				<td> -->
+<!-- 				<div ng-bind="hdfView.currentNode.path"></div> -->
+<!-- 				</td> -->
+				
+<!-- 			</tr> -->
+<!-- 		</table> -->
 </div>
 {% endblock %}

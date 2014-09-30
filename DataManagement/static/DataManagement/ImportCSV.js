@@ -26,8 +26,9 @@ angular.module('csvImportApp', ['angularFileUpload', 'ui.bootstrap'])
 					url: '/DataManagement/ImportCSV/',
 					method: 'POST',
 					data: {numRowsInPreview: $scope.numRowsInPreview},
-					file: file, // or list of files ($files) for html5 only
+					file: file, // or list of files ($files) for html5 only	
 				}).success(function(csvPreviewData, status, headers, config) {
+//					console.log(csvPreviewData);
 					$scope.columnProps = [];
 					$scope.csvPreviewData = csvPreviewData;
 					for (var i = 0; i < csvPreviewData.numColumns; i++) {
@@ -36,12 +37,22 @@ angular.module('csvImportApp', ['angularFileUpload', 'ui.bootstrap'])
 					$scope.firstDataRow = 1;
 					$scope.showPreviewTable = true;
 				});
-				/*
-				$scope.upload.then(function (){}function (evt) {
-					$scope.progress = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));
-					console.log('percent: ' + parseInt(100.0 * evt.loaded / evt.total));
-				});
-				*/
+//				$scope.upload.then($scope.upload.progress());
+//				}).then(function (evt) {
+//					$scope.progress = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));
+//					console.log('percent: ' + parseInt(100.0 * evt.loaded / evt.total));
+//				});
+				
+//				
+//				$scope.upload.progress(function(evt) {
+//			        console.log('percent: ' + parseInt(100.0 * evt.loaded / evt.total));
+//				});
+				
+//						function (evt) {
+//					$scope.progress = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));
+//					console.log('percent: ' + parseInt(100.0 * evt.loaded / evt.total));
+//				});
+				
 
 			}
 						
