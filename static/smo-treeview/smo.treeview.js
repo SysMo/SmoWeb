@@ -25,7 +25,13 @@
 (function ( angular ) {
 	'use strict';
 
-	angular.module( 'angularTreeview', [] ).directive( 'treeModel', ['$compile', function( $compile ) {
+	angular.module( 'angularTreeview', [] )
+	.config(['$httpProvider', function($httpProvider) {
+		$httpProvider.defaults.xsrfCookieName = 'csrftoken';
+		$httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+	}])
+	
+	.directive( 'treeModel', ['$compile', '$http', function( $compile, $http ) {
 		return {
 			restrict: 'A',
 			link: function ( scope, element, attrs ) {
@@ -119,7 +125,7 @@
 						//create tree object if not exists
 						scope[treeId] = scope[treeId] || {};
 						
-						scope[treeId].action = "";
+						scope[treeId].action = 'getHdfFileContent';
 						
 						scope[treeId].actionText = "";
 						
@@ -269,6 +275,40 @@
 							}
 							
 							return scope[treeId].actionText;
+						}
+						
+						scope[treeId].refreshTree = function() {
+							scope[treeId].action == 'getHdfFileContent';
+							scope[treeId].sendActionData();
+						}
+						
+						
+						scope[treeId].sendActionData = function () {
+							
+							console.log("action:" + scope[treeId].action);
+
+							$http.post('/DataManagement/HdfInterface/', {
+								action : scope[treeId].action,
+								input : scope[treeId].input
+							})
+							.success(function(data){
+								if (scope[treeId].action == 'getHdfFileContent'){
+									scope[treeId].fileContent = data.fileContent;
+									console.log(angular.toJson(scope[treeId].fileContent, true));
+								}
+								else {
+									scope[treeId].statusMessage = "Tree successfully modified!";
+								}
+								
+							})
+							.error(function(data){
+								scope[treeId].statusMessage = "Error!";
+							});
+							
+//				  			$scope.input = "";
+//				  			$scope.hdfView.action = "";
+//							scope[treeId].refreshTree();
+							
 						}
 						
 					}

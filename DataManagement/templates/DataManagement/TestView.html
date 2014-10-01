@@ -10,52 +10,50 @@
 
 <script>
 angular.module('testApp', ['ui.bootstrap', 'angularTreeview'])	
-	.config(['$httpProvider', function($httpProvider) {
-		$httpProvider.defaults.xsrfCookieName = 'csrftoken';
-		$httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
-	}])
+// 	.config(['$httpProvider', function($httpProvider) {
+// 		$httpProvider.defaults.xsrfCookieName = 'csrftoken';
+// 		$httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+// 	}])
 	.controller('testController', [ '$scope', '$http', '$window', function($scope, $http, $window) {
-		$scope.fileContent = null;
-		getHdfFileContent = function() {
-			$scope.fileContent = null;
-			$http.post('/DataManagement/TestView/', {
-				executeMethod : 'getHdfFileContent' 
-			})
-			.success(function(data){
-				$scope.fileContent = data.fileContent;
+//		$scope.fileContent = null;
+// 		getHdfFileContent = function() {
+// 			$scope.fileContent = null;
+// 			$http.post('/DataManagement/TestView/', {
+// 				executeMethod : 'getHdfFileContent' 
+// 			})
+// 			.success(function(data){
+// 				$scope.fileContent = data.fileContent;
 // 				console.log(angular.toJson($scope.fileContent, true));
-			})
-			.error(function(data){
-				console.log('error');
-			});
-		};		
+// 			})
+// 			.error(function(data){
+// 				console.log('error');
+// 			});
+// 		};		
 		
-		$scope.refreshTree = function() {
-			getHdfFileContent();
-		}
-		
-		
-		$scope.sendActionData = function () {
-			console.log("action:" + $scope.hdfView.action);
-			$http.post('/DataManagement/HdfInterface/', {
-				action : $scope.hdfView.action,
-				input : $scope.hdfView.input
-			})
-			.success(function(data){
-				$scope.statusMessage = "Tree successfully modified!";
+
+							
+// 		$scope.sendActionData = function () {	
+// 			console.log("action:" + $scope.hdfView.action);
+// 			$http.post('/DataManagement/HdfInterface/', {
+// 				action : $scope.hdfView.action,
+// 				input : $scope.hdfView.input
+// 			})
+// 			.success(function(data){
+// 				$scope.statusMessage = "Tree successfully modified!";
 				
-			})
-			.error(function(data){
-				$scope.statusMessage = "Error!";
-			});
+// 			})
+// 			.error(function(data){
+// 				$scope.statusMessage = "Error!";
+// 			});
 			
-//  			$scope.input = "";
-//  			$scope.hdfView.action = "";
-			$scope.refreshTree();
+// //  			$scope.input = "";
+// //  			$scope.hdfView.action = "";
+// 			$scope.refreshTree();
 			
-		}
+// 		}
 				
-		$scope.refreshTree();
+// 		$scope.refreshTree();
+// 		$scope.hdfView.refreshTree();
 	}]);
 	
 </script>
@@ -65,22 +63,23 @@ angular.module('testApp', ['ui.bootstrap', 'angularTreeview'])
 <br>
 <h1>Test page</h1>
 <div ng-app="testApp" ng-controller="testController">
+<button ng-click="hdfView.refreshTree()">Submit</button>
 <!-- 	<div ng-if="fileContent"> -->
-		<div
+		<div 
 			data-angular-treeview="true"
 		    data-tree-id="hdfView"	
-			data-tree-model="fileContent"
+			data-tree-model="hdfView.fileContent"
 			data-node-id="id"
 			data-node-label="name"
 			data-node-children="children" >
 		</div>
 <!-- 	</div> -->
-
+<smo-hdf-browser></smo-hdf-browser>
  <br>
  <div ng-show="hdfView.isInputAction(hdfView.action)">
 	  <div style="font-weight: bold;" ng-bind="hdfView.getActionText(hdfView.action)"></div>
 	  <input ng-model="hdfView.input"></input>
-	  <button ng-click="sendActionData()">Submit</button>
+	  <button ng-click="hdfView.sendActionData()">Submit</button>
  </div>
 
 

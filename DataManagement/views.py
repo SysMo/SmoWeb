@@ -1,7 +1,7 @@
 from django.shortcuts import render_to_response, RequestContext
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.core.urlresolvers import reverse
-from  SmoWeb.settings import MEDIA_ROOT, hdfFilePath
+from  SmoWeb.settings import MEDIA_ROOT, hdfFileFolder
 import json
 import os.path
 from smo.util.django_utils import handle_uploaded_file, TemporaryObjectsHash
@@ -11,45 +11,50 @@ from smo.data.hdf import CSV2HDFImporter, HDFInterface
 
 CSVImporterObjects = TemporaryObjectsHash()
 
-def testView(request):
+# def testView(request):
+# 	if request.method == "POST":
+# 		postData = json.loads(request.body)
+# 		executeMethod = postData["executeMethod"]
+# 		if (executeMethod == "getHdfFileContent"):
+# # 			filePath = os.path.join(hdfFilePath, "myData.hdf")
+# #			filePath = "/data/Workspace/Django/SmoWeb/django-example/SmoWeb/media/DataManagement/hdf/Rectangle_QuadrilateralMesh.hdf"
+# 			hdfIface = HDFInterface(filePath)
+# 			fileContent = [hdfIface.getFileContent()]
+# 			return JsonResponse({'fileContent' : fileContent})
+# 
+# 	else:
+# 		return render_to_response('DataManagement/TestView.html', 
+# 								  context_instance=RequestContext(request))
+
+def hdfInterfaceView(request):
 	if request.method == "POST":
+		
 		postData = json.loads(request.body)
-		executeMethod = postData["executeMethod"]
-		if (executeMethod == "getHdfFileContent"):
-			filePath = os.path.join(hdfFilePath, "myData.hdf")
-#			filePath = "/data/Workspace/Django/SmoWeb/django-example/SmoWeb/media/DataManagement/hdf/Rectangle_QuadrilateralMesh.hdf"
-			hdfIface = HDFInterface(filePath)
+# 		print postData
+		
+		action = postData["action"]
+	#hdfFileId = postData["hdfFileId"]
+		hdfFileName = "myData.hdf" # !!! Actually here the name corresponding to the id should be used
+		hdfFilePath = os.path.join(hdfFileFolder, hdfFileName)
+		if (action == "getHdfFileContent"):
+			hdfIface = HDFInterface(hdfFilePath)
 			fileContent = [hdfIface.getFileContent()]
 			return JsonResponse({'fileContent' : fileContent})
-
+		elif (action == "getGroupContent"):
+			pass
+		elif (action == "createGroup"):
+			pass
+		elif (action == "rename"):
+			pass
+		elif (action == "move"):
+			pass
+		elif (action == "delete"):
+			pass
+		
+		return HttpResponseRedirect(reverse('home'))
 	else:
 		return render_to_response('DataManagement/TestView.html', 
 								  context_instance=RequestContext(request))
-
-def hdfInterfaceView(request):
-	if request.method != "POST":
-		
-		postData = json.loads(request.body)
-		print postData
-	return HttpResponseRedirect(reverse('home'))
-# 	executeMethod = postData["executeMethod"]
-# 	#hdfFileId = postData["hdfFileId"]
-# 	hdfFileName = "myData.hdf" # !!! Actually here the name corresponding to the id should be used
-# 	hdfFilePath = os.path.join(MEDIA_ROOT, "DataManagement","hdf")
-# 	if (executeMethod == "getHdfFileContent"):
-# 		pass
-# 	elif (executeMethod == "getGroupContent"):
-# 		pass
-# 	elif (executeMethod == "createGroup"):
-# 		pass
-# 	elif (executeMethod == "rename"):
-# 		pass
-# 	elif (executeMethod == "move"):
-# 		pass
-# 	elif (executeMethod == "delete"):
-# 		pass
-		
-	
 	
 
 def importCSV(request):	
