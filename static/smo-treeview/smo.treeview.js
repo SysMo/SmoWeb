@@ -62,16 +62,16 @@
 				  "<button class=\"btn btn-xs btn-default dropdown-toggle\" type=\"button\" id=\"dropdownMenu1\" data-toggle=\"dropdown\">" +
 				    "<span class=\"caret\"></span>" +
 				  "</button>" +
-				  "<ul ng-show=\"isDataSet(hdfView.currentNode.type)\" class=\"dropdown-menu\" role=\"menu\" aria-labelledby=\"dropdownMenu1\">" +
-				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"hdfView.delete(hdfView.currentNode)\">Delete</a></li>" +
+				  "<ul ng-show=\"hdfView.isDataSet(hdfView.currentNode.type)\" class=\"dropdown-menu\" role=\"menu\" aria-labelledby=\"dropdownMenu1\">" +
+				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"hdfView.del(hdfView.currentNode)\">Delete</a></li>" +
 				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"hdfView.rename(hdfView.currentNode)\">Rename</a></li>" +
 				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"hdfView.copy(hdfView.currentNode)\">Copy</a></li>" +
 				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"hdfView.move(hdfView.currentNode)\">Move</a></li>" +
 				  "</ul>" +
-				  "<ul ng-show=\"!isDataSet(hdfView.currentNode.type) && !isFile(hdfView.currentNode.type)\" class=\"dropdown-menu\" role=\"menu\" aria-labelledby=\"dropdownMenu1\">" +
+				  "<ul ng-show=\"!hdfView.isDataSet(hdfView.currentNode.type) && !hdfView.isFile(hdfView.currentNode.type)\" class=\"dropdown-menu\" role=\"menu\" aria-labelledby=\"dropdownMenu1\">" +
 				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"hdfView.createGroup(hdfView.currentNode)\">Create group</a></li>" +
 				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"hdfView.createDataset(hdfView.currentNode)\">Create dataset</a></li>" +
-				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"hdfView.delete(hdfView.currentNode)\">Delete</a></li>" +
+				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"hdfView.del(hdfView.currentNode)\">Delete</a></li>" +
 				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"hdfView.rename(hdfView.currentNode)\">Rename</a></li>" +
 				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"hdfView.copy(hdfView.currentNode)\">Copy</a></li>" +
 				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"hdfView.move(hdfView.currentNode)\">Move</a></li>" +
@@ -79,7 +79,7 @@
 				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"hdfView.collapse(hdfView.currentNode)\">Collapse all</a></li>" +
 				    
 				  "</ul>" +
-				  "<ul ng-show=\"isFile(hdfView.currentNode.type)\" class=\"dropdown-menu\" role=\"menu\" aria-labelledby=\"dropdownMenu1\">" +
+				  "<ul ng-show=\"hdfView.isFile(hdfView.currentNode.type)\" class=\"dropdown-menu\" role=\"menu\" aria-labelledby=\"dropdownMenu1\">" +
 				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"refreshTree()\">Refresh</a></li>" +
 				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"hdfView.createGroup(hdfView.currentNode)\">Create group</a></li>" +
 				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"hdfView.createDataset(hdfView.currentNode)\">Create dataset</a></li>" +
@@ -110,7 +110,6 @@
 					'</ul>';
 							
 
-
 				//check tree id, tree model
 				if( treeId && treeModel ) {
 
@@ -121,6 +120,10 @@
 						scope[treeId] = scope[treeId] || {};
 						
 						scope[treeId].action = "";
+						
+						scope[treeId].actionText = "";
+						
+						scope[treeId].input = "";
 
 						//if node head clicks,
 						scope[treeId].selectNodeHead = scope[treeId].selectNodeHead || function( selectedNode ){
@@ -129,6 +132,8 @@
 							selectedNode.collapsed = !selectedNode.collapsed;
 							
 							scope[treeId].action = "";
+							
+							scope[treeId].input = "";
 						};
 
 						//if node label clicks,
@@ -148,8 +153,25 @@
 							
 							scope[treeId].action = "";
 							
-							
+							scope[treeId].input = "";
+														
 						};
+						
+						scope[treeId].isDataSet = function(nodeType) {
+							if (nodeType == 'dataset'){
+								return true;
+							} else {
+								return false;
+							}
+						}
+						
+						scope[treeId].isFile = function(nodeType) {
+							if (nodeType == 'hdf_file'){
+								return true;
+							} else {
+								return false;
+							}
+						}
 						
 						scope[treeId].setImgStyle = scope[treeId].setImgStyle || function (node) {
 							var img;
@@ -175,7 +197,7 @@
 							return imgStyle;
 						};
 						
-						scope[treeId].delete = function (node) {
+						scope[treeId].del = function (node) {
 							scope[treeId].action = "delete";
 							alert('Deleting ' + node.path);
 							console.log('Deleting ' + node.path);
@@ -214,6 +236,40 @@
 							scope[treeId].action = "collapse";
 							console.log('Collapsing ' + node.path);
 						};
+						
+						scope[treeId].isInputAction = function (action) {
+							if (action == "copy"){				
+								return true;
+							} else if (action == "move" ){
+								return true;
+							} else if (action == "rename"){
+								return true;
+							} else if (action == "createGroup"){
+								return true;
+							} else if (action == "createDataset"){
+								return true;
+							} else {
+								return false;
+							}
+						}
+						
+						scope[treeId].getActionText = function(action) {
+							if (action == "copy"){
+								scope[treeId].actionText = "Enter copy destination";
+							} else if (action == "move" ){
+								scope[treeId].actionText = "Enter move destination";
+							} else if (action == "rename"){
+								scope[treeId].actionText = "Enter new name";
+							} else if (action == "createGroup"){
+								scope[treeId].actionText = "Enter group name";
+							} else if (action == "createDataset"){
+								scope[treeId].actionText = "Enter dataset name";
+							} else {
+								scope[treeId].actionText = "";
+							}
+							
+							return scope[treeId].actionText;
+						}
 						
 					}
 

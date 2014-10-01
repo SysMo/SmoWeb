@@ -29,66 +29,32 @@ angular.module('testApp', ['ui.bootstrap', 'angularTreeview'])
 				console.log('error');
 			});
 		};		
+		
 		$scope.refreshTree = function() {
-			console.log("Refresh");
 			getHdfFileContent();
 		}
-		$scope.isDataSet = function(nodeType) {
-			if (nodeType == 'dataset'){
-				return true;
-			} else {
-				return false;
-			}
-		}
 		
-		$scope.isFile = function(nodeType) {
-			if (nodeType == 'hdf_file'){
-				return true;
-			} else {
-				return false;
-			}
-		}
 		
-		$scope.isInputAction = function(action) {
-			console.log(action);
-			if (action == "copy"){				
-				return true;
-			} else if (action == "move" ){
-				return true;
-			} else if (action == "rename"){
-				return true;
-			} else if (action == "createGroup"){
-				return true;
-			} else if (action == "createDataset"){
-				return true;
-			} else {
-				return false;
-			}
-		}
-		
-		$scope.getActionText = function(action) {
-			if (action == "copy"){
-				$scope.actionText = "Enter copy destination";
-			} else if (action == "move" ){
-				$scope.actionText = "Enter move destination";
-			} else if (action == "rename"){
-				$scope.actionText = "Enter new name";
-			} else if (action == "createGroup"){
-				$scope.actionText = "Enter group name";
-			} else if (action == "createDataset"){
-				$scope.actionText = "Enter dataset name";
-			} else {
-				$scope.actionText = "";
-			}
+		$scope.sendActionData = function () {
+			console.log("action:" + $scope.hdfView.action);
+			$http.post('/DataManagement/HdfInterface/', {
+				action : $scope.hdfView.action,
+				input : $scope.hdfView.input
+			})
+			.success(function(data){
+				$scope.statusMessage = "Tree successfully modified!";
+				
+			})
+			.error(function(data){
+				$scope.statusMessage = "Error!";
+			});
 			
-			return $scope.actionText;
+//  			$scope.input = "";
+//  			$scope.hdfView.action = "";
+			$scope.refreshTree();
+			
 		}
-		
-		
-		$scope.actionText = "";
-		
-		$scope.imput = null;
-		
+				
 		$scope.refreshTree();
 	}]);
 	
@@ -111,13 +77,12 @@ angular.module('testApp', ['ui.bootstrap', 'angularTreeview'])
 <!-- 	</div> -->
 
  <br>
-<form action=".">
-  <div ng-show="isInputAction(hdfView.action)">
-	  <div style="font-weight: bold;" ng-bind="getActionText(hdfView.action)"></div>
-	  <input ng-model="input"></input>
-	  <input type="submit" value="Submit">
-  </div>
-</form> 
+ <div ng-show="hdfView.isInputAction(hdfView.action)">
+	  <div style="font-weight: bold;" ng-bind="hdfView.getActionText(hdfView.action)"></div>
+	  <input ng-model="hdfView.input"></input>
+	  <button ng-click="sendActionData()">Submit</button>
+ </div>
+
 
 <!-- <button ng-click="setCurrentNode(hdfView.currentNode.path)">Refresh</button> -->
 <!-- <div ng-bind="currentNode"></div> -->
