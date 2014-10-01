@@ -11,21 +11,6 @@ from smo.data.hdf import CSV2HDFImporter, HDFInterface
 
 CSVImporterObjects = TemporaryObjectsHash()
 
-# def testView(request):
-# 	if request.method == "POST":
-# 		postData = json.loads(request.body)
-# 		executeMethod = postData["executeMethod"]
-# 		if (executeMethod == "getHdfFileContent"):
-# # 			filePath = os.path.join(hdfFilePath, "myData.hdf")
-# #			filePath = "/data/Workspace/Django/SmoWeb/django-example/SmoWeb/media/DataManagement/hdf/Rectangle_QuadrilateralMesh.hdf"
-# 			hdfIface = HDFInterface(filePath)
-# 			fileContent = [hdfIface.getFileContent()]
-# 			return JsonResponse({'fileContent' : fileContent})
-# 
-# 	else:
-# 		return render_to_response('DataManagement/TestView.html', 
-# 								  context_instance=RequestContext(request))
-
 def hdfInterfaceView(request):
 	if request.method == "POST":
 		

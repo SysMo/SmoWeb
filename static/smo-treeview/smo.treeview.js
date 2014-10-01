@@ -86,7 +86,7 @@
 				    
 				  "</ul>" +
 				  "<ul ng-show=\"hdfView.isFile(hdfView.currentNode.type)\" class=\"dropdown-menu\" role=\"menu\" aria-labelledby=\"dropdownMenu1\">" +
-				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"refreshTree()\">Refresh</a></li>" +
+				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"loadTree()\">Refresh</a></li>" +
 				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"hdfView.createGroup(hdfView.currentNode)\">Create group</a></li>" +
 				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"hdfView.createDataset(hdfView.currentNode)\">Create dataset</a></li>" +
 				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"hdfView.expand(hdfView.currentNode)\">Expand all</a></li>" +
@@ -126,6 +126,8 @@
 						scope[treeId] = scope[treeId] || {};
 						
 						scope[treeId].action = 'getHdfFileContent';
+						
+						scope[treeId].somevar = "somevar";
 						
 						scope[treeId].actionText = "";
 						
@@ -282,46 +284,83 @@
 							return scope[treeId].actionText;
 						}
 						
-						scope[treeId].refreshTree = function() {
-							scope[treeId].action == 'getHdfFileContent';
-							scope[treeId].sendActionData();
-						}
-						
-						
-						scope[treeId].sendActionData = function () {
-							
-							console.log("action:" + scope[treeId].action);
-
-							$http.post('/DataManagement/HdfInterface/', {
-								action : scope[treeId].action,
-								input : scope[treeId].input
-							})
-							.success(function(data){
-								if (scope[treeId].action == 'getHdfFileContent'){
-									scope[treeId].fileContent = data.fileContent;
-									console.log(angular.toJson(scope[treeId].fileContent, true));
-								}
-								else {
-									scope[treeId].statusMessage = "Tree successfully modified!";
-								}
-								
-							})
-							.error(function(data){
-								scope[treeId].statusMessage = "Error!";
-							});
-							
-//				  			$scope.input = "";
-//				  			$scope.hdfView.action = "";
-//							scope[treeId].refreshTree();
-							
-						}
-						
 					}
 
 					//Rendering template.
 					element.html('').append( $compile( template )( scope ) );
 				}
+			
 			}
 		};
+	}])
+	
+	.directive( 'smoHdfBrowser', ['$compile', '$http', function( $compile, $http ) {
+		return {
+			restrict: 'E',
+			link: function ( scope, element, attrs ) {
+				var treeId = "hdfView";
+				
+				
+				scope.loadTree = function() {
+					
+					console.log("In load tree function");
+					
+					$http.post('/DataManagement/HdfInterface/', {
+						action : 'getHdfFileContent'
+					})
+					.success(function(data){
+						scope.fileContent = data.fileContent;
+//						console.log(angular.toJson(scope.fileContent, true));
+					})
+					.error(function(data){
+						console.log("Load error!");
+					});
+				}
+				
+				var treeViewTemplate = 
+					'<button ng-click="loadTree()">Load Tree</button>' +
+					'<div ' + 
+						'data-angular-treeview="true" ' +
+					    'data-tree-id="hdfView" ' +	
+						'data-tree-model="fileContent" ' +
+						'data-node-id="id" ' +
+						'data-node-label="name" ' +
+						'data-node-children="children" >' +
+					'</div>' +
+					'<br>' +
+					 '<div ng-show="hdfView.isInputAction(hdfView.action)">' +
+						  '<div style="font-weight: bold;" ng-bind="hdfView.getActionText(hdfView.action)"></div>' +
+						  '<input ng-model="hdfView.input"></input>' +
+						  '<button ng-click="sendActionData()">Submit</button>' +
+					 '</div>';
+				
+				scope.sendActionData = function () {
+ 
+					$http.post('/DataManagement/HdfInterface/', {
+						action : scope[treeId].action,
+						input : scope[treeId].input
+					})
+					.success(function(data){
+						console.log("action:" + scope[treeId].action);
+						console.log("Tree successfully modified!");						
+					})
+					.error(function(data){
+						console.log("action:" + scope[treeId].action);
+						console.log("Action error!");
+					});
+					
+					scope[treeId].action = "";
+					
+					scope[treeId].input = "";
+					
+					scope.loadTree();
+					
+					
+				}	
+				element.html('').append( $compile( treeViewTemplate )( scope ) );
+			}
+		
+		};
 	}]);
+	
 })( angular );
