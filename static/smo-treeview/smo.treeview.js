@@ -210,25 +210,30 @@
 						};
 						
 						scope[treeId].copy = function (node) {
+							scope[treeId].input = "";
 							scope[treeId].action = "copy";
 							console.log('Copying ' + node.path);
 						};
 						
 						scope[treeId].move = function (node) {
+							scope[treeId].input = "";
 							scope[treeId].action = "move";
 							console.log('Moving ' + node.path);
 						};
 						scope[treeId].rename = function (node) {
+							scope[treeId].input = "";
 							scope[treeId].action = "rename";
 							console.log('Renaming ' + node.path);
 						};
 						
 						scope[treeId].createGroup = function (node) {
+							scope[treeId].input = "";
 							scope[treeId].action = "createGroup";
 							console.log('Creating group ' + node.path);
 						};
 						
 						scope[treeId].createDataset = function (node) {
+							scope[treeId].input = "";
 							scope[treeId].action = "createDataset";
 							alert("Not implemented!");
 						};
