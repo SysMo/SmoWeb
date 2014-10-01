@@ -51,15 +51,44 @@ angular.module('testApp', ['ui.bootstrap', 'angularTreeview'])
 		
 		$scope.isInputAction = function(action) {
 			console.log(action);
-			if (action == "copy" || action == "move" || action == "rename" || 
-					action == "createGroup" || action == "createDataset"){
+			if (action == "copy"){				
+				return true;
+			} else if (action == "move" ){
+				return true;
+			} else if (action == "rename"){
+				return true;
+			} else if (action == "createGroup"){
+				return true;
+			} else if (action == "createDataset"){
 				return true;
 			} else {
 				return false;
 			}
 		}
 		
+		$scope.getActionText = function(action) {
+			if (action == "copy"){
+				$scope.actionText = "Enter copy destination";
+			} else if (action == "move" ){
+				$scope.actionText = "Enter move destination";
+			} else if (action == "rename"){
+				$scope.actionText = "Enter new name";
+			} else if (action == "createGroup"){
+				$scope.actionText = "Enter group name";
+			} else if (action == "createDataset"){
+				$scope.actionText = "Enter dataset name";
+			} else {
+				$scope.actionText = "";
+			}
+			
+			return $scope.actionText;
+		}
+		
+		
+		$scope.actionText = "";
+		
 		$scope.imput = null;
+		
 		$scope.refreshTree();
 	}]);
 	
@@ -81,11 +110,12 @@ angular.module('testApp', ['ui.bootstrap', 'angularTreeview'])
 		</div>
 <!-- 	</div> -->
 
- 
+ <br>
 <form action=".">
   <div ng-show="isInputAction(hdfView.action)">
-  <span ng-bind="hdfView.action"></span> <input ng-model="input"></input>
-  <input type="submit" value="Submit">
+	  <div style="font-weight: bold;" ng-bind="getActionText(hdfView.action)"></div>
+	  <input ng-model="input"></input>
+	  <input type="submit" value="Submit">
   </div>
 </form> 
 

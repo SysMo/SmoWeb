@@ -127,6 +127,8 @@
 
 							//Collapse or Expand
 							selectedNode.collapsed = !selectedNode.collapsed;
+							
+							scope[treeId].action = "";
 						};
 
 						//if node label clicks,
@@ -135,6 +137,7 @@
 							//remove highlight from previous node
 							if( scope[treeId].currentNode && scope[treeId].currentNode.selected ) {
 								scope[treeId].currentNode.selected = undefined;
+		
 							}
 
 							//set highlight to selected node
@@ -142,6 +145,8 @@
 
 							//set currentNode
 							scope[treeId].currentNode = selectedNode;
+							
+							scope[treeId].action = "";
 							
 							
 						};
