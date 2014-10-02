@@ -27,8 +27,8 @@
 .column-label, .row-label {
 	text-align: center;
 	background: #EEE;
-		}
-.row-label { width: 100pt; }
+	}
+.row-label { width: 100pt; cursor: pointer;}
 .selected {
 	background: blue;
 }
@@ -42,4 +42,13 @@
 	font-size: smaller;
 	background: orange;
 	width: 0pt;
+}
+
+.noselect {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }

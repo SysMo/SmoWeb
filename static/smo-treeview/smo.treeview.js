@@ -29,6 +29,7 @@
 	.config(['$httpProvider', function($httpProvider) {
 		$httpProvider.defaults.xsrfCookieName = 'csrftoken';
 		$httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+		//$httpProvider.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 	}])
 	
 	.directive( 'treeModel', ['$compile', '$http', function( $compile, $http ) {
@@ -124,10 +125,8 @@
 						
 						//create tree object if not exists
 						scope[treeId] = scope[treeId] || {};
-						
+											
 						scope[treeId].action = 'getHdfFileContent';
-						
-						scope[treeId].somevar = "somevar";
 						
 						scope[treeId].actionText = "";
 						
@@ -206,9 +205,11 @@
 						};
 						
 						scope[treeId].del = function (node) {
-							scope[treeId].action = "delete";
-							alert('Deleting ' + node.path);
-							console.log('Deleting ' + node.path);
+						    if (confirm('You are about to delete' + node.path) == true) {
+						    	scope[treeId].action = "delete";
+						    	console.log('Deleting ' + node.path);
+						    	scope.sendActionData();
+						    } 
 						};
 						
 						scope[treeId].copy = function (node) {
@@ -241,13 +242,18 @@
 						};
 						
 						scope[treeId].expand = function (node) {
-							scope[treeId].action = "expand";
-							console.log('Expanding ' + node.path);
+							if (node.collapsed){
+								node.collapsed = false;
+								console.log('Expanding ' + node.path);
+							}						
+							
 						};
 						
 						scope[treeId].collapse = function (node) {
-							scope[treeId].action = "collapse";
-							console.log('Collapsing ' + node.path);
+							if (!node.collapsed){
+								node.collapsed = true;
+								console.log('Collapsing ' + node.path);
+							}						
 						};
 						
 						scope[treeId].isInputAction = function (action) {
@@ -306,7 +312,9 @@
 					console.log("In load tree function");
 					
 					$http.post('/DataManagement/HdfInterface/', {
-						action : 'getHdfFileContent'
+						action : 'getHdfFileContent',
+						input: '',
+						currentNode: ''
 					})
 					.success(function(data){
 						scope.fileContent = data.fileContent;
@@ -317,8 +325,10 @@
 					});
 				}
 				
+				
+				scope.loadTree();
+				
 				var treeViewTemplate = 
-					'<button ng-click="loadTree()">Load Tree</button>' +
 					'<div ' + 
 						'data-angular-treeview="true" ' +
 					    'data-tree-id="hdfView" ' +	
@@ -332,13 +342,15 @@
 						  '<div style="font-weight: bold;" ng-bind="hdfView.getActionText(hdfView.action)"></div>' +
 						  '<input ng-model="hdfView.input"></input>' +
 						  '<button ng-click="sendActionData()">Submit</button>' +
-					 '</div>';
+					 '</div>' +
+					 '<div>Current node: <span ng-bind="hdfView.currentNode.path"></span></div>';
 				
 				scope.sendActionData = function () {
  
 					$http.post('/DataManagement/HdfInterface/', {
 						action : scope[treeId].action,
-						input : scope[treeId].input
+						input : scope[treeId].input,
+						currentNode: scope[treeId].currentNode
 					})
 					.success(function(data){
 						console.log("action:" + scope[treeId].action);
@@ -356,7 +368,8 @@
 					scope.loadTree();
 					
 					
-				}	
+				}
+				
 				element.html('').append( $compile( treeViewTemplate )( scope ) );
 			}
 		

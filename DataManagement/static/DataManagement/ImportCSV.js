@@ -1,7 +1,8 @@
-angular.module('csvImportApp', ['angularFileUpload', 'ui.bootstrap'])
+angular.module('csvImportApp', ['smo','angularFileUpload', 'ui.bootstrap'])
 	.config(['$httpProvider', function($httpProvider) {
 	    $httpProvider.defaults.xsrfCookieName = 'csrftoken';
 	    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+	    
 	}])
 	.controller('CsvImportController', 
 			[ '$scope', '$upload', '$window', '$http', 

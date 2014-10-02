@@ -31,9 +31,33 @@ class HDFInterface(object):
 	def getFileContent(self, fileAsRoot = True):
 		fileContent = self.getGroupContent('/')
 		if (fileAsRoot):
-			fileContent = {'type' : 'hdf_file', 'id' : hash(self.filePath), 'path' : self.filePath, 'name' : self.fileName, 'children' : fileContent}
+			fileContent = {'type' : 'hdf_file', 'id' : hash(self.filePath), 'filePath' : self.filePath, 'path' : '/', 'name' : self.fileName, 'children' : fileContent}
 		return fileContent
-
+	
+	def createGroup(self, groupPath, groupName):
+		hdfFile = h5py.File(self.filePath)
+		currentGroup = hdfFile[groupPath]
+		print currentGroup.name
+		currentGroup.create_group(groupName)
+	
+	def deleteItem(self, itemPath):
+		hdfFile = h5py.File(self.filePath)
+		print itemPath
+		del hdfFile[itemPath]
+	
+	def copyItem(self, itemPath, pasteRoot, name):
+		hdfFile = h5py.File(self.filePath)
+		src = hdfFile[itemPath]
+		dest = hdfFile[pasteRoot]
+		hdfFile.copy(src, dest, name)
+		
+	def moveItem(self, itemPath, pasteRoot, name):
+		hdfFile = h5py.File(self.filePath)
+		src = itemPath
+		dest = os.path.join(pasteRoot, name)
+		print src, dest
+		hdfFile.move(src, dest)
+				
 	@staticmethod
 	def test():
 		print ('test begin')

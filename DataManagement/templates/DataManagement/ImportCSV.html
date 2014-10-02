@@ -67,7 +67,7 @@
 				</td>
 			</tr>
 			<tr ng-repeat = "row in csvPreviewData.tableValues track by $index" ng-init = "rowIndex = $index + 1">
-				<td class="row-label"  ng-bind="rowIndex" ng-click = "onRowHeaderClick(rowIndex)" ng-dblclick="onRowHeaderDblClick(rowIndex)"></td>
+				<td class="row-label" ng-dblclick="onRowHeaderDblClick(rowIndex)" smo-single-click = "onRowHeaderClick(rowIndex)"><div ng-bind="rowIndex" class="noselect"></div></td>
 				<td ng-repeat = "cellValue in row track by $index" ng-init = "colIndex = $index + 1">
 					<div class="output" ng-bind="cellValue" ng-style="cellStyle(rowIndex, colIndex)"></div>
 				</td>
