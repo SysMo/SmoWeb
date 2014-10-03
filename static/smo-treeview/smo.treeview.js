@@ -37,7 +37,7 @@
 			restrict: 'A',
 			link: function ( scope, element, attrs ) {
 				//tree id
-				var treeId = scope.treeId;
+				var treeId = attrs.treeId;
 			
 				//tree model
 				var treeModel = attrs.treeModel;
@@ -87,7 +87,7 @@
 				    
 				  "</ul>" +
 				  "<ul ng-show=\"" + treeId + ".isFile(" + treeId + ".currentNode.type)\" class=\"dropdown-menu\" role=\"menu\" aria-labelledby=\"dropdownMenu1\">" +
-				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"loadTree()\">Refresh</a></li>" +
+				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"" + treeId + ".loadTree()\">Refresh</a></li>" +
 				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"" + treeId + ".createGroup(" + treeId + ".currentNode)\">Create group</a></li>" +
 				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"" + treeId + ".createDataset(" + treeId + ".currentNode)\">Create dataset</a></li>" +
 				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"" + treeId + ".expand(" + treeId + ".currentNode)\">Expand all</a></li>" +
@@ -124,13 +124,15 @@
 					if( attrs.angularTreeview ) {
 						
 						//create tree object if not exists
-						scope[treeId] = scope[treeId] || {};
+						
 											
 						scope[treeId].action = 'getHdfFileContent';
 						
 						scope[treeId].actionText = "";
 						
 						scope[treeId].input = "";
+						
+						
 
 						//if node head clicks,
 						scope[treeId].selectNodeHead = scope[treeId].selectNodeHead || function( selectedNode ){
@@ -210,34 +212,39 @@
 						    if (confirm('You are about to delete' + node.path) == true) {
 						    	scope[treeId].action = "delete";
 						    	console.log('Deleting ' + node.path);
-						    	scope.sendActionData();
+						    	scope[treeId].sendActionData();
 						    } 
 						};
 						
 						scope[treeId].copy = function (node) {
+							scope.focus = true;
 							scope[treeId].input = "";
 							scope[treeId].action = "copy";
 							console.log('Copying ' + node.path);
 						};
 						
 						scope[treeId].move = function (node) {
+							scope.focus = true;
 							scope[treeId].input = "";
 							scope[treeId].action = "move";
 							console.log('Moving ' + node.path);
 						};
 						scope[treeId].rename = function (node) {
+							scope.focus = true;
 							scope[treeId].input = "";
 							scope[treeId].action = "rename";
 							console.log('Renaming ' + node.path);
 						};
 						
 						scope[treeId].createGroup = function (node) {
+							scope.focus = true;
 							scope[treeId].input = "";
 							scope[treeId].action = "createGroup";
 							console.log('Creating group ' + node.path);
 						};
 						
 						scope[treeId].createDataset = function (node) {
+							scope.focus = true;
 							scope[treeId].input = "";
 							scope[treeId].action = "createDataset";
 							alert("Not implemented!");
@@ -288,7 +295,6 @@
 							} else {
 								scope[treeId].actionText = "";
 							}
-							
 							return scope[treeId].actionText;
 						}
 						
@@ -306,11 +312,11 @@
 		return {
 			restrict: 'E',
 			link: function ( scope, element, attrs ) {
-				console.log(attrs.treeId);
-				scope.treeId = attrs.treeId;
-				var treeId = scope.treeId;
+				var treeId = attrs.treeId;
 				
-				scope.loadTree = function() {
+				scope[treeId] = scope[treeId] || {};
+				
+				scope[treeId].loadTree = function() {
 					
 					console.log("In load tree function");
 					
@@ -320,7 +326,7 @@
 						currentNode: ''
 					})
 					.success(function(data){
-						scope.fileContent = data.fileContent;
+						scope[treeId].fileContent = data.fileContent;
 //						console.log(angular.toJson(scope.fileContent, true));
 					})
 					.error(function(data){
@@ -328,14 +334,13 @@
 					});
 				}
 				
-				
-				scope.loadTree();
+				scope[treeId].loadTree();
 				
 				var treeViewTemplate = 
 					'<div ' + 
 						'data-angular-treeview="true" ' +
-					    'data-tree-id="tree-id" ' +	
-						'data-tree-model="fileContent" ' +
+					    'data-tree-id="' + treeId + '" ' +	
+						'data-tree-model="' + treeId + '.fileContent" ' +
 						'data-node-id="id" ' +
 						'data-node-label="name" ' +
 						'data-node-children="children" >' +
@@ -343,12 +348,12 @@
 					'<br>' +
 					 '<div ng-show="' + treeId + '.isInputAction(' + treeId + '.action)">' +
 						  '<div style="font-weight: bold;" ng-bind="' + treeId + '.getActionText(' + treeId + '.action)"></div>' +
-						  '<input ng-model="' + treeId + '.input"></input>' +
-						  '<button ng-click="sendActionData()">Submit</button>' +
+						  '<input focus-me="focus" ng-model="' + treeId + '.input"></input>' +
+						  '<button ng-click="' + treeId + '.sendActionData()">Submit</button>' +
 					 '</div>' +
 					 '<div>Current node: <span ng-bind="' + treeId + '.currentNode.path"></span></div>';
 				
-				scope.sendActionData = function () {
+				scope[treeId].sendActionData = function () {
  
 					$http.post('/DataManagement/HdfInterface/', {
 						action : scope[treeId].action,
@@ -368,7 +373,7 @@
 					
 					scope[treeId].input = "";
 					
-					scope.loadTree();
+					scope[treeId].loadTree();
 					
 					
 				}
@@ -377,6 +382,22 @@
 			}
 		
 		};
-	}]);
+	}])
+	.directive('focusMe', function($timeout) {
+		  return {
+		    scope: { trigger: '=focusMe' },
+		    link: function(scope, element) {
+		      scope.$watch('trigger', function(value) {
+		        if(value === true) { 
+		          //console.log('trigger',value);
+		          //$timeout(function() {
+		            element[0].focus();
+		            scope.trigger = false;
+		          //});
+		        }
+		      });
+		    }
+		  };
+		});
 	
 })( angular );

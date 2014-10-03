@@ -15,49 +15,39 @@ def hdfInterfaceView(request):
 	if request.method == "POST":
 		postData = json.loads(request.body)
 		action = postData["action"]
-		input = postData["input"]
-		currentNode = postData["currentNode"]
-# 		print postData
+		hdfNode = postData["currentNode"]
 		
-# 		action = postData["action"]
-	#hdfFileId = postData["hdfFileId"]
 		hdfFileName = "myData.hdf" # !!! Actually here the name corresponding to the id should be used
 		hdfFilePath = os.path.join(hdfFileFolder, hdfFileName)
-		if (action == "getHdfFileContent"):
-			hdfIface = HDFInterface(hdfFilePath)
+		hdfIface = HDFInterface(hdfFilePath)
+		
+		if (action == "getHdfFileContent"):			
 			fileContent = [hdfIface.getFileContent()]
 			return JsonResponse({'fileContent' : fileContent})
 		elif (action == "copy"):
-			hdfIface = HDFInterface(hdfFilePath)
-			itemPath = currentNode["path"]
-			pasteRoot = input
-			name = currentNode["name"]
+			itemPath = hdfNode["path"]
+			pasteRoot = postData["input"]
+			name = hdfNode["name"]
 			print itemPath, pasteRoot, name			
 			hdfIface.copyItem(itemPath, pasteRoot, name)
 			
 		elif (action == "createGroup"):			
-			hdfIface = HDFInterface(hdfFilePath)
-			hdfIface.createGroup(currentNode["path"], input)
+			hdfIface.createGroup(hdfNode["path"], postData["input"])
 			
 		elif (action == "rename"):
-			hdfIface = HDFInterface(hdfFilePath)
-			itemPath = currentNode["path"]
-			newName = input
+			itemPath = hdfNode["path"]
+			newName = postData["input"]
 			pasteRoot = os.path.dirname(itemPath)
-# 			name = currentNode["name"]
-# 			print itemPath, pasteRoot
 			hdfIface.moveItem(itemPath, pasteRoot, newName)
 		elif (action == "move"):
-			hdfIface = HDFInterface(hdfFilePath)
-			itemPath = currentNode["path"]
-			pasteRoot = input
-			name = currentNode["name"]
+			itemPath = hdfNode["path"]
+			pasteRoot = postData["input"]
+			name = hdfNode["name"]
 			print itemPath, pasteRoot
 			hdfIface.moveItem(itemPath, pasteRoot, name)
 		
 		elif (action == "delete"):
-			hdfIface = HDFInterface(hdfFilePath)
-			hdfIface.deleteItem(currentNode["path"])
+			hdfIface.deleteItem(hdfNode["path"])
 		return HttpResponseRedirect(reverse('home'))
 	else:
 		return render_to_response('DataManagement/TestView.html', 
