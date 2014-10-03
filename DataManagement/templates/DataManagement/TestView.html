@@ -11,8 +11,24 @@
 <script>
 angular.module('testApp', ['ui.bootstrap', 'angularTreeview'])	
 	.controller('testController', [ '$scope', '$http', '$window', function($scope, $http, $window) {
-
-	}]);
+		$scope.columnTable = {
+			columns : [
+          		{name : 'time', show : 'true', data : [1, 2, 3, 4, 5]},
+          		{name : 'acceleration', show : 'true', data : [4, 5, 6, 7, 8]},
+          		{name : 'speed', show : 'true', data : [6, 7, 8, 9, 10]},
+          		{name : 'velocity', show : 'true', data : [8, 9, 10, 11, 12]}
+          	]
+		
+		};
+	}])
+	.directive('smoDataTable', function () {
+		return {
+	        restrict: 'E',
+	        link: function(scope, element, attr) {
+	        	// TODO: Implement 
+	        }
+		}
+	});
 	
 </script>
 {% endblock %}
@@ -22,7 +38,7 @@ angular.module('testApp', ['ui.bootstrap', 'angularTreeview'])
 <h1>Test page</h1>
 <div ng-app="testApp" ng-controller="testController">
 
-<smo-hdf-browser></smo-hdf-browser>
+<smo-hdf-browser tree-id="hdfView"></smo-hdf-browser>
 
 </div>
 {% endblock %}
