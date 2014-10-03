@@ -29,9 +29,7 @@
 	background: #EEE;
 	}
 .row-label { width: 100pt; cursor: pointer;}
-.selected {
-	background: blue;
-}
+
 .progress {
 	display: inline-block;
 	width: 100px;	

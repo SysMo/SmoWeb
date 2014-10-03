@@ -53,7 +53,6 @@
 				
 				//var nodeType = attrs.nodeType || 'type';
 				
-				
 				//tree template
 //				var template =
 //					'<ul>' +
@@ -82,16 +81,16 @@
 				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"" + treeId + ".rename(" + treeId + ".currentNode)\">Rename</a></li>" +
 				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"" + treeId + ".copy(" + treeId + ".currentNode)\">Copy</a></li>" +
 				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"" + treeId + ".move(" + treeId + ".currentNode)\">Move</a></li>" +
-				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"" + treeId + ".expand(" + treeId + ".currentNode)\">Expand all</a></li>" +
-				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"" + treeId + ".collapse(" + treeId + ".currentNode)\">Collapse all</a></li>" +
+				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"" + treeId + ".expandAll(" + treeId + ".currentNode)\">Expand all</a></li>" +
+				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"" + treeId + ".collapseAll(" + treeId + ".currentNode)\">Collapse all</a></li>" +
 				    
 				  "</ul>" +
 				  "<ul ng-show=\"" + treeId + ".isFile(" + treeId + ".currentNode.type)\" class=\"dropdown-menu\" role=\"menu\" aria-labelledby=\"dropdownMenu1\">" +
 				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"" + treeId + ".loadTree()\">Refresh</a></li>" +
 				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"" + treeId + ".createGroup(" + treeId + ".currentNode)\">Create group</a></li>" +
 				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"" + treeId + ".createDataset(" + treeId + ".currentNode)\">Create dataset</a></li>" +
-				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"" + treeId + ".expand(" + treeId + ".currentNode)\">Expand all</a></li>" +
-				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"" + treeId + ".collapse(" + treeId + ".currentNode)\">Collapse all</a></li>" +
+				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"" + treeId + ".expandAll(" + treeId + ".currentNode)\">Expand all</a></li>" +
+				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"" + treeId + ".collapseAll(" + treeId + ".currentNode)\">Collapse all</a></li>" +
 				  "</ul>" +
 				"</div>" +  
 				"</div>"
@@ -132,7 +131,16 @@
 						
 						scope[treeId].input = "";
 						
-						
+						scope[treeId].setAttrAll = function(node, Attr, value){
+							var index;
+							node[Attr] = value;
+							if (node[nodeChildren].length){
+								for (index in node[nodeChildren]){
+									scope[treeId].setAttrAll(node[nodeChildren][index], Attr, value);
+								}
+							}
+							
+						}
 
 						//if node head clicks,
 						scope[treeId].selectNodeHead = scope[treeId].selectNodeHead || function( selectedNode ){
@@ -168,7 +176,6 @@
 						
 						scope[treeId].isDataSet = function(nodeType) {
 							
-							console.log("In isDataSet func");
 							if (nodeType == 'dataset'){
 								return true;
 							} else {
@@ -250,19 +257,15 @@
 							alert("Not implemented!");
 						};
 						
-						scope[treeId].expand = function (node) {
-							if (node.collapsed){
-								node.collapsed = false;
-								console.log('Expanding ' + node.path);
-							}						
-							
+						
+						scope[treeId].expandAll = function (node) {
+							scope[treeId].setAttrAll(node, "collapsed", false);						
+							console.log('Expanding all from' + node.path);
 						};
 						
-						scope[treeId].collapse = function (node) {
-							if (!node.collapsed){
-								node.collapsed = true;
-								console.log('Collapsing ' + node.path);
-							}						
+						scope[treeId].collapseAll = function (node) {
+							scope[treeId].setAttrAll(node, "collapsed", true);
+							console.log('Collapsing all from' + node.path);				
 						};
 						
 						scope[treeId].isInputAction = function (action) {
@@ -313,7 +316,7 @@
 			restrict: 'E',
 			link: function ( scope, element, attrs ) {
 				var treeId = attrs.treeId;
-				
+					
 				scope[treeId] = scope[treeId] || {};
 				
 				scope[treeId].loadTree = function() {
