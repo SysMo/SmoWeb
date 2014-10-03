@@ -37,7 +37,7 @@
 			restrict: 'A',
 			link: function ( scope, element, attrs ) {
 				//tree id
-				var treeId = attrs.treeId;
+				var treeId = scope.treeId;
 			
 				//tree model
 				var treeModel = attrs.treeModel;
@@ -69,29 +69,29 @@
 				  "<button class=\"btn btn-xs btn-default dropdown-toggle\" type=\"button\" id=\"dropdownMenu1\" data-toggle=\"dropdown\">" +
 				    "<span class=\"caret\"></span>" +
 				  "</button>" +
-				  "<ul ng-show=\"hdfView.isDataSet(hdfView.currentNode.type)\" class=\"dropdown-menu\" role=\"menu\" aria-labelledby=\"dropdownMenu1\">" +
-				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"hdfView.del(hdfView.currentNode)\">Delete</a></li>" +
-				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"hdfView.rename(hdfView.currentNode)\">Rename</a></li>" +
-				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"hdfView.copy(hdfView.currentNode)\">Copy</a></li>" +
-				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"hdfView.move(hdfView.currentNode)\">Move</a></li>" +
+				  "<ul ng-show=\"" + treeId + ".isDataSet(" + treeId + ".currentNode.type)\" class=\"dropdown-menu\" role=\"menu\" aria-labelledby=\"dropdownMenu1\">" +
+				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"" + treeId + ".del(" + treeId + ".currentNode)\">Delete</a></li>" +
+				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"" + treeId + ".rename(" + treeId + ".currentNode)\">Rename</a></li>" +
+				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"" + treeId + ".copy(" + treeId + ".currentNode)\">Copy</a></li>" +
+				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"" + treeId + ".move(" + treeId + ".currentNode)\">Move</a></li>" +
 				  "</ul>" +
-				  "<ul ng-show=\"!hdfView.isDataSet(hdfView.currentNode.type) && !hdfView.isFile(hdfView.currentNode.type)\" class=\"dropdown-menu\" role=\"menu\" aria-labelledby=\"dropdownMenu1\">" +
-				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"hdfView.createGroup(hdfView.currentNode)\">Create group</a></li>" +
-				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"hdfView.createDataset(hdfView.currentNode)\">Create dataset</a></li>" +
-				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"hdfView.del(hdfView.currentNode)\">Delete</a></li>" +
-				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"hdfView.rename(hdfView.currentNode)\">Rename</a></li>" +
-				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"hdfView.copy(hdfView.currentNode)\">Copy</a></li>" +
-				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"hdfView.move(hdfView.currentNode)\">Move</a></li>" +
-				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"hdfView.expand(hdfView.currentNode)\">Expand all</a></li>" +
-				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"hdfView.collapse(hdfView.currentNode)\">Collapse all</a></li>" +
+				  "<ul ng-show=\"!" + treeId + ".isDataSet(" + treeId + ".currentNode.type) && !" + treeId + ".isFile(" + treeId + ".currentNode.type)\" class=\"dropdown-menu\" role=\"menu\" aria-labelledby=\"dropdownMenu1\">" +
+				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"" + treeId + ".createGroup(" + treeId + ".currentNode)\">Create group</a></li>" +
+				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"" + treeId + ".createDataset(" + treeId + ".currentNode)\">Create dataset</a></li>" +
+				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"" + treeId + ".del(" + treeId + ".currentNode)\">Delete</a></li>" +
+				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"" + treeId + ".rename(" + treeId + ".currentNode)\">Rename</a></li>" +
+				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"" + treeId + ".copy(" + treeId + ".currentNode)\">Copy</a></li>" +
+				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"" + treeId + ".move(" + treeId + ".currentNode)\">Move</a></li>" +
+				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"" + treeId + ".expand(" + treeId + ".currentNode)\">Expand all</a></li>" +
+				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"" + treeId + ".collapse(" + treeId + ".currentNode)\">Collapse all</a></li>" +
 				    
 				  "</ul>" +
-				  "<ul ng-show=\"hdfView.isFile(hdfView.currentNode.type)\" class=\"dropdown-menu\" role=\"menu\" aria-labelledby=\"dropdownMenu1\">" +
+				  "<ul ng-show=\"" + treeId + ".isFile(" + treeId + ".currentNode.type)\" class=\"dropdown-menu\" role=\"menu\" aria-labelledby=\"dropdownMenu1\">" +
 				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"loadTree()\">Refresh</a></li>" +
-				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"hdfView.createGroup(hdfView.currentNode)\">Create group</a></li>" +
-				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"hdfView.createDataset(hdfView.currentNode)\">Create dataset</a></li>" +
-				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"hdfView.expand(hdfView.currentNode)\">Expand all</a></li>" +
-				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"hdfView.collapse(hdfView.currentNode)\">Collapse all</a></li>" +
+				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"" + treeId + ".createGroup(" + treeId + ".currentNode)\">Create group</a></li>" +
+				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"" + treeId + ".createDataset(" + treeId + ".currentNode)\">Create dataset</a></li>" +
+				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"" + treeId + ".expand(" + treeId + ".currentNode)\">Expand all</a></li>" +
+				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"" + treeId + ".collapse(" + treeId + ".currentNode)\">Collapse all</a></li>" +
 				  "</ul>" +
 				"</div>" +  
 				"</div>"
@@ -165,6 +165,8 @@
 						};
 						
 						scope[treeId].isDataSet = function(nodeType) {
+							
+							console.log("In isDataSet func");
 							if (nodeType == 'dataset'){
 								return true;
 							} else {
@@ -304,8 +306,9 @@
 		return {
 			restrict: 'E',
 			link: function ( scope, element, attrs ) {
-				var treeId = "hdfView";
-				
+				console.log(attrs.treeId);
+				scope.treeId = attrs.treeId;
+				var treeId = scope.treeId;
 				
 				scope.loadTree = function() {
 					
@@ -331,19 +334,19 @@
 				var treeViewTemplate = 
 					'<div ' + 
 						'data-angular-treeview="true" ' +
-					    'data-tree-id="hdfView" ' +	
+					    'data-tree-id="tree-id" ' +	
 						'data-tree-model="fileContent" ' +
 						'data-node-id="id" ' +
 						'data-node-label="name" ' +
 						'data-node-children="children" >' +
 					'</div>' +
 					'<br>' +
-					 '<div ng-show="hdfView.isInputAction(hdfView.action)">' +
-						  '<div style="font-weight: bold;" ng-bind="hdfView.getActionText(hdfView.action)"></div>' +
-						  '<input ng-model="hdfView.input"></input>' +
+					 '<div ng-show="' + treeId + '.isInputAction(' + treeId + '.action)">' +
+						  '<div style="font-weight: bold;" ng-bind="' + treeId + '.getActionText(' + treeId + '.action)"></div>' +
+						  '<input ng-model="' + treeId + '.input"></input>' +
 						  '<button ng-click="sendActionData()">Submit</button>' +
 					 '</div>' +
-					 '<div>Current node: <span ng-bind="hdfView.currentNode.path"></span></div>';
+					 '<div>Current node: <span ng-bind="' + treeId + '.currentNode.path"></span></div>';
 				
 				scope.sendActionData = function () {
  

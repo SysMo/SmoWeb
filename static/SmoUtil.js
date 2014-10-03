@@ -55,4 +55,4 @@ smoModule.directive('smoSingleClick', ['$parse', function($parse) {
           });
         }
     };
-}])
+}]);
