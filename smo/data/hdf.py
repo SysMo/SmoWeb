@@ -72,7 +72,7 @@ class CSV2HDFImporter(object):
 	typeCastFunc = {'float' : float, 'integer' : int, 'string' : str}
 	def __init__(self, filePath, firstDataRowIndex = 1):
 		self.filePath = filePath
-		self.csvFileName = os.path.basename(filePath)
+		self.csvFileName = os.path.splitext(os.path.basename(filePath))[0]
 		self.firstDataRowIndex = firstDataRowIndex
 		
 	def createPreview(self, numRowsInPreview):

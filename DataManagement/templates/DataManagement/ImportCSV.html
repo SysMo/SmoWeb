@@ -7,10 +7,13 @@
 <script src="{% static "angular-file-upload.min.js" %}"></script>
 <script src="{% static "SmoUtil.js" %}"></script>
 <script src="{% static "DataManagement/ImportCSV.js" %}"></script>
+<script src="{% static "smo-treeview/smo.treeview.js" %}"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'smo-treeview/smo.treeview.css' %}">
 {% endblock %}
 
 {% block content %}
 <br>
+
 <h1>Import CSV</h1>
 <p>Select a <b>CSV</b> file to import</p>
 <div ng-app="csvImportApp" ng-controller="CsvImportController">
@@ -47,6 +50,10 @@
 
 	<br>
 	<div ng-if="showPreviewTable">	
+		<p>The file contains <span ng-bind="csvPreviewData.numRows"></span> rows<p>
+		<p>Double click on a row header (leftmost cell with row number) to take the values and use them as column names. Afterwards you can additionally edit them on the column headers, and select a storage type for the column. 
+		If you don't want to use a column, uncheck the box above its name. With a single mouse click  select the first data row and submit.</p>
+		<p >Data starts from row number <span ng-bind="firstDataRow"></span></p>
 		<table class="dataTable"> 
 			<tr>
 				<td class="row-label">Use column</td>
@@ -73,12 +80,20 @@
 				</td>
 			</tr>
 		</table>
-		<button ng-click="importHdf()">Import</button>
-		<p>The file contains <span ng-bind="csvPreviewData.numRows"></span> rows<p>
-		<p>Double click on a row header (leftmost cell with row number) to take the values and use them as column names. Afterwards you can additionally edit them on the column headers, and select a storage type for the column. 
-		If you don't want to use a column, uncheck the box above its name. With a single mouse click  select the first data row and submit.</p>
-		<p >Data starts from row number <span ng-bind="firstDataRow"></span></p>
-		<div ng-bind="statusMessage"></div>
+<!-- 		<button ng-click="importHdf()">Import</button> -->
+		<br>
+		HDF dataset name:<input ng-model="datasetProps.name"></input> 		
+		<br>
+		Selected dataset name:<div ng-bind="datasetProps.name"></div>
+		<br>
+		Select HDF group:
+		<br>
+		<br>
+		<smo-hdf-browser tree-id="hdfView">	
+		</smo-hdf-browser>		
+		<br>
+		<button ng-click="importDataset(hdfView.currentNode.path)">Submit</button>
+		</div>
 
 	</div>	
 </div>

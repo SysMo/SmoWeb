@@ -70,7 +70,8 @@ def importCSV(request):
 			'numRows' : numRows,
 			'numColumns' : numColumns,
 			'tableValues' : tableValues,
-			'importerId' : importerId
+			'importerId' : importerId,
+			'csvFileName' : importer.csvFileName
 		}
 		return JsonResponse(response_data)
 	else:	
@@ -80,15 +81,25 @@ def importCSV(request):
 def CSVtoHDF(request):
 	if request.method == "POST":
 		postData = json.loads(request.body)
-		print postData
+		
+		
 		columnProps = postData['columnProps']
 		firstDataRow = int(postData['firstDataRow'])
 		importerId = postData['importerId']
-		importer = CSVImporterObjects.get(importerId)
+		groupPath = postData['groupPath']
+		datasetName = postData['datasetName']
+		
+# 		groupPath = "/", 
+# 		datasetName = importer.csvFileName, 
+		
+		print postData
+		
+		importer = CSVImporterObjects.get(importerId)		
 		hdfFilePath = os.path.join(MEDIA_ROOT, 'DataManagement', 'hdf', 'myData.hdf')
+		
 		importer.import2Hdf(filePath = hdfFilePath,
-				groupPath = "/", 
-				datasetName = importer.csvFileName, 
+				groupPath = groupPath, 
+				datasetName = datasetName, 
 				columnProps = columnProps, 
 				firstDataRow = firstDataRow, 
 				forceOverride = True)

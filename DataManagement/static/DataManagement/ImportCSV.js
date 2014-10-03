@@ -1,4 +1,4 @@
-angular.module('csvImportApp', ['smo','angularFileUpload', 'ui.bootstrap'])
+angular.module('csvImportApp', ['smo','angularFileUpload', 'angularTreeview', 'ui.bootstrap'])
 	.config(['$httpProvider', function($httpProvider) {
 	    $httpProvider.defaults.xsrfCookieName = 'csrftoken';
 	    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
@@ -8,7 +8,9 @@ angular.module('csvImportApp', ['smo','angularFileUpload', 'ui.bootstrap'])
 			[ '$scope', '$upload', '$window', '$http', 
 		function($scope, $upload, $window, $http) {
 			$scope.numRowsInPreview = 10;
-			$scope.showPreviewTable = false;
+			$scope.showPreviewTable = false;			
+			
+			
 			$scope.fileSelect = function($files){
 				$scope.uploadFile = $files;	
 			}
@@ -19,6 +21,10 @@ angular.module('csvImportApp', ['smo','angularFileUpload', 'ui.bootstrap'])
 				this.dataType = dataType;
 				this.use = use;
 			}
+			DatasetProps = function(name, path) {
+				this.name = name;
+				this.path = path;
+			} 
 			$scope.columnTypeChoices = ['float', 'integer', 'string'];
 			
 			$scope.sendFile = function() { //$file: a file selected, having name, size, and type.
@@ -36,6 +42,7 @@ angular.module('csvImportApp', ['smo','angularFileUpload', 'ui.bootstrap'])
 						$scope.columnProps.push(new ColumnProps("C" + (i + 1), 'float', true));
 					}
 					$scope.firstDataRow = 1;
+					$scope.datasetProps = new DatasetProps(csvPreviewData.csvFileName, "/");
 					$scope.showPreviewTable = true;
 				});
 //				$scope.upload.then($scope.upload.progress());
@@ -80,13 +87,18 @@ angular.module('csvImportApp', ['smo','angularFileUpload', 'ui.bootstrap'])
 				}
 				return style;
 			}
-          		
-			$scope.importHdf = function() {
+			
+			$scope.importDataset = function(groupPath) {
+				$scope.datasetProps.path = groupPath;
 				//alert(angular.toJson($scope.columnProps));
+				console.log("Dataset name: " + $scope.datasetProps.name);
+				
 				$http.post('/DataManagement/CSVtoHDF/', {
 					columnProps : $scope.columnProps,
 					firstDataRow : $scope.firstDataRow,
-					importerId : $scope.csvPreviewData.importerId
+					importerId : $scope.csvPreviewData.importerId,
+					datasetName: $scope.datasetProps.name,
+					groupPath: $scope.datasetProps.path
 				})
 				.success(function(data){
 					$scope.statusMessage = "File successfully imported!";
