@@ -9,15 +9,20 @@
 <script src="{% static "DataManagement/ImportCSV.js" %}"></script>
 <script src="{% static "smo-treeview/smo.treeview.js" %}"></script>
 <link rel="stylesheet" type="text/css" href="{% static 'smo-treeview/smo.treeview.css' %}">
+<style>
+.pull-left {
+margin-left:20px;}
+</style>
 {% endblock %}
 
 {% block content %}
 <br>
 
-<h1>Import CSV</h1>
-<p>Select a <b>CSV</b> file to import</p>
-<div ng-app="csvImportApp" ng-controller="CsvImportController">
-	<table>		
+
+<div class="pull-left" ng-app="csvImportApp" ng-controller="CsvImportController">
+	<h1>Import CSV</h1>
+	<p>Select a <b>CSV</b> file to import</p>
+	<table>				
 		<tr>
 			<td style=" text-align: right; font-weight: bold;">CSV File &nbsp</td><td style=" text-align: left;"><input ng-file-select="fileSelect($files)" type="file" /></td>
 		</tr>
@@ -31,32 +36,36 @@
 				<button  ng-click="sendFile()" >Upload</button>
 			</td>
 		</tr>
-	  	<tr>
-			<td></td>	
-		</tr> 
-		<tr>
-			<td>
+<!-- 	  	<tr> -->
+<!-- 			<td></td>	 -->
+<!-- 		</tr>  -->
+<!-- 		<tr> -->
+<!-- 			<td> -->
 <!-- {% verbatim %}			 -->
-				<div class="progress">
-					<div style="width:{{ progress }}%" ng-bind="progress"></div>
-				</div>
+<!-- 				<div class="progress"> -->
+<!-- 					<div style="width:{{ progress }}%" ng-bind="progress"></div> -->
+<!-- 				</div> -->
 <!-- {% endverbatim %} -->
-			</td>
-			<td>
-				<button ng-click="upload.abort()">Cancel Upload</button>
-			</td>			
-		</tr>
+<!-- 			</td> -->
+<!-- 			<td> -->
+<!-- 				<button ng-click="upload.abort()">Cancel Upload</button> -->
+<!-- 			</td>			 -->
+<!-- 		</tr> -->
 	</table>
 
 	<br>
-	<div ng-if="showPreviewTable">	
+	
+	<div ng-if="showPreviewTable">
 		<p>The file contains <span ng-bind="csvPreviewData.numRows"></span> rows<p>
-		<p>Double click on a row header (leftmost cell with row number) to take the values and use them as column names. Afterwards you can additionally edit them on the column headers, and select a storage type for the column. 
-		If you don't want to use a column, uncheck the box above its name. With a single mouse click  select the first data row and submit.</p>
-		<p >Data starts from row number <span ng-bind="firstDataRow"></span></p>
 		<table class="dataTable"> 
 			<tr>
-				<td class="row-label">Use column</td>
+				<td class="row-label"><span style="color: #7F7F7F; font-size: large;" class="glyphicon glyphicon-question-sign" data-toggle="popover"  
+				title="	- Select column names by double-clicking on a row header (leftmost cell with row number)
+	- Column names can also be edited directly 
+	- Select a storage type for the column
+	- Select columns to import using the checkboxes at the top
+	- Select the first data row with a single mouse-click 
+	- Submit!"></span> Use column</td>
 				<td ng-repeat="column in columnProps" class = "column-label">
 					<input type = "checkbox" ng-model="column.use"></input> 
 				</td>
@@ -79,8 +88,7 @@
 					<div class="output" ng-bind="cellValue" ng-style="cellStyle(rowIndex, colIndex)"></div>
 				</td>
 			</tr>
-		</table>
-<!-- 		<button ng-click="importHdf()">Import</button> -->
+		</table>			
 		<br>
 		HDF dataset name:<input ng-model="datasetProps.name"></input> 		
 		<br>

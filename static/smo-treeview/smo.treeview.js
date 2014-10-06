@@ -131,6 +131,10 @@
 						
 						scope[treeId].input = "";
 						
+						console.log(treeModel);
+						
+//						scope[treeId].currentNode = treeModel[]
+						
 						scope[treeId].setAttrAll = function(node, Attr, value){
 							var index;
 							node[Attr] = value;
