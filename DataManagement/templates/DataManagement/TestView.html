@@ -9,16 +9,28 @@
 <link rel="stylesheet" type="text/css" href="{% static 'smo-treeview/smo.treeview.css' %}">
 
 <script>
-angular.module('testApp', ['ui.bootstrap', 'angularTreeview'])	
+angular.module('testApp', ['ui.bootstrap', 'angularTreeview'])
 	.controller('testController', [ '$scope', '$http', '$window', function($scope, $http, $window) {
 		$scope.columnTable = {
 			columns : [
-          		{name : 'time', show : 'true', data : [1, 2, 3, 4, 5]},
-          		{name : 'acceleration', show : 'true', data : [4, 5, 6, 7, 8]},
-          		{name : 'speed', show : 'true', data : [6, 7, 8, 9, 10]},
-          		{name : 'velocity', show : 'true', data : [8, 9, 10, 11, 12]}
-          	]
-		
+          		{name : 'time', show : true},
+          		{name : 'acceleration', show : true},
+          		{name : 'speed', show : true},
+          		{name : 'velocity', show : true}
+          	],
+          	data : [
+				[1, 2, 3, 4],
+				[4, 5, 6, 7],
+				[6, 7, 8, 9],
+				[8, 9, 10, 11],
+				[10, 11, 12, 13]
+  	        ]
+		};
+		$scope.range = function(min, max, step){
+			step = step || 1;
+			var input = [];
+			for (var i = min; i < max; i += step) input.push(i);
+			return input;
 		};
 	}])
 	.directive('smoDataTable', function () {
@@ -39,6 +51,28 @@ angular.module('testApp', ['ui.bootstrap', 'angularTreeview'])
 <div ng-app="testApp" ng-controller="testController">
 
 <smo-hdf-browser tree-id="hdfView"></smo-hdf-browser>
+
+<br>
+<h2> Data table </h2>
+<br>
+<div>
+<span ng-repeat="column in columnTable.columns">
+<span ng-bind="column.name"></span>
+<input type="checkbox" ng-model="column.show">
+&nbsp;&nbsp;&nbsp;
+</span>
+	<table>
+		<tr >
+			<td ng-repeat="column in columnTable.columns" ng-show="column.show">
+				<table>
+					<tr ng-repeat="dataValue in column.data">
+						<td style="padding:10px 5px 15px 20px;"><div ng-bind="dataValue"></div></td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+	</table>
+</div>
 
 </div>
 {% endblock %}
