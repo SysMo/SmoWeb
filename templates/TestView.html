@@ -1,0 +1,248 @@
+{% extends "Platform.html" %}
+{% load bootstrap_toolkit %}
+{% load staticfiles %}
+
+{% block scripts_and_styles %}
+<!-- <script src="{% static 'angular-treeview/angular.treeview.js' %}"></script> -->
+<!-- <link rel="stylesheet" type="text/css" href="{% static 'angular-treeview/css/angular.treeview.css' %}"> -->
+<script src="{% static 'smo-treeview/smo.treeview.js' %}"></script>
+<!-- <link rel="stylesheet" type="text/css" href="{% static 'smo-treeview/smo.treeview.css' %}"> -->
+
+<script>
+angular.module('testApp', ['ui.bootstrap', 'angularTreeview'])
+	.controller('testController', [ '$scope', '$http', '$window', function($scope, $http, $window) {
+		$scope.columnTable = {
+			columns : [
+          		{name : 'time', show : true, numFormatType:'fixed', numFormatPattern: "*.**", numDecimalPoints:2},
+          		{name : 'acceleration', show : true, numFormatType:'fixed', numFormatPattern: "*.**", numDecimalPoints:2},
+          		{name : 'speed', show : true, numFormatType:'fixed', numFormatPattern: "*.**", numDecimalPoints:2 },
+          		{name : 'velocity', show : true, numFormatType:'fixed', numFormatPattern: "*.**", numDecimalPoints:2 },
+          		{name : 'time2', show : true, numFormatType:'fixed', numFormatPattern: "*.**", numDecimalPoints:2 },
+          		{name : 'acceleration2', show : true, numFormatType:'fixed', numFormatPattern: "*.**", numDecimalPoints:2},
+          		{name : 'speed2', show : true, numFormatType:'fixed', numFormatPattern: "*.**", numDecimalPoints:2 },
+          		{name : 'velocity2', show : true, numFormatType:'fixed', numFormatPattern: "*.**", numDecimalPoints:2 },
+          		{name : 'speed3', show : true, numFormatType:'fixed', numFormatPattern: "*.**", numDecimalPoints:2 },
+          		{name : 'velocity3', show : true, numFormatType:'fixed', numFormatPattern: "*.**", numDecimalPoints:2 },
+          		{name : 'acceleration2', show : true, numFormatType:'fixed', numFormatPattern: "*.**", numDecimalPoints:2 },
+          		{name : 'acceleration3', show : true, numFormatType:'fixed', numFormatPattern: "*.**", numDecimalPoints:2 },
+          		{name : 'acceleration4', show : true, numFormatType:'fixed', numFormatPattern: "*.**", numDecimalPoints:2 },
+          	],
+          	data : [
+				[1, 2, 3, 4, 10, 11, 12, 13, 12, 13, 2, 3, 4],
+				[4, 5, 6, 7, 6, 7, 8, 9, 12, 13, 2, 3, 4],
+				[6, 7, 8, 9, 8, 9, 10, 11, 12, 13, 2, 3, 4],
+				[8, 9, 10, 11, 10, 11, 12, 13, 12, 13, 2, 3, 4],
+				[10, 11, 12, 13, 2, 3, 4, 2, 12, 13, 2, 3, 4],
+				[2, 3, 4, 2, 10, 11, 12, 13, 12, 13, 2, 3, 4],
+				[10, 11, 12, 13, 2, 3, 4, 2, 12, 13, 2, 3, 4],
+				[2, 3, 4, 2, 1, 2, 3, 4, 12, 13, 2, 3, 4],
+				[1, 2, 3, 4, 4, 5, 6, 7, 12, 13, 2, 3, 4],
+				[4, 5, 6, 7, 6, 7, 8, 9, 12, 13, 2, 3, 4],
+				[6, 7, 8, 9, 8, 9, 10, 11, 12, 13, 2, 3, 4],
+				[8, 9, 10, 11, 10, 11, 12, 13, 12, 13, 2, 3, 4],
+				[10, 11, 12, 13, 2, 3, 4, 2, 12, 13, 2, 3, 4],
+				[2, 3, 4, 2, 10, 11, 12, 13, 12, 13, 2, 3, 4],
+				[10, 11, 12, 13, 2, 3, 4, 2, 12, 13, 2, 3, 4],
+				[2, 3, 4, 2, 2, 3, 4, 2, 12, 13, 2, 3, 4]
+  	        ]
+		};
+		$scope.range = function(min, max, step){
+			step = step || 1;
+			var input = [];
+			for (var i = min; i < max; i += step) input.push(i);
+			return input;
+		};
+		
+		
+		$scope.formatTypeChoices = ["fixed", "exponential"];
+		$scope.fixedFormatChoices = ["*.", "*.*", "*.**", "*.***", "*.****",
+		                           "*.*****", "*.******", "*.*******", "*.********"];
+		$scope.expFormatChoices = ["*.E**", "*.*E**", "*.**E**", "*.***E**", "*.****E**", "*.*****E**", 
+		                           "*.******E**", "*.*******E**", "*.********E**"];
+		
+// 		$scope.formatPatternChoices = function(column) {
+// 			if (column.numFormatType == 'fixed'){
+// 				return $scope.fixedFormatChoices;
+// 			} else{
+// // 				if (!column.numFormatPattern){
+// // 					column.numFormatPattern = "*.**E**";} 
+// 				return $scope.expFormatChoices;
+// 			}
+// 		}	
+		
+		$scope.isNumFormatFixed = function(column) {
+			if (column.numFormatType == "fixed"){
+				return true;
+			} else {
+				return false;
+			}
+		};
+		
+		
+		$scope.showInitial = true;
+		$scope.toggleText = "Show selected";
+		$scope.tableRefresh = function(){			
+			
+			$scope.showInitial = !$scope.showInitial;
+			if ($scope.toggleText == "Show selected"){
+				$scope.toggleText = "Show all";
+			}
+			else{
+				$scope.toggleText = "Show selected"
+			}
+			
+// 			if ($scope.showInitial == true){
+// 				for (var i = 0; i < $scope.columnTable.columns.length; i++){
+// 					$scope.columnTable.columns[i].show = true;
+// 				}
+// 			}
+			if ($scope.showInitial == false){
+				for (var i = 0; i < $scope.columnTable.columns.length; i++){
+					decimalPos= $scope.columnTable.columns[i].numFormatPattern.indexOf(".");
+					if ($scope.columnTable.columns[i].numFormatType =='fixed'){					
+						$scope.columnTable.columns[i].numDecimalPoints = $scope.columnTable.columns[i].numFormatPattern.length - decimalPos - 1;						
+					}
+					if ($scope.columnTable.columns[i].numFormatType =='exponential'){
+						$scope.columnTable.columns[i].numDecimalPoints = $scope.columnTable.columns[i].numFormatPattern.length - decimalPos - 1 - 3;
+					}
+					
+				}
+				
+			}
+			
+		}
+		
+		$scope.display = function(row){
+			displayRow = [];
+			for (var i = 0; i < row.length; i++){
+				if ($scope.columnTable.columns[i].numFormatType =='fixed'){
+					displayRow.push(row[i].toFixed($scope.columnTable.columns[i].numDecimalPoints));
+				}
+				else{
+					displayRow.push(row[i].toExponential($scope.columnTable.columns[i].numDecimalPoints));
+				}
+			}
+			return displayRow;
+		};
+		
+	}])
+	.directive('smoDataTable', function () {
+		return {
+	        restrict: 'E',
+	        link: function(scope, element, attr) {
+	        	// TODO: Implement 
+	        	
+	        }
+		}
+	});
+	
+</script>
+<style>
+
+div .scrollable {
+/* 	width: 1030px; */
+/* 	height: 500px; */
+	width: 80vw;
+	height: 65vh;
+    overflow:auto;
+}
+.no-margin {
+	margin-left:-20px; 
+	margin-right:-20px;
+}
+
+.my-table {
+	background: white;
+	color: black;
+	border: 1px solid; 
+	border-color: black;
+	
+	
+ 	margin-top:15px; 
+ 	margin-bottom: 15px; 
+	
+	
+}
+
+.my-table th {
+	border-bottom: 1pt solid black;
+	border-left: 1pt solid black; 
+} 
+
+.my-table td {
+	border: 1pt solid #7F7F7F;
+}
+
+.my-table tr td:first-child {
+	border-left: 1pt solid black;
+}
+
+.my-table tr td:last-child {
+	border-right: 1pt solid black;
+}
+
+.my-table tr:last-child td {
+	border-bottom: 1pt solid black;
+}
+
+/* .my-table tr:nth-last-child(2) td { */
+/* 	border-bottom: 1pt solid black; */
+/* } */
+
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div ng-app="testApp" ng-controller="testController">
+	<div class="container">
+		<div class="row">
+		<h2> Data table </h2>
+		<br>
+		</div>
+		<div class="row">
+			<div class="col-md" style="background-color: #F6F6F6; border: 1px solid #000;">
+				<table>
+					<tr>
+						<td style="vertical-align: top; padding-top:15px; padding-left:10px;padding-right:10px; padding-bottom:10px;">	 
+							<button class="btn btn-default" ng-click="tableRefresh()" ng-bind="toggleText"></button>
+						</td>					
+						<td>
+							<div class="scrollable">
+							<table class = "my-table">						
+								<tr ng-if="showInitial">
+									<th ng-repeat="column in columnTable.columns"  style="padding:10px 5px 15px 20px; background-color: #DEDEDE; ">
+										<span ng-bind="column.name"></span>
+										<input type="checkbox" ng-model="column.show"></input>
+										<select ng-model = "column.numFormatType" ng-options = "type for type in formatTypeChoices"></select>
+										<select ng-if="isNumFormatFixed(column)"  ng-model="column.numFormatPattern" ng-options = "pattern for pattern in fixedFormatChoices"></select>
+										<select ng-if="!isNumFormatFixed(column)" ng-init="column.numFormatPattern='*.**E**'" ng-model = "column.numFormatPattern" ng-options = "pattern for pattern in expFormatChoices"></select>
+									</th>
+								</tr>
+								<tr ng-if="!showInitial">
+									<th ng-if="column.show" ng-repeat="column in columnTable.columns" style="padding:10px 5px 15px 20px; background-color: #DEDEDE;" >
+										<span ng-bind="column.name"></span>
+									</th>
+								</tr>
+								<tr ng-if="showInitial" ng-repeat="rowValue in columnTable.data">
+									<td ng-repeat = "value in rowValue track by $index" style="padding:10px 5px 15px 20px;">
+										<div ng-show="columnTable.columns[$index].show" ng-bind="value"></div>
+										<div ng-hide="columnTable.columns[$index].show"></div>
+									</td>
+								</tr>
+								<tr ng-if="!showInitial" ng-repeat="rowValue in columnTable.data">
+									<td ng-if="columnTable.columns[$index].show" ng-repeat = "value in display(rowValue) track by $index" style="padding:10px 5px 15px 20px;">
+										<div ng-show="columnTable.columns[$index].show" ng-bind="value"></div>
+										<div ng-hide="columnTable.columns[$index].show"></div>
+									</td>
+								</tr>				
+							</table>
+							</div>
+						</td>
+					</tr>
+				</table>		
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}

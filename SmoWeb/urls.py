@@ -9,5 +9,6 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
     url(r'^Platform/', 'SmoWeb.views.platform', name='platform'),
     url(r'^SmoFluidProps/', include('SmoFluidProps.urls', namespace='SmoFluidProps')),
-    url(r'^DataManagement/', include('DataManagement.urls', namespace='DataManagement')),    
+    url(r'^DataManagement/', include('DataManagement.urls', namespace='DataManagement')),
+    url(r'^TestView/', 'SmoWeb.views.testView', name='test'), 
 )
