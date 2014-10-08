@@ -13,22 +13,22 @@ angular.module('testApp', ['ui.bootstrap', 'angularTreeview'])
 	.controller('testController', [ '$scope', '$http', '$window', function($scope, $http, $window) {
 		$scope.columnTable = {
 			columns : [
-          		{name : 'time', show : true, numFormatType:'fixed', numFormatPattern: "*.**", numDecimalPoints:2},
-          		{name : 'acceleration', show : true, numFormatType:'fixed', numFormatPattern: "*.**", numDecimalPoints:2},
-          		{name : 'speed', show : true, numFormatType:'fixed', numFormatPattern: "*.**", numDecimalPoints:2 },
-          		{name : 'velocity', show : true, numFormatType:'fixed', numFormatPattern: "*.**", numDecimalPoints:2 },
-          		{name : 'time2', show : true, numFormatType:'fixed', numFormatPattern: "*.**", numDecimalPoints:2 },
-          		{name : 'acceleration2', show : true, numFormatType:'fixed', numFormatPattern: "*.**", numDecimalPoints:2},
-          		{name : 'speed2', show : true, numFormatType:'fixed', numFormatPattern: "*.**", numDecimalPoints:2 },
-          		{name : 'velocity2', show : true, numFormatType:'fixed', numFormatPattern: "*.**", numDecimalPoints:2 },
-          		{name : 'speed3', show : true, numFormatType:'fixed', numFormatPattern: "*.**", numDecimalPoints:2 },
-          		{name : 'velocity3', show : true, numFormatType:'fixed', numFormatPattern: "*.**", numDecimalPoints:2 },
-          		{name : 'acceleration2', show : true, numFormatType:'fixed', numFormatPattern: "*.**", numDecimalPoints:2 },
-          		{name : 'acceleration3', show : true, numFormatType:'fixed', numFormatPattern: "*.**", numDecimalPoints:2 },
-          		{name : 'acceleration4', show : true, numFormatType:'fixed', numFormatPattern: "*.**", numDecimalPoints:2 },
+          		{name : 'time', show : true, numFormatType:'standard'},
+          		{name : 'acceleration', show : true, numFormatType:'standard'},
+          		{name : 'speed', show : true, numFormatType:'standard'},
+          		{name : 'velocity', show : true, numFormatType:'standard'},
+          		{name : 'time2', show : true, numFormatType:'standard'},
+          		{name : 'acceleration2', show : true, numFormatType:'standard'},
+          		{name : 'speed2', show : true, numFormatType:'standard'},
+          		{name : 'velocity2', show : true, numFormatType:'standard'},
+          		{name : 'speed3', show : true, numFormatType:'standard'},
+          		{name : 'velocity3', show : true, numFormatType:'standard'},
+          		{name : 'acceleration2', show : true, numFormatType:'standard'},
+          		{name : 'acceleration3', show : true, numFormatType:'standard'},
+          		{name : 'acceleration4', show : true, numFormatType:'standard'},
           	],
           	data : [
-				[1, 2, 3, 4, 10, 11, 12, 13, 12, 13, 2, 3, 4],
+				[1.7, 2, 3, 4, 10, 11, 12, 13, 12, 13, 2, 3, 4],
 				[4, 5, 6, 7, 6, 7, 8, 9, 12, 13, 2, 3, 4],
 				[6, 7, 8, 9, 8, 9, 10, 11, 12, 13, 2, 3, 4],
 				[8, 9, 10, 11, 10, 11, 12, 13, 12, 13, 2, 3, 4],
@@ -54,21 +54,19 @@ angular.module('testApp', ['ui.bootstrap', 'angularTreeview'])
 		};
 		
 		
-		$scope.formatTypeChoices = ["fixed", "exponential"];
-		$scope.fixedFormatChoices = ["*.", "*.*", "*.**", "*.***", "*.****",
-		                           "*.*****", "*.******", "*.*******", "*.********"];
-		$scope.expFormatChoices = ["*.E**", "*.*E**", "*.**E**", "*.***E**", "*.****E**", "*.*****E**", 
-		                           "*.******E**", "*.*******E**", "*.********E**"];
+		$scope.formatTypeChoices = ["standard", "fixed", "exponential"];
+		$scope.fixedFormatChoices = [".0f", ".1f", ".2f", ".3f", ".4f", ".5f",
+		                           ".6f", ".7f", ".8f"];
+		$scope.expFormatChoices = [".0e", ".1e", ".2e", ".3e", ".4e", ".5e",
+		                           ".6e", ".7e", ".8e"];
 		
-// 		$scope.formatPatternChoices = function(column) {
-// 			if (column.numFormatType == 'fixed'){
-// 				return $scope.fixedFormatChoices;
-// 			} else{
-// // 				if (!column.numFormatPattern){
-// // 					column.numFormatPattern = "*.**E**";} 
-// 				return $scope.expFormatChoices;
-// 			}
-// 		}	
+		$scope.isNumFormatStandard = function(column) {
+			if (column.numFormatType == "standard"){
+				return true;
+			} else {
+				return false;
+			}
+		}
 		
 		$scope.isNumFormatFixed = function(column) {
 			if (column.numFormatType == "fixed"){
@@ -79,11 +77,34 @@ angular.module('testApp', ['ui.bootstrap', 'angularTreeview'])
 		};
 		
 		
-		$scope.showInitial = true;
+		$scope.toggled = false;
 		$scope.toggleText = "Show selected";
-		$scope.tableRefresh = function(){			
-			
-			$scope.showInitial = !$scope.showInitial;
+		
+		
+		for (var i = 0; i < $scope.columnTable.columns.length; i++){
+			$scope.columnTable.columns[i].numFormatType = 'standard';
+			$scope.columnTable.columns[i].numFormatPattern = '';
+			$scope.columnTable.columns[i].defaultFixedPattern = true;
+			$scope.columnTable.columns[i].defaultExpPattern = true;
+		}	
+		
+		$scope.setDefaultPattern = function(column){
+			if (column.numFormatType == 'fixed' && column.defaultFixedPattern){
+				column.numFormatPattern = '.0f';
+				column.defaultFixedPattern = false;
+				column.defaultExpPattern = true;
+			} else if (column.numFormatType == 'exponential' && column.defaultExpPattern) {
+				column.numFormatPattern = '.0e';
+				column.defaultExpPattern = false;
+				column.defaultFixedPattern = true;
+			} else {
+				column.defaultFixedPattern = true;
+				column.defaultExpPattern = true;
+			}		
+		}
+		
+		$scope.toggleTable = function(){						
+			$scope.toggled = !$scope.toggled;
 			if ($scope.toggleText == "Show selected"){
 				$scope.toggleText = "Show all";
 			}
@@ -91,34 +112,21 @@ angular.module('testApp', ['ui.bootstrap', 'angularTreeview'])
 				$scope.toggleText = "Show selected"
 			}
 			
-// 			if ($scope.showInitial == true){
-// 				for (var i = 0; i < $scope.columnTable.columns.length; i++){
-// 					$scope.columnTable.columns[i].show = true;
-// 				}
-// 			}
-			if ($scope.showInitial == false){
+			if ($scope.toggled == true){
 				for (var i = 0; i < $scope.columnTable.columns.length; i++){
-					decimalPos= $scope.columnTable.columns[i].numFormatPattern.indexOf(".");
-					if ($scope.columnTable.columns[i].numFormatType =='fixed'){					
-						$scope.columnTable.columns[i].numDecimalPoints = $scope.columnTable.columns[i].numFormatPattern.length - decimalPos - 1;						
-					}
-					if ($scope.columnTable.columns[i].numFormatType =='exponential'){
-						$scope.columnTable.columns[i].numDecimalPoints = $scope.columnTable.columns[i].numFormatPattern.length - decimalPos - 1 - 3;
-					}
-					
-				}
-				
-			}
-			
+					$scope.columnTable.columns[i].numDecimalPoints = $scope.columnTable.columns[i].numFormatPattern[1];					
+				}				
+			}			
 		}
 		
 		$scope.display = function(row){
 			displayRow = [];
 			for (var i = 0; i < row.length; i++){
-				if ($scope.columnTable.columns[i].numFormatType =='fixed'){
+				if ($scope.columnTable.columns[i].numFormatType =='standard'){
+					displayRow.push(row[i]);
+				} else if ($scope.columnTable.columns[i].numFormatType =='fixed'){
 					displayRow.push(row[i].toFixed($scope.columnTable.columns[i].numDecimalPoints));
-				}
-				else{
+				} else {
 					displayRow.push(row[i].toExponential($scope.columnTable.columns[i].numDecimalPoints));
 				}
 			}
@@ -167,6 +175,7 @@ div .scrollable {
 .my-table th {
 	border-bottom: 1pt solid black;
 	border-left: 1pt solid black; 
+	vertical-align: top;
 } 
 
 .my-table td {
@@ -205,32 +214,39 @@ div .scrollable {
 				<table>
 					<tr>
 						<td style="vertical-align: top; padding-top:15px; padding-left:10px;padding-right:10px; padding-bottom:10px;">	 
-							<button class="btn btn-default" ng-click="tableRefresh()" ng-bind="toggleText"></button>
+							<button class="btn btn-default" ng-click="toggleTable()" ng-bind="toggleText"></button>					
+							<div ng-if="!toggled" style="text-align:right; font-size:medium;">Format:</div>
+							<div ng-if="!toggled" style="text-align:right;  font-size:medium;">Pattern:</div>
 						</td>					
 						<td>
 							<div class="scrollable">
 							<table class = "my-table">						
-								<tr ng-if="showInitial">
-									<th ng-repeat="column in columnTable.columns"  style="padding:10px 5px 15px 20px; background-color: #DEDEDE; ">
+								<tr ng-if="!toggled">
+									<th ng-repeat="column in columnTable.columns"  style="padding:5px 10px 15px 10px; background-color: #DEDEDE; ">
 										<span ng-bind="column.name"></span>
 										<input type="checkbox" ng-model="column.show"></input>
-										<select ng-model = "column.numFormatType" ng-options = "type for type in formatTypeChoices"></select>
-										<select ng-if="isNumFormatFixed(column)"  ng-model="column.numFormatPattern" ng-options = "pattern for pattern in fixedFormatChoices"></select>
-										<select ng-if="!isNumFormatFixed(column)" ng-init="column.numFormatPattern='*.**E**'" ng-model = "column.numFormatPattern" ng-options = "pattern for pattern in expFormatChoices"></select>
+										<br>
+										<select ng-model = "column.numFormatType" ng-options = "type for type in formatTypeChoices" ng-change="setDefaultPattern(column)"></select>
+										<br>
+										
+										<div ng-show="!isNumFormatStandard(column)"> 
+											<select ng-if="isNumFormatFixed(column)"  ng-model="column.numFormatPattern" ng-options = "pattern for pattern in fixedFormatChoices"></select>
+											<select ng-if="!isNumFormatFixed(column)" ng-model = "column.numFormatPattern" ng-options = "pattern for pattern in expFormatChoices"></select>
+										</div>
 									</th>
 								</tr>
-								<tr ng-if="!showInitial">
-									<th ng-if="column.show" ng-repeat="column in columnTable.columns" style="padding:10px 5px 15px 20px; background-color: #DEDEDE;" >
+								<tr ng-if="toggled">
+									<th ng-if="column.show" ng-repeat="column in columnTable.columns" style="padding:10px 10px 15px 10px; background-color: #DEDEDE;" >
 										<span ng-bind="column.name"></span>
 									</th>
 								</tr>
-								<tr ng-if="showInitial" ng-repeat="rowValue in columnTable.data">
+								<tr ng-if="!toggled" ng-repeat="rowValue in columnTable.data">
 									<td ng-repeat = "value in rowValue track by $index" style="padding:10px 5px 15px 20px;">
 										<div ng-show="columnTable.columns[$index].show" ng-bind="value"></div>
 										<div ng-hide="columnTable.columns[$index].show"></div>
 									</td>
 								</tr>
-								<tr ng-if="!showInitial" ng-repeat="rowValue in columnTable.data">
+								<tr ng-if="toggled" ng-repeat="rowValue in columnTable.data">
 									<td ng-if="columnTable.columns[$index].show" ng-repeat = "value in display(rowValue) track by $index" style="padding:10px 5px 15px 20px;">
 										<div ng-show="columnTable.columns[$index].show" ng-bind="value"></div>
 										<div ng-hide="columnTable.columns[$index].show"></div>
