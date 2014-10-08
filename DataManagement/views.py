@@ -50,7 +50,7 @@ def hdfInterfaceView(request):
 			hdfIface.deleteItem(hdfNode["path"])
 		return HttpResponseRedirect(reverse('home'))
 	else:
-		return render_to_response('DataManagement/TestView.html', 
+		return render_to_response('DataManagement/HdfInterface.html', 
 								  context_instance=RequestContext(request))
 	
 
@@ -106,4 +106,3 @@ def CSVtoHDF(request):
 		CSVImporterObjects.pop(importerId)
 		
 	return HttpResponseRedirect(reverse('home'))
-	

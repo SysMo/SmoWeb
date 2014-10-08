@@ -5,3 +5,6 @@ def home(request):
 
 def platform(request):
     return render_to_response('Platform.html', context_instance=RequestContext(request))
+
+def testView(request):
+    return render_to_response('TestView.html', context_instance=RequestContext(request))
