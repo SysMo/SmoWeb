@@ -79,6 +79,7 @@ angular.module('testApp', ['ui.bootstrap', 'angularTreeview'])
 		
 		$scope.toggled = false;
 		$scope.toggleText = "Show selected";
+		$scope.toAll = false;
 		
 		
 		for (var i = 0; i < $scope.columnTable.columns.length; i++){
@@ -87,6 +88,13 @@ angular.module('testApp', ['ui.bootstrap', 'angularTreeview'])
 			$scope.columnTable.columns[i].defaultFixedPattern = true;
 			$scope.columnTable.columns[i].defaultExpPattern = true;
 		}	
+		
+		$scope.modelColumn = {},
+		$scope.modelColumn.name = 'modelColumn';
+		$scope.modelColumn.numFormatType = 'standard';
+		$scope.modelColumn.numFormatPattern = '';
+		$scope.modelColumn.defaultFixedPattern = true;
+		$scope.modelColumn.defaultExpPattern = true;
 		
 		$scope.setDefaultPattern = function(column){
 			if (column.numFormatType == 'fixed' && column.defaultFixedPattern){
@@ -100,7 +108,21 @@ angular.module('testApp', ['ui.bootstrap', 'angularTreeview'])
 			} else {
 				column.defaultFixedPattern = true;
 				column.defaultExpPattern = true;
-			}		
+			}
+			if (column.name != 'modelColumn'){
+				$scope.toAll = false;
+				$scope.modelColumn.numFormatType = 'standard';
+			}
+			if (column.name == 'modelColumn'){
+				$scope.toAll = true;
+			}	
+		}
+		
+		$scope.SetToAll = function(modelColumn){
+			for (var i = 0; i < $scope.columnTable.columns.length; i++){
+				$scope.columnTable.columns[i].numFormatType = modelColumn.numFormatType;
+				$scope.columnTable.columns[i].numFormatPattern = modelColumn.numFormatPattern;
+			}	
 		}
 		
 		$scope.toggleTable = function(){						
@@ -213,10 +235,21 @@ div .scrollable {
 			<div class="col-md" style="background-color: #F6F6F6; border: 1px solid #000;">
 				<table>
 					<tr>
-						<td style="vertical-align: top; padding-top:15px; padding-left:10px;padding-right:10px; padding-bottom:10px;">	 
-							<button class="btn btn-default" ng-click="toggleTable()" ng-bind="toggleText"></button>					
-							<div ng-if="!toggled" style="text-align:right; font-size:medium;">Format:</div>
-							<div ng-if="!toggled" style="text-align:right;  font-size:medium;">Pattern:</div>
+						<td style="vertical-align: top; padding-top:15px; padding-left:10px;padding-right:10px; padding-bottom:10px;">
+							<div ng-if="!toggled"><button class="btn btn-info btn-sm" ng-click="SetToAll(modelColumn)" style="font-weight:bold; color:black;">Set Format to All</button></div>
+							<div ng-if="!toggled">	
+								<select ng-model = "modelColumn.numFormatType" ng-options = "type for type in formatTypeChoices" ng-change="setDefaultPattern(modelColumn)"></select>
+										<br>										
+										<div ng-if="!isNumFormatStandard(modelColumn) && toAll"> 
+											<select ng-if="isNumFormatFixed(modelColumn)"  ng-model="modelColumn.numFormatPattern" ng-options = "pattern for pattern in fixedFormatChoices"></select>
+											<select ng-if="!isNumFormatFixed(modelColumn)" ng-model = "modelColumn.numFormatPattern" ng-options = "pattern for pattern in expFormatChoices"></select>
+										</div>	
+							<br>							
+							</div>
+<!-- 							<div ng-show="!toggled" style="text-align:right; font-size:medium;">Format:</div> -->
+<!-- 							<div ng-show="!toggled" style="text-align:right;  font-size:medium;">Pattern:</div> -->
+							
+							<button class="btn btn-default" ng-click="toggleTable()" ng-bind="toggleText"></button>
 						</td>					
 						<td>
 							<div class="scrollable">
