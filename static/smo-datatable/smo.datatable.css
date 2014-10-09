@@ -1,13 +1,14 @@
-div .scrollable {
-/* 	width: 1030px; */
-/* 	height: 500px; */
-	width: 80vw;
-	height: 65vh;
+div .scrollable-container {
+ 	width: auto; 
+ 	max-height: 70vh; 
     overflow:auto;
+    background-color: #F6F6F6; 
+    border: 1px solid #000;
 }
-.no-margin {
-	margin-left:-20px; 
-	margin-right:-20px;
+
+table th {
+	padding:5px 10px 15px 10px; 
+	background-color: #DEDEDE; 
 }
 
 .my-table {
@@ -16,9 +17,8 @@ div .scrollable {
 	border: 1px solid; 
 	border-color: black;	
  	margin-top:15px; 
- 	margin-bottom: 15px; 
-	
-	
+ 	margin-bottom: 15px;
+ 	margin-left:15px; 	
 }
 
 .my-table th {
@@ -29,6 +29,7 @@ div .scrollable {
 
 .my-table td {
 	border: 1pt solid #7F7F7F;
+	padding:10px 5px 15px 20px;
 }
 
 .my-table tr td:first-child {
