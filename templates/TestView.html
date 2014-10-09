@@ -46,12 +46,13 @@ angular.module('testApp', ['ui.bootstrap', 'angularTreeview'])
 				[2, 3, 4, 2, 2, 3, 4, 2, 12, 13, 2, 3, 4]
   	        ]
 		};
-		$scope.range = function(min, max, step){
-			step = step || 1;
-			var input = [];
-			for (var i = min; i < max; i += step) input.push(i);
-			return input;
-		};
+
+// 		$scope.range = function(min, max, step){
+// 			step = step || 1;
+// 			var input = [];
+// 			for (var i = min; i < max; i += step) input.push(i);
+// 			return input;
+// 		};
 		
 		
 		$scope.formatTypeChoices = ["standard", "fixed", "exponential"];
@@ -80,7 +81,7 @@ angular.module('testApp', ['ui.bootstrap', 'angularTreeview'])
 		$scope.toggled = false;
 		$scope.toggleText = "Show selected";
 		$scope.toAll = false;
-		
+		$scope.checkAlltext = "Uncheck all"
 		
 		for (var i = 0; i < $scope.columnTable.columns.length; i++){
 			$scope.columnTable.columns[i].numFormatType = 'standard';
@@ -96,6 +97,7 @@ angular.module('testApp', ['ui.bootstrap', 'angularTreeview'])
 		$scope.modelColumn.defaultFixedPattern = true;
 		$scope.modelColumn.defaultExpPattern = true;
 		$scope.modelColumn.isModelColumn = true;
+		$scope.modelColumn.show = true;
 		
 		$scope.setDefaultPattern = function(column){
 			if (column.numFormatType == 'fixed' && column.defaultFixedPattern){
@@ -109,20 +111,52 @@ angular.module('testApp', ['ui.bootstrap', 'angularTreeview'])
 			} else {
 				column.defaultFixedPattern = true;
 				column.defaultExpPattern = true;
+			}			
+						
+			if (column.isModelColumn){
+				$scope.toAll = true;
 			}
+			if (!column.isModelColumn){
+				$scope.setDefaultPatternToModelColumn(column);
+			}
+		}
+		
+		$scope.setDefaultPatternToModelColumn = function(column){
 			if (!column.isModelColumn){
 				$scope.toAll = false;
 				$scope.modelColumn.numFormatType = 'standard';
+				$scope.setDefaultPattern($scope.modelColumn);
 			}
-			if (column.isModelColumn){
-				$scope.toAll = true;
-			}	
+		}
+		
+// 		$scope.resetModelColumn = function(column){
+// 			if (!column.isModelColumn){
+// 				$scope.toAll = false;
+				
+// 			}
+// 		}
+		
+		$scope.checkAll = function(){
+			$scope.modelColumn.show = !$scope.modelColumn.show;
+			if ($scope.modelColumn.show){
+				for (var i = 0; i < $scope.columnTable.columns.length; i++){
+					$scope.columnTable.columns[i].show = true;
+				}
+				$scope.checkAlltext = "Uncheck all";
+			} else {
+				for (var i = 0; i < $scope.columnTable.columns.length; i++){
+					$scope.columnTable.columns[i].show = false;
+				}
+				$scope.checkAlltext = "Check all";
+			}				
 		}
 		
 		$scope.SetToAll = function(modelColumn){
 			for (var i = 0; i < $scope.columnTable.columns.length; i++){
 				$scope.columnTable.columns[i].numFormatType = modelColumn.numFormatType;
 				$scope.columnTable.columns[i].numFormatPattern = modelColumn.numFormatPattern;
+				$scope.columnTable.columns[i].defaultFixedPattern = true;
+				$scope.columnTable.columns[i].defaultExpPattern = true;
 			}	
 		}
 		
@@ -155,8 +189,6 @@ angular.module('testApp', ['ui.bootstrap', 'angularTreeview'])
 			}
 			return displayRow;
 		};
-
-// 		$scope.fileName = "my.csv";
 		
 		$scope.enterCSVfileName = function(){
 			$scope.showInputField = true;
@@ -178,10 +210,6 @@ angular.module('testApp', ['ui.bootstrap', 'angularTreeview'])
 			columnNamesString = columnsArray.join(",");
 			csvContent += columnNamesString + "\n"; 
 			data.forEach(function(item, index, dataArray){
-				
-// 				if (!columns[index].show){
-// 					return;
-// 				}
 				var resultItem = new Array();
 				for (var i=0; i < item.length; i++){
 					if (columns[i].show){
@@ -209,8 +237,6 @@ angular.module('testApp', ['ui.bootstrap', 'angularTreeview'])
 		 		  alert("Needs to implement server side export");
 		 		  return;
 		 	}
-		 	
-// 		 	link.innerHTML = "Export to CSV";
 		 	document.body.appendChild(link);
 		 	link.click();
 		 	$scope.showInputField = false;
@@ -227,20 +253,7 @@ angular.module('testApp', ['ui.bootstrap', 'angularTreeview'])
 	        }
 		}
 	});
-	
-//some data to export
-// var data = [
-//   {"title": "Book title 1", "author": "Name1 Surname1"},
-//   {"title": "Book title 2", "author": "Name2 Surname2"},
-//   {"title": "Book title 3", "author": "Name3 Surname3"},
-//   {"title": "Book title 4", "author": "Name4 Surname4"}
-// ];
 
-
-
-
-
-	
 </script>
 <style>
 
@@ -305,19 +318,19 @@ div .scrollable {
 				<table>
 					<tr>
 						<td style="vertical-align: top; padding-top:15px; padding-left:10px;padding-right:10px; padding-bottom:10px;">
-							<div ng-if="!toggled"><button class="btn btn-info btn-sm" ng-click="SetToAll(modelColumn)" style="font-weight:bold; color:black;">Set Format to All</button></div>
-							<div ng-if="!toggled">	
+							<div ng-if="!toggled">
+								<button class="btn btn-info btn-sm" ng-click="checkAll()" style="font-weight:bold; color:black;" ng-bind="checkAlltext"></button>
 								<select ng-model = "modelColumn.numFormatType" ng-options = "type for type in formatTypeChoices" ng-change="setDefaultPattern(modelColumn)"></select>
-										<br>										
-										<div ng-if="!isNumFormatStandard(modelColumn) && toAll"> 
-											<select ng-if="isNumFormatFixed(modelColumn)"  ng-model="modelColumn.numFormatPattern" ng-options = "pattern for pattern in fixedFormatChoices"></select>
-											<select ng-if="!isNumFormatFixed(modelColumn)" ng-model = "modelColumn.numFormatPattern" ng-options = "pattern for pattern in expFormatChoices"></select>
-										</div>	
-							<br>							
+								<br>										
+								<div ng-if="!isNumFormatStandard(modelColumn) && toAll"> 
+									<select ng-if="isNumFormatFixed(modelColumn)"  ng-model="modelColumn.numFormatPattern" ng-options = "pattern for pattern in fixedFormatChoices"></select>
+									<select ng-if="!isNumFormatFixed(modelColumn)" ng-model = "modelColumn.numFormatPattern" ng-options = "pattern for pattern in expFormatChoices"></select>
+								</div>	
+								<button class="btn btn-info btn-sm" ng-click="SetToAll(modelColumn)" style="font-weight:bold; color:black;">Set Format to All</button>
+								<br>
+								<br>
 							</div>
-							<button class="btn btn-default" ng-click="toggleTable()" ng-bind="toggleText"></button>
-							<br>
-							<br>
+							<div><button class="btn btn-default" ng-click="toggleTable()" ng-bind="toggleText"></button><span ng-if="toggled">&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</span></div>
 							<div ng-if="!toggled && !showInputField"><button class="btn btn-default" ng-click="enterCSVfileName()">Export to CSV</button></div>
 							<div ng-if="!toggled && showInputField">
 								File name:<input type="text" ng-model="fileName" style="max-width:120px;"></input>
@@ -333,11 +346,10 @@ div .scrollable {
 										<input type="checkbox" ng-model="column.show"></input>
 										<br>
 										<select ng-model = "column.numFormatType" ng-options = "type for type in formatTypeChoices" ng-change="setDefaultPattern(column)"></select>
-										<br>
-										
+										<br>										
 										<div ng-show="!isNumFormatStandard(column)"> 
-											<select ng-if="isNumFormatFixed(column)"  ng-model="column.numFormatPattern" ng-options = "pattern for pattern in fixedFormatChoices"></select>
-											<select ng-if="!isNumFormatFixed(column)" ng-model = "column.numFormatPattern" ng-options = "pattern for pattern in expFormatChoices"></select>
+											<select ng-if="isNumFormatFixed(column)"  ng-model="column.numFormatPattern" ng-options = "pattern for pattern in fixedFormatChoices" ng-change="setDefaultPatternToModelColumn(column)"></select>
+											<select ng-if="!isNumFormatFixed(column)" ng-model = "column.numFormatPattern" ng-options = "pattern for pattern in expFormatChoices" ng-change="setDefaultPatternToModelColumn(column)"></select>
 										</div>
 									</th>
 								</tr>
