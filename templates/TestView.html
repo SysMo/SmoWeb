@@ -170,12 +170,26 @@ angular.module('testApp', ['ui.bootstrap', 'angularTreeview'])
 			var columnsArray = new Array();
 			
 			columns.forEach(function(column, index, array){
+				if (!column.show){
+					return;
+				}
 				columnsArray.push('"' + column.name + '"');		
 			});
 			columnNamesString = columnsArray.join(",");
 			csvContent += columnNamesString + "\n"; 
 			data.forEach(function(item, index, dataArray){
-			   dataString = item.join(",");
+				
+// 				if (!columns[index].show){
+// 					return;
+// 				}
+				var resultItem = new Array();
+				for (var i=0; i < item.length; i++){
+					if (columns[i].show){
+						resultItem.push(item[i]);
+					}
+				}
+				
+			   dataString = resultItem.join(",");
 			   csvContent += dataString+ "\n";
 			}); 
 
