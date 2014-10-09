@@ -87,14 +87,15 @@ angular.module('testApp', ['ui.bootstrap', 'angularTreeview'])
 			$scope.columnTable.columns[i].numFormatPattern = '';
 			$scope.columnTable.columns[i].defaultFixedPattern = true;
 			$scope.columnTable.columns[i].defaultExpPattern = true;
+			$scope.columnTable.columns[i].isModelColumn = false;
 		}	
 		
 		$scope.modelColumn = {},
-		$scope.modelColumn.name = 'modelColumn';
 		$scope.modelColumn.numFormatType = 'standard';
 		$scope.modelColumn.numFormatPattern = '';
 		$scope.modelColumn.defaultFixedPattern = true;
 		$scope.modelColumn.defaultExpPattern = true;
+		$scope.modelColumn.isModelColumn = true;
 		
 		$scope.setDefaultPattern = function(column){
 			if (column.numFormatType == 'fixed' && column.defaultFixedPattern){
@@ -109,11 +110,11 @@ angular.module('testApp', ['ui.bootstrap', 'angularTreeview'])
 				column.defaultFixedPattern = true;
 				column.defaultExpPattern = true;
 			}
-			if (column.name != 'modelColumn'){
+			if (!column.isModelColumn){
 				$scope.toAll = false;
 				$scope.modelColumn.numFormatType = 'standard';
 			}
-			if (column.name == 'modelColumn'){
+			if (column.isModelColumn){
 				$scope.toAll = true;
 			}	
 		}
@@ -154,6 +155,53 @@ angular.module('testApp', ['ui.bootstrap', 'angularTreeview'])
 			}
 			return displayRow;
 		};
+
+// 		$scope.fileName = "my.csv";
+		
+		$scope.enterCSVfileName = function(){
+			$scope.showInputField = true;
+		}
+		
+		$scope.exportCSV = function (fileName){
+			// prepare CSV data
+			var columns = $scope.columnTable.columns;
+			var data = $scope.columnTable.data;
+			var csvContent  = "";
+			var columnsArray = new Array();
+			
+			columns.forEach(function(column, index, array){
+				columnsArray.push('"' + column.name + '"');		
+			});
+			columnNamesString = columnsArray.join(",");
+			csvContent += columnNamesString + "\n"; 
+			data.forEach(function(item, index, dataArray){
+			   dataString = item.join(",");
+			   csvContent += dataString+ "\n";
+			}); 
+
+			// download stuff
+		 	var blob = new Blob([csvContent], {
+		 	  "type": "text/csv;charset=utf8;"			
+		 	});
+		 	var link = document.createElement("a");
+						
+		 	if(link.download !== undefined) { // feature detection
+		 	  // Browsers that support HTML5 download attribute
+		 	  link.setAttribute("href", window.URL.createObjectURL(blob));
+		 	  link.setAttribute("download", fileName);
+		 	 } else {
+		 		// it needs to implement server side export
+				//link.setAttribute("href", "http://www.example.com/export");
+		 		  alert("Needs to implement server side export");
+		 		  return;
+		 	}
+		 	
+// 		 	link.innerHTML = "Export to CSV";
+		 	document.body.appendChild(link);
+		 	link.click();
+		 	$scope.showInputField = false;
+		};	
+		 	
 		
 	}])
 	.directive('smoDataTable', function () {
@@ -165,6 +213,19 @@ angular.module('testApp', ['ui.bootstrap', 'angularTreeview'])
 	        }
 		}
 	});
+	
+//some data to export
+// var data = [
+//   {"title": "Book title 1", "author": "Name1 Surname1"},
+//   {"title": "Book title 2", "author": "Name2 Surname2"},
+//   {"title": "Book title 3", "author": "Name3 Surname3"},
+//   {"title": "Book title 4", "author": "Name4 Surname4"}
+// ];
+
+
+
+
+
 	
 </script>
 <style>
@@ -185,9 +246,7 @@ div .scrollable {
 	background: white;
 	color: black;
 	border: 1px solid; 
-	border-color: black;
-	
-	
+	border-color: black;	
  	margin-top:15px; 
  	margin-bottom: 15px; 
 	
@@ -216,10 +275,6 @@ div .scrollable {
 	border-bottom: 1pt solid black;
 }
 
-/* .my-table tr:nth-last-child(2) td { */
-/* 	border-bottom: 1pt solid black; */
-/* } */
-
 </style>
 {% endblock %}
 
@@ -246,10 +301,14 @@ div .scrollable {
 										</div>	
 							<br>							
 							</div>
-<!-- 							<div ng-show="!toggled" style="text-align:right; font-size:medium;">Format:</div> -->
-<!-- 							<div ng-show="!toggled" style="text-align:right;  font-size:medium;">Pattern:</div> -->
-							
 							<button class="btn btn-default" ng-click="toggleTable()" ng-bind="toggleText"></button>
+							<br>
+							<br>
+							<div ng-if="!toggled && !showInputField"><button class="btn btn-default" ng-click="enterCSVfileName()">Export to CSV</button></div>
+							<div ng-if="!toggled && showInputField">
+								File name:<input type="text" ng-model="fileName" style="max-width:120px;"></input>
+								<button class="btn btn-default" ng-click="exportCSV(fileName)">Submit</button>
+							</div>
 						</td>					
 						<td>
 							<div class="scrollable">
