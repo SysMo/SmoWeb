@@ -6,6 +6,11 @@ div .scrollable-container {
     border: 1px solid #000;
 }
 
+div select {
+	font-weight: bold;
+	color: black;
+}
+
 table th {
 	padding:5px 10px 15px 10px; 
 	background-color: #DEDEDE; 

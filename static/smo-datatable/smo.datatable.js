@@ -1,7 +1,7 @@
 (function ( angular ) {
 	'use strict';
 
-	angular.module('smoDataTableModule', ['ui.bootstrap', 'angularTreeview'])
+	angular.module('smoDataTableModule', ['ui.bootstrap'])
 	.directive('smoDataTable', ['$compile', function ($compile) {
 		return {
 	        restrict: 'E',
@@ -163,7 +163,7 @@
 		    		}
 		    		
 		    		scope.display = function(row){
-		    			displayRow = [];
+		    			var displayRow = [];
 		    			for (var i = 0; i < row.length; i++){
 		    				if (scope.columnTable.columns[i].numFormatType =='standard'){
 		    					displayRow.push(row[i]);
@@ -186,6 +186,8 @@
 		    			var data = scope.columnTable.data;
 		    			var csvContent  = "";
 		    			var columnsArray = new Array();
+		    			var columnNamesString;
+		    			var dataString;
 		    			
 		    			columns.forEach(function(column, index, array){
 		    				if (!column.show){
@@ -227,70 +229,76 @@
 		    		 	link.click();
 		    		 	scope.showInputField = false;
 		    		};	
+		         
+		    		var	innerTemplate =
+	    				'<div class="scrollable-container">' +
+	    					'<table class = "my-table">' +						
+	    						'<tr ng-if="!toggled">' +
+	    							'<th ng-repeat="column in columnTable.columns">' +
+	    								'<span ng-bind="column.name"></span>' +
+	    								'<input type="checkbox" ng-model="column.show"></input>' +
+	    								'<br>' +
+	    								'<select ng-model = "column.numFormatType" ng-options = "type for type in formatTypeChoices" ng-change="setDefaultPattern(column)"></select>' +
+	    								'<br>' +										
+	    								'<div ng-show="!isNumFormatStandard(column)">' + 
+	    									'<select ng-if="isNumFormatFixed(column)"  ng-model="column.numFormatPattern" ng-options = "pattern for pattern in fixedFormatChoices" ng-change="setDefaultPatternToModelColumn(column)"></select>' +
+	    									'<select ng-if="!isNumFormatFixed(column)" ng-model = "column.numFormatPattern" ng-options = "pattern for pattern in expFormatChoices" ng-change="setDefaultPatternToModelColumn(column)"></select>' +
+	    								'</div>' +
+	    							'</th>' +
+	    						'</tr>' +
+	    						'<tr ng-if="toggled">' +
+	    							'<th ng-if="column.show" ng-repeat="column in columnTable.columns">' +
+	    								'<span ng-bind="column.name"></span>' +
+	    							'</th>' +
+	    						'</tr>' +
+	    						'<tr ng-if="!toggled" ng-repeat="rowValue in columnTable.data">' +
+	    							'<td ng-repeat = "value in rowValue track by $index">' +
+	    								'<div ng-show="columnTable.columns[$index].show" ng-bind="value"></div>' +
+	    								'<div ng-hide="columnTable.columns[$index].show"></div>' +
+	    							'</td>' +
+	    						'</tr>' +
+	    						'<tr ng-if="toggled" ng-repeat="rowValue in columnTable.data">' +
+	    							'<td ng-if="columnTable.columns[$index].show" ng-repeat = "value in display(rowValue) track by $index">' +
+	    								'<div ng-show="columnTable.columns[$index].show" ng-bind="value"></div>' +
+	    								'<div ng-hide="columnTable.columns[$index].show"></div>' +
+	    							'</td>' +
+	    						'</tr>' +				
+	    					'</table>' +
+	    				'</div>';
+		    			
+		    		
+		    		
+		    		var template = //bootstrap-dependent
+		    		'<div class="container">' +
+			    		'<br>' +
+			    		'<div class="row">' +
+			    			'<div class="col-md-2" style="vertical-align: top; text-align:right; padding-top:15px;  padding-bottom:10px;">' +
+			    				'<div ng-if="!toggled">' +
+			    					'<div><button class="btn btn-default btn-sm" ng-click="checkAll()" style="font-weight:bold; color:black;" ng-bind="checkAlltext"></button></div>' +
+			    					'<div><select ng-model = "modelColumn.numFormatType" ng-options = "type for type in formatTypeChoices" ng-change="setDefaultPattern(modelColumn)"></select></div>' +										
+			    					'<div ng-if="!isNumFormatStandard(modelColumn) && toAll">' + 
+			    						'<select ng-if="isNumFormatFixed(modelColumn)"  ng-model="modelColumn.numFormatPattern" ng-options = "pattern for pattern in fixedFormatChoices"></select>' +
+			    						'<select ng-if="!isNumFormatFixed(modelColumn)" ng-model = "modelColumn.numFormatPattern" ng-options = "pattern for pattern in expFormatChoices"></select>' +
+			    					'</div>' +	
+			    					'<div><button class="btn btn-default btn-sm" ng-click="SetToAll(modelColumn)" style="font-weight:bold; color:black;">Set Format to All</button></div>' +
+			    					'<br>' +
+			    				'</div>' +
+			    				'<button class="btn btn-default" ng-click="toggleTable()" ng-bind="toggleText"></button>' +
+			    				'<div ng-if="!toggled && !showInputField"><button class="btn btn-default" ng-click="enterCSVfileName()">Export to CSV</button></div>' +
+			    				'<div ng-if="!toggled && showInputField">' +
+			    					'File name:<input type="text" ng-model="fileName" style="width:72%;"></input>' +
+			    					'<button class="btn btn-default" ng-click="exportCSV(fileName)">Submit</button>' +
+			    				'</div>' +	
+			    			'</div>' +
+			    			'<div class="col-md-10">' +	
+			    				innerTemplate + 
+			    			'</div>' +	
+			    		'</div>' +
+			    	'</div>';
 		        
-		    		var template = 
-		    		<div class="container">
-			    		<br>
-			    		<div class="row">
-			    			<div class="col-md-2" style="vertical-align: top; text-align:right; padding-top:15px;  padding-bottom:10px;">
-			    				<div ng-if="!toggled">
-			    					<div><button class="btn btn-info btn-sm" ng-click="checkAll()" style="font-weight:bold; color:black;" ng-bind="checkAlltext"></button></div>
-			    					<div><select ng-model = "modelColumn.numFormatType" ng-options = "type for type in formatTypeChoices" ng-change="setDefaultPattern(modelColumn)"></select></div>										
-			    					<div ng-if="!isNumFormatStandard(modelColumn) && toAll"> 
-			    						<select ng-if="isNumFormatFixed(modelColumn)"  ng-model="modelColumn.numFormatPattern" ng-options = "pattern for pattern in fixedFormatChoices"></select>
-			    						<select ng-if="!isNumFormatFixed(modelColumn)" ng-model = "modelColumn.numFormatPattern" ng-options = "pattern for pattern in expFormatChoices"></select>
-			    					</div>	
-			    					<div><button class="btn btn-info btn-sm" ng-click="SetToAll(modelColumn)" style="font-weight:bold; color:black;">Set Format to All</button></div>
-			    					<br>
-			    				</div>
-			    				<button class="btn btn-default" ng-click="toggleTable()" ng-bind="toggleText"></button>
-			    				<div ng-if="!toggled && !showInputField"><button class="btn btn-default" ng-click="enterCSVfileName()">Export to CSV</button></div>
-			    				<div ng-if="!toggled && showInputField">
-			    					File name:<input type="text" ng-model="fileName" style="width:72%;"></input>
-			    					<button class="btn btn-default" ng-click="exportCSV(fileName)">Submit</button>
-			    				</div>	
-			    			</div>
-			    			<div class="col-md-10">			
-			    				<div class="scrollable-container">
-			    					<table class = "my-table">						
-			    						<tr ng-if="!toggled">
-			    							<th ng-repeat="column in columnTable.columns">
-			    								<span ng-bind="column.name"></span>
-			    								<input type="checkbox" ng-model="column.show"></input>
-			    								<br>
-			    								<select ng-model = "column.numFormatType" ng-options = "type for type in formatTypeChoices" ng-change="setDefaultPattern(column)"></select>
-			    								<br>										
-			    								<div ng-show="!isNumFormatStandard(column)"> 
-			    									<select ng-if="isNumFormatFixed(column)"  ng-model="column.numFormatPattern" ng-options = "pattern for pattern in fixedFormatChoices" ng-change="setDefaultPatternToModelColumn(column)"></select>
-			    									<select ng-if="!isNumFormatFixed(column)" ng-model = "column.numFormatPattern" ng-options = "pattern for pattern in expFormatChoices" ng-change="setDefaultPatternToModelColumn(column)"></select>
-			    								</div>
-			    							</th>
-			    						</tr>
-			    						<tr ng-if="toggled">
-			    							<th ng-if="column.show" ng-repeat="column in columnTable.columns">
-			    								<span ng-bind="column.name"></span>
-			    							</th>
-			    						</tr>
-			    						<tr ng-if="!toggled" ng-repeat="rowValue in columnTable.data">
-			    							<td ng-repeat = "value in rowValue track by $index">
-			    								<div ng-show="columnTable.columns[$index].show" ng-bind="value"></div>
-			    								<div ng-hide="columnTable.columns[$index].show"></div>
-			    							</td>
-			    						</tr>
-			    						<tr ng-if="toggled" ng-repeat="rowValue in columnTable.data">
-			    							<td ng-if="columnTable.columns[$index].show" ng-repeat = "value in display(rowValue) track by $index">
-			    								<div ng-show="columnTable.columns[$index].show" ng-bind="value"></div>
-			    								<div ng-hide="columnTable.columns[$index].show"></div>
-			    							</td>
-			    						</tr>				
-			    					</table>
-			    				</div>
-			    			</div>	
-			    		</div>
-			    	</div>
 		        
-		        
-	        	element.html('').append( $compile(template)(scope) );
+	        	element.html('').append( $compile ( template )( scope ) );
 	        }
 		}
-	});
+	}]);
+})( angular );
