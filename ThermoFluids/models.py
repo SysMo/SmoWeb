@@ -2,7 +2,7 @@ from django.db import models
 # Create your models here.
 
 
-class FluidProps_SetUpModel(models.Model):	
+class FluidPropertiesCoolPropModel(models.Model):	
 	STATE_VARIABLE_CHOICES = (
 		('PT', 'pressure & temperature'),
 		('PH', 'pressure & enthalpy'),
@@ -25,7 +25,7 @@ class FluidProps_SetUpModel(models.Model):
 	
 	def computeFluidProps(self):
 		import numpy as np
-		from SmoFluidProps.SmoFlow3D.Media import MediumState, Medium
+		from ThermoFluids.SmoFlow3D.Media import MediumState, Medium
 		state1Values = np.linspace(
 			self.stateVariable1MinValue, self.stateVariable1MaxValue, 
 			self.stateVariable1NumValues, True)

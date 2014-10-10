@@ -10,4 +10,6 @@ urlpatterns = patterns('',
     url(r'^ImportCSV/$', views.importCSV, name='ImportCSV'),
     url(r'^CSVtoHDF/$', views.CSVtoHDF, name='CSVtoHDF'),
     url(r'^HdfInterface/$', views.hdfInterfaceView, name='HdfInterfaceView'),
+    url(r'^DataExplorer/$', views.dataExplorerView, name='DataExplorer'),
+    url(r'^TestView/', views.testView, name='testView'), 
 )
