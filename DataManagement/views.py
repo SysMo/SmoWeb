@@ -52,7 +52,9 @@ def hdfInterfaceView(request):
 	else:
 		return render_to_response('DataManagement/HdfInterface.html', 
 								  context_instance=RequestContext(request))
-	
+def dataExplorerView(request):
+		return render_to_response('DataManagement/DataExplorer.html', 
+								  context_instance=RequestContext(request))
 
 def importCSV(request):	
 	if request.method == "POST":
@@ -106,3 +108,7 @@ def CSVtoHDF(request):
 		CSVImporterObjects.pop(importerId)
 		
 	return HttpResponseRedirect(reverse('home'))
+
+def testView(request):
+	return render_to_response('DataManagement/TestView.html', context_instance=RequestContext(request))
+

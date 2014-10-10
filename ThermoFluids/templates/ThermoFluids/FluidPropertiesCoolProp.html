@@ -4,6 +4,8 @@
 
 {% block scripts_and_styles %}
 <script src="{% static 'SmoUtil.js' %}"></script>
+<script src="{% static 'smo-datatable/smo.datatable.js' %}"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'smo-datatable/smo.datatable.css' %}">
 <script>
 angular.module('testApp', ['ui.bootstrap', 'smo'])
 	.controller('testController', [ '$scope', '$http', '$window', 'units', function($scope, $http, $window, units) {
@@ -37,7 +39,7 @@ angular.module('testApp', ['ui.bootstrap', 'smo'])
 </script>
 {% endblock %}
 {% block content %}
-		<form action = {% url  'SmoFluidProps:FluidProps_SetUp' %} method = "post">
+		<form action = "{% url  'ThermoFluids:FluidPropertiesCoolProp' %}" method = "post">
 		{% csrf_token %}
 		<table>
 			{% for field in form %}
