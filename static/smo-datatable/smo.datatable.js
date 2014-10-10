@@ -7,43 +7,43 @@
 	        restrict: 'E',
 	        link: function(scope, element, attrs) {
 		        var template = "";
-		        var columnTable = attrs.columnTable;
+		        var columnTable = attrs.tableModel;
 		        
-		        scope.columnTable = {
-		    			columns : [
-		              		{name : 'time', show : true, numFormatType:'standard'},
-		              		{name : 'acceleration', show : true, numFormatType:'standard'},
-		              		{name : 'speed', show : true, numFormatType:'standard'},
-		              		{name : 'velocity', show : true, numFormatType:'standard'},
-		              		{name : 'time2', show : true, numFormatType:'standard'},
-		              		{name : 'acceleration2', show : true, numFormatType:'standard'},
-		              		{name : 'speed2', show : true, numFormatType:'standard'},
-		              		{name : 'velocity2', show : true, numFormatType:'standard'},
-		              		{name : 'speed3', show : true, numFormatType:'standard'},
-		              		{name : 'velocity3', show : true, numFormatType:'standard'},
-		              		{name : 'acceleration2', show : true, numFormatType:'standard'},
-		              		{name : 'acceleration3', show : true, numFormatType:'standard'},
-		              		{name : 'acceleration4', show : true, numFormatType:'standard'},
-		              	],
-		              	data : [
-		    				[1.7, 2, 3, 4, 10, 11, 12, 13, 12, 13, 2, 3, 4],
-		    				[4, 5, 6, 7, 6, 7, 8, 9, 12, 13, 2, 3, 4],
-		    				[6, 7, 8, 9, 8, 9, 10, 11, 12, 13, 2, 3, 4],
-		    				[8, 9, 10, 11, 10, 11, 12, 13, 12, 13, 2, 3, 4],
-		    				[10, 11, 12, 13, 2, 3, 4, 2, 12, 13, 2, 3, 4],
-		    				[2, 3, 4, 2, 10, 11, 12, 13, 12, 13, 2, 3, 4],
-		    				[10, 11, 12, 13, 2, 3, 4, 2, 12, 13, 2, 3, 4],
-		    				[2, 3, 4, 2, 1, 2, 3, 4, 12, 13, 2, 3, 4],
-		    				[1, 2, 3, 4, 4, 5, 6, 7, 12, 13, 2, 3, 4],
-		    				[4, 5, 6, 7, 6, 7, 8, 9, 12, 13, 2, 3, 4],
-		    				[6, 7, 8, 9, 8, 9, 10, 11, 12, 13, 2, 3, 4],
-		    				[8, 9, 10, 11, 10, 11, 12, 13, 12, 13, 2, 3, 4],
-		    				[10, 11, 12, 13, 2, 3, 4, 2, 12, 13, 2, 3, 4],
-		    				[2, 3, 4, 2, 10, 11, 12, 13, 12, 13, 2, 3, 4],
-		    				[10, 11, 12, 13, 2, 3, 4, 2, 12, 13, 2, 3, 4],
-		    				[2, 3, 4, 2, 2, 3, 4, 2, 12, 13, 2, 3, 4]
-		      	        ]
-		    		};
+//		        scope.columnTable = {
+//		    			columns : [
+//		              		{name : 'time', show : true, numFormatType:'standard'},
+//		              		{name : 'acceleration', show : true, numFormatType:'standard'},
+//		              		{name : 'speed', show : true, numFormatType:'standard'},
+//		              		{name : 'velocity', show : true, numFormatType:'standard'},
+//		              		{name : 'time2', show : true, numFormatType:'standard'},
+//		              		{name : 'acceleration2', show : true, numFormatType:'standard'},
+//		              		{name : 'speed2', show : true, numFormatType:'standard'},
+//		              		{name : 'velocity2', show : true, numFormatType:'standard'},
+//		              		{name : 'speed3', show : true, numFormatType:'standard'},
+//		              		{name : 'velocity3', show : true, numFormatType:'standard'},
+//		              		{name : 'acceleration2', show : true, numFormatType:'standard'},
+//		              		{name : 'acceleration3', show : true, numFormatType:'standard'},
+//		              		{name : 'acceleration4', show : true, numFormatType:'standard'},
+//		              	],
+//		              	data : [
+//		    				[1.7, 2, 3, 4, 10, 11, 12, 13, 12, 13, 2, 3, 4],
+//		    				[4, 5, 6, 7, 6, 7, 8, 9, 12, 13, 2, 3, 4],
+//		    				[6, 7, 8, 9, 8, 9, 10, 11, 12, 13, 2, 3, 4],
+//		    				[8, 9, 10, 11, 10, 11, 12, 13, 12, 13, 2, 3, 4],
+//		    				[10, 11, 12, 13, 2, 3, 4, 2, 12, 13, 2, 3, 4],
+//		    				[2, 3, 4, 2, 10, 11, 12, 13, 12, 13, 2, 3, 4],
+//		    				[10, 11, 12, 13, 2, 3, 4, 2, 12, 13, 2, 3, 4],
+//		    				[2, 3, 4, 2, 1, 2, 3, 4, 12, 13, 2, 3, 4],
+//		    				[1, 2, 3, 4, 4, 5, 6, 7, 12, 13, 2, 3, 4],
+//		    				[4, 5, 6, 7, 6, 7, 8, 9, 12, 13, 2, 3, 4],
+//		    				[6, 7, 8, 9, 8, 9, 10, 11, 12, 13, 2, 3, 4],
+//		    				[8, 9, 10, 11, 10, 11, 12, 13, 12, 13, 2, 3, 4],
+//		    				[10, 11, 12, 13, 2, 3, 4, 2, 12, 13, 2, 3, 4],
+//		    				[2, 3, 4, 2, 10, 11, 12, 13, 12, 13, 2, 3, 4],
+//		    				[10, 11, 12, 13, 2, 3, 4, 2, 12, 13, 2, 3, 4],
+//		    				[2, 3, 4, 2, 2, 3, 4, 2, 12, 13, 2, 3, 4]
+//		      	        ]
+//		    		};
 		    		
 		    		scope.formatTypeChoices = ["standard", "fixed", "exponential"];
 		    		scope.fixedFormatChoices = [".0f", ".1f", ".2f", ".3f", ".4f", ".5f",
@@ -73,12 +73,12 @@
 		    		scope.toAll = false;
 		    		scope.checkAlltext = "Uncheck all"
 		    		
-		    		for (var i = 0; i < scope.columnTable.columns.length; i++){
-		    			scope.columnTable.columns[i].numFormatType = 'standard';
-		    			scope.columnTable.columns[i].numFormatPattern = '';
-		    			scope.columnTable.columns[i].defaultFixedPattern = true;
-		    			scope.columnTable.columns[i].defaultExpPattern = true;
-		    			scope.columnTable.columns[i].isModelColumn = false;
+		    		for (var i = 0; i < scope[columnTable].columns.length; i++){
+		    			scope[columnTable].columns[i].numFormatType = 'standard';
+		    			scope[columnTable].columns[i].numFormatPattern = '';
+		    			scope[columnTable].columns[i].defaultFixedPattern = true;
+		    			scope[columnTable].columns[i].defaultExpPattern = true;
+		    			scope[columnTable].columns[i].isModelColumn = false;
 		    		}	
 		    		
 		    		scope.modelColumn = {},
@@ -124,24 +124,24 @@
 		    		scope.checkAll = function(){
 		    			scope.modelColumn.show = !scope.modelColumn.show;
 		    			if (scope.modelColumn.show){
-		    				for (var i = 0; i < scope.columnTable.columns.length; i++){
-		    					scope.columnTable.columns[i].show = true;
+		    				for (var i = 0; i < scope[columnTable].columns.length; i++){
+		    					scope[columnTable].columns[i].show = true;
 		    				}
 		    				scope.checkAlltext = "Uncheck all";
 		    			} else {
-		    				for (var i = 0; i < scope.columnTable.columns.length; i++){
-		    					scope.columnTable.columns[i].show = false;
+		    				for (var i = 0; i < scope[columnTable].columns.length; i++){
+		    					scope[columnTable].columns[i].show = false;
 		    				}
 		    				scope.checkAlltext = "Check all";
 		    			}				
 		    		}
 		    		
 		    		scope.SetToAll = function(modelColumn){
-		    			for (var i = 0; i < scope.columnTable.columns.length; i++){
-		    				scope.columnTable.columns[i].numFormatType = modelColumn.numFormatType;
-		    				scope.columnTable.columns[i].numFormatPattern = modelColumn.numFormatPattern;
-		    				scope.columnTable.columns[i].defaultFixedPattern = true;
-		    				scope.columnTable.columns[i].defaultExpPattern = true;
+		    			for (var i = 0; i < scope[columnTable].columns.length; i++){
+		    				scope[columnTable].columns[i].numFormatType = modelColumn.numFormatType;
+		    				scope[columnTable].columns[i].numFormatPattern = modelColumn.numFormatPattern;
+		    				scope[columnTable].columns[i].defaultFixedPattern = true;
+		    				scope[columnTable].columns[i].defaultExpPattern = true;
 		    			}	
 		    		}
 		    		
@@ -155,8 +155,8 @@
 		    			}
 		    			
 		    			if (scope.toggled == true){
-		    				for (var i = 0; i < scope.columnTable.columns.length; i++){
-		    					scope.columnTable.columns[i].numDecimalPoints = scope.columnTable.columns[i].numFormatPattern[1];					
+		    				for (var i = 0; i < scope[columnTable].columns.length; i++){
+		    					scope[columnTable].columns[i].numDecimalPoints = scope[columnTable].columns[i].numFormatPattern[1];					
 		    				}
 		    				scope.showInputField = false;
 		    			}			
@@ -165,12 +165,12 @@
 		    		scope.display = function(row){
 		    			var displayRow = [];
 		    			for (var i = 0; i < row.length; i++){
-		    				if (scope.columnTable.columns[i].numFormatType =='standard'){
+		    				if (scope[columnTable].columns[i].numFormatType =='standard'){
 		    					displayRow.push(row[i]);
-		    				} else if (scope.columnTable.columns[i].numFormatType =='fixed'){
-		    					displayRow.push(row[i].toFixed(scope.columnTable.columns[i].numDecimalPoints));
+		    				} else if (scope[columnTable].columns[i].numFormatType =='fixed'){
+		    					displayRow.push(row[i].toFixed(scope[columnTable].columns[i].numDecimalPoints));
 		    				} else {
-		    					displayRow.push(row[i].toExponential(scope.columnTable.columns[i].numDecimalPoints));
+		    					displayRow.push(row[i].toExponential(scope[columnTable].columns[i].numDecimalPoints));
 		    				}
 		    			}
 		    			return displayRow;
@@ -182,8 +182,8 @@
 		    		
 		    		scope.exportCSV = function (fileName){
 		    			// prepare CSV data
-		    			var columns = scope.columnTable.columns;
-		    			var data = scope.columnTable.data;
+		    			var columns = scope[columnTable].columns;
+		    			var data = scope[columnTable].data;
 		    			var csvContent  = "";
 		    			var columnsArray = new Array();
 		    			var columnNamesString;
@@ -234,7 +234,7 @@
 	    				'<div class="scrollable-container">' +
 	    					'<table class = "my-table">' +						
 	    						'<tr ng-if="!toggled">' +
-	    							'<th ng-repeat="column in columnTable.columns">' +
+	    							'<th ng-repeat="column in ' + columnTable + '.columns">' +
 	    								'<span ng-bind="column.name"></span>' +
 	    								'<input type="checkbox" ng-model="column.show"></input>' +
 	    								'<br>' +
@@ -247,20 +247,20 @@
 	    							'</th>' +
 	    						'</tr>' +
 	    						'<tr ng-if="toggled">' +
-	    							'<th ng-if="column.show" ng-repeat="column in columnTable.columns">' +
+	    							'<th ng-if="column.show" ng-repeat="column in ' + columnTable + '.columns">' +
 	    								'<span ng-bind="column.name"></span>' +
 	    							'</th>' +
 	    						'</tr>' +
-	    						'<tr ng-if="!toggled" ng-repeat="rowValue in columnTable.data">' +
+	    						'<tr ng-if="!toggled" ng-repeat="rowValue in ' + columnTable + '.data">' +
 	    							'<td ng-repeat = "value in rowValue track by $index">' +
-	    								'<div ng-show="columnTable.columns[$index].show" ng-bind="value"></div>' +
-	    								'<div ng-hide="columnTable.columns[$index].show"></div>' +
+	    								'<div ng-show="' + columnTable + '.columns[$index].show" ng-bind="value"></div>' +
+	    								'<div ng-hide="' + columnTable + '.columns[$index].show"></div>' +
 	    							'</td>' +
 	    						'</tr>' +
-	    						'<tr ng-if="toggled" ng-repeat="rowValue in columnTable.data">' +
-	    							'<td ng-if="columnTable.columns[$index].show" ng-repeat = "value in display(rowValue) track by $index">' +
-	    								'<div ng-show="columnTable.columns[$index].show" ng-bind="value"></div>' +
-	    								'<div ng-hide="columnTable.columns[$index].show"></div>' +
+	    						'<tr ng-if="toggled" ng-repeat="rowValue in ' + columnTable + '.data">' +
+	    							'<td ng-if="' + columnTable + '.columns[$index].show" ng-repeat = "value in display(rowValue) track by $index">' +
+	    								'<div ng-show="' + columnTable + '.columns[$index].show" ng-bind="value"></div>' +
+	    								'<div ng-hide="' + columnTable + '.columns[$index].show"></div>' +
 	    							'</td>' +
 	    						'</tr>' +				
 	    					'</table>' +
