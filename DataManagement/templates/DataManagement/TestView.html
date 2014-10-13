@@ -3,7 +3,54 @@
 {% load staticfiles %}
 
 {% block scripts_and_styles %}
+<script src="{% static 'smo-datatable/smo.datatable-test.js' %}"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'smo-datatable/smo.datatable.css' %}">
+
+<script>
+angular.module('testApp', ['ui.bootstrap', 'smoDataTableModule'])
+	.controller('testController', [ '$scope', '$http', '$window', function($scope, $http, $window) {
+		$scope.tableTable = {
+			columns : [
+          		{name : 'time', show : true, numFormatType:'standard'},
+          		{name : 'acceleration', show : true, numFormatType:'standard'},
+          		{name : 'speed', show : true, numFormatType:'standard'},
+          		{name : 'velocity', show : true, numFormatType:'standard'},
+          		{name : 'time2', show : true, numFormatType:'standard'},
+          		{name : 'acceleration2', show : true, numFormatType:'standard'},
+          		{name : 'speed2', show : true, numFormatType:'standard'},
+          		{name : 'velocity2', show : true, numFormatType:'standard'},
+          		{name : 'speed3', show : true, numFormatType:'standard'},
+          		{name : 'velocity3', show : true, numFormatType:'standard'},
+          		{name : 'acceleration2', show : true, numFormatType:'standard'},
+          		{name : 'acceleration3', show : true, numFormatType:'standard'},
+          		{name : 'acceleration4', show : true, numFormatType:'standard'},
+          	],
+          	data : [
+				[1.7, 2, 3, 4, 10, 11, 12, 13, 12, 13, 2, 3, 4],
+				[4, 5, 6, 7, 6, 7, 8, 9, 12, 13, 2, 3, 4],
+				[6, 7, 8, 9, 8, 9, 10, 11, 12, 13, 2, 3, 4],
+				[8, 9, 10, 11, 10, 11, 12, 13, 12, 13, 2, 3, 4],
+				[10, 11, 12, 13, 2, 3, 4, 2, 12, 13, 2, 3, 4],
+				[2, 3, 4, 2, 10, 11, 12, 13, 12, 13, 2, 3, 4],
+				[10, 11, 12, 13, 2, 3, 4, 2, 12, 13, 2, 3, 4],
+				[2, 3, 4, 2, 1, 2, 3, 4, 12, 13, 2, 3, 4],
+				[1, 2, 3, 4, 4, 5, 6, 7, 12, 13, 2, 3, 4],
+				[4, 5, 6, 7, 6, 7, 8, 9, 12, 13, 2, 3, 4],
+				[6, 7, 8, 9, 8, 9, 10, 11, 12, 13, 2, 3, 4],
+				[8, 9, 10, 11, 10, 11, 12, 13, 12, 13, 2, 3, 4],
+				[10, 11, 12, 13, 2, 3, 4, 2, 12, 13, 2, 3, 4],
+				[2, 3, 4, 2, 10, 11, 12, 13, 12, 13, 2, 3, 4],
+				[10, 11, 12, 13, 2, 3, 4, 2, 12, 13, 2, 3, 4],
+				[2, 3, 4, 2, 2, 3, 4, 2, 12, 13, 2, 3, 4]
+  	        ]
+		};	
+	}]);
+</script>
 {% endblock %}
 
 {% block content %}
+<h3>Test view</h3>
+<div ng-app="testApp" ng-controller="testController">
+		<smo-data-table table-model="tableTable"></smo-data-table>
+</div>
 {% endblock %}

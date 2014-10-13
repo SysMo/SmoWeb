@@ -11,11 +11,6 @@ div select {
 	color: black;
 }
 
-table th {
-	padding:5px 10px 15px 10px; 
-	background-color: #DEDEDE; 
-}
-
 .my-table {
 	background: white;
 	color: black;
@@ -30,15 +25,19 @@ table th {
 	border-bottom: 1pt solid black;
 	border-left: 1pt solid black; 
 	vertical-align: top;
+	padding:5px 10px 15px 10px; 
+	background-color: #DEDEDE; 
 } 
 
 .my-table td {
-	border: 1pt solid #7F7F7F;
-	padding:10px 5px 15px 20px;
+	border: 1pt solid #BFBFBF;
+	padding:0px 5px 0px 10px;
 }
 
 .my-table tr td:first-child {
 	border-left: 1pt solid black;
+	background-color: #DEDEDE; 
+	border-right: 1pt solid black;
 }
 
 .my-table tr td:last-child {

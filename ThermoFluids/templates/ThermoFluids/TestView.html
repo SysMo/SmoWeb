@@ -54,9 +54,28 @@ angular.module('testApp', ['ui.bootstrap', 'smo'])
 						<span ng-switch-when="numSteps"> <input type="number" ng-model="setup.numSteps"> steps</span>				
 					</span> 					
 				</span>
-			</span>
+			</span>			
 		</div>
 		<button ng-click="generate()">Generate</button>
+		<br>
+		<br>
+		<div>			
+			State Variable 2: <select ng-model="setup.stateVariable" ng-options="stateVar.name for stateVar in setupOptions.stateVariable" ng-required="true"></select><br>
+			<select ng-model="setup.stateVarVariability" ng-options="variability.name for variability in setupOptions.variability"></select>
+			<span ng-switch  on="setup.stateVarVariability.value"> 
+				<span ng-switch-when="fixed"> <input type="number" ng-model="setup.value">{{setup.stateVariable.unit}}</span>
+				<span ng-switch-when="range"> between  <input type="number" ng-model="setup.stateVarMin">{{setup.stateVariable.unit}} 
+					and <input type="number" ng-model="setup.stateVarMax"> {{setup.stateVariable.unit}}<br>
+					<select ng-model="setup.stepType" ng-options="stepOpt.name for stepOpt in setupOptions.step"></select>
+					<span ng-switch  on="setup.stepType.value">
+						<span ng-switch-when="step"> <input type="number" ng-model="setup.step">{{setup.stateVariable.unit}}</span>
+						<span ng-switch-when="numSteps"> <input type="number" ng-model="setup.numSteps"> steps</span>				
+					</span> 					
+				</span>
+			</span>			
+		</div>
+		<button ng-click="generate()">Generate</button>
+		<br>
 		<br>
 		<input type="number" step="any" ng-init='v1.changeUnit()' ng-model='v1.displayValue' ng-change='v1.updateQuantity()'>
 		<select ng-model='v1.displayUnit' ng-options='name as name for (name, conv) in units.quantities[v1.quantity].units' ng-change='v1.changeUnit()'></select>
