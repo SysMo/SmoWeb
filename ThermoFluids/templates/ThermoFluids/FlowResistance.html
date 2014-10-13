@@ -1,0 +1,47 @@
+{% extends "Platform.html" %}
+{% load bootstrap_toolkit %}
+{% load staticfiles %}
+
+{% block scripts_and_styles %}
+<script src="{% static 'SmoUtil.js' %}"></script>
+<script>
+angular.module('FlowResistance', ['ui.bootstrap', 'smo'])
+	.controller('FlowResistanceController', [ '$scope', '$http', '$window', 'units', function($scope, $http, $window, units) {
+		$scope.inputVariables = {};
+		$scope.internalDiameter = new units.Quantity('Length', 5, 'mm');
+		$scope.externalDiameter = new units.Quantity('Length', 6, 'mm');
+		$scope.dumpObj = function(obj) {
+			return angular.toJson(obj, true);
+		}	
+		var a = units.quantities[$scope.internalDiameter.quantity].units;
+		
+	}]);
+</script>
+{% endblock %}
+
+{% block content %}
+
+<div ng-app="FlowResistance" ng-controller="FlowResistanceController">
+	<div style="position:relative; width:250mm;height:50mm">
+		<object data="{% static 'ThermoFluids/StraightPipe.svg' %}" type="image/svg+xml"></object>
+	    <div style="position:absolute;left:55mm;top:30mm;">
+			length: <input type="text">
+		</div>
+	    <div style="position:absolute;left:155mm;top:2mm;">
+			<table>
+				<tr><td>internal diameter: </td><td><smo-input-quantity smo-quantity-var="internalDiameter"></smo-input-quantity></td></tr>				
+				<tr><td>external diameter: </td><td><smo-input-quantity smo-quantity-var="externalDiameter"></smo-input-quantity></td></tr>	
+				<tr><td>pipe wall material: </td><td><input  type="text"></td></tr>	
+				<tr><td>surface roughness: </td><td><input  type="text"></td></tr>
+			</table>
+	    </div>
+	</div>
+	<table>
+		<tr><td>fluid: </td><td><input  type="text"></td></tr>
+		<tr><td>inlet pressure: </td><td><input  type="text"></td></tr>	
+		<tr><td>inlet temperature: </td><td><input  type="text"></td></tr>
+	</table>
+	<div ng-bind='dumpObj(units.quantities[internalDiameter.quantity].units)'></div>
+</div>
+{% endblock %}
+

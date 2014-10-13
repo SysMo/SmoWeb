@@ -8,6 +8,7 @@ from ThermoFluids import views
 
 urlpatterns = patterns('',
     url(r'^FluidPropertiesCoolProp/$', views.FluidPropertiesCoolPropView.as_view(), name='FluidPropertiesCoolProp'),
-    url(r'^TestView/', views.testView, name='testView'), 
+    url(r'^TestView/', views.testView, name='testView'),
+    url(r'^FlowResistance/', views.flowResistanceView, name='FlowResistance')
 #    url(r'^SetUP/(?P<fluidPropsId>\d+)/$', views.FluidProps_SetUpView.as_view(), name='FluidProps_SetUpWithArgs')
 )

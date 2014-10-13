@@ -61,31 +61,31 @@ smoModule.factory('units', function() {
 	var units = {};
 	// List of quantities and units
 	units.quantities = {
-		'Length' : {title : 'length', nominalValue = 1, defUnit : 'm', 
+		'Length' : {title : 'length', nominalValue : 1, defUnit : 'm', 
 			units : {'m' : {mult : 1}, 'km' : {mult : 1e3}, 'cm' : {mult : 1e-2}, 'mm' : {mult : 1e-3}, 
 			'um' : {mult : 1e-6}, 'nm' : {mult : 1e-9}, 'in' : {mult : 2.54e-2}, 'ft' : {mult : 3.048e-1}}},
-		'Area' : {title : 'area', nominalValue = 1, defUnit : 'm**2', 
+		'Area' : {title : 'area', nominalValue : 1, defUnit : 'm**2', 
 			units : {'m**2' : {mult : 1}, 'cm**2' : {mult : 1e-4}, 'mm**2' : {mult : 1e-6}}}, 
-		'Volume' : {title : 'volume', nominalValue = 1, defUnit : 'm**3', 
+		'Volume' : {title : 'volume', nominalValue : 1, defUnit : 'm**3', 
 			units : {'m**3' : {mult : 1}, 'cm**3' : {mult : 1e-6}, 'mm**3' : {mult : 1e-9}}},
-		'Time' : {title : 'time', nominalValue = 1, defUnit : 's', 
+		'Time' : {title : 'time', nominalValue : 1, defUnit : 's', 
 			units : {'s' : {mult : 1}, 'ms' : {mult : 1e-3}, 'us' : {mult : 1e-6}, 'min' : {mult : 60}, 'h' : {mult : 3600}, 'day' : {mult : 8.64e4}, 'year' : {mult : 3.15576e7}}}, 
-		'Mass' : {title : 'mass', nominalValue = 1, defUnit : 'kg', 
+		'Mass' : {title : 'mass', nominalValue : 1, defUnit : 'kg', 
 			units : {'kg' : {mult : 1}, 'ton' : {mult : 1e3}, 'g' : {mult : 1e-3}}},
-		'Pressure' : {title : 'pressure', nominalValue = 1, defUnit : 'bar', 
+		'Pressure' : {title : 'pressure', nominalValue : 1e5, defUnit : 'bar', 
 			units : {'Pa' : {mult : 1}, 'kPa' : {mult : 1e3}, 'MPa' : {mult : 1e6}, 'GPa' : {mult : 1e9}, 
 				'bar' : {mult : 1e5}, 'psi' : {mult : 6.89475e3}, 'ksi' : {mult : 6.89475e6}}},
-		'Temperature' : {title : 'temperature', nominalValue = 1, defUnit : 'K', 
+		'Temperature' : {title : 'temperature', nominalValue : 273.15, defUnit : 'K', 
 			units : {'K' : {mult : 1}, 'degC' : {mult : 1, offset : 273.15}, 'degF' : {mult : 5./9, offset : 255.372}}},
-		'Density' : {title : 'density', nominalValue = 1, defUnit : 'kg/m**3', 
+		'Density' : {title : 'density', nominalValue : 1, defUnit : 'kg/m**3', 
 			units : {'kg/m**3' : {mult : 1}, 'g/L' : {mult : 1}, 'g/cm**3' : {mult : 1e3}}},
-		'SpecificEnthalpy' : {title : 'specific enthalpy', nominalValue = 1, defUnit : 'kJ/kg', 
+		'SpecificEnthalpy' : {title : 'specific enthalpy', nominalValue : 1e6, defUnit : 'kJ/kg', 
 			units : {'J/kg' : {mult : 1}, 'kJ/kg' : {mult : 1e3}}},
-		'SpecificInternalEnergy' : {title : 'specific internal energy', nominalValue = 1, defUnit : 'kJ/kg', 
+		'SpecificInternalEnergy' : {title : 'specific internal energy', nominalValue : 1e6, defUnit : 'kJ/kg', 
 			units : {'J/kg' : {mult : 1}, 'kJ/kg' : {mult : 1e3}}},
-		'SpecificEntropy' : {title : 'specific entropy', nominalValue = 1, defUnit : 'kJ/kg-K', 
+		'SpecificEntropy' : {title : 'specific entropy', nominalValue : 1, defUnit : 'kJ/kg-K', 
 			units : {'J/kg-K' : {mult : 1}, 'kJ/kg-K' : {mult : 1e3}}},
-		'VaporQuality' : {title : 'vapor quality', nominalValue = 1, defUnit : '-', 
+		'VaporQuality' : {title : 'vapor quality', nominalValue : 1, defUnit : '-', 
 			units : {'-' : {mult : 1}}}
 	};
 
@@ -99,7 +99,10 @@ smoModule.factory('units', function() {
 		var offset = unitDef.offset || 0;
 		
 		this.value = value * unitDef.mult + offset;		
-		this.changeUnit();
+
+		var dispUnitDef = units.quantities[this.quantity].units[this.displayUnit];
+		offset = dispUnitDef.offset || 0;
+		this.displayValue = (this.value - offset) / dispUnitDef.mult; 
 	}
 
 	Quantity.prototype.updateQuantity = function() {

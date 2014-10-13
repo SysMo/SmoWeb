@@ -23,12 +23,6 @@ class FluidPropertyCalculator:
         tableValues = np.zeros(
             (self.stateVariable1NumValues, len(columnNames)), dtype = float)
         
-        if (self.fluidName in RegisteredFluids.keys()):            
-            fluid = RegisteredFluids[self.fluidName]
-        else:
-            fluid = Medium.create(Medium.sCompressibleFluidCoolProp,
-                 self.fluidName, len(RegisteredFluids))
-            RegisteredFluids[self.fluidName] = fluid
             
         for i in range(self.stateVariable1NumValues):
             fp = MediumState(fluid)
@@ -40,5 +34,3 @@ class FluidPropertyCalculator:
                     fp.mu(), fp.cond(), fp.Pr(), fp.gamma(), 
                 )
         return columnNames, tableValues
-
-RegisteredFluids = {}
