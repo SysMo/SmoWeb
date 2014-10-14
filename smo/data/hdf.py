@@ -7,6 +7,14 @@ import csv
 import h5py
 import numpy as np
 import json
+from decimal import Decimal
+
+
+class DecimalEncoder(json.JSONEncoder):
+	def default(self, obj):
+		if isinstance(obj, Decimal):
+			return float(obj)
+		return json.JSONEncoder.default(self, obj)
 
 class HDFInterface(object):
 	def __init__(self, filePath):
@@ -34,6 +42,21 @@ class HDFInterface(object):
 			fileContent = {'type' : 'hdf_file', 'id' : hash(self.filePath), 'filePath' : self.filePath, 'path' : '/', 'name' : self.fileName, 'children' : fileContent}
 		return fileContent
 	
+	def getDatasetContent(self, datasetPath):
+		hdfFile = h5py.File(self.filePath)
+		dataset = hdfFile[datasetPath]
+		
+		arr = np.zeros(dataset.shape, dtype=dataset.dtype)
+		columnNames = arr.dtype.names
+		columnNamesList = []
+		for columnName in columnNames:
+			columnNamesList.append({"name" :columnName})
+
+		dataset.read_direct(arr)
+		datalist = [list([Decimal(str(elem)) for elem in row]) for row in arr]
+		content = {"columns": columnNamesList, "data" : datalist}
+		return content 
+		
 	def createGroup(self, groupPath, groupName):
 		hdfFile = h5py.File(self.filePath)
 		currentGroup = hdfFile[groupPath]

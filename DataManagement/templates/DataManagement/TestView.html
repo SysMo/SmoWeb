@@ -3,13 +3,16 @@
 {% load staticfiles %}
 
 {% block scripts_and_styles %}
-<script src="{% static 'smo-datatable/smo.datatable-test.js' %}"></script>
+<script src="{% static 'smo-datatable/smo.datatable.js' %}"></script>
 <link rel="stylesheet" type="text/css" href="{% static 'smo-datatable/smo.datatable.css' %}">
+<script src="{% static 'smo-treeview/smo.treeview-test.js' %}"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'smo-treeview/smo.treeview.css' %}">
+
 
 <script>
-angular.module('testApp', ['ui.bootstrap', 'smoDataTableModule'])
+angular.module('testApp', ['ui.bootstrap', 'smoDataTableModule', 'angularTreeview'])
 	.controller('testController', [ '$scope', '$http', '$window', function($scope, $http, $window) {
-		$scope.tableTable = {
+		$scope.columnTable = {
 			columns : [
           		{name : 'time', show : true, numFormatType:'standard'},
           		{name : 'acceleration', show : true, numFormatType:'standard'},
@@ -43,14 +46,23 @@ angular.module('testApp', ['ui.bootstrap', 'smoDataTableModule'])
 				[10, 11, 12, 13, 2, 3, 4, 2, 12, 13, 2, 3, 4],
 				[2, 3, 4, 2, 2, 3, 4, 2, 12, 13, 2, 3, 4]
   	        ]
-		};	
+		};
 	}]);
 </script>
 {% endblock %}
 
 {% block content %}
-<h3>Test view</h3>
 <div ng-app="testApp" ng-controller="testController">
-		<smo-data-table table-model="tableTable"></smo-data-table>
+<div class="container">
+	<div class="row">
+		<div class="col-md-2" style="text-align: right; font-weight: bold; font-size: medium;">
+			Eplore HDF file:
+		</div>
+		<div class="col-md-10">
+			<smo-hdf-browser tree-id="hdfView"></smo-hdf-browser>
+		</div>
+	</div>
+	<br>
+	<smo-data-table table-model="columnTable"></smo-data-table>
 </div>
 {% endblock %}
