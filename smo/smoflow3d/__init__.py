@@ -14,3 +14,4 @@ def getFluid(fluidName):
 		fluid = Medium.create(Medium.sCompressibleFluidCoolProp,
 			 fluidName, len(RegisteredFluids))
 		RegisteredFluids[fluidName] = fluid
+	return fluid

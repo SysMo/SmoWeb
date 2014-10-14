@@ -30,7 +30,9 @@ def flowResistanceView(request):
 	templateName = "ThermoFluids/FlowResistance.html"
 	if request.method == "POST":
 		postData = json.loads(request.body)
-		action = postData["action"]
+		#action = postData["action"]
+		print postData
+		return JsonResponse({'response' : 'Yohoooo'})
 	else:
 		return render_to_response(templateName, locals(), 
 				context_instance=RequestContext(request))
