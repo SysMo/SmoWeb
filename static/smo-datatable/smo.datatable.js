@@ -6,7 +6,8 @@
 		return {
 	        restrict: 'E',
 	        link: function(scope, element, attrs) {
-		        var template = "";
+		        scope.columnTable = {columns:[], data:[]}
+	        	var template = "";
 		        var columnTable = attrs.tableModel;
 		        
 		        scope.formatTypeChoices = ["standard", "fixed", "exponential"];

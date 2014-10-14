@@ -69,10 +69,11 @@
 				    "<span class=\"caret\"></span>" +
 				  "</button>" +
 				  "<ul ng-show=\"" + treeId + ".isDataSet(" + treeId + ".currentNode.type)\" class=\"dropdown-menu\" role=\"menu\" aria-labelledby=\"dropdownMenu1\">" +
+				  	"<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"" + treeId + ".view(" + treeId + ".currentNode)\">View</a></li>" +
 				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"" + treeId + ".del(" + treeId + ".currentNode)\">Delete</a></li>" +
 				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"" + treeId + ".rename(" + treeId + ".currentNode)\">Rename</a></li>" +
 				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"" + treeId + ".copy(" + treeId + ".currentNode)\">Copy</a></li>" +
-				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"" + treeId + ".move(" + treeId + ".currentNode)\">Move</a></li>" +
+				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"" + treeId + ".move(" + treeId + ".currentNode)\">Move</a></li>" +				    
 				  "</ul>" +
 				  "<ul ng-show=\"!" + treeId + ".isDataSet(" + treeId + ".currentNode.type) && !" + treeId + ".isFile(" + treeId + ".currentNode.type)\" class=\"dropdown-menu\" role=\"menu\" aria-labelledby=\"dropdownMenu1\">" +
 				    "<li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" ng-click=\"" + treeId + ".createGroup(" + treeId + ".currentNode)\">Create group</a></li>" +
@@ -152,9 +153,9 @@
 							//Collapse or Expand
 							selectedNode.collapsed = !selectedNode.collapsed;
 							
-							scope[treeId].action = "";
-							
-							scope[treeId].input = "";
+//							scope[treeId].action = "";
+//							
+//							scope[treeId].input = "";
 						};
 
 						//if node label clicks,
@@ -172,9 +173,9 @@
 							//set currentNode
 							scope[treeId].currentNode = selectedNode;
 							
-							scope[treeId].action = "";
-							
-							scope[treeId].input = "";
+//							scope[treeId].action = "";
+//							
+//							scope[treeId].input = "";
 														
 						};
 						
@@ -217,6 +218,13 @@
 						  		"background-image" : img
 				  			};
 							return imgStyle;
+						};
+						
+						scope[treeId].view = function (node) {
+					    	scope[treeId].action = "view";
+					    	console.log('Viewing ' + node.path);
+					    	console.log(scope[treeId].action);
+					    	scope[treeId].sendActionData();						    
 						};
 						
 						scope[treeId].del = function (node) {
@@ -325,8 +333,6 @@
 				
 				scope[treeId].loadTree = function() {
 					
-					console.log("In load tree function");
-					
 					$http.post('/DataManagement/HdfInterface/', {
 						action : 'getHdfFileContent',
 						input: '',
@@ -357,8 +363,8 @@
 						  '<div style="font-weight: bold;" ng-bind="' + treeId + '.getActionText(' + treeId + '.action)"></div>' +
 						  '<input focus-me="focus" ng-model="' + treeId + '.input"></input>' +
 						  '<button ng-click="' + treeId + '.sendActionData()">Submit</button>' +
-					 '</div>' +
-					 '<div>Current node: <span ng-bind="' + treeId + '.currentNode.path"></span></div>';
+					 '</div>';
+//					 '<div>Current node: <span ng-bind="' + treeId + '.currentNode.path"></span></div>';
 				
 				scope[treeId].sendActionData = function () {
  
@@ -369,16 +375,19 @@
 					})
 					.success(function(data){
 						console.log("action:" + scope[treeId].action);
-						console.log("Tree successfully modified!");						
+						if (scope[treeId].action == "view"){
+							scope["columnTable"] = data;
+							scope["initTable"]();
+						}					
 					})
 					.error(function(data){
 						console.log("action:" + scope[treeId].action);
 						console.log("Action error!");
 					});
 					
-					scope[treeId].action = "";
-					
-					scope[treeId].input = "";
+//					scope[treeId].action = "";
+//					
+//					scope[treeId].input = "";
 					
 					scope[treeId].loadTree();
 					

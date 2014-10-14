@@ -8,13 +8,7 @@ import h5py
 import numpy as np
 import json
 from decimal import Decimal
-
-
-class DecimalEncoder(json.JSONEncoder):
-	def default(self, obj):
-		if isinstance(obj, Decimal):
-			return float(obj)
-		return json.JSONEncoder.default(self, obj)
+from smo.util.django_utils import DecimalEncoder
 
 class HDFInterface(object):
 	def __init__(self, filePath):
@@ -55,7 +49,8 @@ class HDFInterface(object):
 		dataset.read_direct(arr)
 		datalist = [list([Decimal(str(elem)) for elem in row]) for row in arr]
 		content = {"columns": columnNamesList, "data" : datalist}
-		return content 
+		jsonContent = json.dumps(content, cls=DecimalEncoder)
+		return jsonContent 
 		
 	def createGroup(self, groupPath, groupName):
 		hdfFile = h5py.File(self.filePath)

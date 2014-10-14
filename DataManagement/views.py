@@ -10,19 +10,6 @@ from decimal import Decimal
 
 # Create your views here.
 
-class DecimalEncoder(json.JSONEncoder):
-	def default(self, obj):
-		if isinstance(obj, Decimal):
-			return float(obj)
-		return json.JSONEncoder.default(self, obj)
-
-# Output has one decimal, change format if you need more
-# json.encoder.FLOAT_REPR = lambda o: format(o, '.1f')
-
-# Usage:
-# d = Decimal("42.5")
-# json.dumps(d, cls=DecimalEncoder)
-
 CSVImporterObjects = TemporaryObjectsHash()
 
 def hdfInterfaceView(request):
@@ -64,10 +51,8 @@ def hdfInterfaceView(request):
 			hdfIface.deleteItem(hdfNode["path"])
 		elif (action == "view"):
 			datasetPath = hdfNode["path"]
-			content = hdfIface.getDatasetContent(datasetPath)
-			response_data = json.dumps(content, cls=DecimalEncoder)
-			print response_data
-			return HttpResponse(response_data, content_type="application/json")
+			jsonContent = hdfIface.getDatasetContent(datasetPath)
+			return HttpResponse(jsonContent, content_type="application/json")
 		return HttpResponseRedirect(reverse('home'))
 	else:
 		return render_to_response('DataManagement/HdfInterface.html', 
