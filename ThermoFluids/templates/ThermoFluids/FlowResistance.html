@@ -4,8 +4,10 @@
 
 {% block scripts_and_styles %}
 <script src="{% static 'SmoUtil.js' %}"></script>
+<script src="{% static 'angular-sprintf.min.js' %}"></script>
+
 <script>
-angular.module('FlowResistance', ['ui.bootstrap', 'smo'])
+angular.module('FlowResistance', ['ui.bootstrap', 'smo', 'sprintf'])
 	.config(['$httpProvider', function($httpProvider) {
 	    $httpProvider.defaults.xsrfCookieName = 'csrftoken';
 	    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
@@ -92,5 +94,6 @@ angular.module('FlowResistance', ['ui.bootstrap', 'smo'])
 	</div>
 	</div>
 </div>
+
 {% endblock %}
 

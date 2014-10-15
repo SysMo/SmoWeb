@@ -146,13 +146,15 @@ smoModule.directive('smoOutputQuantity', ['$compile', function($compile) {
 		restrict : 'E',
 		link : function(scope, element, attr) {
 			var qVar = attr.smoQuantityVar;
-			var outputStyle = "display: inline-block; border: 1px solid #888; padding: 1.7pt;";
+			var outputStyle = "display: inline-block; border: 1px solid #888; padding: 1.7pt; width : 10em;";
 			var template =  '<div style="' + outputStyle + '" ng-bind="' + qVar + '.displayValue"></div>' +
 			'<select ng-model="' + qVar + '.displayUnit" ng-options="name as name for (name, conv) in units.quantities[' + qVar + '.quantity].units" ng-change="' + qVar + '.changeUnit()"></select>';
 			element.html('').append($compile(template)(scope));
 		}
 	}
 }]);
+
+//\'%.2g\' | sprintf : 
 
 /*
  * Some code that could be used for resizing but doesn't work currently
