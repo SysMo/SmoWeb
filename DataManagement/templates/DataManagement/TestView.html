@@ -1,4 +1,4 @@
-{% extends "Platform.html" %}
+{% extends "Base.html" %}
 {% load bootstrap_toolkit %}
 {% load staticfiles %}
 
@@ -7,46 +7,11 @@
 <link rel="stylesheet" type="text/css" href="{% static 'smo-datatable/smo.datatable.css' %}">
 <script src="{% static 'smo-treeview/smo.treeview-test.js' %}"></script>
 <link rel="stylesheet" type="text/css" href="{% static 'smo-treeview/smo.treeview.css' %}">
-
+<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
 
 <script>
 angular.module('testApp', ['ui.bootstrap', 'smoDataTableModule', 'angularTreeview'])
 	.controller('testController', [ '$scope', '$http', '$window', function($scope, $http, $window) {
-// 		$scope.columnTable = {
-// 			columns : [
-//           		{name : 'time', show : true, numFormatType:'standard'},
-//           		{name : 'acceleration', show : true, numFormatType:'standard'},
-//           		{name : 'speed', show : true, numFormatType:'standard'},
-//           		{name : 'velocity', show : true, numFormatType:'standard'},
-//           		{name : 'time2', show : true, numFormatType:'standard'},
-//           		{name : 'acceleration2', show : true, numFormatType:'standard'},
-//           		{name : 'speed2', show : true, numFormatType:'standard'},
-//           		{name : 'velocity2', show : true, numFormatType:'standard'},
-//           		{name : 'speed3', show : true, numFormatType:'standard'},
-//           		{name : 'velocity3', show : true, numFormatType:'standard'},
-//           		{name : 'acceleration2', show : true, numFormatType:'standard'},
-//           		{name : 'acceleration3', show : true, numFormatType:'standard'},
-//           		{name : 'acceleration4', show : true, numFormatType:'standard'},
-//           	],
-//           	data : [
-// 				[1.7, 2, 3, 4, 10, 11, 12, 13, 12, 13, 2, 3, 4],
-// 				[4, 5, 6, 7, 6, 7, 8, 9, 12, 13, 2, 3, 4],
-// 				[6, 7, 8, 9, 8, 9, 10, 11, 12, 13, 2, 3, 4],
-// 				[8, 9, 10, 11, 10, 11, 12, 13, 12, 13, 2, 3, 4],
-// 				[10, 11, 12, 13, 2, 3, 4, 2, 12, 13, 2, 3, 4],
-// 				[2, 3, 4, 2, 10, 11, 12, 13, 12, 13, 2, 3, 4],
-// 				[10, 11, 12, 13, 2, 3, 4, 2, 12, 13, 2, 3, 4],
-// 				[2, 3, 4, 2, 1, 2, 3, 4, 12, 13, 2, 3, 4],
-// 				[1, 2, 3, 4, 4, 5, 6, 7, 12, 13, 2, 3, 4],
-// 				[4, 5, 6, 7, 6, 7, 8, 9, 12, 13, 2, 3, 4],
-// 				[6, 7, 8, 9, 8, 9, 10, 11, 12, 13, 2, 3, 4],
-// 				[8, 9, 10, 11, 10, 11, 12, 13, 12, 13, 2, 3, 4],
-// 				[10, 11, 12, 13, 2, 3, 4, 2, 12, 13, 2, 3, 4],
-// 				[2, 3, 4, 2, 10, 11, 12, 13, 12, 13, 2, 3, 4],
-// 				[10, 11, 12, 13, 2, 3, 4, 2, 12, 13, 2, 3, 4],
-// 				[2, 3, 4, 2, 2, 3, 4, 2, 12, 13, 2, 3, 4]
-//   	        ]
-// 		};
 	}]);
 </script>
 {% endblock %}

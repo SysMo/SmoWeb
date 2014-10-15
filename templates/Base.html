@@ -34,7 +34,8 @@
 	{% endblock %}	 
 	</head>
 	
-	<body>
+	<body>	
+	{% csrf_token %}
 	<div class="navbar navbar-default navbar-static-top" role="navigation">
       <div class="container">
         <div class="navbar-header">
@@ -44,18 +45,43 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" style="font-size: x-large; font-weight:bold;" href="{% url 'platform' %}">SmoWeb</a>
+          <a class="navbar-brand" style="font-size: x-large; font-weight:bold;" href="{% url 'home' %}">SmoWeb</a>
         </div>
       	<div class="navbar-collapse collapse">
 			<ul class="nav navbar-nav">
-        		{% block navs %}
+        		{% block navs %}       		
+				    <li class="dropdown">
+				      <a href="#" class="dropdown-toggle" data-toggle="dropdown">ThermoFluids<span class="caret"></span></a>
+				      <ul class="dropdown-menu" role="menu">
+				        <li><a href="{% url 'ThermoFluids:FluidPropertiesCoolProp' %}">Fluid Properties (CoolProp)</a></li>
+				        <li><a href="{% url 'ThermoFluids:FlowResistance' %}">FlowResistance</a></li>
+				        <li><a href="#">Something else here</a></li>
+				        <li class="divider"></li>
+				        <li class="dropdown-header">Nav header</li>
+				        <li><a href="{% url 'ThermoFluids:testView' %}">Test View</a></li>
+				        <li><a href="#">One more separated link</a></li>
+				      </ul>
+				    </li>
+				    
+				    <li class="dropdown">
+				      <a href="#" class="dropdown-toggle" data-toggle="dropdown">Data Management <span class="caret"></span></a>
+				      <ul class="dropdown-menu" role="menu">
+				        <li><a href="{% url 'DataManagement:ImportCSV' %}">Import CSV</a></li>
+				        <li><a href="{% url 'DataManagement:DataExplorer' %}">Data Explorer</a></li>
+				        <li><a href="#">Something else here</a></li>
+				        <li class="divider"></li>
+				        <li class="dropdown-header">Nav header</li>
+				        <li><a href="{% url 'DataManagement:testView' %}">Test View</a></li>
+				        <li><a href="#">One more separated link</a></li>
+				      </ul>
+				    </li>       		
         		{% endblock %}
 			</ul>
 		</div><!--/.nav-collapse -->
       </div>
     </div>
 	
-	{% block content %}
+	{% block content %}	
 	{% endblock %}
 	
 	<!-- Bootstrap core JavaScript

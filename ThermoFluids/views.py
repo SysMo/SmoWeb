@@ -6,6 +6,7 @@ from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.core.urlresolvers import reverse
 from  SmoWeb.settings import MEDIA_ROOT, hdfFileFolder
 import json
+from django.views.decorators.csrf import csrf_protect
 # Create your views here.
 
 class FluidPropertiesCoolPropView(TemplateView):
