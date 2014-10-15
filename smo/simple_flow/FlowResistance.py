@@ -1,9 +1,9 @@
 import numpy as np
 try:
 	import pylab as plt
-	import scipy.interpolate
 except Exception: 
 	pass
+import scipy.interpolate
 from smo.smoflow3d import getFluid
 from smo.smoflow3d.Media import MediumState
 
