@@ -92,7 +92,7 @@ angular.module('testApp', ['ui.bootstrap', 'smo'])
 			<button ng-click="generate()">Generate</button>
 			<br>
 			<input type="number" step="any" ng-init='v1.changeUnit()' ng-model='v1.displayValue' ng-change='v1.updateQuantity()'>
-			<select ng-model='v1.displayUnit' ng-options='name as name for (name, conv) in units.quantities[v1.quantity].units' ng-change='v1.changeUnit()'></select>
+			<select ng-model='v1.displayUnit' ng-options='name as name for (name, conv) in "units.quantities[v1.quantity].units' ng-change='v1.changeUnit()'></select>
 			<div ng-bind='dumpObj(v1)'></div>
 			<p>Test here</p>
 			<smo-input-quantity smo-quantity-var="v3"></smo-input-quantity>

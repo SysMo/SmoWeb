@@ -1,0 +1,96 @@
+{% extends "Platform.html" %}
+{% load bootstrap_toolkit %}
+{% load staticfiles %}
+
+{% block scripts_and_styles %}
+<script src="{% static 'SmoUtil.js' %}"></script>
+<script>
+angular.module('FlowResistance', ['ui.bootstrap', 'smo'])
+	.config(['$httpProvider', function($httpProvider) {
+	    $httpProvider.defaults.xsrfCookieName = 'csrftoken';
+	    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+	    
+	}])
+	.controller('FlowResistanceController', [ '$scope', '$http', '$window', 'units', function($scope, $http, $window, units) {
+		$scope.resultComputed = false;
+		$scope.units = units;
+		
+		$scope.materials = {
+			solids: ['stainless steel 304', 'aluminium 6061'],
+			fluids: ['parahydrogen', 'water']
+		};
+		
+		$scope.inputVariables = {
+			pipeLength : new units.Quantity('Length', 1., 'm'),
+			internalDiameter : new units.Quantity('Length', 5., 'mm'),
+			externalDiameter : new units.Quantity('Length', 6., 'mm'),
+			surfaceRoughness : new units.Quantity('Length', 25., 'um'),
+			inletPressure : new units.Quantity('Pressure', 1, 'bar'),
+			inletTemperature : new units.Quantity('Temperature', 15, 'degC'),
+			massFlowRate : new units.Quantity('MassFlowRate', 10, 'kg/h'),
+			fluid : 'parahydrogen',
+			pipeMaterial : 'stainless steel 304'
+		};
+		
+		$scope.dumpObj = function(obj) {
+			return angular.toJson(obj, true);
+		}
+		$scope.compute = function() {
+			$http({
+		        method  : 'POST',
+		        url     : '/ThermoFluids/FlowResistance/',
+		        data    : {action : 'computePressureDrop', parameters : $scope.inputVariables},
+		        headers : { 'Content-Type': 'application/x-www-form-urlencoded' }  // set the headers so angular passing info as form data (not request payload)
+		    })
+	        .success(function(data) {
+	            $scope.resultVariabes = {
+	            	Re : new units.Quantity('Dimensionless', data.result.Re, '-'),
+	            	zeta : new units.Quantity('Dimensionless', data.result.zeta, '-'),
+	            	pressureDrop :	new units.Quantity('Pressure', data.result.pressureDrop, 'Pa', 'bar')	            		
+	            };
+	            console.log($scope.dumpObj($scope.resultVariabes));
+	            $scope.resultComputed = true;
+	        });		
+		}
+	}]);
+</script>
+{% endblock %}
+
+{% block content %}
+
+<div ng-app="FlowResistance" ng-controller="FlowResistanceController">
+	<div class="col-md-2"></div>
+	<div class="col-md-10">
+	<div style="position:relative; width:250mm;height:50mm">
+		<object data="{% static 'ThermoFluids/StraightPipe.svg' %}" type="image/svg+xml"></object>
+	    <div style="position:absolute;left:35mm;top:29mm;">
+			pipe length: <smo-input-quantity smo-quantity-var="inputVariables.pipeLength"></smo-input-quantity>
+		</div>
+	    <div style="position:absolute;left:155mm;top:2mm;">
+			<table>
+				<tr><td>internal diameter: </td><td><smo-input-quantity smo-quantity-var="inputVariables.internalDiameter"></smo-input-quantity></td></tr>				
+				<tr><td>external diameter: </td><td><smo-input-quantity smo-quantity-var="inputVariables.externalDiameter"></smo-input-quantity></td></tr>	
+				<tr><td>pipe material: </td><td><select ng-model="inputVariables.pipeMaterial" ng-options="material for material in materials.solids"></select></td></tr>	
+				<tr><td>surface roughness: </td><td><smo-input-quantity smo-quantity-var="inputVariables.surfaceRoughness"></smo-input-quantity></td></tr>
+			</table>
+	    </div>
+	</div>
+	<table>
+		<tr><td>fluid: </td><td><select ng-model="inputVariables.fluid" ng-options="material for material in materials.fluids"></select></td></tr>
+		<tr><td>inlet pressure: </td><td><smo-input-quantity smo-quantity-var="inputVariables.inletPressure"></smo-input-quantity></td></tr>	
+		<tr><td>inlet temperature: </td><td><smo-input-quantity smo-quantity-var="inputVariables.inletTemperature"></smo-input-quantity></td></tr>
+		<tr><td>inlet mass flow rate: </td><td><smo-input-quantity smo-quantity-var="inputVariables.massFlowRate"></smo-input-quantity></td></tr>
+	</table>
+	<button class="btn btn-default" ng-click="compute()">Compute</button>
+	<br><br><br>
+	<div ng-if="resultComputed">
+		<table>
+			<tr><td>Re : </td><td><smo-output-quantity smo-quantity-var="resultVariabes.Re"></smo-output-quantity></td></tr>				
+			<tr><td>friction factor zeta : </td><td><smo-output-quantity smo-quantity-var="resultVariabes.zeta"></smo-output-quantity></td></tr>	
+			<tr><td>pressure drop : </td><td><smo-output-quantity smo-quantity-var="resultVariabes.pressureDrop"></smo-output-quantity></td></tr>			
+		</table>
+	</div>
+	</div>
+</div>
+{% endblock %}
+

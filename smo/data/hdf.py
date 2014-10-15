@@ -92,10 +92,28 @@ class CSV2HDFImporter(object):
 		self.filePath = filePath
 		self.csvFileName = os.path.splitext(os.path.basename(filePath))[0]
 		self.firstDataRowIndex = firstDataRowIndex
-		
+# 		self.fileEncoding = 'iso-8859-1'
+# 		self.columnDelimiter = ';'
+# 		self.decimalSeparator = ','
+		self.fileEncoding = 'ascii'
+		self.columnDelimiter = ','
+		self.decimalSeparator = '.'
+	
+	class RowPreprocessor:
+		def __init__(self, parent):
+			self.parent = parent
+		def preprocessRows(self, f):
+			for line in f:
+				if (self.parent.fileEncoding != 'ascii'):
+					line = line.decode(self.parent.fileEncoding).encode('utf-8')
+				if (self.parent.decimalSeparator != '.'):
+					line = line.replace(self.parent.decimalSeparator, '.')
+				yield line
+
 	def createPreview(self, numRowsInPreview):
 		f = open(self.filePath, 'r')
-		reader = csv.reader(f)
+		rowPreprocessor = CSV2HDFImporter.RowPreprocessor(self)
+		reader = csv.reader(rowPreprocessor.preprocessRows(f), delimiter = self.columnDelimiter)		
 		previewValues = []
 		self.numRows = 0
 		numColumns = 1
@@ -130,8 +148,9 @@ class CSV2HDFImporter(object):
 
 		dataset = group.create_dataset(datasetName, 
 					shape = (datasetNumRows,), dtype = datasetType)
-		f = open(self.filePath)
-		reader = csv.reader(f)
+		f = open(self.filePath, 'r')
+		rowPreprocessor = CSV2HDFImporter.RowPreprocessor(self)
+		reader = csv.reader(rowPreprocessor.preprocessRows(f), delimiter = self.columnDelimiter)		
 		rowIndex = 0
 		for row in reader:
 			rowIndex += 1
