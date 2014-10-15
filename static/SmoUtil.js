@@ -61,6 +61,8 @@ smoModule.factory('units', function() {
 	var units = {};
 	// List of quantities and units
 	units.quantities = {
+		'Dimensionless' : {title : 'dimensionless quantity', nominalValue : 1, defUnit : '-', 
+				units : {'-' : {mult : 1}}},
 		'Length' : {title : 'length', nominalValue : 1, defUnit : 'm', 
 			units : {'m' : {mult : 1}, 'km' : {mult : 1e3}, 'cm' : {mult : 1e-2}, 'mm' : {mult : 1e-3}, 
 			'um' : {mult : 1e-6}, 'nm' : {mult : 1e-9}, 'in' : {mult : 2.54e-2}, 'ft' : {mult : 3.048e-1}}},
@@ -86,7 +88,9 @@ smoModule.factory('units', function() {
 		'SpecificEntropy' : {title : 'specific entropy', nominalValue : 1, defUnit : 'kJ/kg-K', 
 			units : {'J/kg-K' : {mult : 1}, 'kJ/kg-K' : {mult : 1e3}}},
 		'VaporQuality' : {title : 'vapor quality', nominalValue : 1, defUnit : '-', 
-			units : {'-' : {mult : 1}}}
+			units : {'-' : {mult : 1}}},
+		'MassFlowRate' : {title : 'mass flow rate', nominalValue : 1, defUnit : 'kg/s', 
+			units : {'kg/s' : {mult : 1}, 'g/s' : {mult : 1e-3}, 'kg/h' : {mult : 1/3.6e3}}}
 	};
 
 	// Object for handling quantity
@@ -131,6 +135,19 @@ smoModule.directive('smoInputQuantity', ['$compile', function($compile) {
 		link : function(scope, element, attr) {
 			var qVar = attr.smoQuantityVar;
 			var template =  '<input type="number" step="any" ng-init="' + qVar + '.changeUnit()" ng-model="' + qVar + '.displayValue" ng-change="' + qVar + '.updateQuantity()">' +
+			'<select ng-model="' + qVar + '.displayUnit" ng-options="name as name for (name, conv) in units.quantities[' + qVar + '.quantity].units" ng-change="' + qVar + '.changeUnit()"></select>';
+			element.html('').append($compile(template)(scope));
+		}
+	}
+}]);
+
+smoModule.directive('smoOutputQuantity', ['$compile', function($compile) {
+	return {
+		restrict : 'E',
+		link : function(scope, element, attr) {
+			var qVar = attr.smoQuantityVar;
+			var outputStyle = "display: inline-block; border: 1px solid #888; padding: 1.7pt;";
+			var template =  '<div style="' + outputStyle + '" ng-bind="' + qVar + '.displayValue"></div>' +
 			'<select ng-model="' + qVar + '.displayUnit" ng-options="name as name for (name, conv) in units.quantities[' + qVar + '.quantity].units" ng-change="' + qVar + '.changeUnit()"></select>';
 			element.html('').append($compile(template)(scope));
 		}

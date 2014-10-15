@@ -27,14 +27,39 @@ class FluidPropertiesCoolPropView(TemplateView):
 				context_instance=RequestContext(self.request))		
 
 def flowResistanceView(request):
-	templateName = "ThermoFluids/FlowResistance.html"
-	if request.method == "POST":
+	if request.method == 'POST':
+		from smo.simple_flow.FlowResistance import Pipe
 		postData = json.loads(request.body)
-		#action = postData["action"]
-		print postData
-		return JsonResponse({'response' : 'Yohoooo'})
+		action = postData['action']
+		parameters = postData['parameters']
+		print parameters
+		if (action == 'computePressureDrop'):
+			pipe = Pipe(
+					internalDiameter = float(parameters["internalDiameter"]["value"]),
+					length = float(parameters["pipeLength"]["value"]), 
+					surfaceRoughness = float(parameters["surfaceRoughness"]["value"])
+			)
+			s1 = pipe.setUpstreamState(
+					fluidName = parameters["fluid"], 
+					pressure = float(parameters["inletPressure"]["value"]), 
+					temperature = float(parameters["inletTemperature"]["value"]),					
+			)
+			pipe.computePressureDrop(
+					upstreamState = s1,
+					mDot = float(parameters["massFlowRate"]["value"])
+			)
+#			externalDiameter
+#			material
+			result = {
+					'Re' : pipe.Re,
+					'zeta' : pipe.zeta,
+					'pressureDrop' : pipe.pressureDrop,					
+			}
+			return JsonResponse({'result' : result})
+		else:
+			raise ValueError('Unknown action "{0}"'.format(action)) 
 	else:
-		return render_to_response(templateName, locals(), 
+		return render_to_response('ThermoFluids/FlowResistance.html', locals(), 
 				context_instance=RequestContext(request))
 		
 def testView(request):

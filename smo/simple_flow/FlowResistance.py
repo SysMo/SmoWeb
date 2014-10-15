@@ -11,8 +11,8 @@ class Pipe(object):
 		self.surfaceRoughness = surfaceRoughness
 		self.crossSectionalArea = np.pi / 4 * internalDiameter ** 2
 		
-	def setUpstreamState(self, pressure, temperature):
-		fluidState = MediumState(getFluid('parahydrogen'))
+	def setUpstreamState(self, fluidName, pressure, temperature):
+		fluidState = MediumState(getFluid(fluidName))
 		fluidState.update_Tp(temperature, pressure)
 		return fluidState
 
