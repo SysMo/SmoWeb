@@ -3,17 +3,116 @@
 {% load staticfiles %}
 
 {% block scripts_and_styles %}
-<script src="{% static 'smo-datatable/smo.datatable.js' %}"></script>
+<script src="{% static 'smo-datatable/smo.datatable-test.js' %}"></script>
 <link rel="stylesheet" type="text/css" href="{% static 'smo-datatable/smo.datatable.css' %}">
 <script src="{% static 'smo-treeview/smo.treeview-test.js' %}"></script>
 <link rel="stylesheet" type="text/css" href="{% static 'smo-treeview/smo.treeview.css' %}">
-<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+<!--Load the AJAX API-->
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<!-- <script src='https://www.google.com/jsapi?autoload={"modules":[{"name":"visualization","version":"1","packages":["corechart","table", "controls"]}]}'></script> -->
+<script type="text/javascript" src="http://dygraphs.com/dygraph-dev.js"></script>
 
 <script>
-angular.module('testApp', ['ui.bootstrap', 'smoDataTableModule', 'angularTreeview'])
+	angular.module('testApp', ['ui.bootstrap', 'smoDataTableModule', 'angularTreeview'])
 	.controller('testController', [ '$scope', '$http', '$window', function($scope, $http, $window) {
-	}]);
+		
+		$scope.columnTable = {columns:[], data:[]};
+		$scope.tableLoaded = false;
+		$scope.openInNewWindow = false;
+		$scope.getPlot = function(){
+			$scope.openInNewWindow = true;
+			
+		}
+		$scope.plotData = function(){
+// 		     google.load('visualization', '1.0', {'packages':['controls']});
+			google.load('visualization', '1.0', {'packages':["corechart", "table", "controls"], 
+				"callback" : drawDashboard}); 
+		     function drawDashboard() {
+		    	 
+		       var tableArray = [];
+		    	var columnLabels = [];
+		       for (i=0; i<$scope.columnTable.columns.length; i++){
+		    	   columnLabels.push($scope.columnTable.columns[i].name)
+		       }
+		       tableArray.push(columnLabels);
+		       for (i=0; i<$scope.columnTable.data.length; i++){
+		    	   tableArray.push($scope.columnTable.data[i])
+		       }
+// 		       console.log(tableArray);
+		       var data = google.visualization.arrayToDataTable(tableArray);
+// 		       console.log(data);
+
+		       // Create a dashboard.
+// 		       var dashboard = new google.visualization.Dashboard(document.getElementById('dashboard_div'));
+// 		       var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+		       // Create a range slider, passing some options
+// 		       var rangeSlider = new google.visualization.ControlWrapper({
+// 		         'controlType': 'ChartRangeFilter',
+// 		         'containerId': 'filter_div',
+// 		         'options': {
+// 		       	  'filterColumnIndex': 0
+// 		         }
+// 		       });
+				var options = { crosshair: { trigger: 'both' },
+		 		           explorer: {
+		 		           	actions: ['dragToZoom', 'rightClickToReset'],
+		 		          	maxZoomIn: 0.05},
+		 		           	"height": 600
+		 		           }
+//		 		           }
+		       // Create a pie chart, passing some options
+// 		       var lineChart = new google.visualization.ChartWrapper({
+// 		         'chartType': 'LineChart',
+// 		         'containerId': 'chart_div',
+// 		         'options': {
+// 		           crosshair: { trigger: 'both' },
+// 		           explorer: {
+// 		           	actions: ['dragToZoom', 'rightClickToReset'],
+// 		           }
+		       
+// 		         }
+// 		       });
+
+		       // Establish dependencies, declaring that 'filter' drives 'pieChart',
+		       // so that the pie chart will only display entries that are let through
+		       // given the chosen slider range.
+// 		       dashboard.bind(lineChart);
+
+		       // Draw the dashboard.
+// 		       dashboard.draw(data);
+// 		       chart.draw(data, options);
+
+				var chart1 = new Dygraph.GVizChart(
+			            document.getElementById('dygraphs')).draw(data, {
+			            });
+
+		     }
+		    
+// 			drawDashboard();
+		     }
+	}])
+	.directive('newWindow', ['$window', '$compile',
+  function($window, $compile) {
+    return {
+      restrict: 'EA',
+      link: function($scope, $element, attr) {
+        $element.on('$destroy', function() {
+          $scope.window.close();
+        });
+      },
+      controller: function($scope, $element) {
+        $scope.window = $window.open('', '_blank');
+        angular
+          .element($scope.window.document.body)
+          .append($compile($element.contents())($scope));
+      }
+    }
+  }]);
+     
 </script>
+
+
+
 {% endblock %}
 
 {% block content %}
@@ -21,13 +120,36 @@ angular.module('testApp', ['ui.bootstrap', 'smoDataTableModule', 'angularTreevie
 <div class="container">
 	<div class="row">
 		<div class="col-md-2" style="text-align: right; font-weight: bold; font-size: medium;">
-			Eplore HDF file:
+			Explore data file:
 		</div>
 		<div class="col-md-10">
 			<smo-hdf-browser tree-id="hdfView"></smo-hdf-browser>
 		</div>
 	</div>
 	<br>
-	<smo-data-table ng-show="columnTable.columns" table-model="columnTable"></smo-data-table>
+<!-- 	<smo-data-table ng-show="columnTable.columns" table-model="columnTable"></smo-data-table>	 -->
+	
+	<div class="row">
+		<div ng-show="tableLoaded" class="col-md-2" style="text-align: right; font-size: medium;">
+			<button class="button class="btn btn-default btn-sm" ng-click="plotData()">Plot</button>
+		</div>
+		<div class="col-md-10">
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-12">
+<!-- <new-window ng-if="openInNewWindow"> -->
+<!-- 			<div id="dashboard_div"> -->
+<!-- 				<div id="chart_div"></div> -->
+<!-- 				<div id="filter_div"></div>	 -->
+<!-- 			</div> -->
+    		<div id="dygraphs" style="width:600px; height:300px;"></div>
+<!-- </new-window> -->
+		</div>
+	</div>
 </div>
+</div>
+
+
+
 {% endblock %}

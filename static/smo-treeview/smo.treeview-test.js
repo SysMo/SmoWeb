@@ -156,6 +156,8 @@
 //							scope[treeId].action = "";
 //							
 //							scope[treeId].input = "";
+							
+							scope["tableLoaded"] = false;
 						};
 
 						//if node label clicks,
@@ -176,6 +178,8 @@
 //							scope[treeId].action = "";
 //							
 //							scope[treeId].input = "";
+							
+							scope["tableLoaded"] = false;
 														
 						};
 						
@@ -377,7 +381,8 @@
 						console.log("action:" + scope[treeId].action);
 						if (scope[treeId].action == "view"){
 							scope["columnTable"] = data;
-							scope["initTable"]();
+//							scope["initTable"]();
+							scope["tableLoaded"] = true;
 						}					
 					})
 					.error(function(data){
