@@ -18,11 +18,6 @@
 		
 		$scope.columnTable = {columns:[], data:[]};
 		$scope.tableLoaded = false;
-		$scope.openInNewWindow = false;
-		$scope.getPlot = function(){
-			$scope.openInNewWindow = true;
-			
-		}
 		$scope.plotData = function(){
 // 		     google.load('visualization', '1.0', {'packages':['controls']});
 			google.load('visualization', '1.0', {'packages':["corechart", "table", "controls"], 
@@ -53,12 +48,12 @@
 // 		       	  'filterColumnIndex': 0
 // 		         }
 // 		       });
-				var options = { crosshair: { trigger: 'both' },
-		 		           explorer: {
-		 		           	actions: ['dragToZoom', 'rightClickToReset'],
-		 		          	maxZoomIn: 0.05},
-		 		           	"height": 600
-		 		           }
+// 				var options = { crosshair: { trigger: 'both' },
+// 		 		           explorer: {
+// 		 		           	actions: ['dragToZoom', 'rightClickToReset'],
+// 		 		          	maxZoomIn: 0.05},
+// 		 		           	"height": 600
+// 		 		           }
 //		 		           }
 		       // Create a pie chart, passing some options
 // 		       var lineChart = new google.visualization.ChartWrapper({
@@ -90,24 +85,24 @@
 		    
 // 			drawDashboard();
 		     }
-	}])
-	.directive('newWindow', ['$window', '$compile',
-  function($window, $compile) {
-    return {
-      restrict: 'EA',
-      link: function($scope, $element, attr) {
-        $element.on('$destroy', function() {
-          $scope.window.close();
-        });
-      },
-      controller: function($scope, $element) {
-        $scope.window = $window.open('', '_blank');
-        angular
-          .element($scope.window.document.body)
-          .append($compile($element.contents())($scope));
-      }
-    }
-  }]);
+	}]);
+// 	.directive('newWindow', ['$window', '$compile',
+//   function($window, $compile) {
+//     return {
+//       restrict: 'EA',
+//       link: function($scope, $element, attr) {
+//         $element.on('$destroy', function() {
+//           $scope.window.close();
+//         });
+//       },
+//       controller: function($scope, $element) {
+//         $scope.window = $window.open('', '_blank');
+//         angular
+//           .element($scope.window.document.body)
+//           .append($compile($element.contents())($scope));
+//       }
+//     }
+//   }]);
      
 </script>
 
@@ -117,37 +112,37 @@
 
 {% block content %}
 <div ng-app="testApp" ng-controller="testController">
-<div class="container">
-	<div class="row">
-		<div class="col-md-2" style="text-align: right; font-weight: bold; font-size: medium;">
-			Explore data file:
+	<div class="container">
+		<div class="row">
+			<div class="col-md-2" style="text-align: right; font-weight: bold; font-size: medium;">
+				Explore data file:
+			</div>
+			<div class="col-md-10">
+				<smo-hdf-browser tree-id="hdfView"></smo-hdf-browser>
+			</div>
 		</div>
-		<div class="col-md-10">
-			<smo-hdf-browser tree-id="hdfView"></smo-hdf-browser>
+		<br>
+	<!-- 	<smo-data-table ng-show="columnTable.columns" table-model="columnTable"></smo-data-table>	 -->
+		
+		<div class="row">
+			<div ng-show="tableLoaded" class="col-md-2" style="text-align: right; font-size: medium;">
+				<button class="button class="btn btn-default btn-sm" ng-click="plotData()">Plot</button>
+			</div>
+			<div class="col-md-10">
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-12">
+	<!-- <new-window ng-if="openInNewWindow"> -->
+	<!-- 			<div id="dashboard_div"> -->
+	<!-- 				<div id="chart_div"></div> -->
+	<!-- 				<div id="filter_div"></div>	 -->
+	<!-- 			</div> -->
+	    		<div id="dygraphs" ></div>
+	<!-- </new-window> -->
+			</div>
 		</div>
 	</div>
-	<br>
-<!-- 	<smo-data-table ng-show="columnTable.columns" table-model="columnTable"></smo-data-table>	 -->
-	
-	<div class="row">
-		<div ng-show="tableLoaded" class="col-md-2" style="text-align: right; font-size: medium;">
-			<button class="button class="btn btn-default btn-sm" ng-click="plotData()">Plot</button>
-		</div>
-		<div class="col-md-10">
-		</div>
-	</div>
-	<div class="row">
-		<div class="col-md-12">
-<!-- <new-window ng-if="openInNewWindow"> -->
-<!-- 			<div id="dashboard_div"> -->
-<!-- 				<div id="chart_div"></div> -->
-<!-- 				<div id="filter_div"></div>	 -->
-<!-- 			</div> -->
-    		<div id="dygraphs" style="width:600px; height:300px;"></div>
-<!-- </new-window> -->
-		</div>
-	</div>
-</div>
 </div>
 
 
