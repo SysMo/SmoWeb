@@ -8,11 +8,17 @@ from smo.smoflow3d import getFluid
 from smo.smoflow3d.Media import MediumState
 
 class Pipe(object):
-	def __init__(self, internalDiameter, length, surfaceRoughness = 25e-6):
+	def __init__(self, internalDiameter, externalDiameter, length, pipeMaterialDensity, surfaceRoughness = 25e-6):
 		self.internalDiameter = internalDiameter
+		self.externalDiameter = externalDiameter
 		self.length = length
 		self.surfaceRoughness = surfaceRoughness
+		
 		self.crossSectionalArea = np.pi / 4 * internalDiameter ** 2
+		self.fluidVolume = self.crossSectionalArea * self.length
+		self.internalSurfaceArea = np.pi * self.internalDiameter * self.length
+		self.externalSurfaceArea = np.pi * self.externalDiameter * self.length
+		self.pipeSolidMass = pipeMaterialDensity * np.pi / 4 * (self.externalDiameter**2 - self.internalDiameter**2) * self.length
 		
 	def setUpstreamState(self, fluidName, pressure, temperature):
 		fluidState = MediumState(getFluid(fluidName))
@@ -20,11 +26,19 @@ class Pipe(object):
 		return fluidState
 
 	
-	def computePressureDrop(self, upstreamState, mDot):		
-		self.v = mDot / (upstreamState.rho() * self.crossSectionalArea )
-		self.Re = upstreamState.rho() * self.v * self.crossSectionalArea / upstreamState.mu()
+	def computePressureDrop(self, upstreamState, massFlowRate):
+		self.massFlowRate = massFlowRate
+		self.inletDensity = upstreamState.rho()
+		self.fluidMass = self.fluidVolume * upstreamState.rho()
+		#self.massFlowRate = self.massFlowRate 
+		self.volumetricFlowRate = massFlowRate / self.inletDensity	
+		self.flowVelocity = massFlowRate / (upstreamState.rho() * self.crossSectionalArea )
+		self.Re = upstreamState.rho() * self.flowVelocity * self.internalDiameter / upstreamState.mu()
 		self.zeta = Pipe.ChurchilCorrelation(self.Re, self.internalDiameter, self.surfaceRoughness)
-		self.pressureDrop = self.zeta * self.length / self.internalDiameter * upstreamState.rho() * self.v * self.v / 2
+		self.dragCoefficient = self.zeta * self.length / self.internalDiameter
+		self.pressureDrop = self.dragCoefficient * upstreamState.rho() * self.flowVelocity * self.flowVelocity / 2
+		self.outletPressure = upstreamState.p() - self.pressureDrop
+		self.outletTemperature = upstreamState.T()
 		return self.pressureDrop
 		
 
@@ -125,15 +139,15 @@ class Elbow(object):
 		return fluidState
 
 	def computePressureDrop(self, upstreamState, mDot):
-		self.v = mDot / (upstreamState.rho() * self.crossSectionalArea )
-		self.Re = upstreamState.rho() * self.v * self.internalDiameter / upstreamState.mu()
+		self.flowVelocity = mDot / (upstreamState.rho() * self.crossSectionalArea )
+		self.Re = upstreamState.rho() * self.flowVelocity * self.internalDiameter / upstreamState.mu()
 		print ('Re=', self.Re)
 		
 		self.cFriction = Pipe.ChurchilCorrelation(self.Re, self.internalDiameter, self.surfaceRoughness) \
 			* self.length / self.internalDiameter
 		self.cLocal = self.a1 * self.b1 * self.kd * Elbow.kRe(self.Re)
 		self.dragCoefficient =  self.cFriction + self.cLocal
-		self.pressureDrop = self.dragCoefficient * upstreamState.rho() * self.v * self.v / 2
+		self.pressureDrop = self.dragCoefficient * upstreamState.rho() * self.flowVelocity * self.flowVelocity / 2
 	
 		print ('cLocal=', self.cLocal)
 		print ('cFriction=', self.cFriction)

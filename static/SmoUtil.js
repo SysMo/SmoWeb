@@ -30,6 +30,15 @@ smoModule.factory('util', function util () {
 		return result.replace(/,\n$/, "");
 	}
 	functions.dumpObject = dumpObject;
+	functions['formatNumber'] = function (n) {
+		if (n > 1e5 || n < 1e-3) {
+			return n.toExponential(5);
+		}
+		var sig = 6;
+		var mult = Math.pow(10,
+				sig - Math.floor(Math.log(n) / Math.LN10) - 1);
+		return Math.round(n * mult) / mult;
+	} 
 	return functions;
 });
 
@@ -67,13 +76,15 @@ smoModule.factory('units', function() {
 			units : {'m' : {mult : 1}, 'km' : {mult : 1e3}, 'cm' : {mult : 1e-2}, 'mm' : {mult : 1e-3}, 
 			'um' : {mult : 1e-6}, 'nm' : {mult : 1e-9}, 'in' : {mult : 2.54e-2}, 'ft' : {mult : 3.048e-1}}},
 		'Area' : {title : 'area', nominalValue : 1, defUnit : 'm**2', 
-			units : {'m**2' : {mult : 1}, 'cm**2' : {mult : 1e-4}, 'mm**2' : {mult : 1e-6}}}, 
+			units : {'m**2' : {mult : 1}, 'cm**2' : {mult : 1e-4}, 'mm**2' : {mult : 1e-6}}},
 		'Volume' : {title : 'volume', nominalValue : 1, defUnit : 'm**3', 
-			units : {'m**3' : {mult : 1}, 'cm**3' : {mult : 1e-6}, 'mm**3' : {mult : 1e-9}}},
+			units : {'m**3' : {mult : 1}, 'L' : {mult : 1e-3}, 'cm**3' : {mult : 1e-6}, 'mm**3' : {mult : 1e-9}}},
 		'Time' : {title : 'time', nominalValue : 1, defUnit : 's', 
-			units : {'s' : {mult : 1}, 'ms' : {mult : 1e-3}, 'us' : {mult : 1e-6}, 'min' : {mult : 60}, 'h' : {mult : 3600}, 'day' : {mult : 8.64e4}, 'year' : {mult : 3.15576e7}}}, 
+			units : {'s' : {mult : 1}, 'ms' : {mult : 1e-3}, 'us' : {mult : 1e-6}, 'min' : {mult : 60}, 'h' : {mult : 3600}, 'day' : {mult : 8.64e4}, 'year' : {mult : 3.15576e7}}},
+		'Velocity' : {title : 'velocity', nominalValue : 1, defUnit : 'm/s', 
+				units : {'m/s' : {mult : 1}, 'km/h' : {mult : 1/3.6}, 'km/s' : {mult : 1e3}, 'mm/s' : {mult : 1e-3}}},
 		'Mass' : {title : 'mass', nominalValue : 1, defUnit : 'kg', 
-			units : {'kg' : {mult : 1}, 'ton' : {mult : 1e3}, 'g' : {mult : 1e-3}}},
+			units : {'kg' : {mult : 1}, 'g' : {mult : 1e-3}, 'ton' : {mult : 1e3}}},
 		'Pressure' : {title : 'pressure', nominalValue : 1e5, defUnit : 'bar', 
 			units : {'Pa' : {mult : 1}, 'kPa' : {mult : 1e3}, 'MPa' : {mult : 1e6}, 'GPa' : {mult : 1e9}, 
 				'bar' : {mult : 1e5}, 'psi' : {mult : 6.89475e3}, 'ksi' : {mult : 6.89475e6}}},
@@ -90,7 +101,11 @@ smoModule.factory('units', function() {
 		'VaporQuality' : {title : 'vapor quality', nominalValue : 1, defUnit : '-', 
 			units : {'-' : {mult : 1}}},
 		'MassFlowRate' : {title : 'mass flow rate', nominalValue : 1, defUnit : 'kg/s', 
-			units : {'kg/s' : {mult : 1}, 'g/s' : {mult : 1e-3}, 'kg/h' : {mult : 1/3.6e3}}}
+			units : {'kg/s' : {mult : 1}, 'g/s' : {mult : 1e-3}, 'kg/min' : {mult : 1./60}, 'g/min' : {mult : 1e-3/60}, 
+				'kg/h' : {mult : 1/3.6e3}, 'g/h' : {mult : 1e-3/3.6e3}}},
+		'VolumetricFlowRate' : {title : 'volumetric flow rate', nominalValue : 1, defUnit : 'm**3/s', 
+			units : {'m**3/s' : {mult : 1}, 'm**3/h' : {mult : 1./3.6e3}, 'L/s' : {mult : 1e-3},
+				'L/min' : {mult : 1e-3/60}, 'L/h' : {mult : 1e-3/3.6e3}}}
 	};
 
 	// Object for handling quantity
@@ -129,13 +144,53 @@ smoModule.factory('units', function() {
 	return units;
 });
 
+smoModule.factory('materials', function() {
+	var materials = {
+		solids : {
+			'StainlessSteel304' : {title : 'stainless steel 304', 'rho' : 7800},
+			'Aluminium6061' : {title : 'aluminium 6061', 'rho' : 2700}
+		},
+		fluids : {
+			"ParaHydrogen" : {title : "ParaHydrogen"},
+			"OrthoHydrogen" : {title : "OrthoHydrogen"},
+			"Hydrogen" : {title : "Hydrogen"},
+			"Water" : {title : "Water"},
+			"Air" : {title : "Air"},
+			"Nitrogen" : {title : "Nitrogen"},
+			"Oxygen" : {title : "Oxygen"},
+			"CarbonDioxide" : {title : "CarbonDioxide"},
+			"CarbonMonoxide" : {title : "CarbonMonoxide"},
+			"R134a" : {title : "R134a"},
+			"R1234yf" : {title : "R1234yf"},
+			"R1234ze(Z)" : {title : "R1234ze(Z)"},
+			"Ammonia" : {title : "Ammonia"},
+			"Argon" : {title : "Argon"},
+			"Neon" : {title : "Neon"},
+			"Helium" : {title : "Helium"},
+			"Methane" : {title : "Methane"},
+			"Ethane" : {title : "Ethane"},
+			"Ethylene" : {title : "Ethylene"},
+			"n-Propane" : {title : "n-Propane"},
+			"n-Butane" : {title : "n-Butane"},
+			"IsoButane" : {title : "IsoButane"},
+			"n-Pentane" : {title : "n-Pentane"},
+			"Isopentane" : {title : "Isopentane"},
+			"Methanol" : {title : "Methanol"},
+			"Ethanol" : {title : "Ethanol"}
+		}
+	};
+	return materials;
+});
+
 smoModule.directive('smoInputQuantity', ['$compile', function($compile) {
 	return {
 		restrict : 'E',
 		link : function(scope, element, attr) {
 			var qVar = attr.smoQuantityVar;
-			var template =  '<input type="number" step="any" ng-init="' + qVar + '.changeUnit()" ng-model="' + qVar + '.displayValue" ng-change="' + qVar + '.updateQuantity()">' +
-			'<select ng-model="' + qVar + '.displayUnit" ng-options="name as name for (name, conv) in units.quantities[' + qVar + '.quantity].units" ng-change="' + qVar + '.changeUnit()"></select>';
+			var title = attr.smoTitle;
+			var template = '<div><div style="display: inline-block;text-align: right;width: 10em;">' + title + '</div>&nbsp;' + 
+			'<div style="display: inline-block;"><input type="number" step="any" ng-init="' + qVar + '.changeUnit()" ng-model="' + qVar + '.displayValue" ng-change="' + qVar + '.updateQuantity()">' +
+			'<select ng-model="' + qVar + '.displayUnit" ng-options="name as name for (name, conv) in units.quantities[' + qVar + '.quantity].units" ng-change="' + qVar + '.changeUnit()"></select></div></div>';
 			element.html('').append($compile(template)(scope));
 		}
 	}
@@ -146,13 +201,33 @@ smoModule.directive('smoOutputQuantity', ['$compile', function($compile) {
 		restrict : 'E',
 		link : function(scope, element, attr) {
 			var qVar = attr.smoQuantityVar;
+			var title = attr.smoTitle;
 			var outputStyle = "display: inline-block; border: 1px solid #888; padding: 1.7pt; width : 10em;";
-			var template =  '<div style="' + outputStyle + '" ng-bind="' + qVar + '.displayValue"></div>' +
-			'<select ng-model="' + qVar + '.displayUnit" ng-options="name as name for (name, conv) in units.quantities[' + qVar + '.quantity].units" ng-change="' + qVar + '.changeUnit()"></select>';
+			var template = '<div><div style="display: inline-block;text-align: right;width: 10em;">' + title + '</div>&nbsp;<div style="' + outputStyle + '" ng-bind="util.formatNumber(' + qVar + '.displayValue)"></div>' +
+			'&nbsp;<select ng-model="' + qVar + '.displayUnit" ng-options="name as name for (name, conv) in units.quantities[' + qVar + '.quantity].units" ng-change="' + qVar + '.changeUnit()"></select></div></div>';
 			element.html('').append($compile(template)(scope));
 		}
 	}
 }]);
+
+
+smoModule.directive('smoInputGroup', ['$compile', function($compile) {
+	return {
+		restrict : 'E',
+		link : function(scope, element, attr) {
+			var group = attr.smoGroupVar;
+			var tableRows = [];
+			scope[group].fields.forEach(function(element, index, array) {
+				tableRows.push('<tr><td style="text-align:right;">' + element.title + '&nbsp;</td><td><smo-input-quantity smo-quantity-var="' + 
+						group + '.fields[' + index + '].quantity"><smo-input-quantity></td></tr>');
+			});
+			var tableBodyTemplate = tableRows.join("");
+			var template = '<h2>' + scope[group].name + '</h2><table><tbody>' + tableBodyTemplate + '</tbody></table>';
+			element.html('').append($compile(template)(scope));
+		}
+	}
+}]);
+
 
 //\'%.2g\' | sprintf : 
 
