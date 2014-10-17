@@ -79,6 +79,11 @@
 
 				var chart1 = new Dygraph.GVizChart(
 			            document.getElementById('dygraphs')).draw(data, {
+			            	labelsDiv: 'dylegend',
+			            	labelsDivWidth: 150,
+			            	labelsSeparateLines: true,
+			            	width: 900,
+			            	height: 500
 			            });
 
 		     }
@@ -132,14 +137,17 @@
 			</div>
 		</div>
 		<div class="row">
-			<div class="col-md-12">
+			<div class="col-md-10">
 	<!-- <new-window ng-if="openInNewWindow"> -->
 	<!-- 			<div id="dashboard_div"> -->
 	<!-- 				<div id="chart_div"></div> -->
 	<!-- 				<div id="filter_div"></div>	 -->
 	<!-- 			</div> -->
-	    		<div id="dygraphs" ></div>
+	    		<div id="dygraphs"></div>
 	<!-- </new-window> -->
+			</div>
+			<div class="col-md-2">
+				<div id="dylegend"></div>
 			</div>
 		</div>
 	</div>
