@@ -11,73 +11,37 @@
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <!-- <script src='https://www.google.com/jsapi?autoload={"modules":[{"name":"visualization","version":"1","packages":["corechart","table", "controls"]}]}'></script> -->
 <script type="text/javascript" src="http://dygraphs.com/dygraph-dev.js"></script>
+<script src="{% static 'smo-datatable/tablequerywrapper.js' %}"></script>
+
 
 <script>
 	angular.module('testApp', ['ui.bootstrap', 'smoDataTableModule', 'angularTreeview'])
-	.controller('testController', [ '$scope', '$http', '$window', function($scope, $http, $window) {
-		
+	.controller('testController', [ '$scope', '$http', '$window', function($scope, $http, $window) {		
 		$scope.columnTable = {columns:[], data:[]};
 		$scope.tableLoaded = false;
+		
+		$scope.setTableArray = function(){
+			console.log($scope.columnTable.columns);
+			$scope.tableArray = [];
+		    var columnLabels = [];
+	       for (i=0; i<$scope.columnTable.columns.length; i++){
+	    	   columnLabels.push($scope.columnTable.columns[i].name);
+	       }
+	       console.log(columnLabels);
+	       $scope.tableArray.push(columnLabels);
+	       for (i=0; i<$scope.columnTable.data.length; i++){
+	    	   $scope.tableArray.push($scope.columnTable.data[i]);
+	       }
+	       console.log($scope.tableArray);
+		}
+		
 		$scope.plotData = function(){
-// 		     google.load('visualization', '1.0', {'packages':['controls']});
-			google.load('visualization', '1.0', {'packages':["corechart", "table", "controls"], 
-				"callback" : drawDashboard}); 
-		     function drawDashboard() {
-		    	 
-		       var tableArray = [];
-		    	var columnLabels = [];
-		       for (i=0; i<$scope.columnTable.columns.length; i++){
-		    	   columnLabels.push($scope.columnTable.columns[i].name)
-		       }
-		       tableArray.push(columnLabels);
-		       for (i=0; i<$scope.columnTable.data.length; i++){
-		    	   tableArray.push($scope.columnTable.data[i])
-		       }
-// 		       console.log(tableArray);
-		       var data = google.visualization.arrayToDataTable(tableArray);
-// 		       console.log(data);
-
-		       // Create a dashboard.
-// 		       var dashboard = new google.visualization.Dashboard(document.getElementById('dashboard_div'));
-// 		       var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
-		       // Create a range slider, passing some options
-// 		       var rangeSlider = new google.visualization.ControlWrapper({
-// 		         'controlType': 'ChartRangeFilter',
-// 		         'containerId': 'filter_div',
-// 		         'options': {
-// 		       	  'filterColumnIndex': 0
-// 		         }
-// 		       });
-// 				var options = { crosshair: { trigger: 'both' },
-// 		 		           explorer: {
-// 		 		           	actions: ['dragToZoom', 'rightClickToReset'],
-// 		 		          	maxZoomIn: 0.05},
-// 		 		           	"height": 600
-// 		 		           }
-//		 		           }
-		       // Create a pie chart, passing some options
-// 		       var lineChart = new google.visualization.ChartWrapper({
-// 		         'chartType': 'LineChart',
-// 		         'containerId': 'chart_div',
-// 		         'options': {
-// 		           crosshair: { trigger: 'both' },
-// 		           explorer: {
-// 		           	actions: ['dragToZoom', 'rightClickToReset'],
-// 		           }
-		       
-// 		         }
-// 		       });
-
-		       // Establish dependencies, declaring that 'filter' drives 'pieChart',
-		       // so that the pie chart will only display entries that are let through
-		       // given the chosen slider range.
-// 		       dashboard.bind(lineChart);
-
-		       // Draw the dashboard.
-// 		       dashboard.draw(data);
-// 		       chart.draw(data, options);
-
-				var chart1 = new Dygraph.GVizChart(
+			
+			 google.load('visualization', '1.0', {'packages':["corechart", "table", "controls"], 
+				 "callback" : drawPlot}); 
+		     function drawPlot() {
+		       var data = google.visualization.arrayToDataTable($scope.tableArray);
+		       var chart1 = new Dygraph.GVizChart(
 			            document.getElementById('dygraphs')).draw(data, {
 			            	labelsDiv: 'dylegend',
 			            	labelsDivWidth: 150,
@@ -85,11 +49,61 @@
 			            	width: 900,
 			            	height: 500
 			            });
+		       
+	
+		     }
+		     $scope.showPlot = !$scope.showPlot;
+		     if ($scope.plotBtnText == "Show plot"){
+		    	 $scope.plotBtnText ="Hide plot";
+		     } else {
+		    	 $scope.plotBtnText = "Show plot";
+		     }
+		 }
+		
+		$scope.drawTable = function (){
+			google.load('visualization', '1.0', {'packages':["corechart", "table", "controls"], 
+				 "callback" : displayTable}); 
+			function displayTable(){
+ 		       var data = google.visualization.arrayToDataTable($scope.tableArray);
+ 		      var formatter = new google.visualization.NumberFormat({pattern: '###.###'});
+ 		     	formatter.format(data,1);
+ 		     	formatter.format(data,2);
+ 		     	formatter.format(data,3);
+ 		       
+		       var table = new google.visualization.Table(document.getElementById('table_div'));
+		       table.draw(data, {showRowNumber: true, sort:'disable', page:'enable', pageSize:20});
 
+			}
+			$scope.showTable = !$scope.showTable;
+		     if ($scope.tableBtnText == "Show table"){
+		    	 $scope.tableBtnText ="Hide table";
+		     } else {
+		    	 $scope.tableBtnText = "Show table";
 		     }
-		    
-// 			drawDashboard();
+		     
+			
+		}
+		$scope.drawView = function (){
+			google.load('visualization', '1.0', {'packages':["corechart", "table", "controls"], 
+				 "callback" : displayView}); 
+			function displayView(){
+				var data = google.visualization.arrayToDataTable($scope.tableArray);
+		       var view = new google.visualization.DataView(data);
+		       view.setColumns([1, 2, 3]);
+		       var tableView = new google.visualization.Table(document.getElementById('view_div'));
+		       tableView.draw(view, {showRowNumber: true, sort:'disable', page:'enable', pageSize:20});
+			}
+			
+			$scope.showView = !$scope.showView;
+		     if ($scope.viewBtnText == "Show view"){
+		    	 $scope.viewBtnText ="Hide view";
+		     } else {
+		    	 $scope.viewBtnText = "Show view";
 		     }
+		     
+			
+		}
+		
 	}]);
 // 	.directive('newWindow', ['$window', '$compile',
 //   function($window, $compile) {
@@ -119,7 +133,7 @@
 <div ng-app="testApp" ng-controller="testController">
 	<div class="container">
 		<div class="row">
-			<div class="col-md-2" style="text-align: right; font-weight: bold; font-size: medium;">
+			<div class="col-md-2" style="text-align: left; font-weight: bold; font-size: medium;">
 				Explore data file:
 			</div>
 			<div class="col-md-10">
@@ -130,21 +144,30 @@
 	<!-- 	<smo-data-table ng-show="columnTable.columns" table-model="columnTable"></smo-data-table>	 -->
 		
 		<div class="row">
-			<div ng-show="tableLoaded" class="col-md-2" style="text-align: right; font-size: medium;">
-				<button class="button class="btn btn-default btn-sm" ng-click="plotData()">Plot</button>
+			<div ng-show="tableLoaded" class="col-md-6" style="text-align: left; font-size: medium;">
+				<span><button class="button class="btn btn-default btn-sm" ng-click="plotData()" ng-bind="plotBtnText">
+				</button></span>
+				<span><button class="button class="btn btn-default btn-sm" ng-click="drawTable()" ng-bind="tableBtnText">
+				</button></span>
+				<span><button class="button class="btn btn-default btn-sm" ng-click="drawView()" ng-bind="viewBtnText">
+				</button></span>
 			</div>
-			<div class="col-md-10">
+			<div class="col-md-6">
 			</div>
 		</div>
-		<div class="row">
+		<div class="row" ng-show="showTable">
+			<div class="col-md-12">
+				<div id="table_div"></div>	
+			</div>		
+		</div>
+		<div class="row" ng-show="showView">
+			<div class="col-md-12">
+				<div ng-show="showView" id="view_div"></div>	
+			</div>		
+		</div>
+		<div class="row" ng-show="showPlot">
 			<div class="col-md-10">
-	<!-- <new-window ng-if="openInNewWindow"> -->
-	<!-- 			<div id="dashboard_div"> -->
-	<!-- 				<div id="chart_div"></div> -->
-	<!-- 				<div id="filter_div"></div>	 -->
-	<!-- 			</div> -->
 	    		<div id="dygraphs"></div>
-	<!-- </new-window> -->
 			</div>
 			<div class="col-md-2">
 				<div id="dylegend"></div>

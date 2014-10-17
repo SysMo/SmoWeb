@@ -153,9 +153,9 @@
 							//Collapse or Expand
 							selectedNode.collapsed = !selectedNode.collapsed;
 							
-//							scope[treeId].action = "";
-//							
-//							scope[treeId].input = "";
+							scope[treeId].action = "";
+							
+							scope[treeId].input = "";
 							
 							scope["tableLoaded"] = false;
 						};
@@ -175,9 +175,9 @@
 							//set currentNode
 							scope[treeId].currentNode = selectedNode;
 							
-//							scope[treeId].action = "";
-//							
-//							scope[treeId].input = "";
+							scope[treeId].action = "";
+							
+							scope[treeId].input = "";
 							
 							scope["tableLoaded"] = false;
 														
@@ -228,7 +228,16 @@
 					    	scope[treeId].action = "view";
 					    	console.log('Viewing ' + node.path);
 					    	console.log(scope[treeId].action);
-					    	scope[treeId].sendActionData();						    
+					    	scope[treeId].sendActionData();	
+					    	
+					    	scope["plotBtnText"] = "Show plot";
+					    	scope["showPlot"] = false;
+					    	scope["tableBtnText"] = "Show table";
+					    	scope["showTable"] = false;
+					    	scope["showView"] = false;
+						    scope["viewBtnText"] = "Show view";
+//						    scope[treeId].action = "";						
+//							scope[treeId].input = "";
 						};
 						
 						scope[treeId].del = function (node) {
@@ -349,6 +358,12 @@
 					.error(function(data){
 						console.log("Load error!");
 					});
+					
+					if (scope[treeId].action != "view"){
+						scope[treeId].action = "";						
+						scope[treeId].input = "";
+					}
+					
 				}
 				
 				scope[treeId].loadTree();
@@ -380,22 +395,18 @@
 					.success(function(data){
 						console.log("action:" + scope[treeId].action);
 						if (scope[treeId].action == "view"){
+							console.log("here view");
 							scope["columnTable"] = data;
-//							scope["initTable"]();
-							scope["tableLoaded"] = true;
+							scope["setTableArray"]();
+							scope["tableLoaded"] = true;							
 						}					
 					})
 					.error(function(data){
 						console.log("action:" + scope[treeId].action);
 						console.log("Action error!");
 					});
-					
-//					scope[treeId].action = "";
-//					
-//					scope[treeId].input = "";
-					
-					scope[treeId].loadTree();
-					
+										
+					scope[treeId].loadTree();					
 					
 				}
 				
