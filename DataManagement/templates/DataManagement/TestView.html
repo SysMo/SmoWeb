@@ -15,6 +15,7 @@
 
 
 <script>
+	google.load('visualization', '1.0', {'packages':["corechart", "table", "controls"]}); 
 	angular.module('testApp', ['ui.bootstrap', 'smoDataTableModule', 'angularTreeview'])
 	.controller('testController', [ '$scope', '$http', '$window', function($scope, $http, $window) {
 		$scope.tableLoaded = false;
@@ -32,6 +33,12 @@
 			for (i=0; i<$scope.columnTable.data.length; i++){
 				$scope.tableArray.push($scope.columnTable.data[i]);
 			}
+			$scope.data = google.visualization.arrayToDataTable($scope.tableArray);
+			var formatter = new google.visualization.NumberFormat({pattern: '###.###'});
+			for (i=0; i<$scope.columnTable.columns.length; i++){
+				formatter.format($scope.data, i);
+			}
+			$scope.view = new google.visualization.DataView($scope.data);
 		}
 		
 		$scope.setView = function (){
@@ -56,76 +63,47 @@
 			$scope.setView();
 		}
 		
-		$scope.drawTable = function (){
-			google.load('visualization', '1.0', {'packages':["corechart", "table", "controls"], 
-				 "callback" : displayTable}); 
-			function displayTable(){
-				var data = google.visualization.arrayToDataTable($scope.tableArray);
- 		      var formatter = new google.visualization.NumberFormat({pattern: '###.###'});
- 		     	formatter.format(data,1);
- 		     	formatter.format(data,2);
- 		     	
- 		       
-		       var table = new google.visualization.Table(document.getElementById('table_div'));
-		       table.draw(data, {showRowNumber: true, sort:'disable', page:'enable', pageSize:20});
-		       $scope.view = new google.visualization.DataView(data);
-
-			}
-			$scope.showTable = !$scope.showTable;
-		     if ($scope.tableBtnText == "Show table"){
-		    	 $scope.tableBtnText ="Hide table";
-		     } else {
-		    	 $scope.tableBtnText = "Show table";
-		     }
-		     
+		$scope.drawTable = function (){						
+			var table = new google.visualization.Table(document.getElementById('table_div'));
+			table.draw($scope.data, {showRowNumber: true, sort:'disable', page:'enable', pageSize:20});			
 			
+			$scope.showTable = !$scope.showTable;
+			if ($scope.tableBtnText == "Show table"){
+				$scope.tableBtnText ="Hide table";
+			} else {
+				$scope.tableBtnText = "Show table";
+			}
 		}
 		
 		$scope.drawView = function (){
-			google.load('visualization', '1.0', {'packages':["corechart", "table", "controls"], 
-				 "callback" : displayView}); 
-			function displayView(){
-// 				$scope.setView();
-				var data = google.visualization.arrayToDataTable($scope.tableArray);
-		       var tableView = new google.visualization.Table(document.getElementById('view_div'));
-		       tableView.draw($scope.view, {showRowNumber: true, sort:'disable', page:'enable', pageSize:20});
-			}
+			var tableView = new google.visualization.Table(document.getElementById('view_div'));
+			tableView.draw($scope.view, {showRowNumber: true, sort:'disable', page:'enable', pageSize:20});
 			
 			$scope.showView = !$scope.showView;
-		     if ($scope.viewBtnText == "Show view"){
-		    	 $scope.viewBtnText ="Hide view";
-		     } else {
-		    	 $scope.viewBtnText = "Show view";
-		     }
-		     
-			
+			if ($scope.viewBtnText == "Show view"){
+				$scope.viewBtnText ="Hide view";
+			} else {
+				$scope.viewBtnText = "Show view";
+			}
 		}
 		
 		$scope.plotData = function(){
+			var chart1 = new Dygraph.GVizChart(
+			document.getElementById('dygraphs')).draw($scope.view, {
+				labelsDiv: 'dylegend',
+				labelsDivWidth: 150,
+				labelsSeparateLines: true,
+				width: 900,
+				height: 500
+			});
 			
-			 google.load('visualization', '1.0', {'packages':["corechart", "table", "controls"], 
-				 "callback" : drawPlot}); 
-		     function drawPlot() {
-//		       var data = google.visualization.arrayToDataTable($scope.tableArray);
-		       var chart1 = new Dygraph.GVizChart(
-			            document.getElementById('dygraphs')).draw($scope.view, {
-			            	labelsDiv: 'dylegend',
-			            	labelsDivWidth: 150,
-			            	labelsSeparateLines: true,
-			            	width: 900,
-			            	height: 500
-			            });	       	
-		     }
-		     
-		     $scope.showPlot = !$scope.showPlot;
-		     if ($scope.plotBtnText == "Show plot"){
-		    	 $scope.plotBtnText ="Hide plot";
-		     } else {
-		    	 $scope.plotBtnText = "Show plot";
-		     }
-		 }
-		
-		
+			$scope.showPlot = !$scope.showPlot;
+			if ($scope.plotBtnText == "Show plot"){
+				$scope.plotBtnText ="Hide plot";
+			} else {
+				$scope.plotBtnText = "Show plot";
+			}
+		}
 	}]);
 </script>
 {% endblock %}
