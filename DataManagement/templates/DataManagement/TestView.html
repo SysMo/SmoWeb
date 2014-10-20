@@ -16,6 +16,14 @@
 
 <script>
 	google.load('visualization', '1.0', {'packages':["corechart", "table", "controls"]}); 
+// 	$(function () {
+// 	    $('#myTab a:last').tab('show')
+// 	});
+// 	$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+// 	  e.console.log("blah"); // activated tab
+	  
+// 	  e.relatedTarget // previous tab
+// 	})
 	angular.module('testApp', ['ui.bootstrap', 'smoDataTableModule', 'angularTreeview'])
 	.controller('testController', [ '$scope', '$http', '$window', function($scope, $http, $window) {
 		$scope.tableLoaded = false;
@@ -111,59 +119,97 @@
 {% block content %}
 <div ng-app="testApp" ng-controller="testController">
 	<div class="container">
-		<div class="row">
-			<div class="col-md-2" style="text-align: left; font-weight: bold; font-size: medium;">
-				Explore data file:
-			</div>
-			<div class="col-md-10">
-				<smo-hdf-browser tree-id="hdfView"></smo-hdf-browser>
-			</div>
-		</div>
-		<br>
-		<div class="row">
-			<div ng-show="tableLoaded" class="col-md-6" style="text-align: left; font-size: medium;">
-				<span><button class="button class="btn btn-default btn-sm" ng-click="plotData()" ng-bind="plotBtnText">
-				</button></span>
-				<span><button class="button class="btn btn-default btn-sm" ng-click="drawTable()" ng-bind="tableBtnText">
-				</button></span>
-				<span><button class="button class="btn btn-default btn-sm" ng-click="drawView()" ng-bind="viewBtnText">
-				</button></span>
-			</div>
-			<div class="col-md-6">
-			</div>
-		</div>
-		<div class ="row" ng-show="showTable">
-			<div class="col-md-12">
-				<div style="display:inline-block;">
+		<!-- Nav tabs -->
+		<ul class="nav nav-tabs" role="tablist" id="myTab">
+		  <li class="active"><a data-target="#tree" role="tab" data-toggle="tab">Tree</a></li>
+		  <li ng-show="tableLoaded" ><a data-target="#table" role="tab" data-toggle="tab" ng-click="drawTable()">Table</a></li>
+		  <li ng-show="tableLoaded" ><a data-target="#view" role="tab" data-toggle="tab" ng-click="drawView()">View</a></li>
+		  <li ng-show="tableLoaded" ><a data-target="#plot" role="tab" data-toggle="tab" ng-click="plotData()">Plot</a></li>
+		</ul>
+
+		<!-- Tab panes -->
+		<div class="tab-content">
+		  <div class="tab-pane active" id="tree">
+			  	<br>
+			  	<div style="text-align: left; font-weight: bold; font-size: medium;">Explore data file:</div>
+			  	<br>
+			  	<smo-hdf-browser tree-id="hdfView"></smo-hdf-browser>
+		  </div>
+		  <div class="tab-pane" id="table">
+			  	<div style="display:inline-block;">
 					<span>Check all</span>
 					<input type="checkbox" ng-model="allChecked" ng-change="setToAll()"></input>
 				</div>
 				<div style="display:inline-block;" ng-repeat="columnName in tableArray[0] track by $index">
 					<span ng-bind="columnName"></span>
 					<input type="checkbox" ng-model="columnsShow[$index]" ng-change="update()"></input>
-    			</div>
-			</div>
-		</div>
-		<div class="row" ng-show="showTable">
-			<div class="col-md-12">
-				<div id="table_div"></div>	
-			</div>		
-		</div>
-		<div class="row" ng-show="showView">
-			<div class="col-md-12">
-				<div ng-show="showView" id="view_div"></div>	
-			</div>		
-		</div>
-		<div class="row" ng-show="showPlot">
-			<div class="col-md-10">
-	    		<div id="dygraphs"></div>
-			</div>
-			<div class="col-md-2">
-				<div id="dylegend"></div>
-			</div>
+	    		</div>
+				<div id="table_div"></div>
+		  </div>
+		  <div class="tab-pane" id="view">
+		  		<div id="view_div"></div>	
+		  </div>
+		  <div class="tab-pane" id="plot">
+			  	<div id="dygraphs" style="display:inline-block;"></div>
+			  	<div id="dylegend" style="display:inline-block;"></div>
+		  </div>
 		</div>
 	</div>
-</div>
+</div>		
+		
+		
+		
+<!-- 		<div class="row"> -->
+<!-- 			<div class="col-md-2" style="text-align: left; font-weight: bold; font-size: medium;"> -->
+<!-- 			</div> -->
+<!-- 			<div class="col-md-10"> -->
+<!-- 			</div> -->
+<!-- 		</div> -->
+<!-- 		<br> -->
+<!-- 		<div class="row"> -->
+<!-- 			<div ng-show="tableLoaded" class="col-md-6" style="text-align: left; font-size: medium;"> -->
+<!-- 				<span><button class="button class="btn btn-default btn-sm" ng-click="plotData()" ng-bind="plotBtnText"> -->
+<!-- 				</button></span> -->
+<!-- 				<span><button class="button class="btn btn-default btn-sm" ng-click="drawTable()" ng-bind="tableBtnText"> -->
+<!-- 				</button></span> -->
+<!-- 				<span><button class="button class="btn btn-default btn-sm" ng-click="drawView()" ng-bind="viewBtnText"> -->
+<!-- 				</button></span> -->
+<!-- 			</div> -->
+<!-- 			<div class="col-md-6"> -->
+<!-- 			</div> -->
+		</div>
+<!-- 		<div class ="row" ng-show="showTable"> -->
+<!-- 			<div class="col-md-12"> -->
+<!-- 				<div style="display:inline-block;"> -->
+<!-- 					<span>Check all</span> -->
+<!-- 					<input type="checkbox" ng-model="allChecked" ng-change="setToAll()"></input> -->
+<!-- 				</div> -->
+<!-- 				<div style="display:inline-block;" ng-repeat="columnName in tableArray[0] track by $index"> -->
+<!-- 					<span ng-bind="columnName"></span> -->
+<!-- 					<input type="checkbox" ng-model="columnsShow[$index]" ng-change="update()"></input> -->
+<!--     			</div> -->
+<!-- 			</div> -->
+<!-- 		</div> -->
+<!-- 		<div class="row" ng-show="showTable"> -->
+<!-- 			<div class="col-md-12"> -->
+<!-- 				<div id="table_div"></div>	 -->
+<!-- 			</div>		 -->
+<!-- 		</div> -->
+<!-- 		<div class="row" ng-show="showView"> -->
+<!-- 			<div class="col-md-12"> -->
+<!-- 				<div ng-show="showView" id="view_div"></div>	 -->
+<!-- 			</div>		 -->
+		</div>
+<!-- 		<div class="row" ng-show="showPlot"> -->
+<!-- 			<div class="col-md-10"> -->
+<!-- 	    		<div id="dygraphs"></div> -->
+<!-- 			</div> -->
+<!-- 			<div class="col-md-2"> -->
+<!-- 				<div id="dylegend"></div> -->
+<!-- 			</div> -->
+<!-- 		</div> -->
+<!-- 	</div> -->
+<!-- </div> -->
 
 
 
