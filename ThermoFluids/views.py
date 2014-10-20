@@ -37,24 +37,39 @@ def flowResistanceView(request):
 		if (action == 'computePressureDrop'):
 			pipe = Pipe(
 					internalDiameter = float(parameters["internalDiameter"]["value"]),
+					externalDiameter = float(parameters["externalDiameter"]["value"]),
 					length = float(parameters["pipeLength"]["value"]), 
+					pipeMaterialDensity = float(parameters["pipeMaterial"]["rho"]),
 					surfaceRoughness = float(parameters["surfaceRoughness"]["value"])
 			)
 			s1 = pipe.setUpstreamState(
-					fluidName = parameters["fluid"], 
+					fluidName = parameters["fluid"],
 					pressure = float(parameters["inletPressure"]["value"]), 
 					temperature = float(parameters["inletTemperature"]["value"]),					
 			)
 			pipe.computePressureDrop(
 					upstreamState = s1,
-					mDot = float(parameters["massFlowRate"]["value"])
+					massFlowRate = float(parameters["massFlowRate"]["value"])
 			)
-#			externalDiameter
-#			material
+
+
 			result = {
-					'Re' : pipe.Re,
-					'zeta' : pipe.zeta,
-					'pressureDrop' : pipe.pressureDrop,					
+				'fluidVolume' : pipe.fluidVolume,
+				'internalSurfaceArea' : pipe.internalSurfaceArea,
+				'externalSurfaceArea' : pipe.externalSurfaceArea,
+				'crossSectionalArea' : pipe.crossSectionalArea,
+				'pipeSolidMass' : pipe.pipeSolidMass,
+				'inletDensity' : pipe.inletDensity,
+				'fluidMass' : pipe.fluidMass,
+				'massFlowRate' : pipe.massFlowRate,
+				'volumetricFlowRate' : pipe.volumetricFlowRate,
+				'flowVelocity' : pipe.flowVelocity,
+				'Re' : pipe.Re,
+				'zeta' : pipe.zeta,
+				'dragCoefficient' : pipe.dragCoefficient,
+				'pressureDrop' : pipe.pressureDrop,
+				'outletPressure' : pipe.outletPressure,
+				'outletTemperature' : pipe.outletTemperature 
 			}
 			return JsonResponse({'result' : result})
 		else:
