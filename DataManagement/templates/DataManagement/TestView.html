@@ -92,9 +92,9 @@
 	<div class="container">
 		<!-- Nav tabs -->
 		<ul class="nav nav-tabs" role="tablist" id="myTab">
-		  <li class="active"><a data-target="#tree" role="tab" data-toggle="tab">Tree</a></li>
-		  <li ng-show="tableLoaded" ><a data-target="#table" role="tab" data-toggle="tab" ng-click="drawTable()">Table</a></li>
-		  <li ng-show="tableLoaded" ><a data-target="#view" role="tab" data-toggle="tab" ng-click="drawView()">View</a></li>
+		  <li class="active"><a data-target="#tree" role="tab" data-toggle="tab">Explorer</a></li>
+		  <li ng-show="tableLoaded" ><a data-target="#table" role="tab" data-toggle="tab" ng-click="drawTable()">Overview</a></li>
+		  <li ng-show="tableLoaded" ><a data-target="#view" role="tab" data-toggle="tab" ng-click="drawView()">Table</a></li>
 		  <li ng-show="tableLoaded" ><a data-target="#plot" role="tab" data-toggle="tab" ng-click="plotData()">Plot</a></li>
 		</ul>
 
@@ -107,22 +107,30 @@
 			  	<smo-hdf-browser tree-id="hdfView"></smo-hdf-browser>
 		  </div>
 		  <div class="tab-pane" id="table">
-			  	<div style="display:inline-block;">
-					<span>Check all</span>
-					<input type="checkbox" ng-model="allChecked" ng-change="setToAll()"></input>
-				</div>
+		  	<div>Select columns to display:</div>
+		  	<div>
+				<input type="checkbox" ng-model="allChecked" ng-change="setToAll()"></input>
+				<span>Check all</span>
+			</div>
+  			<div style="width: 70%;">		  				
 				<div style="display:inline-block;" ng-repeat="columnName in tableArray[0] track by $index">
-					<span ng-bind="columnName"></span>
 					<input type="checkbox" ng-model="columnsShow[$index]" ng-change="update()"></input>
+					<span ng-bind="columnName"></span>
+					&nbsp&nbsp&nbsp&nbsp&nbsp
 	    		</div>
-				<div id="table_div"></div>
+	    	</div>		  	
+			<div id="table_div"></div>			
 		  </div>
 		  <div class="tab-pane" id="view">
 		  		<div id="view_div"></div>	
 		  </div>
 		  <div class="tab-pane" id="plot">
-			  	<div id="dygraphs" style="display:inline-block;"></div>
-			  	<div id="dylegend" style="display:inline-block;"></div>
+		  <table>
+		  <tr>
+			  	<td><div id="dygraphs" style="display:inline-block;"></div></td>
+			  	<td><div id="dylegend" style="display:inline-block; vertical-align:text-top;"></div></td>
+			  </tr>
+			</table>
 		  </div>
 		</div>
 	</div>

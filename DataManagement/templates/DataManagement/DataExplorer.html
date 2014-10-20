@@ -3,31 +3,135 @@
 {% load staticfiles %}
 
 {% block scripts_and_styles %}
-<script src="{% static 'smo-datatable/smo.datatable.js' %}"></script>
-<link rel="stylesheet" type="text/css" href="{% static 'smo-datatable/smo.datatable.css' %}">
 <script src="{% static 'smo-treeview/smo.treeview.js' %}"></script>
 <link rel="stylesheet" type="text/css" href="{% static 'smo-treeview/smo.treeview.css' %}">
 
-<script>
-angular.module('testApp', ['ui.bootstrap', 'smoDataTableModule', 'angularTreeview'])
-	.controller('testController', [ '$scope', '$http', '$window', function($scope, $http, $window) {
+<!--Load the AJAX API-->
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<!-- <script src='https://www.google.com/jsapi?autoload={"modules":[{"name":"visualization","version":"1","packages":["corechart","table", "controls"]}]}'></script> -->
 
+<!--Load Dygraphs -->
+<script type="text/javascript" src="http://dygraphs.com/dygraph-dev.js"></script>
+
+<script>
+	google.load('visualization', '1.0', {'packages':["corechart", "table", "controls"]}); 
+	angular.module('dataExplorerApp', ['ui.bootstrap', 'angularTreeview'])
+	.controller('dataExplorerController', [ '$scope', '$http', '$window', function($scope, $http, $window) {
+		$scope.tableLoaded = false;
+		
+		$scope.initTable = function(){
+			$scope.allChecked = true;
+			$scope.columnsShow = [];
+			$scope.tableArray = [];
+			var columnNames = [];
+			for (i=0; i<$scope.columnTable.columns.length; i++){
+				columnNames.push($scope.columnTable.columns[i].name);
+				$scope.columnsShow[i] = true;
+			}
+			$scope.tableArray.push(columnNames);
+			for (i=0; i<$scope.columnTable.data.length; i++){
+				$scope.tableArray.push($scope.columnTable.data[i]);
+			}
+			$scope.data = google.visualization.arrayToDataTable($scope.tableArray);
+			var formatter = new google.visualization.NumberFormat({pattern: '###.###'});
+			for (i=0; i<$scope.columnTable.columns.length; i++){
+				formatter.format($scope.data, i);
+			}
+			$scope.view = new google.visualization.DataView($scope.data);
+		}
+		
+		$scope.setView = function (){
+			var viewCloumns = [];
+			for (i=0; i<$scope.columnsShow.length; i++){
+				if ($scope.columnsShow[i] == true){
+					viewCloumns.push(i);
+				}
+			}
+			$scope.view.setColumns(viewCloumns);
+		}
+		
+		$scope.setToAll = function(){
+			for (i=0; i<$scope.columnsShow.length; i++){
+				$scope.columnsShow[i] = $scope.allChecked;
+			}
+			$scope.setView();
+		}
+		
+		$scope.update = function(){
+			$scope.allChecked = false;
+			$scope.setView();
+		}
+		
+		$scope.drawTable = function (){						
+			var table = new google.visualization.Table(document.getElementById('table_div'));
+			table.draw($scope.data, {showRowNumber: true, sort:'disable', page:'enable', pageSize:20});			
+		}
+		
+		$scope.drawView = function (){
+			var tableView = new google.visualization.Table(document.getElementById('view_div'));
+			tableView.draw($scope.view, {showRowNumber: true, sort:'disable', page:'enable', pageSize:20});
+		}
+		
+		$scope.plotData = function(){
+			var chart1 = new Dygraph.GVizChart(
+			document.getElementById('dygraphs')).draw($scope.view, {
+				labelsDiv: 'dylegend',
+				labelsDivWidth: 150,
+				labelsSeparateLines: true,
+				width: 900,
+				height: 500
+			});
+		}
 	}]);
 </script>
 {% endblock %}
 
 {% block content %}
-<div ng-app="testApp" ng-controller="testController">
-<div class="container">
-	<div class="row">
-		<div class="col-md-2" style="text-align: right; font-weight: bold; font-size: medium;">
-			Explore data file:
-		</div>
-		<div class="col-md-10">
-			<smo-hdf-browser tree-id="hdfView"></smo-hdf-browser>
+<div ng-app="dataExplorerApp" ng-controller="dataExplorerController">
+	<div class="container">
+		<!-- Nav tabs -->
+		<ul class="nav nav-tabs" role="tablist" id="myTab">
+		  <li class="active"><a data-target="#tree" role="tab" data-toggle="tab">Explorer</a></li>
+		  <li ng-show="tableLoaded" ><a data-target="#table" role="tab" data-toggle="tab" ng-click="drawTable()">Overview</a></li>
+		  <li ng-show="tableLoaded" ><a data-target="#view" role="tab" data-toggle="tab" ng-click="drawView()">Table</a></li>
+		  <li ng-show="tableLoaded" ><a data-target="#plot" role="tab" data-toggle="tab" ng-click="plotData()">Plot</a></li>
+		</ul>
+
+		<!-- Tab panes -->
+		<div class="tab-content">
+		  <div class="tab-pane active" id="tree">
+			  	<br>
+			  	<div style="text-align: left; font-weight: bold; font-size: medium;">Explore data file:</div>
+			  	<br>
+			  	<smo-hdf-browser tree-id="hdfView"></smo-hdf-browser>
+		  </div>
+		  <div class="tab-pane" id="table">
+		  	<div>Select columns to display:</div>
+		  	<div>
+				<input type="checkbox" ng-model="allChecked" ng-change="setToAll()"></input>
+				<span>Check/Uncheck all</span>
+			</div>
+  			<div style="width: 70%;">		  				
+				<div style="display:inline-block;" ng-repeat="columnName in tableArray[0] track by $index">
+					<input type="checkbox" ng-model="columnsShow[$index]" ng-change="update()"></input>
+					<span ng-bind="columnName"></span>
+					&nbsp&nbsp&nbsp&nbsp&nbsp
+	    		</div>
+	    	</div>		  	
+			<div id="table_div"></div>			
+		  </div>
+		  <div class="tab-pane" id="view">
+		  		<div id="view_div"></div>	
+		  </div>
+		  <div class="tab-pane" id="plot">
+		  <table>
+		  <tr>
+			  	<td><div id="dygraphs" style="display:inline-block;"></div></td>
+			  	<td><div id="dylegend" style="display:inline-block; vertical-align:text-top;"></div></td>
+			  </tr>
+			</table>
+		  </div>
 		</div>
 	</div>
-	<br>
-	<smo-data-table ng-show="columnTable.columns" table-model="columnTable"></smo-data-table>
 </div>
 {% endblock %}
