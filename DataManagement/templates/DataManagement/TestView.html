@@ -19,20 +19,19 @@
 	.controller('testController', [ '$scope', '$http', '$window', function($scope, $http, $window) {		
 		$scope.columnTable = {columns:[], data:[]};
 		$scope.tableLoaded = false;
+		$scope.columnsShow = [];
 		
-		$scope.setTableArray = function(){
-			console.log($scope.columnTable.columns);
+		$scope.initTable = function(){
 			$scope.tableArray = [];
-		    var columnLabels = [];
-	       for (i=0; i<$scope.columnTable.columns.length; i++){
-	    	   columnLabels.push($scope.columnTable.columns[i].name);
-	       }
-	       console.log(columnLabels);
-	       $scope.tableArray.push(columnLabels);
-	       for (i=0; i<$scope.columnTable.data.length; i++){
-	    	   $scope.tableArray.push($scope.columnTable.data[i]);
-	       }
-	       console.log($scope.tableArray);
+			var columnLabels = [];
+			for (i=0; i<$scope.columnTable.columns.length; i++){
+				$scope.columnsShow[i] = true;
+				columnLabels.push($scope.columnTable.columns[i].name);
+			}
+			$scope.tableArray.push(columnLabels);
+			for (i=0; i<$scope.columnTable.data.length; i++){
+				$scope.tableArray.push($scope.columnTable.data[i]);
+			}
 		}
 		
 		$scope.plotData = function(){
@@ -40,9 +39,9 @@
 			 google.load('visualization', '1.0', {'packages':["corechart", "table", "controls"], 
 				 "callback" : drawPlot}); 
 		     function drawPlot() {
-		       var data = google.visualization.arrayToDataTable($scope.tableArray);
+// 		       var data = google.visualization.arrayToDataTable($scope.tableArray);
 		       var chart1 = new Dygraph.GVizChart(
-			            document.getElementById('dygraphs')).draw(data, {
+			            document.getElementById('dygraphs')).draw($scope.view, {
 			            	labelsDiv: 'dylegend',
 			            	labelsDivWidth: 150,
 			            	labelsSeparateLines: true,
@@ -64,14 +63,16 @@
 			google.load('visualization', '1.0', {'packages':["corechart", "table", "controls"], 
 				 "callback" : displayTable}); 
 			function displayTable(){
- 		       var data = google.visualization.arrayToDataTable($scope.tableArray);
+				var data = google.visualization.arrayToDataTable($scope.tableArray);
+				console.log($scope.tableArray[0]);
  		      var formatter = new google.visualization.NumberFormat({pattern: '###.###'});
  		     	formatter.format(data,1);
  		     	formatter.format(data,2);
- 		     	formatter.format(data,3);
+ 		     	
  		       
 		       var table = new google.visualization.Table(document.getElementById('table_div'));
 		       table.draw(data, {showRowNumber: true, sort:'disable', page:'enable', pageSize:20});
+		       $scope.view = new google.visualization.DataView(data);
 
 			}
 			$scope.showTable = !$scope.showTable;
@@ -83,15 +84,33 @@
 		     
 			
 		}
+		
+		$scope.setView = function (){
+			var viewCloumns = [];
+		       for (i=0; i<$scope.columnsShow.length; i++){
+		    	  if ($scope.columnsShow[i] == true){
+		    		  viewCloumns.push(i);
+		    	  }
+		       }
+		       $scope.view.setColumns(viewCloumns);
+		}
+		
 		$scope.drawView = function (){
 			google.load('visualization', '1.0', {'packages':["corechart", "table", "controls"], 
 				 "callback" : displayView}); 
 			function displayView(){
+				$scope.setView();
 				var data = google.visualization.arrayToDataTable($scope.tableArray);
-		       var view = new google.visualization.DataView(data);
-		       view.setColumns([1, 2, 3]);
+// 		       $scope.view = new google.visualization.DataView(data);
+// 		       var viewCloumns = [];
+// 		       for (i=0; i<$scope.columnsShow.length; i++){
+// 		    	  if ($scope.columnsShow[i] == true){
+// 		    		  viewCloumns.push(i);
+// 		    	  }
+// 		       }
+// 		       $scope.view.setColumns(viewCloumns);
 		       var tableView = new google.visualization.Table(document.getElementById('view_div'));
-		       tableView.draw(view, {showRowNumber: true, sort:'disable', page:'enable', pageSize:20});
+		       tableView.draw($scope.view, {showRowNumber: true, sort:'disable', page:'enable', pageSize:20});
 			}
 			
 			$scope.showView = !$scope.showView;
@@ -153,6 +172,14 @@
 				</button></span>
 			</div>
 			<div class="col-md-6">
+			</div>
+		</div>
+		<div class ="row" ng-show="showTable">
+			<div class="col-md-12">
+				<div style="display:inline-block;" ng-repeat="columnName in tableArray[0] track by $index">
+					<span ng-bind="columnName"></span>
+					<input type="checkbox" ng-model="columnsShow[$index]"></input>
+    			</div>
 			</div>
 		</div>
 		<div class="row" ng-show="showTable">
