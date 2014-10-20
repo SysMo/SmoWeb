@@ -16,55 +16,51 @@
 
 <script>
 	angular.module('testApp', ['ui.bootstrap', 'smoDataTableModule', 'angularTreeview'])
-	.controller('testController', [ '$scope', '$http', '$window', function($scope, $http, $window) {		
-		$scope.columnTable = {columns:[], data:[]};
+	.controller('testController', [ '$scope', '$http', '$window', function($scope, $http, $window) {
 		$scope.tableLoaded = false;
-		$scope.columnsShow = [];
 		
 		$scope.initTable = function(){
+			$scope.allChecked = true;
+			$scope.columnsShow = [];
 			$scope.tableArray = [];
-			var columnLabels = [];
+			var columnNames = [];
 			for (i=0; i<$scope.columnTable.columns.length; i++){
+				columnNames.push($scope.columnTable.columns[i].name);
 				$scope.columnsShow[i] = true;
-				columnLabels.push($scope.columnTable.columns[i].name);
 			}
-			$scope.tableArray.push(columnLabels);
+			$scope.tableArray.push(columnNames);
 			for (i=0; i<$scope.columnTable.data.length; i++){
 				$scope.tableArray.push($scope.columnTable.data[i]);
 			}
 		}
 		
-		$scope.plotData = function(){
-			
-			 google.load('visualization', '1.0', {'packages':["corechart", "table", "controls"], 
-				 "callback" : drawPlot}); 
-		     function drawPlot() {
-// 		       var data = google.visualization.arrayToDataTable($scope.tableArray);
-		       var chart1 = new Dygraph.GVizChart(
-			            document.getElementById('dygraphs')).draw($scope.view, {
-			            	labelsDiv: 'dylegend',
-			            	labelsDivWidth: 150,
-			            	labelsSeparateLines: true,
-			            	width: 900,
-			            	height: 500
-			            });
-		       
-	
-		     }
-		     $scope.showPlot = !$scope.showPlot;
-		     if ($scope.plotBtnText == "Show plot"){
-		    	 $scope.plotBtnText ="Hide plot";
-		     } else {
-		    	 $scope.plotBtnText = "Show plot";
-		     }
-		 }
+		$scope.setView = function (){
+			var viewCloumns = [];
+			for (i=0; i<$scope.columnsShow.length; i++){
+				if ($scope.columnsShow[i] == true){
+					viewCloumns.push(i);
+				}
+			}
+			$scope.view.setColumns(viewCloumns);
+		}
+		
+		$scope.setToAll = function(){
+			for (i=0; i<$scope.columnsShow.length; i++){
+				$scope.columnsShow[i] = $scope.allChecked;
+			}
+			$scope.setView();
+		}
+		
+		$scope.update = function(){
+			$scope.allChecked = false;
+			$scope.setView();
+		}
 		
 		$scope.drawTable = function (){
 			google.load('visualization', '1.0', {'packages':["corechart", "table", "controls"], 
 				 "callback" : displayTable}); 
 			function displayTable(){
 				var data = google.visualization.arrayToDataTable($scope.tableArray);
-				console.log($scope.tableArray[0]);
  		      var formatter = new google.visualization.NumberFormat({pattern: '###.###'});
  		     	formatter.format(data,1);
  		     	formatter.format(data,2);
@@ -85,30 +81,12 @@
 			
 		}
 		
-		$scope.setView = function (){
-			var viewCloumns = [];
-		       for (i=0; i<$scope.columnsShow.length; i++){
-		    	  if ($scope.columnsShow[i] == true){
-		    		  viewCloumns.push(i);
-		    	  }
-		       }
-		       $scope.view.setColumns(viewCloumns);
-		}
-		
 		$scope.drawView = function (){
 			google.load('visualization', '1.0', {'packages':["corechart", "table", "controls"], 
 				 "callback" : displayView}); 
 			function displayView(){
-				$scope.setView();
+// 				$scope.setView();
 				var data = google.visualization.arrayToDataTable($scope.tableArray);
-// 		       $scope.view = new google.visualization.DataView(data);
-// 		       var viewCloumns = [];
-// 		       for (i=0; i<$scope.columnsShow.length; i++){
-// 		    	  if ($scope.columnsShow[i] == true){
-// 		    		  viewCloumns.push(i);
-// 		    	  }
-// 		       }
-// 		       $scope.view.setColumns(viewCloumns);
 		       var tableView = new google.visualization.Table(document.getElementById('view_div'));
 		       tableView.draw($scope.view, {showRowNumber: true, sort:'disable', page:'enable', pageSize:20});
 			}
@@ -123,29 +101,33 @@
 			
 		}
 		
+		$scope.plotData = function(){
+			
+			 google.load('visualization', '1.0', {'packages':["corechart", "table", "controls"], 
+				 "callback" : drawPlot}); 
+		     function drawPlot() {
+//		       var data = google.visualization.arrayToDataTable($scope.tableArray);
+		       var chart1 = new Dygraph.GVizChart(
+			            document.getElementById('dygraphs')).draw($scope.view, {
+			            	labelsDiv: 'dylegend',
+			            	labelsDivWidth: 150,
+			            	labelsSeparateLines: true,
+			            	width: 900,
+			            	height: 500
+			            });	       	
+		     }
+		     
+		     $scope.showPlot = !$scope.showPlot;
+		     if ($scope.plotBtnText == "Show plot"){
+		    	 $scope.plotBtnText ="Hide plot";
+		     } else {
+		    	 $scope.plotBtnText = "Show plot";
+		     }
+		 }
+		
+		
 	}]);
-// 	.directive('newWindow', ['$window', '$compile',
-//   function($window, $compile) {
-//     return {
-//       restrict: 'EA',
-//       link: function($scope, $element, attr) {
-//         $element.on('$destroy', function() {
-//           $scope.window.close();
-//         });
-//       },
-//       controller: function($scope, $element) {
-//         $scope.window = $window.open('', '_blank');
-//         angular
-//           .element($scope.window.document.body)
-//           .append($compile($element.contents())($scope));
-//       }
-//     }
-//   }]);
-     
 </script>
-
-
-
 {% endblock %}
 
 {% block content %}
@@ -160,8 +142,6 @@
 			</div>
 		</div>
 		<br>
-	<!-- 	<smo-data-table ng-show="columnTable.columns" table-model="columnTable"></smo-data-table>	 -->
-		
 		<div class="row">
 			<div ng-show="tableLoaded" class="col-md-6" style="text-align: left; font-size: medium;">
 				<span><button class="button class="btn btn-default btn-sm" ng-click="plotData()" ng-bind="plotBtnText">
@@ -176,9 +156,13 @@
 		</div>
 		<div class ="row" ng-show="showTable">
 			<div class="col-md-12">
+				<div style="display:inline-block;">
+					<span>Check all</span>
+					<input type="checkbox" ng-model="allChecked" ng-change="setToAll()"></input>
+				</div>
 				<div style="display:inline-block;" ng-repeat="columnName in tableArray[0] track by $index">
 					<span ng-bind="columnName"></span>
-					<input type="checkbox" ng-model="columnsShow[$index]"></input>
+					<input type="checkbox" ng-model="columnsShow[$index]" ng-change="update()"></input>
     			</div>
 			</div>
 		</div>

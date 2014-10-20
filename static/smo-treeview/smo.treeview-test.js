@@ -396,8 +396,8 @@
 						console.log("action:" + scope[treeId].action);
 						if (scope[treeId].action == "view"){
 							scope["columnTable"] = data;
+							scope["tableLoaded"] = true;
 							scope["initTable"]();
-							scope["tableLoaded"] = true;							
 						}					
 					})
 					.error(function(data){
