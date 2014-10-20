@@ -16,14 +16,6 @@
 
 <script>
 	google.load('visualization', '1.0', {'packages':["corechart", "table", "controls"]}); 
-// 	$(function () {
-// 	    $('#myTab a:last').tab('show')
-// 	});
-// 	$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-// 	  e.console.log("blah"); // activated tab
-	  
-// 	  e.relatedTarget // previous tab
-// 	})
 	angular.module('testApp', ['ui.bootstrap', 'smoDataTableModule', 'angularTreeview'])
 	.controller('testController', [ '$scope', '$http', '$window', function($scope, $http, $window) {
 		$scope.tableLoaded = false;
@@ -74,25 +66,11 @@
 		$scope.drawTable = function (){						
 			var table = new google.visualization.Table(document.getElementById('table_div'));
 			table.draw($scope.data, {showRowNumber: true, sort:'disable', page:'enable', pageSize:20});			
-			
-			$scope.showTable = !$scope.showTable;
-			if ($scope.tableBtnText == "Show table"){
-				$scope.tableBtnText ="Hide table";
-			} else {
-				$scope.tableBtnText = "Show table";
-			}
 		}
 		
 		$scope.drawView = function (){
 			var tableView = new google.visualization.Table(document.getElementById('view_div'));
 			tableView.draw($scope.view, {showRowNumber: true, sort:'disable', page:'enable', pageSize:20});
-			
-			$scope.showView = !$scope.showView;
-			if ($scope.viewBtnText == "Show view"){
-				$scope.viewBtnText ="Hide view";
-			} else {
-				$scope.viewBtnText = "Show view";
-			}
 		}
 		
 		$scope.plotData = function(){
@@ -104,13 +82,6 @@
 				width: 900,
 				height: 500
 			});
-			
-			$scope.showPlot = !$scope.showPlot;
-			if ($scope.plotBtnText == "Show plot"){
-				$scope.plotBtnText ="Hide plot";
-			} else {
-				$scope.plotBtnText = "Show plot";
-			}
 		}
 	}]);
 </script>
@@ -155,62 +126,5 @@
 		  </div>
 		</div>
 	</div>
-</div>		
-		
-		
-		
-<!-- 		<div class="row"> -->
-<!-- 			<div class="col-md-2" style="text-align: left; font-weight: bold; font-size: medium;"> -->
-<!-- 			</div> -->
-<!-- 			<div class="col-md-10"> -->
-<!-- 			</div> -->
-<!-- 		</div> -->
-<!-- 		<br> -->
-<!-- 		<div class="row"> -->
-<!-- 			<div ng-show="tableLoaded" class="col-md-6" style="text-align: left; font-size: medium;"> -->
-<!-- 				<span><button class="button class="btn btn-default btn-sm" ng-click="plotData()" ng-bind="plotBtnText"> -->
-<!-- 				</button></span> -->
-<!-- 				<span><button class="button class="btn btn-default btn-sm" ng-click="drawTable()" ng-bind="tableBtnText"> -->
-<!-- 				</button></span> -->
-<!-- 				<span><button class="button class="btn btn-default btn-sm" ng-click="drawView()" ng-bind="viewBtnText"> -->
-<!-- 				</button></span> -->
-<!-- 			</div> -->
-<!-- 			<div class="col-md-6"> -->
-<!-- 			</div> -->
-		</div>
-<!-- 		<div class ="row" ng-show="showTable"> -->
-<!-- 			<div class="col-md-12"> -->
-<!-- 				<div style="display:inline-block;"> -->
-<!-- 					<span>Check all</span> -->
-<!-- 					<input type="checkbox" ng-model="allChecked" ng-change="setToAll()"></input> -->
-<!-- 				</div> -->
-<!-- 				<div style="display:inline-block;" ng-repeat="columnName in tableArray[0] track by $index"> -->
-<!-- 					<span ng-bind="columnName"></span> -->
-<!-- 					<input type="checkbox" ng-model="columnsShow[$index]" ng-change="update()"></input> -->
-<!--     			</div> -->
-<!-- 			</div> -->
-<!-- 		</div> -->
-<!-- 		<div class="row" ng-show="showTable"> -->
-<!-- 			<div class="col-md-12"> -->
-<!-- 				<div id="table_div"></div>	 -->
-<!-- 			</div>		 -->
-<!-- 		</div> -->
-<!-- 		<div class="row" ng-show="showView"> -->
-<!-- 			<div class="col-md-12"> -->
-<!-- 				<div ng-show="showView" id="view_div"></div>	 -->
-<!-- 			</div>		 -->
-		</div>
-<!-- 		<div class="row" ng-show="showPlot"> -->
-<!-- 			<div class="col-md-10"> -->
-<!-- 	    		<div id="dygraphs"></div> -->
-<!-- 			</div> -->
-<!-- 			<div class="col-md-2"> -->
-<!-- 				<div id="dylegend"></div> -->
-<!-- 			</div> -->
-<!-- 		</div> -->
-<!-- 	</div> -->
-<!-- </div> -->
-
-
-
+</div>
 {% endblock %}
