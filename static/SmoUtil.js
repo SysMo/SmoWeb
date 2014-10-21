@@ -203,7 +203,7 @@ smoModule.directive('smoOutputQuantity', ['$compile', function($compile) {
 			var qVar = attr.smoQuantityVar;
 			var title = attr.smoTitle;
 			var outputStyle = "display: inline-block; border: 1px solid #888; padding: 1.7pt; width : 10em;";
-			var template = '<div><div style="display: inline-block;text-align: right;width: 10em;">' + title + '</div>&nbsp;<div style="' + outputStyle + '" ng-bind="util.formatNumber(' + qVar + '.displayValue)"></div>' +
+			var template = '<div><div style="display: inline-block;text-align: left;width: 10em;">' + title + '</div>&nbsp;<div style="' + outputStyle + '" ng-bind="util.formatNumber(' + qVar + '.displayValue)"></div>' +
 			'&nbsp;<select ng-model="' + qVar + '.displayUnit" ng-options="name as name for (name, conv) in units.quantities[' + qVar + '.quantity].units" ng-change="' + qVar + '.changeUnit()"></select></div></div>';
 			element.html('').append($compile(template)(scope));
 		}
