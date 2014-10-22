@@ -47,6 +47,7 @@
 				$scope.tableArray.push($scope.columnTable.data[i]);				
 			}
 			
+			
 			$scope.data = google.visualization.arrayToDataTable($scope.tableArray);
 			
 // 			var formatter = new google.visualization.NumberFormat({pattern: '###.###'});
@@ -91,23 +92,21 @@
 			if ($scope.activeTabId == "plotTab") $scope.plotData();
 		}
 		
-		$scope.updateXaxis = function(){
+		$scope.updateXaxis = function(xAxis){
+			
 // 			$scope.view = new google.visualization.DataView($scope.setData());
-		}
-		
-		$scope.setData = function(){
-			$scope.tableArray = [];
-			var columnNames = [];
-			for (i=0; i<$scope.columnTable.columns.length; i++){
-				columnNames.push($scope.columnTable.columns[i].name);
-			}
+// 			$scope.tableArray = [];
+// 			var columnNames = [];
+// 			for (i=0; i<$scope.columnTable.columns.length; i++){
+// 				columnNames.push($scope.columnTable.columns[i].name);
+// 			}
 			
-			$scope.tableArray.push(columnNames);
-			for (i=0; i<$scope.columnTable.data.length; i++){
-				$scope.tableArray.push($scope.columnTable.data[i]);				
-			}
+// 			$scope.tableArray.push(columnNames);
+// 			for (i=0; i<$scope.columnTable.data.length; i++){
+// 				$scope.tableArray.push($scope.columnTable.data[i]);				
+// 			}
 			
-			$scope.data = google.visualization.arrayToDataTable($scope.tableArray);
+// 			$scope.data = google.visualization.arrayToDataTable($scope.tableArray);
 		}
 		
 // 		$scope.drawTable = function (){						
