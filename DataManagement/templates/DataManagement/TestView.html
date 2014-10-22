@@ -25,32 +25,41 @@
 		
 		$scope.initTable = function(){
 			$scope.allChecked = true;
+			
 			$scope.columnsShow = [];
-			$scope.tableArray = [];
-			$scope.visibilityArray = [];
+			for (i=0; i<$scope.columnTable.columns.length; i++){
+				$scope.columnsShow[i] = true;
+			}
+			
+			$scope.xAxis = 0;
+			
 			$scope.timesZoomed = 0;
 			$scope.ZoomedValuesArray = [];
-			
+					
+			$scope.tableArray = [];
 			var columnNames = [];
 			for (i=0; i<$scope.columnTable.columns.length; i++){
 				columnNames.push($scope.columnTable.columns[i].name);
-				$scope.columnsShow[i] = true;
-				$scope.visibilityArray.push(true);
 			}
 			
 			$scope.tableArray.push(columnNames);
 			for (i=0; i<$scope.columnTable.data.length; i++){
 				$scope.tableArray.push($scope.columnTable.data[i]);				
 			}
+			
 			$scope.data = google.visualization.arrayToDataTable($scope.tableArray);
+			
 // 			var formatter = new google.visualization.NumberFormat({pattern: '###.###'});
 // 			for (i=0; i<$scope.columnTable.columns.length; i++){
 // 				formatter.format($scope.data, i);
 // 			}
 			$scope.view = new google.visualization.DataView($scope.data);
+			
 			$scope.plotData();
 			$('#plotTab').tab('show');
 		}
+		
+		
 		
 		$scope.setView = function (){
 			var viewCloumns = [];
@@ -67,7 +76,7 @@
 				$scope.columnsShow[i] = $scope.allChecked;
 			}
 			if ($scope.allChecked == false){
-				$scope.columnsShow[0] = true;
+				$scope.columnsShow[$scope.xAxis] = true;
 			}
 			$scope.setView();
 			if ($scope.activeTabId == "viewTab") $scope.drawView();			
@@ -75,11 +84,30 @@
 			
 		}
 		
-		$scope.update = function(){
+		$scope.updateChecked = function(){
 			$scope.allChecked = false;
 			$scope.setView();
 			if ($scope.activeTabId == "viewTab") $scope.drawView();			
 			if ($scope.activeTabId == "plotTab") $scope.plotData();
+		}
+		
+		$scope.updateXaxis = function(){
+// 			$scope.view = new google.visualization.DataView($scope.setData());
+		}
+		
+		$scope.setData = function(){
+			$scope.tableArray = [];
+			var columnNames = [];
+			for (i=0; i<$scope.columnTable.columns.length; i++){
+				columnNames.push($scope.columnTable.columns[i].name);
+			}
+			
+			$scope.tableArray.push(columnNames);
+			for (i=0; i<$scope.columnTable.data.length; i++){
+				$scope.tableArray.push($scope.columnTable.data[i]);				
+			}
+			
+			$scope.data = google.visualization.arrayToDataTable($scope.tableArray);
 		}
 		
 // 		$scope.drawTable = function (){						
@@ -102,6 +130,11 @@
 // 			$scope.plotData();
 // 		}
 		
+		$scope.setArgument = function(i){
+			console.log("X is:" + i);
+			checkboxStyle={'color': 'red'};
+		}
+		
 		$scope.chart1 = new Dygraph.GVizChart(
 				document.getElementById('dygraphs'));
 		
@@ -118,6 +151,7 @@
 				width: 900,
 				height: 500,
 				title: $scope.dsetName,
+				xlabel: $scope.tableArray[0][$scope.xAxis],
 				underlayCallback: $scope.setView,
 				drawCallback: function(chart, initial) {
 					if (!$scope.timesZoomed && chart){
@@ -179,14 +213,19 @@
 				<div ng-bind="dsetName" style="font-weight: bold; font-size: large;"></div>
 				<div>
 					<input type="checkbox" ng-model="allChecked" ng-change="setToAll()"></input>
-					<span>Check all</span>
+					<span>Check/Uncheck all</span>
 				</div>
 				<div style="width: 70%;">		  				
 					<div style="display:inline-block;" ng-repeat="columnName in tableArray[0] track by $index">
-						<input type="checkbox" ng-model="columnsShow[$index]" ng-change="update()"></input>
-						<span ng-bind="columnName"></span>
+						<input type="checkbox" ng-model="columnsShow[$index]" ng-change="updateChecked()"></input>
+						<span ng-style="checkboxStyle" ng-bind="columnName"></span>
 						&nbsp&nbsp&nbsp&nbsp&nbsp
 					</div>
+				</div>
+				<div>
+					Set X axis:
+					<select ng-options="tableArray[0].indexOf(columnName) as columnName for columnName in tableArray[0]" ng-model="xAxis" ng-change="updateXaxis()">
+					</select>
 				</div>
 				<div>			  
 				<div id="dygraphs" style="display:inline-block; float: left;"></div>	
@@ -198,11 +237,11 @@
 		  		<div ng-bind="dsetName" style="font-weight: bold; font-size: large;"></div>
 				<div>
 					<input type="checkbox" ng-model="allChecked" ng-change="setToAll()"></input>
-					<span>Check all</span>
+					<span>Check/Uncheck all</span>
 				</div>
 				<div style="width: 70%;">		  				
 					<div style="display:inline-block;" ng-repeat="columnName in tableArray[0] track by $index">
-						<input type="checkbox" ng-model="columnsShow[$index]" ng-change="update()"></input>
+						<input type="checkbox" ng-model="columnsShow[$index]" ng-change="updateChecked()"></input>
 						<span ng-bind="columnName"></span>
 						&nbsp&nbsp&nbsp&nbsp&nbsp
 					</div>
