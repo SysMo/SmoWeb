@@ -54,7 +54,8 @@
 // 			for (i=0; i<$scope.columnTable.columns.length; i++){
 // 				formatter.format($scope.data, i);
 // 			}
-			$scope.view = new google.visualization.DataView($scope.data);
+			$scope.tableView = new google.visualization.DataView($scope.data);
+			$scope.plotView = new google.visualization.DataView($scope.data)
 			
 			$scope.plotData();
 			$('#plotTab').tab('show');
@@ -62,14 +63,14 @@
 		
 		
 		
-		$scope.setView = function (){
+		$scope.setTableView = function (){
 			var viewCloumns = [];
 			for (i=0; i<$scope.columnsShow.length; i++){
 				if ($scope.columnsShow[i] == true){
 					viewCloumns.push(i);
 				}
 			}
-			$scope.view.setColumns(viewCloumns);
+			$scope.tableView.setColumns(viewCloumns);
 		}
 		
 		$scope.setToAll = function(){
@@ -79,15 +80,32 @@
 			if ($scope.allChecked == false){
 				$scope.columnsShow[$scope.xAxis] = true;
 			}
-			$scope.setView();
+			$scope.setTableView();
 			$scope.drawView();			
 			
 		}
 		
 		$scope.updateChecked = function(){
 			$scope.allChecked = false;
-			$scope.setView();
+			$scope.setTableView();
 			$scope.drawView();		
+		}
+		
+		
+		$scope.setPlotView = function(){
+			var viewCloumns = [];
+			viewCloumns.push($scope.xAxis);
+
+			for (i=0; i<$scope.tableArray[0].length; i++){				
+				if (i != $scope.xAxis){
+					if ($scope.columnsShow[i] == true){
+						viewCloumns.push(i);				
+					}
+				}
+			}
+			console.log(viewCloumns);
+ 			$scope.plotView.setColumns(viewCloumns);
+ 			
 		}
 		
 		$scope.setToAllPlot = function(){
@@ -113,21 +131,7 @@
 			$scope.plotData();
 		}
 		
-		$scope.setPlotView = function(){
-			var viewCloumns = [];
-			viewCloumns.push($scope.xAxis);
-
-			for (i=0; i<$scope.tableArray[0].length; i++){				
-				if (i != $scope.xAxis){
-					if ($scope.columnsShow[i] == true){
-						viewCloumns.push(i);				
-					}
-				}
-			}
-			console.log(viewCloumns);
- 			$scope.view.setColumns(viewCloumns);
- 			
-		}
+		
 		
 //  		$scope.drawTable = function (){						
 //  			var table = new google.visualization.Table(document.getElementById('table_div'));
@@ -135,9 +139,9 @@
 //  		}
 		
 		$scope.drawView = function (){
-			$scope.setView();
+			$scope.setTableView();
 			var tableView = new google.visualization.Table(document.getElementById('view_div'));
-			tableView.draw($scope.view, {showRowNumber: true, sort:'disable', page:'enable', pageSize:20});
+			tableView.draw($scope.tableView, {showRowNumber: true, sort:'disable', page:'enable', pageSize:20});
 		}
 		
 // 		$scope.zoomBack = function(){
@@ -164,7 +168,7 @@
 // 		}
 		
 		$scope.plotData = function(){
-			$scope.chart1.draw($scope.view, {
+			$scope.chart1.draw($scope.plotView, {
 				labelsDiv: 'dylegend',
 				labelsDivWidth: 150,
 				labelsSeparateLines: true,
