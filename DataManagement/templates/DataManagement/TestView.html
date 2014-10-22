@@ -80,41 +80,62 @@
 				$scope.columnsShow[$scope.xAxis] = true;
 			}
 			$scope.setView();
-			if ($scope.activeTabId == "viewTab") $scope.drawView();			
-			if ($scope.activeTabId == "plotTab") $scope.plotData();
+			$scope.drawView();			
 			
 		}
 		
 		$scope.updateChecked = function(){
 			$scope.allChecked = false;
 			$scope.setView();
-			if ($scope.activeTabId == "viewTab") $scope.drawView();			
-			if ($scope.activeTabId == "plotTab") $scope.plotData();
+			$scope.drawView();		
 		}
 		
-		$scope.updateXaxis = function(xAxis){
-			
-// 			$scope.view = new google.visualization.DataView($scope.setData());
-// 			$scope.tableArray = [];
-// 			var columnNames = [];
-// 			for (i=0; i<$scope.columnTable.columns.length; i++){
-// 				columnNames.push($scope.columnTable.columns[i].name);
-// 			}
-			
-// 			$scope.tableArray.push(columnNames);
-// 			for (i=0; i<$scope.columnTable.data.length; i++){
-// 				$scope.tableArray.push($scope.columnTable.data[i]);				
-// 			}
-			
-// 			$scope.data = google.visualization.arrayToDataTable($scope.tableArray);
+		$scope.setToAllPlot = function(){
+			for (i=0; i<$scope.columnsShow.length; i++){
+				$scope.columnsShow[i] = $scope.allChecked;
+			}
+			if ($scope.allChecked == false){
+				$scope.columnsShow[$scope.xAxis] = true;
+			}
+			$scope.setPlotView();
+			$scope.plotData();
 		}
 		
-// 		$scope.drawTable = function (){						
-// 			var table = new google.visualization.Table(document.getElementById('table_div'));
-// 			table.draw($scope.data, {showRowNumber: true, sort:'disable', page:'enable', pageSize:20});			
-// 		}
+		$scope.updateCheckedPlot = function(){
+			$scope.allChecked = false;
+			$scope.setPlotView();
+			$scope.plotData();
+		}
+		
+		$scope.updateXaxis = function(){
+			$scope.columnsShow[$scope.xAxis] = true;
+			$scope.setPlotView();
+			$scope.plotData();
+		}
+		
+		$scope.setPlotView = function(){
+			var viewCloumns = [];
+			viewCloumns.push($scope.xAxis);
+
+			for (i=0; i<$scope.tableArray[0].length; i++){				
+				if (i != $scope.xAxis){
+					if ($scope.columnsShow[i] == true){
+						viewCloumns.push(i);				
+					}
+				}
+			}
+			console.log(viewCloumns);
+ 			$scope.view.setColumns(viewCloumns);
+ 			
+		}
+		
+ 		$scope.drawTable = function (){						
+ 			var table = new google.visualization.Table(document.getElementById('table_div'));
+ 			table.draw($scope.data, {showRowNumber: true, sort:'disable', page:'enable', pageSize:20});			
+ 		}
 		
 		$scope.drawView = function (){
+			$scope.setView();
 			var tableView = new google.visualization.Table(document.getElementById('view_div'));
 			tableView.draw($scope.view, {showRowNumber: true, sort:'disable', page:'enable', pageSize:20});
 		}
@@ -151,7 +172,7 @@
 				height: 500,
 				title: $scope.dsetName,
 				xlabel: $scope.tableArray[0][$scope.xAxis],
-				underlayCallback: $scope.setView,
+				underlayCallback: $scope.setPlotView,
 				drawCallback: function(chart, initial) {
 					if (!$scope.timesZoomed && chart){
 						
@@ -211,12 +232,12 @@
 		  <div class="tab-pane" id="plot">
 				<div ng-bind="dsetName" style="font-weight: bold; font-size: large;"></div>
 				<div>
-					<input type="checkbox" ng-model="allChecked" ng-change="setToAll()"></input>
+					<input type="checkbox" ng-model="allChecked" ng-change="setToAllPlot()"></input>
 					<span>Check/Uncheck all</span>
 				</div>
 				<div style="width: 70%;">		  				
 					<div style="display:inline-block;" ng-repeat="columnName in tableArray[0] track by $index">
-						<input type="checkbox" ng-model="columnsShow[$index]" ng-change="updateChecked()"></input>
+						<input type="checkbox" ng-model="columnsShow[$index]" ng-change="updateCheckedPlot()"></input>
 						<span ng-style="checkboxStyle" ng-bind="columnName"></span>
 						&nbsp&nbsp&nbsp&nbsp&nbsp
 					</div>
