@@ -8,13 +8,18 @@
 <!--Load the AJAX API-->
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <script type="text/javascript" src="http://dygraphs.com/dygraph-dev.js"></script>
-
-
-
 <script>
-	google.load('visualization', '1.0', {'packages':["corechart", "table", "controls"]}); 
+	google.load('visualization', '1.0', {'packages':["corechart", "table", "controls"]});
+
 	angular.module('testApp', ['ui.bootstrap', 'angularTreeview'])
 	.controller('testController', [ '$scope', '$http', '$window', function($scope, $http, $window) {
+		
+		$scope.activeTabId = "";		
+		$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+			  $scope.activeTabId = e.target.id; // activated tab
+// 			  e.relatedTarget // previous tab
+			});
+		
 		$scope.tableLoaded = false;
 		$scope.dsetName = "";
 		
@@ -43,6 +48,8 @@
 // 				formatter.format($scope.data, i);
 // 			}
 			$scope.view = new google.visualization.DataView($scope.data);
+			$scope.plotData();
+			$('#plotTab').tab('show');
 		}
 		
 		$scope.setView = function (){
@@ -59,14 +66,20 @@
 			for (i=0; i<$scope.columnsShow.length; i++){
 				$scope.columnsShow[i] = $scope.allChecked;
 			}
+			if ($scope.allChecked == false){
+				$scope.columnsShow[0] = true;
+			}
 			$scope.setView();
-			$scope.drawView();
+			if ($scope.activeTabId == "viewTab") $scope.drawView();			
+			if ($scope.activeTabId == "plotTab") $scope.plotData();
+			
 		}
 		
 		$scope.update = function(){
 			$scope.allChecked = false;
 			$scope.setView();
-			$scope.drawView();
+			if ($scope.activeTabId == "viewTab") $scope.drawView();			
+			if ($scope.activeTabId == "plotTab") $scope.plotData();
 		}
 		
 // 		$scope.drawTable = function (){						
@@ -105,8 +118,7 @@
 				width: 900,
 				height: 500,
 				title: $scope.dsetName,
-				visibility: $scope.visibilityArray,
-// 				underlayCallback: $scope.clearGraph,
+				underlayCallback: $scope.setView,
 				drawCallback: function(chart, initial) {
 					if (!$scope.timesZoomed && chart){
 						
@@ -117,7 +129,7 @@
 				      var minValue = chart.yAxisRange()[0];
 				      var maxValue = chart.yAxisRange()[1];
 				      $scope.ZoomedValuesArray.push(minDate, maxDate, minValue, maxValue);
-				      console.log($scope.ZoomedValuesArray);
+// 				      console.log($scope.ZoomedValuesArray);
 					}					
 	            },
 				zoomCallback: function(minDate, maxDate, valueRange) {
@@ -137,23 +149,11 @@
 	    			$scope.timesZoomed -= 1;
 	            }
 			});
-			
-// 			$scope.chart1.setVisibility($scope.visibilityArray);
-			
-// 			if (!$scope.timesZoomed && $scope.chart1){
-// 				// Pull an initial value for logging.
-// 				var chart = $scope.chart1;
-// 				 console.log($scope.chart1);
-// 				 console.log("xAxisRange: "+ chart.xAxisRange());
-// 			      var minDate = $scope.chart1.xAxisRange()[0];
-// 			      var maxDate = $scope.chart1.xAxisRange()[1];
-// 			      var minValue = $scope.chart1.yAxisRange()[0];
-// 			      var maxValue = $scope.chart1.yAxisRange()[1];
-// 			      $scope.ZoomedValuesArray.push(minDate, maxDate, minValue, maxValue);
 			}
 			
 		
 	}]);
+
 </script>
 {% endblock %}
 
@@ -162,9 +162,9 @@
 	<div class="container">
 		<!-- Nav tabs -->
 		<ul class="nav nav-tabs" role="tablist" id="myTab">
-		  <li class="active"><a data-target="#tree" role="tab" data-toggle="tab">Explorer</a></li>
-		  <li ng-show="tableLoaded" ><a data-target="#plot" role="tab" data-toggle="tab" ng-click="plotData()">Plot</a></li>
-		  <li ng-show="tableLoaded" ><a data-target="#view" role="tab" data-toggle="tab" ng-click="drawView()">Table</a></li>
+		  <li class="active"><a id="explorerTab" data-target="#tree" role="tab" data-toggle="tab">Explorer</a></li>
+		  <li ng-show="tableLoaded" ><a id="plotTab" data-target="#plot" role="tab" data-toggle="tab" ng-click="plotData()">Plot</a></li>
+		  <li ng-show="tableLoaded" ><a id="viewTab" data-target="#view" role="tab" data-toggle="tab" ng-click="drawView()">Table</a></li>
 		</ul>
 
 		<!-- Tab panes -->
@@ -176,31 +176,30 @@
 			  	<smo-hdf-browser tree-id="hdfView"></smo-hdf-browser>
 		  </div>
 		  <div class="tab-pane" id="plot">
-			  <table>
-			  	<tr>
-			  		<td>  				
-							<div style="display:inline-block;" ng-repeat="columnName in tableArray[0].slice(1) track by $index">
-								<input type="checkbox" ng-model="visibilityArray[$index]" ng-change="plotData()"></input>
-								<span ng-bind="columnName"></span>
-								&nbsp&nbsp&nbsp&nbsp&nbsp
-							</div>	
-			  		</td>
-			  	</tr>
-			  	<tr>
-			  		<td><div id="dygraphs" style="display:inline-block;"></div></td>
-			  		<td>
-			  			<div id="dylegend" style="display:inline-block; vertical-align:text-top;"></div>			  		
-			  		</td>
-			  	</tr>
-			  </table>
+				<div ng-bind="dsetName" style="font-weight: bold; font-size: large;"></div>
+				<div>
+					<input type="checkbox" ng-model="allChecked" ng-change="setToAll()"></input>
+					<span>Check all</span>
+				</div>
+				<div style="width: 70%;">		  				
+					<div style="display:inline-block;" ng-repeat="columnName in tableArray[0] track by $index">
+						<input type="checkbox" ng-model="columnsShow[$index]" ng-change="update()"></input>
+						<span ng-bind="columnName"></span>
+						&nbsp&nbsp&nbsp&nbsp&nbsp
+					</div>
+				</div>
+				<div>			  
+				<div id="dygraphs" style="display:inline-block; float: left;"></div>	
+				<div id="dylegend" style="display:inline-block; float:right;"></div>
+				</div>	
+
 		  </div>
 		  <div class="tab-pane" id="view">
 		  		<div ng-bind="dsetName" style="font-weight: bold; font-size: large;"></div>
-		  	 	<div>Select columns to display:</div>
-					<div>
-						<input type="checkbox" ng-model="allChecked" ng-change="setToAll()"></input>
-						<span>Check all</span>
-					</div>
+				<div>
+					<input type="checkbox" ng-model="allChecked" ng-change="setToAll()"></input>
+					<span>Check all</span>
+				</div>
 				<div style="width: 70%;">		  				
 					<div style="display:inline-block;" ng-repeat="columnName in tableArray[0] track by $index">
 						<input type="checkbox" ng-model="columnsShow[$index]" ng-change="update()"></input>
