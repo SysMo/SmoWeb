@@ -14,135 +14,126 @@
 	angular.module('testApp', ['ui.bootstrap', 'angularTreeview'])
 	.controller('testController', [ '$scope', '$http', '$window', function($scope, $http, $window) {
 		
-		$scope.activeTabId = "";		
-		$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-			  $scope.activeTabId = e.target.id; // activated tab
-// 			  e.relatedTarget // previous tab
-			});
+// 		$scope.activeTabId = "";		
+// 		$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+// 			  $scope.activeTabId = e.target.id; // activated tab
+// // 			  e.relatedTarget // previous tab
+// 			});
 		
 		$scope.tableLoaded = false;
 		$scope.dsetName = "";
 		
-		$scope.initTable = function(){
-			$scope.allChecked = true;
-			
-			$scope.columnsShow = [];
-			for (i=0; i<$scope.columnTable.columns.length; i++){
-				$scope.columnsShow[i] = true;
-			}
-			
-			$scope.xAxis = 0;
-			
-			$scope.timesZoomed = 0;
-			$scope.ZoomedValuesArray = [];
-					
+		$scope.initTable = function(){			
 			$scope.tableArray = [];
-			var columnNames = [];
+			$scope.columnNames = [];
+			$scope.columnNames.push($scope.columnTable.columns[0].name);
 			for (i=0; i<$scope.columnTable.columns.length; i++){
-				columnNames.push($scope.columnTable.columns[i].name);
+				$scope.columnNames.push($scope.columnTable.columns[i].name);
 			}
 			
-			$scope.tableArray.push(columnNames);
+			$scope.tableArray.push($scope.columnNames);
 			for (i=0; i<$scope.columnTable.data.length; i++){
-				$scope.tableArray.push($scope.columnTable.data[i]);				
+				$scope.tableArray.push($scope.columnTable.data[i]);
+				$scope.tableArray[i+1].unshift($scope.columnTable.data[i][0]);
 			}
 			
+			$scope.allChecked = true;
+			$scope.visibilityArray = [];
+			for (i=0; i<$scope.tableArray[0].length; i++){				
+				$scope.visibilityArray.push(true);
+			}
 			
 			$scope.data = google.visualization.arrayToDataTable($scope.tableArray);
 			
 // 			var formatter = new google.visualization.NumberFormat({pattern: '###.###'});
 // 			for (i=0; i<$scope.columnTable.columns.length; i++){
 // 				formatter.format($scope.data, i);
-// 			}
+// 	
 			$scope.tableView = new google.visualization.DataView($scope.data);
-			$scope.plotView = new google.visualization.DataView($scope.data)
+			$scope.drawTableView();
+			$scope.chart1 = new Dygraph(document.getElementById('dygraphs'), $scope.tableArray.slice(1),
+					{
+						labels: $scope.tableArray[0],
+						labelsDiv: 'dylegend',
+						labelsDivWidth: 150,
+						labelsSeparateLines: true,
+						width: 900,
+						height: 500,
+						title: $scope.dsetName,
+						xlabel: $scope.tableArray[0][0],
+					});
 			
-			$scope.plotData();
 			$('#plotTab').tab('show');
 		}
+			
+
+		$scope.setToAll = function(){
+			for (i=0; i<$scope.visibilityArray.length; i++){
+				$scope.visibilityArray[i] = $scope.allChecked;
+			}
+			if ($scope.allChecked == false){
+				$scope.visibilityArray[$scope.xAxis] = true;
+			}
+			
+			for (i=1; i<$scope.visibilityArray.length; i++){
+				$scope.chart1.setVisibility(i-1, $scope.visibilityArray[i]);
+			}
+			$scope.drawTableView();	
+		}
 		
+		$scope.updateChecked = function(i){		
+			$scope.chart1.setVisibility(i-1, $scope.visibilityArray[i]);
+			$scope.drawTableView();	
+		}
 		
+		$scope.updateXaxis = function(xAxis){
+			console.log(xAxis);
+			for (i=0; i<$scope.tableArray[0].length; i++){
+				var elem = $scope.tableArray[i][xAxis];
+				$scope.tableArray[i][0] = elem;
+			}
+			
+// 			delete $scope.chart1;
+// 			$scope.plotData();
+
+// 			$scope.chart1.updateOptions({
+// 				file: $scope.tableArray.slice(1)
+// 			});	
+
+			$scope.chart1 = new Dygraph(document.getElementById('dygraphs'), $scope.tableArray.slice(1),
+					{
+						labels: $scope.tableArray[0],
+						labelsDiv: 'dylegend',
+						labelsDivWidth: 150,
+						labelsSeparateLines: true,
+						width: 900,
+						height: 500,
+						title: $scope.dsetName,
+						xlabel: $scope.tableArray[0][0],
+					});
+		}
 		
-		$scope.setTableView = function (){
+		$scope.drawTableView = function (){
 			var viewCloumns = [];
-			for (i=0; i<$scope.columnsShow.length; i++){
-				if ($scope.columnsShow[i] == true){
+			for (i=0; i<$scope.visibilityArray.length; i++){
+				if ($scope.visibilityArray[i] == true){
 					viewCloumns.push(i);
 				}
 			}
-			$scope.tableView.setColumns(viewCloumns);
-		}
-		
-		$scope.setToAll = function(){
-			for (i=0; i<$scope.columnsShow.length; i++){
-				$scope.columnsShow[i] = $scope.allChecked;
-			}
-			if ($scope.allChecked == false){
-				$scope.columnsShow[$scope.xAxis] = true;
-			}
-			$scope.setTableView();
-			$scope.drawView();			
-			
-		}
-		
-		$scope.updateChecked = function(){
-			$scope.allChecked = false;
-			$scope.setTableView();
-			$scope.drawView();		
-		}
-		
-		
-		$scope.setPlotView = function(){
-			var viewCloumns = [];
-			viewCloumns.push($scope.xAxis);
-
-			for (i=0; i<$scope.tableArray[0].length; i++){				
-				if (i != $scope.xAxis){
-					if ($scope.columnsShow[i] == true){
-						viewCloumns.push(i);				
-					}
-				}
-			}
-			console.log(viewCloumns);
- 			$scope.plotView.setColumns(viewCloumns);
- 			
-		}
-		
-		$scope.setToAllPlot = function(){
-			for (i=0; i<$scope.columnsShow.length; i++){
-				$scope.columnsShow[i] = $scope.allChecked;
-			}
-			if ($scope.allChecked == false){
-				$scope.columnsShow[$scope.xAxis] = true;
-			}
-			$scope.setPlotView();
-			$scope.plotData();
-		}
-		
-		$scope.updateCheckedPlot = function(){
-			$scope.allChecked = false;
-			$scope.setPlotView();
-			$scope.plotData();
-		}
-		
-		$scope.updateXaxis = function(){
-			$scope.columnsShow[$scope.xAxis] = true;
-			$scope.setPlotView();
-			$scope.plotData();
-		}
-		
-		
-		
-//  		$scope.drawTable = function (){						
-//  			var table = new google.visualization.Table(document.getElementById('table_div'));
-//  			table.draw($scope.data, {showRowNumber: true, sort:'disable', page:'enable', pageSize:20});			
-//  		}
-		
-		$scope.drawView = function (){
-			$scope.setTableView();
+			$scope.tableView.setColumns(viewCloumns);		
 			var tableView = new google.visualization.Table(document.getElementById('view_div'));
 			tableView.draw($scope.tableView, {showRowNumber: true, sort:'disable', page:'enable', pageSize:20});
 		}
+		
+		$scope.updatePlot = function(){
+			$scope.chart1.updateOptions({});
+		}
+		
+// 		$scope.checkboxStyle = function(i){
+		// // 			console.log($scope.chart1.getPropertiesForSeries($scope.chart1.getLabels()[$scope.xAxis]));
+//		 			if (i == $scope.xAxis) return {color: 'blue', 'font-weight': 'bold'}
+//		 			else return {color: $scope.chart1.getPropertiesForSeries($scope.chart1.getLabels()[i]).color};
+//		 		}
 		
 // 		$scope.zoomBack = function(){
 // 			var prevZoomedValues = $scope.ZoomedValuesArray.pop();
@@ -154,60 +145,46 @@
 // 			$scope.plotData();
 // 		}
 		
-		$scope.setArgument = function(i){
-			console.log("X is:" + i);
-			checkboxStyle={'color': 'red'};
-		}
-		
-		$scope.chart1 = new Dygraph.GVizChart(
-				document.getElementById('dygraphs'));
-		
 // 		$scope.clearGraph = function(context, area, chart){
 // 			if (typeof(g) == 'undefined') return;
 // 			chart.updateOptions({});
-// 		}
+// 		}	
 		
-		$scope.plotData = function(){
-			$scope.chart1.draw($scope.plotView, {
-				labelsDiv: 'dylegend',
-				labelsDivWidth: 150,
-				labelsSeparateLines: true,
-				width: 900,
-				height: 500,
-				title: $scope.dsetName,
-				xlabel: $scope.tableArray[0][$scope.xAxis],
-				underlayCallback: $scope.setPlotView,
-				drawCallback: function(chart, initial) {
-					if (!$scope.timesZoomed && chart){
+// 		$scope.plotData = function(){
+// 			$scope.chart1.draw($scope.plotView, {
+// 				labelsDiv: 'dylegend',
+// 				labelsDivWidth: 150,
+// 				labelsSeparateLines: true,
+// 				width: 900,
+// 				height: 500,
+// 				title: $scope.dsetName,
+// 				xlabel: $scope.tableArray[0][$scope.xAxis],
+// 				underlayCallback: $scope.setPlotView,
+// 				drawCallback: function(chart, initial) {
+// 					if (!$scope.timesZoomed && chart){
 						
-						$scope.chart = chart;
-						$scope.ZoomedValuesArray = [];
-				      var minDate = chart.xAxisRange()[0];
-				      var maxDate = chart.xAxisRange()[1];
-				      var minValue = chart.yAxisRange()[0];
-				      var maxValue = chart.yAxisRange()[1];
-				      $scope.ZoomedValuesArray.push(minDate, maxDate, minValue, maxValue);
-// 				      console.log($scope.ZoomedValuesArray);
-					}					
-	            },
-				zoomCallback: function(minDate, maxDate, valueRange) {
-					console.log(minDate, maxDate, valueRange);
+// 						$scope.chart = chart;
+// 						$scope.ZoomedValuesArray = [];
+// 				      var minDate = chart.xAxisRange()[0];
+// 				      var maxDate = chart.xAxisRange()[1];
+// 				      var minValue = chart.yAxisRange()[0];
+// 				      var maxValue = chart.yAxisRange()[1];
+// 				      $scope.ZoomedValuesArray.push(minDate, maxDate, minValue, maxValue);
+// // 				      console.log($scope.ZoomedValuesArray);
+// 					}					
+// 	            },
+// 				zoomCallback: function(minDate, maxDate, valueRange) {
+// 					console.log(minDate, maxDate, valueRange);
 				
-					$scope.ZoomedValuesArray.push(minDate, maxDate, valueRange[0], valueRange[1]);
-					$scope.timesZoomed += 1;
-		        },
-	            clickCallback: function(e, x, points){
-	            	if($scope.timesZoomed == 0) return;
-	            	var prevZoomedValues = $scope.ZoomedValuesArray.pop();
-	            	console.log(prevZoomedValues);
-	            	$scope.chart.updateOptions({
-	    		          dateWindow: [prevZoomedValues[0], prevZoomedValues[1]],
-	    		          valueRange: [prevZoomedValues[2], prevZoomedValues[3]]
-	    		        });
-	    			$scope.timesZoomed -= 1;
-	            }
-			});
-			}
+// 					$scope.ZoomedValuesArray.push(minDate, maxDate, valueRange[0], valueRange[1]);
+// 					$scope.timesZoomed += 1;
+// 		        },
+// 			});
+// 			$scope.chart2 = new Dygraph(document.getElementById('dygraphs2'), "Date,Series1,Series2\n" + "1247382000,100,200\n" + "1247986800,150,201\n",
+// 					{});
+//  			$scope.chart2.setVisibility(1, false);
+// 			$scope.chart2.draw()
+// 			}
 			
 		
 	}]);
@@ -221,8 +198,8 @@
 		<!-- Nav tabs -->
 		<ul class="nav nav-tabs" role="tablist" id="myTab">
 		  <li class="active"><a id="explorerTab" data-target="#tree" role="tab" data-toggle="tab">Explorer</a></li>
-		  <li ng-show="tableLoaded" ><a id="plotTab" data-target="#plot" role="tab" data-toggle="tab" ng-click="plotData()">Plot</a></li>
-		  <li ng-show="tableLoaded" ><a id="viewTab" data-target="#view" role="tab" data-toggle="tab" ng-click="drawView()">Table</a></li>
+		  <li ng-show="tableLoaded" ><a id="plotTab" data-target="#plot" role="tab" data-toggle="tab" ng-click="updatePlot()">Plot</a></li>
+		  <li ng-show="tableLoaded" ><a id="tableTab" data-target="#view" role="tab" data-toggle="tab" ng-click="drawTableView()">Table</a></li>
 		</ul>
 
 		<!-- Tab panes -->
@@ -234,42 +211,41 @@
 			  	<smo-hdf-browser tree-id="hdfView"></smo-hdf-browser>
 		  </div>
 		  <div class="tab-pane" id="plot">
-				<div ng-bind="dsetName" style="font-weight: bold; font-size: large;"></div>
-				<div>
-					<input type="checkbox" ng-model="allChecked" ng-change="setToAllPlot()"></input>
-					<span>Check/Uncheck all</span>
-				</div>
-				<div style="width: 70%;">		  				
-					<div style="display:inline-block;" ng-repeat="columnName in tableArray[0] track by $index">
-						<input type="checkbox" ng-model="columnsShow[$index]" ng-change="updateCheckedPlot()"></input>
-						<span ng-style="checkboxStyle" ng-bind="columnName"></span>
-						&nbsp&nbsp&nbsp&nbsp&nbsp
-					</div>
-				</div>
-				<div>
-					Set X axis:
-					<select ng-options="tableArray[0].indexOf(columnName) as columnName for columnName in tableArray[0]" ng-model="xAxis" ng-change="updateXaxis()">
-					</select>
-				</div>
-				<div>			  
-				<div id="dygraphs" style="display:inline-block; float: left;"></div>	
-				<div id="dylegend" style="display:inline-block; float:right;"></div>
-				</div>	
-
-		  </div>
-		  <div class="tab-pane" id="view">
-		  		<div ng-bind="dsetName" style="font-weight: bold; font-size: large;"></div>
 				<div>
 					<input type="checkbox" ng-model="allChecked" ng-change="setToAll()"></input>
 					<span>Check/Uncheck all</span>
 				</div>
 				<div style="width: 70%;">		  				
-					<div style="display:inline-block;" ng-repeat="columnName in tableArray[0] track by $index">
-						<input type="checkbox" ng-model="columnsShow[$index]" ng-change="updateChecked()"></input>
+					<div style="display:inline-block;" ng-repeat="columnName in columnNames.slice(1) track by $index">
+						<input type="checkbox" ng-model="visibilityArray[$index+1]" ng-change="updateChecked($index+1)"></input>
+						<span  ng-bind="columnName"></span>
+						&nbsp&nbsp&nbsp&nbsp&nbsp
+					</div>
+				</div>
+				<div>	<!-- Not working -->		
+					Set X axis:
+					<select ng-options="columnNames.slice(1).indexOf(columnName)+1 as columnName for columnName in columnNames.slice(1)" ng-model="xAxis" ng-change="updateXaxis(xAxis)">
+					</select>
+				</div>				
+				<div>							  
+					<div id="dygraphs" style="display:inline-block; float: left;"></div>	
+					<div id="dylegend" style="display:inline-block; float:right;"></div>
+				</div>
+				
+
+		  </div>
+		  <div class="tab-pane" id="view">
+				<div>
+					<input type="checkbox" ng-model="allChecked" ng-change="setToAll()"></input>
+					<span>Check/Uncheck all</span>
+				</div>
+				<div style="width: 70%;">		  				
+					<div style="display:inline-block;" ng-repeat="columnName in columnNames.slice(1) track by $index">
+						<input type="checkbox" ng-model="visibilityArray[$index+1]" ng-change="updateChecked($index+1)"></input>
 						<span ng-bind="columnName"></span>
 						&nbsp&nbsp&nbsp&nbsp&nbsp
 					</div>
-				</div>				  
+				</div>			  
 				<div id="view_div"></div>	
 		 </div>
 		</div>
