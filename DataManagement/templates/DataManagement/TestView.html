@@ -8,43 +8,42 @@
 <!--Load the AJAX API-->
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <script type="text/javascript" src="http://dygraphs.com/dygraph-dev.js"></script>
-<script type="text/javascript" src="http://cavorite.com/labs/js/dygraphs-export/dygraph-extra.js"></script>
-
 <!-- http://cavorite.com/labs/js/dygraphs-export/ -->
+<script type="text/javascript" src="http://cavorite.com/labs/js/dygraphs-export/dygraph-extra.js"></script>
 
 <script>
 	google.load('visualization', '1.0', {'packages':["corechart", "table", "controls"]});
-
 	angular.module('testApp', ['ui.bootstrap', 'angularTreeview'])
-	.controller('testController', [ '$scope', '$http', '$window', function($scope, $http, $window) {
-		
-// 		$scope.activeTabId = "";		
-// 		$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-// 			  $scope.activeTabId = e.target.id; // activated tab
-// // 			  e.relatedTarget // previous tab
-// 			});
+	.controller('testController', [ '$scope', '$http', '$window', function($scope, $http, $window) {				
+		$scope.activeTabId = "";
+		$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+			  $scope.activeTabId = e.target.id; // activated tab
+// 			  e.relatedTarget // previous tab
+			});
 		
 		$scope.tableLoaded = false;
 		$scope.dsetName = "";
-		
-		$scope.initTable = function(){			
-			$scope.tableArray = [];
-			$scope.columnNames = [];
-			$scope.columnNames.push($scope.columnTable.columns[0].name);
-			for (i=0; i<$scope.columnTable.columns.length; i++){
-				$scope.columnNames.push($scope.columnTable.columns[i].name);
-			}
-			
-			$scope.tableArray.push($scope.columnNames);
-			for (i=0; i<$scope.columnTable.data.length; i++){
-				$scope.tableArray.push($scope.columnTable.data[i]);
-				$scope.tableArray[i+1].unshift($scope.columnTable.data[i][0]);
-			}
-			
+	
+		$scope.initTable = function(){
+			$scope.csvFileName = $scope.dsetName + ".csv";
+			$scope.imgFileName = $scope.dsetName;
 			$scope.allChecked = true;
-			$scope.visibilityArray = [];
-			for (i=0; i<$scope.tableArray[0].length; i++){				
-				$scope.visibilityArray.push(true);
+			$scope.columnsShow = [];
+			for (i=0; i<$scope.columnTable.columns.length; i++){
+				$scope.columnsShow[i] = true;
+			}
+			$scope.xAxis = 0;
+// 			$scope.timesZoomed = 0;
+// 			$scope.ZoomedValuesArray = [];
+					
+			$scope.tableArray = [];
+			var columnNames = [];
+			for (i=0; i<$scope.columnTable.columns.length; i++){
+				columnNames.push($scope.columnTable.columns[i].name);
+			}			
+			$scope.tableArray.push(columnNames);
+			for (i=0; i<$scope.columnTable.data.length; i++){
+				$scope.tableArray.push($scope.columnTable.data[i]);				
 			}
 			
 			$scope.data = google.visualization.arrayToDataTable($scope.tableArray);
@@ -52,91 +51,94 @@
 // 			var formatter = new google.visualization.NumberFormat({pattern: '###.###'});
 // 			for (i=0; i<$scope.columnTable.columns.length; i++){
 // 				formatter.format($scope.data, i);
-// 	
-			$scope.tableView = new google.visualization.DataView($scope.data);
-			$scope.drawTableView();
-			$scope.chart1 = new Dygraph(document.getElementById('dygraphs'), $scope.tableArray.slice(1),
-					{
-						labels: $scope.tableArray[0],
-						labelsDiv: 'dylegend',
-						labelsDivWidth: 150,
-						labelsSeparateLines: true,
-						width: 900,
-						height: 500,
-						title: $scope.dsetName,
-						xlabel: $scope.tableArray[0][0],
-					});
-			
+// 			}
+			$scope.view = new google.visualization.DataView($scope.data);
+			$scope.plotData();
 			$('#plotTab').tab('show');
 		}
-			
 
-		$scope.setToAll = function(){
-			for (i=0; i<$scope.visibilityArray.length; i++){
-				$scope.visibilityArray[i] = $scope.allChecked;
-			}
-// 			if ($scope.allChecked == false){
-// 				$scope.visibilityArray[$scope.xAxis] = true;
-// 			}
-			
-			for (i=1; i<$scope.visibilityArray.length; i++){
-				$scope.chart1.setVisibility(i-1, $scope.visibilityArray[i]);
-			}
-			$scope.drawTableView();	
-		}
-		
-		$scope.updateChecked = function(i){		
-			$scope.chart1.setVisibility(i-1, $scope.visibilityArray[i]);
-			$scope.drawTableView();	
-		}
-		
-		$scope.updateXaxis = function(xAxis){
-			console.log(xAxis);
-			for (i=0; i<$scope.tableArray[0].length; i++){
-				var elem = $scope.tableArray[i][xAxis];
-				$scope.tableArray[i][0] = elem;
-			}
-			
-// 			delete $scope.chart1;
-// 			$scope.plotData();
+		$scope.setView = function(){
+			viewCloumns = [];
+			viewCloumns.push($scope.xAxis);
 
-			$scope.chart1.updateOptions({
-				file: $scope.tableArray.slice(1),
-				labels: $scope.tableArray[0],
-				xlabel: $scope.tableArray[0][0]
-				
-			});	
-
-// 			$scope.chart1 = new Dygraph(document.getElementById('dygraphs'), $scope.tableArray.slice(1),
-// 					{
-// 						labels: $scope.tableArray[0],
-// 						labelsDiv: 'dylegend',
-// 						labelsDivWidth: 150,
-// 						labelsSeparateLines: true,
-// 						width: 900,
-// 						height: 500,
-// 						title: $scope.dsetName,
-// 						xlabel: $scope.tableArray[0][0],
-// 					});
-		}
-		
-		$scope.drawTableView = function (){
-			var viewCloumns = [];
-			viewCloumns.push(0);
-			for (i=1; i<$scope.visibilityArray.length; i++){
-				if ($scope.visibilityArray[i] == true){
-					viewCloumns.push(i);
+			for (i=0; i<$scope.tableArray[0].length; i++){				
+				if (i != $scope.xAxis){
+					if ($scope.columnsShow[i] == true){
+						viewCloumns.push(i);				
+					}
 				}
 			}
-			$scope.tableView.setColumns(viewCloumns);		
-			var tableView = new google.visualization.Table(document.getElementById('view_div'));
-			tableView.draw($scope.tableView, {showRowNumber: true, sort:'disable', page:'enable', pageSize:20});
+ 			$scope.view.setColumns(viewCloumns);			
+		}	
+		
+		$scope.update = function(){
+			$scope.setView();
+			if ($scope.activeTabId == "tableTab") $scope.drawTable();
+			if ($scope.activeTabId == "plotTab") $scope.plotData();
 		}
 		
-		$scope.updatePlot = function(){
-			$scope.chart1.updateOptions({});
-			
+		$scope.setToAll = function(){
+			for (i=0; i<$scope.columnsShow.length; i++){
+				$scope.columnsShow[i] = $scope.allChecked;
+			}
+			$scope.update();
 		}
+		
+		$scope.updateChecked = function(){
+			$scope.allChecked = false;
+			$scope.update();
+		}
+
+		$scope.drawTable = function (){
+			$scope.setView();
+			var tableView = new google.visualization.Table(document.getElementById('table_div'));
+			tableView.draw($scope.view, {showRowNumber: true, sort:'disable', page:'enable', pageSize:20});
+		}
+		
+		$scope.chart1 = new Dygraph.GVizChart(
+				document.getElementById('dygraphs'));
+		
+		$scope.plotData = function(){
+			$scope.chart1.draw($scope.view, {
+				labelsDiv: 'dylegend',
+				labelsDivWidth: 150,
+				labelsSeparateLines: true,
+				width: 900,
+				height: 500,
+				title: $scope.dsetName,
+				xlabel: $scope.tableArray[0][$scope.xAxis]
+			});
+		}
+		
+		$scope.exportCSV = function (){
+			var columnLabels = new Array();
+			var columnNum = $scope.view.getNumberOfColumns();
+			for (i = 0; i < columnNum; i++){
+				columnLabels.push($scope.view.getColumnLabel(i));
+			}
+			var columnLabelsString = columnLabels.join(",");
+			var csvString = columnLabelsString + "\n";
+			var dataViewCSV = google.visualization.dataTableToCsv($scope.view);
+			csvString += dataViewCSV;
+			// download stuff
+		 	var blob = new Blob([csvString], {
+		 	  "type": "text/csv;charset=utf8;"			
+		 	});
+		 	var link = document.getElementById('csvElem');
+						
+		 	if(link.download !== undefined) { // feature detection
+		 	  // Browsers that support HTML5 download attribute
+		 	  link.setAttribute("href", window.URL.createObjectURL(blob));
+		 	  link.setAttribute("download", $scope.csvFileName);
+		 	 } else {
+		 		// it needs to implement server side export
+				//link.setAttribute("href", "http://www.example.com/export");
+		 		  alert("Needs to implement server side export");
+		 		  return;
+		 	}
+// 		 	document.body.appendChild(link);
+		 	link.click();
+		};
 		
 		$scope.exportToPNG = function(){
 			var img = document.getElementById('demoimg');
@@ -145,7 +147,7 @@
 		 	if(link.download !== undefined) { // feature detection
 		 	  // Browsers that support HTML5 download attribute
 		 	  link.setAttribute("href", img.src);
-		 	  link.setAttribute("download", "Dugraph img");
+		 	  link.setAttribute("download", $scope.imgFileName);
 		 	 } else {
 		 		// it needs to implement server side export
 				//link.setAttribute("href", "http://www.example.com/export");
@@ -156,27 +158,17 @@
 		 	link.click();
 		}
 		
-		$scope.checkboxStyle = function(i){
-			return {color: $scope.chart1.getPropertiesForSeries($scope.chart1.getLabels()[i]).color};
-		}
-		
 // 		$scope.zoomBack = function(){
-// 			var prevZoomedValues = $scope.ZoomedValuesArray.pop();
-// 			$scope.chart1.updateOptions({
-// 		          dateWindow: [prevZoomedValues[0], prevZoomedValues[1]],
-// 		          valueRange: [prevZoomedValues[2], prevZoomedValues[3]]
-// 		        });
-// 			$scope.timesZoomed -= 1;
-// 			$scope.plotData();
-// 		}
-		
-// 		$scope.clearGraph = function(context, area, chart){
-// 			if (typeof(g) == 'undefined') return;
-// 			chart.updateOptions({});
-// 		}	
-		
+//			var prevZoomedValues = $scope.ZoomedValuesArray.pop();
+//			$scope.chart1.updateOptions({
+//		          dateWindow: [prevZoomedValues[0], prevZoomedValues[1]],
+//		          valueRange: [prevZoomedValues[2], prevZoomedValues[3]]
+//		        });
+//			$scope.timesZoomed -= 1;
+//			$scope.plotData();
+//		}
 // 		$scope.plotData = function(){
-// 			$scope.chart1.draw($scope.plotView, {
+// 			$scope.chart1.draw($scope.view, {
 // 				labelsDiv: 'dylegend',
 // 				labelsDivWidth: 150,
 // 				labelsSeparateLines: true,
@@ -184,11 +176,21 @@
 // 				height: 500,
 // 				title: $scope.dsetName,
 // 				xlabel: $scope.tableArray[0][$scope.xAxis],
-// 				underlayCallback: $scope.setPlotView,
 // 				drawCallback: function(chart, initial) {
 // 					if (!$scope.timesZoomed && chart){
+// // 						var viewCloumns = [];
+// // 						for (i=0; i<$scope.columnsShow.length; i++){
+// // 							if ($scope.columnsShow[i] == true){
+// // 								viewCloumns.push(i);
+// // 							}
+// // 						}
+// // 						$scope.chartColors = [];
+// // 						$scope.chartColors[0]='black';
 						
-// 						$scope.chart = chart;
+// // 						for (i=1; i<viewCloumns.length; i++){
+// // 							$scope.chartColors[i]=chart.getPropertiesForSeries(chart.getLabels()[i]).color;
+// // 						}
+						
 // 						$scope.ZoomedValuesArray = [];
 // 				      var minDate = chart.xAxisRange()[0];
 // 				      var maxDate = chart.xAxisRange()[1];
@@ -204,12 +206,18 @@
 // 					$scope.ZoomedValuesArray.push(minDate, maxDate, valueRange[0], valueRange[1]);
 // 					$scope.timesZoomed += 1;
 // 		        },
+// 	            clickCallback: function(e, x, points){
+// 	            	if($scope.timesZoomed == 0) return;
+// 	            	var prevZoomedValues = $scope.ZoomedValuesArray.pop();
+// 	            	console.log(prevZoomedValues);
+// 	            	$scope.chart.updateOptions({
+// 	    		          dateWindow: [prevZoomedValues[0], prevZoomedValues[1]],
+// 	    		          valueRange: [prevZoomedValues[2], prevZoomedValues[3]]
+// 	    		        });
+// 	    			$scope.timesZoomed -= 1;
+// 	            }
 // 			});
-// 			$scope.chart2 = new Dygraph(document.getElementById('dygraphs2'), "Date,Series1,Series2\n" + "1247382000,100,200\n" + "1247986800,150,201\n",
-// 					{});
-//  			$scope.chart2.setVisibility(1, false);
-// 			$scope.chart2.draw()
-// 			}
+// 		}	
 			
 		
 	}]);
@@ -222,63 +230,78 @@
 	<div class="container">
 		<!-- Nav tabs -->
 		<ul class="nav nav-tabs" role="tablist" id="myTab">
-		  <li class="active"><a id="explorerTab" data-target="#tree" role="tab" data-toggle="tab">Explorer</a></li>
-		  <li ng-show="tableLoaded" ><a id="plotTab" data-target="#plot" role="tab" data-toggle="tab" ng-click="updatePlot()">Plot</a></li>
-		  <li ng-show="tableLoaded" ><a id="tableTab" data-target="#view" role="tab" data-toggle="tab" ng-click="drawTableView()">Table</a></li>
+		  <li class="active"><a id="explorerTab" data-target="#treePane" role="tab" data-toggle="tab">Explorer</a></li>
+		  <li ng-show="tableLoaded" ><a id="plotTab" data-target="#plotPane" role="tab" data-toggle="tab" ng-click="plotData()">Plot</a></li>
+		  <li ng-show="tableLoaded" ><a id="tableTab" data-target="#tablePane" role="tab" data-toggle="tab" ng-click="drawTable()">Table</a></li>
 		</ul>
 
 		<!-- Tab panes -->
 		<div class="tab-content">
-		  <div class="tab-pane active" id="tree">
+		  <div class="tab-pane active" id="treePane">
 			  	<br>
 			  	<div style="text-align: left; font-weight: bold; font-size: medium;">Explore data file:</div>
 			  	<br>
 			  	<smo-hdf-browser tree-id="hdfView"></smo-hdf-browser>
 		  </div>
-		  <div class="tab-pane" id="plot">
+		  <div class="tab-pane" id="plotPane">
+				<div ng-bind="dsetName" style="font-weight: bold; font-size: large;"></div>
 				<div>
 					<input type="checkbox" ng-model="allChecked" ng-change="setToAll()"></input>
 					<span>Check/Uncheck all</span>
 				</div>
 				<div style="width: 70%;">		  				
-					<div style="display:inline-block;" ng-repeat="columnName in columnNames.slice(1) track by $index">
-						<input type="checkbox" ng-model="visibilityArray[$index+1]" ng-change="updateChecked($index+1)"></input>
-						<span ng-style="checkboxStyle($index+1)" ng-bind="columnName"></span>
-						&nbsp&nbsp&nbsp&nbsp&nbsp
-					</div>
-				</div>
-				<div>	<!-- Not working -->		
-					Set X axis:
-					<select ng-options="columnNames.slice(1).indexOf(columnName)+1 as columnName for columnName in columnNames.slice(1)" ng-model="xAxis" ng-change="updateXaxis(xAxis)">
-					</select>
-				</div>				
-				<div>
-					<br>
-					<button class ="btn btn-default" ng-click="exportToPNG()">Export to image</button>
-					<img id="demoimg" hidden>
-				</div>
-				<div>						  
-					<div id="dygraphs" style="display:inline-block; float: left;"></div>	
-					<div id="dylegend" style="display:inline-block; float:right;"></div>
-				</div>
-				
-				
-				
-
-		  </div>
-		  <div class="tab-pane" id="view">
-				<div>
-					<input type="checkbox" ng-model="allChecked" ng-change="setToAll()"></input>
-					<span>Check/Uncheck all</span>
-				</div>
-				<div style="width: 70%;">		  				
-					<div style="display:inline-block;" ng-repeat="columnName in columnNames.slice(1) track by $index">
-						<input type="checkbox" ng-model="visibilityArray[$index+1]" ng-change="updateChecked($index+1)"></input>
+					<div style="display:inline-block;" ng-hide="$index == xAxis" ng-repeat="columnName in tableArray[0] track by $index">
+						<input type="checkbox" ng-model="columnsShow[$index]" ng-change="updateChecked()"></input>
 						<span ng-bind="columnName"></span>
 						&nbsp&nbsp&nbsp&nbsp&nbsp
 					</div>
-				</div>			  
-				<div id="view_div"></div>	
+				</div>
+				<div>
+					Set X axis:
+					<select ng-options="tableArray[0].indexOf(columnName) as columnName for columnName in tableArray[0]" ng-model="xAxis" ng-change="update()">
+					</select>
+				</div>
+				
+				<div>			  
+					<div id="dygraphs" style="display:inline-block; float: left;"></div>	
+					<div id="dylegend" style="display:inline-block; float:left;"></div>
+				</div>
+				
+				<div style="float: left;">
+					<br>
+					File name:&nbsp
+					<input type="text" ng-model="imgFileName" style="width:30%;"></input>&nbsp
+    				<button class="btn btn-default" ng-click="exportToPNG()">Export as PNG</button>
+    				<img id="demoimg" hidden>
+				</div>
+				
+		  </div>
+		  <div class="tab-pane" id="tablePane">
+		  		<div ng-bind="dsetName" style="font-weight: bold; font-size: large;"></div>
+				<div>
+					<input type="checkbox" ng-model="allChecked" ng-change="setToAll()"></input>
+					<span>Check/Uncheck all</span>
+				</div>
+				<div style="width: 70%;">		  				
+					<div style="display:inline-block;" ng-hide="$index == xAxis" ng-repeat="columnName in tableArray[0] track by $index">
+						<input type="checkbox" ng-model="columnsShow[$index]" ng-change="updateChecked()"></input>
+						<span ng-bind="columnName"></span>
+						&nbsp&nbsp&nbsp&nbsp&nbsp
+					</div>
+				</div>
+				<div>
+					Set first column:
+					<select ng-options="tableArray[0].indexOf(columnName) as columnName for columnName in tableArray[0]" ng-model="xAxis" ng-change="update()">
+					</select>
+				</div>				  
+				<div id="table_div"></div>	
+				<br>
+				<div>
+					File name:&nbsp
+					<input type="text" ng-model="csvFileName" style="width:10%;"></input>&nbsp
+    				<button class="btn btn-default" ng-click="exportCSV()">Export as CSV</button>
+				</div>
+				<a id="csvElem" hidden></a>
 		 </div>
 		</div>
 	</div>
