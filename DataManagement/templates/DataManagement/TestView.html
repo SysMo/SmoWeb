@@ -71,9 +71,9 @@
 			for (i=0; i<$scope.visibilityArray.length; i++){
 				$scope.visibilityArray[i] = $scope.allChecked;
 			}
-			if ($scope.allChecked == false){
-				$scope.visibilityArray[$scope.xAxis] = true;
-			}
+// 			if ($scope.allChecked == false){
+// 				$scope.visibilityArray[$scope.xAxis] = true;
+// 			}
 			
 			for (i=1; i<$scope.visibilityArray.length; i++){
 				$scope.chart1.setVisibility(i-1, $scope.visibilityArray[i]);
@@ -96,26 +96,30 @@
 // 			delete $scope.chart1;
 // 			$scope.plotData();
 
-// 			$scope.chart1.updateOptions({
-// 				file: $scope.tableArray.slice(1)
-// 			});	
+			$scope.chart1.updateOptions({
+				file: $scope.tableArray.slice(1),
+				labels: $scope.tableArray[0],
+				xlabel: $scope.tableArray[0][0]
+				
+			});	
 
-			$scope.chart1 = new Dygraph(document.getElementById('dygraphs'), $scope.tableArray.slice(1),
-					{
-						labels: $scope.tableArray[0],
-						labelsDiv: 'dylegend',
-						labelsDivWidth: 150,
-						labelsSeparateLines: true,
-						width: 900,
-						height: 500,
-						title: $scope.dsetName,
-						xlabel: $scope.tableArray[0][0],
-					});
+// 			$scope.chart1 = new Dygraph(document.getElementById('dygraphs'), $scope.tableArray.slice(1),
+// 					{
+// 						labels: $scope.tableArray[0],
+// 						labelsDiv: 'dylegend',
+// 						labelsDivWidth: 150,
+// 						labelsSeparateLines: true,
+// 						width: 900,
+// 						height: 500,
+// 						title: $scope.dsetName,
+// 						xlabel: $scope.tableArray[0][0],
+// 					});
 		}
 		
 		$scope.drawTableView = function (){
 			var viewCloumns = [];
-			for (i=0; i<$scope.visibilityArray.length; i++){
+			viewCloumns.push(0);
+			for (i=1; i<$scope.visibilityArray.length; i++){
 				if ($scope.visibilityArray[i] == true){
 					viewCloumns.push(i);
 				}
@@ -129,11 +133,9 @@
 			$scope.chart1.updateOptions({});
 		}
 		
-// 		$scope.checkboxStyle = function(i){
-		// // 			console.log($scope.chart1.getPropertiesForSeries($scope.chart1.getLabels()[$scope.xAxis]));
-//		 			if (i == $scope.xAxis) return {color: 'blue', 'font-weight': 'bold'}
-//		 			else return {color: $scope.chart1.getPropertiesForSeries($scope.chart1.getLabels()[i]).color};
-//		 		}
+		$scope.checkboxStyle = function(i){
+			return {color: $scope.chart1.getPropertiesForSeries($scope.chart1.getLabels()[i]).color};
+		}
 		
 // 		$scope.zoomBack = function(){
 // 			var prevZoomedValues = $scope.ZoomedValuesArray.pop();
@@ -218,7 +220,7 @@
 				<div style="width: 70%;">		  				
 					<div style="display:inline-block;" ng-repeat="columnName in columnNames.slice(1) track by $index">
 						<input type="checkbox" ng-model="visibilityArray[$index+1]" ng-change="updateChecked($index+1)"></input>
-						<span  ng-bind="columnName"></span>
+						<span ng-style="checkboxStyle($index+1)" ng-bind="columnName"></span>
 						&nbsp&nbsp&nbsp&nbsp&nbsp
 					</div>
 				</div>
