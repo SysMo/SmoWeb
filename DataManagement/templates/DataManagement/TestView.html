@@ -8,6 +8,10 @@
 <!--Load the AJAX API-->
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <script type="text/javascript" src="http://dygraphs.com/dygraph-dev.js"></script>
+<script type="text/javascript" src="http://cavorite.com/labs/js/dygraphs-export/dygraph-extra.js"></script>
+
+<!-- http://cavorite.com/labs/js/dygraphs-export/ -->
+
 <script>
 	google.load('visualization', '1.0', {'packages':["corechart", "table", "controls"]});
 
@@ -131,6 +135,25 @@
 		
 		$scope.updatePlot = function(){
 			$scope.chart1.updateOptions({});
+			
+		}
+		
+		$scope.exportToPNG = function(){
+			var img = document.getElementById('demoimg');
+			Dygraph.Export.asPNG($scope.chart1, img);
+			var link = document.createElement("a");			
+		 	if(link.download !== undefined) { // feature detection
+		 	  // Browsers that support HTML5 download attribute
+		 	  link.setAttribute("href", img.src);
+		 	  link.setAttribute("download", "Dugraph img");
+		 	 } else {
+		 		// it needs to implement server side export
+				//link.setAttribute("href", "http://www.example.com/export");
+		 		  alert("Needs to implement server side export");
+		 		  return;
+		 	}
+		 	document.body.appendChild(link);
+		 	link.click();
 		}
 		
 		$scope.checkboxStyle = function(i){
@@ -229,10 +252,17 @@
 					<select ng-options="columnNames.slice(1).indexOf(columnName)+1 as columnName for columnName in columnNames.slice(1)" ng-model="xAxis" ng-change="updateXaxis(xAxis)">
 					</select>
 				</div>				
-				<div>							  
+				<div>
+					<br>
+					<button class ="btn btn-default" ng-click="exportToPNG()">Export to image</button>
+					<img id="demoimg" hidden>
+				</div>
+				<div>						  
 					<div id="dygraphs" style="display:inline-block; float: left;"></div>	
 					<div id="dylegend" style="display:inline-block; float:right;"></div>
 				</div>
+				
+				
 				
 
 		  </div>
