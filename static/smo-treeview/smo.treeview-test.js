@@ -226,16 +226,9 @@
 						
 						scope[treeId].view = function (node) {
 					    	scope[treeId].action = "view";
-					    	console.log('Viewing ' + node.path);
-					    	console.log(scope[treeId].action);
-					    	scope[treeId].sendActionData();	
-					    	
-					    	scope["plotBtnText"] = "Show plot";
-					    	scope["showPlot"] = false;
-					    	scope["tableBtnText"] = "Show table";
-					    	scope["showTable"] = false;
-					    	scope["showView"] = false;
-						    scope["viewBtnText"] = "Show view";
+					    	scope["dsetName"] = node.name;
+					    	scope[treeId].sendActionData();
+						   
 //						    scope[treeId].action = "";						
 //							scope[treeId].input = "";
 						};
@@ -395,10 +388,9 @@
 					.success(function(data){
 						console.log("action:" + scope[treeId].action);
 						if (scope[treeId].action == "view"){
-							console.log("here view");
 							scope["columnTable"] = data;
-							scope["setTableArray"]();
-							scope["tableLoaded"] = true;							
+							scope["tableLoaded"] = true;
+							scope["initTable"]();
 						}					
 					})
 					.error(function(data){

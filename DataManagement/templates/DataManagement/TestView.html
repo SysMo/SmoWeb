@@ -3,179 +3,316 @@
 {% load staticfiles %}
 
 {% block scripts_and_styles %}
-<script src="{% static 'smo-datatable/smo.datatable-test.js' %}"></script>
-<link rel="stylesheet" type="text/css" href="{% static 'smo-datatable/smo.datatable.css' %}">
 <script src="{% static 'smo-treeview/smo.treeview-test.js' %}"></script>
 <link rel="stylesheet" type="text/css" href="{% static 'smo-treeview/smo.treeview.css' %}">
 <!--Load the AJAX API-->
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-<!-- <script src='https://www.google.com/jsapi?autoload={"modules":[{"name":"visualization","version":"1","packages":["corechart","table", "controls"]}]}'></script> -->
 <script type="text/javascript" src="http://dygraphs.com/dygraph-dev.js"></script>
-<script src="{% static 'smo-datatable/tablequerywrapper.js' %}"></script>
-
+<!-- http://cavorite.com/labs/js/dygraphs-export/ -->
+<script type="text/javascript" src="http://cavorite.com/labs/js/dygraphs-export/dygraph-extra.js"></script>
 
 <script>
-	angular.module('testApp', ['ui.bootstrap', 'smoDataTableModule', 'angularTreeview'])
-	.controller('testController', [ '$scope', '$http', '$window', function($scope, $http, $window) {		
-		$scope.columnTable = {columns:[], data:[]};
-		$scope.tableLoaded = false;
+	google.load('visualization', '1.0', {'packages':["corechart", "table", "controls"]});
+	angular.module('testApp', ['ui.bootstrap', 'angularTreeview'])
+	.controller('testController', [ '$scope', '$http', '$window', function($scope, $http, $window) {				
+		$scope.activeTabId = "";
+		$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+			  $scope.activeTabId = e.target.id; // activated tab
+// 			  e.relatedTarget // previous tab
+			});
 		
-		$scope.setTableArray = function(){
-			console.log($scope.columnTable.columns);
+		$scope.tableLoaded = false;
+		$scope.dsetName = "";
+	
+		$scope.initTable = function(){
+			$scope.csvFileName = $scope.dsetName + ".csv";
+			$scope.imgFileName = $scope.dsetName;
+			$scope.allChecked = true;
+			$scope.columnsShow = [];
+			for (i=0; i<$scope.columnTable.columns.length; i++){
+				$scope.columnsShow[i] = true;
+			}
+			$scope.xAxis = 0;
+// 			$scope.timesZoomed = 0;
+// 			$scope.ZoomedValuesArray = [];
+					
 			$scope.tableArray = [];
-		    var columnLabels = [];
-	       for (i=0; i<$scope.columnTable.columns.length; i++){
-	    	   columnLabels.push($scope.columnTable.columns[i].name);
-	       }
-	       console.log(columnLabels);
-	       $scope.tableArray.push(columnLabels);
-	       for (i=0; i<$scope.columnTable.data.length; i++){
-	    	   $scope.tableArray.push($scope.columnTable.data[i]);
-	       }
-	       console.log($scope.tableArray);
+			var columnNames = [];
+			for (i=0; i<$scope.columnTable.columns.length; i++){
+				columnNames.push($scope.columnTable.columns[i].name);
+			}			
+			$scope.tableArray.push(columnNames);
+			for (i=0; i<$scope.columnTable.data.length; i++){
+				$scope.tableArray.push($scope.columnTable.data[i]);				
+			}
+			
+			$scope.data = google.visualization.arrayToDataTable($scope.tableArray);
+			
+// 			var formatter = new google.visualization.NumberFormat({pattern: '###.###'});
+// 			for (i=0; i<$scope.columnTable.columns.length; i++){
+// 				formatter.format($scope.data, i);
+// 			}
+			$scope.view = new google.visualization.DataView($scope.data);
+			$scope.setView();
+			$scope.plotData();
+			$('#plotTab').tab('show');
 		}
+
+		$scope.setView = function(){
+			$scope.viewCloumns = [];
+			$scope.viewCloumns.push($scope.xAxis);
+
+			for (i=0; i<$scope.tableArray[0].length; i++){				
+				if (i != $scope.xAxis){
+					if ($scope.columnsShow[i] == true){
+						$scope.viewCloumns.push(i);				
+					}
+				}
+			}
+ 			$scope.view.setColumns($scope.viewCloumns);			
+		}	
+		
+		$scope.update = function(){
+			$scope.setView();
+			if ($scope.activeTabId == "tableTab") $scope.drawTable();
+			if ($scope.activeTabId == "plotTab") $scope.plotData();
+		}
+		
+		$scope.setToAll = function(){
+			for (i=0; i<$scope.columnsShow.length; i++){
+				$scope.columnsShow[i] = $scope.allChecked;
+			}
+			$scope.update();
+		}
+		
+		$scope.updateChecked = function(){
+			$scope.allChecked = false;
+			$scope.update();
+		}
+
+		$scope.drawTable = function (){
+			$scope.setView();
+			var tableView = new google.visualization.Table(document.getElementById('table_div'));
+			tableView.draw($scope.view, {showRowNumber: true, sort:'disable', page:'enable', pageSize:20});
+		}
+		
+		$scope.chart1 = new Dygraph.GVizChart(
+				document.getElementById('dygraphs'));
 		
 		$scope.plotData = function(){
-			
-			 google.load('visualization', '1.0', {'packages':["corechart", "table", "controls"], 
-				 "callback" : drawPlot}); 
-		     function drawPlot() {
-		       var data = google.visualization.arrayToDataTable($scope.tableArray);
-		       var chart1 = new Dygraph.GVizChart(
-			            document.getElementById('dygraphs')).draw(data, {
-			            	labelsDiv: 'dylegend',
-			            	labelsDivWidth: 150,
-			            	labelsSeparateLines: true,
-			            	width: 900,
-			            	height: 500
-			            });
-		       
-	
-		     }
-		     $scope.showPlot = !$scope.showPlot;
-		     if ($scope.plotBtnText == "Show plot"){
-		    	 $scope.plotBtnText ="Hide plot";
-		     } else {
-		    	 $scope.plotBtnText = "Show plot";
-		     }
-		 }
+			$scope.chart1.draw($scope.view, {
+				labelsDiv: 'dylegend',
+				labelsDivWidth: 150,
+				labelsSeparateLines: true,
+				width: 900,
+				height: 500,
+				title: $scope.dsetName,
+				xlabel: $scope.tableArray[0][$scope.xAxis],
+				drawCallback: function(chart, isInitial) {
+					console.log(isInitial);
+					console.log($scope.viewCloumns);
+					$scope.columnColors = [];
+					$scope.columnColors[$scope.xAxis] = 'black';
+					for (i=1; i<$scope.viewCloumns.length; i++)												
+						$scope.columnColors[$scope.viewCloumns[i]]=chart.getPropertiesForSeries(chart.getLabels()[i]).color;
+				}
+			});
+		}
 		
-		$scope.drawTable = function (){
-			google.load('visualization', '1.0', {'packages':["corechart", "table", "controls"], 
-				 "callback" : displayTable}); 
-			function displayTable(){
- 		       var data = google.visualization.arrayToDataTable($scope.tableArray);
- 		      var formatter = new google.visualization.NumberFormat({pattern: '###.###'});
- 		     	formatter.format(data,1);
- 		     	formatter.format(data,2);
- 		     	formatter.format(data,3);
- 		       
-		       var table = new google.visualization.Table(document.getElementById('table_div'));
-		       table.draw(data, {showRowNumber: true, sort:'disable', page:'enable', pageSize:20});
-
+		$scope.exportCSV = function (){
+			var columnLabels = new Array();
+			var columnNum = $scope.view.getNumberOfColumns();
+			for (i = 0; i < columnNum; i++){
+				columnLabels.push($scope.view.getColumnLabel(i));
 			}
-			$scope.showTable = !$scope.showTable;
-		     if ($scope.tableBtnText == "Show table"){
-		    	 $scope.tableBtnText ="Hide table";
-		     } else {
-		    	 $scope.tableBtnText = "Show table";
-		     }
-		     
-			
+			var columnLabelsString = columnLabels.join(",");
+			var csvString = columnLabelsString + "\n";
+			var dataViewCSV = google.visualization.dataTableToCsv($scope.view);
+			csvString += dataViewCSV;
+			// download stuff
+		 	var blob = new Blob([csvString], {
+		 	  "type": "text/csv;charset=utf8;"			
+		 	});
+		 	var link = document.getElementById('csvElem');
+						
+		 	if(link.download !== undefined) { // feature detection
+		 	  // Browsers that support HTML5 download attribute
+		 	  link.setAttribute("href", window.URL.createObjectURL(blob));
+		 	  link.setAttribute("download", $scope.csvFileName);
+		 	 } else {
+		 		// it needs to implement server side export
+				//link.setAttribute("href", "http://www.example.com/export");
+		 		  alert("Needs to implement server side export");
+		 		  return;
+		 	}
+// 		 	document.body.appendChild(link);
+		 	link.click();
+		};
+		
+		$scope.exportToPNG = function(){
+			var img = document.getElementById('demoimg');
+			Dygraph.Export.asPNG($scope.chart1, img);
+			var link = document.createElement("a");			
+		 	if(link.download !== undefined) { // feature detection
+		 	  // Browsers that support HTML5 download attribute
+		 	  link.setAttribute("href", img.src);
+		 	  link.setAttribute("download", $scope.imgFileName);
+		 	 } else {
+		 		// it needs to implement server side export
+				//link.setAttribute("href", "http://www.example.com/export");
+		 		  alert("Needs to implement server side export");
+		 		  return;
+		 	}
+		 	document.body.appendChild(link);
+		 	link.click();
 		}
-		$scope.drawView = function (){
-			google.load('visualization', '1.0', {'packages':["corechart", "table", "controls"], 
-				 "callback" : displayView}); 
-			function displayView(){
-				var data = google.visualization.arrayToDataTable($scope.tableArray);
-		       var view = new google.visualization.DataView(data);
-		       view.setColumns([1, 2, 3]);
-		       var tableView = new google.visualization.Table(document.getElementById('view_div'));
-		       tableView.draw(view, {showRowNumber: true, sort:'disable', page:'enable', pageSize:20});
-			}
+		
+// 		$scope.zoomBack = function(){
+//			var prevZoomedValues = $scope.ZoomedValuesArray.pop();
+//			$scope.chart1.updateOptions({
+//		          dateWindow: [prevZoomedValues[0], prevZoomedValues[1]],
+//		          valueRange: [prevZoomedValues[2], prevZoomedValues[3]]
+//		        });
+//			$scope.timesZoomed -= 1;
+//			$scope.plotData();
+//		}
+// 		$scope.plotData = function(){
+// 			$scope.chart1.draw($scope.view, {
+// 				labelsDiv: 'dylegend',
+// 				labelsDivWidth: 150,
+// 				labelsSeparateLines: true,
+// 				width: 900,
+// 				height: 500,
+// 				title: $scope.dsetName,
+// 				xlabel: $scope.tableArray[0][$scope.xAxis],
+// 				drawCallback: function(chart, initial) {
+// 					if (!$scope.timesZoomed && chart){
+// // 						var viewCloumns = [];
+// // 						for (i=0; i<$scope.columnsShow.length; i++){
+// // 							if ($scope.columnsShow[i] == true){
+// // 								viewCloumns.push(i);
+// // 							}
+// // 						}
+// // 						$scope.chartColors = [];
+// // 						$scope.chartColors[0]='black';
+						
+// // 						for (i=1; i<viewCloumns.length; i++){
+// // 							$scope.chartColors[i]=chart.getPropertiesForSeries(chart.getLabels()[i]).color;
+// // 						}
+						
+// 						$scope.ZoomedValuesArray = [];
+// 				      var minDate = chart.xAxisRange()[0];
+// 				      var maxDate = chart.xAxisRange()[1];
+// 				      var minValue = chart.yAxisRange()[0];
+// 				      var maxValue = chart.yAxisRange()[1];
+// 				      $scope.ZoomedValuesArray.push(minDate, maxDate, minValue, maxValue);
+// // 				      console.log($scope.ZoomedValuesArray);
+// 					}					
+// 	            },
+// 				zoomCallback: function(minDate, maxDate, valueRange) {
+// 					console.log(minDate, maxDate, valueRange);
+				
+// 					$scope.ZoomedValuesArray.push(minDate, maxDate, valueRange[0], valueRange[1]);
+// 					$scope.timesZoomed += 1;
+// 		        },
+// 	            clickCallback: function(e, x, points){
+// 	            	if($scope.timesZoomed == 0) return;
+// 	            	var prevZoomedValues = $scope.ZoomedValuesArray.pop();
+// 	            	console.log(prevZoomedValues);
+// 	            	$scope.chart.updateOptions({
+// 	    		          dateWindow: [prevZoomedValues[0], prevZoomedValues[1]],
+// 	    		          valueRange: [prevZoomedValues[2], prevZoomedValues[3]]
+// 	    		        });
+// 	    			$scope.timesZoomed -= 1;
+// 	            }
+// 			});
+// 		}	
 			
-			$scope.showView = !$scope.showView;
-		     if ($scope.viewBtnText == "Show view"){
-		    	 $scope.viewBtnText ="Hide view";
-		     } else {
-		    	 $scope.viewBtnText = "Show view";
-		     }
-		     
-			
-		}
 		
 	}]);
-// 	.directive('newWindow', ['$window', '$compile',
-//   function($window, $compile) {
-//     return {
-//       restrict: 'EA',
-//       link: function($scope, $element, attr) {
-//         $element.on('$destroy', function() {
-//           $scope.window.close();
-//         });
-//       },
-//       controller: function($scope, $element) {
-//         $scope.window = $window.open('', '_blank');
-//         angular
-//           .element($scope.window.document.body)
-//           .append($compile($element.contents())($scope));
-//       }
-//     }
-//   }]);
-     
+
 </script>
-
-
-
 {% endblock %}
 
 {% block content %}
 <div ng-app="testApp" ng-controller="testController">
 	<div class="container">
-		<div class="row">
-			<div class="col-md-2" style="text-align: left; font-weight: bold; font-size: medium;">
-				Explore data file:
-			</div>
-			<div class="col-md-10">
-				<smo-hdf-browser tree-id="hdfView"></smo-hdf-browser>
-			</div>
-		</div>
-		<br>
-	<!-- 	<smo-data-table ng-show="columnTable.columns" table-model="columnTable"></smo-data-table>	 -->
-		
-		<div class="row">
-			<div ng-show="tableLoaded" class="col-md-6" style="text-align: left; font-size: medium;">
-				<span><button class="button class="btn btn-default btn-sm" ng-click="plotData()" ng-bind="plotBtnText">
-				</button></span>
-				<span><button class="button class="btn btn-default btn-sm" ng-click="drawTable()" ng-bind="tableBtnText">
-				</button></span>
-				<span><button class="button class="btn btn-default btn-sm" ng-click="drawView()" ng-bind="viewBtnText">
-				</button></span>
-			</div>
-			<div class="col-md-6">
-			</div>
-		</div>
-		<div class="row" ng-show="showTable">
-			<div class="col-md-12">
+		<!-- Nav tabs -->
+		<ul class="nav nav-tabs" role="tablist" id="myTab">
+		  <li class="active"><a id="explorerTab" data-target="#treePane" role="tab" data-toggle="tab">Explorer</a></li>
+		  <li ng-show="tableLoaded" ><a id="plotTab" data-target="#plotPane" role="tab" data-toggle="tab" ng-click="plotData()">Plot</a></li>
+		  <li ng-show="tableLoaded" ><a id="tableTab" data-target="#tablePane" role="tab" data-toggle="tab" ng-click="drawTable()">Table</a></li>
+		</ul>
+
+		<!-- Tab panes -->
+		<div class="tab-content">
+		  <div class="tab-pane active" id="treePane">
+			  	<br>
+			  	<div style="text-align: left; font-weight: bold; font-size: medium;">Explore data file:</div>
+			  	<br>
+			  	<smo-hdf-browser tree-id="hdfView"></smo-hdf-browser>
+		  </div>
+		  <div class="tab-pane" id="plotPane">
+				<div ng-bind="dsetName" style="font-weight: bold; font-size: large;"></div>
+				<div>
+					<input type="checkbox" ng-model="allChecked" ng-change="setToAll()"></input>
+					<span>Check/Uncheck all</span>
+				</div>
+				<div style="width: 70%;">		  				
+					<div style="display:inline-block;" ng-hide="$index == xAxis" ng-repeat="columnName in tableArray[0] track by $index">
+						<input type="checkbox" ng-model="columnsShow[$index]" ng-change="updateChecked()"></input>
+						<span ng-style="{color: columnColors[$index]}" ng-bind="columnName"></span>
+						&nbsp&nbsp&nbsp&nbsp&nbsp
+					</div>
+				</div>
+				<div>
+					Set X axis:
+					<select ng-options="tableArray[0].indexOf(columnName) as columnName for columnName in tableArray[0]" ng-model="xAxis" ng-change="update()">
+					</select>
+				</div>
+				
+				<div>			  
+					<div id="dygraphs" style="display:inline-block; float: left;"></div>	
+					<div id="dylegend" style="display:inline-block; float:left;"></div>
+				</div>
+				
+				<div style="float: left;">
+					<br>
+					File name:&nbsp
+					<input type="text" ng-model="imgFileName" style="width:30%;"></input>&nbsp
+    				<button class="btn btn-default" ng-click="exportToPNG()">Export as PNG</button>
+    				<img id="demoimg" hidden>
+				</div>
+				
+		  </div>
+		  <div class="tab-pane" id="tablePane">
+		  		<div ng-bind="dsetName" style="font-weight: bold; font-size: large;"></div>
+				<div>
+					<input type="checkbox" ng-model="allChecked" ng-change="setToAll()"></input>
+					<span>Check/Uncheck all</span>
+				</div>
+				<div style="width: 70%;">		  				
+					<div style="display:inline-block;" ng-hide="$index == xAxis" ng-repeat="columnName in tableArray[0] track by $index">
+						<input type="checkbox" ng-model="columnsShow[$index]" ng-change="updateChecked()"></input>
+						<span ng-bind="columnName"></span>
+						&nbsp&nbsp&nbsp&nbsp&nbsp
+					</div>
+				</div>
+				<div>
+					Set first column:
+					<select ng-options="tableArray[0].indexOf(columnName) as columnName for columnName in tableArray[0]" ng-model="xAxis" ng-change="update()">
+					</select>
+				</div>				  
 				<div id="table_div"></div>	
-			</div>		
-		</div>
-		<div class="row" ng-show="showView">
-			<div class="col-md-12">
-				<div ng-show="showView" id="view_div"></div>	
-			</div>		
-		</div>
-		<div class="row" ng-show="showPlot">
-			<div class="col-md-10">
-	    		<div id="dygraphs"></div>
-			</div>
-			<div class="col-md-2">
-				<div id="dylegend"></div>
-			</div>
+				<br>
+				<div>
+					File name:&nbsp
+					<input type="text" ng-model="csvFileName" style="width:10%;"></input>&nbsp
+    				<button class="btn btn-default" ng-click="exportCSV()">Export as CSV</button>
+				</div>
+				<a id="csvElem" hidden></a>
+		 </div>
 		</div>
 	</div>
 </div>
-
-
-
 {% endblock %}
