@@ -53,22 +53,23 @@
 // 				formatter.format($scope.data, i);
 // 			}
 			$scope.view = new google.visualization.DataView($scope.data);
+			$scope.setView();
 			$scope.plotData();
 			$('#plotTab').tab('show');
 		}
 
 		$scope.setView = function(){
-			viewCloumns = [];
-			viewCloumns.push($scope.xAxis);
+			$scope.viewCloumns = [];
+			$scope.viewCloumns.push($scope.xAxis);
 
 			for (i=0; i<$scope.tableArray[0].length; i++){				
 				if (i != $scope.xAxis){
 					if ($scope.columnsShow[i] == true){
-						viewCloumns.push(i);				
+						$scope.viewCloumns.push(i);				
 					}
 				}
 			}
- 			$scope.view.setColumns(viewCloumns);			
+ 			$scope.view.setColumns($scope.viewCloumns);			
 		}	
 		
 		$scope.update = function(){
@@ -106,7 +107,15 @@
 				width: 900,
 				height: 500,
 				title: $scope.dsetName,
-				xlabel: $scope.tableArray[0][$scope.xAxis]
+				xlabel: $scope.tableArray[0][$scope.xAxis],
+				drawCallback: function(chart, isInitial) {
+					console.log(isInitial);
+					console.log($scope.viewCloumns);
+					$scope.columnColors = [];
+					$scope.columnColors[$scope.xAxis] = 'black';
+					for (i=1; i<$scope.viewCloumns.length; i++)												
+						$scope.columnColors[$scope.viewCloumns[i]]=chart.getPropertiesForSeries(chart.getLabels()[i]).color;
+				}
 			});
 		}
 		
@@ -252,7 +261,7 @@
 				<div style="width: 70%;">		  				
 					<div style="display:inline-block;" ng-hide="$index == xAxis" ng-repeat="columnName in tableArray[0] track by $index">
 						<input type="checkbox" ng-model="columnsShow[$index]" ng-change="updateChecked()"></input>
-						<span ng-bind="columnName"></span>
+						<span ng-style="{color: columnColors[$index]}" ng-bind="columnName"></span>
 						&nbsp&nbsp&nbsp&nbsp&nbsp
 					</div>
 				</div>
