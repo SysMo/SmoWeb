@@ -188,104 +188,63 @@ smoModule.directive('smoInputQuantity', ['$compile', function($compile) {
 		link : function(scope, element, attr) {
 			var qVar = attr.smoQuantityVar;
 			var title = attr.smoTitle;
-			var template = '<div><div style="display: inline-block;text-align: right;width: 10em;">' + title + '</div>&nbsp;' + 
-			'<div style="display: inline-block;"><input type="number" step="any" ng-init="' + qVar + '.changeUnit()" ng-model="' + qVar + '.displayValue" ng-change="' + qVar + '.updateQuantity()">' +
-			'<select ng-model="' + qVar + '.displayUnit" ng-options="name as name for (name, conv) in units.quantities[' + qVar + '.quantity].units" ng-change="' + qVar + '.changeUnit()"></select></div></div>';
+			var template = '<div> \
+				<div style="display: inline-block;text-align: left;width: 150px;">' + title + '</div> \
+				<div style="display: inline-block;"> \
+					<input style="width: 120px; height: 29px; margin: 5px;" type="number" step="any" ng-init="' + qVar + '.changeUnit()" ng-model="' + qVar + '.displayValue" ng-change="' + qVar + '.updateQuantity()"> \
+				<div style="display: inline-block;width: 85px;text-align: right;"> \
+					<select style="width: 80px; height: 29px;" ng-model="' + qVar + '.displayUnit" ng-options="name as name for (name, conv) in units.quantities[' + qVar + '.quantity].units" ng-change="' + qVar + '.changeUnit()"></select></div> \
+				</div></div>';
 			element.html('').append($compile(template)(scope));
 		}
 	}
 }]);
 
-smoModule.directive('smoOutputQuantity', ['$compile', function($compile) {
+smoModule.directive('smoOutputQuantity', ['$compile', 'util', 'units', function($compile, util, units) {
 	return {
 		restrict : 'E',
+		scope : {
+			smoQuantityVar: '=',
+			title: '@smoTitle',
+		},
 		link : function(scope, element, attr) {
-			var qVar = attr.smoQuantityVar;
-			var title = attr.smoTitle;
-			var outputStyle = "display: inline-block; border: 1px solid #888; padding: 1.7pt; width : 10em;";
-			var template = '<div><div style="display: inline-block;text-align: right;width: 10em;">' + title + '</div>&nbsp;<div style="' + outputStyle + '" ng-bind="util.formatNumber(' + qVar + '.displayValue)"></div>' +
-			'&nbsp;<select ng-model="' + qVar + '.displayUnit" ng-options="name as name for (name, conv) in units.quantities[' + qVar + '.quantity].units" ng-change="' + qVar + '.changeUnit()"></select></div></div>';
+			scope.util = util;
+			scope.units = units;
+			var outputStyle = "display: inline-block; border: 1px solid #888; padding: 1.7pt; width : 120px; margin: 5px;";
+			var template = '<div>' + 
+			'<div style="display: inline-block;text-align: left;width: 150px;">' + scope.title + '</div>&nbsp;' + 
+			'<div style="' + outputStyle + '" ng-bind="util.formatNumber(smoQuantityVar.displayValue)"></div>' +
+			'<div style="display: inline-block; width: 85px; text-align: right;"><select style="width: 80px;" ng-model="smoQuantityVar.displayUnit" ng-options="name as name for (name, conv) in units.quantities[smoQuantityVar.quantity].units" ng-change="smoQuantityVar.changeUnit()"></select></div>' + 
+			'</div>';
 			element.html('').append($compile(template)(scope));
 		}
 	}
 }]);
 
-
-smoModule.directive('smoInputGroup', ['$compile', function($compile) {
+smoModule.directive('smoResultView', ['$compile', 'units', function($compile,  units) {
 	return {
 		restrict : 'E',
+		scope : {
+			smoDataSource : '='
+		},
 		link : function(scope, element, attr) {
-			var group = attr.smoGroupVar;
-			var tableRows = [];
-			scope[group].fields.forEach(function(element, index, array) {
-				tableRows.push('<tr><td style="text-align:right;">' + element.title + '&nbsp;</td><td><smo-input-quantity smo-quantity-var="' + 
-						group + '.fields[' + index + '].quantity"><smo-input-quantity></td></tr>');
-			});
-			var tableBodyTemplate = tableRows.join("");
-			var template = '<h2>' + scope[group].name + '</h2><table><tbody>' + tableBodyTemplate + '</tbody></table>';
-			element.html('').append($compile(template)(scope));
-		}
-	}
-}]);
-
-
-//\'%.2g\' | sprintf : 
-
-/*
- * Some code that could be used for resizing but doesn't work currently
- smoModule.directive('smoResizer', function($document) {
-
-	return function($scope, $element, $attrs) {
-
-		$element.on('mousedown', function(event) {
-			event.preventDefault();
-
-			$document.on('mousemove', mousemove);
-			$document.on('mouseup', mouseup);
-		});
-
-		function mousemove(event) {
-
-			if ($attrs.resizer == 'vertical') {
-				// Handle vertical resizer
-				var x = event.pageX;
-
-				if ($attrs.resizerMax && x > $attrs.resizerMax) {
-					x = parseInt($attrs.resizerMax);
+			scope.views = {};
+			var groupFields = [];
+			for (var i = 0; i < scope.smoDataSource.length; i++) {
+				var group = scope.smoDataSource[i];
+				var groupView = {};
+				groupFields.push('<div class="col-md-5"><h3>' + group.name + '</h3>');
+				for (var j = 0; j < group.fields.length; j++) {
+					var field = group.fields[j];
+					groupView[field.name] = new units.Quantity(field.quantity, field.value);
+					groupFields.push('<smo-output-quantity smo-quantity-var="views[\'' + group.name + '\'][\'' + field.name + '\']"' + 
+					' smo-title="' + field.title + '"></smo-output-quantity>');
 				}
-
-				$element.css({
-					left: x + 'px'
-				});
-
-				$($attrs.resizerLeft).css({
-					width: x + 'px'
-				});
-				$($attrs.resizerRight).css({
-					left: (x + parseInt($attrs.resizerWidth)) + 'px'
-				});
-
-			} else {
-				// Handle horizontal resizer
-				var y = window.innerHeight - event.pageY;
-
-				$element.css({
-					bottom: y + 'px'
-				});
-
-				$($attrs.resizerTop).css({
-					bottom: (y + parseInt($attrs.resizerHeight)) + 'px'
-				});
-				$($attrs.resizerBottom).css({
-					height: y + 'px'
-				});
-			}
+				scope.views[group.name] = groupView;
+				groupFields.push('</div>');
+			} 
+			var template = groupFields.join("");
+			element.html('').append($compile(template)(scope));
 		}
-
-		function mouseup() {
-			$document.unbind('mousemove', mousemove);
-			$document.unbind('mouseup', mouseup);
-		}
-	};
-});
-*/
+	}
+}]);

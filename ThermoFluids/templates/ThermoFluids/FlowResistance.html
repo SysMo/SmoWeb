@@ -52,27 +52,28 @@ angular.module('FlowResistance', ['ui.bootstrap', 'smo', 'sprintf'])
 		        headers : { 'Content-Type': 'application/x-www-form-urlencoded' }  // set the headers so angular passing info as form data (not request payload)
 		    })
 	        .success(function(data) {
-	            $scope.resultVariables = {
-            		fluidVolume  : new units.Quantity('Volume', data.result.fluidVolume),
-            		internalSurfaceArea  : new units.Quantity('Area', data.result.internalSurfaceArea),
-            		externalSurfaceArea  : new units.Quantity('Area', data.result.externalSurfaceArea),
-            		crossSectionalArea  : new units.Quantity('Area', data.result.crossSectionalArea),
-            		pipeSolidMass  : new units.Quantity('Mass', data.result.pipeSolidMass),
-
-            		inletDensity  : new units.Quantity('Density', data.result.inletDensity),
-            		fluidMass  : new units.Quantity('Mass', data.result.fluidMass),
-            		massFlowRate  : new units.Quantity('MassFlowRate', data.result.massFlowRate),
-            		volumetricFlowRate  : new units.Quantity('VolumetricFlowRate', data.result.volumetricFlowRate),
-            		flowVelocity  : new units.Quantity('Velocity', data.result.flowVelocity),
-            		Re : new units.Quantity('Dimensionless', data.result.Re),
-	            	zeta : new units.Quantity('Dimensionless', data.result.zeta),
-	            	dragCoefficient : new units.Quantity('Dimensionless', data.result.dragCoefficient),
-	            	pressureDrop :	new units.Quantity('Pressure', data.result.pressureDrop, 'Pa', 'bar'),
-	            	outletPressure  : new units.Quantity('Pressure', data.result.outletPressure),
-	            	outletTemperature  : new units.Quantity('Temperature', data.result.outletTemperature),
-
-	            };
-	            console.log($scope.dumpObj($scope.resultVariables));
+	            $scope.results = [
+					{type : 'group', name : 'Geometry', fields : [
+						{name : 'fluidVolume', quantity: 'Volume', value : data.result.fluidVolume, title : 'fluid volume'},
+	            		{name : 'internalSurfaceArea', quantity : 'Area', value : data.result.internalSurfaceArea, title : 'internal surface area'},
+	            		{name : 'externalSurfaceArea', quantity : 'Area', value : data.result.externalSurfaceArea, title : 'external surface area'},
+	            		{name : 'crossSectionalArea', quantity : 'Area', value : data.result.crossSectionalArea, title : 'cross sectional area'},
+	            		{name : 'pipeSolidMass', quantity : 'Mass', value : data.result.pipeSolidMass, title : 'pipe solid mass'}
+					]},
+					{type : 'group', name : 'Flow', fields : [
+						{name : 'inletDensity', quantity: 'Density', value : data.result.inletDensity, title : 'inlet density'},
+						{name : 'fluidMass', quantity: 'Mass', value : data.result.fluidMass, title : 'fluid mass in pipe'},
+						{name : 'massFlowRate', quantity: 'MassFlowRate', value : data.result.massFlowRate, title : 'mass flow rate'},
+						{name : 'volumetricFlowRate', quantity: 'VolumetricFlowRate', value : data.result.volumetricFlowRate, title : 'volumetric flow rate'},
+						{name : 'flowVelocity', quantity: 'Velocity', value : data.result.flowVelocity, title : 'flow velocity'},
+						{name : 'Re', quantity: 'Dimensionless', value : data.result.Re, title : 'Reynolds number'},
+						{name : 'zeta', quantity: 'Dimensionless', value : data.result.zeta, title : 'friction factor'},
+						{name : 'dragCoefficient', quantity: 'Dimensionless', value : data.result.dragCoefficient, title : 'drag coefficient'},
+						{name : 'pressureDrop', quantity: 'Pressure', value : data.result.pressureDrop, title : 'pressure drop'},
+						{name : 'outletPressure', quantity: 'Pressure', value : data.result.outletPressure, title : 'outlet pressure'},
+						{name : 'outletTemperature', quantity: 'Temperature', value : data.result.outletTemperature, title : 'outlet temperature'},				                                          
+					]}
+	            ];
 	            $scope.resultComputed = true;
 	        });
 		}
@@ -81,10 +82,10 @@ angular.module('FlowResistance', ['ui.bootstrap', 'smo', 'sprintf'])
 {% endblock %}
 
 {% block content %}
-<h1>Pressure losses in Pipe flow</h1>
 <div ng-app="FlowResistance" ng-controller="FlowResistanceController">
-	<div class="col-md-2"></div>
+	<div class="col-md-1"></div>
 	<div class="col-md-10">
+	<h1>Pressure losses in Pipe flow</h1>
 	<h2>Input data</h2>
 	<div style="position:relative; width:250mm;height:50mm">
 		<object data="{% static 'ThermoFluids/StraightPipe.svg' %}" type="image/svg+xml"></object>
@@ -94,53 +95,29 @@ angular.module('FlowResistance', ['ui.bootstrap', 'smo', 'sprintf'])
 	    <div style="position:absolute;left:150mm;top:2mm;">
 			<smo-input-quantity smo-quantity-var="inputVariables.internalDiameter" smo-title="internal diameter"></smo-input-quantity>				
 			<smo-input-quantity smo-quantity-var="inputVariables.externalDiameter" smo-title="external diameter"></smo-input-quantity>	
-				<div style="display: inline-block;text-align: right;width: 10em;">pipe material</div>
-				<div style="display: inline-block;"><select ng-model="inputVariables.pipeMaterial" ng-options="material as material.title for (name, material) in materials.solids"></select></div>	
+				<div style="display: inline-block;text-align: left;width: 150px;">pipe material</div>
+				<div style="display: inline-block;"><select style="width: 120px;" ng-model="inputVariables.pipeMaterial" ng-options="material as material.title for (name, material) in materials.solids"></select></div>	
 			<smo-input-quantity smo-quantity-var="inputVariables.surfaceRoughness" smo-title="surface roughness"></smo-input-quantity> 
 	    </div>
 	</div>
 	<div>
-		<div style="display: inline-block;text-align: right;width: 10em;">fluid</div>
-		<div style="display: inline-block;"><select ng-model="inputVariables.fluid" ng-options="name as material.title for (name, material) in materials.fluids"></select></div>	
+		<div style="display: inline-block;text-align: left;width: 150px;">fluid</div>
+		<div style="display: inline-block;"><select style="width: 120px;" ng-model="inputVariables.fluid" ng-options="name as material.title for (name, material) in materials.fluids"></select></div>	
 		<smo-input-quantity smo-quantity-var="inputVariables.inletPressure" smo-title="inlet pressure"></smo-input-quantity>	
 		<smo-input-quantity smo-quantity-var="inputVariables.inletTemperature" smo-title="inlet temperature"></smo-input-quantity>
 		<smo-input-quantity smo-quantity-var="inputVariables.massFlowRate" smo-title="inlet mass flow rate"></smo-input-quantity>
 	</div>
-<!-- 	<smo-input-group smo-group-var="inputs"></smo-input-group> -->
 	<button class="btn btn-default" ng-click="compute()">Compute</button>
 	<br><br><br>
 	<div ng-if="resultComputed">
-	<h2>Results</h2>
-	<table>
-		<tr><td style="vertical-align: top; padding: 15px;">
-		<h3>Geometry</h3>
-		<table>
-			<tr><smo-output-quantity smo-quantity-var="resultVariables.fluidVolume" smo-title="fluid volume"></smo-output-quantity></tr>		
-			<tr> <smo-output-quantity smo-quantity-var="resultVariables.internalSurfaceArea" smo-title="internal surface area"></smo-output-quantity></tr>				
-			<tr><smo-output-quantity smo-quantity-var="resultVariables.externalSurfaceArea" smo-title="external surface area"></smo-output-quantity></tr>				
-			<tr> <smo-output-quantity smo-quantity-var="resultVariables.crossSectionalArea" smo-title="cross sectional area"></smo-output-quantity></tr>				
-			<tr>  <smo-output-quantity smo-quantity-var="resultVariables.pipeSolidMass" smo-title="pipe solid mass"></smo-output-quantity></tr>
-		</table>
-		</td>
-		<td style="vertical-align: top; padding: 15px;">
-		<h3>Flow</h3>
-		<table>
-			<tr> <smo-output-quantity smo-quantity-var="resultVariables.inletDensity" smo-title="inlet density"></smo-output-quantity></tr>				
-			<tr> <smo-output-quantity smo-quantity-var="resultVariables.fluidMass" smo-title="fluid mass"></smo-output-quantity></tr>				
-			<tr> <smo-output-quantity smo-quantity-var="resultVariables.massFlowRate" smo-title="mass flow rate"></smo-output-quantity></tr>				
-			<tr> <smo-output-quantity smo-quantity-var="resultVariables.volumetricFlowRate" smo-title="volumetric flow rate"></smo-output-quantity></tr>				
-			<tr> <smo-output-quantity smo-quantity-var="resultVariables.flowVelocity" smo-title="flow velocity"></smo-output-quantity></tr>				
-			<tr> <smo-output-quantity smo-quantity-var="resultVariables.Re" smo-title="Re"></smo-output-quantity></tr>				
-			<tr> <smo-output-quantity smo-quantity-var="resultVariables.zeta" smo-title="Darcy friction factor"></smo-output-quantity></tr>	
-			<tr> <smo-output-quantity smo-quantity-var="resultVariables.dragCoefficient" smo-title="drag coefficient"></smo-output-quantity></tr>	
-			<tr> <smo-output-quantity smo-quantity-var="resultVariables.pressureDrop" smo-title="pressure drop"></smo-output-quantity></tr>	
-			<tr> <smo-output-quantity smo-quantity-var="resultVariables.outletPressure" smo-title="outlet pressure"></smo-output-quantity></tr>				
-			<tr> <smo-output-quantity smo-quantity-var="resultVariables.outletTemperature" smo-title="outlet temperature"></smo-output-quantity></tr>				
-		</table>
-		</td></tr>
-	</table>
+		<hr>
+		<h2>Results</h2>
+		<div>
+			<smo-result-view smo-data-source="results"></smo-result-view>
+		</div>
 	</div>
 	</div>
+	<div class="col-md-1"></div>
 </div>
 
 {% endblock %}
