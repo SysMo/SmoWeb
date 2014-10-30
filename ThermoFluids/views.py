@@ -7,6 +7,7 @@ from django.core.urlresolvers import reverse
 from  SmoWeb.settings import MEDIA_ROOT, hdfFileFolder
 import json
 from django.views.decorators.csrf import csrf_protect
+from smo.smoflow3d.SimpleMaterials import Solids
 # Create your views here.
 
 class FluidPropertiesCoolPropView(TemplateView):
@@ -27,6 +28,8 @@ class FluidPropertiesCoolPropView(TemplateView):
 		return render_to_response(self.template_name, locals(), 
 				context_instance=RequestContext(self.request))		
 
+
+
 def flowResistanceView(request):
 	if request.method == 'POST':
 		from smo.simple_flow.FlowResistance import Pipe
@@ -39,7 +42,7 @@ def flowResistanceView(request):
 					internalDiameter = float(parameters["internalDiameter"]["value"]),
 					externalDiameter = float(parameters["externalDiameter"]["value"]),
 					length = float(parameters["pipeLength"]["value"]), 
-					pipeMaterialDensity = float(parameters["pipeMaterial"]["rho"]),
+					pipeMaterialDensity = float(Solids[parameters["pipeMaterial"]]['refValues']['density']),
 					surfaceRoughness = float(parameters["surfaceRoughness"]["value"])
 			)
 			s1 = pipe.setUpstreamState(
