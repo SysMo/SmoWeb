@@ -10,7 +10,9 @@ from django.views.decorators.csrf import csrf_protect
 from smo.smoflow3d.SimpleMaterials import Solids
 # Create your views here.
 
-class FluidPropertiesCoolPropView(TemplateView):
+#from django.db.models import Model 
+
+class FluidPropertiesCoolPropView(object):
 	template_name = "ThermoFluids/FluidPropertiesCoolProp.html"
 	def get(self, request):
 #		form = FluidPropertiesCoolPropForm()

@@ -6,19 +6,54 @@ except Exception:
 import scipy.interpolate
 from smo.smoflow3d import getFluid
 from smo.smoflow3d.Media import MediumState
+from smo.numerical_model.fields import Quantity, Reference, FieldGroup, SuperGroup
+from smo.numerical_model.model import NumericalModel
+import json
 
-class Pipe(object):
-	def __init__(self, internalDiameter, externalDiameter, length, pipeMaterialDensity, surfaceRoughness = 25e-6):
-		self.internalDiameter = internalDiameter
-		self.externalDiameter = externalDiameter
-		self.length = length
-		self.surfaceRoughness = surfaceRoughness
+# $scope.inputs = [
+# 	{type : 'group', name: 'Geometry', fields: [
+# 		{name: 'pipeLength', quantity: 'Length', value: 1, unit: 'm', title: 'pipe length (L)'},
+# 		{name: 'internalDiameter', quantity: 'Length', value: 5, unit: 'mm', title: 'internal diameter (d<sub>i</sub>)'},
+# 		{name: 'externalDiameter', quantity : 'Length', value: 6, unit: 'mm', title: 'external diameter (d<sub>o</sub>)'},
+# 		{name: 'pipeMaterial', type : 'choice', value: 'StainlessSteel304', options: materials.solids, title: 'pipe material'},
+# 		{name: 'surfaceRoughness', quantity : 'Length', value: 25, unit: 'um', title: 'abs. surface roughness'},
+# 	]},
+
+class Pipe(NumericalModel):
+
+	internalDiameter = Quantity('Length', default = (5, 'mm'), 
+		label = 'internal diameter')
+	externalDiameter = Quantity('Length', default = (6, 'mm'), 
+		label = 'external diameter')
+	length = Quantity('Length', default = (1, 'm'),
+		label = 'pipe length')
+	surfaceRoughness = Quantity('Length', default = (25, 'um'),
+		label = 'surface roughness')
+	
+	geometryInput = FieldGroup([
+		internalDiameter, 
+		externalDiameter, 
+		length, 
+		surfaceRoughness], label = "Geometry")
+	
+	massFlowRate = Quantity('MassFlowRate', default = (1, 'kg/h'),
+		label = 'inlet mass flow rate')
+
+	flowInput = FieldGroup([massFlowRate], label = 'Flow')
+	
+	inputs = SuperGroup([geometryInput, flowInput], label = 'Input data')
 		
-		self.crossSectionalArea = np.pi / 4 * internalDiameter ** 2
-		self.fluidVolume = self.crossSectionalArea * self.length
-		self.internalSurfaceArea = np.pi * self.internalDiameter * self.length
-		self.externalSurfaceArea = np.pi * self.externalDiameter * self.length
-		self.pipeSolidMass = pipeMaterialDensity * np.pi / 4 * (self.externalDiameter**2 - self.internalDiameter**2) * self.length
+# 	def __init__(self, internalDiameter, externalDiameter, length, pipeMaterialDensity, surfaceRoughness = 25e-6):
+# 		self.internalDiameter = internalDiameter
+# 		self.externalDiameter = externalDiameter
+# 		self.length = length
+# 		self.surfaceRoughness = surfaceRoughness
+#
+# 		self.crossSectionalArea = np.pi / 4 * internalDiameter ** 2
+# 		self.fluidVolume = self.crossSectionalArea * self.length
+# 		self.internalSurfaceArea = np.pi * self.internalDiameter * self.length
+# 		self.externalSurfaceArea = np.pi * self.externalDiameter * self.length
+# 		self.pipeSolidMass = pipeMaterialDensity * np.pi / 4 * (self.externalDiameter**2 - self.internalDiameter**2) * self.length
 		
 	def setUpstreamState(self, fluidName, pressure, temperature):
 		fluidState = MediumState(getFluid(fluidName))
@@ -59,7 +94,25 @@ class Pipe(object):
 			zeta[i] = Pipe.ChurchilCorrelation(Re[i], d, epsilon)
 		plt.loglog(Re, zeta)
 		plt.show()
-		
+	
+	@staticmethod
+	def testMetamodel():
+		#a = Pipe(5e-3, 6e-3, 1.0, 2700)
+		a = Pipe(internalDiameter = (3, 'in'))
+		#print a.getFieldNames()
+# 		print "Pipe (class)"
+# 		print
+# 		print dir(Pipe)
+# 		print
+# 		print Pipe.__dict__
+# 		print
+# 		print "Pipe (object)"
+# 		print
+# 		print dir(a)
+# 		print
+# 		print a.__dict__
+# 		print
+		print json.dumps(a.group2Json(Pipe.inputs), indent = 4)
 		
 class Orifice(object):
 	def __init__(self, diameter, cq):
@@ -164,4 +217,5 @@ class Elbow(object):
 if __name__ == '__main__':
 	#Pipe.testChurchilCorrelation()
 	#Orifice.test()
-	Elbow.test()
+	#Elbow.test()
+	Pipe.testMetamodel()

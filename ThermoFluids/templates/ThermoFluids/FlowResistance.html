@@ -22,22 +22,22 @@ angular.module('FlowResistance', ['ui.bootstrap', 'smo', 'sprintf'])
 		$scope.materials = materials;
 		$scope.util = util;
 		
-		$scope.inputVariables = {
-			pipeLength : new units.Quantity('Length', 1., 'm'),
-			internalDiameter : new units.Quantity('Length', 5., 'mm'),
-			externalDiameter : new units.Quantity('Length', 6., 'mm'),
-			surfaceRoughness : new units.Quantity('Length', 25., 'um'),
-			inletPressure : new units.Quantity('Pressure', 1, 'bar'),
-			inletTemperature : new units.Quantity('Temperature', 15, 'degC'),
-			massFlowRate : new units.Quantity('MassFlowRate', 10, 'kg/h'),
-			pipeMaterial : 'StainlessSteel304',
-			fluid : 'ParaHydrogen'
-		};
+// 		$scope.inputVariables = {
+// 			pipeLength : new units.Quantity('Length', 1., 'm'),
+// 			internalDiameter : new units.Quantity('Length', 5., 'mm'),
+// 			externalDiameter : new units.Quantity('Length', 6., 'mm'),
+// 			surfaceRoughness : new units.Quantity('Length', 25., 'um'),
+// 			inletPressure : new units.Quantity('Pressure', 1, 'bar'),
+// 			inletTemperature : new units.Quantity('Temperature', 15, 'degC'),
+// 			massFlowRate : new units.Quantity('MassFlowRate', 10, 'kg/h'),
+// 			pipeMaterial : 'StainlessSteel304',
+// 			fluid : 'ParaHydrogen'
+// 		};
 		$scope.inputs = [
 			{type : 'group', name: 'Geometry', fields: [
 				{name: 'pipeLength', quantity: 'Length', value: 1, unit: 'm', title: 'pipe length (L)'},
-				{name: 'internalDiameter', quantity: 'Length', value: 5, unit: 'mm', title: 'internal diameter (d_in)'},
-				{name: 'externalDiameter', quantity : 'Length', value: 6, unit: 'mm', title: 'external diameter (d_out)'},
+				{name: 'internalDiameter', quantity: 'Length', value: 5, unit: 'mm', title: 'internal diameter (d<sub>i</sub>)'},
+				{name: 'externalDiameter', quantity : 'Length', value: 6, unit: 'mm', title: 'external diameter (d<sub>o</sub>)'},
 				{name: 'pipeMaterial', type : 'choice', value: 'StainlessSteel304', options: materials.solids, title: 'pipe material'},
 				{name: 'surfaceRoughness', quantity : 'Length', value: 25, unit: 'um', title: 'abs. surface roughness'},
 			]},
@@ -99,30 +99,30 @@ angular.module('FlowResistance', ['ui.bootstrap', 'smo', 'sprintf'])
 	<h2>Input data</h2>
 	<div style="position:relative; width:250mm;height:50mm">
 		<object data="{% static 'ThermoFluids/StraightPipe.svg' %}" type="image/svg+xml"></object>
-	    <div style="position:absolute;left:35mm;top:29mm;">
-			<div smo-input-quantity smo-quantity-var="inputVariables.pipeLength" smo-title="pipe length"></div>
-		</div>
-	    <div style="position:absolute;left:150mm;top:2mm;">
-			<div smo-input-quantity smo-quantity-var="inputVariables.internalDiameter" smo-title="internal diameter"></div>				
-			<div smo-input-quantity smo-quantity-var="inputVariables.externalDiameter" smo-title="external diameter"></div>
-			<div smo-input-choice smo-choice-var="inputVariables.pipeMaterial" smo-options="materials.solids" smo-title="pipe material"></div>
-			<div ng-bind="inputVariables.pipeMaterial"></div>
-			<div smo-input-quantity smo-quantity-var="inputVariables.surfaceRoughness" smo-title="surface roughness"></div> 
-	    </div>
 	</div>
-	<div>
-		<div>
-			<div style="display: inline-block;text-align: left;width: 150px;">fluid</div>
-			<div style="display: inline-block;"><select style="width: 209px; height: 30px; margin-left: 5px;" ng-model="inputVariables.fluid" ng-options="name as material.title for (name, material) in materials.fluids"></select></div>
-		</div>	
-		<div smo-input-quantity smo-quantity-var="inputVariables.inletPressure" smo-title="inlet pressure"></div>	
-		<div smo-input-quantity smo-quantity-var="inputVariables.inletTemperature" smo-title="inlet temperature"></div>
-		<div smo-input-quantity smo-quantity-var="inputVariables.massFlowRate" smo-title="inlet mass flow rate"></div>
-	</div>
-	And now with directive
+<!-- 	    <div style="position:absolute;left:35mm;top:29mm;"> -->
+<!-- 			<div smo-input-quantity smo-quantity-var="inputVariables.pipeLength" smo-title="pipe length"></div> -->
+<!-- 		</div> -->
+<!-- 	    <div style="position:absolute;left:150mm;top:2mm;"> -->
+<!-- 			<div smo-input-quantity smo-quantity-var="inputVariables.internalDiameter" smo-title="internal diameter"></div>				 -->
+<!-- 			<div smo-input-quantity smo-quantity-var="inputVariables.externalDiameter" smo-title="external diameter"></div> -->
+<!-- 			<div smo-input-choice smo-choice-var="inputVariables.pipeMaterial" smo-options="materials.solids" smo-title="pipe material"></div> -->
+<!-- 			<div ng-bind="inputVariables.pipeMaterial"></div> -->
+<!-- 			<div smo-input-quantity smo-quantity-var="inputVariables.surfaceRoughness" smo-title="surface roughness"></div>  -->
+<!-- 	    </div> -->
+<!-- 	</div> -->
+<!-- 	<div> -->
+<!-- 		<div> -->
+<!-- 			<div style="display: inline-block;text-align: left;width: 150px;">fluid</div> -->
+<!-- 			<div style="display: inline-block;"><select style="width: 209px; height: 30px; margin-left: 5px;" ng-model="inputVariables.fluid" ng-options="name as material.title for (name, material) in materials.fluids"></select></div> -->
+<!-- 		</div>	 -->
+<!-- 		<div smo-input-quantity smo-quantity-var="inputVariables.inletPressure" smo-title="inlet pressure"></div>	 -->
+<!-- 		<div smo-input-quantity smo-quantity-var="inputVariables.inletTemperature" smo-title="inlet temperature"></div> -->
+<!-- 		<div smo-input-quantity smo-quantity-var="inputVariables.massFlowRate" smo-title="inlet mass flow rate"></div> -->
+<!-- 	</div> -->
 	<div smo-input-view smo-data-source="inputs"></div>
-	<button class="btn btn-default" ng-click="compute()">Compute</button>
-	<br><br><br>
+	<div><br>asdasd<br>asdadfsd<br><button class="btn btn-default" ng-click="compute()">Compute</button></div>
+	
 	<div ng-if="resultComputed">
 		<hr>
 		<h2>Results</h2>
