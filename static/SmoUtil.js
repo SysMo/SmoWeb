@@ -283,6 +283,9 @@ smoModule.directive('smoInputView', ['$compile', 'units', function($compile,  un
 		scope : {
 			smoDataSource : '='
 		},
+		controller: {
+			
+		}
 		link : function(scope, element, attr) {
 			scope.toJson = angular.toJson;
 			scope.views = {};
@@ -290,7 +293,7 @@ smoModule.directive('smoInputView', ['$compile', 'units', function($compile,  un
 			for (var i = 0; i < scope.smoDataSource.length; i++) {
 				var group = scope.smoDataSource[i];
 				var groupView = {};
-				groupFields.push('<div class="col-md-5"><h3>' + group.name + '</h3>');
+				groupFields.push('<div display="inline-block;"><h3>' + group.name + '</h3>');
 				for (var j = 0; j < group.fields.length; j++) {
 					var field = group.fields[j];
 					var fieldType = field.type || 'quantity';

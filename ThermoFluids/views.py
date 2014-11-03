@@ -12,7 +12,7 @@ from smo.smoflow3d.SimpleMaterials import Solids
 
 #from django.db.models import Model 
 
-class FluidPropertiesCoolPropView(object):
+class FluidPropertiesCoolPropView(TemplateView):
 	template_name = "ThermoFluids/FluidPropertiesCoolProp.html"
 	def get(self, request):
 #		form = FluidPropertiesCoolPropForm()
@@ -39,44 +39,18 @@ def flowResistanceView(request):
 		action = postData['action']
 		parameters = postData['parameters']
 		print parameters
+		if (action == 'getInputs'):
+			pipe = Pipe()
+			inputs = pipe.group2Json(Pipe.inputs)
+			return JsonResponse({'inputs' : inputs})
 		if (action == 'computePressureDrop'):
-			pipe = Pipe(
-					internalDiameter = float(parameters["internalDiameter"]["value"]),
-					externalDiameter = float(parameters["externalDiameter"]["value"]),
-					length = float(parameters["pipeLength"]["value"]), 
-					pipeMaterialDensity = float(Solids[parameters["pipeMaterial"]]['refValues']['density']),
-					surfaceRoughness = float(parameters["surfaceRoughness"]["value"])
-			)
-			s1 = pipe.setUpstreamState(
-					fluidName = parameters["fluid"],
-					pressure = float(parameters["inletPressure"]["value"]), 
-					temperature = float(parameters["inletTemperature"]["value"]),					
-			)
-			pipe.computePressureDrop(
-					upstreamState = s1,
-					massFlowRate = float(parameters["massFlowRate"]["value"])
-			)
-
-
-			result = {
-				'fluidVolume' : pipe.fluidVolume,
-				'internalSurfaceArea' : pipe.internalSurfaceArea,
-				'externalSurfaceArea' : pipe.externalSurfaceArea,
-				'crossSectionalArea' : pipe.crossSectionalArea,
-				'pipeSolidMass' : pipe.pipeSolidMass,
-				'inletDensity' : pipe.inletDensity,
-				'fluidMass' : pipe.fluidMass,
-				'massFlowRate' : pipe.massFlowRate,
-				'volumetricFlowRate' : pipe.volumetricFlowRate,
-				'flowVelocity' : pipe.flowVelocity,
-				'Re' : pipe.Re,
-				'zeta' : pipe.zeta,
-				'dragCoefficient' : pipe.dragCoefficient,
-				'pressureDrop' : pipe.pressureDrop,
-				'outletPressure' : pipe.outletPressure,
-				'outletTemperature' : pipe.outletTemperature 
-			}
-			return JsonResponse({'result' : result})
+			pipe = Pipe()
+			pipe.fieldValuesFromJson(parameters)
+			pipe.computeGeometry()
+			pipe.computeUpstreamState()
+			pipe.computePressureDrop()
+			results = pipe.group2Json(Pipe.results) 
+			return JsonResponse({'results' : results})
 		else:
 			raise ValueError('Unknown action "{0}"'.format(action)) 
 	else:

@@ -4,20 +4,28 @@ class Field(object):
 	# Tracks each time an instance is created. Used to retain order.
 	creation_counter = 0
 	
-	def __init__(self, default = None, label = None):
+	def __init__(self, label = None):
 		self.label = label
-		self.default = default
 		
 		# Increase the creation counter, and save our local copy.
 		self.creation_counter = Field.creation_counter
 		Field.creation_counter += 1
 
 class Quantity(Field):
-	def __init__(self, type, default, *args, **kwargs):
+	def __init__(self, type, default = None, *args, **kwargs):
 		super(Quantity, self).__init__(*args, **kwargs)
 		self.type = type
-		self.defaultDispUnit = default[1]
-		self.default = self.setValue(default)
+		if (default is None):
+			self.default = 1.0
+			self.defaultDispUnit = Quantities[self.type]['SIUnit']
+		elif (isinstance(default, tuple) and len(default) == 2):
+			self.default = self.setValue(default)
+			self.defaultDispUnit = default[1]
+		elif (isinstance(default, (float, int))):
+			self.default = default
+			self.defaultDispUnit = Quantities[self.type]['SIUnit']
+		else:
+			raise ValueError("To set quantity default value you should either use a number or a tuple e.g. (2, 'mm')")
 		
 	def setValue(self, value):
 		if (isinstance(value, tuple) and len(value) == 2):
@@ -28,10 +36,44 @@ class Quantity(Field):
 			return value
 		else:
 			raise ValueError("To set quantity value you should either use a number or a tuple e.g. (2, 'mm')")
+	
+	def getValueRepr(self, value):
+		return value
 		
-class Reference(Field):
-	def __init__(self, *args, **kwargs):
-		super(Reference, self).__init__(*args, **kwargs)
+	def toUIDict(self):
+		fieldDict = {'name' : self._name, 'label': self.label}
+		fieldDict['type'] = 'Quantity'
+		fieldDict['quantity'] = self.type
+		fieldDict['defaultDispUnit'] = self.defaultDispUnit
+		return fieldDict
+
+class ObjectReference(Field):
+	def __init__(self, targetContainer, default, *args, **kwargs):
+		super(ObjectReference, self).__init__(*args, **kwargs)
+		self.targetContainer = targetContainer
+		self.default = self.setValue(default)
+		
+	def setValue(self, value):
+		if (isinstance(value, str)):
+			try:
+				return self.targetContainer[value]
+			except KeyError:
+				raise KeyError("The reference target container for field {0} has no object with key '{1}'".
+							format(self._name, value))
+		elif (isinstance(value, dict) and '_key' in value):
+				return value
+		else:	
+			raise(TypeError('The value to set a reference must be a string (key), or dictionary (having a _key field)'))
+
+	def getValueRepr(self, value):
+		return value['_key']
+		
+	def toUIDict(self):
+		fieldDict = {'name' : self._name, 'label': self.label}
+		fieldDict['type'] = 'ObjectReference'
+		fieldDict['options'] = {key : value['label'] for key, value in self.targetContainer.iteritems()}
+		return fieldDict
+	
 
 class Group(object):
 	# Tracks each time an instance is created. Used to retain order.

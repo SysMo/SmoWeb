@@ -100,27 +100,7 @@ angular.module('FlowResistance', ['ui.bootstrap', 'smo', 'sprintf'])
 	<div style="position:relative; width:250mm;height:50mm">
 		<object data="{% static 'ThermoFluids/StraightPipe.svg' %}" type="image/svg+xml"></object>
 	</div>
-<!-- 	    <div style="position:absolute;left:35mm;top:29mm;"> -->
-<!-- 			<div smo-input-quantity smo-quantity-var="inputVariables.pipeLength" smo-title="pipe length"></div> -->
-<!-- 		</div> -->
-<!-- 	    <div style="position:absolute;left:150mm;top:2mm;"> -->
-<!-- 			<div smo-input-quantity smo-quantity-var="inputVariables.internalDiameter" smo-title="internal diameter"></div>				 -->
-<!-- 			<div smo-input-quantity smo-quantity-var="inputVariables.externalDiameter" smo-title="external diameter"></div> -->
-<!-- 			<div smo-input-choice smo-choice-var="inputVariables.pipeMaterial" smo-options="materials.solids" smo-title="pipe material"></div> -->
-<!-- 			<div ng-bind="inputVariables.pipeMaterial"></div> -->
-<!-- 			<div smo-input-quantity smo-quantity-var="inputVariables.surfaceRoughness" smo-title="surface roughness"></div>  -->
-<!-- 	    </div> -->
-<!-- 	</div> -->
-<!-- 	<div> -->
-<!-- 		<div> -->
-<!-- 			<div style="display: inline-block;text-align: left;width: 150px;">fluid</div> -->
-<!-- 			<div style="display: inline-block;"><select style="width: 209px; height: 30px; margin-left: 5px;" ng-model="inputVariables.fluid" ng-options="name as material.title for (name, material) in materials.fluids"></select></div> -->
-<!-- 		</div>	 -->
-<!-- 		<div smo-input-quantity smo-quantity-var="inputVariables.inletPressure" smo-title="inlet pressure"></div>	 -->
-<!-- 		<div smo-input-quantity smo-quantity-var="inputVariables.inletTemperature" smo-title="inlet temperature"></div> -->
-<!-- 		<div smo-input-quantity smo-quantity-var="inputVariables.massFlowRate" smo-title="inlet mass flow rate"></div> -->
-<!-- 	</div> -->
-	<div smo-input-view smo-data-source="inputs"></div>
+	<div display="inline-block;" smo-input-view smo-data-source="inputs"></div>
 	<div><br>asdasd<br>asdadfsd<br><button class="btn btn-default" ng-click="compute()">Compute</button></div>
 	
 	<div ng-if="resultComputed">

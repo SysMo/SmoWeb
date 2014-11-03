@@ -1,4 +1,5 @@
 import numpy as np
+from django.template.defaultfilters import default
 try:
 	import pylab as plt
 except Exception: 
@@ -6,8 +7,9 @@ except Exception:
 import scipy.interpolate
 from smo.smoflow3d import getFluid
 from smo.smoflow3d.Media import MediumState
-from smo.numerical_model.fields import Quantity, Reference, FieldGroup, SuperGroup
+from smo.numerical_model.fields import Quantity, ObjectReference, FieldGroup, SuperGroup
 from smo.numerical_model.model import NumericalModel
+from smo.smoflow3d.SimpleMaterials import Solids, Fluids
 import json
 
 # $scope.inputs = [
@@ -20,60 +22,72 @@ import json
 # 	]},
 
 class Pipe(NumericalModel):
-
-	internalDiameter = Quantity('Length', default = (5, 'mm'), 
-		label = 'internal diameter')
-	externalDiameter = Quantity('Length', default = (6, 'mm'), 
-		label = 'external diameter')
-	length = Quantity('Length', default = (1, 'm'),
-		label = 'pipe length')
-	surfaceRoughness = Quantity('Length', default = (25, 'um'),
-		label = 'surface roughness')
-	
-	geometryInput = FieldGroup([
-		internalDiameter, 
-		externalDiameter, 
-		length, 
+	internalDiameter = Quantity('Length', default = (5, 'mm'), label = 'internal diameter')
+	externalDiameter = Quantity('Length', default = (6, 'mm'), label = 'external diameter')
+	length = Quantity('Length', default = (1, 'm'),	label = 'pipe length')
+	surfaceRoughness = Quantity('Length', default = (25, 'um'),	label = 'surface roughness')
+	pipeMaterial = ObjectReference(Solids, default = 'StainlessSteel304', label = 'pipe material')	
+	geometryInput = FieldGroup([internalDiameter, externalDiameter, length,	pipeMaterial,
 		surfaceRoughness], label = "Geometry")
-	
-	massFlowRate = Quantity('MassFlowRate', default = (1, 'kg/h'),
-		label = 'inlet mass flow rate')
-
-	flowInput = FieldGroup([massFlowRate], label = 'Flow')
-	
+	#####
+	fluid = ObjectReference(Fluids, default = 'ParaHydrogen', label = 'fluid')
+	inletPressure = Quantity('Pressure', default = (2, 'bar'), label = 'inletPressure') 
+	inletTemperature = Quantity('Temperature', default = (15, 'degC'), label = 'inletTemperature')					
+	inletMassFlowRate = Quantity('MassFlowRate', default = (1, 'kg/h'), label = 'inlet mass flow rate')
+	flowInput = FieldGroup([fluid, inletPressure, inletTemperature,	inletMassFlowRate], label = 'Flow')
+	#####	
 	inputs = SuperGroup([geometryInput, flowInput], label = 'Input data')
+	###################
+	fluidVolume = Quantity('Volume', label = 'fluid volume')
+	internalSurfaceArea = Quantity('Area', label = 'internal surface area')
+	externalSurfaceArea = Quantity('Area', label = 'external surface area')
+	crossSectionalArea = Quantity('Area', label = 'cross sectional area')
+	pipeSolidMass = Quantity('Mass', label = 'pipe solid mass')
+	geometryOutput = FieldGroup([fluidVolume, internalSurfaceArea, externalSurfaceArea,
+		crossSectionalArea, pipeSolidMass])
+	#####
+	inletDensity = Quantity('Density', label = 'inlet density')
+	fluidMass = Quantity('Mass', label = 'fluidMass')
+	massFlowRate = Quantity('MassFlowRate', label = 'mass flow rate')
+	volumetricFlowRate = Quantity('VolumetricFlowRate', label = 'volumetric flow rate')
+	flowVelocity = Quantity('Velocity', label = 'flow velocity')
+	Re = Quantity('Dimensionless', label = 'Reynolds number')
+	zeta = Quantity('Dimensionless', label = 'friction factor')
+	dragCoefficient = Quantity('Dimensionless', label = 'drag coefficient')
+	pressureDrop = Quantity('Pressure', label = 'pressure drop')
+	outletPressure = Quantity('Pressure', label = 'outlet pressure')
+	outletTemperature  = Quantity('Temperature', label = 'outlet temperature')
+	flowOutput = FieldGroup([inletDensity, fluidMass, massFlowRate, volumetricFlowRate, 
+		flowVelocity, Re, zeta, dragCoefficient, pressureDrop, outletPressure, outletTemperature])
+	#####
+	results = SuperGroup([geometryOutput, flowOutput])
+	
+
+	def computeGeometry(self):
+		self.crossSectionalArea = np.pi / 4 * self.internalDiameter ** 2
+		self.fluidVolume = self.crossSectionalArea * self.length
+		self.internalSurfaceArea = np.pi * self.internalDiameter * self.length
+		self.externalSurfaceArea = np.pi * self.externalDiameter * self.length
+		self.pipeSolidMass = self.pipeMaterial.refValues.density \
+			* np.pi / 4 * (self.externalDiameter**2 - self.internalDiameter**2) * self.length
 		
-# 	def __init__(self, internalDiameter, externalDiameter, length, pipeMaterialDensity, surfaceRoughness = 25e-6):
-# 		self.internalDiameter = internalDiameter
-# 		self.externalDiameter = externalDiameter
-# 		self.length = length
-# 		self.surfaceRoughness = surfaceRoughness
-#
-# 		self.crossSectionalArea = np.pi / 4 * internalDiameter ** 2
-# 		self.fluidVolume = self.crossSectionalArea * self.length
-# 		self.internalSurfaceArea = np.pi * self.internalDiameter * self.length
-# 		self.externalSurfaceArea = np.pi * self.externalDiameter * self.length
-# 		self.pipeSolidMass = pipeMaterialDensity * np.pi / 4 * (self.externalDiameter**2 - self.internalDiameter**2) * self.length
-		
-	def setUpstreamState(self, fluidName, pressure, temperature):
-		fluidState = MediumState(getFluid(fluidName))
-		fluidState.update_Tp(temperature, pressure)
-		return fluidState
+	def computeUpstreamState(self):
+		self.upstreamState = MediumState(getFluid(self.fluid._name))
+		self.upstreamState.update_Tp(self.inletTemperature, self.inletPressure)
 
 	
-	def computePressureDrop(self, upstreamState, massFlowRate):
-		self.massFlowRate = massFlowRate
-		self.inletDensity = upstreamState.rho()
-		self.fluidMass = self.fluidVolume * upstreamState.rho()
-		#self.massFlowRate = self.massFlowRate 
-		self.volumetricFlowRate = massFlowRate / self.inletDensity	
-		self.flowVelocity = massFlowRate / (upstreamState.rho() * self.crossSectionalArea )
-		self.Re = upstreamState.rho() * self.flowVelocity * self.internalDiameter / upstreamState.mu()
+	def computePressureDrop(self):
+		self.massFlowRate = self.inletMassFlowRate
+		self.inletDensity = self.upstreamState.rho()
+		self.fluidMass = self.fluidVolume * self.upstreamState.rho()
+		self.volumetricFlowRate = self.massFlowRate / self.inletDensity	
+		self.flowVelocity = self.massFlowRate / (self.upstreamState.rho() * self.crossSectionalArea )
+		self.Re = self.upstreamState.rho() * self.flowVelocity * self.internalDiameter / self.upstreamState.mu()
 		self.zeta = Pipe.ChurchilCorrelation(self.Re, self.internalDiameter, self.surfaceRoughness)
 		self.dragCoefficient = self.zeta * self.length / self.internalDiameter
-		self.pressureDrop = self.dragCoefficient * upstreamState.rho() * self.flowVelocity * self.flowVelocity / 2
-		self.outletPressure = upstreamState.p() - self.pressureDrop
-		self.outletTemperature = upstreamState.T()
+		self.pressureDrop = self.dragCoefficient * self.upstreamState.rho() * self.flowVelocity * self.flowVelocity / 2
+		self.outletPressure = self.upstreamState.p() - self.pressureDrop
+		self.outletTemperature = self.upstreamState.T()
 		return self.pressureDrop
 		
 
@@ -99,20 +113,10 @@ class Pipe(NumericalModel):
 	def testMetamodel():
 		#a = Pipe(5e-3, 6e-3, 1.0, 2700)
 		a = Pipe(internalDiameter = (3, 'in'))
-		#print a.getFieldNames()
-# 		print "Pipe (class)"
-# 		print
-# 		print dir(Pipe)
-# 		print
-# 		print Pipe.__dict__
-# 		print
-# 		print "Pipe (object)"
-# 		print
-# 		print dir(a)
-# 		print
-# 		print a.__dict__
-# 		print
-		print json.dumps(a.group2Json(Pipe.inputs), indent = 4)
+		inputs = a.group2Json(Pipe.inputs)
+		results = a.group2Json(Pipe.results)
+		print json.dumps(inputs, indent = 4)
+		print json.dumps(results, indent = 4)
 		
 class Orifice(object):
 	def __init__(self, diameter, cq):

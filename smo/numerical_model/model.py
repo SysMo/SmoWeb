@@ -59,32 +59,39 @@ class NumericalModel(object):
 			raise AttributeError("Class '{0}' has no field '{1}'".format(self.__class__.__name__, name))
 			
 	def group2Json(self, group):
+		fieldValues = {}
 		if (isinstance(group, FieldGroup)):
-			return self.fieldGroup2Json(group)
+			definitions =  self.fieldGroup2Json(group, fieldValues)
 		elif (isinstance(group, SuperGroup)):
-			return self.superGroup2Json(group)
-	
-	def fieldGroup2Json(self, group):
+			definitions = self.superGroup2Json(group, fieldValues)
+		return {'definitions': definitions, 'values': fieldValues}
+	def fieldGroup2Json(self, group, fieldValues):
 		jsonObject = {'type': 'FieldGroup', 'name': group._name, 'label': group.label}
 		fieldList = []
 		for field in group.fields:
-			fieldDict = {'name' : field._name, 'label': field.label}
-			if (isinstance(field, Quantity)):
-				fieldDict['type'] = 'Quantity'
-				fieldDict['quantity'] = field.type
-				fieldDict['defaultDispUnit'] = field.defaultDispUnit
-				fieldDict['value'] = self.__dict__[field._name]
-			fieldList.append(fieldDict)
+			fieldList.append(field.toUIDict())
+			fieldValues[field._name] = field.getValueRepr(self.__dict__[field._name])
 		jsonObject['fields'] = fieldList
 		return jsonObject
 				
-	def superGroup2Json(self, group):
+	def superGroup2Json(self, group, fieldValues):
 		jsonObject = {'type': 'SuperGroup', 'name': group._name, 'label': group.label}
 		subgroupList = []
 		for subgroup in group.groups:
 			if (isinstance(subgroup, FieldGroup)):
-				subgroupList.append(self.fieldGroup2Json(subgroup))
+				subgroupList.append(self.fieldGroup2Json(subgroup, fieldValues))
 			elif (isinstance(subgroup, SuperGroup)):
-				subgroupList.append(self.superGroup2Json(subgroup))
+				subgroupList.append(self.superGroup2Json(subgroup, fieldValues))
 		jsonObject['groups'] = subgroupList				
 		return jsonObject
+	
+	def fieldValues2Json(self):
+		jsonObject = {}
+		for name, field in self.declared_fields.iteritems():
+			jsonObject[name] = field.getValueRepr(self.__dict__[name])
+		return jsonObject
+	
+	def fieldValuesFromJson(self, jsonDict):
+		for key, value in jsonDict:
+			field = self.declared_fields[key]
+			self.__dict__[key] = field.setValue(value)
