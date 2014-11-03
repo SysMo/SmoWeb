@@ -283,9 +283,6 @@ smoModule.directive('smoInputView', ['$compile', 'units', function($compile,  un
 		scope : {
 			smoDataSource : '='
 		},
-		controller: {
-			
-		}
 		link : function(scope, element, attr) {
 			scope.toJson = angular.toJson;
 			scope.views = {};
