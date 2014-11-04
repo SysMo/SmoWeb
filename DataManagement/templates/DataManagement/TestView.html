@@ -23,6 +23,7 @@
 		
 		$scope.tableLoaded = false;
 		$scope.dsetName = "";
+		
 	
 		$scope.initTable = function(){
 			$scope.csvFileName = $scope.dsetName + ".csv";
@@ -33,8 +34,9 @@
 				$scope.columnsShow[i] = true;
 			}
 			$scope.xAxis = 0;
-// 			$scope.timesZoomed = 0;
-// 			$scope.ZoomedValuesArray = [];
+			$scope.ZoomedValuesArray = [];
+			$scope.showBackZoomBtn = false;
+			$scope.toZoomBack = false;
 					
 			$scope.tableArray = [];
 			var columnNames = [];
@@ -108,15 +110,57 @@
 				height: 500,
 				title: $scope.dsetName,
 				xlabel: $scope.tableArray[0][$scope.xAxis],
+				underlayCallback: function (c, a, chart){
+					$scope.toZoomBack = false;
+				},
 				drawCallback: function(chart, isInitial) {
-					console.log(isInitial);
-					console.log($scope.viewCloumns);
 					$scope.columnColors = [];
 					$scope.columnColors[$scope.xAxis] = 'black';
 					for (i=1; i<$scope.viewCloumns.length; i++)												
 						$scope.columnColors[$scope.viewCloumns[i]]=chart.getPropertiesForSeries(chart.getLabels()[i]).color;
-				}
+// 					var minDate = chart.xAxisRange()[0];
+// 			      	var maxDate = chart.xAxisRange()[1];
+// 			      	var minValue = chart.yAxisRange()[0];
+// 			      	var maxValue = chart.yAxisRange()[1];
+// 			      	$scope.ZoomedValuesArray.push([minDate, maxDate, minValue, maxValue]);
+// 			      	console.log($scope.ZoomedValuesArray);
+			      	$scope.showBackZoomBtn = chart.isZoomed();
+			      	if ($scope.toZoomBack){
+			      		var e= $scope.ZoomedValuesArray.pop();
+			      		console.log(e);
+			      		chart.updateOptions({
+			      			 axes: {
+
+			      	            x: {
+
+			      	            	dateWindow: [e[0], e[1]]
+
+			      	            },
+
+			      	            y: {
+
+			      	              	valueRange: [e[2], e[3]]
+
+			      	            }
+
+			      	          }
+			      		});
+			      	}
+				},
+				zoomCallback: function(minDate, maxDate, valueRange) {
+					console.log(minDate, maxDate, valueRange);
+			
+					$scope.ZoomedValuesArray.push(minDate, maxDate, valueRange[0], valueRange[1]);
+					console.log('ZoomedValuesArray:' + $scope.ZoomedValuesArray);
+		        }
 			});
+		}
+		
+		$scope.zoomOut = function (){
+			$scope.toZoomBack = true;
+			return $scope.ZoomedValuesArray.pop();
+			console.log('here');
+			console.log('ZoomedValuesArray:' + $scope.ZoomedValuesArray);
 		}
 		
 		$scope.exportCSV = function (){
@@ -265,12 +309,14 @@
 						&nbsp&nbsp&nbsp&nbsp&nbsp
 					</div>
 				</div>
-				<div>
+				<div style="display: inline-block;">
 					Set X axis:
 					<select ng-options="tableArray[0].indexOf(columnName) as columnName for columnName in tableArray[0]" ng-model="xAxis" ng-change="update()">
 					</select>
 				</div>
-				
+				<div style="display: inline-block;">
+					<button ng-show="showBackZoomBtn" class ="btn btn-default" ng-click="zoomOut()">Zoom out</button>
+				</div>
 				<div>			  
 					<div id="dygraphs" style="display:inline-block; float: left;"></div>	
 					<div id="dylegend" style="display:inline-block; float:left;"></div>

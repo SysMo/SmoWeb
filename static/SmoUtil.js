@@ -197,6 +197,10 @@ smoModule.directive('smoInputQuantity', ['$compile', 'util', 'units', function($
 		scope : {
 			smoQuantityVar: '=',
 			title: '@smoTitle',
+			defaultVal: '@smoDefault',
+		},
+		controller: function($scope){
+			$scope.smoQuantityVar.displayValue = $scope.defaultVal;
 		},
 	link : function(scope, element, attr) {
 			scope.util = util;
@@ -212,7 +216,7 @@ smoModule.directive('smoInputQuantity', ['$compile', 'util', 'units', function($
 			var template = ' \
 				<div style="' + labelDivStyle + '">' + scope.title + '</div> \
 				<div style="' + inputDivStyle + '"> \
-					<input style="' + inputSize + '" type="number" step="any" ng-init="smoQuantityVar.changeUnit()" ng-model="smoQuantityVar.displayValue" ng-change="smoQuantityVar.updateQuantity()">\
+					<input style="' + inputSize + '" type="number" step="any" ng-model="smoQuantityVar.displayValue" ng-change="smoQuantityVar.updateQuantity()">\
 				</div> \
 				<div style="' + unitDivStyle + '"> \
 					<select style="' + unitSize + '" ng-model="smoQuantityVar.displayUnit" ng-options="name as name for (name, conv) in units.quantities[smoQuantityVar.quantity].units" ng-change="smoQuantityVar.changeUnit()"></select> \
@@ -230,12 +234,16 @@ smoModule.directive('smoInputChoice', ['$compile', 'util', 'units', function($co
 			choiceVar: '=smoChoiceVar', 
 			options: '=smoOptions',
 			title: '@smoTitle',
+			defaultVal: '@smoDefault',
+		},
+		controller: function($scope){
+			$scope.choiceVar = $scope.defaultVal;
 		},
 	link : function(scope, element, attr) {
 		var template = ' \
 		<div style="display: inline-block;text-align: left;width: 150px;">' + scope.title + '</div>\
 		<div style="display: inline-block;"> \
-			<select style="width: 209px; height: 30px; margin-left: 5px;" ng-model="choiceVar" ng-options="key as value.title for (key, value) in options"></select> \
+			<select style="width: 209px; height: 30px; margin-left: 5px;" ng-model="choiceVar" ng-options="key as value for (key, value) in options" ng-init="defaultVal"></select> \
 		</div>';
 		attr.$set('style', "margin-top: 5px; margin-bottom: 5px; white-space: nowrap;");
 		element.html('').append($compile(template)(scope));
@@ -287,21 +295,24 @@ smoModule.directive('smoInputView', ['$compile', 'units', function($compile,  un
 			scope.toJson = angular.toJson;
 			scope.views = {};
 			var groupFields = [];
-			for (var i = 0; i < scope.smoDataSource.length; i++) {
-				var group = scope.smoDataSource[i];
+			for (var i = 0; i < scope.smoDataSource.inputs.definitions.groups.length; i++) {
+				var group = scope.smoDataSource.inputs.definitions.groups[i];
 				var groupView = {};
-				groupFields.push('<div display="inline-block;"><h3>' + group.name + '</h3>');
+				groupFields.push('<div display="inline-block;"><h3>' + group.label + '</h3>');
 				for (var j = 0; j < group.fields.length; j++) {
 					var field = group.fields[j];
-					var fieldType = field.type || 'quantity';
-					if (fieldType == 'quantity') {
+					var fieldType = field.type || 'Quantity';
+					if (fieldType == 'Quantity') {
+						var defaultval1 = scope.smoDataSource.inputs.values[field.name];
 						groupView[field.name] = new units.Quantity(field.quantity, field.value, field.unit);
 						groupView[field.name].attachVar(field);
 						groupFields.push('<div smo-input-quantity smo-quantity-var="views[\'' + group.name + '\'][\'' + field.name + '\']"' + 
-							' smo-title="' + field.title + '"></div>');
-					} else if (fieldType == 'choice') {
-						groupFields.push('<div smo-input-choice smo-choice-var="smoDataSource[' + i + '].fields[' + j + '].value"' +
-							' smo-options="smoDataSource[' + i + '].fields[' + j + '].options" smo-title="' + field.title + '"></div>');
+							' smo-title="' + field.label + '" + smo-default="' + defaultval1 + '"></div>');
+					} else if (fieldType == 'ObjectReference') {
+						var defaultval = scope.smoDataSource.inputs.values[field.name];
+						console.log(defaultval);
+						groupFields.push('<div smo-input-choice smo-choice-var="smoDataSource.inputs.definitions.groups[' + i + '].fields[' + j + '].name"' +
+							' smo-options="smoDataSource.inputs.definitions.groups[' + i + '].fields[' + j + '].options" smo-title="' + field.label + '" + smo-default="' + defaultval + '"></div>');
 //						groupFields.push('<div ng-bind="toJson(smoDataSource, true)"></div>');						
 					}
 				}

@@ -81,8 +81,8 @@ class Group(object):
 	def __init__(self, label = None):
 		self.label = label
 		# Increase the creation counter, and save our local copy.
-		self.creation_counter = FieldGroup.creation_counter
-		FieldGroup.creation_counter += 1
+		self.creation_counter = Group.creation_counter
+		Group.creation_counter += 1
 
 class FieldGroup(Group):
 	def __init__(self, fields = None, *args, **kwargs):
