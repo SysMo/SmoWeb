@@ -271,7 +271,6 @@ smoModule.directive('smoFieldGroup', ['$compile', 'units', function($compile,  u
 					quantity.id = field.name;
 					quantity.onUpdateValue(scope.updateFieldValue);
 					scope.quantities[field.name] = quantity;
-					console.log(quantity);
 					
 					// Attach the field value to the quantity so that the original value is updated when the quantity value changes
 					groupFields.push('<div smo-input-quantity smo-quantity-var="quantities[\'' + field.name + '\']"' + 
@@ -279,11 +278,32 @@ smoModule.directive('smoFieldGroup', ['$compile', 'units', function($compile,  u
 				} else if (field.type == 'ObjectReference') {
 					groupFields.push('<div smo-input-choice smo-choice-var="smoDataSource[\'' + field.name + '\']"' +
 						' smo-options="smoFieldGroup.fields[' + i + '].options" smo-title="' + field.label + '"></div>');
-					groupFields.push('<div ng-bind="toJson(smoDataSource, true)"></div>');						
+//					groupFields.push('<div ng-bind="toJson(smoDataSource, true)"></div>');						
 				}
+			} 
+			var template = '<div style="display: inline-block;"><h3>' + scope.smoFieldGroup.label + '</h3><br>' 
+				+ groupFields.join("") + '</div>';
+			element.html('').append($compile(template)(scope));
+		}	
+	}
+}]);
+
+smoModule.directive('smoSuperGroup', ['$compile', 'units', function($compile,  units) {
+	return {
+		restrict : 'A',
+		scope : {
+			smoSuperGroup : '=',
+			smoDataSource : '='
+		},
+		link : function(scope, element, attr) {	
+			var superGroupFields = [];
+			for (var i = 0; i < scope.smoSuperGroup.groups.length; i++) {
+				var fieldGroup = scope.smoSuperGroup.groups[i];
+					// Attach the field value to the quantity so that the original value is updated when the quantity value changes
+				superGroupFields.push('<div style="display: inline-block; margin-right: 70px;" smo-field-group="smoSuperGroup.groups[' + i + ']" smo-data-source="smoDataSource"></div>');
 			}
 			
-			var template = groupFields.join("");
+			var template = superGroupFields.join("");
 			element.html('').append($compile(template)(scope));
 		}	
 	}
@@ -325,39 +345,39 @@ smoModule.directive('smoOutputQuantity', ['$compile', 'util', 'units', function(
 			
 smoModule.directive('smoInputView', ['$compile', 'units', function($compile,  units) {
 	return {
-		restrict : 'A',
+		restrict : 'E',
 		scope : {
-			smoDataSource : '='
+//			inputs: '=smoInputView'
+		},
+		controller: function($scope, $http){
+			$scope.inputsObtained = false;
+			$scope.loading = true;
+			$scope.errorLoading = false;
+			$http({
+		        method  : 'POST',
+		        url     : '/ThermoFluids/FlowResistance/',
+		        data    : {action : 'getInputs', parameters: {}},
+		        headers : { 'Content-Type': 'application/x-www-form-urlencoded' }  // set the headers so angular passing info as form data (not request payload)
+		    })
+		    .success(function(data) {
+		    	$scope.loading = false;
+		    	$scope.inputsObtained = true;
+		    	$scope.inputs = data.inputs;
+		    })
+		    .error(function(data) {
+		    	$scope.loading = false;
+		    	$scope.errorLoading = true;
+		    	$scope.inputs = data.inputs;
+		    });
 		},
 		link : function(scope, element, attr) {
-			scope.toJson = angular.toJson;
-			scope.views = {};
-			var groupFields = [];
-			for (var i = 0; i < scope.smoDataSource.inputs.definitions.groups.length; i++) {
-				var group = scope.smoDataSource.inputs.definitions.groups[i];
-				var groupView = {};
-				groupFields.push('<div display="inline-block;"><h3>' + group.label + '</h3>');
-				for (var j = 0; j < group.fields.length; j++) {
-					var field = group.fields[j];
-					var fieldType = field.type || 'Quantity';
-					if (fieldType == 'Quantity') {
-						var defaultval1 = scope.smoDataSource.inputs.values[field.name];
-						groupView[field.name] = new units.Quantity(field.quantity, field.value, field.defaultDispUnit);
-						groupView[field.name].attachVar(field);
-						groupFields.push('<div smo-input-quantity smo-quantity-var="views[\'' + group.name + '\'][\'' + field.name + '\']"' + 
-							' smo-title="' + field.label + '" + smo-default="' + defaultval1 + '"></div>');
-					} else if (fieldType == 'ObjectReference') {
-						var defaultval = scope.smoDataSource.inputs.values[field.name];
-						console.log(defaultval);
-						groupFields.push('<div smo-input-choice smo-choice-var="smoDataSource.inputs.definitions.groups[' + i + '].fields[' + j + '].name"' +
-							' smo-options="smoDataSource.inputs.definitions.groups[' + i + '].fields[' + j + '].options" smo-title="' + field.label + '" + smo-default="' + defaultval + '"></div>');
-//						groupFields.push('<div ng-bind="toJson(smoDataSource, true)"></div>');						
-					}
-				}
-				scope.views[group.name] = groupView;
-				groupFields.push('</div>');
-			} 
-			var template = groupFields.join("");
+			 
+			var template = '<div ng-if="loading"><h2 style="color: green;">Loading...</h2></div>\
+							<div ng-if="errorLoading"><h2 style="color: red;">Error loading!</h2></div>\
+							<div ng-if="inputsObtained">\
+								<h2>Input data</h2><br>\
+								<div style="border: solid 1pt; padding-left:50px; padding-bottom:20px;" smo-super-group="inputs.definitions" smo-data-source="inputs.values"></div>\
+							</div>';				
 			element.html('').append($compile(template)(scope));
 		}	
 	}

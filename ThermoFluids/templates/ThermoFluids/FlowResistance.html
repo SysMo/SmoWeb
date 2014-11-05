@@ -15,56 +15,11 @@ angular.module('FlowResistance', ['ui.bootstrap', 'smo'])
 	.controller('FlowResistanceController', 
 		[ '$scope', '$http', '$window', 'util', 'units', 'materials', 
 		function($scope, $http, $window, util, units, materials) {
-		
-		$scope.inputsObtained = false;
-		$scope.resultComputed = false;
+			
 		$scope.units = units;
 		$scope.materials = materials;
 		$scope.util = util;
-		
-// 		$scope.inputVariables = {
-// 			pipeLength : new units.Quantity('Length', 1., 'm'),
-// 			internalDiameter : new units.Quantity('Length', 5., 'mm'),
-// 			externalDiameter : new units.Quantity('Length', 6., 'mm'),
-// 			surfaceRoughness : new units.Quantity('Length', 25., 'um'),
-// 			inletPressure : new units.Quantity('Pressure', 1, 'bar'),
-// 			inletTemperature : new units.Quantity('Temperature', 15, 'degC'),
-// 			massFlowRate : new units.Quantity('MassFlowRate', 10, 'kg/h'),
-// 			pipeMaterial : 'StainlessSteel304',
-// 			fluid : 'ParaHydrogen'
-// 		};
-		
-		    
-		$scope.getInputs = function() {
-			$scope.inputsObtained = false;
-			$http({
-		        method  : 'POST',
-		        url     : '/ThermoFluids/FlowResistance/',
-		        data    : {action : 'getInputs', parameters: {}},
-		        headers : { 'Content-Type': 'application/x-www-form-urlencoded' }  // set the headers so angular passing info as form data (not request payload)
-		    })
-		    .success(function(data) {
-		    	$scope.inputs = data.inputs;
-		    	$scope.inputsObtained = true;
-		    });
-		}
-		$scope.getInputs();
-// 		$scope.inputs = [
-// 			{type : 'group', name: 'Geometry', fields: [
-// 				{name: 'pipeLength', quantity: 'Length', value: 1, unit: 'm', title: 'pipe length (L)'},
-// 				{name: 'internalDiameter', quantity: 'Length', value: 5, unit: 'mm', title: 'internal diameter (d<sub>i</sub>)'},
-// 				{name: 'externalDiameter', quantity : 'Length', value: 6, unit: 'mm', title: 'external diameter (d<sub>o</sub>)'},
-// 				{name: 'pipeMaterial', type : 'choice', value: 'StainlessSteel304', options: materials.solids, title: 'pipe material'},
-// 				{name: 'surfaceRoughness', quantity : 'Length', value: 25, unit: 'um', title: 'abs. surface roughness'},
-// 			]},
-// 			{type: 'group', name: 'Flow', fields: [
-// 				{name: 'fluid', type : 'choice', value: 'ParaHydrogen', options : materials.fluids, title : 'fluid'},
-// 				{name: 'inletPressure', quantity : 'Pressure', value : 2, unit: 'bar', title : 'inlet pressure'},
-// 				{name: 'inletTemperature', quantity : 'Temperature', value : 15, unit: 'degC', title : 'inlet temperature'},
-// 				{name: 'massFlowRate', quantity : 'MassFlowRate', value : 10, unit: 'kg/h', title : 'mass flow rate'}
-
-// 			]}
-// 		];
+// 		$scope.inputs = {};
 		
 		$scope.dumpObj = function(obj) {
 			return angular.toJson(obj, true);
@@ -109,21 +64,17 @@ angular.module('FlowResistance', ['ui.bootstrap', 'smo'])
 
 {% block content %}
 <div ng-app="FlowResistance" ng-controller="FlowResistanceController">
+	<div class="container">
+	<div class="row">
 	<div class="col-md-1"></div>
 	<div class="col-md-10">
 
 	<h1>Pressure losses in Pipe flow</h1>
-	<div ng-if="inputsObtained">
-<!-- 	<h2>Input data</h2> -->
-<!-- 	<div style="position:relative; width:250mm;height:50mm"> -->
-<!-- 		<object data="{% static 'ThermoFluids/StraightPipe.svg' %}" type="image/svg+xml"></object> -->
-<!-- 	</div> -->
-<!-- 	<div display="inline-block;" smo-input-view smo-data-source="inputs"></div> -->
-	
-	<div smo-field-group="inputs.definitions.groups[0]" smo-data-source="inputs.values"></div>
-	<div ng-bind="dumpObj(inputs.values)"></div>
+	<div style="position:relative; width:250mm;height:50mm">
+			<object data="{% static 'ThermoFluids/StraightPipe.svg' %}" type="image/svg+xml"></object>
 	</div>
-	
+	<smo-input-view></smo-input-view>
+	<br>
 	<div><button class="btn btn-default" ng-click="compute()">Compute</button></div>
 
 	
@@ -136,6 +87,8 @@ angular.module('FlowResistance', ['ui.bootstrap', 'smo'])
 	</div>
 	</div>
 	<div class="col-md-1"></div>
+	</div>
+	</div>
 </div>
 
 {% endblock %}
