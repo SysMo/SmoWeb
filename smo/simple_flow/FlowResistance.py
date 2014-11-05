@@ -31,10 +31,11 @@ class Pipe(NumericalModel):
 		surfaceRoughness], label = "Geometry")
 	#####
 	fluid = ObjectReference(Fluids, default = 'ParaHydrogen', label = 'fluid')
-	inletPressure = Quantity('Pressure', default = (2, 'bar'), label = 'inletPressure') 
-	inletTemperature = Quantity('Temperature', default = (15, 'degC'), label = 'inletTemperature')					
+	inletPressure = Quantity('Pressure', default = (2, 'bar'), label = 'inlet pressure') 
+	inletTemperature = Quantity('Temperature', default = (15, 'degC'), label = 'inlet temperature')					
 	inletMassFlowRate = Quantity('MassFlowRate', default = (1, 'kg/h'), label = 'inlet mass flow rate')
-	flowInput = FieldGroup([fluid, inletPressure, inletTemperature,	inletMassFlowRate], label = 'Flow')
+	ambientTemperature = Quantity('Temperature', default = (15, 'degC'), label = 'ambient temperature')
+	flowInput = FieldGroup([fluid, inletPressure, inletTemperature,	inletMassFlowRate, ambientTemperature], label = 'Flow')
 	#####	
 	inputs = SuperGroup([geometryInput, flowInput], label = 'Input data')
 	###################
