@@ -20,43 +20,10 @@ angular.module('FlowResistance', ['ui.bootstrap', 'smo'])
 		$scope.materials = materials;
 		$scope.util = util;
  		$scope.inputs = {};
+ 		$scope.outputs = {};
 		
 		$scope.dumpObj = function(obj) {
 			return angular.toJson(obj, true);
-		}
-		$scope.compute = function() {
-            $scope.resultComputed = false;
-			$http({
-		        method  : 'POST',
-		        url     : '/ThermoFluids/FlowResistance/',
-		        data    : {action : 'computePressureDrop', parameters : $scope.inputVariables},
-		        headers : { 'Content-Type': 'application/x-www-form-urlencoded' }  // set the headers so angular passing info as form data (not request payload)
-		    })
-	        .success(function(data) {
-	            $scope.results = [
-					{type : 'group', name : 'Geometry', fields : [
-						{name : 'fluidVolume', quantity: 'Volume', value : data.result.fluidVolume, title : 'fluid volume'},
-	            		{name : 'internalSurfaceArea', quantity : 'Area', value : data.result.internalSurfaceArea, title : 'internal surface area'},
-	            		{name : 'externalSurfaceArea', quantity : 'Area', value : data.result.externalSurfaceArea, title : 'external surface area'},
-	            		{name : 'crossSectionalArea', quantity : 'Area', value : data.result.crossSectionalArea, title : 'cross sectional area'},
-	            		{name : 'pipeSolidMass', quantity : 'Mass', value : data.result.pipeSolidMass, title : 'pipe solid mass'}
-					]},
-					{type : 'group', name : 'Flow', fields : [
-						{name : 'inletDensity', quantity: 'Density', value : data.result.inletDensity, title : 'inlet density'},
-						{name : 'fluidMass', quantity: 'Mass', value : data.result.fluidMass, title : 'fluid mass in pipe'},
-						{name : 'massFlowRate', quantity: 'MassFlowRate', value : data.result.massFlowRate, title : 'mass flow rate'},
-						{name : 'volumetricFlowRate', quantity: 'VolumetricFlowRate', value : data.result.volumetricFlowRate, title : 'volumetric flow rate'},
-						{name : 'flowVelocity', quantity: 'Velocity', value : data.result.flowVelocity, title : 'flow velocity'},
-						{name : 'Re', quantity: 'Dimensionless', value : data.result.Re, title : 'Reynolds number'},
-						{name : 'zeta', quantity: 'Dimensionless', value : data.result.zeta, title : 'friction factor'},
-						{name : 'dragCoefficient', quantity: 'Dimensionless', value : data.result.dragCoefficient, title : 'drag coefficient'},
-						{name : 'pressureDrop', quantity: 'Pressure', value : data.result.pressureDrop, title : 'pressure drop'},
-						{name : 'outletPressure', quantity: 'Pressure', value : data.result.outletPressure, title : 'outlet pressure'},
-						{name : 'outletTemperature', quantity: 'Temperature', value : data.result.outletTemperature, title : 'outlet temperature'},				                                          
-					]}
-	            ];
-	            $scope.resultComputed = true;
-	        });
 		}
 	}]);
 </script>
@@ -69,22 +36,15 @@ angular.module('FlowResistance', ['ui.bootstrap', 'smo'])
 	<div class="col-md-1"></div>
 	<div class="col-md-10">
 
-	<h1>Pressure losses in Pipe flow</h1>
-	<div style="position:relative; width:250mm;height:50mm">
-			<object data="{% static 'ThermoFluids/StraightPipe.svg' %}" type="image/svg+xml"></object>
-	</div>
-	<div smo-input-view="inputs"></div>
-	<br>
-	<div ng-if="inputs.inputsObtained"><button class="btn btn-default" ng-click="compute()">Compute</button></div>
-
-	
-	<div ng-if="resultComputed">
-		<hr>
-		<h2>Results</h2>
-		<div>
-			<smo-result-view smo-data-source="results"></smo-result-view>
+		<h1>Pressure losses in Pipe flow</h1>
+		<div style="position:relative; width:250mm;height:50mm">
+				<object data="{% static 'ThermoFluids/StraightPipe.svg' %}" type="image/svg+xml"></object>
 		</div>
-	</div>
+		<div smo-input-view="inputs"></div>
+		<br>
+		<div ng-show="inputs.inputsObtained"><button class="btn btn-default" ng-click="outputs.get()">Compute</button></div>
+		<div smo-output-view="outputs" smo-compute-parameters="inputs.data.values"></div>
+	
 	</div>
 	<div class="col-md-1"></div>
 	</div>

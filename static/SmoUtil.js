@@ -369,12 +369,11 @@ smoModule.directive('smoInputView', ['$compile', 'units', function($compile,  un
 		    .success(function(data) {
 		    	$scope.it.loading = false;
 		    	$scope.it.inputsObtained = true;
-		    	$scope.it.inputs = data.inputs;
+		    	$scope.it.data = data.inputs;
 		    })
 		    .error(function(data) {
 		    	$scope.it.loading = false;
 		    	$scope.it.errorLoading = true;
-		    	$scope.it.inputs = data.inputs;
 		    });
 		},
 		link : function(scope, element, attr) {
@@ -383,7 +382,7 @@ smoModule.directive('smoInputView', ['$compile', 'units', function($compile,  un
 							<div ng-if="it.errorLoading"><h2 style="color: red;">Error loading!</h2></div>\
 							<div ng-if="it.inputsObtained">\
 								<h2>Input data</h2><br>\
-								<div style="border: solid 1pt; padding-left:50px; padding-bottom:20px;" smo-super-group="it.inputs.definitions" view-type="input" smo-data-source="it.inputs.values"></div>\
+								<div style="border: solid 1pt; padding-left:50px; padding-bottom:20px;" smo-super-group="it.data.definitions" view-type="input" smo-data-source="it.data.values"></div>\
 							</div>';				
 			element.html('').append($compile(template)(scope));
 		}	
@@ -394,51 +393,42 @@ smoModule.directive('smoInputView', ['$compile', 'units', function($compile,  un
 smoModule.directive('smoOutputView', ['$compile', 'units', function($compile,  units) {
 	return {
 		restrict : 'A',
-		scope : {
-			it: '=smoOutputView'
+		scope : {			
+			it: '=smoOutputView',
+			parameters: '=smoComputeParameters'
 		},
 		controller: function($scope, $http){
 			$scope.it.outputsObtained = false;
-			$scope.it.loading = true;
+			$scope.it.loading = false;
 			$scope.it.errorLoading = false;
-			$http({
-		        method  : 'POST',
-		        url     : '/ThermoFluids/FlowResistance/',
-		        data    : { action : 'compute', parameters: $scope.it.inputs.values },
-		        headers : { 'Content-Type': 'application/x-www-form-urlencoded' }  // set the headers so angular passing info as form data (not request payload)
-		    })
-		    .success(function(data) {
-		    	$scope.it.loading = false;
-		    	$scope.it.outputsObtained = true;
-		    	$scope.it.outputs = data.inputs.values;
-		    })
-		    .error(function(data) {
-		    	$scope.it.loading = false;
-		    	$scope.it.errorLoading = true;
-		    	$scope.it.inputs = data.inputs.values;
-		    });
+			$scope.it.get = function() {
+				$scope.it.outputsObtained = false;
+				$scope.it.loading = true;
+				$scope.it.errorLoading = false;
+				$http({
+			        method  : 'POST',
+			        url     : '/ThermoFluids/FlowResistance/',
+			        data    : { action : 'compute', parameters: $scope.parameters},
+			        headers : { 'Content-Type': 'application/x-www-form-urlencoded' }  // set the headers so angular passing info as form data (not request payload)
+				})
+			    .success(function(data) {
+			    	$scope.it.loading = false;
+			    	$scope.it.outputsObtained = true;
+			    	$scope.it.data = data.results;
+			    	console.log($scope.it.data);
+			    })
+			    .error(function(data) {
+			    	$scope.it.loading = false;
+			    	$scope.it.errorLoading = true;
+			    });
+			}
 		},
 		link : function(scope, element, attr) {
-//			scope.views = {};
-//			var groupFields = [];
-//			for (var i = 0; i < scope.smoDataSource.length; i++) {
-//				var group = scope.smoDataSource[i];
-//				var groupView = {};
-//				groupFields.push('<div class="col-md-5"><h3>' + group.name + '</h3>');
-//				for (var j = 0; j < group.fields.length; j++) {
-//					var field = group.fields[j];
-//					groupView[field.name] = new units.Quantity(field.quantity, field.value);
-//					groupFields.push('<div smo-output-quantity smo-quantity-var="views[\'' + group.name + '\'][\'' + field.name + '\']"' + 
-//					' smo-title="' + field.title + '"></div>');
-//				}
-//				scope.views[group.name] = groupView;
-//				groupFields.push('</div>');
-//			} 
 			var template = '<div ng-if="it.loading"><h2 style="color: green;">Loading...</h2></div>\
 				<div ng-if="it.errorLoading"><h2 style="color: red;">Error loading!</h2></div>\
 				<div ng-if="it.outputsObtained">\
-					<h2>Input data</h2><br>\
-					<div style="border: solid 1pt; padding-left:50px; padding-bottom:20px;" smo-super-group="it.inputs.definitions" view-type="output"></div>\
+					<h2>Output data</h2><br>\
+				<div style="border: solid 1pt; padding-left:50px; padding-bottom:20px;" smo-super-group="it.data.definitions" view-type="input" smo-data-source="it.data.values"></div>\
 				</div>';		
 			element.html('').append($compile(template)(scope));
 		}

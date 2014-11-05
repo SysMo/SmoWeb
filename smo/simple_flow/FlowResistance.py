@@ -45,7 +45,7 @@ class Pipe(NumericalModel):
 	crossSectionalArea = Quantity('Area', label = 'cross sectional area')
 	pipeSolidMass = Quantity('Mass', label = 'pipe solid mass')
 	geometryOutput = FieldGroup([fluidVolume, internalSurfaceArea, externalSurfaceArea,
-		crossSectionalArea, pipeSolidMass])
+		crossSectionalArea, pipeSolidMass], label = "Geometry")
 	#####
 	inletDensity = Quantity('Density', label = 'inlet density')
 	fluidMass = Quantity('Mass', label = 'fluidMass')
@@ -59,9 +59,9 @@ class Pipe(NumericalModel):
 	outletPressure = Quantity('Pressure', label = 'outlet pressure')
 	outletTemperature  = Quantity('Temperature', label = 'outlet temperature')
 	flowOutput = FieldGroup([inletDensity, fluidMass, massFlowRate, volumetricFlowRate, 
-		flowVelocity, Re, zeta, dragCoefficient, pressureDrop, outletPressure, outletTemperature])
+		flowVelocity, Re, zeta, dragCoefficient, pressureDrop, outletPressure, outletTemperature], label = "Flow")
 	#####
-	results = SuperGroup([geometryOutput, flowOutput])
+	results = SuperGroup([geometryOutput, flowOutput], label = "Results")
 	
 
 	def computeGeometry(self):
@@ -69,26 +69,25 @@ class Pipe(NumericalModel):
 		self.fluidVolume = self.crossSectionalArea * self.length
 		self.internalSurfaceArea = np.pi * self.internalDiameter * self.length
 		self.externalSurfaceArea = np.pi * self.externalDiameter * self.length
-		self.pipeSolidMass = self.pipeMaterial.refValues.density \
+		self.pipeSolidMass = self.pipeMaterial['refValues']['density'] \
 			* np.pi / 4 * (self.externalDiameter**2 - self.internalDiameter**2) * self.length
-		
-	def computeUpstreamState(self):
-		self.upstreamState = MediumState(getFluid(self.fluid._name))
-		self.upstreamState.update_Tp(self.inletTemperature, self.inletPressure)
-
-	
+			
 	def computePressureDrop(self):
+		fluid = getFluid(str(self.fluid['_key']))
+		upstreamState = MediumState(fluid)
+		upstreamState.update_Tp(self.inletTemperature, self.inletPressure)
+
+		self.inletDensity = upstreamState.rho()
 		self.massFlowRate = self.inletMassFlowRate
-		self.inletDensity = self.upstreamState.rho()
-		self.fluidMass = self.fluidVolume * self.upstreamState.rho()
+		self.fluidMass = self.fluidVolume * self.inletDensity
 		self.volumetricFlowRate = self.massFlowRate / self.inletDensity	
-		self.flowVelocity = self.massFlowRate / (self.upstreamState.rho() * self.crossSectionalArea )
-		self.Re = self.upstreamState.rho() * self.flowVelocity * self.internalDiameter / self.upstreamState.mu()
+		self.flowVelocity = self.massFlowRate / (self.inletDensity * self.crossSectionalArea )
+		self.Re = self.inletDensity * self.flowVelocity * self.internalDiameter / upstreamState.mu()
 		self.zeta = Pipe.ChurchilCorrelation(self.Re, self.internalDiameter, self.surfaceRoughness)
 		self.dragCoefficient = self.zeta * self.length / self.internalDiameter
-		self.pressureDrop = self.dragCoefficient * self.upstreamState.rho() * self.flowVelocity * self.flowVelocity / 2
-		self.outletPressure = self.upstreamState.p() - self.pressureDrop
-		self.outletTemperature = self.upstreamState.T()
+		self.pressureDrop = self.dragCoefficient * self.inletDensity * self.flowVelocity * self.flowVelocity / 2
+		self.outletPressure = self.inletPressure - self.pressureDrop
+		self.outletTemperature = self.inletTemperature
 		return self.pressureDrop
 		
 
@@ -109,6 +108,13 @@ class Pipe(NumericalModel):
 			zeta[i] = Pipe.ChurchilCorrelation(Re[i], d, epsilon)
 		plt.loglog(Re, zeta)
 		plt.show()
+	
+	@staticmethod
+	def testComputePressureDrop():
+		pipe = Pipe()
+		pipe.computeGeometry()
+		pipe.computePressureDrop()
+		print pipe.outletPressure
 	
 	@staticmethod
 	def testMetamodel():
@@ -223,4 +229,4 @@ if __name__ == '__main__':
 	#Pipe.testChurchilCorrelation()
 	#Orifice.test()
 	#Elbow.test()
-	Pipe.testMetamodel()
+	Pipe.testComputePressureDrop()

@@ -54,7 +54,7 @@ class ObjectReference(Field):
 		self.default = self.setValue(default)
 		
 	def setValue(self, value):
-		if (isinstance(value, str)):
+		if (isinstance(value, (str, unicode))):
 			try:
 				return self.targetContainer[value]
 			except KeyError:

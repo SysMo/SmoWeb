@@ -92,6 +92,6 @@ class NumericalModel(object):
 		return jsonObject
 	
 	def fieldValuesFromJson(self, jsonDict):
-		for key, value in jsonDict:
+		for key, value in jsonDict.iteritems():
 			field = self.declared_fields[key]
 			self.__dict__[key] = field.setValue(value)

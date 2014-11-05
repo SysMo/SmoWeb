@@ -43,13 +43,13 @@ def flowResistanceView(request):
 			inputs = pipe.group2Json(Pipe.inputs)
 			print json.dumps(inputs, indent=4)
 			return JsonResponse({'inputs' : inputs})
-		if (action == 'computePressureDrop'):
+		if (action == 'compute'):
 			pipe = Pipe()
 			pipe.fieldValuesFromJson(parameters)
 			pipe.computeGeometry()
-			pipe.computeUpstreamState()
 			pipe.computePressureDrop()
 			results = pipe.group2Json(Pipe.results) 
+			print json.dumps(results, indent=4)
 			return JsonResponse({'results' : results})
 		else:
 			raise ValueError('Unknown action "{0}"'.format(action)) 
