@@ -38,10 +38,10 @@ def flowResistanceView(request):
 		postData = json.loads(request.body)
 		action = postData['action']
 		parameters = postData['parameters']
-		print parameters
 		if (action == 'getInputs'):
 			pipe = Pipe()
 			inputs = pipe.group2Json(Pipe.inputs)
+			print json.dumps(inputs, indent=4)
 			return JsonResponse({'inputs' : inputs})
 		if (action == 'computePressureDrop'):
 			pipe = Pipe()

@@ -44,7 +44,7 @@ angular.module('FlowResistance', ['ui.bootstrap', 'smo'])
 		        headers : { 'Content-Type': 'application/x-www-form-urlencoded' }  // set the headers so angular passing info as form data (not request payload)
 		    })
 		    .success(function(data) {
-		    	$scope.inputs = data;
+		    	$scope.inputs = data.inputs;
 		    	$scope.inputsObtained = true;
 		    });
 		}
@@ -111,15 +111,21 @@ angular.module('FlowResistance', ['ui.bootstrap', 'smo'])
 <div ng-app="FlowResistance" ng-controller="FlowResistanceController">
 	<div class="col-md-1"></div>
 	<div class="col-md-10">
+
 	<h1>Pressure losses in Pipe flow</h1>
 	<div ng-if="inputsObtained">
-	<h2>Input data</h2>
-	<div style="position:relative; width:250mm;height:50mm">
-		<object data="{% static 'ThermoFluids/StraightPipe.svg' %}" type="image/svg+xml"></object>
+<!-- 	<h2>Input data</h2> -->
+<!-- 	<div style="position:relative; width:250mm;height:50mm"> -->
+<!-- 		<object data="{% static 'ThermoFluids/StraightPipe.svg' %}" type="image/svg+xml"></object> -->
+<!-- 	</div> -->
+<!-- 	<div display="inline-block;" smo-input-view smo-data-source="inputs"></div> -->
+	
+	<div smo-field-group="inputs.definitions.groups[0]" smo-data-source="inputs.values"></div>
+	<div ng-bind="dumpObj(inputs.values)"></div>
 	</div>
-	<div display="inline-block;" smo-input-view smo-data-source="inputs"></div>
-	</div>
+	
 	<div><button class="btn btn-default" ng-click="compute()">Compute</button></div>
+
 	
 	<div ng-if="resultComputed">
 		<hr>

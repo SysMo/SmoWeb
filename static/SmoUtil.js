@@ -126,16 +126,17 @@ smoModule.factory('units', function() {
 		this.attachedVars = [];
 	}
 
-	Quantity.prototype.updateQuantity = function() {
+	Quantity.prototype.updateValue = function() {
 		var dispUnitDef = units.quantities[this.quantity].units[this.displayUnit];
 		var offset = 0;
 		if ('offset' in dispUnitDef) {
 			offset = dispUnitDef.offset;
 		}
 		this.value = this.displayValue * dispUnitDef.mult + offset ;
-		for (var i = 0; i < this.attachedVars.length; i++) {
-			this.attachedVars[i].value = this.value;
-		}
+		if (this._onUpdateValue) {
+			var id = this.id || '';
+			this._onUpdateValue(id);
+		}		
 	}
 	Quantity.prototype.changeUnit = function() {
 		var dispUnitDef = units.quantities[this.quantity].units[this.displayUnit];
@@ -145,9 +146,8 @@ smoModule.factory('units', function() {
 		}
 		this.displayValue = (this.value - offset) / dispUnitDef.mult; 
 	}
-	Quantity.prototype.attachVar = function(variable) {
-		variable.value = this.value;
-		this.attachedVars.push(variable);
+	Quantity.prototype.onUpdateValue = function(func) {
+		this._onUpdateValue = func;
 	}
 	units.Quantity = Quantity;
 	return units;
@@ -197,12 +197,11 @@ smoModule.directive('smoInputQuantity', ['$compile', 'util', 'units', function($
 		scope : {
 			smoQuantityVar: '=',
 			title: '@smoTitle',
-			defaultVal: '@smoDefault',
+			id: '@smoId'
 		},
 		controller: function($scope){
-			$scope.smoQuantityVar.displayValue = $scope.defaultVal;
 		},
-	link : function(scope, element, attr) {
+		link : function(scope, element, attr) {
 			scope.util = util;
 			scope.units = units;
 
@@ -216,7 +215,7 @@ smoModule.directive('smoInputQuantity', ['$compile', 'util', 'units', function($
 			var template = ' \
 				<div style="' + labelDivStyle + '">' + scope.title + '</div> \
 				<div style="' + inputDivStyle + '"> \
-					<input style="' + inputSize + '" type="number" step="any" ng-model="smoQuantityVar.displayValue" ng-change="smoQuantityVar.updateQuantity()">\
+					<input style="' + inputSize + '" type="number" step="any" ng-model="smoQuantityVar.displayValue" ng-change="smoQuantityVar.updateValue()">\
 				</div> \
 				<div style="' + unitDivStyle + '"> \
 					<select style="' + unitSize + '" ng-model="smoQuantityVar.displayUnit" ng-options="name as name for (name, conv) in units.quantities[smoQuantityVar.quantity].units" ng-change="smoQuantityVar.changeUnit()"></select> \
@@ -234,21 +233,59 @@ smoModule.directive('smoInputChoice', ['$compile', 'util', 'units', function($co
 			choiceVar: '=smoChoiceVar', 
 			options: '=smoOptions',
 			title: '@smoTitle',
-			defaultVal: '@smoDefault',
 		},
 		controller: function($scope){
-			$scope.choiceVar = $scope.defaultVal;
 		},
 	link : function(scope, element, attr) {
 		var template = ' \
 		<div style="display: inline-block;text-align: left;width: 150px;">' + scope.title + '</div>\
 		<div style="display: inline-block;"> \
-			<select style="width: 209px; height: 30px; margin-left: 5px;" ng-model="choiceVar" ng-options="key as value for (key, value) in options" ng-init="defaultVal"></select> \
+			<select style="width: 209px; height: 30px; margin-left: 5px;" ng-model="choiceVar" ng-options="key as value for (key, value) in options"></select> \
 		</div>';
 		attr.$set('style', "margin-top: 5px; margin-bottom: 5px; white-space: nowrap;");
 		element.html('').append($compile(template)(scope));
 
 		}
+	}
+}]);
+
+smoModule.directive('smoFieldGroup', ['$compile', 'units', function($compile,  units) {
+	return {
+		restrict : 'A',
+		scope : {
+			smoFieldGroup : '=',
+			smoDataSource : '='
+		},
+		controller : function($scope){
+			$scope.updateFieldValue = function(fieldName) {
+				$scope.smoDataSource[fieldName] = $scope.quantities[fieldName].value;
+			}
+		},
+		link : function(scope, element, attr) {
+			scope.quantities = {};
+			var groupFields = [];
+			for (var i = 0; i < scope.smoFieldGroup.fields.length; i++) {
+				var field = scope.smoFieldGroup.fields[i];
+				if (field.type == 'Quantity') {
+					var quantity = new units.Quantity(field.quantity, scope.smoDataSource[field.name], null, field.defaultDispUnit);
+					quantity.id = field.name;
+					quantity.onUpdateValue(scope.updateFieldValue);
+					scope.quantities[field.name] = quantity;
+					console.log(quantity);
+					
+					// Attach the field value to the quantity so that the original value is updated when the quantity value changes
+					groupFields.push('<div smo-input-quantity smo-quantity-var="quantities[\'' + field.name + '\']"' + 
+						' smo-title="' + field.label + '"></div>');
+				} else if (field.type == 'ObjectReference') {
+					groupFields.push('<div smo-input-choice smo-choice-var="smoDataSource[\'' + field.name + '\']"' +
+						' smo-options="smoFieldGroup.fields[' + i + '].options" smo-title="' + field.label + '"></div>');
+					groupFields.push('<div ng-bind="toJson(smoDataSource, true)"></div>');						
+				}
+			}
+			
+			var template = groupFields.join("");
+			element.html('').append($compile(template)(scope));
+		}	
 	}
 }]);
 
@@ -285,6 +322,7 @@ smoModule.directive('smoOutputQuantity', ['$compile', 'util', 'units', function(
 	}
 }]);
 
+			
 smoModule.directive('smoInputView', ['$compile', 'units', function($compile,  units) {
 	return {
 		restrict : 'A',
@@ -304,7 +342,7 @@ smoModule.directive('smoInputView', ['$compile', 'units', function($compile,  un
 					var fieldType = field.type || 'Quantity';
 					if (fieldType == 'Quantity') {
 						var defaultval1 = scope.smoDataSource.inputs.values[field.name];
-						groupView[field.name] = new units.Quantity(field.quantity, field.value, field.unit);
+						groupView[field.name] = new units.Quantity(field.quantity, field.value, field.defaultDispUnit);
 						groupView[field.name].attachVar(field);
 						groupFields.push('<div smo-input-quantity smo-quantity-var="views[\'' + group.name + '\'][\'' + field.name + '\']"' + 
 							' smo-title="' + field.label + '" + smo-default="' + defaultval1 + '"></div>');
