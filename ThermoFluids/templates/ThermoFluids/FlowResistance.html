@@ -19,7 +19,7 @@ angular.module('FlowResistance', ['ui.bootstrap', 'smo'])
 		$scope.units = units;
 		$scope.materials = materials;
 		$scope.util = util;
-// 		$scope.inputs = {};
+ 		$scope.inputs = {};
 		
 		$scope.dumpObj = function(obj) {
 			return angular.toJson(obj, true);
@@ -73,9 +73,9 @@ angular.module('FlowResistance', ['ui.bootstrap', 'smo'])
 	<div style="position:relative; width:250mm;height:50mm">
 			<object data="{% static 'ThermoFluids/StraightPipe.svg' %}" type="image/svg+xml"></object>
 	</div>
-	<smo-input-view></smo-input-view>
+	<div smo-input-view="inputs"></div>
 	<br>
-	<div><button class="btn btn-default" ng-click="compute()">Compute</button></div>
+	<div ng-if="inputs.inputsObtained"><button class="btn btn-default" ng-click="compute()">Compute</button></div>
 
 	
 	<div ng-if="resultComputed">

@@ -254,7 +254,8 @@ smoModule.directive('smoFieldGroup', ['$compile', 'units', function($compile,  u
 		restrict : 'A',
 		scope : {
 			smoFieldGroup : '=',
-			smoDataSource : '='
+			smoDataSource : '=',
+			viewType: '='
 		},
 		controller : function($scope){
 			$scope.updateFieldValue = function(fieldName) {
@@ -273,12 +274,17 @@ smoModule.directive('smoFieldGroup', ['$compile', 'units', function($compile,  u
 					scope.quantities[field.name] = quantity;
 					
 					// Attach the field value to the quantity so that the original value is updated when the quantity value changes
-					groupFields.push('<div smo-input-quantity smo-quantity-var="quantities[\'' + field.name + '\']"' + 
+					console.log(scope.viewType);
+					if (scope.viewType == 'input') 
+						groupFields.push('<div smo-input-quantity smo-quantity-var="quantities[\'' + field.name + '\']"' + 
 						' smo-title="' + field.label + '"></div>');
+					if (scope.viewType == 'output')
+						groupFields.push('<div smo-output-quantity smo-quantity-var="quantities[\'' + field.name + '\']"' + 
+								' smo-title="' + field.label + '"></div>');
 				} else if (field.type == 'ObjectReference') {
-					groupFields.push('<div smo-input-choice smo-choice-var="smoDataSource[\'' + field.name + '\']"' +
+					if (scope.viewType == 'input')
+						groupFields.push('<div smo-input-choice smo-choice-var="smoDataSource[\'' + field.name + '\']"' +
 						' smo-options="smoFieldGroup.fields[' + i + '].options" smo-title="' + field.label + '"></div>');
-//					groupFields.push('<div ng-bind="toJson(smoDataSource, true)"></div>');						
 				}
 			} 
 			var template = '<div style="display: inline-block;"><h3>' + scope.smoFieldGroup.label + '</h3><br>' 
@@ -293,14 +299,15 @@ smoModule.directive('smoSuperGroup', ['$compile', 'units', function($compile,  u
 		restrict : 'A',
 		scope : {
 			smoSuperGroup : '=',
-			smoDataSource : '='
+			smoDataSource : '=',
+			viewType: '@viewType'
 		},
 		link : function(scope, element, attr) {	
 			var superGroupFields = [];
 			for (var i = 0; i < scope.smoSuperGroup.groups.length; i++) {
 				var fieldGroup = scope.smoSuperGroup.groups[i];
 					// Attach the field value to the quantity so that the original value is updated when the quantity value changes
-				superGroupFields.push('<div style="display: inline-block; margin-right: 70px;" smo-field-group="smoSuperGroup.groups[' + i + ']" smo-data-source="smoDataSource"></div>');
+				superGroupFields.push('<div style="display: inline-block; margin-right: 70px;" smo-field-group="smoSuperGroup.groups[' + i + ']" view-type="viewType" smo-data-source="smoDataSource"></div>');
 			}
 			
 			var template = superGroupFields.join("");
@@ -345,14 +352,14 @@ smoModule.directive('smoOutputQuantity', ['$compile', 'util', 'units', function(
 			
 smoModule.directive('smoInputView', ['$compile', 'units', function($compile,  units) {
 	return {
-		restrict : 'E',
+		restrict : 'A',
 		scope : {
-//			inputs: '=smoInputView'
+			it: '=smoInputView'
 		},
 		controller: function($scope, $http){
-			$scope.inputsObtained = false;
-			$scope.loading = true;
-			$scope.errorLoading = false;
+			$scope.it.inputsObtained = false;
+			$scope.it.loading = true;
+			$scope.it.errorLoading = false;
 			$http({
 		        method  : 'POST',
 		        url     : '/ThermoFluids/FlowResistance/',
@@ -360,23 +367,23 @@ smoModule.directive('smoInputView', ['$compile', 'units', function($compile,  un
 		        headers : { 'Content-Type': 'application/x-www-form-urlencoded' }  // set the headers so angular passing info as form data (not request payload)
 		    })
 		    .success(function(data) {
-		    	$scope.loading = false;
-		    	$scope.inputsObtained = true;
-		    	$scope.inputs = data.inputs;
+		    	$scope.it.loading = false;
+		    	$scope.it.inputsObtained = true;
+		    	$scope.it.inputs = data.inputs;
 		    })
 		    .error(function(data) {
-		    	$scope.loading = false;
-		    	$scope.errorLoading = true;
-		    	$scope.inputs = data.inputs;
+		    	$scope.it.loading = false;
+		    	$scope.it.errorLoading = true;
+		    	$scope.it.inputs = data.inputs;
 		    });
 		},
 		link : function(scope, element, attr) {
 			 
-			var template = '<div ng-if="loading"><h2 style="color: green;">Loading...</h2></div>\
-							<div ng-if="errorLoading"><h2 style="color: red;">Error loading!</h2></div>\
-							<div ng-if="inputsObtained">\
+			var template = '<div ng-if="it.loading"><h2 style="color: green;">Loading...</h2></div>\
+							<div ng-if="it.errorLoading"><h2 style="color: red;">Error loading!</h2></div>\
+							<div ng-if="it.inputsObtained">\
 								<h2>Input data</h2><br>\
-								<div style="border: solid 1pt; padding-left:50px; padding-bottom:20px;" smo-super-group="inputs.definitions" smo-data-source="inputs.values"></div>\
+								<div style="border: solid 1pt; padding-left:50px; padding-bottom:20px;" smo-super-group="it.inputs.definitions" view-type="input" smo-data-source="it.inputs.values"></div>\
 							</div>';				
 			element.html('').append($compile(template)(scope));
 		}	
@@ -384,29 +391,55 @@ smoModule.directive('smoInputView', ['$compile', 'units', function($compile,  un
 }]);
 
 
-smoModule.directive('smoResultView', ['$compile', 'units', function($compile,  units) {
+smoModule.directive('smoOutputView', ['$compile', 'units', function($compile,  units) {
 	return {
-		restrict : 'E',
+		restrict : 'A',
 		scope : {
-			smoDataSource : '='
+			it: '=smoOutputView'
+		},
+		controller: function($scope, $http){
+			$scope.it.outputsObtained = false;
+			$scope.it.loading = true;
+			$scope.it.errorLoading = false;
+			$http({
+		        method  : 'POST',
+		        url     : '/ThermoFluids/FlowResistance/',
+		        data    : { action : 'compute', parameters: $scope.it.inputs.values },
+		        headers : { 'Content-Type': 'application/x-www-form-urlencoded' }  // set the headers so angular passing info as form data (not request payload)
+		    })
+		    .success(function(data) {
+		    	$scope.it.loading = false;
+		    	$scope.it.outputsObtained = true;
+		    	$scope.it.outputs = data.inputs.values;
+		    })
+		    .error(function(data) {
+		    	$scope.it.loading = false;
+		    	$scope.it.errorLoading = true;
+		    	$scope.it.inputs = data.inputs.values;
+		    });
 		},
 		link : function(scope, element, attr) {
-			scope.views = {};
-			var groupFields = [];
-			for (var i = 0; i < scope.smoDataSource.length; i++) {
-				var group = scope.smoDataSource[i];
-				var groupView = {};
-				groupFields.push('<div class="col-md-5"><h3>' + group.name + '</h3>');
-				for (var j = 0; j < group.fields.length; j++) {
-					var field = group.fields[j];
-					groupView[field.name] = new units.Quantity(field.quantity, field.value);
-					groupFields.push('<div smo-output-quantity smo-quantity-var="views[\'' + group.name + '\'][\'' + field.name + '\']"' + 
-					' smo-title="' + field.title + '"></div>');
-				}
-				scope.views[group.name] = groupView;
-				groupFields.push('</div>');
-			} 
-			var template = groupFields.join("");
+//			scope.views = {};
+//			var groupFields = [];
+//			for (var i = 0; i < scope.smoDataSource.length; i++) {
+//				var group = scope.smoDataSource[i];
+//				var groupView = {};
+//				groupFields.push('<div class="col-md-5"><h3>' + group.name + '</h3>');
+//				for (var j = 0; j < group.fields.length; j++) {
+//					var field = group.fields[j];
+//					groupView[field.name] = new units.Quantity(field.quantity, field.value);
+//					groupFields.push('<div smo-output-quantity smo-quantity-var="views[\'' + group.name + '\'][\'' + field.name + '\']"' + 
+//					' smo-title="' + field.title + '"></div>');
+//				}
+//				scope.views[group.name] = groupView;
+//				groupFields.push('</div>');
+//			} 
+			var template = '<div ng-if="it.loading"><h2 style="color: green;">Loading...</h2></div>\
+				<div ng-if="it.errorLoading"><h2 style="color: red;">Error loading!</h2></div>\
+				<div ng-if="it.outputsObtained">\
+					<h2>Input data</h2><br>\
+					<div style="border: solid 1pt; padding-left:50px; padding-bottom:20px;" smo-super-group="it.inputs.definitions" view-type="output"></div>\
+				</div>';		
 			element.html('').append($compile(template)(scope));
 		}
 	}
