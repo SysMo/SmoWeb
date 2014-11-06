@@ -57,23 +57,17 @@ class NumericalModel(object):
 			object.__setattr__(self, name, self.declared_fields[name].setValue(value))
 		else:
 			raise AttributeError("Class '{0}' has no field '{1}'".format(self.__class__.__name__, name))
-			
-	def group2Json(self, group):
+	
+	def superGroupList2Json(self, groupList):
+		definitions = [] 
 		fieldValues = {}
-		if (isinstance(group, FieldGroup)):
-			definitions =  self.fieldGroup2Json(group, fieldValues)
-		elif (isinstance(group, SuperGroup)):
-			definitions = self.superGroup2Json(group, fieldValues)
+		for group in groupList:
+			if (isinstance(group, SuperGroup)):
+				definitions.append(self.superGroup2Json(group, fieldValues))
+			else:
+				raise TypeError("The argument to 'groupList2Json' must be a list of SuperGroups" )
 		return {'definitions': definitions, 'values': fieldValues}
-	def fieldGroup2Json(self, group, fieldValues):
-		jsonObject = {'type': 'FieldGroup', 'name': group._name, 'label': group.label}
-		fieldList = []
-		for field in group.fields:
-			fieldList.append(field.toUIDict())
-			fieldValues[field._name] = field.getValueRepr(self.__dict__[field._name])
-		jsonObject['fields'] = fieldList
-		return jsonObject
-				
+
 	def superGroup2Json(self, group, fieldValues):
 		jsonObject = {'type': 'SuperGroup', 'name': group._name, 'label': group.label}
 		subgroupList = []
@@ -84,6 +78,17 @@ class NumericalModel(object):
 				subgroupList.append(self.superGroup2Json(subgroup, fieldValues))
 		jsonObject['groups'] = subgroupList				
 		return jsonObject
+		
+	def fieldGroup2Json(self, group, fieldValues):
+		jsonObject = {'type': 'FieldGroup', 'name': group._name, 'label': group.label}
+		fieldList = []
+		for field in group.fields:
+			fieldList.append(field.toUIDict())
+			fieldValues[field._name] = field.getValueRepr(self.__dict__[field._name])
+		jsonObject['fields'] = fieldList
+		return jsonObject
+				
+
 	
 	def fieldValues2Json(self):
 		jsonObject = {}

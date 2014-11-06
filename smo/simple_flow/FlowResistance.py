@@ -61,8 +61,18 @@ class Pipe(NumericalModel):
 	flowOutput = FieldGroup([inletDensity, fluidMass, massFlowRate, volumetricFlowRate, 
 		flowVelocity, Re, zeta, dragCoefficient, pressureDrop, outletPressure, outletTemperature], label = "Flow")
 	#####
-	results = SuperGroup([geometryOutput, flowOutput], label = "Results")
+	results = SuperGroup([geometryOutput, flowOutput], label = "Results1")
+	###################
 	
+
+	geometryOutput2 = FieldGroup([fluidVolume, internalSurfaceArea, externalSurfaceArea,
+		crossSectionalArea, pipeSolidMass], label = "Geometry")
+	#####
+
+	flowOutput2 = FieldGroup([inletDensity, fluidMass, massFlowRate, volumetricFlowRate, 
+		flowVelocity, Re, zeta, dragCoefficient, pressureDrop, outletPressure, outletTemperature], label = "Flow")
+	#####
+	results2 = SuperGroup([geometryOutput2], label = "Results2")
 
 	def computeGeometry(self):
 		self.crossSectionalArea = np.pi / 4 * self.internalDiameter ** 2
