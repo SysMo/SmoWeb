@@ -17,13 +17,19 @@ class Quantity(Field):
 		self.type = type
 		if (default is None):
 			self.default = 1.0
-			self.defaultDispUnit = Quantities[self.type]['SIUnit']
+			if ('defDispUnit' in Quantities[self.type].keys()):
+				self.defaultDispUnit = Quantities[self.type]['defDispUnit']
+			else:
+				self.defaultDispUnit = Quantities[self.type]['SIUnit']
 		elif (isinstance(default, tuple) and len(default) == 2):
 			self.default = self.setValue(default)
 			self.defaultDispUnit = default[1]
 		elif (isinstance(default, (float, int))):
 			self.default = default
-			self.defaultDispUnit = Quantities[self.type]['SIUnit']
+			if ('defDispUnit' in Quantities[self.type].keys()):
+				self.defaultDispUnit = Quantities[self.type]['defDispUnit']
+			else:
+				self.defaultDispUnit = Quantities[self.type]['SIUnit']
 		else:
 			raise ValueError("To set quantity default value you should either use a number or a tuple e.g. (2, 'mm')")
 		

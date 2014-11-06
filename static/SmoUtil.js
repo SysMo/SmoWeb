@@ -30,7 +30,8 @@ smoModule.factory('util', function util () {
 		return result.replace(/,\n$/, "");
 	}
 	functions.dumpObject = dumpObject;
-	functions['formatNumber'] = function (n) {
+	function formatNumber (n) {
+		console.log(n);
 		if (n > 1e5 || n < 1e-3) {
 			return n.toExponential(5);
 		}
@@ -38,7 +39,8 @@ smoModule.factory('util', function util () {
 		var mult = Math.pow(10,
 				sig - Math.floor(Math.log(n) / Math.LN10) - 1);
 		return Math.round(n * mult) / mult;
-	} 
+	}
+	functions.formatNumber = formatNumber;
 	return functions;
 });
 
@@ -274,7 +276,6 @@ smoModule.directive('smoFieldGroup', ['$compile', 'units', function($compile,  u
 					scope.quantities[field.name] = quantity;
 					
 					// Attach the field value to the quantity so that the original value is updated when the quantity value changes
-					console.log(scope.viewType);
 					if (scope.viewType == 'input') 
 						groupFields.push('<div smo-input-quantity smo-quantity-var="quantities[\'' + field.name + '\']"' + 
 						' smo-title="' + field.label + '"></div>');
@@ -307,7 +308,7 @@ smoModule.directive('smoSuperGroup', ['$compile', 'units', function($compile,  u
 			for (var i = 0; i < scope.smoSuperGroup.groups.length; i++) {
 				var fieldGroup = scope.smoSuperGroup.groups[i];
 					// Attach the field value to the quantity so that the original value is updated when the quantity value changes
-				superGroupFields.push('<div style="display: inline-block; margin-right: 70px;" smo-field-group="smoSuperGroup.groups[' + i + ']" view-type="viewType" smo-data-source="smoDataSource"></div>');
+				superGroupFields.push('<div style="display: inline-block; margin-right: 70px; vertical-align:top;" smo-field-group="smoSuperGroup.groups[' + i + ']" view-type="viewType" smo-data-source="smoDataSource"></div>');
 			}
 			
 			var template = superGroupFields.join("");
@@ -358,23 +359,31 @@ smoModule.directive('smoInputView', ['$compile', 'units', function($compile,  un
 		},
 		controller: function($scope, $http){
 			$scope.it.inputsObtained = false;
-			$scope.it.loading = true;
+			$scope.it.loading = false;
 			$scope.it.errorLoading = false;
-			$http({
-		        method  : 'POST',
-		        url     : '/ThermoFluids/FlowResistance/',
-		        data    : {action : 'getInputs', parameters: {}},
-		        headers : { 'Content-Type': 'application/x-www-form-urlencoded' }  // set the headers so angular passing info as form data (not request payload)
-		    })
-		    .success(function(data) {
-		    	$scope.it.loading = false;
-		    	$scope.it.inputsObtained = true;
-		    	$scope.it.data = data.inputs;
-		    })
-		    .error(function(data) {
-		    	$scope.it.loading = false;
-		    	$scope.it.errorLoading = true;
-		    });
+			$scope.it.fetchData = function() {
+				$scope.it.inputsObtained = false;
+				$scope.it.loading = true;
+				$scope.it.errorLoading = false;
+				$http({
+			        method  : 'POST',
+			        url     : $scope.it.dataUrl,
+			        data    : {action : $scope.it.action, parameters: {}},
+			        headers : { 'Content-Type': 'application/x-www-form-urlencoded' }  // set the headers so angular passing info as form data (not request payload)
+			    })
+			    .success(function(data) {
+			    	$scope.it.loading = false;
+			    	$scope.it.inputsObtained = true;
+			    	$scope.it.data = data;
+			    })
+			    .error(function(data) {
+			    	$scope.it.loading = false;
+			    	$scope.it.errorLoading = true;
+			    });
+			}
+			if ($scope.it.autoFetch || $scope.it.autoFetch == 'undefined'){
+				$scope.it.fetchData();
+			}
 		},
 		link : function(scope, element, attr) {
 			 
@@ -394,28 +403,26 @@ smoModule.directive('smoOutputView', ['$compile', 'units', function($compile,  u
 	return {
 		restrict : 'A',
 		scope : {			
-			it: '=smoOutputView',
-			parameters: '=smoComputeParameters'
+			it: '=smoOutputView'
 		},
 		controller: function($scope, $http){
 			$scope.it.outputsObtained = false;
 			$scope.it.loading = false;
 			$scope.it.errorLoading = false;
-			$scope.it.get = function() {
+			$scope.it.fetchData = function() {
 				$scope.it.outputsObtained = false;
 				$scope.it.loading = true;
 				$scope.it.errorLoading = false;
 				$http({
 			        method  : 'POST',
-			        url     : '/ThermoFluids/FlowResistance/',
-			        data    : { action : 'compute', parameters: $scope.parameters},
+			        url     : $scope.it.dataUrl,
+			        data    : { action : $scope.it.action, parameters: $scope.it.parameters},
 			        headers : { 'Content-Type': 'application/x-www-form-urlencoded' }  // set the headers so angular passing info as form data (not request payload)
 				})
 			    .success(function(data) {
 			    	$scope.it.loading = false;
 			    	$scope.it.outputsObtained = true;
-			    	$scope.it.data = data.results;
-			    	console.log($scope.it.data);
+			    	$scope.it.data = data;
 			    })
 			    .error(function(data) {
 			    	$scope.it.loading = false;
@@ -428,7 +435,7 @@ smoModule.directive('smoOutputView', ['$compile', 'units', function($compile,  u
 				<div ng-if="it.errorLoading"><h2 style="color: red;">Error loading!</h2></div>\
 				<div ng-if="it.outputsObtained">\
 					<h2>Output data</h2><br>\
-				<div style="border: solid 1pt; padding-left:50px; padding-bottom:20px;" smo-super-group="it.data.definitions" view-type="input" smo-data-source="it.data.values"></div>\
+				<div style="border: solid 1pt; padding-left:50px; padding-bottom:20px;" smo-super-group="it.data.definitions" view-type="output" smo-data-source="it.data.values"></div>\
 				</div>';		
 			element.html('').append($compile(template)(scope));
 		}

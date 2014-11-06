@@ -19,8 +19,10 @@ angular.module('FlowResistance', ['ui.bootstrap', 'smo'])
 		$scope.units = units;
 		$scope.materials = materials;
 		$scope.util = util;
- 		$scope.inputs = {};
- 		$scope.outputs = {};
+ 		$scope.inputs = { autoFetch : true, dataUrl: '/ThermoFluids/FlowResistance/', action: 'getInputs', 
+ 				data: {values: {}} };
+ 		$scope.outputs = { dataUrl: '/ThermoFluids/FlowResistance/', action: 'compute', 
+ 				parameters: $scope.inputs.data.values };
 		
 		$scope.dumpObj = function(obj) {
 			return angular.toJson(obj, true);
@@ -42,8 +44,8 @@ angular.module('FlowResistance', ['ui.bootstrap', 'smo'])
 		</div>
 		<div smo-input-view="inputs"></div>
 		<br>
-		<div ng-show="inputs.inputsObtained"><button class="btn btn-default" ng-click="outputs.get()">Compute</button></div>
-		<div smo-output-view="outputs" smo-compute-parameters="inputs.data.values"></div>
+		<div ng-show="inputs.inputsObtained"><button class="btn btn-default" ng-click="outputs.fetchData()">Compute</button></div>
+		<div smo-output-view="outputs"></div>
 	
 	</div>
 	<div class="col-md-1"></div>
