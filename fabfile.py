@@ -1,3 +1,6 @@
+# Call with
+# fab -H localhost deploy
+
 import os
 import fabric
 from fabric.api import *
