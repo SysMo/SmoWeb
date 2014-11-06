@@ -389,14 +389,15 @@ smoModule.directive('smoInputView', ['$compile', 'units', function($compile,  un
 			$scope.it.inputsObtained = false;
 			$scope.it.loading = false;
 			$scope.it.errorLoading = false;
-			$scope.it.fetchData = function() {
+			$scope.it.fetchData = function(parameters) {
 				$scope.it.inputsObtained = false;
 				$scope.it.loading = true;
 				$scope.it.errorLoading = false;
+				var parameters = parameters || {};
 				$http({
 			        method  : 'POST',
 			        url     : $scope.it.dataUrl,
-			        data    : {action : $scope.it.action, parameters: {}},
+			        data    : {action : $scope.it.action, parameters: parameters},
 			        headers : { 'Content-Type': 'application/x-www-form-urlencoded' }, // set the headers so angular passing info as form data (not request payload)
 			    })
 			    .success(function(data) {
@@ -435,14 +436,15 @@ smoModule.directive('smoOutputView', ['$compile', 'units', function($compile,  u
 			$scope.it.outputsObtained = false;
 			$scope.it.loading = false;
 			$scope.it.errorLoading = false;
-			$scope.it.fetchData = function() {
+			$scope.it.fetchData = function(parameters) {
 				$scope.it.outputsObtained = false;
 				$scope.it.loading = true;
 				$scope.it.errorLoading = false;
+				var parameters = parameters || {};
 				$http({
 			        method  : 'POST',
 			        url     : $scope.it.dataUrl,
-			        data    : { action : $scope.it.action, parameters: $scope.it.parameters},
+			        data    : { action : $scope.it.action, parameters: parameters},
 			        headers : { 'Content-Type': 'application/x-www-form-urlencoded' },  // set the headers so angular passing info as form data (not request payload)
 				})
 			    .success(function(data) {

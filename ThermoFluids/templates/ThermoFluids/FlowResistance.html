@@ -14,25 +14,15 @@ angular.module('FlowResistance', ['ui.bootstrap', 'smo'])
 	.controller('FlowResistanceController', 
 		[ '$scope', '$http', '$window', 'util', 'units', 'materials', 
 		function($scope, $http, $window, util, units, materials) {
-		
-// 		$scope.activeTabId = "";
-// 		$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-// 			  $scope.activeTabId = e.target.id; // activated tab
-// //  			  e.relatedTarget // previous tab
-// 			});
-		
-		
 		$scope.units = units;
 		$scope.materials = materials;
 		$scope.util = util;
- 		$scope.inputs = { autoFetch : true, dataUrl: '/ThermoFluids/FlowResistance/', action: 'getInputs', 
- 				data: {values: {}} };
- 		$scope.outputs = { dataUrl: '/ThermoFluids/FlowResistance/', action: 'compute', 
- 				parameters: $scope.inputs.data.values };
-		
-		$scope.dumpObj = function(obj) {
-			return angular.toJson(obj, true);
+ 		$scope.inputs = { autoFetch : true, dataUrl: '/ThermoFluids/FlowResistance/', action: 'getInputs'};
+ 		$scope.outputs = { dataUrl: '/ThermoFluids/FlowResistance/', action: 'compute', parameters: {}};
+		$scope.compute = function() {
+			$scope.outputs.fetchData($scope.inputs.data.values);
 		}
+		
 	}]);
 </script>
 {% endblock %}
@@ -46,7 +36,7 @@ angular.module('FlowResistance', ['ui.bootstrap', 'smo'])
 		</div>
 		<div style="background-color: #D4D4F6;" smo-input-view="inputs"></div>
 		<br>
-		<div ng-show="inputs.inputsObtained"><button class="btn btn-default" ng-click="outputs.fetchData()">Compute</button></div>
+		<div ng-show="inputs.inputsObtained"><button class="btn btn-default" ng-click="compute()">Compute</button></div>
 		<br>
 		<div style="background-color: #D4D4F6;" smo-output-view="outputs"></div>
 	
