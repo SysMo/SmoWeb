@@ -361,7 +361,7 @@ smoModule.directive('smoOutputQuantity', ['$compile', 'util', 'units', function(
 			var labelDivStyle = baseDivStyle + 'text-align: left; width: 150px; height: 30px;';
 			var outputDivStyle = baseDivStyle + 'margin-left: 5px; margin-right: 5px;';
 			var unitDivStyle = baseDivStyle + 'text-align: right;';
-			var outputStyle = baseDivStyle + 'width : 120px; height: 30px; border: 1px solid #888; padding: 1px;';
+			var outputStyle = baseDivStyle + 'width : 120px; height: 30px; background-color: #FFF; border: 1px solid #AAA; padding: 1px;';
 			var unitSize = 'width: 80px; height: 30px;';
 			
 			var template = ' \
@@ -417,7 +417,7 @@ smoModule.directive('smoInputView', ['$compile', 'units', function($compile,  un
 			var template = '<div ng-if="it.loading"><h2 style="color: green;">Loading...</h2></div>\
 							<div ng-if="it.errorLoading"><h2 style="color: red;">Error loading!</h2></div>\
 							<div ng-if="it.inputsObtained">\
-								<div style="border: solid 1pt; padding-left:50px; padding-bottom:20px; padding-top:20px; padding-right:50px;" smo-super-group="it.data.definitions" view-type="input" smo-data-source="it.data.values"></div>\
+								<div style="border-style: solid; border-width: 10px; border-color:#ECEFF5; padding-left:50px; padding-bottom:20px; padding-top:20px; padding-right:50px;" smo-super-group="it.data.definitions" view-type="input" smo-data-source="it.data.values"></div>\
 							</div>';				
 			element.html('').append($compile(template)(scope));
 		}	
@@ -460,8 +460,7 @@ smoModule.directive('smoOutputView', ['$compile', 'units', function($compile,  u
 			var template = '<div ng-if="it.loading"><h2 style="color: green;">Loading...</h2></div>\
 							<div ng-if="it.errorLoading"><h2 style="color: red;">Error loading!</h2></div>\
 							<div ng-if="it.outputsObtained">\
-								<h2>Output data</h2><br>\
-							<div style="border: solid 1pt; padding-left:50px; padding-bottom:20px; padding-top:20px; padding-right:50px;" smo-super-group="it.data.definitions" view-type="output" smo-data-source="it.data.values"></div>\
+							<div style="border-style: solid; border-width: 10px; border-color:#ECEFF5; padding-left:50px; padding-bottom:20px; padding-top:20px; padding-right:50px;" smo-super-group="it.data.definitions" view-type="output" smo-data-source="it.data.values"></div>\
 							</div>';		
 			element.html('').append($compile(template)(scope));
 		}

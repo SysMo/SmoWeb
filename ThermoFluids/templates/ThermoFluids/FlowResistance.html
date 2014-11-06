@@ -40,41 +40,17 @@ angular.module('FlowResistance', ['ui.bootstrap', 'smo'])
 {% block content %}
 <div ng-app="FlowResistance" ng-controller="FlowResistanceController">
 	<div class="container">
-<!-- 	<div class="row"> -->
-<!-- 	<div class="col-md-1"></div> -->
-<!-- 	<div class="col-md-10"> -->
-<!-- 		<ul class="nav nav-tabs" role="tablist" id="myTab"> -->
-<!-- 		  <li class="active"><a id="superGroupTab" data-target="superGroupPane" role="tab" data-toggle="tab">SuperGroup</a></li> -->
-<!-- 		  <li ><a id="plotTab" data-target="#plotPane" role="tab" data-toggle="tab" ng-click="plotData()">Plot</a></li> -->
-<!-- 		  <li ><a id="tableTab" data-target="#tablePane" role="tab" data-toggle="tab" ng-click="drawTable()">Table</a></li> -->
-<!-- 		</ul> -->
-
-<!-- 		<div class="tab-content"> -->
-<!-- 		  <div class="tab-pane active" id="superGroupPane"> -->
-<!-- 			  	<h1>Pressure losses in Pipe flow</h1> -->
-<!-- 				<div style="position:relative; width:250mm;height:50mm"> -->
-<!-- 						<object data="{% static 'ThermoFluids/StraightPipe.svg' %}" type="image/svg+xml"></object> -->
-<!-- 				</div> -->
-<!-- 				<div smo-input-view="inputs"></div> -->
-<!-- 				<br> -->
-<!-- 				<div ng-show="inputs.inputsObtained"><button class="btn btn-default" ng-click="outputs.fetchData()">Compute</button></div> -->
-<!-- 				<div smo-output-view="outputs"></div> -->
-<!-- 		  </div> -->
-<!-- 		</div> -->
-
-		<h1>Pressure losses in Pipe flow</h1>
-		<div style="position:relative; width:250mm;height:50mm">
+		<h1 style="text-align:center;">Pressure losses in Pipe flow</h1>
+		<div style="text-align: center; position:relative; height:50mm">
 				<object data="{% static 'ThermoFluids/StraightPipe.svg' %}" type="image/svg+xml"></object>
 		</div>
-		<div smo-input-view="inputs"></div>
+		<div style="background-color: #D4D4F6;" smo-input-view="inputs"></div>
 		<br>
 		<div ng-show="inputs.inputsObtained"><button class="btn btn-default" ng-click="outputs.fetchData()">Compute</button></div>
-		<div smo-output-view="outputs"></div>
+		<br>
+		<div style="background-color: #D4D4F6;" smo-output-view="outputs"></div>
 	
 	</div>
-<!-- 	<div class="col-md-1"></div> -->
-<!-- 	</div> -->
-<!-- 	</div> -->
 </div>
 
 {% endblock %}
