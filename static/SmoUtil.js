@@ -327,7 +327,7 @@ smoModule.directive('smoSuperGroup', ['$compile', 'units', function($compile,  u
 				navTabPanes.push('</div>');
 			}
 			var template = '<ul class="nav nav-tabs"  role="tablist">' + navTabs.join("") + '</ul>' +
-			'<div class="tab-content"  style="border-style: solid; border-top: none; border-color: #428BCA; border-width: 1px; padding-left: 20px; background-color: #F6F6F6;">' + navTabPanes.join("") + '</div>';
+			'<div class="tab-content"  style="border-style: solid; border-top: none; border-color: #DDD; border-width: 1px; padding-left: 20px; background-color: #F6F6F6;">' + navTabPanes.join("") + '</div>';
 			element.html('').append($compile(template)(scope));
 		}	
 	}
