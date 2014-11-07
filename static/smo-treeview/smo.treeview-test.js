@@ -203,18 +203,18 @@
 						scope[treeId].setImgStyle = scope[treeId].setImgStyle || function (node) {
 							var img;
 							if (node.type == 'dataset') {
-								img = "url('/static/smo-treeview/img/file.png')";
+								img = "url('/static/smo-treeview/img/folder-document.png')";
 							} else if (node.type == 'group') { 
 								if (node.collapsed) { 
-									img = "url('/static/smo-treeview/img/folder-closed.png')";
+									img = "url('/static/smo-treeview/img/blue-folder.png')";
 								} else {
-									img = "url('/static/smo-treeview/img/folder.png')";
+									img = "url('/static/smo-treeview/img/blue-folder.png')";
 								}
 							} else if (node.type == 'hdf_file') { 
 								if (node.collapsed) { 
-									img = "url('/static/smo-treeview/img/folder-closed.png')";
+									img = "url('/static/smo-treeview/img/blue-folder.png')";
 								} else {
-									img = "url('/static/smo-treeview/img/folder.png')";
+									img = "url('/static/smo-treeview/img/blue-folder.png')";
 								}								
 							}
 							var imgStyle = { "padding" : "1px 10px",

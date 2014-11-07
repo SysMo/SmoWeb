@@ -203,18 +203,18 @@
 						scope[treeId].setImgStyle = scope[treeId].setImgStyle || function (node) {
 							var img;
 							if (node.type == 'dataset') {
-								img = "url('/static/smo-treeview/img/file.png')";
+								img = "url('/static/smo-treeview/img/folder-document.png')";
 							} else if (node.type == 'group') { 
 								if (node.collapsed) { 
-									img = "url('/static/smo-treeview/img/folder-closed.png')";
+									img = "url('/static/smo-treeview/img/blue-folder.png')";
 								} else {
-									img = "url('/static/smo-treeview/img/folder.png')";
+									img = "url('/static/smo-treeview/img/blue-folder.png')";
 								}
 							} else if (node.type == 'hdf_file') { 
 								if (node.collapsed) { 
-									img = "url('/static/smo-treeview/img/folder-closed.png')";
+									img = "url('/static/smo-treeview/img/blue-folder.png')";
 								} else {
-									img = "url('/static/smo-treeview/img/folder.png')";
+									img = "url('/static/smo-treeview/img/blue-folder.png')";
 								}								
 							}
 							var imgStyle = { "padding" : "1px 10px",
@@ -226,16 +226,9 @@
 						
 						scope[treeId].view = function (node) {
 					    	scope[treeId].action = "view";
-					    	console.log('Viewing ' + node.path);
-					    	console.log(scope[treeId].action);
-					    	scope[treeId].sendActionData();	
-					    	
-					    	scope["plotBtnText"] = "Show plot";
-					    	scope["showPlot"] = false;
-					    	scope["tableBtnText"] = "Show table";
-					    	scope["showTable"] = false;
-					    	scope["showView"] = false;
-						    scope["viewBtnText"] = "Show view";
+					    	scope["dsetName"] = node.name;
+					    	scope[treeId].sendActionData();
+						   
 //						    scope[treeId].action = "";						
 //							scope[treeId].input = "";
 						};
