@@ -37,7 +37,12 @@ class Pipe(NumericalModel):
 	ambientTemperature = Quantity('Temperature', default = (15, 'degC'), label = 'ambient temperature')
 	flowInput = FieldGroup([fluid, inletPressure, inletTemperature,	inletMassFlowRate, ambientTemperature], label = 'Flow')
 	#####	
+	
+	geometryInput2 = FieldGroup([internalDiameter, externalDiameter, length,	pipeMaterial,
+		surfaceRoughness], label = "Geometry2")
+	
 	inputs = SuperGroup([geometryInput, flowInput], label = 'Input data')
+	inputs2 = SuperGroup([geometryInput2, flowInput], label = 'Input data2')
 	###################
 	fluidVolume = Quantity('Volume', label = 'fluid volume')
 	internalSurfaceArea = Quantity('Area', label = 'internal surface area')
@@ -48,7 +53,7 @@ class Pipe(NumericalModel):
 		crossSectionalArea, pipeSolidMass], label = "Geometry")
 	#####
 	inletDensity = Quantity('Density', label = 'inlet density')
-	fluidMass = Quantity('Mass', label = 'fluidMass')
+	fluidMass = Quantity('Mass', label = 'fluid mass')
 	massFlowRate = Quantity('MassFlowRate', label = 'mass flow rate')
 	volumetricFlowRate = Quantity('VolumetricFlowRate', label = 'volumetric flow rate')
 	flowVelocity = Quantity('Velocity', label = 'flow velocity')
