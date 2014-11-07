@@ -34,11 +34,11 @@ angular.module('FlowResistance', ['ui.bootstrap', 'smo'])
 		<div style="text-align: center; position:relative; height:50mm">
 				<object data="{% static 'ThermoFluids/StraightPipe.svg' %}" type="image/svg+xml"></object>
 		</div>
-		<div style="background-color: #D4D4F6;" smo-input-view="inputs"></div>
+		<div smo-input-view="inputs"></div>
 		<br>
 		<div ng-show="inputs.inputsObtained"><button class="btn btn-default" ng-click="compute()">Compute</button></div>
 		<br>
-		<div style="background-color: #D4D4F6;" smo-output-view="outputs"></div>
+		<div smo-output-view="outputs"></div>
 	
 	</div>
 </div>

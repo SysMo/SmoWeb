@@ -309,7 +309,7 @@ smoModule.directive('smoSuperGroup', ['$compile', 'units', function($compile,  u
 			for (var i = 0; i < scope.smoSuperGroup.length; i++) {
 				var superGroup = scope.smoSuperGroup[i];
 				if (i==0){
-					navTabs.push('<li class="active"><a id="' + superGroup.name + 'Tab" data-target="#' + superGroup.name + '" role="tab" data-toggle="tab">' + superGroup.label + '</a></li>');
+					navTabs.push('<li class="active" ><a id="' + superGroup.name + 'Tab" data-target="#' + superGroup.name + '" role="tab" data-toggle="tab">' + superGroup.label + '</a></li>');
 					navTabPanes.push('<div class="tab-pane active" id="' + superGroup.name + '">');
 				} else {
 					navTabs.push('<li><a id="' + superGroup.name + 'Tab" data-target="#' + superGroup.name + '" role="tab" data-toggle="tab">' + superGroup.label + '</a></li>');
@@ -326,20 +326,8 @@ smoModule.directive('smoSuperGroup', ['$compile', 'units', function($compile,  u
 				navTabPanes.push(superGroupFields.join(""));
 				navTabPanes.push('</div>');
 			}
-			var template = '<ul class="nav nav-tabs" role="tablist" id="myTab">' + navTabs.join("") + '</ul>' +
-			'<div class="tab-content">' + navTabPanes.join("") + '</div>';
-			
-			
-			
-			
-//			var superGroupFields = [];
-//			for (var i = 0; i < scope.smoSuperGroup.groups.length; i++) {
-//				var fieldGroup = scope.smoSuperGroup.groups[i];
-//					// Attach the field value to the quantity so that the original value is updated when the quantity value changes
-//				superGroupFields.push('<div style="display: inline-block; margin-right: 70px; vertical-align:top;" smo-field-group="smoSuperGroup.groups[' + i + ']" view-type="viewType" smo-data-source="smoDataSource"></div>');
-//			}
-//			
-//			var template = superGroupFields.join("");
+			var template = '<ul class="nav nav-tabs" role="tablist">' + navTabs.join("") + '</ul>' +
+			'<div class="tab-content"  style="padding-left: 20px; background-color: #F6F6F6;">' + navTabPanes.join("") + '</div>';
 			element.html('').append($compile(template)(scope));
 		}	
 	}
@@ -418,7 +406,7 @@ smoModule.directive('smoInputView', ['$compile', 'units', function($compile,  un
 			var template = '<div ng-if="it.loading"><h2 style="color: green;">Loading...</h2></div>\
 							<div ng-if="it.errorLoading"><h2 style="color: red;">Error loading!</h2></div>\
 							<div ng-if="it.inputsObtained">\
-								<div style="border-style: solid; border-width: 10px; border-color:#ECEFF5; padding-left:50px; padding-bottom:20px; padding-top:20px; padding-right:50px;" smo-super-group="it.data.definitions" view-type="input" smo-data-source="it.data.values"></div>\
+								<div  smo-super-group="it.data.definitions" view-type="input" smo-data-source="it.data.values"></div>\
 							</div>';				
 			element.html('').append($compile(template)(scope));
 		}	
@@ -462,7 +450,7 @@ smoModule.directive('smoOutputView', ['$compile', 'units', function($compile,  u
 			var template = '<div ng-if="it.loading"><h2 style="color: green;">Loading...</h2></div>\
 							<div ng-if="it.errorLoading"><h2 style="color: red;">Error loading!</h2></div>\
 							<div ng-if="it.outputsObtained">\
-							<div style="border-style: solid; border-width: 10px; border-color:#ECEFF5; padding-left:50px; padding-bottom:20px; padding-top:20px; padding-right:50px;" smo-super-group="it.data.definitions" view-type="output" smo-data-source="it.data.values"></div>\
+							<div smo-super-group="it.data.definitions" view-type="output" smo-data-source="it.data.values"></div>\
 							</div>';		
 			element.html('').append($compile(template)(scope));
 		}
