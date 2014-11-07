@@ -309,7 +309,7 @@ smoModule.directive('smoSuperGroup', ['$compile', 'units', function($compile,  u
 			for (var i = 0; i < scope.smoSuperGroup.length; i++) {
 				var superGroup = scope.smoSuperGroup[i];
 				if (i==0){
-					navTabs.push('<li class="active" ><a id="' + superGroup.name + 'Tab" data-target="#' + superGroup.name + '" role="tab" data-toggle="tab">' + superGroup.label + '</a></li>');
+					navTabs.push('<li class="active"><a id="' + superGroup.name + 'Tab" data-target="#' + superGroup.name + '" role="tab" data-toggle="tab">' + superGroup.label + '</a></li>');
 					navTabPanes.push('<div class="tab-pane active" id="' + superGroup.name + '">');
 				} else {
 					navTabs.push('<li><a id="' + superGroup.name + 'Tab" data-target="#' + superGroup.name + '" role="tab" data-toggle="tab">' + superGroup.label + '</a></li>');
@@ -326,8 +326,8 @@ smoModule.directive('smoSuperGroup', ['$compile', 'units', function($compile,  u
 				navTabPanes.push(superGroupFields.join(""));
 				navTabPanes.push('</div>');
 			}
-			var template = '<ul class="nav nav-tabs" role="tablist">' + navTabs.join("") + '</ul>' +
-			'<div class="tab-content"  style="padding-left: 20px; background-color: #F6F6F6;">' + navTabPanes.join("") + '</div>';
+			var template = '<ul class="nav nav-tabs"  role="tablist">' + navTabs.join("") + '</ul>' +
+			'<div class="tab-content"  style="border-style: solid; border-top: none; border-color: #428BCA; border-width: 1px; padding-left: 20px; background-color: #F6F6F6;">' + navTabPanes.join("") + '</div>';
 			element.html('').append($compile(template)(scope));
 		}	
 	}
