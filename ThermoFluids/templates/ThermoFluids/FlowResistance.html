@@ -18,7 +18,7 @@ angular.module('FlowResistance', ['ui.bootstrap', 'smo'])
 		$scope.materials = materials;
 		$scope.util = util;
  		$scope.inputs = { autoFetch : true, dataUrl: '/ThermoFluids/FlowResistance/', action: 'getInputs'};
- 		$scope.outputs = { dataUrl: '/ThermoFluids/FlowResistance/', action: 'compute', parameters: {}};
+ 		$scope.outputs = { dataUrl: '/ThermoFluids/FlowResistance/', action: 'compute'};
 		$scope.compute = function() {
 			$scope.outputs.fetchData($scope.inputs.data.values);
 		}
@@ -30,7 +30,7 @@ angular.module('FlowResistance', ['ui.bootstrap', 'smo'])
 {% block content %}
 <div ng-app="FlowResistance" ng-controller="FlowResistanceController">
 	<div class="container">
-		<h1 style="text-align:center;">Pressure losses in Pipe flow</h1>
+		<h1 style="text-align:center;">Pressure losses in pipe flow</h1>
 		<div style="text-align: center; position:relative; height:50mm">
 				<object data="{% static 'ThermoFluids/StraightPipe.svg' %}" type="image/svg+xml"></object>
 		</div>
