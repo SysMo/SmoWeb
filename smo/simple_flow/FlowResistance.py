@@ -22,9 +22,9 @@ import json
 # 	]},
 
 class Pipe(NumericalModel):
-	internalDiameter = Quantity('Length', default = (5, 'mm'), label = 'internal diameter')
-	externalDiameter = Quantity('Length', default = (6, 'mm'), label = 'external diameter')
-	length = Quantity('Length', default = (1, 'm'),	label = 'pipe length')
+	internalDiameter = Quantity('Length', default = (5, 'mm'), label = 'internal diameter (d<sub>i</sub>)')
+	externalDiameter = Quantity('Length', default = (6, 'mm'), label = 'external diameter (d<sub>e</sub>)')
+	length = Quantity('Length', default = (1, 'm'),	label = 'pipe length (L)')
 	surfaceRoughness = Quantity('Length', default = (25, 'um'),	label = 'surface roughness')
 	pipeMaterial = ObjectReference(Solids, default = 'StainlessSteel304', label = 'pipe material')	
 	geometryInput = FieldGroup([internalDiameter, externalDiameter, length,	pipeMaterial,
