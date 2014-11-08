@@ -35,7 +35,7 @@ def flowResistanceView(request):
 		parameters = postData['parameters']
 		if (action == 'getInputs'):
 			pipe = Pipe()
-			inputs = pipe.superGroupList2Json([Pipe.inputs, Pipe.inputs2])
+			inputs = pipe.superGroupList2Json([Pipe.inputs])
 			return JsonResponse(inputs)
 		elif (action == 'compute'):
 			pipe = Pipe()
