@@ -83,7 +83,7 @@ class NumericalModel(object):
 		jsonObject = {'type': 'FieldGroup', 'name': group._name, 'label': group.label}
 		fieldList = []
 		for field in group.fields:
-			fieldList.append(field.toUIDict())
+			fieldList.append(field.toFormDict())
 			fieldValues[field._name] = field.getValueRepr(self.__dict__[field._name])
 		jsonObject['fields'] = fieldList
 		return jsonObject

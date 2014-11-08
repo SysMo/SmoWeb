@@ -1,5 +1,4 @@
 import numpy as np
-from django.template.defaultfilters import default
 try:
 	import pylab as plt
 except Exception: 
@@ -11,15 +10,6 @@ from smo.numerical_model.fields import Quantity, ObjectReference, FieldGroup, Su
 from smo.numerical_model.model import NumericalModel
 from smo.smoflow3d.SimpleMaterials import Solids, Fluids
 import json
-
-# $scope.inputs = [
-# 	{type : 'group', name: 'Geometry', fields: [
-# 		{name: 'pipeLength', quantity: 'Length', value: 1, unit: 'm', title: 'pipe length (L)'},
-# 		{name: 'internalDiameter', quantity: 'Length', value: 5, unit: 'mm', title: 'internal diameter (d<sub>i</sub>)'},
-# 		{name: 'externalDiameter', quantity : 'Length', value: 6, unit: 'mm', title: 'external diameter (d<sub>o</sub>)'},
-# 		{name: 'pipeMaterial', type : 'choice', value: 'StainlessSteel304', options: materials.solids, title: 'pipe material'},
-# 		{name: 'surfaceRoughness', quantity : 'Length', value: 25, unit: 'um', title: 'abs. surface roughness'},
-# 	]},
 
 class Pipe(NumericalModel):
 	internalDiameter = Quantity('Length', default = (5, 'mm'), label = 'internal diameter (d<sub>i</sub>)')
@@ -35,7 +25,7 @@ class Pipe(NumericalModel):
 	inletTemperature = Quantity('Temperature', default = (15, 'degC'), label = 'inlet temperature')					
 	inletMassFlowRate = Quantity('MassFlowRate', default = (1, 'kg/h'), label = 'inlet mass flow rate')
 	ambientTemperature = Quantity('Temperature', default = (15, 'degC'), label = 'ambient temperature')
-	flowInput = FieldGroup([fluid, inletPressure, inletTemperature,	inletMassFlowRate, ambientTemperature], label = 'Flow')
+	flowInput = FieldGroup([fluid, inletPressure, inletTemperature,	inletMassFlowRate], label = 'Flow')
 	#####	
 	
 	geometryInput2 = FieldGroup([internalDiameter, externalDiameter, length,	pipeMaterial,
@@ -44,7 +34,7 @@ class Pipe(NumericalModel):
 	inputs = SuperGroup([geometryInput, flowInput], label = 'Input data')
 	inputs2 = SuperGroup([geometryInput2, flowInput], label = 'Input data2')
 	###################
-	fluidVolume = Quantity('Volume', label = 'fluid volume')
+	fluidVolume = Quantity('Volume', label = 'fluid volume', default = (1, 'L'))
 	internalSurfaceArea = Quantity('Area', label = 'internal surface area')
 	externalSurfaceArea = Quantity('Area', label = 'external surface area')
 	crossSectionalArea = Quantity('Area', label = 'cross sectional area')
@@ -54,31 +44,20 @@ class Pipe(NumericalModel):
 	#####
 	inletDensity = Quantity('Density', label = 'inlet density')
 	fluidMass = Quantity('Mass', label = 'fluid mass')
-	massFlowRate = Quantity('MassFlowRate', label = 'mass flow rate')
-	volumetricFlowRate = Quantity('VolumetricFlowRate', label = 'volumetric flow rate')
+	massFlowRate = Quantity('MassFlowRate', label = 'mass flow rate', default = (1, 'kg/h'))
+	volumetricFlowRate = Quantity('VolumetricFlowRate', label = 'volumetric flow rate', default = (1, 'L/h'))
 	flowVelocity = Quantity('Velocity', label = 'flow velocity')
 	Re = Quantity('Dimensionless', label = 'Reynolds number')
 	zeta = Quantity('Dimensionless', label = 'friction factor')
 	dragCoefficient = Quantity('Dimensionless', label = 'drag coefficient')
 	pressureDrop = Quantity('Pressure', label = 'pressure drop')
 	outletPressure = Quantity('Pressure', label = 'outlet pressure')
-	outletTemperature  = Quantity('Temperature', label = 'outlet temperature')
+	outletTemperature  = Quantity('Temperature', label = 'outlet temperature', default = (1, 'degC'))
 	flowOutput = FieldGroup([inletDensity, fluidMass, massFlowRate, volumetricFlowRate, 
 		flowVelocity, Re, zeta, dragCoefficient, pressureDrop, outletPressure, outletTemperature], label = "Flow")
 	#####
 	results = SuperGroup([geometryOutput, flowOutput], label = "Results")
 	###################
-	
-
-# 	geometryOutput2 = FieldGroup([fluidVolume, internalSurfaceArea, externalSurfaceArea,
-# 		crossSectionalArea, pipeSolidMass], label = "Geometry")
-# 	#####
-# 
-# 	flowOutput2 = FieldGroup([inletDensity, fluidMass, massFlowRate, volumetricFlowRate, 
-# 		flowVelocity, Re, zeta, dragCoefficient, pressureDrop, outletPressure, outletTemperature], label = "Flow")
-# 	#####
-# 	results2 = SuperGroup([geometryOutput2], label = "Results2")
-	#superResult = SuperGroup([results, results2], label = "SuperResult")
 
 	def computeGeometry(self):
 		self.crossSectionalArea = np.pi / 4 * self.internalDiameter ** 2

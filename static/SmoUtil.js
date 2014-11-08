@@ -71,42 +71,50 @@ smoModule.factory('units', function() {
 	var units = {};
 	// List of quantities and units
 	units.quantities = {
-		'Dimensionless' : {title : 'dimensionless quantity', nominalValue : 1, SIUnit : '-', 
-				units : {'-' : {mult : 1}}},
-		'Length' : {title : 'length', nominalValue : 1, SIUnit : 'm', 
-			units : {'m' : {mult : 1}, 'km' : {mult : 1e3}, 'cm' : {mult : 1e-2}, 'mm' : {mult : 1e-3}, 
-			'um' : {mult : 1e-6}, 'nm' : {mult : 1e-9}, 'in' : {mult : 2.54e-2}, 'ft' : {mult : 3.048e-1}}},
-		'Area' : {title : 'area', nominalValue : 1, SIUnit : 'm**2', 
-			units : {'m**2' : {mult : 1}, 'cm**2' : {mult : 1e-4}, 'mm**2' : {mult : 1e-6}}},
-		'Volume' : {title : 'volume', nominalValue : 1, SIUnit : 'm**3', 
-			units : {'m**3' : {mult : 1}, 'L' : {mult : 1e-3}, 'cm**3' : {mult : 1e-6}, 'mm**3' : {mult : 1e-9}}},
-		'Time' : {title : 'time', nominalValue : 1, SIUnit : 's', 
-			units : {'s' : {mult : 1}, 'ms' : {mult : 1e-3}, 'us' : {mult : 1e-6}, 'min' : {mult : 60}, 'h' : {mult : 3600}, 'day' : {mult : 8.64e4}, 'year' : {mult : 3.15576e7}}},
-		'Velocity' : {title : 'velocity', nominalValue : 1, SIUnit : 'm/s', 
-				units : {'m/s' : {mult : 1}, 'km/h' : {mult : 1/3.6}, 'km/s' : {mult : 1e3}, 'mm/s' : {mult : 1e-3}}},
-		'Mass' : {title : 'mass', nominalValue : 1, SIUnit : 'kg', 
-			units : {'kg' : {mult : 1}, 'g' : {mult : 1e-3}, 'ton' : {mult : 1e3}}},
-		'Pressure' : {title : 'pressure', nominalValue : 1e5, SIUnit : 'Pa', defDispUnit : 'bar',
-			units : {'Pa' : {mult : 1}, 'kPa' : {mult : 1e3}, 'MPa' : {mult : 1e6}, 'GPa' : {mult : 1e9}, 
-				'bar' : {mult : 1e5}, 'psi' : {mult : 6.89475e3}, 'ksi' : {mult : 6.89475e6}}},
-		'Temperature' : {title : 'temperature', nominalValue : 273.15, SIUnit : 'K', 
-			units : {'K' : {mult : 1}, 'degC' : {mult : 1, offset : 273.15}, 'degF' : {mult : 5./9, offset : 255.372}}},
-		'Density' : {title : 'density', nominalValue : 1, SIUnit : 'kg/m**3', 
-			units : {'kg/m**3' : {mult : 1}, 'g/L' : {mult : 1}, 'g/cm**3' : {mult : 1e3}}},
-		'SpecificEnthalpy' : {title : 'specific enthalpy', nominalValue : 1e6, SIUnit : 'J/kg', defDispUnit : 'kJ/kg', 
-			units : {'J/kg' : {mult : 1}, 'kJ/kg' : {mult : 1e3}}},
-		'SpecificInternalEnergy' : {title : 'specific internal energy', nominalValue : 1e6, SIUnit : 'J/kg', defDispUnit : 'kJ/kg', 
-			units : {'J/kg' : {mult : 1}, 'kJ/kg' : {mult : 1e3}}},
-		'SpecificEntropy' : {title : 'specific entropy', nominalValue : 1, SIUnit : 'J/kg-K', defDispUnit : 'kJ/kg-K',
-			units : {'J/kg-K' : {mult : 1}, 'kJ/kg-K' : {mult : 1e3}}},
-		'VaporQuality' : {title : 'vapor quality', nominalValue : 1, SIUnit : '-', 
-			units : {'-' : {mult : 1}}},
-		'MassFlowRate' : {title : 'mass flow rate', nominalValue : 1, SIUnit : 'kg/s', 
-			units : {'kg/s' : {mult : 1}, 'g/s' : {mult : 1e-3}, 'kg/min' : {mult : 1./60}, 'g/min' : {mult : 1e-3/60}, 
-				'kg/h' : {mult : 1/3.6e3}, 'g/h' : {mult : 1e-3/3.6e3}}},
-		'VolumetricFlowRate' : {title : 'volumetric flow rate', nominalValue : 1, SIUnit : 'm**3/s', 
-			units : {'m**3/s' : {mult : 1}, 'm**3/h' : {mult : 1./3.6e3}, 'L/s' : {mult : 1e-3},
-				'L/min' : {mult : 1e-3/60}, 'L/h' : {mult : 1e-3/3.6e3}}}
+			'Dimensionless' : {'title' : 'dimensionless quantity', 'nominalValue' : 1, 'SIUnit' : '-', 
+				'units' : {'-' : {'mult' : 1}}},
+		'Length' : {'title' : 'length', 'nominalValue' : 1, 'SIUnit' : 'm', 
+			'units' : {'m' : {'mult' : 1}, 'km' : {'mult' : 1e3}, 'cm' : {'mult' : 1e-2}, 'mm' : {'mult' : 1e-3}, 
+			'um' : {'mult' : 1e-6}, 'nm' : {'mult' : 1e-9}, 'in' : {'mult' : 2.54e-2}, 'ft' : {'mult' : 3.048e-1}}},
+		'Area' : {'title' : 'area', 'nominalValue' : 1, 'SIUnit' : 'm**2', 
+			'units' : {'m**2' : {'mult' : 1}, 'cm**2' : {'mult' : 1e-4}, 'mm**2' : {'mult' : 1e-6}}},
+		'Volume' : {'title' : 'volume', 'nominalValue' : 1, 'SIUnit' : 'm**3', 
+			'units' : {'m**3' : {'mult' : 1}, 'L' : {'mult' : 1e-3}, 'cm**3' : {'mult' : 1e-6}, 'mm**3' : {'mult' : 1e-9}}},
+		'Time' : {'title' : 'time', 'nominalValue' : 1, 'SIUnit' : 's', 
+			'units' : {'s' : {'mult' : 1}, 'ms' : {'mult' : 1e-3}, 'us' : {'mult' : 1e-6}, 'min' : {'mult' : 60}, 'h' : {'mult' : 3600}, 'day' : {'mult' : 8.64e4}, 'year' : {'mult' : 3.15576e7}}},
+		'Velocity' : {'title' : 'velocity', 'nominalValue' : 1, 'SIUnit' : 'm/s', 
+				'units' : {'m/s' : {'mult' : 1}, 'km/h' : {'mult' : 1/3.6}, 'km/s' : {'mult' : 1e3}, 'mm/s' : {'mult' : 1e-3}}},
+		'Mass' : {'title' : 'mass', 'nominalValue' : 1, 'SIUnit' : 'kg', 
+			'units' : {'kg' : {'mult' : 1}, 'g' : {'mult' : 1e-3}, 'ton' : {'mult' : 1e3}}},
+		'Pressure' : {'title' : 'pressure', 'nominalValue' : 1e5, 'SIUnit' : 'Pa', 'defDispUnit' : 'bar',
+			'units' : {'Pa' : {'mult' : 1}, 'kPa' : {'mult' : 1e3}, 'MPa' : {'mult' : 1e6}, 'GPa' : {'mult' : 1e9}, 
+				'bar' : {'mult' : 1e5}, 'psi' : {'mult' : 6.89475e3}, 'ksi' : {'mult' : 6.89475e6}}},
+		'Temperature' : {'title' : 'temperature', 'nominalValue' : 273.15, 'SIUnit' : 'K', 
+			'units' : {'K' : {'mult' : 1}, 'degC' : {'mult' : 1, 'offset' : 273.15}, 'degF' : {'mult' : 5./9, 'offset' : 255.372}}},
+		'Density' : {'title' : 'density', 'nominalValue' : 1, 'SIUnit' : 'kg/m**3', 
+			'units' : {'kg/m**3' : {'mult' : 1}, 'g/L' : {'mult' : 1}, 'g/cm**3' : {'mult' : 1e3}}},
+		'SpecificEnergy' : {'title' : 'specific energy', 'nominalValue' : 1e6, 'SIUnit' : 'J/kg', 'defDispUnit' : 'kJ/kg', 
+			'units' : {'J/kg' : {'mult' : 1}, 'kJ/kg' : {'mult' : 1e3}}},
+		'SpecificEnthalpy' : {'title' : 'specific enthalpy', 'nominalValue' : 1e6, 'SIUnit' : 'J/kg', 'defDispUnit' : 'kJ/kg', 
+			'units' : {'J/kg' : {'mult' : 1}, 'kJ/kg' : {'mult' : 1e3}}},
+		'SpecificInternalEnergy' : {'title' : 'specific internal energy', 'nominalValue' : 1e6, 'SIUnit' : 'J/kg', 'defDispUnit' : 'kJ/kg', 
+			'units' : {'J/kg' : {'mult' : 1}, 'kJ/kg' : {'mult' : 1e3}}},
+		'SpecificEntropy' : {'title' : 'specific entropy', 'nominalValue' : 1e3, 'SIUnit' : 'J/kg-K', 'defDispUnit' : 'kJ/kg-K',
+			'units' : {'J/kg-K' : {'mult' : 1}, 'kJ/kg-K' : {'mult' : 1e3}}},
+		'SpecificHeatCapacity' : {'title' : 'specific heat capacity', 'nominalValue' : 1e3, 'SIUnit' : 'J/kg-K', 'defDispUnit' : 'kJ/kg-K',
+			'units' : {'J/kg-K' : {'mult' : 1}, 'kJ/kg-K' : {'mult' : 1e3}}},
+		'ThermalConductivity' : {'title' : 'thermal conductivity', 'nominalValue' : 1.0, 'SIUnit' : 'W/m-K', 'defDispUnit' : 'W/m-K',
+			'units' : {'W/m-K' : {'mult' : 1}}},
+		'DynamicViscosity' : {'title' : 'dynamic viscosity', 'nominalValue' : 1.0, 'SIUnit' : 'Pa-s', 'defDispUnit' : 'Pa-s',
+			'units' : {'Pa-s' : {'mult' : 1}, 'mPa-s' : {'mult' : 1e-3}, 'P' : {'mult' : 0.1}, 'cP' : {'mult' : 1e-3}}},
+		'VaporQuality' : {'title' : 'vapor quality', 'nominalValue' : 1, 'SIUnit' : '-', 
+			'units' : {'-' : {'mult' : 1}}},
+		'MassFlowRate' : {'title' : 'mass flow rate', 'nominalValue' : 1, 'SIUnit' : 'kg/s', 
+			'units' : {'kg/s' : {'mult' : 1}, 'g/s' : {'mult' : 1e-3}, 'kg/min' : {'mult' : 1./60}, 'g/min' : {'mult' : 1e-3/60}, 
+				'kg/h' : {'mult' : 1/3.6e3}, 'g/h' : {'mult' : 1e-3/3.6e3}}},
+		'VolumetricFlowRate' : {'title' : 'volumetric flow rate', 'nominalValue' : 1, 'SIUnit' : 'm**3/s', 
+			'units' : {'m**3/s' : {'mult' : 1}, 'm**3/h' : {'mult' : 1./3.6e3}, 'L/s' : {'mult' : 1e-3},
+				'L/min' : {'mult' : 1e-3/60}, 'L/h' : {'mult' : 1e-3/3.6e3}}}
 	};
 
 	// Object for handling quantity
@@ -268,6 +276,10 @@ smoModule.directive('smoFieldGroup', ['$compile', 'units', function($compile,  u
 			var groupFields = [];
 			for (var i = 0; i < scope.smoFieldGroup.fields.length; i++) {
 				var field = scope.smoFieldGroup.fields[i];
+				var showFieldCode = "";
+				if (!(typeof field.show === "undefined")){
+					showFieldCode = 'ng-show="' + field.show.replace('self', 'smoDataSource') + '"';
+				}
 				if (field.type == 'Quantity') {
 					var quantity = new units.Quantity(field.quantity, scope.smoDataSource[field.name], null, field.defaultDispUnit);
 					quantity.id = field.name;
@@ -276,18 +288,18 @@ smoModule.directive('smoFieldGroup', ['$compile', 'units', function($compile,  u
 					
 					// Attach the field value to the quantity so that the original value is updated when the quantity value changes
 					if (scope.viewType == 'input') 
-						groupFields.push('<div smo-input-quantity smo-quantity-var="quantities[\'' + field.name + '\']"' + 
+						groupFields.push('<div ' + showFieldCode + ' smo-input-quantity smo-quantity-var="quantities.' + field.name + '"' + 
 						' smo-title="' + field.label + '"></div>');
 					if (scope.viewType == 'output')
-						groupFields.push('<div smo-output-quantity smo-quantity-var="quantities[\'' + field.name + '\']"' + 
+						groupFields.push('<div ' + showFieldCode + ' smo-output-quantity smo-quantity-var="quantities.' + field.name + '"' + 
 								' smo-title="' + field.label + '"></div>');
-				} else if (field.type == 'ObjectReference') {
+				} else if (field.type == 'Choices') {
 					if (scope.viewType == 'input')
-						groupFields.push('<div smo-input-choice smo-choice-var="smoDataSource[\'' + field.name + '\']"' +
+						groupFields.push('<div ' + showFieldCode + ' smo-input-choice smo-choice-var="smoDataSource.' + field.name + '"' +
 						' smo-options="smoFieldGroup.fields[' + i + '].options" smo-title="' + field.label + '"></div>');
 				}
 			} 
-			var template = '<div style="display: inline-block;"><h3>' + scope.smoFieldGroup.label + '</h3><br>' 
+			var template = '<div style="display: inline-block;"><h3>' + (scope.smoFieldGroup.label || "") + '</h3><br>' 
 				+ groupFields.join("") + '</div>';
 			element.html('').append($compile(template)(scope));
 		}	

@@ -1,0 +1,36 @@
+{% extends "Base.html" %}
+{% load bootstrap_toolkit %}
+{% load staticfiles %}
+
+{% block scripts_and_styles %}
+<script src="{% static 'SmoUtil.js' %}"></script>
+<script>
+angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
+	.config(['$httpProvider', function($httpProvider) {
+	    $httpProvider.defaults.xsrfCookieName = 'csrftoken';
+	    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+	}])
+	.controller('FluidPropsController', [ '$scope', function($scope) {
+	$scope.inputs = {autoFetch: true, dataUrl: '/ThermoFluids/FluidPropsCalculator/', action: 'getInputs'};
+	$scope.outputs = { dataUrl: '/ThermoFluids/FluidPropsCalculator/', action: 'compute'};
+	
+	$scope.compute = function() {
+		$scope.outputs.fetchData($scope.inputs.data.values);
+	}
+
+}])
+</script>
+{% endblock %}
+
+{% block content %}
+<div ng-app="FluidPropsCalculator" ng-controller="FluidPropsController">
+	<div class="container">
+		<h1>Fluid properties calculator</h1>
+		<div smo-input-view="inputs"></div>
+		<br>
+		<div ng-show="inputs.inputsObtained"><button class="btn btn-default" ng-click="compute()">Compute</button></div>
+		<br>
+		<div smo-output-view="outputs"></div>
+	</div>
+</div>
+{% endblock %}

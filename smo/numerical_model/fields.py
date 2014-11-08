@@ -4,8 +4,9 @@ class Field(object):
 	# Tracks each time an instance is created. Used to retain order.
 	creation_counter = 0
 	
-	def __init__(self, label = None):
+	def __init__(self, label = None, show = None):
 		self.label = label
+		self.show = show
 		
 		# Increase the creation counter, and save our local copy.
 		self.creation_counter = Field.creation_counter
@@ -38,19 +39,47 @@ class Quantity(Field):
 			unitDef = Quantities[self.type]['units'][value[1]]
 			unitOffset = 0 if ('offset' not in unitDef.keys()) else unitDef['offset']
 			return value[0] * unitDef['mult'] + unitOffset
-		elif (isinstance(value, (float, int))):
+		elif (isinstance(value, float)):
 			return value
+		elif (isinstance(value, int)):
+			return float(value)
 		else:
 			raise ValueError("To set quantity value you should either use a number or a tuple e.g. (2, 'mm')")
 	
 	def getValueRepr(self, value):
 		return value
 		
-	def toUIDict(self):
+	def toFormDict(self):
 		fieldDict = {'name' : self._name, 'label': self.label}
 		fieldDict['type'] = 'Quantity'
 		fieldDict['quantity'] = self.type
 		fieldDict['defaultDispUnit'] = self.defaultDispUnit
+		if (self.show is not None):
+			fieldDict['show'] = self.show
+		return fieldDict
+
+class Choices(Field):
+	def __init__(self, options, default = None, *args, **kwargs):
+		super(Choices, self).__init__(*args, **kwargs)
+		self.options = options
+		if (default is None):
+			self.default = options.keys()[0]
+		else:
+			self.default = self.setValue(default)
+	
+	def setValue(self, value):
+		if (value in self.options.keys()):
+			return value
+		else:
+			raise ValueError('Illegal value {0} for choices variable!'.format(value))		
+	
+	def getValueRepr(self, value):
+		return value
+	
+	def toFormDict(self):
+		fieldDict = {'name' : self._name, 'label': self.label}
+		fieldDict['type'] = 'Choices'
+		fieldDict['options'] = self.options
 		return fieldDict
 
 class ObjectReference(Field):
@@ -74,9 +103,9 @@ class ObjectReference(Field):
 	def getValueRepr(self, value):
 		return value['_key']
 		
-	def toUIDict(self):
+	def toFormDict(self):
 		fieldDict = {'name' : self._name, 'label': self.label}
-		fieldDict['type'] = 'ObjectReference'
+		fieldDict['type'] = 'Choices'
 		fieldDict['options'] = {key : value['label'] for key, value in self.targetContainer.iteritems()}
 		return fieldDict
 	
