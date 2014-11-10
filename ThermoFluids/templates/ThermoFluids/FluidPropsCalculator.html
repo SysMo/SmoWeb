@@ -1,0 +1,62 @@
+{% extends "Base.html" %}
+{% load bootstrap_toolkit %}
+{% load staticfiles %}
+
+{% block scripts_and_styles %}
+<script src="{% static 'SmoUtil.js' %}"></script>
+<script>
+angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
+	.config(['$httpProvider', function($httpProvider) {
+	    $httpProvider.defaults.xsrfCookieName = 'csrftoken';
+	    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+	}])
+	.controller('FluidPropsController', [ '$scope', function($scope) {
+	$scope.inputs = [{autoFetch: true, dataUrl: '/ThermoFluids/FluidPropsCalculator/', action: 'getInputs'}];
+	$scope.outputs = [{ dataUrl: '/ThermoFluids/FluidPropsCalculator/', action: 'compute'}];
+	
+	$scope.compute = function(index) {
+		$scope.outputs[index].fetchData($scope.inputs[index].data.values);
+	}
+	$scope.createNewTab = function() {
+		console.log('Creating new tab');
+		$scope.inputs.push({autoFetch: true, dataUrl: '/ThermoFluids/FluidPropsCalculator/', action: 'getInputs'});
+		$scope.outputs.push({ dataUrl: '/ThermoFluids/FluidPropsCalculator/', action: 'compute'});		
+	}
+	$scope.getTabClass = function(index) {
+		if (index == 0) {
+			return 'active';
+		} else {
+			return '';
+		}
+	}
+
+}])
+</script>
+{% endblock %}
+
+{% block content %}
+{% verbatim %}
+<div ng-app="FluidPropsCalculator" ng-controller="FluidPropsController">
+	<div class="container">
+		<h1>Fluid properties calculator</h1>
+		<ul class="nav nav-tabs" role="tablist" id="FluidPointTabs">
+	  		<li ng-repeat="input in inputs track by $index" ng-class="getTabClass($index)">
+		  		<a id="FP{{$index + 1}}Tab" href="#FluidPoint{{$index + 1}}" role="tab" data-toggle="tab"">Fluid point {{$index + 1}}</a>
+	  		</li>
+		  	<li><a href="" id="FluidPointNew" ng-click="createNewTab()">+</a></li>
+		</ul>
+
+		<div class="tab-content">
+			<div ng-repeat="input in inputs track by $index" ng-class="'tab-pane '+ getTabClass($index)" id="FluidPoint{{$index + 1}}">
+				<br>
+				<div smo-input-view="inputs[$index]"></div>
+				<br>
+				<div ng-show="inputs[$index].inputsObtained"><button class="btn btn-default" ng-click="compute($index)">Compute</button></div>
+				<br>
+				<div smo-output-view="outputs[$index]"></div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endverbatim %}
+{% endblock %}

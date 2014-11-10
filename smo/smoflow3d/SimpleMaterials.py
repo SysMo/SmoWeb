@@ -16,15 +16,15 @@ Solids = {
 addKeyFieldToValues(Solids)
 
 Fluids = {
-	"ParaHydrogen" : {'label' : "ParaHydrogen"},
-	"OrthoHydrogen" : {'label' : "OrthoHydrogen"},
-	"Hydrogen" : {'label' : "Hydrogen"},
+	"ParaHydrogen" : {'label' : "Hydrogen-Para"},
+	"OrthoHydrogen" : {'label' : "Hydrogen-Ortho"},
+	"Hydrogen" : {'label' : "Hydrogen-Normal"},
 	"Water" : {'label' : "Water"},
 	"Air" : {'label' : "Air"},
 	"Nitrogen" : {'label' : "Nitrogen"},
 	"Oxygen" : {'label' : "Oxygen"},
-	"CarbonDioxide" : {'label' : "CarbonDioxide"},
-	"CarbonMonoxide" : {'label' : "CarbonMonoxide"},
+	"CarbonDioxide" : {'label' : "Carbon dioxide"},
+	"CarbonMonoxide" : {'label' : "Carbon monoxide"},
 	"R134a" : {'label' : "R134a"},
 	"R1234yf" : {'label' : "R1234yf"},
 	"R1234ze(Z)" : {'label' : "R1234ze(Z)"},

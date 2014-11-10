@@ -1,4 +1,5 @@
 cimport SmoMedia as SM
+from libcpp.string cimport string
 
 cdef class Medium:
 	cdef SM.Medium* ptr
@@ -26,7 +27,12 @@ cdef class MediumState:
 		self.ptr = SM.MediumState_new(medium.ptr)
 	def __dealloc__(self):
 		del self.ptr
-		
+	
+	def update_state(self, 
+			string state1, double state1Value,
+			string state2, double state2Value):
+		self.ptr.init(state1, state1Value, state2, state2Value)
+	
 	def update_Tp(self, double T, double p):
 		self.ptr.update_Tp(T, p)	
 	def update_Trho(self, double T, double rho):

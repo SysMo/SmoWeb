@@ -12,11 +12,7 @@ angular.module('FlowResistance', ['ui.bootstrap', 'smo'])
 	    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
 	}])
 	.controller('FlowResistanceController', 
-		[ '$scope', '$http', '$window', 'util', 'units', 'materials', 
-		function($scope, $http, $window, util, units, materials) {
-		$scope.units = units;
-		$scope.materials = materials;
-		$scope.util = util;
+		[ '$scope', function($scope) {
  		$scope.inputs = { autoFetch : true, dataUrl: '/ThermoFluids/FlowResistance/', action: 'getInputs'};
  		$scope.outputs = { dataUrl: '/ThermoFluids/FlowResistance/', action: 'compute'};
 		$scope.compute = function() {
@@ -30,7 +26,7 @@ angular.module('FlowResistance', ['ui.bootstrap', 'smo'])
 {% block content %}
 <div ng-app="FlowResistance" ng-controller="FlowResistanceController">
 	<div class="container">
-		<h1 style="text-align:center;">Pressure losses in pipe flow</h1>
+		<h1>Pressure losses in pipe flow</h1>
 		<div style="text-align: center; position:relative; height:50mm">
 				<object data="{% static 'ThermoFluids/StraightPipe.svg' %}" type="image/svg+xml"></object>
 		</div>

@@ -15,15 +15,18 @@ cdef extern from "media/Medium.h":
 	void Medium_register(MediumConcreteTypes mediumType, const char* mediumName, int mediumIndex) except +
 	Medium* Medium_get(int mediumIndex) except +
 	
+from libcpp.string cimport string
 cdef extern from "media/MediumState.h":
 	cdef cppclass MediumState:
-		void update_Tp(double T, double p)
-		void update_Trho(double T, double rho)
-		void update_prho(double p, double rho)
-		void update_ph(double p, double h)
-		void update_ps(double p, double s)
-		void update_pq(double p, double q)
-		void update_Tq(double T, double q)
+		void init(string state1, double state1Value,
+				string state2, double state2Value) except +;
+		void update_Tp(double T, double p) except +
+		void update_Trho(double T, double rho) except +
+		void update_prho(double p, double rho) except +
+		void update_ph(double p, double h) except +
+		void update_ps(double p, double s) except +
+		void update_pq(double p, double q) except +
+		void update_Tq(double T, double q) except +
 		double T()
 		double p()
 		double rho()
@@ -54,5 +57,4 @@ cdef extern from "media/MediumState.h":
 	MediumState* MediumState_new(Medium* medium) except +
 	# Workaround for thermal conductivity as lambda is reserved word on python
 	double MediumState_lambda(MediumState* mstate)
-
 

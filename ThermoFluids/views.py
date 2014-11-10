@@ -1,36 +1,31 @@
-from django.views.generic import TemplateView
-from django.core.context_processors import csrf
-
+import json
 from django.shortcuts import render_to_response, RequestContext
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
-from django.core.urlresolvers import reverse
-from  SmoWeb.settings import MEDIA_ROOT, hdfFileFolder
-import json
-from django.views.decorators.csrf import csrf_protect
-from smo.smoflow3d.SimpleMaterials import Solids
-# Create your views here.
 
-#from django.db.models import Model 
+def fluidPropsCalculatorView(request):
+	if request.method == 'GET':
+		return render_to_response('ThermoFluids/FluidPropsCalculator.html', locals(), 
+				context_instance=RequestContext(request))
+	elif request.method == 'POST':
+		from smo.smoflow3d.FluidPropsCalculator import FluidPropsCalculator 
+		postData = json.loads(request.body)
+		action = postData['action']
+		parameters = postData['parameters']
+		if (action == 'getInputs'):
+			fpc = FluidPropsCalculator()
+			inputs = fpc.superGroupList2Json([fpc.superInputs])
+			return JsonResponse(inputs)
+		elif (action == 'compute'):
+			fpc = FluidPropsCalculator()
+			fpc.fieldValuesFromJson(parameters)
+			fpc.compute()
+			results = fpc.superGroupList2Json([fpc.results]) 
+			return JsonResponse(results)
 
-class FluidPropertiesCoolPropView(TemplateView):
-	template_name = "ThermoFluids/FluidPropertiesCoolProp.html"
-	def get(self, request):
-#		form = FluidPropertiesCoolPropForm()
-		
-		return render_to_response(self.template_name, locals(), 
-				context_instance=RequestContext(self.request))
-		
-	def post(self, request):
-#		form = FluidPropertiesCoolPropForm(self.request.POST)
-# 		if not form.is_valid():
-# 			raise ValueError("Invalid form data")
-# 		instance = FluidPropertiesCoolPropForm(**form.cleaned_data)
-# 		columnNames, propsTable = instance.computeFluidProps()
-		
-		return render_to_response(self.template_name, locals(), 
-				context_instance=RequestContext(self.request))		
-
-
+		else:
+			raise ValueError('Unknown post action "{0}" for URL: {1}'.format(action, 'ThermoFluids/FluidPropsCalculator.html'))
+	else:
+		pass
 
 def flowResistanceView(request):
 	if request.method == 'POST':
@@ -40,18 +35,14 @@ def flowResistanceView(request):
 		parameters = postData['parameters']
 		if (action == 'getInputs'):
 			pipe = Pipe()
-			inputs = pipe.superGroupList2Json([Pipe.inputs, Pipe.inputs2])
-			print json.dumps(inputs, indent=4)
-# 			return JsonResponse({'inputs' : inputs})
+			inputs = pipe.superGroupList2Json([Pipe.inputs])
 			return JsonResponse(inputs)
-		if (action == 'compute'):
+		elif (action == 'compute'):
 			pipe = Pipe()
 			pipe.fieldValuesFromJson(parameters)
 			pipe.computeGeometry()
 			pipe.computePressureDrop()
 			results = pipe.superGroupList2Json([Pipe.results]) 
-			print json.dumps(results, indent=4)
-# 			return JsonResponse({'results' : results})
 			return JsonResponse(results)
 		else:
 			raise ValueError('Unknown action "{0}"'.format(action)) 
