@@ -1,0 +1,131 @@
+'''
+Created on Nov 09, 2014
+@author: Atanas Pavlov
+'''
+
+import numpy as np
+from smo.smoflow3d.Media import MediumState, Medium
+from smo.smoflow3d import getFluid
+from smo.numerical_model.model import NumericalModel 
+from smo.numerical_model.fields import *
+from smo.smoflow3d.SimpleMaterials import Fluids
+from collections import OrderedDict
+
+class HeatPumpCalculator(NumericalModel):
+	fluid = ObjectReference(Fluids, default = 'R134a', label = 'fluid')	
+	mDotRefrigerant = Quantity('MassFlowRate', default = (1, 'kg/min'), label = 'refrigerant flow rate')
+	pLow = Quantity('Pressure', default = (1, 'bar'), label = 'low pressure')
+	pHigh = Quantity('Pressure', default = (10, 'bar'), label = 'high pressure')
+	THot = Quantity('Temperature', default = (330, 'K'), label = 'warm temperature')
+	TCold = Quantity('Temperature', default = (270, 'K'), label = 'cold temperature')
+	compressionType = Choices(
+		OrderedDict((
+				('isentropic', 'isentropic'),
+				('isothermal', 'isothermal')
+		)), 
+		label = 'compression type')
+	etaComprIsentropic = Quantity('Dimensionless', default = 0.8,
+		label = 'isentropic efficiency', show = "self.compressionType == 'isentropic'")
+	etaComprIsothermal = Quantity('Dimensionless', default = 0.8,
+		label = 'isothermal efficiency', show = "self.compressionType == 'isothermal'")
+	expansionType = Choices(
+		OrderedDict((
+				('isenthalpic', 'isenthalpic'),
+				('isentropic', 'isentropic')
+		)), 
+		label = 'expansion type')
+	etaExpandIsentropic = Quantity('Dimensionless', default = 0.8,
+		label = 'isentropic efficiency', show = "self.expansionType == 'isentropic'")
+	basicInputs = FieldGroup([fluid, mDotRefrigerant, pLow, pHigh, THot, TCold], label = 'Basic')
+	compressionExpansion = FieldGroup([compressionType, etaComprIsentropic, etaComprIsothermal, expansionType, etaExpandIsentropic], label = 'Compression/Expansion')
+	inputs = SuperGroup([basicInputs, compressionExpansion], label = "Input data")
+	################################################################################
+	###############
+	T1 = Quantity('Temperature', label = 'temperature')
+	rho1 = Quantity('Density', label = 'density')
+	T1Sat = Quantity('Temperature', label = 'saturation temperature')
+	compressorInlet = FieldGroup([T1, rho1, T1Sat], label="1. Compressor inlet")
+	#################
+	T2 = Quantity('Temperature', label = 'temperature')
+	rho2 = Quantity('Density', label = 'density')
+	WCompr = Quantity('Power', label = 'compressor power')
+	T2Sat = Quantity('Temperature', label = 'saturation temperature')
+	compressorOutlet = FieldGroup([T2, rho2, WCompr, T2Sat], label="2. Compressor outlet")
+	####################
+	T3 = Quantity('Temperature', default = (330, 'K'), label = 'temperature')
+	rho3 = Quantity('Density', label = 'density')
+	QCondens = Quantity('HeatFlowRate', default = (1, 'kW'), label = 'heat flow rate')
+	condensorOutlet = FieldGroup([T3, rho3, QCondens], label = '3. Condenser outlet')
+	####################
+	T4 = Quantity('Temperature', default = (330, 'K'), label = 'temperature')
+	q4 = Quantity('VaporQuality', default = 0.5, label = 'vapor quality')
+	QEvap = Quantity('HeatFlowRate', default = (1, 'kW'), label = 'heat flow rate')
+	evaporatorInlet = FieldGroup([T4, q4, QEvap], label = '4. Evaporator inlet')
+	##################	
+	COP = Quantity('Dimensionless', label = 'coefficient of performance')
+	COPCarnot = Quantity('Dimensionless', label = 'max COP (Carnot)')
+	summary=FieldGroup([COP, COPCarnot], label = '5. Summary')
+	results = SuperGroup([compressorInlet, compressorOutlet, condensorOutlet, evaporatorInlet, summary], label="Results")
+	def compute(self):
+		fluid = getFluid(str(self.fluid['_key']))
+		state1 = MediumState(fluid)
+		state1Sat = MediumState(fluid)
+		state2Ideal = MediumState(fluid)
+		state2 = MediumState(fluid)
+		state2Sat = MediumState(fluid)
+		state3 = MediumState(fluid)
+		state4Ideal = MediumState(fluid)
+		state4 = MediumState(fluid)
+		self.COPCarnot = self.TCold / (self.THot - self.TCold)
+		
+		# Determine saturation states
+		state1Sat.update_pq(self.pLow, 0)
+		self.T1Sat = state1Sat.T()
+		state2Sat.update_pq(self.pHigh, 0)
+		self.T2Sat = state2Sat.T()
+		
+		self.T1 = self.TCold
+		state1.update_Tp(self.T1, self.pLow)
+		self.rho1 = state1.rho()
+		# Compression
+		if (self.compressionType == 'isentropic'):
+			sIn = state1.s()
+			state2Ideal.update_ps(self.pHigh, sIn)
+			qIdeal = 0
+			wIdeal = state2Ideal.h() - state1.h()
+			wReal = wIdeal / self.etaComprIsentropic
+			h2Real = wReal + state1.h()
+			state2.update_ph(self.pHigh, h2Real)
+			self.WCompr = self.mDotRefrigerant * wReal
+		elif (self.compressionType == 'isothermal'):
+			state2Ideal.update_Tp(self.T1, self.pHigh)
+			qIdeal = self.T1 * (state1.s() - state2Ideal.s())
+			wIdeal = (state2Ideal.h() - state1.h()) + qIdeal
+			wReal = wIdeal / self.etaComprIsothermal
+			h2Real = state1.h() + wReal - qIdeal
+			state2.update_ph(self.pHigh, h2Real)
+			self.WCompr = self.mDotRefrigerant * wReal
+		else:
+			raise ValueError("Compression type must be either 'isentropic' or 'isothermal'")
+		self.T2 = state2.T()
+		self.rho2 = state2.rho()
+		# Condensation
+		self.T3 = self.THot
+		state3.update_Tp(self.T3, self.pHigh)
+		self.rho3 = state3.rho()
+		self.QCondens = - self.mDotRefrigerant * (state3.h() - state2.h())
+		# Expansion
+		if (self.expansionType == 'isenthalpic'):
+			state4.update_ph(self.pLow, state3.h())
+		elif (self.expansionType == 'isentropic'):
+			state4Ideal.update_ps(self.pLow, state3.s())
+			wExpIdeal = state3.h() - state4Ideal.h()
+			wExpReal = wExpIdeal * self.etaExpandIsentropic
+			h4Real = state3.h() - wExpReal
+			state4.update_ph(self.pLow, h4Real)
+		else:
+			raise ValueError("Compression type must be either 'isentropic' or 'isothermal'")
+		self.T4 = state4.T()
+		self.q4 = state4.q()
+		self.QEvap = self.mDotRefrigerant * (state1.h() - state4.h())
+		self.COP = self.QEvap / self.WCompr

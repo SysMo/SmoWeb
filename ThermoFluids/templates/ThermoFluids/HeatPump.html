@@ -1,0 +1,40 @@
+{% extends "Base.html" %}
+{% load bootstrap_toolkit %}
+{% load staticfiles %}
+
+{% block scripts_and_styles %}
+<script src="{% static 'SmoUtil.js' %}"></script>
+
+<script>
+angular.module('HeatPump', ['ui.bootstrap', 'smo'])
+	.config(['$httpProvider', function($httpProvider) {
+	    $httpProvider.defaults.xsrfCookieName = 'csrftoken';
+	    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+	}])
+	.controller('HeatPumpController', 
+		[ '$scope', function($scope) {
+ 		$scope.inputs = { autoFetch : true, dataUrl: '/ThermoFluids/HeatPump/', action: 'getInputs'};
+ 		$scope.outputs = { dataUrl: '/ThermoFluids/HeatPump/', action: 'compute'};
+		$scope.compute = function() {
+			$scope.outputs.fetchData($scope.inputs.data.values);
+		}
+		
+	}]);
+</script>
+{% endblock %}
+
+{% block content %}
+<div ng-app="HeatPump" ng-controller="HeatPumpController">
+	<div class="container">
+		<h1>Heat pump</h1>
+		<div smo-input-view="inputs"></div>
+		<br>
+		<div ng-show="inputs.inputsObtained"><button class="btn btn-default" ng-click="compute()">Compute</button></div>
+		<br>
+		<div smo-output-view="outputs"></div>
+	
+	</div>
+</div>
+
+{% endblock %}
+

@@ -18,7 +18,6 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 		$scope.outputs[index].fetchData($scope.inputs[index].data.values);
 	}
 	$scope.createNewTab = function() {
-		console.log('Creating new tab');
 		$scope.inputs.push({autoFetch: true, dataUrl: '/ThermoFluids/FluidPropsCalculator/', action: 'getInputs'});
 		$scope.outputs.push({ dataUrl: '/ThermoFluids/FluidPropsCalculator/', action: 'compute'});		
 	}

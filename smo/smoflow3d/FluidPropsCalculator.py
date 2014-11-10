@@ -1,23 +1,23 @@
 '''
-Created on Oct 10, 2014
-
-@author: ivaylo
+Created on Nov 05, 2014
+@author: Atanas Pavlov
 '''
 import numpy as np
+from collections import OrderedDict
 from smo.smoflow3d.Media import MediumState, Medium
 from smo.smoflow3d import getFluid
 from smo.numerical_model.model import NumericalModel 
 from smo.numerical_model.fields import *
 from smo.smoflow3d.SimpleMaterials import Fluids
 
-StateVariableOptions = {
-	'P': 'pressure',
-	'T': 'temperature',
-	'D': 'density',
-	'H': 'specific enthalpy',
-	'S': 'specific entropy',
-	'Q': 'vapor quality'
-}
+StateVariableOptions = OrderedDict(
+	(('P', 'pressure'),
+	('T', 'temperature'),
+	('D', 'density'),
+	('H', 'specific enthalpy'),
+	('S', 'specific entropy'),
+	('Q', 'vapor quality'))
+)
 
 class FluidPropsCalculator(NumericalModel):
 	fluid = ObjectReference(Fluids, default = 'ParaHydrogen', label = 'fluid')	
@@ -36,9 +36,9 @@ class FluidPropsCalculator(NumericalModel):
 	s2 = Quantity('SpecificEntropy', default = (100, 'kJ/kg-K'), label = 'specific entropy', show="self.stateVariable2 == 'S'")
 	q2 = Quantity('VaporQuality', default = (1, '-'), label = 'vapour quality', show="self.stateVariable2 == 'Q'")
 	####
-	stateGroup1 = FieldGroup([stateVariable1, p1, T1, rho1, h1, s1, q1, fluid])
-	stateGroup2 = FieldGroup([stateVariable2, p2, T2, rho2, h2, s2, q2])
-	superInputs = SuperGroup([stateGroup1, stateGroup2], label='State inputs')
+	stateGroup1 = FieldGroup([stateVariable1, p1, T1, rho1, h1, s1, q1])
+	stateGroup2 = FieldGroup([stateVariable2, p2, T2, rho2, h2, s2, q2, fluid])
+	inputs = SuperGroup([stateGroup1, stateGroup2], label='State inputs')
 	####
 	T = Quantity('Temperature', label = 'temperature')
 	p = Quantity('Pressure', label = 'pressure')
@@ -51,7 +51,7 @@ class FluidPropsCalculator(NumericalModel):
 	#####
 	cp = Quantity('SpecificHeatCapacity', label = 'heat capacity (cp)')
 	cv = Quantity('SpecificHeatCapacity', label = 'heat capacity (cv)')	
-	gamma = Quantity('Dimensionless', label = 'gamma=cp/cv')
+	gamma = Quantity('Dimensionless', label = 'gamma = cp/cv')
 # 	beta = Quantity('Pressure', default = (1, 'bar'), label = 'pressure')
 # 	alpha = Quantity('Pressure', default = (1, 'bar'), label = 'pressure')
 	Pr = Quantity('Dimensionless', label = 'Prandtl number')

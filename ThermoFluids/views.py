@@ -2,6 +2,30 @@ import json
 from django.shortcuts import render_to_response, RequestContext
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 
+def heatPumpView(request):
+	if request.method == 'GET':
+		return render_to_response('ThermoFluids/HeatPump.html', locals(), 
+				context_instance=RequestContext(request))
+	elif request.method == 'POST':
+		from smo.smoflow3d.CycleCalculator import HeatPumpCalculator 
+		postData = json.loads(request.body)
+		action = postData['action']
+		parameters = postData['parameters']
+		if (action == 'getInputs'):
+			hpc = HeatPumpCalculator()
+			inputs = hpc.superGroupList2Json([hpc.inputs])
+			return JsonResponse(inputs)
+		elif (action == 'compute'):
+			hpc = HeatPumpCalculator()
+			hpc.fieldValuesFromJson(parameters)
+			hpc.compute()
+			results = hpc.superGroupList2Json([hpc.results]) 
+			return JsonResponse(results)
+
+		else:
+			raise ValueError('Unknown post action "{0}" for URL: {1}'.format(action, 'ThermoFluids/HeatPump.html'))
+	
+
 def fluidPropsCalculatorView(request):
 	if request.method == 'GET':
 		return render_to_response('ThermoFluids/FluidPropsCalculator.html', locals(), 
@@ -13,7 +37,7 @@ def fluidPropsCalculatorView(request):
 		parameters = postData['parameters']
 		if (action == 'getInputs'):
 			fpc = FluidPropsCalculator()
-			inputs = fpc.superGroupList2Json([fpc.superInputs])
+			inputs = fpc.superGroupList2Json([fpc.inputs])
 			return JsonResponse(inputs)
 		elif (action == 'compute'):
 			fpc = FluidPropsCalculator()
@@ -24,8 +48,6 @@ def fluidPropsCalculatorView(request):
 
 		else:
 			raise ValueError('Unknown post action "{0}" for URL: {1}'.format(action, 'ThermoFluids/FluidPropsCalculator.html'))
-	else:
-		pass
 
 def flowResistanceView(request):
 	if request.method == 'POST':
