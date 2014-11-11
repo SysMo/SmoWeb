@@ -45,15 +45,18 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 	  	<li><a data-target="" id="FluidPointNew" ng-click="createNewTab()">+</a></li>
 	</ul>
 
+	
 	<div class="tab-content">
-		<div ng-repeat="input in inputs track by $index" ng-class="'tab-pane '+ getTabClass($index)" id="FluidPoint{{$index + 1}}">
-			<br>
-			<div smo-input-view="inputs[$index]"></div>
-			<br>
-			<div ng-show="inputs[$index].inputsObtained"><button class="btn btn-default" ng-click="compute($index)">Compute</button></div>
-			<br>
-			<div smo-output-view="outputs[$index]"></div>
-		</div>
+			<div ng-repeat="input in inputs track by $index" ng-class="'tab-pane '+ getTabClass($index)" id="FluidPoint{{$index + 1}}">
+				<br>
+				<div ng-form name="myForm{{$index + 1}}">
+					<div smo-input-view="inputs[$index]"></div>
+					<br>
+					<div ng-show="inputs[$index].inputsObtained"><button ng-disabled="!myForm{{$index + 1}}.$valid" class="btn btn-default" ng-click="compute($index)">Compute</button></div>
+					<br>
+				</div>
+				<div smo-output-view="outputs[$index]"></div>
+			</div>
 	</div>
 </div>
 {% endverbatim %}

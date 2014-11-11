@@ -225,7 +225,6 @@ smoModule.directive('smoInputQuantity', ['$compile', 'util', 'units', function($
 			var errorStyle = 'margin-left: 160px; color:red;';
 
 			var template = '\
-				<div style="margin-top: 5px; margin-bottom: 5px; white-space: nowrap;"> \
 					<div style="' + labelDivStyle + '">' + scope.title + '</div> \
 					<div style="' + inputDivStyle + '"> \
 						<div ng-form name="' + scope.inputId + 'Form">\
@@ -236,12 +235,13 @@ smoModule.directive('smoInputQuantity', ['$compile', 'util', 'units', function($
 						<select style="' + unitSize + '" ng-model="smoQuantityVar.displayUnit" ng-options="name as name for (name, conv) in units.quantities[smoQuantityVar.quantity].units" ng-change="smoQuantityVar.changeUnit()"></select> \
 					</div>\
 					<div style="' + errorStyle + '" ng-show="' + scope.inputId + 'Form.input.$error.pattern">Enter a number</div>\
-					<div style="' + errorStyle + '" ng-show="' + scope.inputId + 'Form.input.$error.required">Required value</div>\
-				</div>';
+					<div style="' + errorStyle + '" ng-show="' + scope.inputId + 'Form.input.$error.required">Required value</div>';
 			
-			var newElem = angular.element(template);   // creating
-			element.replaceWith(newElem);              // inserting
-			$compile(newElem)(scope);	// compiling + linking
+			
+	        var el = angular.element(template);
+	        compiled = $compile(el);
+	        element.append(el);
+	        compiled(scope);
 		}
 	}
 }]);
@@ -258,16 +258,16 @@ smoModule.directive('smoInputChoice', ['$compile', 'util', 'units', function($co
 		},
 	link : function(scope, element, attr) {
 		var template = ' \
-		<div style="margin-top: 5px; margin-bottom: 5px; white-space: nowrap;">\
 			<div style="display: inline-block;text-align: left;width: 150px;">' + scope.title + '</div>\
 			<div style="display: inline-block;"> \
 				<select style="width: 209px; height: 30px; margin-left: 5px;" ng-model="choiceVar" ng-options="key as value for (key, value) in options"></select> \
-			</div>\
-		</div>';
+			</div>';
 		
-		var newElem = angular.element(template);   // creating
-		element.replaceWith(newElem);              // inserting
-		$compile(newElem)(scope);	// compiling + linking
+//		element.html('').append($compile(template)(scope));
+		var el = angular.element(template);
+        compiled = $compile(el);
+        element.append(el);
+        compiled(scope);
 
 		}
 	}
@@ -295,6 +295,7 @@ smoModule.directive('smoFieldGroup', ['$compile', 'units', function($compile,  u
 				if (!(typeof field.show === "undefined")){
 					showFieldCode = 'ng-show="' + field.show.replace('self', 'smoDataSource') + '"';
 				}
+				var fieldStyle = 'style="margin-top: 5px; margin-bottom: 5px; white-space: nowrap;" ' + showFieldCode;
 				if (field.type == 'Quantity') {
 					var quantity = new units.Quantity(field.quantity, scope.smoDataSource[field.name], null, field.defaultDispUnit);
 					quantity.id = field.name;
@@ -303,23 +304,24 @@ smoModule.directive('smoFieldGroup', ['$compile', 'units', function($compile,  u
 					
 					// Attach the field value to the quantity so that the original value is updated when the quantity value changes
 					if (scope.viewType == 'input') 
-						groupFields.push('<div ' + showFieldCode + ' smo-input-quantity smo-quantity-var="quantities.' + field.name + '"' + 
+						groupFields.push('<div ' + fieldStyle + ' smo-input-quantity smo-quantity-var="quantities.' + field.name + '"' + 
 						' smo-title="' + field.label + '" smo-id="' + quantity.id + '"></div>');
 					if (scope.viewType == 'output')
-						groupFields.push('<div ' + showFieldCode + ' smo-output-quantity smo-quantity-var="quantities.' + field.name + '"' + 
+						groupFields.push('<div ' + fieldStyle + ' smo-output-quantity smo-quantity-var="quantities.' + field.name + '"' + 
 								' smo-title="' + field.label + '"></div>');
 				} else if (field.type == 'Choices') {
 					if (scope.viewType == 'input')
-						groupFields.push('<div ' + showFieldCode + ' smo-input-choice smo-choice-var="smoDataSource.' + field.name + '"' +
+						groupFields.push('<div ' + fieldStyle + ' smo-input-choice smo-choice-var="smoDataSource.' + field.name + '"' +
 						' smo-options="smoFieldGroup.fields[' + i + '].options" smo-title="' + field.label + '"></div>');
 				}
 			} 
-			var template = '<div style="display: inline-block; margin-right: 70px; vertical-align:top;"><h3>' + (scope.smoFieldGroup.label || "") + '</h3><br>' 
-				+ groupFields.join("") + '</div>';
+			var template = '<h3>' + (scope.smoFieldGroup.label || "") + '</h3><br>' 
+				+ groupFields.join("");
 
-			var newElem = angular.element(template);   // creating
-			element.replaceWith(newElem);              // inserting
-			$compile(newElem)(scope);	// compiling + linking
+			var el = angular.element(template);
+	        compiled = $compile(el);
+	        element.append(el);
+	        compiled(scope);
 		}	
 	}
 }]);
@@ -350,7 +352,7 @@ smoModule.directive('smoSuperGroup', ['$compile', 'units', function($compile,  u
 				for (var j = 0; j < superGroup.groups.length; j++) {
 					var fieldGroup = superGroup.groups[j];
 						// Attach the field value to the quantity so that the original value is updated when the quantity value changes
-					superGroupFields.push('<div smo-field-group="smoSuperGroup[' + i + '].groups[' + j + ']" view-type="viewType" smo-data-source="smoDataSource"></div>');
+					superGroupFields.push('<div style="display: inline-block; margin-right: 70px; vertical-align:top;" smo-field-group="smoSuperGroup[' + i + '].groups[' + j + ']" view-type="viewType" smo-data-source="smoDataSource"></div>');
 				}
 				
 				navTabPanes.push(superGroupFields.join(""));
@@ -360,9 +362,10 @@ smoModule.directive('smoSuperGroup', ['$compile', 'units', function($compile,  u
 			'<div class="tab-content"  style="border-style: solid; border-top: none; border-color: #DDD; border-width: 1px; padding-left: 20px; background-color: #E6E6FA;">' + navTabPanes.join("") + '</div>';
 
 			
-			var newElem = angular.element(template);   // creating
-			element.replaceWith(newElem);              // inserting
-			$compile(newElem)(scope);	// compiling + linking
+			var el = angular.element(template);
+	        compiled = $compile(el);
+	        element.append(el);
+	        compiled(scope);
 		}	
 	}
 }]);
@@ -387,19 +390,18 @@ smoModule.directive('smoOutputQuantity', ['$compile', 'util', 'units', function(
 			var unitSize = 'width: 80px; height: 30px;';
 			
 			var template = ' \
-				<div style="margin-top: 5px; margin-bottom: 5px; white-space: nowrap;">\
 					<div style="' + labelDivStyle + '">' + scope.title + '</div> \
 					<div style="' + outputDivStyle + '"> \
 						<div style="' + outputStyle + '" ng-bind="util.formatNumber(smoQuantityVar.displayValue)"></div>\
 					</div> \
 					<div style="' + unitDivStyle + '"> \
 						<select style="' + unitSize + '" ng-model="smoQuantityVar.displayUnit" ng-options="name as name for (name, conv) in units.quantities[smoQuantityVar.quantity].units" ng-change="smoQuantityVar.changeUnit()"></select> \
-					</div>\
-				</div>';
+					</div>';
 
-			var newElem = angular.element(template);   // creating
-			element.replaceWith(newElem);              // inserting
-			$compile(newElem)(scope);	// compiling + linking
+			var el = angular.element(template);
+	        compiled = $compile(el);
+	        element.append(el);
+	        compiled(scope);
 		}
 	}
 }]);
@@ -447,9 +449,10 @@ smoModule.directive('smoInputView', ['$compile', 'units', function($compile,  un
 								<div  smo-super-group="it.data.definitions" view-type="input" smo-data-source="it.data.values"></div>\
 							</div>';				
 
-			var newElem = angular.element(template);   // creating
-			element.replaceWith(newElem);              // inserting
-			$compile(newElem)(scope);	// compiling + linking
+			var el = angular.element(template);
+	        compiled = $compile(el);
+	        element.append(el);
+	        compiled(scope);
 		}	
 	}
 }]);
@@ -493,10 +496,10 @@ smoModule.directive('smoOutputView', ['$compile', 'units', function($compile,  u
 							<div ng-if="it.outputsObtained">\
 							<div smo-super-group="it.data.definitions" view-type="output" smo-data-source="it.data.values"></div>\
 							</div>';		
-//			element.html('').append($compile(template)(scope));
-			var newElem = angular.element(template);   // creating
-			element.replaceWith(newElem);              // inserting
-			$compile(newElem)(scope);	// compiling + linking
+			var el = angular.element(template);
+	        compiled = $compile(el);
+	        element.append(el);
+	        compiled(scope);
 		}
 	}
 }]);

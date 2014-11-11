@@ -36,8 +36,8 @@ class FluidPropsCalculator(NumericalModel):
 	s2 = Quantity('SpecificEntropy', default = (100, 'kJ/kg-K'), label = 'specific entropy', show="self.stateVariable2 == 'S'")
 	q2 = Quantity('VaporQuality', default = (1, '-'), label = 'vapour quality', show="self.stateVariable2 == 'Q'")
 	####
-	stateGroup1 = FieldGroup([stateVariable1, p1, T1, rho1, h1, s1, q1, fluid])
-	stateGroup2 = FieldGroup([stateVariable2, p2, T2, rho2, h2, s2, q2])
+	stateGroup1 = FieldGroup([stateVariable1, p1, T1, rho1, h1, s1, q1])
+	stateGroup2 = FieldGroup([stateVariable2, p2, T2, rho2, h2, s2, q2, fluid])
 	superInputs = SuperGroup([stateGroup1, stateGroup2], label='State inputs')
 	####
 	T = Quantity('Temperature', label = 'temperature')
