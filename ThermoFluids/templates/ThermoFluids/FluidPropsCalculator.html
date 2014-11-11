@@ -35,26 +35,27 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 
 {% block content %}
 {% verbatim %}
-<div ng-app="FluidPropsCalculator" ng-controller="FluidPropsController">
-	<div class="container">
-		<h1>Fluid properties calculator</h1>
-		<ul class="nav nav-tabs" role="tablist" id="FluidPointTabs">
-	  		<li ng-repeat="input in inputs track by $index" ng-class="getTabClass($index)">
-		  		<a id="FP{{$index + 1}}Tab" href="#FluidPoint{{$index + 1}}" role="tab" data-toggle="tab"">Fluid point {{$index + 1}}</a>
-	  		</li>
-		  	<li><a href="" id="FluidPointNew" ng-click="createNewTab()">+</a></li>
-		</ul>
+<div ng-app="FluidPropsCalculator" ng-controller="FluidPropsController" style="display: inline-block; width:85%; padding-top:20px;">
+	<h1>Fluid properties calculator</h1>
+	<ul class="nav nav-tabs" role="tablist" id="FluidPointTabs">
+  		<li ng-repeat="input in inputs track by $index" ng-class="getTabClass($index)">
+	  		<a id="FP{{$index + 1}}Tab" data-target="#FluidPoint{{$index + 1}}" role="tab" data-toggle="tab">Fluid point {{$index + 1}}</a>
+  		</li>
+	  	<li><a data-target="" id="FluidPointNew" ng-click="createNewTab()">+</a></li>
+	</ul>
 
-		<div class="tab-content">
+	
+	<div class="tab-content">
 			<div ng-repeat="input in inputs track by $index" ng-class="'tab-pane '+ getTabClass($index)" id="FluidPoint{{$index + 1}}">
 				<br>
-				<div smo-input-view="inputs[$index]"></div>
+				<div ng-form name="myForm{{$index + 1}}">
+					<div smo-input-view="inputs[$index]"></div>
+				</div>
 				<br>
-				<div ng-show="inputs[$index].inputsObtained"><button class="btn btn-default" ng-click="compute($index)">Compute</button></div>
+				<div ng-show="inputs[$index].inputsObtained"><button ng-disabled="!myForm{{$index + 1}}.$valid" class="btn btn-default" ng-click="compute($index)">Compute</button></div>
 				<br>
 				<div smo-output-view="outputs[$index]"></div>
 			</div>
-		</div>
 	</div>
 </div>
 {% endverbatim %}

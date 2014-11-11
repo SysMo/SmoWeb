@@ -11,6 +11,42 @@ from smo.numerical_model.fields import *
 from smo.smoflow3d.SimpleMaterials import Fluids
 from collections import OrderedDict
 
+class ThermodynamicTransition(object):
+	def __init__(self, inState):
+		self.inState = inState
+		self.medium = self.inState.getMedium()
+		self.outState = MediumState(self.medium)
+
+class IsentropicCompression(ThermodynamicTransition):
+	def compute(self, pHigh, etaIsentropic, mDotRefrigerant):
+		outStateIdeal = MediumState(self.medium)
+		outStateIdeal.update_ps(pHigh, self.inState.s())
+		wIdeal = outStateIdeal.h() - self.inState.h()
+		wReal = wIdeal / etaIsentropic
+		hOutReal = wReal + self.inState.h()
+		self.outState.update_ph(pHigh, hOutReal)
+		self.WCompr = mDotRefrigerant * wReal
+	@staticmethod
+	def test():
+		f = getFluid('ParaHydrogen')
+		s1 = MediumState(f)
+		s1.update_Tp(200, 1e5)
+		compr1 = IsentropicCompression(s1)
+		compr1.compute(10e5, 1.0, 100./3600)
+		print compr1.outState.T()
+		print compr1.WCompr
+
+class IsothermalCompression(ThermodynamicTransition):
+	def compute(self, pHigh, etaIsothermal, mDotRefrigerant):
+		outStateIdeal = MediumState(self.medium)
+		outStateIdeal.update_Tp(self.T1, self.pHigh)
+		qIdeal = self.T1 * (self.inState.s() - outStateIdeal.s())
+		wIdeal = (outStateIdeal.h() - self.inState.h()) + qIdeal
+		wReal = wIdeal / self.etaComprIsothermal
+		h2Real = self.inState.h() + wReal - qIdeal
+		self.outState.update_ph(self.pHigh, h2Real)
+		self.WCompr = self.mDotRefrigerant * wReal
+
 class HeatPumpCalculator(NumericalModel):
 	fluid = ObjectReference(Fluids, default = 'R134a', label = 'fluid')	
 	mDotRefrigerant = Quantity('MassFlowRate', default = (1, 'kg/min'), label = 'refrigerant flow rate')
@@ -129,3 +165,6 @@ class HeatPumpCalculator(NumericalModel):
 		self.q4 = state4.q()
 		self.QEvap = self.mDotRefrigerant * (state1.h() - state4.h())
 		self.COP = self.QEvap / self.WCompr
+		
+if __name__ == '__main__':
+	IsentropicCompression.test()

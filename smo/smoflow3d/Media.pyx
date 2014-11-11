@@ -22,12 +22,18 @@ cdef class Medium:
 		
 cdef class MediumState:
 	cdef SM.MediumState* ptr
+	cdef Medium medium 
 	
 	def __cinit__(self, Medium medium):
+		self.medium = medium
 		self.ptr = SM.MediumState_new(medium.ptr)
+		
 	def __dealloc__(self):
 		del self.ptr
 	
+	def getMedium(self):
+		return self.medium
+		
 	def update_state(self, 
 			string state1, double state1Value,
 			string state2, double state2Value):
