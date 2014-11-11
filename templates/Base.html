@@ -38,8 +38,8 @@
 	
 	<body>	
 	{% csrf_token %}
-	<div class="navbar navbar-default navbar-static-top" role="navigation">
-      <div class="container">
+	<div class="navbar navbar-default navbar-static-top" style="margin-bottom: 0px;" role="navigation">
+      <div class="container" style="width:95%;">
         <div class="navbar-header">
           <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
 <!--             <span class="sr-only">Toggle navigation</span> -->
@@ -81,6 +81,29 @@
 		</div><!--/.nav-collapse -->
       </div>
     </div>
+    
+    <div style="display: inline-block; width: 10%; vertical-align: top; padding-top: 20px; padding-left: 10px; padding-right: 10px;
+		margin-right: 30px; background-color: #CFD8F2;">
+			<ul class="nav nav-pills nav-stacked" role="tablist">
+			  <li role="presentation" class="active"><a href="#">View1</a></li>
+			  <li role="presentation"><a href="#">View2</a></li>
+			  <li role="presentation"><a href="#">View3</a></li>
+			  <li role="presentation"><a href="#">View2</a></li>
+			  <li role="presentation"><a href="#">View3</a></li>
+			  <li role="presentation"><a href="#">View2</a></li>
+			  <li role="presentation"><a href="#">View3</a></li>
+			  <li role="presentation"><a href="#">View2</a></li>
+			  <li role="presentation"><a href="#">View3</a></li>
+			  <li role="presentation"><a href="#">View2</a></li>
+			  <li role="presentation"><a href="#">View3</a></li>
+			  <li role="presentation"><a href="#">View2</a></li>
+			  <li role="presentation"><a href="#">View3</a></li>
+			  <li role="presentation"><a href="#">View2</a></li>
+			  <li role="presentation"><a href="#">View3</a></li>
+			  <li role="presentation"><a href="#">View2</a></li>
+			  <li role="presentation"><a href="#">View3</a></li>
+			</ul>
+	</div>
 	
 	{% block content %}	
 	{% endblock %}

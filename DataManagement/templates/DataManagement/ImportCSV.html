@@ -16,13 +16,10 @@ margin-left:20px;}
 {% endblock %}
 
 {% block content %}
-<br>
-
-
-<div class="pull-left" ng-app="csvImportApp" ng-controller="CsvImportController">
+<div ng-app="csvImportApp" ng-controller="CsvImportController" style="display: inline-block; width:85%; padding-top:20px;">
 	<h1>Import CSV</h1>
 	<p>Select a <b>CSV</b> file to import</p>
-	<table>				
+	<table style="width: 100%;">				
 		<tr>
 			<td style=" text-align: right; font-weight: bold;">CSV File &nbsp</td><td style=" text-align: left;"><input ng-file-select="fileSelect($files)" type="file" /></td>
 		</tr>
@@ -104,5 +101,4 @@ margin-left:20px;}
 		</div>
 
 	</div>	
-</div>
 {% endblock %}
