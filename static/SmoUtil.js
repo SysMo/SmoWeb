@@ -235,7 +235,7 @@ smoModule.directive('smoInputQuantity', ['$compile', 'util', 'units', function($
 					<div style="' + unitDivStyle + '"> \
 						<select style="' + unitSize + '" ng-model="smoQuantityVar.displayUnit" ng-options="name as name for (name, conv) in units.quantities[smoQuantityVar.quantity].units" ng-change="smoQuantityVar.changeUnit()"></select> \
 					</div>\
-					<div style="' + errorStyle + '" ng-show="' + scope.inputId + 'Form.input.$error.pattern">Wrong number format</div>\
+					<div style="' + errorStyle + '" ng-show="' + scope.inputId + 'Form.input.$error.pattern">Enter a number</div>\
 					<div style="' + errorStyle + '" ng-show="' + scope.inputId + 'Form.input.$error.required">Required value</div>\
 				</div>';
 			
