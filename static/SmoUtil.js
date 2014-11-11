@@ -359,7 +359,7 @@ smoModule.directive('smoSuperGroup', ['$compile', 'units', function($compile,  u
 				navTabPanes.push('</div>');
 			}
 			var template = '<ul class="nav nav-tabs" role="tablist">' + navTabs.join("") + '</ul>' +
-			'<div class="tab-content"  style="border-style: solid; border-top: none; border-color: #DDD; border-width: 1px; padding-left: 20px; background-color: #E6E6FA;">' + navTabPanes.join("") + '</div>';
+			'<div class="tab-content"  style="border-style: solid; border-top: none; border-color: #DDD; border-width: 1px; padding-left: 20px; background-color: #CFD8F2 ;">' + navTabPanes.join("") + '</div>';
 
 			
 			var el = angular.element(template);
