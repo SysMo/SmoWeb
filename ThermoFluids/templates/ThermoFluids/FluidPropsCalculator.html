@@ -51,10 +51,10 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 				<br>
 				<div ng-form name="myForm{{$index + 1}}">
 					<div smo-input-view="inputs[$index]"></div>
-					<br>
-					<div ng-show="inputs[$index].inputsObtained"><button ng-disabled="!myForm{{$index + 1}}.$valid" class="btn btn-default" ng-click="compute($index)">Compute</button></div>
-					<br>
 				</div>
+				<br>
+				<div ng-show="inputs[$index].inputsObtained"><button ng-disabled="!myForm{{$index + 1}}.$valid" class="btn btn-default" ng-click="compute($index)">Compute</button></div>
+				<br>
 				<div smo-output-view="outputs[$index]"></div>
 			</div>
 	</div>
