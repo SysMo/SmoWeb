@@ -18,12 +18,11 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 		$scope.outputs[index].fetchData($scope.inputs[index].data.values);
 	}
 	$scope.createNewTab = function() {
-		console.log('Creating new tab');
 		$scope.inputs.push({autoFetch: true, dataUrl: '/ThermoFluids/FluidPropsCalculator/', action: 'getInputs'});
-		$scope.outputs.push({ dataUrl: '/ThermoFluids/FluidPropsCalculator/', action: 'compute'});		
+		$scope.outputs.push({ dataUrl: '/ThermoFluids/FluidPropsCalculator/', action: 'compute'});
 	}
 	$scope.getTabClass = function(index) {
-		if (index == 0) {
+		if (index == ($scope.inputs.length-1)) {
 			return 'active';
 		} else {
 			return '';
@@ -47,7 +46,7 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 			<h1>Fluid properties calculator</h1>
 			<ul class="nav nav-tabs" role="tablist" id="FluidPointTabs">
 		  		<li ng-repeat="input in inputs track by $index" ng-class="getTabClass($index)">
-			  		<a id="FP{{$index + 1}}Tab" data-target="#FluidPoint{{$index + 1}}" role="tab" data-toggle="tab">Fluid point {{$index + 1}}</a>
+			  		<a ng-attr-id="FP{{$index + 1}}Tab" data-target="#FluidPoint{{$index + 1}}" role="tab" data-toggle="tab">Fluid point {{$index + 1}}</a>
 		  		</li>
 			  	<li><a data-target="" id="FluidPointNew" ng-click="createNewTab()">+</a></li>
 			</ul>		
