@@ -84,24 +84,9 @@
     
     <div style="display: inline-block; width: 10%; height: 100%; vertical-align: top; padding-top: 20px; padding-left: 10px; padding-right: 10px;
 		margin-right: 30px; background-color: #E6E6FA;">
-			<ul class="nav nav-pills nav-stacked" role="tablist">
-			  <li role="presentation" class="active"><a href="#">View1</a></li>
-			  <li role="presentation"><a href="#">View2</a></li>
-			  <li role="presentation"><a href="#">View3</a></li>
-			  <li role="presentation"><a href="#">View2</a></li>
-			  <li role="presentation"><a href="#">View3</a></li>
-			  <li role="presentation"><a href="#">View2</a></li>
-			  <li role="presentation"><a href="#">View3</a></li>
-			  <li role="presentation"><a href="#">View2</a></li>
-			  <li role="presentation"><a href="#">View3</a></li>
-			  <li role="presentation"><a href="#">View2</a></li>
-			  <li role="presentation"><a href="#">View3</a></li>
-			  <li role="presentation"><a href="#">View2</a></li>
-			  <li role="presentation"><a href="#">View3</a></li>
-			  <li role="presentation"><a href="#">View2</a></li>
-			  <li role="presentation"><a href="#">View3</a></li>
-			  <li role="presentation"><a href="#">View2</a></li>
-			  <li role="presentation"><a href="#">View3</a></li>
+			<ul class="nav nav-pills nav-stacked" role="tablist" id="pillNav">
+				{% block pills %}
+				{% endblock %}		  
 			</ul>
 	</div>
 	
