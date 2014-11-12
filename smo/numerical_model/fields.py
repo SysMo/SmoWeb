@@ -13,9 +13,11 @@ class Field(object):
 		Field.creation_counter += 1
 
 class Quantity(Field):
-	def __init__(self, type, default = None, *args, **kwargs):
+	def __init__(self, type, default = None, minValue = -1e99, maxValue = 1e99, *args, **kwargs):
 		super(Quantity, self).__init__(*args, **kwargs)
 		self.type = type
+		self.minValue = self.setValue(minValue)
+		self.maxValue = self.setValue(maxValue)
 		if (default is None):
 			self.default = 1.0
 			if ('defDispUnit' in Quantities[self.type].keys()):
@@ -54,6 +56,8 @@ class Quantity(Field):
 		fieldDict['type'] = 'Quantity'
 		fieldDict['quantity'] = self.type
 		fieldDict['defaultDispUnit'] = self.defaultDispUnit
+		fieldDict['minValue'] = self.minValue
+		fieldDict['maxValue'] = self.maxValue
 		if (self.show is not None):
 			fieldDict['show'] = self.show
 		return fieldDict

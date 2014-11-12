@@ -118,8 +118,10 @@ smoModule.factory('units', ['util', function(util) {
 	};
 
 	// Object for handling quantity
-	var Quantity = function (quantity, value, unit, displayUnit) {
+	var Quantity = function (quantity, value, unit, displayUnit, minValue, maxValue) {
 		this.quantity = quantity;
+		this.minValue = minValue;
+		this.maxValue = maxValue;
 		unit = unit || units.quantities[this.quantity].SIUnit;
 		this.displayUnit = displayUnit || units.quantities[this.quantity].defDispUnit || unit;
 		
@@ -210,6 +212,17 @@ smoModule.directive('smoInputQuantity', ['$compile', 'util', 'units', function($
 			inputId: '@smoId',
 		},
 		controller: function($scope){
+			$scope.checkValueValidity = function(){
+				$scope[$scope.inputId + 'Form'].input.$setValidity('minVal', true);
+				$scope[$scope.inputId + 'Form'].input.$setValidity('maxVal', true);
+				$scope.smoQuantityVar.updateValue();							
+				if ($scope.smoQuantityVar.value < $scope.smoQuantityVar.minValue) {
+					$scope[$scope.inputId + 'Form'].input.$setValidity('minVal', false);
+				}		
+				else if ($scope.smoQuantityVar.value > $scope.smoQuantityVar.maxValue){
+					$scope[$scope.inputId + 'Form'].input.$setValidity('maxVal', false);
+				}					
+			}
 		},
 		link : function(scope, element, attr) {
 			scope.util = util;
@@ -228,14 +241,16 @@ smoModule.directive('smoInputQuantity', ['$compile', 'util', 'units', function($
 					<div style="' + labelDivStyle + '">' + scope.title + '</div> \
 					<div style="' + inputDivStyle + '"> \
 						<div ng-form name="' + scope.inputId + 'Form">\
-							<input style="' + inputSize + '" name="input" required type="text" ng-pattern="/^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$/" ng-model="smoQuantityVar.displayValue" ng-change="smoQuantityVar.updateValue()">\
+							<input style="' + inputSize + '" name="input" required type="text" ng-pattern="/^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$/" ng-model="smoQuantityVar.displayValue" ng-change="checkValueValidity();">\
 						</div>\
 					</div> \
 					<div style="' + unitDivStyle + '"> \
 						<select style="' + unitSize + '" ng-model="smoQuantityVar.displayUnit" ng-options="name as name for (name, conv) in units.quantities[smoQuantityVar.quantity].units" ng-change="smoQuantityVar.changeUnit()"></select> \
 					</div>\
 					<div style="' + errorStyle + '" ng-show="' + scope.inputId + 'Form.input.$error.pattern">Enter a number</div>\
-					<div style="' + errorStyle + '" ng-show="' + scope.inputId + 'Form.input.$error.required">Required value</div>';
+					<div style="' + errorStyle + '" ng-show="' + scope.inputId + 'Form.input.$error.required">Required value</div>\
+					<div style="' + errorStyle + '" ng-show="' + scope.inputId + 'Form.input.$error.minVal">Number is below min value</div>\
+					<div style="' + errorStyle + '" ng-show="' + scope.inputId + 'Form.input.$error.maxVal">Number exceeds max value</div>';
 			
 			
 	        var el = angular.element(template);
@@ -297,7 +312,7 @@ smoModule.directive('smoFieldGroup', ['$compile', 'units', function($compile,  u
 				}
 				var fieldStyle = 'style="margin-top: 5px; margin-bottom: 5px; white-space: nowrap;" ' + showFieldCode;
 				if (field.type == 'Quantity') {
-					var quantity = new units.Quantity(field.quantity, scope.smoDataSource[field.name], null, field.defaultDispUnit);
+					var quantity = new units.Quantity(field.quantity, scope.smoDataSource[field.name], null, field.defaultDispUnit, field.minValue, field.maxValue);
 					quantity.id = field.name;
 					quantity.onUpdateValue(scope.updateFieldValue);
 					scope.quantities[field.name] = quantity;
