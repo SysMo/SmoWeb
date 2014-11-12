@@ -11,6 +11,7 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 	    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
 	}])
 	.controller('FluidPropsController', [ '$scope', function($scope) {
+
 	$scope.inputs = [{autoFetch: true, dataUrl: '/ThermoFluids/FluidPropsCalculator/', action: 'getInputs'}];
 	$scope.outputs = [{ dataUrl: '/ThermoFluids/FluidPropsCalculator/', action: 'compute'}];
 	
@@ -18,19 +19,24 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 		$scope.outputs[index].fetchData($scope.inputs[index].data.values);
 	}
 	$scope.createNewTab = function() {
+// 		$('#FP' + String($scope.inputs.length) + 'Tab').tab('show');
 		$scope.inputs.push({autoFetch: true, dataUrl: '/ThermoFluids/FluidPropsCalculator/', action: 'getInputs'});
 		$scope.outputs.push({ dataUrl: '/ThermoFluids/FluidPropsCalculator/', action: 'compute'});
+		$('#FP' + String($scope.inputs.length-1) + 'Tab').tab('show');
 	}
-	$scope.getTabClass = function(index) {
+	
+	$scope.getTabClass = function(index) {		
 		if (index == ($scope.inputs.length-1)) {
-			return 'active';
+			return 'ng-scope active';
 		} else {
-			return '';
+			return 'ng-scope';
 		}
 	}
+
 	$scope.delLastTab = function() {
 		$scope.inputs.pop();
 		$scope.outputs.pop();
+		$('#FP' + String($scope.inputs.length) + 'Tab').tab('show');
 	}
 
 }])
@@ -50,7 +56,7 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 			<h1>Fluid properties calculator</h1>
 			<ul class="nav nav-tabs" role="tablist" id="FluidPointTabs">
 		  		<li ng-repeat="input in inputs track by $index" ng-class="getTabClass($index)">
-			  		<a ng-attr-id="FP{{$index + 1}}Tab" data-target="#FluidPoint{{$index + 1}}" role="tab" data-toggle="tab">Fluid point {{$index + 1}}</a>			  		
+			  		<a ng-attr-id="FP{{$index + 1}}Tab" data-target="#FluidPoint{{$index + 1}}" role="tab" data-toggle="tab" >Fluid point {{$index + 1}}</a>			  		
 		  		</li>
 			  	<li><a data-target="" id="FluidPointNew" ng-click="createNewTab()">+</a></li>
 			  	<li><a data-target="" ng-click="delLastTab()">x</a></li>			  	
