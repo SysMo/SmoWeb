@@ -5,7 +5,7 @@ import os
 
 coolPropSrcFolder = '/data/Workspace/Projects/SysMo/SmoFlow3D/coolprop/' 
 smoFlowSrcFolder = '/data/Workspace/Projects/SysMo/SmoFlow3D/smoflow3d/com.sysmo.smoflow3d/src/'
-smoFlowLibFolder = '/data/SysMo/SoftwareLibs/SmoFlow3D/'
+smoFlowLibFolder = '/srv/SmoWeb/Lib/'
 
 os.environ['LD_RUN_PATH'] = smoFlowLibFolder
 CXXFLAGS = ["-I" + os.path.abspath(os.path.join(smoFlowSrcFolder)),  

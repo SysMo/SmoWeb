@@ -23,23 +23,31 @@ angular.module('FlowResistance', ['ui.bootstrap', 'smo'])
 </script>
 {% endblock %}
 
+{% block pills %}
+	<li class="active" role="presentation"><a id="calcTab" data-target="#calculator" role="tab" data-toggle="tab">Calculator</a></li>
+	<li role="presentation"><a id="docTab" data-target="#doc" role="tab" data-toggle="tab">Doc</a></li>
+{% endblock %}
+
 {% block content %}
 <div ng-app="FlowResistance" ng-controller="FlowResistanceController" style="display: inline-block; width:85%; padding-top:20px;">
-
-		<h1>Pressure losses in pipe flow</h1>
-		<div style="text-align: center; position:relative; height:50mm">
-				<object data="{% static 'ThermoFluids/StraightPipe.svg' %}" type="image/svg+xml"></object>
-		</div>		
-		<div ng-form name="myForm">
-			<div smo-input-view="inputs"></div>
+	<div class="tab-content">
+		<div class="tab-pane active" id="calculator">
+			<h1>Pressure losses in pipe flow</h1>
+			<div style="text-align: center; position:relative; height:50mm">
+					<object data="{% static 'ThermoFluids/StraightPipe.svg' %}" type="image/svg+xml"></object>
+			</div>		
+			<div ng-form name="myForm">
+				<div smo-input-view="inputs"></div>
+			</div>		
+			<br>
+			<div ng-show="inputs.inputsObtained"><button ng-disabled="!myForm.$valid" class="btn btn-default" ng-click="compute()">Compute</button></div>		
+			<br>
+			<div smo-output-view="outputs"></div>
 		</div>
-		
-		<br>
-		<div ng-show="inputs.inputsObtained"><button ng-disabled="!myForm.$valid" class="btn btn-default" ng-click="compute()">Compute</button></div>
-		
-		<br>
-		<div smo-output-view="outputs"></div>
+		<div class="tab-pane" id="doc">
+			Documentation
+		</div>
+	</div>
 </div>
-
 {% endblock %}
 
