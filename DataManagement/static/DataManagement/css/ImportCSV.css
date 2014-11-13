@@ -16,6 +16,7 @@
 	text-align: left;
 }
 .dataTable { 
+	background-color: #EEE;
 	border: 1px solid #000;
 	border-collapse: collapse;
 }
@@ -49,4 +50,33 @@
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+}
+
+.form-field {
+	margin-top: 10px;
+}
+
+.form-field .form-label {
+	display: inline-block;
+	text-align: right; 
+	font-weight: bold;
+	padding-right: 5px; 
+}
+
+.form-field  input {
+	display: inline-block;
+}
+
+.text-field {
+	margin-top: 10px;
+}
+.text-field .text-label {
+	display: inline-block;
+	font-weight: bold;
+	padding-right: 5px; 
+}
+
+.text-field .text-area {
+	display: inline-block;
+	padding-right: 5px; 
 }

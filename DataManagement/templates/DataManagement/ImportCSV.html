@@ -9,30 +9,24 @@
 <script src="{% static 'DataManagement/ImportCSV.js' %}"></script>
 <script src="{% static 'smo-treeview/smo.treeview.js' %}"></script>
 <link rel="stylesheet" type="text/css" href="{% static 'smo-treeview/smo.treeview.css' %}">
-<style>
-.pull-left {
-margin-left:20px;}
-</style>
 {% endblock %}
 
 {% block content %}
-<div ng-app="csvImportApp" ng-controller="CsvImportController" style="display: inline-block; width:85%; padding-top:20px;">
+<div ng-app="csvImportApp" ng-controller="CsvImportController" class="content">
 	<h1>Import CSV</h1>
-	<p>Select a <b>CSV</b> file to import</p>
-	<table style="width: 100%;">				
-		<tr>
-			<td style=" text-align: right; font-weight: bold;">CSV File &nbsp</td><td style=" text-align: left;"><input ng-file-select="fileSelect($files)" type="file" /></td>
-		</tr>
-		<tr>
-			<td style=" text-align: right; font-weight: bold;">Rows to Display &nbsp</td><td style=" text-align: left;"><input ng-model="numRowsInPreview" name="numRowsInPreview" type="number" value="10" /></td>
-		</tr>
-		<tr><td><br/></td></tr>
-		<tr>
-			<td></td>
-			<td>
-				<button  ng-click="sendFile()" >Upload</button>
-			</td>
-		</tr>
+	<div class="text-field">
+		<div class="text-area">Select CSV file to import</div>
+	</div>
+	<div class="form-field">
+		<div class="form-label">CSV File</div><input ng-file-select="fileSelect($files)" type="file" />
+	</div>
+	<div class="form-field">
+		<div class="form-label">Rows to Display</div><input ng-model="numRowsInPreview" name="numRowsInPreview" type="number" value="10" />
+	</div>	
+	<div class="form-field">
+		<button  ng-click="sendFile()" >Upload</button>
+	</div>
+				
 <!-- 	  	<tr> -->
 <!-- 			<td></td>	 -->
 <!-- 		</tr>  -->
@@ -48,15 +42,13 @@ margin-left:20px;}
 <!-- 				<button ng-click="upload.abort()">Cancel Upload</button> -->
 <!-- 			</td>			 -->
 <!-- 		</tr> -->
-	</table>
-
-	<br>
-	
 	<div ng-if="showPreviewTable">
-		<p>The file contains <span ng-bind="csvPreviewData.numRows"></span> rows<p>
-		<table class="dataTable" style="background-color: #EEE;"> 
+		<div class="text-field">
+			<div class="text-label">The file contains:</div><div class="text-area" ng-bind="csvPreviewData.numRows"></div><div class="text-area">rows</div>
+		</div>
+		<table class="dataTable"> 
 			<tr>
-				<td class="row-label"><span style="color: #7F7F7F; font-size: large;" class="glyphicon glyphicon-question-sign" data-toggle="popover"  
+				<td class="row-label"><span class="glyphicon glyphicon-question-sign" data-toggle="popover"  
 				title="	- Select column names by double-clicking on a row header (leftmost cell with row number)
 	- Column names can also be edited directly 
 	- Select a storage type for the column
@@ -86,19 +78,18 @@ margin-left:20px;}
 				</td>
 			</tr>
 		</table>			
-		<br>
-		HDF dataset name:<input ng-model="datasetProps.name"></input> 		
-		<br>
-		Selected dataset name:<div ng-bind="datasetProps.name"></div>
-		<br>
-		Select HDF group:
-		<br>
-		<br>
-		<smo-hdf-browser tree-id="hdfView">	
-		</smo-hdf-browser>		
-		<br>
-		<button ng-click="importDataset(hdfView.currentNode.path)">Submit</button>
+		<div class="form-field">
+			<div class="form-label">HDF dataset name:</div><input ng-model="datasetProps.name"></input> 
+		</div>		
+		<div class="text-field">
+			<div class="text-label">Selected dataset name:</div><div class="text-area" ng-bind="datasetProps.name"></div>
 		</div>
+		<div class="form-field"><div class="form-label">Select HDF group:</div></div>
+		<smo-hdf-browser tree-id="hdfView"></smo-hdf-browser>		
+		<div class="form-field">
+			<button ng-click="importDataset(hdfView.currentNode.path)">Submit</button>
+		</div>
+	</div>
 
-	</div>	
+</div>	
 {% endblock %}
