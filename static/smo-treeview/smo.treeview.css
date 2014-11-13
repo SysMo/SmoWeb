@@ -28,6 +28,11 @@ div[data-tree-model] li {
   line-height: 20px;
 }
 
+div[data-tree-model] li i {
+	padding : 1px 10px;
+	background-repeat: no-repeat;	
+}
+
 div[data-tree-model] li i, div[data-tree-model] li span {
   cursor: pointer;
 }
@@ -36,4 +41,58 @@ div[data-tree-model] li .selected {
   background-color: #aaddff;
   font-weight: bold;
   padding: 1px 5px;
+}
+
+/* Tree node actions dropdown menu */
+smo-hdf-browser .dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0px;
+    z-index: 1000;
+    display: none;
+    float: left;
+    min-width: 160px;
+    padding: 5px 0px;
+    margin: 2px 0px 0px;
+    font-size: 14px;
+    text-align: left;
+    list-style: outside none none;
+    background-color: #E6E6FA; /* #FFF */
+    background-clip: padding-box;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.176);
+}
+
+/* Tree node actions dropdown menu links */
+smo-hdf-browser .dropdown-menu > li > a {
+    display: block;
+    padding: 3px 20px;
+    clear: both;
+    font-weight: 400;
+    line-height: 1.42857;
+    color: rgba(0, 82, 189, 1); /*black*/ /*#333*/
+    white-space: nowrap;
+}
+
+
+/* Tree node actions dropdown menu links + on hover, focus */
+smo-hdf-browser .dropdown-menu > li > a:hover, .tree-dropdown .dropdown-menu > li > a:focus {
+    color: rgba(0, 82, 189, 1); /*black*/ /*#262626*/
+    text-decoration: none;
+    background-color: white; /*#F5F5F5*/
+}
+
+/* Tree view input control style */
+
+smo-hdf-browser .input-action > div {
+	font-weight: bold;
+}
+
+smo-hdf-browser > input {
+	
+}
+
+smo-hdf-browser > button {
+
 }
