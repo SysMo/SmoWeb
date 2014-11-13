@@ -1,0 +1,90 @@
+/* Smo input/output view */
+
+[smo-input-view] > h2.loading, [smo-output-view] > h2.loading{
+	color: green;
+}
+[smo-input-view] > h2.error, [smo-output-view] > h2.error{
+	color: red;
+}
+
+/* Field group */
+[smo-field-group] {
+	display: inline-block; 
+	margin-right: 70px; 
+	vertical-align:top;
+}
+
+/* Field group label style */
+[smo-field-group] > h3 {
+
+}
+
+/* Super group */
+.nav-tabs.super-group {
+	
+}
+
+.tab-content.super-group {
+	border-style: solid; 
+	border-top: none; 
+	border-color: #DDD; 
+	border-width: 1px; 
+	padding-left: 20px; 
+	background-color: #E6E6FA;
+}
+
+/* Field */
+[smo-input-quantity], [smo-output-quantity], [smo-input-choice] {
+	margin-top: 5px; 
+	margin-bottom: 5px; 
+	white-space: nowrap;
+}
+
+.field-label {
+	display: inline-block;
+	white-space: nowrap;
+	text-align: left;
+	width: 150px;
+	height: 30px;
+}
+
+.field-input, .field-output {
+	display: inline-block; 
+	white-space: nowrap;
+	margin-left: 5px; 
+	margin-right: 5px;
+}
+
+.field-input input {
+	width: 120px; 
+	height: 30px;
+}
+
+.field-output .output {
+	width : 120px; 
+	height: 30px; 
+	background-color: #FFF; 
+	border: 1px solid #AAA; 
+	padding: 1px;
+}
+
+.field-select {
+	display: inline-block;
+	white-space: nowrap;
+}
+
+.field-select.choice > select {
+	width: 209px; 
+	height: 30px; 
+	margin-left: 5px;
+}
+
+.field-select.quantity > select {
+	width: 80px; 
+	height: 30px;
+}
+
+.input-validity-error {
+	margin-left: 160px; 
+	color:red;
+}

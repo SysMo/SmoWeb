@@ -227,31 +227,20 @@ smoModule.directive('smoInputQuantity', ['$compile', 'util', 'units', function($
 		link : function(scope, element, attr) {
 			scope.util = util;
 			scope.units = units;
-			
-
-			var baseDivStyle = 'display: inline-block; white-space: nowrap;';
-			var labelDivStyle = baseDivStyle + 'text-align: left; width: 150px; height: 30px;';
-			var inputDivStyle = baseDivStyle + 'margin-left: 5px; margin-right: 5px;';
-			var unitDivStyle = baseDivStyle + 'text-align: right;';
-			var inputSize = 'width: 120px; height: 30px;';
-			var unitSize = 'width: 80px; height: 30px;';
-			var errorStyle = 'margin-left: 160px; color:red;';
-
 			var template = '\
-					<div style="' + labelDivStyle + '">' + scope.title + '</div> \
-					<div style="' + inputDivStyle + '"> \
+					<div class="field-label">' + scope.title + '</div> \
+					<div class="field-input"> \
 						<div ng-form name="' + scope.inputId + 'Form">\
-							<input style="' + inputSize + '" name="input" required type="text" ng-pattern="/^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$/" ng-model="smoQuantityVar.displayValue" ng-change="checkValueValidity();">\
+							<input name="input" required type="text" ng-pattern="/^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$/" ng-model="smoQuantityVar.displayValue" ng-change="checkValueValidity();">\
 						</div>\
 					</div> \
-					<div style="' + unitDivStyle + '"> \
-						<select style="' + unitSize + '" ng-model="smoQuantityVar.displayUnit" ng-options="name as name for (name, conv) in units.quantities[smoQuantityVar.quantity].units" ng-change="smoQuantityVar.changeUnit()"></select> \
+					<div class="field-select quantity"> \
+						<select ng-model="smoQuantityVar.displayUnit" ng-options="name as name for (name, conv) in units.quantities[smoQuantityVar.quantity].units" ng-change="smoQuantityVar.changeUnit()"></select> \
 					</div>\
-					<div style="' + errorStyle + '" ng-show="' + scope.inputId + 'Form.input.$error.pattern">Enter a number</div>\
-					<div style="' + errorStyle + '" ng-show="' + scope.inputId + 'Form.input.$error.required">Required value</div>\
-					<div style="' + errorStyle + '" ng-show="' + scope.inputId + 'Form.input.$error.minVal">Number is below min value</div>\
-					<div style="' + errorStyle + '" ng-show="' + scope.inputId + 'Form.input.$error.maxVal">Number exceeds max value</div>';
-			
+					<div class="input-validity-error" ng-show="' + scope.inputId + 'Form.input.$error.pattern">Enter a number</div>\
+					<div class="input-validity-error" ng-show="' + scope.inputId + 'Form.input.$error.required">Required value</div>\
+					<div class="input-validity-error" ng-show="' + scope.inputId + 'Form.input.$error.minVal">Number is below min value</div>\
+					<div class="input-validity-error" ng-show="' + scope.inputId + 'Form.input.$error.maxVal">Number exceeds max value</div>';
 			
 	        var el = angular.element(template);
 	        compiled = $compile(el);
@@ -273,9 +262,9 @@ smoModule.directive('smoInputChoice', ['$compile', 'util', 'units', function($co
 		},
 	link : function(scope, element, attr) {
 		var template = ' \
-			<div style="display: inline-block;text-align: left;width: 150px;">' + scope.title + '</div>\
-			<div style="display: inline-block;"> \
-				<select style="width: 209px; height: 30px; margin-left: 5px;" ng-model="choiceVar" ng-options="key as value for (key, value) in options"></select> \
+			<div class="field-label">' + scope.title + '</div>\
+			<div class="field-select choice"> \
+				<select ng-model="choiceVar" ng-options="key as value for (key, value) in options"></select> \
 			</div>';
 		
 //		element.html('').append($compile(template)(scope));
@@ -310,7 +299,6 @@ smoModule.directive('smoFieldGroup', ['$compile', 'units', function($compile,  u
 				if (!(typeof field.show === "undefined")){
 					showFieldCode = 'ng-show="' + field.show.replace('self', 'smoDataSource') + '"';
 				}
-				var fieldStyle = 'style="margin-top: 5px; margin-bottom: 5px; white-space: nowrap;" ' + showFieldCode;
 				if (field.type == 'Quantity') {
 					var quantity = new units.Quantity(field.quantity, scope.smoDataSource[field.name], null, field.defaultDispUnit, field.minValue, field.maxValue);
 					quantity.id = field.name;
@@ -319,14 +307,14 @@ smoModule.directive('smoFieldGroup', ['$compile', 'units', function($compile,  u
 					
 					// Attach the field value to the quantity so that the original value is updated when the quantity value changes
 					if (scope.viewType == 'input') 
-						groupFields.push('<div ' + fieldStyle + ' smo-input-quantity smo-quantity-var="quantities.' + field.name + '"' + 
+						groupFields.push('<div ' + showFieldCode + ' smo-input-quantity smo-quantity-var="quantities.' + field.name + '"' + 
 						' smo-title="' + field.label + '" smo-id="' + quantity.id + '"></div>');
 					if (scope.viewType == 'output')
-						groupFields.push('<div ' + fieldStyle + ' smo-output-quantity smo-quantity-var="quantities.' + field.name + '"' + 
+						groupFields.push('<div ' + showFieldCode + ' smo-output-quantity smo-quantity-var="quantities.' + field.name + '"' + 
 								' smo-title="' + field.label + '"></div>');
 				} else if (field.type == 'Choices') {
 					if (scope.viewType == 'input')
-						groupFields.push('<div ' + fieldStyle + ' smo-input-choice smo-choice-var="smoDataSource.' + field.name + '"' +
+						groupFields.push('<div ' + showFieldCode + ' smo-input-choice smo-choice-var="smoDataSource.' + field.name + '"' +
 						' smo-options="smoFieldGroup.fields[' + i + '].options" smo-title="' + field.label + '"></div>');
 				}
 			} 
@@ -367,14 +355,14 @@ smoModule.directive('smoSuperGroup', ['$compile', 'units', function($compile,  u
 				for (var j = 0; j < superGroup.groups.length; j++) {
 					var fieldGroup = superGroup.groups[j];
 						// Attach the field value to the quantity so that the original value is updated when the quantity value changes
-					superGroupFields.push('<div style="display: inline-block; margin-right: 70px; vertical-align:top;" smo-field-group="smoSuperGroup[' + i + '].groups[' + j + ']" view-type="viewType" smo-data-source="smoDataSource"></div>');
+					superGroupFields.push('<div smo-field-group="smoSuperGroup[' + i + '].groups[' + j + ']" view-type="viewType" smo-data-source="smoDataSource"></div>');
 				}
 				
 				navTabPanes.push(superGroupFields.join(""));
-				navTabPanes.push('</div>');
+//				navTabPanes.push('</div>');
 			}
-			var template = '<ul class="nav nav-tabs" role="tablist">' + navTabs.join("") + '</ul>' +
-			'<div class="tab-content"  style="border-style: solid; border-top: none; border-color: #DDD; border-width: 1px; padding-left: 20px; background-color: #E6E6FA ;">' + navTabPanes.join("") + '</div>';
+			var template = '<ul class="nav nav-tabs super-group" role="tablist">' + navTabs.join("") + '</ul>' +
+			'<div class="tab-content super-group">' + navTabPanes.join("") + '</div>';
 
 			
 			var el = angular.element(template);
@@ -396,21 +384,14 @@ smoModule.directive('smoOutputQuantity', ['$compile', 'util', 'units', function(
 		link : function(scope, element, attr) {
 			scope.util = util;
 			scope.units = units;
-
-			var baseDivStyle = 'display: inline-block; white-space: nowrap;';
-			var labelDivStyle = baseDivStyle + 'text-align: left; width: 150px; height: 30px;';
-			var outputDivStyle = baseDivStyle + 'margin-left: 5px; margin-right: 5px;';
-			var unitDivStyle = baseDivStyle + 'text-align: right;';
-			var outputStyle = baseDivStyle + 'width : 120px; height: 30px; background-color: #FFF; border: 1px solid #AAA; padding: 1px;';
-			var unitSize = 'width: 80px; height: 30px;';
 			
 			var template = ' \
-					<div style="' + labelDivStyle + '">' + scope.title + '</div> \
-					<div style="' + outputDivStyle + '"> \
-						<div style="' + outputStyle + '" ng-bind="util.formatNumber(smoQuantityVar.displayValue)"></div>\
+					<div class="field-label">' + scope.title + '</div> \
+					<div class="field-output"> \
+						<div class="output" ng-bind="util.formatNumber(smoQuantityVar.displayValue)"></div>\
 					</div> \
-					<div style="' + unitDivStyle + '"> \
-						<select style="' + unitSize + '" ng-model="smoQuantityVar.displayUnit" ng-options="name as name for (name, conv) in units.quantities[smoQuantityVar.quantity].units" ng-change="smoQuantityVar.changeUnit()"></select> \
+					<div class="field-select quantity"> \
+						<select ng-model="smoQuantityVar.displayUnit" ng-options="name as name for (name, conv) in units.quantities[smoQuantityVar.quantity].units" ng-change="smoQuantityVar.changeUnit()"></select> \
 					</div>';
 
 			var el = angular.element(template);
@@ -458,8 +439,8 @@ smoModule.directive('smoInputView', ['$compile', 'units', function($compile,  un
 			}
 		},
 		link : function(scope, element, attr) {
-			var template = '<div ng-if="it.loading"><h2 style="color: green;">Loading...</h2></div>\
-							<div ng-if="it.errorLoading"><h2 style="color: red;">Error loading!</h2></div>\
+			var template = '<div ng-if="it.loading"><h2 class="loading">Loading...</h2></div>\
+							<div ng-if="it.errorLoading"><h2 class="error">Error loading!</h2></div>\
 							<div ng-if="it.inputsObtained">\
 								<div  smo-super-group="it.data.definitions" view-type="input" smo-data-source="it.data.values"></div>\
 							</div>';				
@@ -506,8 +487,8 @@ smoModule.directive('smoOutputView', ['$compile', 'units', function($compile,  u
 			}
 		},
 		link : function(scope, element, attr) {
-			var template = '<div ng-if="it.loading"><h2 style="color: green;">Loading...</h2></div>\
-							<div ng-if="it.errorLoading"><h2 style="color: red;">Error loading!</h2></div>\
+			var template = '<div ng-if="it.loading"><h2 class="loading">Loading...</h2></div>\
+							<div ng-if="it.errorLoading"><h2 class="error">Error loading!</h2></div>\
 							<div ng-if="it.outputsObtained">\
 							<div smo-super-group="it.data.definitions" view-type="output" smo-data-source="it.data.values"></div>\
 							</div>';		
