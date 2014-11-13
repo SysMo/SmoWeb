@@ -5,6 +5,7 @@
 {% block scripts_and_styles %}
 <script src="{% static 'smo-treeview/smo.treeview.js' %}"></script>
 <link rel="stylesheet" type="text/css" href="{% static 'smo-treeview/smo.treeview.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'DataManagement/css/DataExplorer.css' %}">
 <!--Load the AJAX API-->
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <script type="text/javascript" src="http://dygraphs.com/dygraph-dev.js"></script>
@@ -162,82 +163,72 @@
 {% endblock %}
 
 {% block content %}
-<div ng-app="testApp" ng-controller="testController" style="display: inline-block; width:85%; padding-top:20px;">
-		<!-- Nav tabs -->
-		<ul class="nav nav-tabs" role="tablist" id="myTab">
-		  <li class="active"><a id="explorerTab" data-target="#treePane" role="tab" data-toggle="tab">Explorer</a></li>
-		  <li ng-show="tableLoaded" ><a id="plotTab" data-target="#plotPane" role="tab" data-toggle="tab" ng-click="plotData()">Plot</a></li>
-		  <li ng-show="tableLoaded" ><a id="tableTab" data-target="#tablePane" role="tab" data-toggle="tab" ng-click="drawTable()">Table</a></li>
-		</ul>
-
-		<!-- Tab panes -->
-		<div class="tab-content">
-		  <div class="tab-pane active" id="treePane">
-			  	<br>
-			  	<div style="text-align: left; font-weight: bold; font-size: medium;">Explore data file:</div>
-			  	<br>
-			  	<smo-hdf-browser tree-id="hdfView"></smo-hdf-browser>
-		  </div>
-		  <div class="tab-pane" id="plotPane">
-				<div ng-bind="dsetName" style="font-weight: bold; font-size: large;"></div>
-				<div>
-					<input type="checkbox" ng-model="allChecked" ng-change="setToAll()"></input>
-					<span>Check/Uncheck all</span>
+<div class="content" ng-app="testApp" ng-controller="testController">
+	<!-- Nav tabs -->
+	<ul class="nav nav-tabs data-explorer" role="tablist" id="myTab">
+	  <li class="active"><a id="explorerTab" data-target="#treePane" role="tab" data-toggle="tab">Explorer</a></li>
+	  <li ng-show="tableLoaded" ><a id="plotTab" data-target="#plotPane" role="tab" data-toggle="tab" ng-click="plotData()">Plot</a></li>
+	  <li ng-show="tableLoaded" ><a id="tableTab" data-target="#tablePane" role="tab" data-toggle="tab" ng-click="drawTable()">Table</a></li>
+	</ul>
+	<!-- Tab panes -->
+	<div class="tab-content data-explorer">
+	  <div class="tab-pane active" id="treePane">
+		  	<div class="contentTitleLeft">Explore data file:</div>
+		  	<smo-hdf-browser tree-id="hdfView"></smo-hdf-browser>
+	  </div>
+	  <div class="tab-pane" id="plotPane">
+			<div>
+				<input type="checkbox" ng-model="allChecked" ng-change="setToAll()"></input>
+				<span>Check/Uncheck all</span>
+			</div>
+			<div class="checkboxControls">		  				
+				<div ng-hide="$index == xAxis" ng-repeat="columnName in tableArray[0] track by $index">
+					<input type="checkbox" ng-model="columnsShow[$index]" ng-change="updateChecked()"></input>
+					<span ng-style="{color: columnColors[$index]}" ng-bind="columnName"></span>
+					
 				</div>
-				<div style="width: 70%;">		  				
-					<div style="display:inline-block;" ng-hide="$index == xAxis" ng-repeat="columnName in tableArray[0] track by $index">
-						<input type="checkbox" ng-model="columnsShow[$index]" ng-change="updateChecked()"></input>
-						<span ng-style="{color: columnColors[$index]}" ng-bind="columnName"></span>
-						&nbsp&nbsp&nbsp&nbsp&nbsp
-					</div>
+			</div>
+			<div>
+				Set X axis:
+				<select ng-options="tableArray[0].indexOf(columnName) as columnName for columnName in tableArray[0]" ng-model="xAxis" ng-change="update()">
+				</select>
+			</div>			
+			<div>			  
+				<div id="dygraphs" class="dygraph"></div>	
+				<div id="dylegend" class="dylegend"></div>
+			</div>			
+			<div class="export">
+				File name:<input type="text" ng-model="imgFileName"></input>
+   				<button class="btn btn-default" ng-click="exportToPNG()">Export as PNG</button>
+   				<img id="demoimg" hidden>
+			</div>
+			
+	  </div>
+	  <div class="tab-pane" id="tablePane">
+			<div>
+				<input type="checkbox" ng-model="allChecked" ng-change="setToAll()"></input>
+				<span>Check/Uncheck all</span>
+			</div>
+			<div class="checkboxControls">		  				
+				<div ng-hide="$index == xAxis" ng-repeat="columnName in tableArray[0] track by $index">
+					<input type="checkbox" ng-model="columnsShow[$index]" ng-change="updateChecked()"></input>
+					<span ng-bind="columnName"></span>
 				</div>
-				<div>
-					Set X axis:
-					<select ng-options="tableArray[0].indexOf(columnName) as columnName for columnName in tableArray[0]" ng-model="xAxis" ng-change="update()">
-					</select>
-				</div>
-				
-				<div>			  
-					<div id="dygraphs" style="display:inline-block; float: left;"></div>	
-					<div id="dylegend" style="display:inline-block; float:left;"></div>
-				</div>
-				
-				<div style="float: left;">
-					<br>
-					File name:&nbsp
-					<input type="text" ng-model="imgFileName" style="width:30%;"></input>&nbsp
-    				<button class="btn btn-default" ng-click="exportToPNG()">Export as PNG</button>
-    				<img id="demoimg" hidden>
-				</div>
-				
-		  </div>
-		  <div class="tab-pane" id="tablePane">
-		  		<div ng-bind="dsetName" style="font-weight: bold; font-size: large;"></div>
-				<div>
-					<input type="checkbox" ng-model="allChecked" ng-change="setToAll()"></input>
-					<span>Check/Uncheck all</span>
-				</div>
-				<div style="width: 70%;">		  				
-					<div style="display:inline-block;" ng-hide="$index == xAxis" ng-repeat="columnName in tableArray[0] track by $index">
-						<input type="checkbox" ng-model="columnsShow[$index]" ng-change="updateChecked()"></input>
-						<span ng-bind="columnName"></span>
-						&nbsp&nbsp&nbsp&nbsp&nbsp
-					</div>
-				</div>
-				<div>
-					Set first column:
-					<select ng-options="tableArray[0].indexOf(columnName) as columnName for columnName in tableArray[0]" ng-model="xAxis" ng-change="update()">
-					</select>
-				</div>				  
-				<div id="table_div"></div>	
-				<br>
-				<div>
-					File name:&nbsp
-					<input type="text" ng-model="csvFileName" style="width:10%;"></input>&nbsp
-    				<button class="btn btn-default" ng-click="exportCSV()">Export as CSV</button>
-				</div>
-				<a id="csvElem" hidden></a>
-		 </div>
-		</div>
+			</div>
+			<div>
+				Set first column:
+				<select ng-options="tableArray[0].indexOf(columnName) as columnName for columnName in tableArray[0]" ng-model="xAxis" ng-change="update()">
+				</select>
+			</div>
+			<div ng-bind="dsetName" class="contentTitleCenter"></div>			  
+			<div id="table_div"></div>	
+			<br>
+			<div class="export">
+				File name:<input type="text" ng-model="csvFileName"></input>
+   				<button class="btn btn-default" ng-click="exportCSV()">Export as CSV</button>
+			</div>
+			<a id="csvElem" hidden></a>
+	 </div>
+	</div>
 </div>
 {% endblock %}

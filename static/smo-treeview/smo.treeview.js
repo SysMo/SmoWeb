@@ -63,7 +63,7 @@
 //						'</li>' +
 //					'</ul>';
 
-				var dropdownHTML = "<div class=\"dropdown\" ng-style=\"{cursor: 'pointer'}\">" +  
+				var dropdownHTML = "<div class=\"dropdown\" >" +  
 				"<div class=\"navbar-collapse collapse\">" +
 				  "<button class=\"btn btn-xs btn-default dropdown-toggle\" type=\"button\" id=\"dropdownMenu1\" data-toggle=\"dropdown\">" +
 				    "<span class=\"caret\"></span>" +
@@ -217,8 +217,7 @@
 									img = "url('/static/smo-treeview/img/blue-folder.png')";
 								}								
 							}
-							var imgStyle = { "padding" : "1px 10px",
-						  		"background-repeat": "no-repeat",
+							var imgStyle = { 
 						  		"background-image" : img
 				  			};
 							return imgStyle;
@@ -371,8 +370,8 @@
 						'data-node-children="children" >' +
 					'</div>' +
 					'<br>' +
-					 '<div ng-show="' + treeId + '.isInputAction(' + treeId + '.action)">' +
-						  '<div style="font-weight: bold;" ng-bind="' + treeId + '.getActionText(' + treeId + '.action)"></div>' +
+					 '<div class="input-action" ng-show="' + treeId + '.isInputAction(' + treeId + '.action)">' +
+						  '<div ng-bind="' + treeId + '.getActionText(' + treeId + '.action)"></div>' +
 						  '<input focus-me="focus" ng-model="' + treeId + '.input"></input>' +
 						  '<button ng-click="' + treeId + '.sendActionData()">Submit</button>' +
 					 '</div>';

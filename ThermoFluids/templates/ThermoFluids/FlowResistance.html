@@ -4,7 +4,7 @@
 
 {% block scripts_and_styles %}
 <script src="{% static 'SmoUtil.js' %}"></script>
-
+<link rel="stylesheet" type="text/css" href="{% static 'ThermoFluids/css/SmoInputOutputView.css' %}">
 <script>
 angular.module('FlowResistance', ['ui.bootstrap', 'smo'])
 	.config(['$httpProvider', function($httpProvider) {
@@ -29,17 +29,16 @@ angular.module('FlowResistance', ['ui.bootstrap', 'smo'])
 {% endblock %}
 
 {% block content %}
-<div ng-app="FlowResistance" ng-controller="FlowResistanceController" style="display: inline-block; width:85%; padding-top:20px;">
+<div class="content" ng-app="FlowResistance" ng-controller="FlowResistanceController">
 	<div class="tab-content">
 		<div class="tab-pane active" id="calculator">
 			<h1>Pressure losses in pipe flow</h1>
-			<div style="text-align: center; position:relative; height:50mm">
-					<object data="{% static 'ThermoFluids/StraightPipe.svg' %}" type="image/svg+xml"></object>
+			<div class="contentSVG">
+				<object data="{% static 'ThermoFluids/StraightPipe.svg' %}" type="image/svg+xml"></object>
 			</div>		
 			<div ng-form name="myForm">
 				<div smo-input-view="inputs"></div>
 			</div>		
-			<br>
 			<div ng-show="inputs.inputsObtained"><button ng-disabled="!myForm.$valid" class="btn btn-default" ng-click="compute()">Compute</button></div>		
 			<br>
 			<div smo-output-view="outputs"></div>
