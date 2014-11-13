@@ -1,18 +1,97 @@
 <div class="document" id="flow-resistance">
-<h1 class="title">Flow resistance</h1>
-<div class="math">
-\begin{equation*}
-\zeta =  8\left[\left(\frac{8}{Re}\right)^{12}+\frac{1}{\left(\Theta_{1}+\Theta_{2}\right)^{1.5}}\right]^{\frac{1}{12}}
-\end{equation*}
-</div>
-<div class="math">
-\begin{equation*}
-\Theta_{1}  =  \left[2.457\cdot\ln\left(\left(\frac{7}{Re}\right)^{0.9}+0.27\frac{\varepsilon}{d}\right)\right]^{16}
-\end{equation*}
-</div>
-<div class="math">
-\begin{equation*}
-\Theta_{2}  =  \left(\frac{37530}{Re}\right)^{16}
-\end{equation*}
-</div>
+	<h1 class="title">Flow resistance</h1>
+	<div class="section" id="parameters">
+		<h1>Parameters</h1>
+		<table border="1" class="docutils">
+			<colgroup>
+				<col width="40%" />
+				<col width="60%" />
+			</colgroup>
+			<thead valign="bottom">
+				<tr>
+					<th class="head">Symbol</th>
+					<th class="head">Parameter name</th>
+				</tr>
+			</thead>
+			<tbody valign="top">
+				<tr>
+					<td><span class="math">\(d_i\)</span></td>
+					<td>internal pipe diameter</td>
+				</tr>
+				<tr>
+					<td><span class="math">\(d_e\)</span></td>
+					<td>external pipe diameter</td>
+				</tr>
+				<tr>
+					<td><span class="math">\(L\)</span></td>
+					<td>pipe length</td>
+				</tr>
+				<tr>
+					<td><span class="math">\(p_i\)</span></td>
+					<td>inlet pressure</td>
+				</tr>
+				<tr>
+					<td><span class="math">\(T_i\)</span></td>
+					<td>inlet temperature</td>
+				</tr>
+				<tr>
+					<td><span class="math">\(\rho_i\)</span></td>
+					<td>inlet density</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<div class="section" id="geometry-properties">
+		<h1>Geometry properties</h1>
+		<p>The flow area is</p>
+		<div class="math">\begin{equation*} A_f = \frac{\pi d_i^2}{4}
+			\end{equation*}</div>
+		<p>The fluid volume is:</p>
+		<div class="math">\begin{equation*} V = A_f L \end{equation*}</div>
+		<p>The internal and external surface areas are calculated as:</p>
+		<div class="math">\begin{equation*} A_i = \pi d_i L
+			\end{equation*}</div>
+		<div class="math">\begin{equation*} A_e = \pi d_e L
+			\end{equation*}</div>
+		<p>The mass of the pipe is:</p>
+		<div class="math">\begin{equation*} m_p = \rho_p \frac{\pi
+			\left( d_e^2 - d_i^2 \right)}{4}L \end{equation*}</div>
+		<p>
+			where <span class="math">\(\rho_p\)</span> is the density of the pipe
+			material (steel, aluminium etc.)
+		</p>
+	</div>
+	<div class="section" id="pressure-drop">
+		<h1>Pressure drop</h1>
+		<p>
+			In general the pressure drop in pipes and components depends on the
+			upstream fluid density <span class="math">\(\rho\)</span> and flow
+			velocity
+		</p>
+		<div class="math">\begin{equation*} v = \frac{\dot{m}}{\rho
+			A_{f}} \end{equation*}</div>
+		<p>and can be calculated from the formula:</p>
+		<div class="math">\begin{equation*} \Delta p=c_{d}\frac{\rho
+			v^{2}}{2}, \end{equation*}</div>
+		<p>
+			where <span class="math">\(c_{d}\)</span> is the flow drag
+			coefficient. For pipes the drag coefficient depends on the pipe
+			geometry and the <em>Darcy friction factor</em>:
+		</p>
+		<div class="math">\begin{equation*} c_{d}=\zeta\frac{L}{d_i}
+			\end{equation*}</div>
+		<p>
+			where <span class="math">\(\zeta\)</span> is the friction factor, <span
+				class="math">\(L\)</span> is the length of the pipe and <span
+				class="math">\(d\)</span> is the internal diameter of the pipe.
+		</p>
+		<div class="math">\begin{equation*} \zeta =
+			8\left[\left(\frac{8}{Re}\right)^{12}+\frac{1}{\left(\Theta_{1}+\Theta_{2}\right)^{1.5}}\right]^{\frac{1}{12}}
+			\end{equation*}</div>
+		<div class="math">\begin{equation*} \Theta_{1} =
+			\left[2.457\cdot\ln\left(\left(\frac{7}{Re}\right)^{0.9}+0.27\frac{\varepsilon}{d}\right)\right]^{16}
+			\end{equation*}</div>
+		<div class="math">\begin{equation*} \Theta_{2} =
+			\left(\frac{37530}{Re}\right)^{16} \end{equation*}</div>
+	</div>
 </div>
