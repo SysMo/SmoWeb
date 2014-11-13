@@ -1,0 +1,140 @@
+html{
+	height: 100%;
+	width: 100%;	
+}
+		
+body {	
+	height: 100%;
+	width: 100%;
+	background-color: rgba(252, 240, 194, 1);
+	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+	font-size: 14px;
+	line-height: 1.42857;
+	color: black; /*#333*/
+}
+
+/* Horizontal navigation bar */ 
+.navbar > .container {
+	width:95%;
+}
+
+.navbar-default {
+    background-color: black; /*#F8F8F8*/
+    border-color: #E7E7E7;
+    margin-bottom: 0px;
+}
+
+
+/* Horizontal navigation brand ('SmoWeb') + hover, focus event style */
+.navbar-default .navbar-brand {
+	color: rgba(0, 82, 189, 1); /*#777*/
+	font-size: x-large; 
+	font-weight: bold; 
+	text-align: center;
+}
+
+.navbar-default .navbar-brand:hover, .navbar-default .navbar-brand:focus {
+    color: white; /*#777;*/ /*#5E5E5E*/
+    background-color: transparent;
+}
+
+/* Horizontal navigation dropdowns + hover, focus event style */
+
+.navbar-default .navbar-nav > li > a {
+  	color:  rgba(0, 82, 189, 1); /*#777*/
+}
+
+.navbar-default .navbar-nav > li > a:hover, .navbar-default .navbar-nav > li > a:focus {
+    color: white; /*#333*/
+    background-color: transparent;
+}
+
+/* Horizontal navigation dropdowns on open + hover, focus event style */
+
+.navbar-default .navbar-nav > .open > a, .navbar-default .navbar-nav > .open > a:hover, .navbar-default .navbar-nav > .open > a:focus {
+    color: white; /*#555*/
+    background-color: black; /*#E7E7E7*/
+}
+
+
+/* Horizontal navigation dropdowns color switch on collapse */
+.navbar-default .navbar-nav > li > a[aria-expanded="false"] {
+	color: rgba(0, 82, 189, 1);
+    background-color: black; /*#E7E7E7*/
+}
+
+/* Horizontal navigation dropdowns menu */
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0px;
+    z-index: 1000;
+    display: none;
+    float: left;
+    min-width: 160px;
+    padding: 5px 0px;
+    margin: 2px 0px 0px;
+    font-size: 14px;
+    text-align: left;
+    list-style: outside none none;
+    background-color: #E6E6FA; /* #FFF */
+    background-clip: padding-box;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.176);
+}
+
+
+.dropdown-menu > li > a {
+    display: block;
+    padding: 3px 20px;
+    clear: both;
+    font-weight: 400;
+    line-height: 1.42857;
+    color: rgba(0, 82, 189, 1); /*black*/ /*#333*/
+    white-space: nowrap;
+}
+
+
+/* Horizontal navigation dropdown menu links + on hover, focus */
+.dropdown-menu > li > a:hover, .dropdown-menu > li > a:focus {
+    color: rgba(0, 82, 189, 1); /*black*/ /*#262626*/
+    text-decoration: none;
+    background-color: rgba(252, 240, 194, 1); /*#F5F5F5*/
+}
+
+/* Logo */
+.logo {
+	text-align: right; 
+	padding-top:10px; 
+	padding-bottom: 10px
+} 
+
+.logo > img {
+	height: 30px; 
+}
+
+/* Vertical navigation div */
+.pilldiv {
+    display: inline-block;
+    width: 10%;
+    height: 100%;
+    vertical-align: top;
+    padding-top: 20px;
+    padding-left: 10px;
+    padding-right: 10px;
+    margin-right: 30px;
+    background-color: #E6E6FA;
+}
+
+/* Inactive pills */
+.nav-pills > li > a {
+  	border-radius: 4px;
+  	color: rgba(0, 82, 189, 1);
+}
+
+/* Active pills + on hover, focus */
+.nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus {
+    color: #FFF;
+    background-color: rgba(0, 82, 189, 1); /*#428BCA*/
+}
