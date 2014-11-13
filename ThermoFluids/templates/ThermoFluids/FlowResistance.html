@@ -39,7 +39,6 @@ angular.module('FlowResistance', ['ui.bootstrap', 'smo'])
 			<div ng-form name="myForm">
 				<div smo-input-view="inputs"></div>
 			</div>		
-			<br>
 			<div ng-show="inputs.inputsObtained"><button ng-disabled="!myForm.$valid" class="btn btn-default" ng-click="compute()">Compute</button></div>		
 			<br>
 			<div smo-output-view="outputs"></div>

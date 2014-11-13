@@ -11,6 +11,7 @@ body {
 	font-size: 14px;
 	line-height: 1.42857;
 	color: black; /*#333*/
+	
 }
 
 /* Horizontal navigation bar */ 
@@ -144,6 +145,9 @@ body {
 	display: inline-block; 
 	width:85%; 
 	padding-top:20px;
+}
+.superContent {
+	height:100%;
 }
 
 h1 {

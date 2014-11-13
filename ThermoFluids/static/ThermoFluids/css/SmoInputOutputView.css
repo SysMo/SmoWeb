@@ -31,6 +31,12 @@
 	border-width: 1px; 
 	padding-left: 20px; 
 	background-color: #E6E6FA;
+	padding-bottom: 20px;
+}
+
+[smo-super-group] {
+	margin-bottom: 20px;
+	margin-top: 20px;
 }
 
 /* Field */
