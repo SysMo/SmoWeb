@@ -100,7 +100,7 @@ body {
 .dropdown-menu > li > a:hover, .dropdown-menu > li > a:focus {
     color: rgba(0, 82, 189, 1); /*black*/ /*#262626*/
     text-decoration: none;
-    background-color: rgba(252, 240, 194, 1); /*#F5F5F5*/
+    background-color: white; /*#F5F5F5*/
 }
 
 /* Logo */
@@ -137,4 +137,21 @@ body {
 .nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus {
     color: #FFF;
     background-color: rgba(0, 82, 189, 1); /*#428BCA*/
+}
+
+/* Content */
+.content {
+	display: inline-block; 
+	width:85%; 
+	padding-top:20px;
+}
+
+h1 {
+	text-align: center;
+}
+
+.contentSVG {
+	text-align: center; 
+	position:relative; 
+	height:50mm;
 }

@@ -19,7 +19,6 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 		$scope.outputs[index].fetchData($scope.inputs[index].data.values);
 	}
 	$scope.createNewTab = function() {
-// 		$('#FP' + String($scope.inputs.length) + 'Tab').tab('show');
 		$scope.inputs.push({autoFetch: true, dataUrl: '/ThermoFluids/FluidPropsCalculator/', action: 'getInputs'});
 		$scope.outputs.push({ dataUrl: '/ThermoFluids/FluidPropsCalculator/', action: 'compute'});
 		$('#FP' + String($scope.inputs.length-1) + 'Tab').tab('show');
@@ -50,7 +49,7 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 
 {% block content %}
 {% verbatim %}	
-<div ng-app="FluidPropsCalculator" ng-controller="FluidPropsController" style="display: inline-block; width:85%; padding-top:20px;">
+<div class="content" ng-app="FluidPropsCalculator" ng-controller="FluidPropsController">
 	<div class="tab-content">
 		<div class="tab-pane active" id="calculator">		
 			<h1>Fluid properties calculator</h1>
