@@ -1,0 +1,12 @@
+===============
+Flow resistance
+===============
+
+
+..  math::
+   \zeta =  8\left[\left(\frac{8}{Re}\right)^{12}+\frac{1}{\left(\Theta_{1}+\Theta_{2}\right)^{1.5}}\right]^{\frac{1}{12}}
+   
+   \Theta_{1}  =  \left[2.457\cdot\ln\left(\left(\frac{7}{Re}\right)^{0.9}+0.27\frac{\varepsilon}{d}\right)\right]^{16}
+   
+   \Theta_{2}  =  \left(\frac{37530}{Re}\right)^{16}
+ 

@@ -54,7 +54,7 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.7552004"
-     inkscape:cx="395.05235"
+     inkscape:cx="295.6335"
      inkscape:cy="119.00613"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
@@ -127,12 +127,6 @@
        d="m 24.748737,112.71726 423.758993,0"
        id="path3011"
        inkscape:connector-curvature="0" />
-    <path
-       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m 446.9925,61.90761 28.78935,-30.052037 46.71955,0"
-       id="path3013"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="ccc" />
     <text
        xml:space="preserve"
        style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
@@ -145,20 +139,27 @@
          x="219.11342"
          y="107.67017"
          style="font-size:32px">L</tspan></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.9992126;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none;marker-end:url(#Arrow1Mend)"
+       d="m -37.267561,68.358416 50.136725,0"
+       id="path3046"
+       inkscape:connector-curvature="0" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Mend)"
+       d="m 458.97207,66.079474 61.53144,0"
+       id="path3048"
+       inkscape:connector-curvature="0" />
     <text
        xml:space="preserve"
        style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-       x="533.60742"
-       y="43.290051"
-       id="text3023"
-       sodipodi:linespacing="125%"><tspan
+       x="15.952594"
+       y="76.078941"
+       id="text4382"
+       sodipodi:linespacing="125%"
+       transform="translate(-48.092536,-22.533645)"><tspan
          sodipodi:role="line"
-         id="tspan3025"
-         x="533.60742"
-         y="43.290051">d<tspan
-   style="font-size:65.00091553%;baseline-shift:sub"
-   id="tspan3027">i</tspan>/d<tspan
-   style="font-size:65.00091553%;baseline-shift:sub"
-   id="tspan3029">o</tspan></tspan></text>
+         x="15.952594"
+         y="76.078941"
+         id="tspan4386" /></text>
   </g>
 </svg>

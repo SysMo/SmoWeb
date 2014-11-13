@@ -52,7 +52,7 @@ class HeatPumpCalculator(NumericalModel):
 	mDotRefrigerant = Quantity('MassFlowRate', default = (1, 'kg/min'), label = 'refrigerant flow rate')
 	pLow = Quantity('Pressure', default = (1, 'bar'), label = 'low pressure')
 	pHigh = Quantity('Pressure', default = (10, 'bar'), label = 'high pressure')
-	THot = Quantity('Temperature', default = (330, 'K'), label = 'warm temperature')
+	THot = Quantity('Temperature', default = (300, 'K'), label = 'warm temperature')
 	TCold = Quantity('Temperature', default = (270, 'K'), label = 'cold temperature')
 	compressionType = Choices(
 		OrderedDict((
@@ -98,8 +98,8 @@ class HeatPumpCalculator(NumericalModel):
 	QEvap = Quantity('HeatFlowRate', default = (1, 'kW'), label = 'heat flow rate')
 	evaporatorInlet = FieldGroup([T4, q4, QEvap], label = '4. Evaporator inlet')
 	##################	
-	COP = Quantity('Dimensionless', label = 'coefficient of performance')
-	COPCarnot = Quantity('Dimensionless', label = 'max COP (Carnot)')
+	COP = Quantity('Dimensionless', label = 'COP')
+	COPCarnot = Quantity('Dimensionless', label = 'COP (Carnot)')
 	summary=FieldGroup([COP, COPCarnot], label = '5. Summary')
 	results = SuperGroup([compressorInlet, compressorOutlet, condensorOutlet, evaporatorInlet, summary], label="Results")
 	def compute(self):
