@@ -31,13 +31,15 @@ smoModule.factory('util', function util () {
 	}
 	functions.dumpObject = dumpObject;
 	function formatNumber (n) {
-		if (n > 1e5 || n < 1e-3) {
+		if (Math.abs(n) > 1e5 || Math.abs(n) < 1e-3) {
+			console.log("toExp:" + Number(n.toExponential(5)));
 			return n.toExponential(5);
 		}
 		var sig = 6;
 		var mult = Math.pow(10,
-				sig - Math.floor(Math.log(n) / Math.LN10) - 1);
-		return Math.round(n * mult) / mult;
+				sig - Math.floor(Math.log(Math.abs(n)) / Math.LN10) - 1);
+		console.log("Math:" + Math.round(n * mult) / mult);
+		return String(Math.round(n * mult) / mult);
 	}
 	functions.formatNumber = formatNumber;
 	return functions;
@@ -132,7 +134,7 @@ smoModule.factory('units', ['util', function(util) {
 
 		var dispUnitDef = units.quantities[this.quantity].units[this.displayUnit];
 		offset = dispUnitDef.offset || 0;
-		this.displayValue = (this.value - offset) / dispUnitDef.mult; 
+		this.displayValue = util.formatNumber((this.value - offset) / dispUnitDef.mult); 
 
 		this.attachedVars = [];
 	}
@@ -388,7 +390,7 @@ smoModule.directive('smoOutputQuantity', ['$compile', 'util', 'units', function(
 			var template = ' \
 					<div class="field-label">' + scope.title + '</div> \
 					<div class="field-output"> \
-						<div class="output" ng-bind="util.formatNumber(smoQuantityVar.displayValue)"></div>\
+						<div class="output" ng-bind="smoQuantityVar.displayValue"></div>\
 					</div> \
 					<div class="field-select quantity"> \
 						<select ng-model="smoQuantityVar.displayUnit" ng-options="name as name for (name, conv) in units.quantities[smoQuantityVar.quantity].units" ng-change="smoQuantityVar.changeUnit()"></select> \
