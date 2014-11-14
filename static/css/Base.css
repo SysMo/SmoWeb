@@ -1,26 +1,17 @@
 html{
-	height: 100%;
-	width: 100%;	
 }
 		
 body {	
-	height: 100%;
-	width: 100%;
 	background-color: rgba(252, 240, 194, 1);
 	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
 	font-size: 14px;
 	line-height: 1.42857;
 	color: black; /*#333*/
-	
+	margin: 0px;
 }
+
 
 /* Horizontal navigation bar */ 
-
-
-.navbar > .container {
-	width:95%;
-}
-
 .navbar-default {
     background-color: black; /*#F8F8F8*/
     border-color: #E7E7E7;
@@ -42,7 +33,6 @@ body {
 }
 
 /* Horizontal navigation dropdowns + hover, focus event style */
-
 .navbar-default .navbar-nav > li > a {
   	color:  #0875CA; /*#777*/
 }
@@ -53,7 +43,6 @@ body {
 }
 
 /* Horizontal navigation dropdowns on open + hover, focus event style */
-
 .navbar-default .navbar-nav > .open > a, .navbar-default .navbar-nav > .open > a:hover, .navbar-default .navbar-nav > .open > a:focus {
     color: white; /*#555*/
     background-color: black; /*#E7E7E7*/
@@ -117,39 +106,23 @@ body {
 	height: 30px; 
 }
 
-/* Vertical navigation div */
-body > .pilldiv {
-    display: inline-block;
-   	width: 10%;
-    height: 100%;
-    vertical-align: top;
-    padding-top: 20px;
-    padding-left: 10px;
-    padding-right: 10px;
-    margin-right: 30px;
-    background-color: #E6E6FA;
+/* Pills */
+.nav-pills > li,  .nav-pills > li.active {
+	width: 100%;
 }
 
 /* Inactive pills */
-.nav-pills > li > a {
+.nav-pills > li > a, .nav-pills > li.active > a {
   	border-radius: 4px;
   	color: rgba(0, 82, 189, 1);
+  	cursor: pointer;
 }
 
 /* Active pills + on hover, focus */
 .nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus {
     color: #FFF;
     background-color: #0875CA; /*#428BCA*/
-}
-
-/* Content */
-.content {
-	display: inline-block; 
-	width:85%; 
-	padding-top:20px;
-}
-.superContent {
-	height:100%;
+    cursor: pointer;
 }
 
 h1 {
