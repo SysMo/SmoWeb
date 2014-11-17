@@ -1,4 +1,5 @@
 from smo.util import addKeyFieldToValues
+from collections import OrderedDict
 
 Solids = {
 	'StainlessSteel304' : {'label' : 'stainless steel 304', 
@@ -15,33 +16,31 @@ Solids = {
 
 addKeyFieldToValues(Solids)
 
-Fluids = {
-	"ParaHydrogen" : {'label' : "Hydrogen (para)"},
-	"OrthoHydrogen" : {'label' : "Hydrogen (ortho)"},
-	"Hydrogen" : {'label' : "Hydrogen (normal)"},
-	"Water" : {'label' : "Water"},
-	"Air" : {'label' : "Air"},
-	"Nitrogen" : {'label' : "Nitrogen"},
-	"Oxygen" : {'label' : "Oxygen"},
-	"CarbonDioxide" : {'label' : "Carbon dioxide"},
-	"CarbonMonoxide" : {'label' : "Carbon monoxide"},
-	"R134a" : {'label' : "R134a"},
-	"R1234yf" : {'label' : "R1234yf"},
-	"R1234ze(Z)" : {'label' : "R1234ze(Z)"},
-	"Ammonia" : {'label' : "Ammonia"},
-	"Argon" : {'label' : "Argon"},
-	"Neon" : {'label' : "Neon"},
-	"Helium" : {'label' : "Helium"},
-	"Methane" : {'label' : "Methane"},
-	"Ethane" : {'label' : "Ethane"},
-	"Ethylene" : {'label' : "Ethylene"},
-	"n-Propane" : {'label' : "n-Propane"},
-	"n-Butane" : {'label' : "n-Butane"},
-	"IsoButane" : {'label' : "IsoButane"},
-	"n-Pentane" : {'label' : "n-Pentane"},
-	"Isopentane" : {'label' : "Isopentane"},
-	"Methanol" : {'label' : "Methanol"},
-	"Ethanol" : {'label' : "Ethanol"}
-}
-
-addKeyFieldToValues(Fluids)
+Fluids = OrderedDict((
+	("ParaHydrogen", "Hydrogen (para)"),
+	("OrthoHydrogen", "Hydrogen (ortho)"),
+	("Hydrogen", "Hydrogen (normal)"),
+	("Water", "Water"),
+	("Air", "Air"),
+	("Nitrogen", "Nitrogen"),
+	("Oxygen", "Oxygen"),
+	("CarbonDioxide", "Carbon dioxide"),
+	("CarbonMonoxide", "Carbon monoxide"),
+	("R134a", "R134a"),
+	("R1234yf", "R1234yf"),
+	("R1234ze(Z)", "R1234ze(Z)"),
+	("Ammonia", "Ammonia"),
+	("Argon", "Argon"),
+	("Neon", "Neon"),
+	("Helium", "Helium"),
+	("Methane", "Methane"),
+	("Ethane", "Ethane"),
+	("Ethylene", "Ethylene"),
+	("n-Propane", "n-Propane"),
+	("n-Butane", "n-Butane"),
+	("IsoButane", "IsoButane"),
+	("n-Pentane", "n-Pentane"),
+	("Isopentane", "Isopentane"),
+	("Methanol", "Methanol"),
+	("Ethanol", "Ethanol")
+))

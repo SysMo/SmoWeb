@@ -1,4 +1,5 @@
 from quantity import Quantities
+import json
 
 class Field(object):
 	# Tracks each time an instance is created. Used to retain order.
@@ -83,7 +84,10 @@ class Choices(Field):
 	def toFormDict(self):
 		fieldDict = {'name' : self._name, 'label': self.label}
 		fieldDict['type'] = 'Choices'
-		fieldDict['options'] = self.options
+		optionsList = []
+		for key in self.options.keys():			
+			optionsList.append([key, self.options[key]])
+		fieldDict['options'] = optionsList
 		return fieldDict
 
 class ObjectReference(Field):
@@ -110,6 +114,7 @@ class ObjectReference(Field):
 	def toFormDict(self):
 		fieldDict = {'name' : self._name, 'label': self.label}
 		fieldDict['type'] = 'Choices'
+# 		fieldDict['options'] = [[key, value['label']] for key, value in self.targetContainer.iteritems()]
 		fieldDict['options'] = {key : value['label'] for key, value in self.targetContainer.iteritems()}
 		return fieldDict
 	
