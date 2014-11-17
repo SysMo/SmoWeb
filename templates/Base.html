@@ -9,6 +9,7 @@
     <!-- Custom styles for this template -->
 	<!--     <link href="http://getbootstrap.com/examples/navbar-static-top/navbar-static-top.css" rel="stylesheet"> -->
 	<link rel="stylesheet" href="{% static 'css/Base.css' %}">
+	<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
     <!-- JQuery -->
  	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>  
     
@@ -24,8 +25,8 @@
 	
 	<body>	
 	{% csrf_token %}
-	<div class="navbar navbar-default navbar-static-top" role="navigation">
-      <div class="container" >
+	<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="container-fluid">
         <div class="navbar-header">
           <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
 <!--             <span class="sr-only">Toggle navigation</span> -->
@@ -69,16 +70,20 @@
       </div>
     </div>
     
-    <div class="pilldiv">
-			<ul class="nav nav-pills nav-stacked" role="tablist" id="pillNav">
-				{% block pills %}
-				{% endblock %}		  
-			</ul>
+    <div class="container-fluid">
+		<div class="row">
+	        <div class="col-sm-2 col-md-1 sidebar">
+	          <ul class="nav nav-pills nav-sidebar">
+	            {% block pills %}
+	            {% endblock %}
+	          </ul>
+	        </div>
+			<div class="col-sm-10 col-sm-offset-2 col-md-11 col-md-offset-1 main">
+					{% block content %}	
+					{% endblock %}
+			</div>
+		</div>
 	</div>
-	
-	{% block content %}	
-	{% endblock %}
-	
 	<!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->

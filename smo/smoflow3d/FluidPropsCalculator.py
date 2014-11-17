@@ -100,5 +100,70 @@ class FluidPropsCalculator(NumericalModel):
 		print
 		print fc.rho
 
+# def getLiteratureReferences():
+# 	from smo.CoolProp import CoolProp as CP
+# 	from smo.CoolProp.parse_bib import BibTeXerClass
+# 	BTC = BibTeXerClass()
+# 
+# 	EOSkey = CP.get_BibTeXKey(Fluid, "EOS")
+# 	CP0key = CP.get_BibTeXKey(Fluid, "CP0")
+# 	SURFACE_TENSIONkey = CP.get_BibTeXKey(Fluid, "SURFACE_TENSION")
+# 	VISCOSITYkey = CP.get_BibTeXKey(Fluid, "VISCOSITY")
+# 	CONDUCTIVITYkey = CP.get_BibTeXKey(Fluid, "CONDUCTIVITY")
+# 	ECS_LENNARD_JONESkey = CP.get_BibTeXKey(Fluid, "ECS_LENNARD_JONES")
+# 	ECS_FITSkey = CP.get_BibTeXKey(Fluid, "ECS_FITS")
+# 	
+# 	BibInfo = ''
+# 	if EOSkey:
+# 		BibInfo += '<p><b>Equation of State</b>: ' + BTC.entry2HTML(EOSkey)
+# 	if CP0key:
+# 		BibInfo += '<p><b>Ideal-Gas Specific Heat</b>: ' + BTC.entry2HTML(CP0key)
+# 	if SURFACE_TENSIONkey:
+# 		BibInfo += '<p><b>Surface Tension</b>: ' + BTC.entry2HTML(SURFACE_TENSIONkey)
+# 	if VISCOSITYkey:
+# 		BibInfo += '<p><b>Viscosity</b>: ' + BTC.entry2HTML(VISCOSITYkey)
+# 	if CONDUCTIVITYkey:
+# 		BibInfo += '<p><b>Conductivity</b>: ' + BTC.entry2HTML(CONDUCTIVITYkey)
+# 	if ECS_LENNARD_JONESkey:
+# 		BibInfo += '<p><b>Lennard-Jones Parameters for ECS</b>: ' + BTC.entry2HTML(ECS_LENNARD_JONESkey)
+# 	if ECS_FITSkey:
+# 		BibInfo += '<p><b>ECS Correction Fit</b>: ' + BTC.entry2HTML(ECS_FITSkey)
+# 	
+# 	return BibInfo
+# 
+# def getFluidConstants():
+# 	from smo.CoolProp import CoolProp as CP
+# 	Fluid  = 'ParaHydrogen'
+# 	params = dict(mm = CP.Props(Fluid,'molemass'),
+#               Tt = CP.Props(Fluid,'Ttriple'),
+#               pt = CP.Props(Fluid,'ptriple'),
+#               Tc = CP.Props(Fluid,'Tcrit'),
+#               pc = CP.Props(Fluid,'pcrit'),
+#               rhoc = CP.Props(Fluid,'rhocrit'),
+#               Tmin = CP.Props(Fluid,'Tmin'),
+#               CAS = CP.get_fluid_param_string(Fluid,'CAS'),
+#               ASHRAE = CP.get_fluid_param_string(Fluid,'ASHRAE34')
+#               )
+# 	return params
+
+	
+# 	s = """<table border = "1">
+# 	<tr> <th>Parameter</th> <th>Value</th> </tr>
+# 	<tr > <td colspan="2"><center>Triple point</center></td> </tr>
+# 	<tr> <td>Triple Point Temp. [K]</td> <td>{Tt:0.3f}</td> </tr>
+# 	<tr> <td>Triple Point Press. [kPa]</td> <td>{pt:0.10g}</td> </tr>
+# 	<tr > <td colspan="2" ><center>Critical point</center></td> </tr>
+# 	<tr> <td>Critical Point Temp. [K]</td> <td>{Tc:0.3f}</td> </tr>
+# 	<tr> <td>Critical Point Press. [kPa]</td> <td>{pc:0.10g}</td> </tr>
+# 	<tr> <td>Critical Point Density. [kPa]</td> <td>{rhoc:0.10g}</td> </tr>
+# 	<tr> <td colspan="2"><center>Other Values</center></td> </tr>
+# 	<tr> <td>Mole Mass [kg/kmol]</td> <td>{mm:0.5f}</td> </tr>
+# 	<tr> <td>Minimum temperature [K]</td> <td>{Tmin:0.3f}</td> </tr>
+# 	<tr> <td>CAS number</td> <td>{CAS:s}</td> </tr>
+# 	<tr> <td>ASHRAE classification</td> <td>{ASHRAE:s}</td> </tr>
+# 	</table>""".format(**params) 
+
 if __name__ == '__main__':
 	FluidPropsCalculator.test()
+# 	print getFluidConstants()
+# 	print getLiteratureReferences()

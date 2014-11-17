@@ -1,11 +1,14 @@
 <div class="document" id="flow-resistance">
 	<h1 class="title">Flow resistance</h1>
+	<object data="/static/ThermoFluids/StraightPipe.svg"
+		style="width: 1000px;" type="image/svg+xml">
+		/static/ThermoFluids/StraightPipe.svg</object>
 	<div class="section" id="parameters">
 		<h1>Parameters</h1>
 		<table border="1" class="docutils">
 			<colgroup>
-				<col width="40%" />
-				<col width="60%" />
+				<col width="47%" />
+				<col width="53%" />
 			</colgroup>
 			<thead valign="bottom">
 				<tr>
@@ -27,6 +30,10 @@
 					<td>pipe length</td>
 				</tr>
 				<tr>
+					<td><span class="math">\(\varepsilon\)</span></td>
+					<td>pipe surface roughness</td>
+				</tr>
+				<tr>
 					<td><span class="math">\(p_i\)</span></td>
 					<td>inlet pressure</td>
 				</tr>
@@ -35,8 +42,8 @@
 					<td>inlet temperature</td>
 				</tr>
 				<tr>
-					<td><span class="math">\(\rho_i\)</span></td>
-					<td>inlet density</td>
+					<td><span class="math">\(\dot{m}\)</span></td>
+					<td>inlet mass flow rate</td>
 				</tr>
 			</tbody>
 		</table>
@@ -61,29 +68,66 @@
 			material (steel, aluminium etc.)
 		</p>
 	</div>
-	<div class="section" id="pressure-drop">
-		<h1>Pressure drop</h1>
+	<div class="section" id="pressure-losses">
+		<h1>Pressure losses</h1>
 		<p>
-			In general the pressure drop in pipes and components depends on the
-			upstream fluid density <span class="math">\(\rho\)</span> and flow
-			velocity
+			In general the pressure loss in pipes and components depends on the
+			upstream fluid density <span class="math">\(\rho\)</span> and the
+			flow velocity
 		</p>
 		<div class="math">\begin{equation*} v = \frac{\dot{m}}{\rho
 			A_{f}} \end{equation*}</div>
-		<p>and can be calculated from the formula:</p>
+		<p>This pressure loss can be calculated from the formula:</p>
 		<div class="math">\begin{equation*} \Delta p=c_{d}\frac{\rho
 			v^{2}}{2}, \end{equation*}</div>
 		<p>
 			where <span class="math">\(c_{d}\)</span> is the flow drag
 			coefficient. For pipes the drag coefficient depends on the pipe
-			geometry and the <em>Darcy friction factor</em>:
+			geometry and the <em>Darcy friction factor</em> <span class="math">\(\zeta\)</span>
+			<a class="citation-reference" href="#wikip-dff" id="id1">[Wikip-DFF]</a>:
 		</p>
 		<div class="math">\begin{equation*} c_{d}=\zeta\frac{L}{d_i}
 			\end{equation*}</div>
 		<p>
-			where <span class="math">\(\zeta\)</span> is the friction factor, <span
-				class="math">\(L\)</span> is the length of the pipe and <span
-				class="math">\(d\)</span> is the internal diameter of the pipe.
+			where <span class="math">\(L\)</span> is the length of the pipe and <span
+				class="math">\(d_i\)</span> is the internal diameter of the pipe.
+		</p>
+		<p>
+			The friction factor depends on the Reynolds number <span class="math">\(Re={\rho
+				v d}/{\mu}\)</span> and the relative surface roughness <span class="math">\(\varepsilon/d\)</span>.
+			It can be determined using the <em>Moody chart</em>
+		</p>
+		<div class="line-block">
+			<div class="line">
+				<br />
+			</div>
+		</div>
+		<div class="figure align-center">
+			<img alt="/static/ThermoFluids/MoodyDiagram.jpg"
+				src="/static/ThermoFluids/MoodyDiagram.jpg" style="width: 1000px;" />
+			<p class="caption">Moody chart</p>
+		</div>
+		<p>In the laminar region the friction factor depends solely on the
+			Reynolds number:</p>
+		<div class="math">\begin{equation*} \zeta = \frac{64}{Re}
+			\end{equation*}</div>
+		<p>
+			In the turbulent region the relation is more complex and is given by
+			the <em>Colebrook</em> equation <a class="citation-reference"
+				href="#colebrook39" id="id2">[Colebrook39]</a>:
+		</p>
+		<div class="math">\begin{equation*} \frac{1}{\sqrt{\zeta}} =
+			-2.0 \log_{10} \left(\frac{\epsilon/d}{3.7} + {\frac{2.51}{Re
+			\sqrt{\zeta} } } \right) \end{equation*}</div>
+		<p>At very high Reynolds numbers the friction factor depends
+			solely on the relative surface roughness.</p>
+		<p>
+			Because the <em>Colebrook</em> correlation is implicit in <span
+				class="math">\(\zeta\)</span>, it is not suitable for direct
+			calculations. Different approximations have been developed amongst
+			which special attention deserves the <em>Churchill</em> correlation <a
+				class="citation-reference" href="#church77" id="id3">[Church77]</a>,
+			which covers all flow regimes: laminar, transitional and turbulent:
 		</p>
 		<div class="math">\begin{equation*} \zeta =
 			8\left[\left(\frac{8}{Re}\right)^{12}+\frac{1}{\left(\Theta_{1}+\Theta_{2}\right)^{1.5}}\right]^{\frac{1}{12}}
@@ -93,5 +137,53 @@
 			\end{equation*}</div>
 		<div class="math">\begin{equation*} \Theta_{2} =
 			\left(\frac{37530}{Re}\right)^{16} \end{equation*}</div>
+	</div>
+	<div class="section" id="references">
+		<h1>References</h1>
+		<table class="docutils citation" frame="void" id="wikip-dff"
+			rules="none">
+			<colgroup>
+				<col class="label" />
+				<col />
+			</colgroup>
+			<tbody valign="top">
+				<tr>
+					<td class="label"><a class="fn-backref" href="#id1">[Wikip-DFF]</a></td>
+					<td><a class="reference external"
+						href="http://en.wikipedia.org/wiki/Darcy_friction_factor_formulae">http://en.wikipedia.org/wiki/Darcy_friction_factor_formulae</a></td>
+				</tr>
+			</tbody>
+		</table>
+		<table class="docutils citation" frame="void" id="church77"
+			rules="none">
+			<colgroup>
+				<col class="label" />
+				<col />
+			</colgroup>
+			<tbody valign="top">
+				<tr>
+					<td class="label"><a class="fn-backref" href="#id3">[Church77]</a></td>
+					<td>Churchill, S.W. (November 7, 1977). &quot;Friction-factor
+						equation spans all fluid-flow regimes&quot;. Chemical Engineering:
+						91–92.</td>
+				</tr>
+			</tbody>
+		</table>
+		<table class="docutils citation" frame="void" id="colebrook39"
+			rules="none">
+			<colgroup>
+				<col class="label" />
+				<col />
+			</colgroup>
+			<tbody valign="top">
+				<tr>
+					<td class="label"><a class="fn-backref" href="#id2">[Colebrook39]</a></td>
+					<td>Colebrook, C.F. (February 1939). &quot;Turbulent flow in
+						pipes, with particular reference to the transition region between
+						smooth and rough pipe laws&quot;. Journal of the Institution of
+						Civil Engineers (London).</td>
+				</tr>
+			</tbody>
+		</table>
 	</div>
 </div>

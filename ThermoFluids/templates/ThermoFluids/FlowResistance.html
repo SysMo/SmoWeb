@@ -29,7 +29,7 @@ angular.module('FlowResistance', ['ui.bootstrap', 'smo'])
 {% endblock %}
 
 {% block content %}
-<div class="content" ng-app="FlowResistance" ng-controller="FlowResistanceController">
+<div ng-app="FlowResistance" ng-controller="FlowResistanceController">
 	<div class="tab-content">
 		<div class="tab-pane active" id="calculator">
 			<h1>Pressure losses in pipe flow</h1>
@@ -44,7 +44,9 @@ angular.module('FlowResistance', ['ui.bootstrap', 'smo'])
 			<div smo-output-view="outputs"></div>
 		</div>
 		<div class="tab-pane" id="doc">
-			{% include 'markup/html/FlowResistance.html' %}
+			<div style='width: 1200px; margin-left: auto; margin-right: auto; background-color:white; border: solid black 1px; padding: 10px;'>
+				{% include 'markup/html/FlowResistance.html' %}
+			</div>
 		</div>
 	</div>
 </div>
