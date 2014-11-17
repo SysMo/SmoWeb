@@ -106,24 +106,24 @@ body {
 	height: 30px; 
 }
 
-/* Pills */
-.nav-pills > li,  .nav-pills > li.active {
-	width: 100%;
-}
+/* /* Pills */ */
+/* .nav-pills > li,  .nav-pills > li.active { */
+/* 	width: 100%; */
+/* } */
 
-/* Inactive pills */
-.nav-pills > li > a, .nav-pills > li.active > a {
-  	border-radius: 4px;
-  	color: rgba(0, 82, 189, 1);
-  	cursor: pointer;
-}
+/* /* Inactive pills */ */
+/* .nav-pills > li > a, .nav-pills > li.active > a { */
+/*   	border-radius: 4px; */
+/*   	color: rgba(0, 82, 189, 1); */
+/*   	cursor: pointer; */
+/* } */
 
-/* Active pills + on hover, focus */
-.nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus {
-    color: #FFF;
-    background-color: #0875CA; /*#428BCA*/
-    cursor: pointer;
-}
+/* /* Active pills + on hover, focus */ */
+/* .nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus { */
+/*     color: #FFF; */
+/*     background-color: #0875CA; */
+/*     cursor: pointer; */
+/* } */
 
 h1 {
 	text-align: center;
