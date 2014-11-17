@@ -10,17 +10,17 @@ from smo.numerical_model.model import NumericalModel
 from smo.numerical_model.fields import *
 from smo.smoflow3d.SimpleMaterials import Fluids
 
-StateVariableOptions = OrderedDict(
-	(('P', 'pressure'),
+StateVariableOptions = OrderedDict((
+	('P', 'pressure'),
 	('T', 'temperature'),
 	('D', 'density'),
 	('H', 'specific enthalpy'),
 	('S', 'specific entropy'),
-	('Q', 'vapor quality'))
-)
+	('Q', 'vapor quality')
+	))
 
 class FluidPropsCalculator(NumericalModel):
-	fluid = ObjectReference(Fluids, default = 'ParaHydrogen', label = 'fluid')	
+	fluid = Choices(Fluids, default = 'ParaHydrogen', label = 'fluid')	
 	stateVariable1 = Choices(options = StateVariableOptions, default = 'P', label = 'first state variable')
 	p1 = Quantity('Pressure', default = (1, 'bar'), label = 'pressure', show="self.stateVariable1 == 'P'")
 	T1 = Quantity('Temperature', default = (300, 'K'), label = 'temperature', show="self.stateVariable1 == 'T'")
@@ -67,7 +67,7 @@ class FluidPropsCalculator(NumericalModel):
 		return self.__dict__[sVarDict[sVar]+str(index)]
 			
 	def compute(self):
-		fluid = getFluid(str(self.fluid['_key']))
+		fluid = getFluid(str(self.fluid))
 		fState = MediumState(fluid)
 		fState.update_state(self.stateVariable1, self.getStateValue(self.stateVariable1, 1), 
 						self.stateVariable2, self.getStateValue(self.stateVariable2, 2))

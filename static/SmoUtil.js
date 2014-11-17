@@ -275,7 +275,7 @@ smoModule.directive('smoInputChoice', ['$compile', 'util', 'units', function($co
 		var template = ' \
 			<div class="field-label">' + scope.title + '</div>\
 			<div class="field-select choice"> \
-				<select ng-model="choiceVar" ng-options="key as value for (key, value) in options"></select> \
+				<select ng-model="choiceVar" ng-options="pair[0] as pair[1] for pair in options"></select> \
 			</div>';
 		
 //		element.html('').append($compile(template)(scope));
