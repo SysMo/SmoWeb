@@ -1,32 +1,39 @@
+.. sectnum::
+   :suffix: .
+
 ===============
 Flow resistance
 ===============
 
-.. image:: /static/ThermoFluids/StraightPipe.svg
-   :width: 1000px
+.. figure:: /static/ThermoFluids/StraightPipe.svg
+   :width: 90%
+   :align: center
+   
+   Pipe parameters
 
 ----------
 Parameters
 ----------
 
-+---------------------+------------------------+
-| Symbol              | Parameter name         |
-+=====================+========================+
-| :math:`d_i`         | internal pipe diameter |
-+---------------------+------------------------+
-| :math:`d_e`         | external pipe diameter |
-+---------------------+------------------------+
-| :math:`L`           | pipe length            |
-+---------------------+------------------------+
-| :math:`\varepsilon` | pipe surface roughness |
-+---------------------+------------------------+
-| :math:`p_i`         | inlet pressure         |
-+---------------------+------------------------+
-| :math:`T_i`         | inlet temperature      |
-+---------------------+------------------------+
-| :math:`\dot{m}`     | inlet mass flow rate   |
-+---------------------+------------------------+
+.. class:: nice-table
 
++---------------------+------------------------+------+
+| Symbol              | Parameter name         | Unit |
++=====================+========================+======+
+| :math:`d_i`         | internal pipe diameter | mm   |
++---------------------+------------------------+------+
+| :math:`d_e`         | external pipe diameter | mm   |
++---------------------+------------------------+------+
+| :math:`L`           | pipe length            | m    |
++---------------------+------------------------+------+
+| :math:`\varepsilon` | pipe surface roughness | mm   |
++---------------------+------------------------+------+
+| :math:`p_i`         | inlet pressure         | bar  |
++---------------------+------------------------+------+
+| :math:`T_i`         | inlet temperature      | K    |
++---------------------+------------------------+------+
+| :math:`\dot{m}`     | inlet mass flow rate   | kg/h |
++---------------------+------------------------+------+
 
 -------------------
 Geometry properties
@@ -82,9 +89,8 @@ The friction factor depends on the Reynolds number :math:`Re={\rho v d}/{\mu}` a
 |
 
 .. figure:: /static/ThermoFluids/MoodyDiagram.jpg
-   :width: 1000px
+   :width: 90%
    :align: center
-   
    
    Moody chart
 
@@ -119,7 +125,7 @@ References
  
  
 .. [Wikip-DFF] http://en.wikipedia.org/wiki/Darcy_friction_factor_formulae
-
+   
 .. [Church77] Churchill, S.W. (November 7, 1977). "Friction-factor equation spans all fluid-flow regimes". 
    Chemical Engineering: 91–92.
    

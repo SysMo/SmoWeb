@@ -32,7 +32,7 @@ angular.module('FlowResistance', ['ui.bootstrap', 'smo'])
 <div ng-app="FlowResistance" ng-controller="FlowResistanceController">
 	<div class="tab-content">
 		<div class="tab-pane active" id="calculator">
-			<h1>Pressure losses in pipe flow</h1>
+			<h1 class="title">Pressure losses in pipe flow</h1>
 			<div class="contentSVG">
 				<object data="{% static 'ThermoFluids/StraightPipe.svg' %}" type="image/svg+xml"></object>
 			</div>		
@@ -44,7 +44,7 @@ angular.module('FlowResistance', ['ui.bootstrap', 'smo'])
 			<div smo-output-view="outputs"></div>
 		</div>
 		<div class="tab-pane" id="doc">
-			<div style='width: 1200px; margin-left: auto; margin-right: auto; background-color:white; border: solid black 1px; padding: 10px;'>
+			<div class="docview">
 				{% include 'markup/html/FlowResistance.html' %}
 			</div>
 		</div>
