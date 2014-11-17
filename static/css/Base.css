@@ -1,7 +1,9 @@
 html{
+	height: 100%;
 }
 		
 body {	
+	height: 100%;
 	background-color: rgba(252, 240, 194, 1);
 	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
 	font-size: 14px;
@@ -9,7 +11,6 @@ body {
 	color: black; /*#333*/
 	margin: 0px;
 }
-
 
 /* Horizontal navigation bar */ 
 .navbar-default {
@@ -102,28 +103,10 @@ body {
 	padding-bottom: 10px
 } 
 
-.logo > img {
+.logo img {
 	height: 30px; 
 }
 
-/* /* Pills */ */
-/* .nav-pills > li,  .nav-pills > li.active { */
-/* 	width: 100%; */
-/* } */
-
-/* /* Inactive pills */ */
-/* .nav-pills > li > a, .nav-pills > li.active > a { */
-/*   	border-radius: 4px; */
-/*   	color: rgba(0, 82, 189, 1); */
-/*   	cursor: pointer; */
-/* } */
-
-/* /* Active pills + on hover, focus */ */
-/* .nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus { */
-/*     color: #FFF; */
-/*     background-color: #0875CA; */
-/*     cursor: pointer; */
-/* } */
 
 h1 {
 	text-align: center;
@@ -133,4 +116,11 @@ h1 {
 	text-align: center; 
 	position:relative; 
 	height:50mm;
+}
+
+/* Content */
+#content {
+	height: auto; 
+	min-height: 100%;
+	padding-bottom: 20px;
 }

@@ -28,11 +28,24 @@ body {
  * Sidebar
  */
 
+/* Footer */
+footer {
+	text-align: left;
+	clear: both;
+	position: relative;
+	z-index: 10;
+	height: 20px;
+	margin-top: -20px;
+	padding-left: 15px;
+	padding-right: 15px;
+	background-color: #F8F8F8;
+}
+
 @media (min-width: 768px) {
   .sidebar {
     position: fixed;
     top: 50px;
-    bottom: 0;
+    bottom: 0px;
     left: 0;
     z-index: 1000;
     display: block;    
@@ -42,6 +55,17 @@ body {
     border-right: 1px solid #eee;
     width: 120px;
   }
+  footer {
+	text-align: left;
+	clear: both;
+	position: relative;
+	z-index: 10;
+	height: 20px;
+	margin-top: -20px;
+	padding-left: 135px;
+	padding-right: 15px;
+	background-color: #F8F8F8;
+}
 }
 
 /* Sidebar navigation */
@@ -70,6 +94,8 @@ body {
   color: #fff;
   background-color: #0875CA; 
 }
+
+
 
 /*
  * Main content
