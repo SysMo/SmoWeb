@@ -128,14 +128,17 @@ smoModule.factory('units', ['util', function(util) {
 	};
 
 	// Object for handling quantity
-	var Quantity = function (quantity, value, unit, displayUnit, minValue, maxValue) {
+	var Quantity = function (quantity, value, unit, displayUnit, minValue, maxValue, unitArr) {
+		this.unitArr = unitArr;
+		console.log(this.quantity + ':' + this.unitArr);
 		this.quantity = quantity;
 		this.minValue = minValue;
 		this.maxValue = maxValue;
 		unit = unit || units.quantities[this.quantity].SIUnit;
 		this.displayUnit = displayUnit || units.quantities[this.quantity].defDispUnit || unit;
 		
-		var unitDef = units.quantities[this.quantity].units[unit];		
+//		var unitDef = units.quantities[this.quantity].units[unit];		
+		var unitDef = units.quantities[this.quantity].units[unit];	
 		var offset = unitDef.offset || 0;
 		
 		this.value = value * unitDef.mult + offset;		
@@ -245,7 +248,7 @@ smoModule.directive('smoInputQuantity', ['$compile', 'util', 'units', function($
 						</div>\
 					</div> \
 					<div class="field-select quantity"> \
-						<select ng-model="smoQuantityVar.displayUnit" ng-options="name as name for (name, conv) in units.quantities[smoQuantityVar.quantity].units" ng-change="smoQuantityVar.changeUnit()"></select> \
+						<select ng-model="smoQuantityVar.displayUnit" ng-options="pair[0] as pair[0] for pair in smoQuantityVar.unitArr" ng-change="smoQuantityVar.changeUnit()"></select> \
 					</div>\
 					<div class="input-validity-error" ng-show="' + scope.inputId + 'Form.input.$error.pattern">Enter a number</div>\
 					<div class="input-validity-error" ng-show="' + scope.inputId + 'Form.input.$error.required">Required value</div>\
@@ -310,7 +313,7 @@ smoModule.directive('smoFieldGroup', ['$compile', 'units', function($compile,  u
 					showFieldCode = 'ng-show="' + field.show.replace('self', 'smoDataSource') + '"';
 				}
 				if (field.type == 'Quantity') {
-					var quantity = new units.Quantity(field.quantity, scope.smoDataSource[field.name], null, field.defaultDispUnit, field.minValue, field.maxValue);
+					var quantity = new units.Quantity(field.quantity, scope.smoDataSource[field.name], null, field.defaultDispUnit, field.minValue, field.maxValue, field.units);
 					quantity.id = field.name;
 					quantity.onUpdateValue(scope.updateFieldValue);
 					scope.quantities[field.name] = quantity;

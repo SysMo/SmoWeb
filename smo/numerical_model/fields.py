@@ -61,6 +61,11 @@ class Quantity(Field):
 		fieldDict['maxValue'] = self.maxValue
 		if (self.show is not None):
 			fieldDict['show'] = self.show
+		unitsList = []
+		for key in Quantities[self.type]['units'].keys():			
+			unitsList.append([key, Quantities[self.type]['units'][key]])
+		fieldDict['units'] = unitsList
+		print fieldDict['units']
 		return fieldDict
 
 class Choices(Field):
@@ -117,7 +122,6 @@ class ObjectReference(Field):
 		optionsList = []
 		for key in self.targetContainer.keys():			
 			optionsList.append([key, self.targetContainer[key]['label']])
-		print optionsList
 		fieldDict['options'] = optionsList
 # 		fieldDict['options'] = {key : value['label'] for key, value in self.targetContainer.iteritems()}
 		return fieldDict
