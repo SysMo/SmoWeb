@@ -38,7 +38,6 @@ smoModule.factory('util', function util () {
 		var sig = 6;
 		var mult = Math.pow(10,
 				sig - Math.floor(Math.log(Math.abs(n)) / Math.LN10) - 1);
-		console.log("Math:" + Math.round(n * mult) / mult);
 		return String(Math.round(n * mult) / mult);
 	}
 	functions.formatNumber = formatNumber;

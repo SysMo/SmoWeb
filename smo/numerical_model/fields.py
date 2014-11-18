@@ -119,7 +119,6 @@ class ObjectReference(Field):
 			optionsList.append([key, self.targetContainer[key]['label']])
 		print optionsList
 		fieldDict['options'] = optionsList
-# 		fieldDict['options'] = [[key, value['label']] for key, value in self.targetContainer.iteritems()]
 # 		fieldDict['options'] = {key : value['label'] for key, value in self.targetContainer.iteritems()}
 		return fieldDict
 	
