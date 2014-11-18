@@ -1,18 +1,18 @@
 from smo.util import addKeyFieldToValues
 from collections import OrderedDict
 
-Solids = {
-	'StainlessSteel304' : {'label' : 'stainless steel 304', 
-		'refValues' : {
-			'density' : 7800
-		}
-	},
-	'Aluminium6061' : {'label' : 'aluminium 6061',
+Solids = OrderedDict((
+	('Aluminium6061', {'label' : 'aluminium 6061',
 		'refValues' : {
 			'density' : 2700
 		}
-	}
-}
+	}),
+	('StainlessSteel304', {'label' : 'stainless steel 304', 
+		'refValues' : {
+			'density' : 7800
+		}
+	}),
+))
 
 addKeyFieldToValues(Solids)
 

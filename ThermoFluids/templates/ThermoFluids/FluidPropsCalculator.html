@@ -54,7 +54,7 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 	<div class="tab-content">
 		<div class="tab-pane active" id="calculator">		
 {% verbatim %}	
-			<h1>Fluid properties calculator</h1>
+			<h1 class="title">Fluid properties calculator</h1>
 			<ul class="nav nav-tabs" role="tablist" id="FluidPointTabs">
 		  		<li ng-repeat="input in inputs track by $index" ng-class="getTabClass($index)">
 			  		<a ng-attr-id="FP{{$index + 1}}Tab" data-target="#FluidPoint{{$index + 1}}" role="tab" data-toggle="tab" >Fluid point {{$index + 1}}</a>			  		

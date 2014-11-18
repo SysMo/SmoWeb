@@ -114,8 +114,13 @@ class ObjectReference(Field):
 	def toFormDict(self):
 		fieldDict = {'name' : self._name, 'label': self.label}
 		fieldDict['type'] = 'Choices'
+		optionsList = []
+		for key in self.targetContainer.keys():			
+			optionsList.append([key, self.targetContainer[key]['label']])
+		print optionsList
+		fieldDict['options'] = optionsList
 # 		fieldDict['options'] = [[key, value['label']] for key, value in self.targetContainer.iteritems()]
-		fieldDict['options'] = {key : value['label'] for key, value in self.targetContainer.iteritems()}
+# 		fieldDict['options'] = {key : value['label'] for key, value in self.targetContainer.iteritems()}
 		return fieldDict
 	
 
