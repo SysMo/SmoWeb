@@ -65,7 +65,10 @@ class Quantity(Field):
 		for key in Quantities[self.type]['units'].keys():			
 			unitsList.append([key, Quantities[self.type]['units'][key]])
 		fieldDict['units'] = unitsList
-		print fieldDict['units']
+		fieldDict['title'] = Quantities[self.type]['title']
+		fieldDict['nominalValue'] = Quantities[self.type]['nominalValue']
+		fieldDict['SIUnit'] = Quantities[self.type]['SIUnit']
+		print fieldDict
 		return fieldDict
 
 class Choices(Field):

@@ -48,7 +48,7 @@ class IsothermalCompression(ThermodynamicTransition):
 		self.WCompr = self.mDotRefrigerant * wReal
 
 class HeatPumpCalculator(NumericalModel):
-	fluid = ObjectReference(Fluids, default = 'R134a', label = 'fluid')	
+	fluid = Choices(Fluids, default = 'R134a', label = 'fluid')	
 	mDotRefrigerant = Quantity('MassFlowRate', default = (1, 'kg/min'), label = 'refrigerant flow rate')
 	pLow = Quantity('Pressure', default = (1, 'bar'), label = 'low pressure')
 	pHigh = Quantity('Pressure', default = (10, 'bar'), label = 'high pressure')
@@ -103,7 +103,7 @@ class HeatPumpCalculator(NumericalModel):
 	summary=FieldGroup([COP, COPCarnot], label = '5. Summary')
 	results = SuperGroup([compressorInlet, compressorOutlet, condensorOutlet, evaporatorInlet, summary], label="Results")
 	def compute(self):
-		fluid = getFluid(str(self.fluid['_key']))
+		fluid = getFluid(str(self.fluid))
 		state1 = MediumState(fluid)
 		state1Sat = MediumState(fluid)
 		state2Ideal = MediumState(fluid)
