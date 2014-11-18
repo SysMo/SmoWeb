@@ -4,7 +4,8 @@ html{
 		
 body {	
 	height: 100%;
-	background-color: rgba(252, 240, 194, 1);
+/* 	background-color: rgba(252, 240, 194, 1); */
+	background-color: #FFDA80;
 	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
 	font-size: 14px;
 	line-height: 1.42857;
