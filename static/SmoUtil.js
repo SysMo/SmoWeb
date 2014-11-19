@@ -232,13 +232,14 @@ smoModule.factory('materials', function() {
 	return materials;
 });
 
-smoModule.directive('smoInputQuantity', ['$compile', 'util', 'units', function($compile, util, units) {
+smoModule.directive('smoQuantity', ['$compile', 'util', 'units', function($compile, util, units) {
 	return {
 		restrict : 'A',
 		scope : {
 			smoQuantityVar: '=',
 			title: '@smoTitle',
 			inputId: '@smoId',
+			viewType: '@viewType'
 		},
 		controller: function($scope){
 			$scope.checkValueValidity = function(){
@@ -252,20 +253,33 @@ smoModule.directive('smoInputQuantity', ['$compile', 'util', 'units', function($
 					$scope[$scope.inputId + 'Form'].input.$setValidity('maxVal', false);
 				}					
 			}
+
+			
 		},
 		link : function(scope, element, attr) {
 			scope.util = util;
 			scope.units = units;
 			var template = '\
-					<div class="field-label">' + scope.title + '</div> \
+					<div class="field-label">' + scope.title + '</div>';
+			if (scope.viewType == 'input')
+				template += '\
 					<div class="field-input"> \
 						<div ng-form name="' + scope.inputId + 'Form">\
 							<input name="input" required type="text" ng-pattern="/^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$/" ng-model="smoQuantityVar.displayValue" ng-change="checkValueValidity();">\
 						</div>\
-					</div> \
+					</div>';
+			else if (scope.viewType == 'output')
+				template += '\
+					<div class="field-output"> \
+						<div class="output" ng-bind="smoQuantityVar.displayValue"></div>\
+					</div>';
+			
+			template += '\
 					<div class="field-select quantity"> \
 						<select ng-model="smoQuantityVar.displayUnit" ng-options="pair[0] as pair[0] for pair in smoQuantityVar.unitArr" ng-change="smoQuantityVar.changeUnit()"></select> \
-					</div>\
+					</div>';
+			if (scope.viewType == 'input')
+				template += '\
 					<div class="input-validity-error" ng-show="' + scope.inputId + 'Form.input.$error.pattern">Enter a number</div>\
 					<div class="input-validity-error" ng-show="' + scope.inputId + 'Form.input.$error.required">Required value</div>\
 					<div class="input-validity-error" ng-show="' + scope.inputId + 'Form.input.$error.minVal">Number is below min value</div>\
@@ -279,7 +293,7 @@ smoModule.directive('smoInputQuantity', ['$compile', 'util', 'units', function($
 	}
 }]);
 
-smoModule.directive('smoInputChoice', ['$compile', 'util', 'units', function($compile, util, units) {
+smoModule.directive('smoChoice', ['$compile', 'util', 'units', function($compile, util, units) {
 	return {
 		restrict : 'A',
 		scope : {
@@ -336,14 +350,14 @@ smoModule.directive('smoFieldGroup', ['$compile', 'units', function($compile,  u
 					
 					// Attach the field value to the quantity so that the original value is updated when the quantity value changes
 					if (scope.viewType == 'input') 
-						groupFields.push('<div ' + showFieldCode + ' smo-input-quantity smo-quantity-var="quantities.' + field.name + '"' + 
+						groupFields.push('<div ' + showFieldCode + ' smo-quantity view-type="input" smo-quantity-var="quantities.' + field.name + '"' + 
 						' smo-title="' + field.label + '" smo-id="' + quantity.id + '"></div>');
 					if (scope.viewType == 'output')
-						groupFields.push('<div ' + showFieldCode + ' smo-output-quantity smo-quantity-var="quantities.' + field.name + '"' + 
-								' smo-title="' + field.label + '"></div>');
+						groupFields.push('<div ' + showFieldCode + ' smo-quantity view-type="output" smo-quantity-var="quantities.' + field.name + '"' + 
+						' smo-title="' + field.label + '" smo-id="' + quantity.id + '"></div>');
 				} else if (field.type == 'Choices') {
 					if (scope.viewType == 'input')
-						groupFields.push('<div ' + showFieldCode + ' smo-input-choice smo-choice-var="smoDataSource.' + field.name + '"' +
+						groupFields.push('<div ' + showFieldCode + ' smo-choice smo-choice-var="smoDataSource.' + field.name + '"' +
 						' smo-options="smoFieldGroup.fields[' + i + '].options" smo-title="' + field.label + '"></div>');
 				}
 			} 
@@ -403,33 +417,33 @@ smoModule.directive('smoSuperGroup', ['$compile', 'units', function($compile,  u
 }]);
 
 
-smoModule.directive('smoOutputQuantity', ['$compile', 'util', 'units', function($compile, util, units) {
-	return {
-		restrict : 'A',
-		scope : {
-			smoQuantityVar: '=',
-			title: '@smoTitle',
-		},
-		link : function(scope, element, attr) {
-			scope.util = util;
-			scope.units = units;
-			
-			var template = ' \
-					<div class="field-label">' + scope.title + '</div> \
-					<div class="field-output"> \
-						<div class="output" ng-bind="smoQuantityVar.displayValue"></div>\
-					</div> \
-					<div class="field-select quantity"> \
-						<select ng-model="smoQuantityVar.displayUnit" ng-options="pair[0] as pair[0] for pair in smoQuantityVar.unitArr" ng-change="smoQuantityVar.changeUnit()"></select> \
-					</div>';
-
-			var el = angular.element(template);
-	        compiled = $compile(el);
-	        element.append(el);
-	        compiled(scope);
-		}
-	}
-}]);
+//smoModule.directive('smoOutputQuantity', ['$compile', 'util', 'units', function($compile, util, units) {
+//	return {
+//		restrict : 'A',
+//		scope : {
+//			smoQuantityVar: '=',
+//			title: '@smoTitle',
+//		},
+//		link : function(scope, element, attr) {
+//			scope.util = util;
+//			scope.units = units;
+//			
+//			var template = ' \
+//					<div class="field-label">' + scope.title + '</div> \
+//					<div class="field-output"> \
+//						<div class="output" ng-bind="smoQuantityVar.displayValue"></div>\
+//					</div> \
+//					<div class="field-select quantity"> \
+//						<select ng-model="smoQuantityVar.displayUnit" ng-options="pair[0] as pair[0] for pair in smoQuantityVar.unitArr" ng-change="smoQuantityVar.changeUnit()"></select> \
+//					</div>';
+//
+//			var el = angular.element(template);
+//	        compiled = $compile(el);
+//	        element.append(el);
+//	        compiled(scope);
+//		}
+//	}
+//}]);
 
 			
 smoModule.directive('smoInputView', ['$compile', 'units', function($compile,  units) {
