@@ -54,7 +54,6 @@ def syncVirtEnv():
 def rest2html():
 	from docutils.core import publish_parts
 	from docutils import io
-	from docutils.writers import html4css1
 	import codecs
 	for app in env.applicationModules:
 		markupFolder = os.path.join(env.projectRoot, app, 'templates', 'markup')

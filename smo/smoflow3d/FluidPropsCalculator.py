@@ -11,12 +11,12 @@ from smo.numerical_model.fields import *
 from smo.smoflow3d.SimpleMaterials import Fluids
 
 StateVariableOptions = OrderedDict((
-	('P', 'pressure'),
-	('T', 'temperature'),
-	('D', 'density'),
-	('H', 'specific enthalpy'),
-	('S', 'specific entropy'),
-	('Q', 'vapor quality')
+	('P', 'pressure (P)'),
+	('T', 'temperature (T)'),
+	('D', 'density (D)'),
+	('H', 'specific enthalpy (H)'),
+	('S', 'specific entropy (S)'),
+	('Q', 'vapor quality (Q)')
 	))
 
 class FluidPropsCalculator(NumericalModel):

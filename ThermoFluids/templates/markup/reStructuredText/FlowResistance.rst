@@ -95,7 +95,7 @@ The friction factor depends on the Reynolds number :math:`Re={\rho v d}/{\mu}` a
    Moody chart
 
 
-In the laminar region the friction factor depends solely on the Reynolds number:
+In the laminar region the friction factor depends only on the Reynolds number:
 
 .. math::   
    \zeta = \frac{64}{Re}
@@ -103,9 +103,9 @@ In the laminar region the friction factor depends solely on the Reynolds number:
 In the turbulent region the relation is more complex and is given by the *Colebrook* equation [Colebrook39]_:
 
 .. math::
-   \frac{1}{\sqrt{\zeta}} = -2.0 \log_{10} \left(\frac{\epsilon/d}{3.7} + {\frac{2.51}{Re \sqrt{\zeta} } } \right)
+   \frac{1}{\sqrt{\zeta}} = -2.0 \log_{10} \left(\frac{\epsilon/d_i}{3.7} + {\frac{2.51}{Re \sqrt{\zeta} } } \right)
    
-At very high Reynolds numbers the friction factor depends solely on the relative surface roughness.
+In the limit of high Reynolds numbers the friction factor depends solely on the relative surface roughness.
    
 Because the *Colebrook* correlation is implicit in :math:`\zeta`, it is not suitable for direct calculations. 
 Different approximations have been developed amongst which special attention deserves the *Churchill* correlation [Church77]_, which covers 
@@ -114,7 +114,7 @@ all flow regimes: laminar, transitional and turbulent:
 ..  math::
    \zeta =  8\left[\left(\frac{8}{Re}\right)^{12}+\frac{1}{\left(\Theta_{1}+\Theta_{2}\right)^{1.5}}\right]^{\frac{1}{12}}
    
-   \Theta_{1}  =  \left[2.457\cdot\ln\left(\left(\frac{7}{Re}\right)^{0.9}+0.27\frac{\varepsilon}{d}\right)\right]^{16}
+   \Theta_{1}  =  \left[2.457\cdot\ln\left(\left(\frac{7}{Re}\right)^{0.9}+0.27\frac{\varepsilon}{d_i}\right)\right]^{16}
    
    \Theta_{2}  =  \left(\frac{37530}{Re}\right)^{16}
  

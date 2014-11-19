@@ -113,7 +113,7 @@ c_{d}=\zeta\frac{L}{d_i}
 <img alt="/static/ThermoFluids/MoodyDiagram.jpg" src="/static/ThermoFluids/MoodyDiagram.jpg" style="width: 90%;" />
 <p class="caption">Moody chart</p>
 </div>
-<p>In the laminar region the friction factor depends solely on the Reynolds number:</p>
+<p>In the laminar region the friction factor depends only on the Reynolds number:</p>
 <div class="math">
 \begin{equation*}
 \zeta = \frac{64}{Re}
@@ -122,10 +122,10 @@ c_{d}=\zeta\frac{L}{d_i}
 <p>In the turbulent region the relation is more complex and is given by the <em>Colebrook</em> equation <a class="citation-reference" href="#colebrook39" id="id2">[Colebrook39]</a>:</p>
 <div class="math">
 \begin{equation*}
-\frac{1}{\sqrt{\zeta}} = -2.0 \log_{10} \left(\frac{\epsilon/d}{3.7} + {\frac{2.51}{Re \sqrt{\zeta} } } \right)
+\frac{1}{\sqrt{\zeta}} = -2.0 \log_{10} \left(\frac{\epsilon/d_i}{3.7} + {\frac{2.51}{Re \sqrt{\zeta} } } \right)
 \end{equation*}
 </div>
-<p>At very high Reynolds numbers the friction factor depends solely on the relative surface roughness.</p>
+<p>In the limit of high Reynolds numbers the friction factor depends solely on the relative surface roughness.</p>
 <p>Because the <em>Colebrook</em> correlation is implicit in <span class="math">\(\zeta\)</span>, it is not suitable for direct calculations.
 Different approximations have been developed amongst which special attention deserves the <em>Churchill</em> correlation <a class="citation-reference" href="#church77" id="id3">[Church77]</a>, which covers
 all flow regimes: laminar, transitional and turbulent:</p>
@@ -136,7 +136,7 @@ all flow regimes: laminar, transitional and turbulent:</p>
 </div>
 <div class="math">
 \begin{equation*}
-\Theta_{1}  =  \left[2.457\cdot\ln\left(\left(\frac{7}{Re}\right)^{0.9}+0.27\frac{\varepsilon}{d}\right)\right]^{16}
+\Theta_{1}  =  \left[2.457\cdot\ln\left(\left(\frac{7}{Re}\right)^{0.9}+0.27\frac{\varepsilon}{d_i}\right)\right]^{16}
 \end{equation*}
 </div>
 <div class="math">
