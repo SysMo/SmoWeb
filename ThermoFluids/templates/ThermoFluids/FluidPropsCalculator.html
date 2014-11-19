@@ -19,8 +19,11 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 	$scope.compute = function(index) {
 		$scope.outputs[index].fetchData($scope.inputs[index].data.values);
 	}
+	
 	$scope.createNewTab = function() {
-		$scope.inputs.push({autoFetch: true, dataUrl: '/ThermoFluids/FluidPropsCalculator/', action: 'getInputs'});
+		var newObject = jQuery.extend(true, {}, $scope.inputs[$scope.inputs.length-1]);
+		$scope.inputs.push(newObject);
+		$scope.inputs[$scope.inputs.length-1].autoFetch = false;
 		$scope.outputs.push({ dataUrl: '/ThermoFluids/FluidPropsCalculator/', action: 'compute'});
 		$('#FP' + String($scope.inputs.length-1) + 'Tab').tab('show');
 	}

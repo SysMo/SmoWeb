@@ -348,6 +348,8 @@ smoModule.directive('smoInputView', ['$compile', function($compile) {
 			}
 			if ($scope.it.autoFetch || $scope.it.autoFetch == 'undefined'){
 				$scope.it.fetchData();
+			} else {
+				$scope.it.inputsObtained = true;
 			}
 		},
 		link : function(scope, element, attr) {
