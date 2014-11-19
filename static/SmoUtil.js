@@ -377,7 +377,7 @@ smoModule.directive('smoOutputView', ['$compile', function($compile) {
 		controller: function($scope, $http){
 			$scope.it.outputsObtained = false;
 			$scope.it.loading = false;
-			$scope.it.errorLoading = false;
+			$scope.it.errStatus = false;
 			$scope.it.fetchData = function(parameters) {
 				$scope.it.outputsObtained = false;
 				$scope.it.loading = true;
@@ -390,21 +390,32 @@ smoModule.directive('smoOutputView', ['$compile', function($compile) {
 			        headers : { 'Content-Type': 'application/x-www-form-urlencoded' },  // set the headers so angular passing info as form data (not request payload)
 				})
 			    .success(function(data) {
-			    	$scope.it.loading = false;
-			    	$scope.it.outputsObtained = true;
-			    	$scope.it.data = data;
-			    })
-			    .error(function(data) {
-			    	$scope.it.loading = false;
-			    	$scope.it.errorLoading = true;
+			    	$scope.it.errStatus = data.errStatus;
+			    	if (!$scope.it.errStatus) {
+			    		$scope.it.loading = false;
+				    	$scope.it.outputsObtained = true;
+				    	$scope.it.data = data;
+			    	}
+			    	else {
+			    		$scope.it.loading = false;
+			    		$scope.it.outputsObtained = false;
+				    	$scope.it.error = data.error || 'Error loading!';
+			    	}
 			    });
 			}
 		},
 		link : function(scope, element, attr) {
 			var template = '<div ng-if="it.loading"><h2 class="loading">Loading...</h2></div>\
-							<div ng-if="it.errorLoading"><h2 class="error">Error loading!</h2></div>\
+							<div ng-if="it.errStatus">\
+								<br>\
+								<div class="alert alert-danger" role="alert">\
+								  <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>\
+								  <span class="sr-only">Error:</span>\
+								  {{it.error}}\
+								</div>\
+							</div>\
 							<div ng-if="it.outputsObtained">\
-							<div smo-super-group="it.data.definitions" view-type="output" smo-data-source="it.data.values"></div>\
+								<div smo-super-group="it.data.definitions" view-type="output" smo-data-source="it.data.values"></div>\
 							</div>';		
 			var el = angular.element(template);
 	        compiled = $compile(el);

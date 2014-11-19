@@ -40,10 +40,23 @@ def fluidPropsCalculatorView(request):
 			inputs = fpc.superGroupList2Json([fpc.inputs])
 			return JsonResponse(inputs)
 		elif (action == 'compute'):
-			fpc = FluidPropsCalculator()
-			fpc.fieldValuesFromJson(parameters)
-			fpc.compute()
-			results = fpc.superGroupList2Json([fpc.results]) 
+			try: 
+				fpc = FluidPropsCalculator()
+				fpc.fieldValuesFromJson(parameters)
+				fpc.compute()
+				results = fpc.superGroupList2Json([fpc.results])
+				results['errStatus'] = False
+			except RuntimeError, e: 
+				print ("Runtime error")
+				results = {}
+				results['errStatus'] = True
+				results['error'] = str(e)
+				return JsonResponse(results)
+			except:
+				print ("Error - not runtime")
+				results = {}
+				results['errStatus'] = True
+				return JsonResponse(results)
 			return JsonResponse(results)
 
 		else:
