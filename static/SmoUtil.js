@@ -67,133 +67,6 @@ smoModule.directive('smoSingleClick', ['$parse', function($parse) {
     };
 }]);
 
-smoModule.factory('units', ['util', function(util) {
-	var units = {};
-	// List of quantities and units
-//	units.quantities = {
-//			'Dimensionless' : {'title' : 'dimensionless quantity', 'nominalValue' : 1, 'SIUnit' : '-', 
-//				'units' : {'-' : {'mult' : 1}}},
-//		'Length' : {'title' : 'length', 'nominalValue' : 1, 'SIUnit' : 'm', 
-//			'units' : {'m' : {'mult' : 1}, 'km' : {'mult' : 1e3}, 'cm' : {'mult' : 1e-2}, 'mm' : {'mult' : 1e-3}, 
-//			'um' : {'mult' : 1e-6}, 'nm' : {'mult' : 1e-9}, 'in' : {'mult' : 2.54e-2}, 'ft' : {'mult' : 3.048e-1}}},
-//		'Area' : {'title' : 'area', 'nominalValue' : 1, 'SIUnit' : 'm**2', 
-//			'units' : {'m**2' : {'mult' : 1}, 'cm**2' : {'mult' : 1e-4}, 'mm**2' : {'mult' : 1e-6}}},
-//		'Volume' : {'title' : 'volume', 'nominalValue' : 1, 'SIUnit' : 'm**3', 
-//			'units' : {'m**3' : {'mult' : 1}, 'L' : {'mult' : 1e-3}, 'cm**3' : {'mult' : 1e-6}, 'mm**3' : {'mult' : 1e-9}}},
-//		'Time' : {'title' : 'time', 'nominalValue' : 1, 'SIUnit' : 's', 
-//			'units' : {'s' : {'mult' : 1}, 'ms' : {'mult' : 1e-3}, 'us' : {'mult' : 1e-6}, 'min' : {'mult' : 60}, 'h' : {'mult' : 3600}, 'day' : {'mult' : 8.64e4}, 'year' : {'mult' : 3.15576e7}}},
-//		'Velocity' : {'title' : 'velocity', 'nominalValue' : 1, 'SIUnit' : 'm/s', 
-//				'units' : {'m/s' : {'mult' : 1}, 'km/h' : {'mult' : 1/3.6}, 'km/s' : {'mult' : 1e3}, 'mm/s' : {'mult' : 1e-3}}},
-//		'Mass' : {'title' : 'mass', 'nominalValue' : 1, 'SIUnit' : 'kg', 
-//			'units' : {'kg' : {'mult' : 1}, 'g' : {'mult' : 1e-3}, 'ton' : {'mult' : 1e3}}},
-//		'Energy' : {'title' : 'energy', 'nominalValue' : 1, 'SIUnit' : 'J', 'defDispUnit' : 'kJ',
-//			'units' : {'J' : {'mult' : 1}, 'kJ' : {'mult' : 1e3}, 'MJ' : {'mult' : 1e6}, 'GJ' : {'mult' : 1e9},
-//			'Wh' : {'mult' : 3.6e3},  'kWh' : {'mult' : 3.6e6},  'MWh' : {'mult' : 3.6e9}, 'BTU' : {'mult' : 1055}}},
-//		'Power' : {'title' : 'power', 'nominalValue' : 1e3, 'SIUnit' : 'W', 'defDispUnit' : 'kW',
-//			'units' : {'W' : {'mult' : 1}, 'kW' : {'mult' : 1e3}, 'MW' : {'mult' : 1e6}, 'GW' : {'mult' : 1e9},
-//			'mW' : {'mult' : 1e-3},  'uW' : {'mult' : 1e-6},  'hp' : {'mult' : 746.0}, 'BTU/h' : {'mult' : 0.293}}},
-//		'HeatFlowRate' : {'title' : 'heat flow rate', 'nominalValue' : 1e3, 'SIUnit' : 'W', 'defDispUnit' : 'kW',
-//			'units' : {'W' : {'mult' : 1}, 'kW' : {'mult' : 1e3}, 'MW' : {'mult' : 1e6}, 'GW' : {'mult' : 1e9},
-//			'mW' : {'mult' : 1e-3},  'uW' : {'mult' : 1e-6},  'hp' : {'mult' : 746.0}, 'BTU/h' : {'mult' : 0.293}}},
-//		'Pressure' : {'title' : 'pressure', 'nominalValue' : 1e5, 'SIUnit' : 'Pa', 'defDispUnit' : 'bar',
-//			'units' : {'Pa' : {'mult' : 1}, 'kPa' : {'mult' : 1e3}, 'MPa' : {'mult' : 1e6}, 'GPa' : {'mult' : 1e9}, 
-//				'bar' : {'mult' : 1e5}, 'psi' : {'mult' : 6.89475e3}, 'ksi' : {'mult' : 6.89475e6}}},
-//		'Temperature' : {'title' : 'temperature', 'nominalValue' : 273.15, 'SIUnit' : 'K', 
-//			'units' : {'K' : {'mult' : 1}, 'degC' : {'mult' : 1, 'offset' : 273.15}, 'degF' : {'mult' : 5./9, 'offset' : 255.372}}},
-//		'Density' : {'title' : 'density', 'nominalValue' : 1, 'SIUnit' : 'kg/m**3', 
-//			'units' : {'kg/m**3' : {'mult' : 1}, 'g/L' : {'mult' : 1}, 'g/cm**3' : {'mult' : 1e3}}},
-//		'SpecificEnergy' : {'title' : 'specific energy', 'nominalValue' : 1e6, 'SIUnit' : 'J/kg', 'defDispUnit' : 'kJ/kg', 
-//			'units' : {'J/kg' : {'mult' : 1}, 'kJ/kg' : {'mult' : 1e3}}},
-//		'SpecificEnthalpy' : {'title' : 'specific enthalpy', 'nominalValue' : 1e6, 'SIUnit' : 'J/kg', 'defDispUnit' : 'kJ/kg', 
-//			'units' : {'J/kg' : {'mult' : 1}, 'kJ/kg' : {'mult' : 1e3}}},
-//		'SpecificInternalEnergy' : {'title' : 'specific internal energy', 'nominalValue' : 1e6, 'SIUnit' : 'J/kg', 'defDispUnit' : 'kJ/kg', 
-//			'units' : {'J/kg' : {'mult' : 1}, 'kJ/kg' : {'mult' : 1e3}}},
-//		'SpecificEntropy' : {'title' : 'specific entropy', 'nominalValue' : 1e3, 'SIUnit' : 'J/kg-K', 'defDispUnit' : 'kJ/kg-K',
-//			'units' : {'J/kg-K' : {'mult' : 1}, 'kJ/kg-K' : {'mult' : 1e3}}},
-//		'SpecificHeatCapacity' : {'title' : 'specific heat capacity', 'nominalValue' : 1e3, 'SIUnit' : 'J/kg-K', 'defDispUnit' : 'kJ/kg-K',
-//			'units' : {'J/kg-K' : {'mult' : 1}, 'kJ/kg-K' : {'mult' : 1e3}}},
-//		'ThermalConductivity' : {'title' : 'thermal conductivity', 'nominalValue' : 1.0, 'SIUnit' : 'W/m-K', 'defDispUnit' : 'W/m-K',
-//			'units' : {'W/m-K' : {'mult' : 1}}},
-//		'DynamicViscosity' : {'title' : 'dynamic viscosity', 'nominalValue' : 1.0, 'SIUnit' : 'Pa-s', 'defDispUnit' : 'Pa-s',
-//			'units' : {'Pa-s' : {'mult' : 1}, 'mPa-s' : {'mult' : 1e-3}, 'P' : {'mult' : 0.1}, 'cP' : {'mult' : 1e-3}}},
-//		'VaporQuality' : {'title' : 'vapor quality', 'nominalValue' : 1, 'SIUnit' : '-', 
-//			'units' : {'-' : {'mult' : 1}}},
-//		'MassFlowRate' : {'title' : 'mass flow rate', 'nominalValue' : 1, 'SIUnit' : 'kg/s', 
-//			'units' : {'kg/s' : {'mult' : 1}, 'g/s' : {'mult' : 1e-3}, 'kg/min' : {'mult' : 1./60}, 'g/min' : {'mult' : 1e-3/60}, 
-//				'kg/h' : {'mult' : 1/3.6e3}, 'g/h' : {'mult' : 1e-3/3.6e3}}},
-//		'VolumetricFlowRate' : {'title' : 'volumetric flow rate', 'nominalValue' : 1, 'SIUnit' : 'm**3/s', 
-//			'units' : {'m**3/s' : {'mult' : 1}, 'm**3/h' : {'mult' : 1./3.6e3}, 'L/s' : {'mult' : 1e-3},
-//				'L/min' : {'mult' : 1e-3/60}, 'L/h' : {'mult' : 1e-3/3.6e3}}}
-//	};
-
-	// Object for handling quantity
-	var Quantity = function (quantity, value, unit, displayUnit, defaultDispUnit, minValue, maxValue, unitArr, title, nominalValue, SIUnit) {
-		this.unitArr = unitArr;
-		this.quantity = quantity;
-		this.minValue = minValue;
-		this.maxValue = maxValue;
-		this.title = title;
-		this.nominalValue = nominalValue;
-		this.SIUnit = SIUnit;
-		unit = unit || this.SIUnit;
-		this.displayUnit = displayUnit || defaultDispUnit || unit
-//		unit = unit || units.quantities[this.quantity].SIUnit;
-//		this.displayUnit = displayUnit || units.quantities[this.quantity].defDispUnit || unit;
-		
-//		var unitDef = units.quantities[this.quantity].units[unit];		
-//		var unitDef;
-//		var dispUnitDef;
-		for (var i=0; i < this.unitArr.length; i++) {
-			if (unit == this.unitArr[i][0]){
-				this.unitDef = this.unitArr[i][1];
-			}
-			if (this.displayUnit == this.unitArr[i][0]){
-				this.dispUnitDef = this.unitArr[i][1];
-			}	
-		}
-		var offset = this.unitDef.offset || 0;
-		
-		this.value = value * this.unitDef.mult + offset;		
-
-//		var dispUnitDef = units.quantities[this.quantity].units[this.displayUnit];
-		offset = this.dispUnitDef.offset || 0;
-		this.displayValue = util.formatNumber((this.value - offset) / this.dispUnitDef.mult); 
-
-		this.attachedVars = [];
-	}
-
-	Quantity.prototype.updateValue = function() {
-//		var dispUnitDef = units.quantities[this.quantity].units[this.displayUnit];
-		var offset = 0;
-		if ('offset' in this.dispUnitDef) {
-			offset = this.dispUnitDef.offset;
-		}
-		this.value = Number(this.displayValue) * this.dispUnitDef.mult + offset ;
-		if (this._onUpdateValue) {
-			var id = this.id || '';
-			this._onUpdateValue(id);
-		}		
-	}
-	Quantity.prototype.changeUnit = function() {		
-//		var dispUnitDef = units.quantities[this.quantity].units[this.displayUnit];
-		for (var i=0; i < this.unitArr.length; i++) {
-			if (this.displayUnit == this.unitArr[i][0]){
-				this.dispUnitDef = this.unitArr[i][1];
-			}	
-		}
-		var offset = 0;
-		if ('offset' in this.dispUnitDef) {
-			offset = this.dispUnitDef.offset;
-		}
-		this.displayValue = util.formatNumber((this.value - offset) / this.dispUnitDef.mult); 
-	}
-	Quantity.prototype.onUpdateValue = function(func) {
-		this._onUpdateValue = func;
-	}
-	units.Quantity = Quantity;
-	return units;
-}]);
-
 smoModule.factory('materials', function() {
 	var materials = {
 		solids : {
@@ -232,58 +105,93 @@ smoModule.factory('materials', function() {
 	return materials;
 });
 
-smoModule.directive('smoQuantity', ['$compile', 'util', 'units', function($compile, util, units) {
+smoModule.directive('smoQuantity', ['$compile', 'util', function($compile, util) {
 	return {
 		restrict : 'A',
 		scope : {
-			smoQuantityVar: '=',
-			title: '@smoTitle',
-			inputId: '@smoId',
-			viewType: '@viewType'
+			fieldVar: '=',
+			viewType: '@viewType',
+			smoDataSource : '='
 		},
-		controller: function($scope){
+		controller: function($scope){									
 			$scope.checkValueValidity = function(){
-				$scope[$scope.inputId + 'Form'].input.$setValidity('minVal', true);
-				$scope[$scope.inputId + 'Form'].input.$setValidity('maxVal', true);
-				$scope.smoQuantityVar.updateValue();							
-				if ($scope.smoQuantityVar.value < $scope.smoQuantityVar.minValue) {
-					$scope[$scope.inputId + 'Form'].input.$setValidity('minVal', false);
+				$scope[$scope.fieldVar.name + 'Form'].input.$setValidity('minVal', true);
+				$scope[$scope.fieldVar.name + 'Form'].input.$setValidity('maxVal', true);
+				$scope.updateValue();							
+				if ($scope.fieldVar.value < $scope.fieldVar.minValue) {
+					$scope[$scope.fieldVar.name + 'Form'].input.$setValidity('minVal', false);
 				}		
-				else if ($scope.smoQuantityVar.value > $scope.smoQuantityVar.maxValue){
-					$scope[$scope.inputId + 'Form'].input.$setValidity('maxVal', false);
+				else if ($scope.fieldVar.value > $scope.fieldVar.maxValue){
+					$scope[$scope.fieldVar.name + 'Form'].input.$setValidity('maxVal', false);
 				}					
 			}
-
 			
+			$scope.updateValue = function() {
+				var offset = 0;
+				if ('offset' in $scope.fieldVar.dispUnitDef) {
+					offset = $scope.fieldVar.dispUnitDef.offset;
+				}
+				$scope.fieldVar.value = Number($scope.fieldVar.displayValue) * $scope.fieldVar.dispUnitDef.mult + offset ;
+				$scope.smoDataSource[$scope.fieldVar.name] = $scope.fieldVar.value;	
+			}
+			
+			$scope.changeUnit = function() {		
+				for (var i=0; i < $scope.fieldVar.units.length; i++) {
+					if ($scope.fieldVar.displayUnit == $scope.fieldVar.units[i][0]){
+						$scope.fieldVar.dispUnitDef = $scope.fieldVar.units[i][1];
+					}	
+				}
+				var offset = 0;
+				if ('offset' in $scope.fieldVar.dispUnitDef) {
+					offset = $scope.fieldVar.dispUnitDef.offset;
+				}
+				$scope.fieldVar.displayValue = util.formatNumber(($scope.fieldVar.value - offset) / $scope.fieldVar.dispUnitDef.mult); 
+			}
+			
+			$scope.fieldVar.unit = $scope.fieldVar.unit || $scope.fieldVar.SIUnit;
+			$scope.fieldVar.displayUnit = $scope.fieldVar.displayUnit || $scope.fieldVar.defaultDispUnit || $scope.fieldVar.unit;			
+			for (var i=0; i < $scope.fieldVar.units.length; i++) {
+				if ($scope.fieldVar.unit == $scope.fieldVar.units[i][0]){
+					$scope.fieldVar.unitDef = $scope.fieldVar.units[i][1];
+				}
+				if ($scope.fieldVar.displayUnit == $scope.fieldVar.units[i][0]){
+					$scope.fieldVar.dispUnitDef = $scope.fieldVar.units[i][1];
+				}	
+			}
+			
+			var offset = $scope.fieldVar.unitDef.offset || 0;					
+			$scope.fieldVar.value = $scope.fieldVar.value * $scope.fieldVar.unitDef.mult + offset;
+			offset = $scope.fieldVar.dispUnitDef.offset || 0;
+			$scope.fieldVar.displayValue = util.formatNumber(($scope.fieldVar.value - offset) / $scope.fieldVar.dispUnitDef.mult); 
+		
 		},
 		link : function(scope, element, attr) {
 			scope.util = util;
-			scope.units = units;
 			var template = '\
-					<div class="field-label">' + scope.title + '</div>';
+					<div class="field-label">' + scope.fieldVar.label + '</div>';
 			if (scope.viewType == 'input')
 				template += '\
 					<div class="field-input"> \
-						<div ng-form name="' + scope.inputId + 'Form">\
-							<input name="input" required type="text" ng-pattern="/^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$/" ng-model="smoQuantityVar.displayValue" ng-change="checkValueValidity();">\
+						<div ng-form name="' + scope.fieldVar.name + 'Form">\
+							<input name="input" required type="text" ng-pattern="/^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$/" ng-model="fieldVar.displayValue" ng-change="checkValueValidity();">\
 						</div>\
 					</div>';
 			else if (scope.viewType == 'output')
 				template += '\
 					<div class="field-output"> \
-						<div class="output" ng-bind="smoQuantityVar.displayValue"></div>\
+						<div class="output" ng-bind="fieldVar.displayValue"></div>\
 					</div>';
 			
 			template += '\
 					<div class="field-select quantity"> \
-						<select ng-model="smoQuantityVar.displayUnit" ng-options="pair[0] as pair[0] for pair in smoQuantityVar.unitArr" ng-change="smoQuantityVar.changeUnit()"></select> \
+						<select ng-model="fieldVar.displayUnit" ng-options="pair[0] as pair[0] for pair in fieldVar.units" ng-change="changeUnit()"></select> \
 					</div>';
 			if (scope.viewType == 'input')
 				template += '\
-					<div class="input-validity-error" ng-show="' + scope.inputId + 'Form.input.$error.pattern">Enter a number</div>\
-					<div class="input-validity-error" ng-show="' + scope.inputId + 'Form.input.$error.required">Required value</div>\
-					<div class="input-validity-error" ng-show="' + scope.inputId + 'Form.input.$error.minVal">Number is below min value</div>\
-					<div class="input-validity-error" ng-show="' + scope.inputId + 'Form.input.$error.maxVal">Number exceeds max value</div>';
+					<div class="input-validity-error" ng-show="' + scope.fieldVar.name + 'Form.input.$error.pattern">Enter a number</div>\
+					<div class="input-validity-error" ng-show="' + scope.fieldVar.name + 'Form.input.$error.required">Required value</div>\
+					<div class="input-validity-error" ng-show="' + scope.fieldVar.name + 'Form.input.$error.minVal">Number is below min value</div>\
+					<div class="input-validity-error" ng-show="' + scope.fieldVar.name + 'Form.input.$error.maxVal">Number exceeds max value</div>';
 			
 	        var el = angular.element(template);
 	        compiled = $compile(el);
@@ -293,11 +201,11 @@ smoModule.directive('smoQuantity', ['$compile', 'util', 'units', function($compi
 	}
 }]);
 
-smoModule.directive('smoChoice', ['$compile', 'util', 'units', function($compile, util, units) {
+smoModule.directive('smoChoice', ['$compile', 'util', function($compile, util) {
 	return {
 		restrict : 'A',
 		scope : {
-			choiceVar: '=smoChoiceVar', 
+			choiceVar: '=choiceVar', 
 			options: '=smoOptions',
 			title: '@smoTitle',
 		},
@@ -320,7 +228,7 @@ smoModule.directive('smoChoice', ['$compile', 'util', 'units', function($compile
 	}
 }]);
 
-smoModule.directive('smoFieldGroup', ['$compile', 'units', function($compile,  units) {
+smoModule.directive('smoFieldGroup', ['$compile', 'util', function($compile, util) {
 	return {
 		restrict : 'A',
 		scope : {
@@ -328,39 +236,31 @@ smoModule.directive('smoFieldGroup', ['$compile', 'units', function($compile,  u
 			smoDataSource : '=',
 			viewType: '='
 		},
-		controller : function($scope){
-			$scope.updateFieldValue = function(fieldName) {
-				$scope.smoDataSource[fieldName] = $scope.quantities[fieldName].value;
-			}
-		},
 		link : function(scope, element, attr) {
-			scope.quantities = {};
+			scope.fields = {};
 			var groupFields = [];
 			for (var i = 0; i < scope.smoFieldGroup.fields.length; i++) {
 				var field = scope.smoFieldGroup.fields[i];
+				scope.fields[field.name] = field;
 				var showFieldCode = "";
 				if (!(typeof field.show === "undefined")){
 					showFieldCode = 'ng-show="' + field.show.replace('self', 'smoDataSource') + '"';
 				}
 				if (field.type == 'Quantity') {
-					var quantity = new units.Quantity(field.quantity, scope.smoDataSource[field.name], null, null, field.defaultDispUnit, field.minValue, field.maxValue, field.units, field.title, field.nominalValue, field.SIUnit);
-					quantity.id = field.name;
-					quantity.onUpdateValue(scope.updateFieldValue);
-					scope.quantities[field.name] = quantity;
+					field.value = scope.smoDataSource[field.name];
+					field.id = field.name;
 					
 					// Attach the field value to the quantity so that the original value is updated when the quantity value changes
 					if (scope.viewType == 'input') 
-						groupFields.push('<div ' + showFieldCode + ' smo-quantity view-type="input" smo-quantity-var="quantities.' + field.name + '"' + 
-						' smo-title="' + field.label + '" smo-id="' + quantity.id + '"></div>');
+						groupFields.push('<div ' + showFieldCode + ' smo-quantity view-type="input" field-var="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
 					if (scope.viewType == 'output')
-						groupFields.push('<div ' + showFieldCode + ' smo-quantity view-type="output" smo-quantity-var="quantities.' + field.name + '"' + 
-						' smo-title="' + field.label + '" smo-id="' + quantity.id + '"></div>');
+						groupFields.push('<div ' + showFieldCode + ' smo-quantity view-type="output" field-var="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
 				} else if (field.type == 'Choices') {
 					if (scope.viewType == 'input')
-						groupFields.push('<div ' + showFieldCode + ' smo-choice smo-choice-var="smoDataSource.' + field.name + '"' +
+						groupFields.push('<div ' + showFieldCode + ' smo-choice choice-var="smoDataSource.' + field.name + '"' +
 						' smo-options="smoFieldGroup.fields[' + i + '].options" smo-title="' + field.label + '"></div>');
 				}
-			} 
+			}
 			var template = '<h3>' + (scope.smoFieldGroup.label || "") + '</h3><br>' 
 				+ groupFields.join("");
 
@@ -372,7 +272,7 @@ smoModule.directive('smoFieldGroup', ['$compile', 'units', function($compile,  u
 	}
 }]);
 
-smoModule.directive('smoSuperGroup', ['$compile', 'units', function($compile,  units) {
+smoModule.directive('smoSuperGroup', ['$compile', function($compile) {
 	return {
 		restrict : 'A',
 		scope : {
@@ -397,12 +297,11 @@ smoModule.directive('smoSuperGroup', ['$compile', 'units', function($compile,  u
 				var superGroupFields = [];
 				for (var j = 0; j < superGroup.groups.length; j++) {
 					var fieldGroup = superGroup.groups[j];
-						// Attach the field value to the quantity so that the original value is updated when the quantity value changes
+					// Attach the field value to the quantity so that the original value is updated when the quantity value changes
 					superGroupFields.push('<div smo-field-group="smoSuperGroup[' + i + '].groups[' + j + ']" view-type="viewType" smo-data-source="smoDataSource"></div>');
 				}
 				
 				navTabPanes.push(superGroupFields.join(""));
-//				navTabPanes.push('</div>');
 			}
 			var template = '<ul class="nav nav-tabs super-group" role="tablist">' + navTabs.join("") + '</ul>' +
 			'<div class="tab-content super-group">' + navTabPanes.join("") + '</div>';
@@ -415,38 +314,8 @@ smoModule.directive('smoSuperGroup', ['$compile', 'units', function($compile,  u
 		}	
 	}
 }]);
-
-
-//smoModule.directive('smoOutputQuantity', ['$compile', 'util', 'units', function($compile, util, units) {
-//	return {
-//		restrict : 'A',
-//		scope : {
-//			smoQuantityVar: '=',
-//			title: '@smoTitle',
-//		},
-//		link : function(scope, element, attr) {
-//			scope.util = util;
-//			scope.units = units;
-//			
-//			var template = ' \
-//					<div class="field-label">' + scope.title + '</div> \
-//					<div class="field-output"> \
-//						<div class="output" ng-bind="smoQuantityVar.displayValue"></div>\
-//					</div> \
-//					<div class="field-select quantity"> \
-//						<select ng-model="smoQuantityVar.displayUnit" ng-options="pair[0] as pair[0] for pair in smoQuantityVar.unitArr" ng-change="smoQuantityVar.changeUnit()"></select> \
-//					</div>';
-//
-//			var el = angular.element(template);
-//	        compiled = $compile(el);
-//	        element.append(el);
-//	        compiled(scope);
-//		}
-//	}
-//}]);
-
 			
-smoModule.directive('smoInputView', ['$compile', 'units', function($compile,  units) {
+smoModule.directive('smoInputView', ['$compile', function($compile) {
 	return {
 		restrict : 'A',
 		scope : {
@@ -497,7 +366,7 @@ smoModule.directive('smoInputView', ['$compile', 'units', function($compile,  un
 }]);
 
 
-smoModule.directive('smoOutputView', ['$compile', 'units', function($compile,  units) {
+smoModule.directive('smoOutputView', ['$compile', function($compile) {
 	return {
 		restrict : 'A',
 		scope : {			
