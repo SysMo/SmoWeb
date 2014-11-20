@@ -53,7 +53,7 @@
 				    <li class="dropdown">
 				      <a href="#" class="dropdown-toggle" data-toggle="dropdown">ThermoFluids<span class="caret"></span></a>
 				      <ul class="dropdown-menu" role="menu">
- 				        <li><a href="{% url 'ThermoFluids:FluidPropsCalculator' %}">Fluid properties calculator</a></li>
+ 				        <li><a href="{% url 'ThermoFluids:FluidPropsCalculator' %}">Fluid properties</a></li>
 				        <li><a href="{% url 'ThermoFluids:FlowResistance' %}">Flow resistance</a></li>
 				        <li><a href="{% url 'ThermoFluids:HeatPump' %}">Heat pump / AC / Refrigerator</a></li>
 				        <li class="divider"></li>
@@ -90,8 +90,11 @@
 	          </ul>
 	        </div>
 			<div class="col-sm-10 col-sm-offset-2 col-md-11 col-md-offset-1 main">
-					{% block content %}	
-					{% endblock %}
+			{% block content %}	
+				<div class="docview">
+				{% include 'documentation/html/Home.html' %}
+				</div>
+			{% endblock %}
 			</div>
 		</div>
 	</div>

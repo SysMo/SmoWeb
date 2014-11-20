@@ -14,7 +14,7 @@ class Field(object):
 		Field.creation_counter += 1
 
 class Quantity(Field):
-	def __init__(self, type, default = None, minValue = -1e99, maxValue = 1e99, *args, **kwargs):
+	def __init__(self, type, default = None, minValue = 1e-99, maxValue = 1e99, *args, **kwargs):
 		super(Quantity, self).__init__(*args, **kwargs)
 		self.type = type
 		self.minValue = self.setValue(minValue)

@@ -12,7 +12,7 @@ from smo.smoflow3d.SimpleMaterials import Solids, Fluids
 import json
 
 class Pipe(NumericalModel):
-	internalDiameter = Quantity('Length', default = (5, 'mm'), minValue = (1, 'mm'), maxValue = (10, 'mm'), label = 'internal diameter (d<sub>i</sub>)')
+	internalDiameter = Quantity('Length', default = (5, 'mm'), label = 'internal diameter (d<sub>i</sub>)')
 	externalDiameter = Quantity('Length', default = (6, 'mm'), label = 'external diameter (d<sub>e</sub>)')
 	length = Quantity('Length', default = (1, 'm'),	label = 'pipe length (L)')
 	surfaceRoughness = Quantity('Length', default = (25, 'um'),	label = 'surface roughness')

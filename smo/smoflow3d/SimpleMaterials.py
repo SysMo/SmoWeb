@@ -17,7 +17,6 @@ Solids = OrderedDict((
 addKeyFieldToValues(Solids)
 
 Fluids = OrderedDict((
-	("1-Butene", "1-Butene"),
 	("Acetone", "Acetone"),
 	("Air", "Air"),
 	("Ammonia", "Ammonia"),
@@ -28,7 +27,7 @@ Fluids = OrderedDict((
 	("cis-2-Butene", "cis-2-Butene"),
 	("trans-2-Butene", "trans-2-Butene"),
 	("IsoButene", "iso-Butene"),
-	("n-Butane", "n-Butane"),
+	("1-Butene", "1-Butene"),
 	("CarbonDioxide", "Carbon dioxide"),
 	("CarbonMonoxide", "Carbon monoxide"),
 	("CarbonylSulfide", "Carbonyl sulfide"),
