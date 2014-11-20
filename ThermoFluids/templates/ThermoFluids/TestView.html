@@ -1,46 +1,92 @@
+{% extends "Base.html" %}
 {% load bootstrap_toolkit %}
 {% load staticfiles %}
 
-<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+{% block scripts_and_styles %}
+<script src="{% static 'SmoUtil.js' %}"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'css/SmoInputOutputView.css' %}">
+<script>
+angular.module('SmoConvert', ['ui.bootstrap', 'smo'])
+	.config(['$httpProvider', function($httpProvider) {
+	    $httpProvider.defaults.xsrfCookieName = 'csrftoken';
+	    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+	}])
+	.controller('SmoConvertController', [ '$scope', function($scope) {
+
+	$scope.input = {autoFetch: true, dataUrl: '/ThermoFluids/TestView/', action: 'getInputs'};
+// 	$scope.outputs = [{ dataUrl: '/ThermoFluids/TestView/', action: 'compute'}];
+	
+// 	$scope.compute = function(index) {
+// 		$scope.outputs[index].fetchData($scope.inputs[index].data.values);
+// 	}
+	
+	$scope.convert = function() {
+		$scope.input.autoFetch = false;
+	}
+}])
+</script>
 <style>
-.chart rect {
-  fill: blue;
+
+.super-group {
+	border-style: solid; 
+	border-top: none; 
+	border-color: #DDD; 
+	border-width: 1px; 
+	background-color: #E6E6FA;
+	padding-right: 20px;
+	display: inline-block;
+	overflow: auto;
 }
 
-.chart text {
-  fill: white;
-  font: 10px sans-serif;
-  text-anchor: end;
+.choice-group {
+	display: inline-block; 
+	margin-left: 20px; 
+	vertical-align:top;
+	margin-top: 20px;
+	margin-bottom: 20px;
+}
+
+.results-group {
+	display: inline-block; 
+	margin-left: 60px;  
+	vertical-align:top;
+	margin-top: 20px;
+	margin-bottom: 20px;
+	float: right;
+}
+
+.field-label {
+	display: inline-block;
+	white-space: nowrap;
+	text-align: left;
+	width: 50px;
+	height: 30px;
+}
+
+.field-input {
+	display: inline-block; 
+	white-space: nowrap;
+	margin-left: 5px; 
+}
+
+.field-input input {
+	width: 120px; 
+	height: 30px;
 }
 </style>
-<svg class="chart"></svg>
-<script>
-var data = [4, 8, 15, 16, 23, 42];
-var width = 420,
-barHeight = 20;
 
-var x = d3.scale.linear()
-	.domain([0, d3.max(data)])
-	.range([0, width]);
+{% endblock %}
 
-var chart = d3.select(".chart")
-	.attr("width", width)
-	.attr("height", barHeight * data.length);
+{% block pills %}
+{% endblock %}
 
-var bar = chart.selectAll("g")
-	.data(data)
-	.enter().append("g")
-	.attr("transform", function(d, i) { return "translate(0," + i * barHeight + ")"; });
-
-bar.append("rect")
-	.attr("width", x)
-	.attr("height", barHeight - 1);
-
-bar.append("text")
-	.attr("x", function(d) { return x(d) - 3; })
-	.attr("y", barHeight / 2)
-	.attr("dy", ".35em")
-	.text(function(d) { return d; });
-</script> 
-
-
+{% block content %}
+<div ng-app="SmoConvert" ng-controller="SmoConvertController">
+	<h1 class="title">Unit converter</h1>
+	<div ng-form name="myForm">
+		<div unit-input-view="input"></div>
+	</div>					
+<!-- 	<div ng-show="input.inputsObtained"><button ng-disabled="!myForm.$valid" class="btn btn-default" ng-click="convert()">Convert</button></div> -->
+<!-- 	<div ng-if="!input.autoFetch"><div unit-input-view="input"></div> -->
+</div>
+{% endblock %}

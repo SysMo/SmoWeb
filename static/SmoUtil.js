@@ -105,6 +105,49 @@ smoModule.factory('materials', function() {
 	return materials;
 });
 
+smoModule.factory('units', function() {
+	var units = {};
+	function Quantity(quantity, title, nominalValue, SIUnit, units) {
+		this.quantity = quantity;
+		this.title = title;
+		this.nominalValue = nominalValue;
+		this.value = this.nominalValue
+		this.SIUnit = SIUnit;
+		this.displayUnit = this.SIUnit;
+		this.units = units;
+		this.unitsArr = [];
+		for (unit in units) {
+			if (unit != this.SIUnit) {
+				var unitDef = units[unit];
+				var offset = unitDef.offset || 0;
+				var value = (this.value - offset) / unitDef.mult;
+//				var value = this.nominalValue * unitDef.mult + offset;
+				this.unitsArr.push([unit, value]);
+			}
+			else
+				this.unitsArr.push([unit, this.nominalValue]);
+		}
+		
+		this.changeValues = function(index){
+			if (this.unitsArr[index][0] != this.SIUnit) {
+				unitDef = units[this.unitsArr[index][0]];
+				offset = unitDef.offset || 0;
+				this.value = this.unitsArr[index][1] * unitDef.mult + offset;
+			} else {
+				this.value = this.unitsArr[index][1];
+			}
+			for (var i=0; i<this.unitsArr.length; i++) {
+				unitDef = units[this.unitsArr[i][0]];
+				offset = unitDef.offset || 0;			
+				if (i != index)			
+					this.unitsArr[i][1] = (this.value - offset) / unitDef.mult;
+			}
+		}
+	}
+	units.Quantity = Quantity;
+	return units;
+});
+
 smoModule.directive('smoQuantity', ['$compile', 'util', function($compile, util) {
 	return {
 		restrict : 'A',
@@ -422,5 +465,81 @@ smoModule.directive('smoOutputView', ['$compile', function($compile) {
 	        element.append(el);
 	        compiled(scope);
 		}
+	}
+}]);
+
+smoModule.directive('unitInputView', ['$compile', 'units', function($compile, units) {
+	return {
+		restrict : 'A',
+		scope : {
+			it: '=unitInputView'
+		},
+		controller: function($scope, $http){
+			$scope.it.inputsObtained = false;
+			$scope.it.loading = false;
+			$scope.it.errorLoading = false;
+			$scope.it.fetchData = function(parameters) {
+				$scope.it.inputsObtained = false;
+				$scope.it.loading = true;
+				$scope.it.errorLoading = false;
+				var parameters = parameters || {};
+				$http({
+			        method  : 'POST',
+			        url     : $scope.it.dataUrl,
+			        data    : {action : $scope.it.action, parameters: parameters},
+			        headers : { 'Content-Type': 'application/x-www-form-urlencoded' }, // set the headers so angular passing info as form data (not request payload)
+			    })
+			    .success(function(data) {
+			    	$scope.it.loading = false;
+			    	$scope.it.inputsObtained = true;
+			    	$scope.it.quantities = data;
+			    	$scope.renderConverter();
+			    })
+			    .error(function(data) {
+			    	$scope.it.loading = false;
+			    	$scope.it.errorLoading = true;
+			    });
+			}
+			if ($scope.it.autoFetch || $scope.it.autoFetch == 'undefined'){
+				$scope.it.fetchData();
+			}
+			$scope.renderConverter = function() {
+				$scope.quantities = {};
+				for (name in $scope.it.quantities) {
+					var value = $scope.it.quantities[name];
+					if (value.SIUnit == '-')
+						continue
+					else {
+						$scope.quantities[name] = new units.Quantity(name, value.title, value.nominalValue, value.SIUnit, value.units);
+					}
+				}
+				$scope.choiceVar = $scope.quantities[Object.keys($scope.quantities)[0]];
+			}
+		},
+		link : function(scope, element, attr) {
+			var template = '<div ng-if="it.loading"><h2 class="loading">Loading...</h2></div>\
+							<div ng-if="it.errorLoading"><h2 class="error">Error loading!</h2></div>\
+							<div class="super-group" ng-if="it.inputsObtained">\
+								<div class="choice-group">\
+									<div style="font-size: medium; font-weight: bold; margin-bottom: 5px;">Select a variable:</div>\
+									<div>\
+										<select ng-model="choiceVar" ng-options="value as name for (name, value) in quantities"></select> \
+									</div>\
+								</div>\
+								<div class="results-group">\
+									<div class="field" ng-repeat="unit in choiceVar.unitsArr track by $index">\
+										<div class="field-label" ng-bind="unit[0]"></div>\
+										<div class="field-input">\
+											<input name="input" ng-model="unit[1]" ng-change="choiceVar.changeValues($index)">\
+										</div>\
+									</div>\
+								</div>\
+							</div>';				
+
+			var el = angular.element(template);
+	        compiled = $compile(el);
+	        element.append(el);
+	        compiled(scope);
+		}	
 	}
 }]);
