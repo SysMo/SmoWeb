@@ -8,5 +8,6 @@ urlpatterns = patterns('',
     url(r'^$', 'SmoWeb.views.home', name='home' ),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^ThermoFluids/', include('ThermoFluids.urls', namespace='ThermoFluids')),
-    url(r'^DataManagement/', include('DataManagement.urls', namespace='DataManagement')), 
+    url(r'^DataManagement/', include('DataManagement.urls', namespace='DataManagement')),
+    url(r'^UnitConverter/', 'SmoWeb.views.unitConverterView', name='UnitConverter'),  
 )
