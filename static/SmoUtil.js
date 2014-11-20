@@ -519,22 +519,24 @@ smoModule.directive('unitInputView', ['$compile', 'units', function($compile, un
 		link : function(scope, element, attr) {
 			var template = '<div ng-if="it.loading"><h2 class="loading">Loading...</h2></div>\
 							<div ng-if="it.errorLoading"><h2 class="error">Error loading!</h2></div>\
-							<div class="super-group" ng-if="it.inputsObtained">\
-								<div class="choice-group">\
-									<div style="font-size: medium; font-weight: bold; margin-bottom: 5px;">Select a variable:</div>\
-									<div>\
-										<select ng-model="choiceVar" ng-options="value as name for (name, value) in quantities"></select> \
+							<div class="converter" ng-if="it.inputsObtained">\
+								<div class="super-group">\
+									<div class="choice-group">\
+										<div class="select-text">Select a variable:</div>\
+										<div>\
+											<select ng-model="choiceVar" ng-options="value as name for (name, value) in quantities"></select> \
+										</div>\
 									</div>\
-								</div>\
-								<div class="results-group">\
-									<div class="field" ng-repeat="unit in choiceVar.unitsArr track by $index">\
-										<div class="field-label" ng-bind="unit[0]"></div>\
-										<div class="field-input">\
-											<input name="input" ng-model="unit[1]" ng-change="choiceVar.changeValues($index)">\
+									<div class="results-group">\
+										<div class="field" ng-repeat="unit in choiceVar.unitsArr track by $index">\
+											<div class="field-input">\
+												<input name="input" ng-model="unit[1]" ng-change="choiceVar.changeValues($index)">\
+											</div>\
+											<div class="field-label" ng-bind="unit[0]"></div>\
 										</div>\
 									</div>\
 								</div>\
-							</div>';				
+							</div>';
 
 			var el = angular.element(template);
 	        compiled = $compile(el);

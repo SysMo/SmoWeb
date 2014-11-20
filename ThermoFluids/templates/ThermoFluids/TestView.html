@@ -27,7 +27,12 @@ angular.module('SmoConvert', ['ui.bootstrap', 'smo'])
 </script>
 <style>
 
-.super-group {
+.converter {
+	margin-top: 40px;
+	text-align: center;
+}
+
+.converter > .super-group {
 	border-style: solid; 
 	border-top: none; 
 	border-color: #DDD; 
@@ -38,7 +43,7 @@ angular.module('SmoConvert', ['ui.bootstrap', 'smo'])
 	overflow: auto;
 }
 
-.choice-group {
+.converter .choice-group {
 	display: inline-block; 
 	margin-left: 20px; 
 	vertical-align:top;
@@ -46,7 +51,7 @@ angular.module('SmoConvert', ['ui.bootstrap', 'smo'])
 	margin-bottom: 20px;
 }
 
-.results-group {
+.converter .results-group {
 	display: inline-block; 
 	margin-left: 60px;  
 	vertical-align:top;
@@ -55,21 +60,29 @@ angular.module('SmoConvert', ['ui.bootstrap', 'smo'])
 	float: right;
 }
 
-.field-label {
+.converter .select-text {
+	text-align: left; 
+	font-size: medium;  
+	margin-bottom: 5px;
+	color: #0875CA;
+}
+
+.converter .field-label {
 	display: inline-block;
 	white-space: nowrap;
 	text-align: left;
 	width: 50px;
 	height: 30px;
+	color: #0875CA;
 }
 
-.field-input {
+.converter .field-input {
 	display: inline-block; 
 	white-space: nowrap;
 	margin-left: 5px; 
 }
 
-.field-input input {
+.converter .field-input input {
 	width: 120px; 
 	height: 30px;
 }
