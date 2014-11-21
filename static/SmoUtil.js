@@ -31,6 +31,9 @@ smoModule.factory('util', function util () {
 	}
 	functions.dumpObject = dumpObject;
 	function formatNumber (n) {
+		if (n == 0) {
+			return "0";
+		}
 		if (Math.abs(n) > 1e5 || Math.abs(n) < 1e-3) {
 			return n.toExponential(5);
 		}
@@ -110,25 +113,25 @@ smoModule.factory('variables', ['util', function(util) {
 	function Quantity(quantity, title, nominalValue, SIUnit, units) {
 		this.quantity = quantity;
 		this.title = title;
-		this.nominalValue = nominalValue;
-		this.value = this.nominalValue
+		this.value = nominalValue;
 		this.SIUnit = SIUnit;
-		this.displayUnit = this.SIUnit;
-		this.units = units;
 		this.unitsArr = [];
 		for (unit in units) {
 			if (unit != this.SIUnit) {
 				var unitDef = units[unit];
 				var offset = unitDef.offset || 0;
 				var value = (this.value - offset) / unitDef.mult;
-//				var value = this.nominalValue * unitDef.mult + offset;
-				this.unitsArr.push([unit, value]);
+				this.unitsArr.push([unit, value, String(util.formatNumber(value))]);
+			} else {
+				this.unitsArr.push([unit, nominalValue, String(util.formatNumber(nominalValue))]);
 			}
-			else
-				this.unitsArr.push([unit, this.nominalValue]);
 		}
 		
-		this.changeValues = function(index){
+		this.updateValues = function(index, inputError){
+			if (inputError) {
+				return;
+			} 
+			this.unitsArr[index][1] = Number(this.unitsArr[index][2]);
 			if (this.unitsArr[index][0] != this.SIUnit) {
 				unitDef = units[this.unitsArr[index][0]];
 				offset = unitDef.offset || 0;
@@ -139,8 +142,10 @@ smoModule.factory('variables', ['util', function(util) {
 			for (var i=0; i<this.unitsArr.length; i++) {
 				unitDef = units[this.unitsArr[i][0]];
 				offset = unitDef.offset || 0;			
-				if (i != index)			
+				if (i != index)	{
 					this.unitsArr[i][1] = util.formatNumber((this.value - offset) / unitDef.mult);
+					this.unitsArr[i][2] = String(this.unitsArr[i][1]);
+				}		
 			}
 		}
 	}
@@ -522,17 +527,20 @@ smoModule.directive('converterInputView', ['$compile', 'variables', function($co
 							<div class="converter" ng-if="it.inputsObtained">\
 								<div class="super-group">\
 									<div class="choice-group">\
-										<div class="select-text">Select a variable:</div>\
+										<div class="select-text">Select a quantity:</div>\
 										<div>\
 											<select ng-model="choiceVar" ng-options="value as name for (name, value) in quantities"></select> \
 										</div>\
 									</div>\
 									<div class="results-group">\
-										<div class="field" ng-repeat="unit in choiceVar.unitsArr track by $index">\
-											<div class="field-input">\
-												<input name="input" ng-model="unit[1]" ng-change="choiceVar.changeValues($index)">\
+										<div ng-form name="myForm">\
+											<div class="field" ng-repeat="unit in choiceVar.unitsArr track by $index">\
+												<div ng-form name="Form{{$index}}" class="field-input">\
+													<input name="input" type="text" ng-pattern="/^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$/" ng-model="unit[2]" ng-change="choiceVar.updateValues($index, Form{{$index}}.input.$error.pattern)">\
+												</div>\
+												<div class="field-label" ng-bind="unit[0]"></div>\
+												<div class="input-error" ng-show="Form{{$index}}.input.$error.pattern">Enter a valid number</div>\
 											</div>\
-											<div class="field-label" ng-bind="unit[0]"></div>\
 										</div>\
 									</div>\
 								</div>\
@@ -545,3 +553,5 @@ smoModule.directive('converterInputView', ['$compile', 'variables', function($co
 		}	
 	}
 }]);
+
+//<div ng-show="Form{{$index}}.input.$error.pattern"></div>\

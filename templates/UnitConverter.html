@@ -86,7 +86,16 @@ angular.module('SmoConvert', ['ui.bootstrap', 'smo'])
 	width: 120px; 
 	height: 30px;
 }
+
+.converter .input-error {
+	text-align:left; 
+	color: red; 
+	margin-left: 5px; 
+	margin-bottom: 7px;
+}
 </style>
+
+
 
 {% endblock %}
 
@@ -96,9 +105,9 @@ angular.module('SmoConvert', ['ui.bootstrap', 'smo'])
 {% block content %}
 <div ng-app="SmoConvert" ng-controller="SmoConvertController">
 	<h1 class="title">Unit converter</h1>
-	<div ng-form name="myForm">
+<!-- 	<div ng-form name="myForm"> -->
 		<div converter-input-view="input"></div>
-	</div>					
+<!-- 	</div>					 -->
 <!-- 	<div ng-show="input.inputsObtained"><button ng-disabled="!myForm.$valid" class="btn btn-default" ng-click="convert()">Convert</button></div> -->
 <!-- 	<div ng-if="!input.autoFetch"><div unit-input-view="input"></div> -->
 </div>
