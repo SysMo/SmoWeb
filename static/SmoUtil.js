@@ -105,8 +105,8 @@ smoModule.factory('materials', function() {
 	return materials;
 });
 
-smoModule.factory('units', function() {
-	var units = {};
+smoModule.factory('variables', ['util', function(util) {
+	var variables = {};
 	function Quantity(quantity, title, nominalValue, SIUnit, units) {
 		this.quantity = quantity;
 		this.title = title;
@@ -140,13 +140,13 @@ smoModule.factory('units', function() {
 				unitDef = units[this.unitsArr[i][0]];
 				offset = unitDef.offset || 0;			
 				if (i != index)			
-					this.unitsArr[i][1] = (this.value - offset) / unitDef.mult;
+					this.unitsArr[i][1] = util.formatNumber((this.value - offset) / unitDef.mult);
 			}
 		}
 	}
-	units.Quantity = Quantity;
-	return units;
-});
+	variables.Quantity = Quantity;
+	return variables;
+}]);
 
 smoModule.directive('smoQuantity', ['$compile', 'util', function($compile, util) {
 	return {
@@ -468,11 +468,11 @@ smoModule.directive('smoOutputView', ['$compile', function($compile) {
 	}
 }]);
 
-smoModule.directive('unitInputView', ['$compile', 'units', function($compile, units) {
+smoModule.directive('converterInputView', ['$compile', 'variables', function($compile, variables) {
 	return {
 		restrict : 'A',
 		scope : {
-			it: '=unitInputView'
+			it: '=converterInputView'
 		},
 		controller: function($scope, $http){
 			$scope.it.inputsObtained = false;
@@ -510,7 +510,7 @@ smoModule.directive('unitInputView', ['$compile', 'units', function($compile, un
 					if (value.SIUnit == '-')
 						continue
 					else {
-						$scope.quantities[name] = new units.Quantity(name, value.title, value.nominalValue, value.SIUnit, value.units);
+						$scope.quantities[name] = new variables.Quantity(name, value.title, value.nominalValue, value.SIUnit, value.units);
 					}
 				}
 				$scope.choiceVar = $scope.quantities[Object.keys($scope.quantities)[0]];
