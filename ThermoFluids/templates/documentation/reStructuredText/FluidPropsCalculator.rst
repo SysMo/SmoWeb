@@ -12,8 +12,8 @@ Fluid property input
 Choice of state variables
 -------------------------
 
-A pure fluid (fluid consisting of a single chemical species) 2 variables are necessary to 
-complety describe its thermodynamic state. In theory these could be any 2 of the following
+For a pure fluid (fluid consisting of a single chemical species) 2 variables are necessary to 
+completely describe its thermodynamic state. In theory these could be any 2 from the following
 list:
 
 * pressure
@@ -57,7 +57,7 @@ Equations of state
 
 
 ----------------
-CoolProp pacakge
+CoolProp package
 ----------------
 
 All the fluid properties on this page are calculated using the open-source property 
