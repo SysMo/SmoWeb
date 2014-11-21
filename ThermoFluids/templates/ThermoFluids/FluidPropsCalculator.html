@@ -37,6 +37,9 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 	}
 
 	$scope.delLastTab = function() {
+		if ($scope.inputs.length == 1){
+			return;
+		}
 		$scope.inputs.pop();
 		$scope.outputs.pop();
 		$('#FP' + String($scope.inputs.length) + 'Tab').tab('show');

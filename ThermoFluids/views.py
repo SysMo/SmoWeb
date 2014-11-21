@@ -74,6 +74,11 @@ def flowResistanceView(request):
 			inputs = pipe.superGroupList2Json([Pipe.inputs])
 			return JsonResponse(inputs)
 		elif (action == 'compute'):
+			results = {}
+			if (parameters['externalDiameter'] <= parameters['internalDiameter']):
+				results['errStatus'] = True
+				results['error']='External diameter value must be bigger than internal diameter value.'
+				return JsonResponse(results)
 			pipe = Pipe()
 			pipe.fieldValuesFromJson(parameters)
 			pipe.computeGeometry()
