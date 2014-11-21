@@ -221,7 +221,7 @@ smoModule.directive('smoQuantity', ['$compile', 'util', function($compile, util)
 				template += '\
 					<div class="field-input"> \
 						<div ng-form name="' + scope.fieldVar.name + 'Form">\
-							<input name="input" required type="text" ng-pattern="/^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$/" ng-model="fieldVar.displayValue" ng-change="checkValueValidity();">\
+							<input name="input" required type="text" ng-pattern="/^[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$/" ng-model="fieldVar.displayValue" ng-change="checkValueValidity();">\
 						</div>\
 					</div>';
 			else if (scope.viewType == 'output')
@@ -535,7 +535,7 @@ smoModule.directive('converterInputView', ['$compile', 'variables', function($co
 									<div class="results-group">\
 										<div class="field" ng-repeat="unit in choiceVar.unitsArr track by $index">\
 											<div ng-form name="Form{{$index}}" class="field-input">\
-												<input name="input" type="text" ng-pattern="/^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$/" ng-model="unit[2]" ng-change="choiceVar.updateValues($index, Form{{$index}}.input.$error.pattern)">\
+												<input name="input" type="text" ng-pattern="/^[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$/" ng-model="unit[2]" ng-change="choiceVar.updateValues($index, Form{{$index}}.input.$error.pattern)">\
 											</div>\
 											<div class="field-label" ng-bind="unit[0]"></div>\
 											<div class="input-error" ng-show="Form{{$index}}.input.$error.pattern">Enter a valid number</div>\
