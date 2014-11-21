@@ -25,69 +25,6 @@ angular.module('SmoConvert', ['ui.bootstrap', 'smo'])
 	}
 }])
 </script>
-<style>
-
-.converter {
-	margin-top: 40px;
-	text-align: center;
-}
-
-.converter > .super-group {
-	border-style: solid; 
-	border-top: none; 
-	border-color: #DDD; 
-	border-width: 1px; 
-	background-color: #E6E6FA;
-	padding-right: 20px;
-	display: inline-block;
-	overflow: auto;
-}
-
-.converter .choice-group {
-	display: inline-block; 
-	margin-left: 20px; 
-	vertical-align:top;
-	margin-top: 20px;
-	margin-bottom: 20px;
-}
-
-.converter .results-group {
-	display: inline-block; 
-	margin-left: 60px;  
-	vertical-align:top;
-	margin-top: 20px;
-	margin-bottom: 20px;
-	float: right;
-}
-
-.converter .select-text {
-	text-align: left; 
-	font-size: medium;  
-	margin-bottom: 5px;
-	color: #0875CA;
-}
-
-.converter .field-label {
-	display: inline-block;
-	white-space: nowrap;
-	text-align: left;
-	width: 50px;
-	height: 30px;
-	color: #0875CA;
-}
-
-.converter .field-input {
-	display: inline-block; 
-	white-space: nowrap;
-	margin-left: 5px; 
-}
-
-.converter .field-input input {
-	width: 120px; 
-	height: 30px;
-}
-</style>
-
 {% endblock %}
 
 {% block pills %}
@@ -96,10 +33,6 @@ angular.module('SmoConvert', ['ui.bootstrap', 'smo'])
 {% block content %}
 <div ng-app="SmoConvert" ng-controller="SmoConvertController">
 	<h1 class="title">Unit converter</h1>
-	<div ng-form name="myForm">
-		<div unit-input-view="input"></div>
-	</div>					
-<!-- 	<div ng-show="input.inputsObtained"><button ng-disabled="!myForm.$valid" class="btn btn-default" ng-click="convert()">Convert</button></div> -->
-<!-- 	<div ng-if="!input.autoFetch"><div unit-input-view="input"></div> -->
+		<div converter-input-view="input"></div>
 </div>
 {% endblock %}
