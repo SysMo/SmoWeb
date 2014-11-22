@@ -16,16 +16,26 @@ LDFLAGS = ["-L" + smoFlowLibFolder]
 smoMedia = Extension(
        "Media", 
        ['Media.pyx'],
-       language="c++",
+	   language="c++",
        extra_compile_args = CXXFLAGS,
        extra_link_args = LDFLAGS,
        libraries = ["SmoFlow"]
 )
 
+smoCoolProp = Extension(
+		"CoolProp",
+		['CoolProp/PyCoolProp.pyx'],
+	   language="c++",
+	   extra_compile_args = CXXFLAGS,
+	   extra_link_args = ['-L/data/Workspace/Projects/SysMo/SmoFlow3D/smoflow3d/com.sysmo.smoflow3d/bin'],
+	   libraries = ["CoolProp"]
+)
+
 setup(
       name = "SmoFlow3D",
       ext_modules = cythonize([
-           smoMedia
+           smoMedia,
+           smoCoolProp
       ])
 )
 

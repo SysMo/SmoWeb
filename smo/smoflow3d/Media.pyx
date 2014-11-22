@@ -54,6 +54,8 @@ cdef class MediumState:
 	def update_Tq(self, double T, double q):
 		self.ptr.update_Tq(T, q)	
 
+
+
 	def T(self):
 		return self.ptr.T()
 	def p(self):
