@@ -2,8 +2,6 @@ from libcpp.string cimport string
 from libcpp cimport bool
 cimport CoolProp_Imports as CP
 
-cdef string AUTHOR="SysMo"
-
 cdef class Fluid:
 	cdef string fluidName
 	cdef long fluidIndex
@@ -86,6 +84,13 @@ cdef class Fluid:
 			'rhoV': rhoVout
 			}
 
+cdef long iP = CP.get_param_index('P')
+cdef long iT = CP.get_param_index('T')
+cdef long iD = CP.get_param_index('D')
+cdef long iH = CP.get_param_index('H')
+cdef long iS = CP.get_param_index('S')
+cdef long iQ = CP.get_param_index('Q')
+
 cdef class FluidState:
 	cdef CP.CoolPropStateClassSI* ptr;
 	def __cinit__(self, string fluidName):
@@ -97,11 +102,24 @@ cdef class FluidState:
 	def update(self, 
 			string state1, double state1Value,
 			string state2, double state2Value):
-
 		cdef long p1Index = CP.get_param_index(state1)
 		cdef long p2Index = CP.get_param_index(state2)
-
 		self.ptr.update(p1Index, state1Value, p2Index, state2Value, -1, -1)
+
+	def update_Tp(self, double T, double p):
+		self.ptr.update(iT, T, iP, p, -1, -1)
+	def update_Trho(self, double T, double rho):
+		self.ptr.update(iT, T, iD, rho, -1, -1)	
+	def update_prho(self, double p, double rho):
+		self.ptr.update(iP, p, iD, rho, -1, -1)	
+	def update_ph(self, double p, double h):
+		self.ptr.update(iP, p, iH, h, -1, -1)	
+	def update_ps(self, double p, double s):
+		self.ptr.update(iP, p, iS, s, -1, -1)	
+	def update_pq(self, double p, double q):
+		self.ptr.update(iP, p, iQ, q, -1, -1)	
+	def update_Tq(self, double T, double q):
+		self.ptr.update(iT, T, iQ, q, -1, -1)	
 		
 	def T(self):
 		return self.ptr.T()
