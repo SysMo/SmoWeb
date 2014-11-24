@@ -37,6 +37,10 @@ def virtualenv():
 
 
 def deploy():
+	print("Cleaning up old code and static files")
+	local('rm -rf {0}/*'.format(os.path.join(env.installDir, 'Static')))
+	local('rm -rf {0}/*'.format(os.path.join(env.installDir, 'Platform')))
+
 	with virtualenv():
 		local('python manage.py collectstatic -v0 --noinput', shell='bash')
 		print("Collected static files")

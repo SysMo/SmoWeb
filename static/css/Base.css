@@ -114,10 +114,20 @@ h1.title {
 	font-weight: bold; 
 }
 
+.title-figure {
+	margin-top: 50px;
+	margin-bottom: 50px;
+	margin-left: auto;
+	margin-right: auto;
+	width: 1000px;
+	background: white;
+	text-align: center;
+	border: 1px solid black;
+}
 
-.contentSVG {
-	text-align: center; 
-	position:relative; 
+.title-figure > img,
+.title-figure > object {
+	width: 100%;
 }
 
 /* Content */
