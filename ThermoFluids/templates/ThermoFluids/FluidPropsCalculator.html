@@ -53,6 +53,7 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 {% block pills %}
 	<li class="active" role="presentation"><a id="calcTab" data-target="#calculator" role="tab" data-toggle="tab">Calculator</a></li>
 	<li role="presentation"> <a id="docTab" data-target="#doc" role="tab" data-toggle="tab">Doc</a></li>
+	<li role="presentation"> <a id="fluidsTab" data-target="#fluids" role="tab" data-toggle="tab">Fluids</a></li>
 {% endblock %}
 
 {% block content %}
@@ -84,6 +85,9 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 			<div class="docview">
 				{% include 'documentation/html/FluidPropsCalculator.html' %}
 			</div>
+		</div>
+		<div class="tab-pane" id="fluids">
+				Fluids
 		</div>
 	</div>	
 </div>

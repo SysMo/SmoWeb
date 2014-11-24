@@ -48,15 +48,14 @@ def fluidPropsCalculatorView(request):
 				results = fpc.superGroupList2Json([fpc.results])
 				results['errStatus'] = False
 			except RuntimeError, e: 
-				print ("Runtime error")
 				results = {}
 				results['errStatus'] = True
 				results['error'] = str(e)
 				return JsonResponse(results)
-			except:
-				print ("Error - not runtime")
+			except Exception, e:
 				results = {}
 				results['errStatus'] = True
+				results['error'] = str(e)
 				return JsonResponse(results)
 			return JsonResponse(results)
 
@@ -100,7 +99,6 @@ def testView(request):
 		action = postData['action']
 		parameters = postData['parameters']
 		if (action == 'getInputs'):
-			print json.dumps(Quantities, True)
 			return JsonResponse(Quantities)
 		else:
 			raise ValueError('Unknown post action "{0}" for URL: {1}'.format(action, 'ThermoFluids/TestView.html'))

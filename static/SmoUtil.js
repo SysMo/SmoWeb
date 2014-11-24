@@ -164,14 +164,28 @@ smoModule.directive('smoQuantity', ['$compile', 'util', function($compile, util)
 		controller: function($scope){									
 			$scope.checkValueValidity = function(){
 				$scope[$scope.fieldVar.name + 'Form'].input.$setValidity('minVal', true);
-				$scope[$scope.fieldVar.name + 'Form'].input.$setValidity('maxVal', true);
-				$scope.updateValue();							
+				$scope[$scope.fieldVar.name + 'Form'].input.$setValidity('maxVal', true);							
 				if ($scope.fieldVar.value < $scope.fieldVar.minValue) {
 					$scope[$scope.fieldVar.name + 'Form'].input.$setValidity('minVal', false);
 				}		
 				else if ($scope.fieldVar.value > $scope.fieldVar.maxValue){
 					$scope[$scope.fieldVar.name + 'Form'].input.$setValidity('maxVal', false);
-				}					
+				}
+				if ($scope[$scope.fieldVar.name + 'Form'].$valid == true) {
+					$scope.updateValue();
+				}
+			}
+			
+			$scope.revertOnInvalidity = function(){
+				if ($scope[$scope.fieldVar.name + 'Form'].$valid == false) {
+					$scope.fieldVar.value = $scope.smoDataSource[$scope.fieldVar.name];
+					var offset = 0;
+					if ('offset' in $scope.fieldVar.dispUnitDef) {
+						offset = $scope.fieldVar.dispUnitDef.offset;
+					}
+					$scope.fieldVar.displayValue = util.formatNumber(($scope.fieldVar.value - offset) / $scope.fieldVar.dispUnitDef.mult);
+					console.log($scope.fieldVar.displayValue);
+				}
 			}
 			
 			$scope.updateValue = function() {
@@ -193,7 +207,7 @@ smoModule.directive('smoQuantity', ['$compile', 'util', function($compile, util)
 				if ('offset' in $scope.fieldVar.dispUnitDef) {
 					offset = $scope.fieldVar.dispUnitDef.offset;
 				}
-				$scope.fieldVar.displayValue = util.formatNumber(($scope.fieldVar.value - offset) / $scope.fieldVar.dispUnitDef.mult); 
+				$scope.fieldVar.displayValue = util.formatNumber(($scope.fieldVar.value - offset) / $scope.fieldVar.dispUnitDef.mult);
 			}
 			
 			$scope.fieldVar.unit = $scope.fieldVar.unit || $scope.fieldVar.SIUnit;
@@ -221,7 +235,7 @@ smoModule.directive('smoQuantity', ['$compile', 'util', function($compile, util)
 				template += '\
 					<div class="field-input"> \
 						<div ng-form name="' + scope.fieldVar.name + 'Form">\
-							<input name="input" required type="text" ng-pattern="/^[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$/" ng-model="fieldVar.displayValue" ng-change="checkValueValidity();">\
+							<input name="input" required type="text" ng-pattern="/^[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$/" ng-model="fieldVar.displayValue" ng-blur="revertOnInvalidity()" ng-change="checkValueValidity();">\
 						</div>\
 					</div>';
 			else if (scope.viewType == 'output')
