@@ -18,7 +18,12 @@ cdef extern from "CoolProp/CoolProp.h":
 		PressureUnit p
 	
 	cdef cppclass FluidLimits:
-		double Tmin, Tmax, pmax, rhomax;	
+		double Tmin, Tmax, pmax, rhomax
+
+	cdef cppclass EnvironmentalFactorsStruct:
+		double GWP20, GWP100, GWP500, ODP, HH, PH, FH
+		string ASHRAE34
+	
 	
 	cdef cppclass Fluid:
 		string get_EOSReference() except +
@@ -26,6 +31,7 @@ cdef extern from "CoolProp/CoolProp.h":
 		CriticalStruct crit
 		OtherParameters params
 		FluidLimits limits
+		EnvironmentalFactorsStruct environment
 
 		void saturation_p(double p, bool UseLUT, 
 				double &TsatLout, double &TsatVout, 
@@ -42,6 +48,7 @@ cdef extern from "CoolProp/CoolProp.h":
 cdef extern from "CoolProp/CPState.h":
 	cdef cppclass CoolPropStateClassSI:
 		CoolPropStateClassSI(string FluidName) except +
+		CoolPropStateClassSI(Fluid *pFluid) except +
 		void update(long iInput1, double Value1, 
 				long iInput2, double Value2, 
 				double T0, double rho0) except +

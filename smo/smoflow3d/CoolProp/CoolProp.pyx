@@ -14,18 +14,24 @@ cdef class Fluid:
 			raise ValueError('No fluid with name {0} found'.format(self.fluidName))
 		self.ptr = CP.get_fluid(self.fluidIndex)
 
-	def	get_BibTeXKey(self, item):
+	def	BibTeXKey(self, item):
 		validKeys = ["EOS", "CP0", "VISCOSITY", "CONDUCTIVITY",
 					 "ECS_LENNARD_JONES", "ECS_FITS", "SURFACE_TENSION"]
 		if (item not in validKeys):
 			raise KeyError('BibTexKey must be one of ' + ', '.join(validKeys))
 		return CP.get_BibTeXKey(self.fluidName, item)
 
-	def get_EOSReference(self):
+	def EOSReference(self):
 		return self.ptr.get_EOSReference()
 		
-	def get_TransportReference(self):
+	def TransportReference(self):
 		return self.ptr.get_TransportReference()
+	
+	def CAS(self):
+		return self.ptr.params.CAS
+	
+	def ASHRAE34(self):
+		return self.ptr.environment.ASHRAE34
 	
 	def molarMass(self):
 		return self.ptr.params.molemass;
@@ -93,9 +99,16 @@ cdef long iQ = CP.get_param_index('Q')
 
 cdef class FluidState:
 	cdef CP.CoolPropStateClassSI* ptr;
-	def __cinit__(self, string fluidName):
-		self.ptr = new CP.CoolPropStateClassSI(fluidName)
-		
+	def __cinit__(self, fluid):		
+		cdef string fluidName
+		if (isinstance(fluid, str) or isinstance(fluid, unicode)):
+			fluidName = fluid
+			self.ptr = new CP.CoolPropStateClassSI(fluidName)
+		elif (isinstance(fluid, Fluid)):
+			self.ptr = new CP.CoolPropStateClassSI((<Fluid>fluid).ptr)
+		else:
+			raise TypeError('The argument of FluidState constructor must be either str or Fluid')
+			
 	def __dealloc__(self):
 		del self.ptr
 		
@@ -129,6 +142,13 @@ cdef class FluidState:
 		return self.ptr.rho()
 	def h(self):
 		return self.ptr.h()
+	def q(self):
+		if (self.ptr.TwoPhase):
+			return self.ptr.Q()
+		else:
+			return -1.0;
+	def isTwoPhase(self):
+		return self.ptr.TwoPhase
 	
 	def s(self):
 		return self.ptr.s()

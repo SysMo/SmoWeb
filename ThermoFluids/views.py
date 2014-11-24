@@ -8,7 +8,7 @@ def heatPumpView(request):
 		return render_to_response('ThermoFluids/HeatPump.html', locals(), 
 				context_instance=RequestContext(request))
 	elif request.method == 'POST':
-		from smo.smoflow3d.CycleCalculator import HeatPumpCalculator 
+		from smo.smoflow3d.calculators.CycleCalculator import HeatPumpCalculator 
 		postData = json.loads(request.body)
 		action = postData['action']
 		parameters = postData['parameters']
@@ -32,7 +32,7 @@ def fluidPropsCalculatorView(request):
 		return render_to_response('ThermoFluids/FluidPropsCalculator.html', locals(), 
 				context_instance=RequestContext(request))
 	elif request.method == 'POST':
-		from smo.smoflow3d.FluidPropsCalculator import FluidPropsCalculator 
+		from smo.smoflow3d.calculators.FluidPropsCalculator import FluidPropsCalculator
 		postData = json.loads(request.body)
 		action = postData['action']
 		parameters = postData['parameters']

@@ -4,8 +4,7 @@ Created on Nov 05, 2014
 '''
 import numpy as np
 from collections import OrderedDict
-from smo.smoflow3d.Media import MediumState, Medium
-from smo.smoflow3d import getFluid
+from smo.smoflow3d.CoolProp.CoolProp import Fluid, FluidState
 from smo.numerical_model.model import NumericalModel 
 from smo.numerical_model.fields import *
 from smo.smoflow3d.SimpleMaterials import Fluids
@@ -20,7 +19,7 @@ StateVariableOptions = OrderedDict((
 	))
 
 class FluidPropsCalculator(NumericalModel):
-	fluid = Choices(Fluids, default = 'ParaHydrogen', label = 'fluid')	
+	fluidName = Choices(Fluids, default = 'ParaHydrogen', label = 'fluid')	
 	stateVariable1 = Choices(options = StateVariableOptions, default = 'P', label = 'first state variable')
 	p1 = Quantity('Pressure', default = (1, 'bar'), label = 'pressure', show="self.stateVariable1 == 'P'")
 	T1 = Quantity('Temperature', default = (300, 'K'), label = 'temperature', show="self.stateVariable1 == 'T'")
@@ -37,7 +36,7 @@ class FluidPropsCalculator(NumericalModel):
 	q2 = Quantity('VaporQuality', default = (1, '-'), label = 'vapour quality', show="self.stateVariable2 == 'Q'")
 	####
 	stateGroup1 = FieldGroup([stateVariable1, p1, T1, rho1, h1, s1, q1])
-	stateGroup2 = FieldGroup([stateVariable2, p2, T2, rho2, h2, s2, q2, fluid])
+	stateGroup2 = FieldGroup([stateVariable2, p2, T2, rho2, h2, s2, q2, fluidName])
 	inputs = SuperGroup([stateGroup1, stateGroup2], label='State inputs')
 	####
 	T = Quantity('Temperature', label = 'temperature')
@@ -67,9 +66,9 @@ class FluidPropsCalculator(NumericalModel):
 		return self.__dict__[sVarDict[sVar]+str(index)]
 			
 	def compute(self):
-		fluid = getFluid(str(self.fluid))
-		fState = MediumState(fluid)
-		fState.update_state(self.stateVariable1, self.getStateValue(self.stateVariable1, 1), 
+		#fluid = getFluid(str(self.fluid))
+		fState = FluidState(self.fluidName)
+		fState.update(self.stateVariable1, self.getStateValue(self.stateVariable1, 1), 
 						self.stateVariable2, self.getStateValue(self.stateVariable2, 2))
 		self.T = fState.T()
 		self.p = fState.p()
@@ -91,7 +90,7 @@ class FluidPropsCalculator(NumericalModel):
 	@staticmethod	
 	def test():
 		fc = FluidPropsCalculator()
-		fc.fluid = 'ParaHydrogen'
+		fc.fluidName = 'ParaHydrogen'
 		fc.stateVariable1 = 'P'
 		fc.p1 = 700e5
 		fc.stateVariable2 = 'T'
@@ -100,37 +99,6 @@ class FluidPropsCalculator(NumericalModel):
 		print
 		print fc.rho
 
-# def getLiteratureReferences():
-# 	from smo.CoolProp import CoolProp as CP
-# 	from smo.CoolProp.parse_bib import BibTeXerClass
-# 	BTC = BibTeXerClass()
-# 
-# 	EOSkey = CP.get_BibTeXKey(Fluid, "EOS")
-# 	CP0key = CP.get_BibTeXKey(Fluid, "CP0")
-# 	SURFACE_TENSIONkey = CP.get_BibTeXKey(Fluid, "SURFACE_TENSION")
-# 	VISCOSITYkey = CP.get_BibTeXKey(Fluid, "VISCOSITY")
-# 	CONDUCTIVITYkey = CP.get_BibTeXKey(Fluid, "CONDUCTIVITY")
-# 	ECS_LENNARD_JONESkey = CP.get_BibTeXKey(Fluid, "ECS_LENNARD_JONES")
-# 	ECS_FITSkey = CP.get_BibTeXKey(Fluid, "ECS_FITS")
-# 	
-# 	BibInfo = ''
-# 	if EOSkey:
-# 		BibInfo += '<p><b>Equation of State</b>: ' + BTC.entry2HTML(EOSkey)
-# 	if CP0key:
-# 		BibInfo += '<p><b>Ideal-Gas Specific Heat</b>: ' + BTC.entry2HTML(CP0key)
-# 	if SURFACE_TENSIONkey:
-# 		BibInfo += '<p><b>Surface Tension</b>: ' + BTC.entry2HTML(SURFACE_TENSIONkey)
-# 	if VISCOSITYkey:
-# 		BibInfo += '<p><b>Viscosity</b>: ' + BTC.entry2HTML(VISCOSITYkey)
-# 	if CONDUCTIVITYkey:
-# 		BibInfo += '<p><b>Conductivity</b>: ' + BTC.entry2HTML(CONDUCTIVITYkey)
-# 	if ECS_LENNARD_JONESkey:
-# 		BibInfo += '<p><b>Lennard-Jones Parameters for ECS</b>: ' + BTC.entry2HTML(ECS_LENNARD_JONESkey)
-# 	if ECS_FITSkey:
-# 		BibInfo += '<p><b>ECS Correction Fit</b>: ' + BTC.entry2HTML(ECS_FITSkey)
-# 	
-# 	return BibInfo
-# 
 # def getFluidConstants():
 # 	from smo.CoolProp import CoolProp as CP
 # 	Fluid  = 'ParaHydrogen'

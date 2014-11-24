@@ -32,7 +32,10 @@ angular.module('HeatPump', ['ui.bootstrap', 'smo'])
 <div ng-app="HeatPump" ng-controller="HeatPumpController" style="display: inline-block; width:85%; padding-top:20px;">
 	<div class="tab-content">
 		<div class="tab-pane active" id="calculator">
-			<h1>Heat pump</h1>
+			<h1 class="title">Heat pump</h1>
+			<div class="contentSVG">
+				<object data="{% static 'ThermoFluids/HeatPump.svg' %}" type="image/svg+xml"></object>
+			</div>		
 			<div ng-form name="myForm">
 				<div smo-input-view="inputs"></div>
 			</div>

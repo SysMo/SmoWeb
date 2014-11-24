@@ -7,17 +7,18 @@ def testFluid():
 	BibTexKeys = ["EOS", "CP0", "VISCOSITY", "CONDUCTIVITY",
 						 "ECS_LENNARD_JONES", "ECS_FITS", "SURFACE_TENSION"]
 	for key in BibTexKeys:
-		print("{0} : {1}".format(key, f.get_BibTeXKey(key)))
+		print("{0} : {1}".format(key, f.BibTeXKey(key)))
 	
-	print("{0} : {1}".format('EOS reference', f.get_EOSReference()))
-	print("{0} : {1}".format('Transpor reference', f.get_TransportReference()))
+	print("{0} : {1}".format('EOS reference', f.EOSReference()))
+	print("{0} : {1}".format('Transpor reference', f.TransportReference()))
 		
 	print("{0} : {1} [g/mol]".format('Molar mass', f.molarMass()))
 	print("{0} : {1}".format('Accentric factor', f.accentricFactor()))
 	print("{0} : {1}".format('Critical point', f.critical()))
 	print("{0} : {1}".format('Tripple point', f.tripple()))
 	print("{0} : {1}".format('Fluid limits', f.fluidLimits()))
-	
+	print("CAS: {0}".format(f.CAS()))
+	print("ASHRAE34: {0}".format(f.ASHRAE34()))
 	p = (f.critical()['p'] + f.tripple()['p'])/2
 	print("Saturation @ {0} bar {1}".format(p/1e5, f.saturation_p(p)))
 	
@@ -63,7 +64,13 @@ def testState():
 	s8 = FluidState('ParaHydrogen')
 	s8.update_Tq(25, 0)
 	print("update_Tq p={0}".format(s8.p()))
- 
+	print('--------------------')
+	print('Initialize state from fluid')
+	h2 = Fluid('ParaHydrogen')
+	s9 = FluidState(h2)
+	s9.update_Tp(s1.T(), s1.p())
+	print("rho={0}".format(s9.rho()))
+
 testFluid()
 print('======================')
 testState()

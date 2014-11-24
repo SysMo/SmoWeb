@@ -4,8 +4,7 @@ try:
 except Exception: 
 	pass
 import scipy.interpolate
-from smo.smoflow3d import getFluid
-from smo.smoflow3d.Media import MediumState
+from smo.smoflow3d.CoolProp.CoolProp import FluidState
 from smo.numerical_model.fields import Quantity, ObjectReference, FieldGroup, SuperGroup, Choices
 from smo.numerical_model.model import NumericalModel
 from smo.smoflow3d.SimpleMaterials import Solids, Fluids
@@ -20,12 +19,12 @@ class Pipe(NumericalModel):
 	geometryInput = FieldGroup([internalDiameter, externalDiameter, length,	pipeMaterial,
 		surfaceRoughness], label = "Geometry")
 	#####
-	fluid = Choices(Fluids, default = 'ParaHydrogen', label = 'fluid')
+	fluidName = Choices(Fluids, default = 'ParaHydrogen', label = 'fluid')
 	inletPressure = Quantity('Pressure', default = (2, 'bar'), label = 'inlet pressure') 
 	inletTemperature = Quantity('Temperature', default = (15, 'degC'), label = 'inlet temperature')					
 	inletMassFlowRate = Quantity('MassFlowRate', default = (1, 'kg/h'), label = 'inlet mass flow rate')
 	ambientTemperature = Quantity('Temperature', default = (15, 'degC'), label = 'ambient temperature')
-	flowInput = FieldGroup([fluid, inletPressure, inletTemperature,	inletMassFlowRate], label = 'Flow')
+	flowInput = FieldGroup([fluidName, inletPressure, inletTemperature,	inletMassFlowRate], label = 'Flow')
 	#####	
 	inputs = SuperGroup([geometryInput, flowInput], label = 'Input data')	
 	###################
@@ -63,8 +62,7 @@ class Pipe(NumericalModel):
 			* np.pi / 4 * (self.externalDiameter**2 - self.internalDiameter**2) * self.length
 			
 	def computePressureDrop(self):
-		fluid = getFluid(self.fluid)
-		upstreamState = MediumState(fluid)
+		upstreamState = FluidState(self.fluidName)
 		upstreamState.update_Tp(self.inletTemperature, self.inletPressure)
 
 		self.inletDensity = upstreamState.rho()

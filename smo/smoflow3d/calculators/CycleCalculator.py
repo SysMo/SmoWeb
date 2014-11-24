@@ -4,51 +4,50 @@ Created on Nov 09, 2014
 '''
 
 import numpy as np
-from smo.smoflow3d.Media import MediumState, Medium
-from smo.smoflow3d import getFluid
+from smo.smoflow3d.CoolProp.CoolProp import FluidState, Fluid
 from smo.numerical_model.model import NumericalModel 
 from smo.numerical_model.fields import *
 from smo.smoflow3d.SimpleMaterials import Fluids
 from collections import OrderedDict
 
-class ThermodynamicTransition(object):
-	def __init__(self, inState):
-		self.inState = inState
-		self.medium = self.inState.getMedium()
-		self.outState = MediumState(self.medium)
-
-class IsentropicCompression(ThermodynamicTransition):
-	def compute(self, pHigh, etaIsentropic, mDotRefrigerant):
-		outStateIdeal = MediumState(self.medium)
-		outStateIdeal.update_ps(pHigh, self.inState.s())
-		wIdeal = outStateIdeal.h() - self.inState.h()
-		wReal = wIdeal / etaIsentropic
-		hOutReal = wReal + self.inState.h()
-		self.outState.update_ph(pHigh, hOutReal)
-		self.WCompr = mDotRefrigerant * wReal
-	@staticmethod
-	def test():
-		f = getFluid('ParaHydrogen')
-		s1 = MediumState(f)
-		s1.update_Tp(200, 1e5)
-		compr1 = IsentropicCompression(s1)
-		compr1.compute(10e5, 1.0, 100./3600)
-		print compr1.outState.T()
-		print compr1.WCompr
-
-class IsothermalCompression(ThermodynamicTransition):
-	def compute(self, pHigh, etaIsothermal, mDotRefrigerant):
-		outStateIdeal = MediumState(self.medium)
-		outStateIdeal.update_Tp(self.T1, self.pHigh)
-		qIdeal = self.T1 * (self.inState.s() - outStateIdeal.s())
-		wIdeal = (outStateIdeal.h() - self.inState.h()) + qIdeal
-		wReal = wIdeal / self.etaComprIsothermal
-		h2Real = self.inState.h() + wReal - qIdeal
-		self.outState.update_ph(self.pHigh, h2Real)
-		self.WCompr = self.mDotRefrigerant * wReal
+# class ThermodynamicTransition(object):
+# 	def __init__(self, inState):
+# 		self.inState = inState
+# 		self.medium = self.inState.getMedium()
+# 		self.outState = FluidState(self.medium)
+# 
+# class IsentropicCompression(ThermodynamicTransition):
+# 	def compute(self, pHigh, etaIsentropic, mDotRefrigerant):
+# 		outStateIdeal = FluidState(self.medium)
+# 		outStateIdeal.update_ps(pHigh, self.inState.s())
+# 		wIdeal = outStateIdeal.h() - self.inState.h()
+# 		wReal = wIdeal / etaIsentropic
+# 		hOutReal = wReal + self.inState.h()
+# 		self.outState.update_ph(pHigh, hOutReal)
+# 		self.WCompr = mDotRefrigerant * wReal
+# 	@staticmethod
+# 	def test():
+# 		f = getFluid('ParaHydrogen')
+# 		s1 = FluidState(f)
+# 		s1.update_Tp(200, 1e5)
+# 		compr1 = IsentropicCompression(s1)
+# 		compr1.compute(10e5, 1.0, 100./3600)
+# 		print compr1.outState.T()
+# 		print compr1.WCompr
+# 
+# class IsothermalCompression(ThermodynamicTransition):
+# 	def compute(self, pHigh, etaIsothermal, mDotRefrigerant):
+# 		outStateIdeal = MediumState(self.medium)
+# 		outStateIdeal.update_Tp(self.T1, self.pHigh)
+# 		qIdeal = self.T1 * (self.inState.s() - outStateIdeal.s())
+# 		wIdeal = (outStateIdeal.h() - self.inState.h()) + qIdeal
+# 		wReal = wIdeal / self.etaComprIsothermal
+# 		h2Real = self.inState.h() + wReal - qIdeal
+# 		self.outState.update_ph(self.pHigh, h2Real)
+#		self.WCompr = self.mDotRefrigerant * wReal
 
 class HeatPumpCalculator(NumericalModel):
-	fluid = Choices(Fluids, default = 'R134a', label = 'fluid')	
+	fluidName = Choices(Fluids, default = 'R134a', label = 'fluid')	
 	mDotRefrigerant = Quantity('MassFlowRate', default = (1, 'kg/min'), label = 'refrigerant flow rate')
 	pLow = Quantity('Pressure', default = (1, 'bar'), label = 'low pressure')
 	pHigh = Quantity('Pressure', default = (10, 'bar'), label = 'high pressure')
@@ -72,7 +71,7 @@ class HeatPumpCalculator(NumericalModel):
 		label = 'expansion type')
 	etaExpandIsentropic = Quantity('Dimensionless', default = 0.8,
 		label = 'isentropic efficiency', show = "self.expansionType == 'isentropic'")
-	basicInputs = FieldGroup([fluid, mDotRefrigerant, pLow, pHigh, THot, TCold], label = 'Basic')
+	basicInputs = FieldGroup([fluidName, mDotRefrigerant, pLow, pHigh, THot, TCold], label = 'Basic')
 	compressionExpansion = FieldGroup([compressionType, etaComprIsentropic, etaComprIsothermal, expansionType, etaExpandIsentropic], label = 'Compression/Expansion')
 	inputs = SuperGroup([basicInputs, compressionExpansion], label = "Input data")
 	################################################################################
@@ -103,15 +102,15 @@ class HeatPumpCalculator(NumericalModel):
 	summary=FieldGroup([COP, COPCarnot], label = '5. Summary')
 	results = SuperGroup([compressorInlet, compressorOutlet, condensorOutlet, evaporatorInlet, summary], label="Results")
 	def compute(self):
-		fluid = getFluid(str(self.fluid))
-		state1 = MediumState(fluid)
-		state1Sat = MediumState(fluid)
-		state2Ideal = MediumState(fluid)
-		state2 = MediumState(fluid)
-		state2Sat = MediumState(fluid)
-		state3 = MediumState(fluid)
-		state4Ideal = MediumState(fluid)
-		state4 = MediumState(fluid)
+		fluid = Fluid(self.fluidName)
+		state1 = FluidState(fluid)
+		state1Sat = FluidState(fluid)
+		state2Ideal = FluidState(fluid)
+		state2 = FluidState(fluid)
+		state2Sat = FluidState(fluid)
+		state3 = FluidState(fluid)
+		state4Ideal = FluidState(fluid)
+		state4 = FluidState(fluid)
 		self.COPCarnot = self.TCold / (self.THot - self.TCold)
 		
 		# Determine saturation states
