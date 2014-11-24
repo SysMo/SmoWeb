@@ -20,12 +20,13 @@
 
 /* Inactive tab on hover, focus */
 .nav-tabs.data-explorer> li > a, .nav-tabs .data-explorer> li > a:hover, .nav-tabs .data-explorer> li > a:focus {
+	cursor: pointer;
 }
 
 /* Active tab + on hover, focus */
 .nav-tabs.data-explorer> li.active > a, .nav-tabs .data-explorer> li.active > a:hover, .nav-tabs .data-explorer> li.active > a:focus {
     color: #555;
-    cursor: default;
+    cursor: pointer;
     background-color: #FFF;
     border-width: 1px;
     border-style: solid;

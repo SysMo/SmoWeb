@@ -23,6 +23,10 @@
 .nav-tabs.super-group {
 	
 }
+/* Active tab */
+.nav-tabs.super-group > li.active > a, .nav-tabs.super-group > li.active > a:hover, .nav-tabs.super-group > li.active > a:focus {
+	cursor: default;
+}
 
 .tab-content.super-group {
 	border-style: solid; 
@@ -94,6 +98,17 @@
 .input-validity-error {
 	margin-left: 160px; 
 	color:red;
+}
+
+/* Fluid point tabs */
+/* Active tab */
+#FluidPointTabs.nav-tabs > li.active > a, #FluidPointTabs.nav-tabs > li.active > a:hover, #FluidPointTabs.nav-tabs > li.active > a:focus {
+	cursor: pointer;
+}
+
+/* Inactive tabs */
+#FluidPointTabs.nav-tabs > li > a, #FluidPointTabs.nav-tabs > li > a:hover, #FluidPointTabs.nav-tabs > li > a:focus {
+	cursor: pointer;
 }
 
 /* Unit converter specific styles */
