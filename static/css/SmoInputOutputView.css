@@ -111,7 +111,7 @@
 	cursor: pointer;
 }
 
-/* Unit converter specific styles */
+/* Unit Converter specific styles */
 .converter {
 	margin-top: 40px;
 	text-align: center;
@@ -177,4 +177,18 @@
 	color: red; 
 	margin-left: 5px; 
 	margin-bottom: 7px;
+}
+
+/* Fluids Info specific styles */
+.fluidInfoContainer {
+	margin-top: 40px;
+	text-align: center;
+}
+
+.fluidInfoContainer .select-text {
+	text-align: left; 
+	font-size: medium;  
+	margin-bottom: 5px;
+	color: #0875CA;
+	display: inline-block;
 }

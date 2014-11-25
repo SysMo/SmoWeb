@@ -547,7 +547,7 @@ smoModule.directive('smoChoice', ['$compile', 'util', function($compile, util) {
 		},
 		controller: function($scope){
 		},
-	link : function(scope, element, attr) {
+		link : function(scope, element, attr) {
 		var template = ' \
 			<div class="field-label">' + scope.title + '</div>\
 			<div class="field-select choice"> \
