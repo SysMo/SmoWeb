@@ -2,13 +2,14 @@ from smo.smoflow3d.CoolProp.CoolProp import Fluid, FluidState
 
 def testFluid():
 	#f = Fluid('R134a')
-	f = Fluid('ParaHydrogen')
+	f = Fluid('Hydrogen')
 	#f = Fluid('Water')
 	BibTexKeys = ["EOS", "CP0", "VISCOSITY", "CONDUCTIVITY",
 						 "ECS_LENNARD_JONES", "ECS_FITS", "SURFACE_TENSION"]
 	for key in BibTexKeys:
 		print("{0} : {1}".format(key, f.BibTeXKey(key)))
-	
+	print ("Name: {0}".format(f.name()))
+	print ("Aliases: {0}".format(f.aliases()))
 	print("{0} : {1}".format('EOS reference', f.EOSReference()))
 	print("{0} : {1}".format('Transpor reference', f.TransportReference()))
 		

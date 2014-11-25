@@ -33,6 +33,12 @@ cdef class Fluid:
 	def ASHRAE34(self):
 		return self.ptr.environment.ASHRAE34
 	
+	def name(self):
+		return self.fluidName
+	
+	def aliases(self):
+		return self.ptr.get_aliases()
+	
 	def molarMass(self):
 		return self.ptr.params.molemass;
 		
@@ -97,8 +103,14 @@ cdef long iH = CP.get_param_index('H')
 cdef long iS = CP.get_param_index('S')
 cdef long iQ = CP.get_param_index('Q')
 
+cdef class LiquidSaturationState:
+	cdef FluidState state
+	def __cinit__(self, FluidState state):		
+		self.state = state
+
+
 cdef class FluidState:
-	cdef CP.CoolPropStateClassSI* ptr;
+	cdef CP.CoolPropStateClassSI* ptr
 	def __cinit__(self, fluid):		
 		cdef string fluidName
 		if (isinstance(fluid, str) or isinstance(fluid, unicode)):
@@ -187,7 +199,11 @@ cdef class FluidState:
 		return 1./self.ptr.dTdp_along_sat();
 
 	def beta(self):
-		return self.ptr.rho() * self.ptr.dvdT_constp();
+		if (not self.ptr.TwoPhase):
+			return self.ptr.rho() * self.ptr.dvdT_constp()
+		else:
+			return 0
+					
 	def mu(self):
 		return self.ptr.viscosity()
 	def cond(self):

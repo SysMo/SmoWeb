@@ -59,8 +59,11 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 <div ng-app="FluidPropsCalculator" ng-controller="FluidPropsController">
 	<div class="tab-content">
 		<div class="tab-pane active" id="calculator">		
-{% verbatim %}	
 			<h1 class="title">Fluid properties calculator</h1>
+			<div class="title-figure">
+				<img src="{% static 'ThermoFluids/StateDiagram3D.svg' %}" type="image/svg+xml"></object>
+			</div>		
+{% verbatim %}	
 			<ul class="nav nav-tabs" role="tablist" id="FluidPointTabs">
 		  		<li ng-repeat="input in inputs track by $index" ng-class="getTabClass($index)">
 			  		<a ng-attr-id="FP{{$index + 1}}Tab" data-target="#FluidPoint{{$index + 1}}" role="tab" data-toggle="tab" >Fluid point {{$index + 1}}</a>			  		

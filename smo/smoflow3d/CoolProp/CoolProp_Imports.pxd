@@ -1,7 +1,13 @@
-from libcpp.string cimport string
 from libcpp cimport bool
+from libcpp.string cimport string
+from libcpp.vector cimport vector
 
 cdef extern from "CoolProp/CoolProp.h":
+	string get_BibTeXKey(string FluidName, string item) except +
+	long get_Fluid_index(string FluidName) except +
+	Fluid* get_fluid(long iFluid) except +
+	long get_param_index(string param) except +
+
 	cdef cppclass PressureUnit:
 		double Pa
 	
@@ -28,6 +34,7 @@ cdef extern from "CoolProp/CoolProp.h":
 	cdef cppclass Fluid:
 		string get_EOSReference() except +
 		string get_TransportReference() except +
+		vector[string] get_aliases() except +
 		CriticalStruct crit
 		OtherParameters params
 		FluidLimits limits
@@ -39,11 +46,8 @@ cdef extern from "CoolProp/CoolProp.h":
 		void saturation_T(double T, bool UseLUT, 
 				double &psatLout, double &psatVout, 
 				double &rhoLout, double &rhoVout) except +
+		
 
-	string get_BibTeXKey(string FluidName, string item) except +
-	long get_Fluid_index(string FluidName) except +
-	Fluid * get_fluid(long iFluid) except +
-	long get_param_index(string param)
 
 cdef extern from "CoolProp/CPState.h":
 	cdef cppclass CoolPropStateClassSI:
@@ -74,3 +78,5 @@ cdef extern from "CoolProp/CPState.h":
 	
 		double surface_tension()
 		bool TwoPhase
+		CoolPropStateClassSI *SatL
+		CoolPropStateClassSI *SatV
