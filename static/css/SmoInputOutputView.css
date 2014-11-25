@@ -23,6 +23,10 @@
 .nav-tabs.super-group {
 	
 }
+/* Active tab */
+.nav-tabs.super-group > li.active > a, .nav-tabs.super-group > li.active > a:hover, .nav-tabs.super-group > li.active > a:focus {
+	cursor: default;
+}
 
 .tab-content.super-group {
 	border-style: solid; 
@@ -96,7 +100,18 @@
 	color:red;
 }
 
-/* Unit converter specific styles */
+/* Fluid point tabs */
+/* Active tab */
+#FluidPointTabs.nav-tabs > li.active > a, #FluidPointTabs.nav-tabs > li.active > a:hover, #FluidPointTabs.nav-tabs > li.active > a:focus {
+	cursor: pointer;
+}
+
+/* Inactive tabs */
+#FluidPointTabs.nav-tabs > li > a, #FluidPointTabs.nav-tabs > li > a:hover, #FluidPointTabs.nav-tabs > li > a:focus {
+	cursor: pointer;
+}
+
+/* Unit Converter specific styles */
 .converter {
 	margin-top: 40px;
 	text-align: center;
@@ -162,4 +177,18 @@
 	color: red; 
 	margin-left: 5px; 
 	margin-bottom: 7px;
+}
+
+/* Fluids Info specific styles */
+.fluidInfoContainer {
+	margin-top: 40px;
+	text-align: center;
+}
+
+.fluidInfoContainer .select-text {
+	text-align: left; 
+	font-size: medium;  
+	margin-bottom: 5px;
+	color: #0875CA;
+	display: inline-block;
 }

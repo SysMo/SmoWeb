@@ -30,6 +30,7 @@ smoModule.factory('util', function util () {
 		return result.replace(/,\n$/, "");
 	}
 	functions.dumpObject = dumpObject;
+	
 	function formatNumber (n) {
 		if (n == 0) {
 			return "0";
@@ -43,7 +44,280 @@ smoModule.factory('util', function util () {
 		return String(Math.round(n * mult) / mult);
 	}
 	functions.formatNumber = formatNumber;
+
 	return functions;
+});
+
+
+smoModule.factory('smoJson', function () {
+	
+	// Adapted from Crockford's JSON.parse (see https://github.com/douglascrockford/JSON-js)
+	// This version adds support for NaN, -Infinity and Infinity.
+	var at;	 // The index of the current character
+	var ch;	 // The current character
+	var escapee = {
+				'"':  '"',
+				'\\': '\\',
+				'/':  '/',
+				b:	'\b',
+				f:	'\f',
+				n:	'\n',
+				r:	'\r',
+				t:	'\t'
+			};
+	var text;
+	function error(m) {
+		throw {
+			name: 'SyntaxError',
+			message: m,
+			at:	at,
+			text: text
+		};
+	}
+	function next(c) {
+		return ch = text.charAt(at++);
+	}
+	function check(c) {
+		if (c !== ch) {
+			error("Expected '" + c + "' instead of '" + ch + "'");
+		}
+		ch = text.charAt(at++);
+	}
+	function number() {
+		var string = '';
+		if (ch === '-') {
+			string = '-';
+			check('-');
+		}
+		if (ch === 'I') {
+			check('I');
+			check('n');
+			check('f');
+			check('i');
+			check('n');
+			check('i');
+			check('t');
+			check('y');
+			return -Infinity;
+		}
+		while (ch >= '0' && ch <= '9') {
+			string += ch;
+			next();
+		}
+		if (ch === '.') {
+			string += '.';
+			while (next() && ch >= '0' && ch <= '9') {
+				string += ch;
+			}
+		}
+		if (ch === 'e' || ch === 'E') {
+			string += ch;
+			next();
+			if (ch === '-' || ch === '+') {
+				string += ch;
+				next();
+			}
+			while (ch >= '0' && ch <= '9') {
+				string += ch;
+				next();
+			}
+		}
+		return +string;
+	}
+
+	function string() {
+		var hex,
+			i,
+			string = '',
+			uffff;
+		if (ch === '"') {
+			while (next()) {
+				if (ch === '"') {
+					next();
+					return string;
+				}
+				if (ch === '\\') {
+					next();
+					if (ch === 'u') {
+						uffff = 0;
+						for (i = 0; i < 4; i ++) {
+							hex = parseInt(next(), 16);
+							if (!isFinite(hex)) {
+								break;
+							}
+							uffff = uffff * 16 + hex;
+						}
+						string += String.fromCharCode(uffff);
+					} else if (escapee[ch]) {
+						string += escapee[ch];
+					} else {
+						break;
+					}
+				} else {
+					string += ch;
+				}
+			}
+		}
+		error("Bad string");
+	}
+	
+	function white () { // Skip whitespace.
+		while (ch && ch <= ' ') {
+			next();
+		}
+	}
+	
+	function word() {
+		switch (ch) {
+		case 't':
+			check('t');
+			check('r');
+			check('u');
+			check('e');
+			return true;
+		case 'f':
+			check('f');
+			check('a');
+			check('l');
+			check('s');
+			check('e');
+			return false;
+		case 'n':
+			check('n');
+			check('u');
+			check('l');
+			check('l');
+			return null;
+		case 'N':
+			check('N');
+			check('a');
+			check('N');
+			return NaN;
+		case 'I':
+			check('I');
+			check('n');
+			check('f');
+			check('i');
+			check('n');
+			check('i');
+			check('t');
+			check('y');
+			return Infinity;
+		}
+		error("Unexpected '" + ch + "'");
+	}
+	
+	function array() {
+		var array = [];
+		if (ch === '[') {
+			check('[');
+			white();
+			if (ch === ']') {
+				check(']');
+				return array;   // empty array
+			}
+			while (ch) {
+				array.push(value());
+				white();
+				if (ch === ']') {
+					check(']');
+					return array;
+				}
+				check(',');
+				white();
+			}
+		}
+		error("Bad array");
+	}
+	
+	function object() {
+		var key, object = {};
+		if (ch === '{') {
+			check('{');
+			white();
+			if (ch === '}') {
+				check('}');
+				return object;   // empty object
+			}
+			while (ch) {
+				key = string();
+				white();
+				check(':');
+				if (Object.hasOwnProperty.call(object, key)) {
+					error('Duplicate key "' + key + '"');
+				}
+				object[key] = value();
+				white();
+				if (ch === '}') {
+					check('}');
+					return object;
+				}
+				check(',');
+				white();
+			}
+		}
+		error("Bad object");
+	}
+	
+	function value() {
+		white();
+		switch (ch) {
+		case '{':
+			return object();
+		case '[':
+			return array();
+		case '"':
+			return string();
+		case '-':
+			return number();
+		default:
+			return ch >= '0' && ch <= '9' ? number() : word();
+		}
+	};
+	
+	function parseJSON(source, reviver){
+		var result;
+		text = source;
+		at = 0;
+		ch = ' ';
+		result = value();
+		white();
+		if (ch) {
+			error("Syntax error");
+		}	
+		return typeof reviver === 'function'
+		? (function walk(holder, key) {
+			var k, v, value = holder[key];
+			if (value && typeof value === 'object') {
+				for (k in value) {
+					if (Object.prototype.hasOwnProperty.call(value, k)) {
+						v = walk(value, k);
+						if (v !== undefined) {
+							value[k] = v;
+						} else {
+							delete value[k];
+						}
+					}
+				}
+			}
+			return reviver.call(holder, key, value);
+		}({'': result}, ''))
+		: result;
+	}
+
+	 function transformResponse(data) {
+		var JSON_START = /^\s*(\[|\{[^\{])/,
+			JSON_END = /[\}\]]\s*$/,
+			PROTECTION_PREFIX = /^\)\]\}',?\n/,
+			CONTENT_TYPE_APPLICATION_JSON = {'Content-Type': 'application/json;charset=utf-8'};
+        // strip json vulnerability protection prefix
+        data = data.replace(PROTECTION_PREFIX, '');
+        if (JSON_START.test(data) && JSON_END.test(data))
+          data = parseJSON(data);
+	      return data;
+	}
+	
+	return {'parse': parseJSON, 'transformResponse': transformResponse};
 });
 
 smoModule.directive('smoSingleClick', ['$parse', function($parse) {
@@ -164,14 +438,28 @@ smoModule.directive('smoQuantity', ['$compile', 'util', function($compile, util)
 		controller: function($scope){									
 			$scope.checkValueValidity = function(){
 				$scope[$scope.fieldVar.name + 'Form'].input.$setValidity('minVal', true);
-				$scope[$scope.fieldVar.name + 'Form'].input.$setValidity('maxVal', true);
-				$scope.updateValue();							
+				$scope[$scope.fieldVar.name + 'Form'].input.$setValidity('maxVal', true);							
 				if ($scope.fieldVar.value < $scope.fieldVar.minValue) {
 					$scope[$scope.fieldVar.name + 'Form'].input.$setValidity('minVal', false);
 				}		
 				else if ($scope.fieldVar.value > $scope.fieldVar.maxValue){
 					$scope[$scope.fieldVar.name + 'Form'].input.$setValidity('maxVal', false);
-				}					
+				}
+				if ($scope[$scope.fieldVar.name + 'Form'].$valid == true) {
+					$scope.updateValue();
+				}
+			}
+			
+			$scope.revertOnInvalidity = function(){
+				if ($scope[$scope.fieldVar.name + 'Form'].$valid == false) {
+					$scope.fieldVar.value = $scope.smoDataSource[$scope.fieldVar.name];
+					var offset = 0;
+					if ('offset' in $scope.fieldVar.dispUnitDef) {
+						offset = $scope.fieldVar.dispUnitDef.offset;
+					}
+					$scope.fieldVar.displayValue = util.formatNumber(($scope.fieldVar.value - offset) / $scope.fieldVar.dispUnitDef.mult);
+					console.log($scope.fieldVar.displayValue);
+				}
 			}
 			
 			$scope.updateValue = function() {
@@ -193,7 +481,7 @@ smoModule.directive('smoQuantity', ['$compile', 'util', function($compile, util)
 				if ('offset' in $scope.fieldVar.dispUnitDef) {
 					offset = $scope.fieldVar.dispUnitDef.offset;
 				}
-				$scope.fieldVar.displayValue = util.formatNumber(($scope.fieldVar.value - offset) / $scope.fieldVar.dispUnitDef.mult); 
+				$scope.fieldVar.displayValue = util.formatNumber(($scope.fieldVar.value - offset) / $scope.fieldVar.dispUnitDef.mult);
 			}
 			
 			$scope.fieldVar.unit = $scope.fieldVar.unit || $scope.fieldVar.SIUnit;
@@ -221,7 +509,7 @@ smoModule.directive('smoQuantity', ['$compile', 'util', function($compile, util)
 				template += '\
 					<div class="field-input"> \
 						<div ng-form name="' + scope.fieldVar.name + 'Form">\
-							<input name="input" required type="text" ng-pattern="/^[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$/" ng-model="fieldVar.displayValue" ng-change="checkValueValidity();">\
+							<input name="input" required type="text" ng-pattern="/^[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$/" ng-model="fieldVar.displayValue" ng-blur="revertOnInvalidity()" ng-change="checkValueValidity();">\
 						</div>\
 					</div>';
 			else if (scope.viewType == 'output')
@@ -259,7 +547,7 @@ smoModule.directive('smoChoice', ['$compile', 'util', function($compile, util) {
 		},
 		controller: function($scope){
 		},
-	link : function(scope, element, attr) {
+		link : function(scope, element, attr) {
 		var template = ' \
 			<div class="field-label">' + scope.title + '</div>\
 			<div class="field-select choice"> \
@@ -363,7 +651,7 @@ smoModule.directive('smoSuperGroup', ['$compile', function($compile) {
 	}
 }]);
 			
-smoModule.directive('smoInputView', ['$compile', function($compile) {
+smoModule.directive('smoInputView', ['$compile', 'smoJson', function($compile, smoJson) {
 	return {
 		restrict : 'A',
 		scope : {
@@ -377,13 +665,14 @@ smoModule.directive('smoInputView', ['$compile', function($compile) {
 				$scope.it.inputsObtained = false;
 				$scope.it.loading = true;
 				$scope.it.errorLoading = false;
-				var parameters = parameters || {};
+				var parameters = parameters || {};				
 				$http({
 			        method  : 'POST',
 			        url     : $scope.it.dataUrl,
 			        data    : {action : $scope.it.action, parameters: parameters},
 			        headers : { 'Content-Type': 'application/x-www-form-urlencoded' }, // set the headers so angular passing info as form data (not request payload)
-			    })
+			        transformResponse: [smoJson.transformResponse]
+				})
 			    .success(function(data) {
 			    	$scope.it.loading = false;
 			    	$scope.it.inputsObtained = true;
@@ -416,7 +705,7 @@ smoModule.directive('smoInputView', ['$compile', function($compile) {
 }]);
 
 
-smoModule.directive('smoOutputView', ['$compile', function($compile) {
+smoModule.directive('smoOutputView', ['$compile', 'smoJson', function($compile, smoJson) {
 	return {
 		restrict : 'A',
 		scope : {			
@@ -436,6 +725,7 @@ smoModule.directive('smoOutputView', ['$compile', function($compile) {
 			        url     : $scope.it.dataUrl,
 			        data    : { action : $scope.it.action, parameters: parameters},
 			        headers : { 'Content-Type': 'application/x-www-form-urlencoded' },  // set the headers so angular passing info as form data (not request payload)
+			        transformResponse: [smoJson.transformResponse]
 				})
 			    .success(function(data) {
 			    	$scope.it.errStatus = data.errStatus;

@@ -2,6 +2,9 @@ import json
 from django.shortcuts import render_to_response, RequestContext
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from smo.numerical_model.quantity import Quantities
+from smo.smoflow3d.SimpleMaterials import Fluids
+from smo.smoflow3d.CoolProp.CoolProp import Fluid, FluidState
+from collections import OrderedDict
 
 def heatPumpView(request):
 	if request.method == 'GET':
@@ -25,7 +28,6 @@ def heatPumpView(request):
 
 		else:
 			raise ValueError('Unknown post action "{0}" for URL: {1}'.format(action, 'ThermoFluids/HeatPump.html'))
-	
 
 def fluidPropsCalculatorView(request):
 	if request.method == 'GET':
@@ -39,7 +41,21 @@ def fluidPropsCalculatorView(request):
 		if (action == 'getInputs'):
 			fpc = FluidPropsCalculator()
 			inputs = fpc.superGroupList2Json([fpc.inputs])
-			return JsonResponse(inputs)
+			return HttpResponse(json.dumps(inputs), content_type="application/json")
+		elif (action == 'getFluids'):
+			fluidsData = OrderedDict()
+			for key in Fluids:
+				fluidsData[key] = {'label' : Fluids[key], 'Constants': [], 'References': []}
+				f = Fluid(key)
+				fluidsData[key]['Constants'].append(['Tripple point', list(f.tripple().iteritems())])
+				fluidsData[key]['Constants'].append(['Critical point', list(f.critical().iteritems())])			
+				fluidsData[key]['Constants'].append(['Molar mass', [f.molarMass()]])
+# 				fluidsData[key]['Constants']['Accentric factor'] = f.accentricFactor()
+# 				fluidsData[key]['Constants']['Fluid limits'] = f.fluidLimits()
+# 				fluidsData[key]['Constants']['Minimum temperature'] = f.minimumTemperature()
+				fluidsData[key]['Constants'].append(['CAS', [f.CAS()]])
+				fluidsData[key]['Constants'].append(['ASHRAE34', [f.ASHRAE34()]])
+			return HttpResponse(json.dumps(fluidsData), content_type="application/json")
 		elif (action == 'compute'):
 			try: 
 				fpc = FluidPropsCalculator()
@@ -48,18 +64,16 @@ def fluidPropsCalculatorView(request):
 				results = fpc.superGroupList2Json([fpc.results])
 				results['errStatus'] = False
 			except RuntimeError, e: 
-				print ("Runtime error")
 				results = {}
 				results['errStatus'] = True
 				results['error'] = str(e)
-				return JsonResponse(results)
-			except:
-				print ("Error - not runtime")
+				return HttpResponse(json.dumps(results), content_type="application/json")
+			except Exception, e:
 				results = {}
 				results['errStatus'] = True
-				return JsonResponse(results)
-			return JsonResponse(results)
-
+				results['error'] = str(e)
+				return HttpResponse(json.dumps(results), content_type="application/json")
+			return HttpResponse(json.dumps(results), content_type="application/json")
 		else:
 			raise ValueError('Unknown post action "{0}" for URL: {1}'.format(action, 'ThermoFluids/FluidPropsCalculator.html'))
 
@@ -100,7 +114,6 @@ def testView(request):
 		action = postData['action']
 		parameters = postData['parameters']
 		if (action == 'getInputs'):
-			print json.dumps(Quantities, True)
 			return JsonResponse(Quantities)
 		else:
 			raise ValueError('Unknown post action "{0}" for URL: {1}'.format(action, 'ThermoFluids/TestView.html'))

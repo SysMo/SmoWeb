@@ -81,6 +81,7 @@ smo-hdf-browser .dropdown-menu > li > a:hover, .tree-dropdown .dropdown-menu > l
     color: rgba(0, 82, 189, 1); /*black*/ /*#262626*/
     text-decoration: none;
     background-color: white; /*#F5F5F5*/
+    cursor: pointer;
 }
 
 /* Tree view input control style */

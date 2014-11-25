@@ -29,8 +29,7 @@ def hdfInterfaceView(request):
 		elif (action == "copy"):
 			itemPath = hdfNode["path"]
 			pasteRoot = postData["input"]
-			name = hdfNode["name"]
-			print itemPath, pasteRoot, name			
+			name = hdfNode["name"]	
 			hdfIface.copyItem(itemPath, pasteRoot, name)
 			
 		elif (action == "createGroup"):			
@@ -45,7 +44,6 @@ def hdfInterfaceView(request):
 			itemPath = hdfNode["path"]
 			pasteRoot = postData["input"]
 			name = hdfNode["name"]
-			print itemPath, pasteRoot
 			hdfIface.moveItem(itemPath, pasteRoot, name)
 		
 		elif (action == "delete"):

@@ -11,40 +11,65 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 	    $httpProvider.defaults.xsrfCookieName = 'csrftoken';
 	    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
 	}])
-	.controller('FluidPropsController', [ '$scope', function($scope) {
+	.controller('FluidPropsController', [ '$scope', '$http', function($scope, $http) {
 
-	$scope.inputs = [{autoFetch: true, dataUrl: '/ThermoFluids/FluidPropsCalculator/', action: 'getInputs'}];
-	$scope.outputs = [{ dataUrl: '/ThermoFluids/FluidPropsCalculator/', action: 'compute'}];
-	
-	$scope.compute = function(index) {
-		$scope.outputs[index].fetchData($scope.inputs[index].data.values);
-	}
-	
-	$scope.createNewTab = function() {
-		var newObject = jQuery.extend(true, {}, $scope.inputs[$scope.inputs.length-1]);
-		$scope.inputs.push(newObject);
-		$scope.inputs[$scope.inputs.length-1].autoFetch = false;
-		$scope.outputs.push({ dataUrl: '/ThermoFluids/FluidPropsCalculator/', action: 'compute'});
-		$('#FP' + String($scope.inputs.length-1) + 'Tab').tab('show');
-	}
-	
-	$scope.getTabClass = function(index) {		
-		if (index == ($scope.inputs.length-1)) {
-			return 'ng-scope active';
-		} else {
-			return 'ng-scope';
+		$scope.inputs = [{autoFetch: true, dataUrl: '/ThermoFluids/FluidPropsCalculator/', action: 'getInputs'}];
+		$scope.outputs = [{ dataUrl: '/ThermoFluids/FluidPropsCalculator/', action: 'compute'}];
+		
+		$scope.compute = function(index) {
+			$scope.outputs[index].fetchData($scope.inputs[index].data.values);
 		}
-	}
-
-	$scope.delLastTab = function() {
-		if ($scope.inputs.length == 1){
-			return;
+		
+		$scope.createNewTab = function() {
+			var newObject = jQuery.extend(true, {}, $scope.inputs[$scope.inputs.length-1]);
+			$scope.inputs.push(newObject);
+			$scope.inputs[$scope.inputs.length-1].autoFetch = false;
+			$scope.outputs.push({ dataUrl: '/ThermoFluids/FluidPropsCalculator/', action: 'compute'});
+			$('#FP' + String($scope.inputs.length-1) + 'Tab').tab('show');
 		}
-		$scope.inputs.pop();
-		$scope.outputs.pop();
-		$('#FP' + String($scope.inputs.length) + 'Tab').tab('show');
-	}
-
+		
+		$scope.getTabClass = function(index) {		
+			if (index == ($scope.inputs.length-1)) {
+				return 'ng-scope active';
+			} else {
+				return 'ng-scope';
+			}
+		}
+	
+		$scope.delLastTab = function() {
+			if ($scope.inputs.length == 1){
+				return;
+			}
+			$scope.inputs.pop();
+			$scope.outputs.pop();
+			$('#FP' + String($scope.inputs.length) + 'Tab').tab('show');
+		}
+		
+		$scope.fetchFluids = function() {
+			$scope.fluids = {};
+			$scope.fluids.obtained = false;
+			$scope.fluids.loading = true;
+			$scope.fluids.errorLoading = false;
+			$http({
+		        method  : 'POST',
+		        url     : '/ThermoFluids/FluidPropsCalculator/',
+		        data    : {action : 'getFluids', parameters: {}},
+		        headers : { 'Content-Type': 'application/x-www-form-urlencoded' }, // set the headers so angular passing info as form data (not request payload)
+		    })
+		    .success(function(data) {
+		    	$scope.fluids.loading = false;
+		    	$scope.fluids.obtained = true;
+		    	for (item in data){
+		    		$scope.fluids[item] = data[item];
+		    	}
+		    	$scope.fluid = "ParaHydrogen";
+		    })
+		    .error(function(data) {
+		    	$scope.fluids.loading = false;
+		    	$scope.fluids.errorLoading = true;
+		    });
+		}
+		$scope.fetchFluids();
 }])
 </script>
 {% endblock %}
@@ -53,6 +78,7 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 {% block pills %}
 	<li class="active" role="presentation"><a id="calcTab" data-target="#calculator" role="tab" data-toggle="tab">Calculator</a></li>
 	<li role="presentation"> <a id="docTab" data-target="#doc" role="tab" data-toggle="tab">Doc</a></li>
+	<li role="presentation"> <a id="fluidsTab" data-target="#fluids" role="tab" data-toggle="tab">Fluid info</a></li>
 {% endblock %}
 
 {% block content %}
@@ -88,6 +114,43 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 				{% include 'documentation/html/FluidPropsCalculator.html' %}
 			</div>
 		</div>
+		<div class="tab-pane" id="fluids">
+{% verbatim %}	
+			<h1 class="title">Fluid information</h1>
+			<div ng-if="fluids.loading"><h2 class="loading">Loading...</h2></div>
+			<div ng-if="fluids.errorLoading"><h2 class="error">Error loading!</h2></div>
+			<div ng-if="fluids.obtained">			
+				<div class="fluidInfoContainer">
+						<div class="select-text">Select a fluid:</div>
+						<div class="field-select choice">
+							<select ng-model="fluid" ng-options="key as value.label for (key,value) in fluids"></select>
+						</div>
+				</div>
+				<div ng-repeat="(key, value) in fluids">
+					<div ng-if="key==fluid">
+						<table border="1" class="nice-table docutils">
+							<thead valign="bottom">
+								<tr>
+									<th class="head">Parameter</th>
+									<th class="head">Value</th>
+								</tr>
+							</thead>
+							<tbody valign="top">	
+								<tr ng-repeat="pair in fluids[fluid].Constants">
+									<td ng-if="pair[1].length>1" ng-bind="pair[0]"></td>
+									<td ng-if="pair[1].length>1">
+										<div ng-repeat="quantity in pair[1]">{{quantity[0]}} = {{quantity[1]}}</div>
+									</td>
+									<td ng-if="pair[1].length==1" ng-bind="pair[0]"></td>
+									<td ng-if="pair[1].length==1" ng-bind="pair[1]"></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+{% endverbatim %}
 	</div>	
 </div>
 {% endblock %}
