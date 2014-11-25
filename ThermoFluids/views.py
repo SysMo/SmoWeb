@@ -39,7 +39,7 @@ def fluidPropsCalculatorView(request):
 		if (action == 'getInputs'):
 			fpc = FluidPropsCalculator()
 			inputs = fpc.superGroupList2Json([fpc.inputs])
-			return JsonResponse(inputs)
+			return HttpResponse(json.dumps(inputs), content_type="application/json")
 		elif (action == 'compute'):
 			try: 
 				fpc = FluidPropsCalculator()
@@ -51,13 +51,13 @@ def fluidPropsCalculatorView(request):
 				results = {}
 				results['errStatus'] = True
 				results['error'] = str(e)
-				return JsonResponse(results)
+				return HttpResponse(json.dumps(results), content_type="application/json")
 			except Exception, e:
 				results = {}
 				results['errStatus'] = True
 				results['error'] = str(e)
-				return JsonResponse(results)
-			return JsonResponse(results)
+				return HttpResponse(json.dumps(results), content_type="application/json")
+			return HttpResponse(json.dumps(results), content_type="application/json")
 
 		else:
 			raise ValueError('Unknown post action "{0}" for URL: {1}'.format(action, 'ThermoFluids/FluidPropsCalculator.html'))

@@ -60,7 +60,7 @@ class FluidPropsCalculator(NumericalModel):
 	dpdv_t = Quantity('Dimensionless', label = '(dp/dv)<sub>T</sub>')
 	derivativeResults = FieldGroup([cp, cv, gamma, Pr, cond, mu, dpdt_v, dpdv_t])
 	###
-	results = SuperGroup([stateVariablesResults], label="Computed properties")
+	results = SuperGroup([stateVariablesResults, derivativeResults], label="Computed properties")
 	def getStateValue(self, sVar, index):
 		sVarDict = {'P': 'p', 'T': 'T', 'D': 'rho', 'H': 'h', 'S': 's', 'Q': 'q'}
 		return self.__dict__[sVarDict[sVar]+str(index)]

@@ -68,7 +68,6 @@ class Quantity(Field):
 		fieldDict['title'] = Quantities[self.type]['title']
 		fieldDict['nominalValue'] = Quantities[self.type]['nominalValue']
 		fieldDict['SIUnit'] = Quantities[self.type]['SIUnit']
-		print fieldDict
 		return fieldDict
 
 class Choices(Field):
