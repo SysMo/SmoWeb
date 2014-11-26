@@ -573,6 +573,9 @@ smoModule.directive('smoString', ['$compile', function($compile) {
 		},
 		controller: function($scope){
 			$scope.fieldVar.value = $scope.smoDataSource[$scope.fieldVar.name];
+			$scope.updateValue = function(){
+				$scope.smoDataSource[$scope.fieldVar.name] = $scope.fieldVar.value;
+			}
 		},
 		link : function(scope, element, attr) {
 			if (scope.fieldVar.multiline==true){
@@ -587,7 +590,7 @@ smoModule.directive('smoString', ['$compile', function($compile) {
 				template += '\
 					<div class="field-input"> \
 						<div ng-form name="' + scope.fieldVar.name + 'Form">\
-							<input name="input" required type="text" ng-model="fieldVar.value">\
+							<input name="input" required type="text" ng-model="fieldVar.value" ng-change="updateValue()">\
 						</div>\
 					</div>';
 			else if (scope.viewType == 'output'){
@@ -608,6 +611,45 @@ smoModule.directive('smoString', ['$compile', function($compile) {
 				template += '\
 					<div class="input-validity-error" ng-show="' + scope.fieldVar.name + 'Form.input.$error.required">Required value</div>';
 
+		var el = angular.element(template);
+        compiled = $compile(el);
+        element.append(el);
+        compiled(scope);
+
+		}
+	}
+}]);
+
+smoModule.directive('smoBool', ['$compile', function($compile) {
+	return {
+		restrict : 'A',
+		scope : {
+			fieldVar: '=',
+			viewType: '@viewType',
+			smoDataSource : '='
+		},
+		controller: function($scope){
+			$scope.fieldVar.value = $scope.smoDataSource[$scope.fieldVar.name];
+			$scope.updateValue = function(){
+				$scope.smoDataSource[$scope.fieldVar.name] = $scope.fieldVar.value;
+			}
+		},
+		link : function(scope, element, attr) {			
+			var template = '\
+				<div class="field-label">' + scope.fieldVar.label + '</div>';			
+			if (scope.viewType == 'input'){
+				template += '\
+					<div class="bool-input"> \
+						<input name="input" type="checkbox" ng-model="fieldVar.value" ng-change="updateValue()">\
+					</div>';
+			}
+			else if (scope.viewType == 'output'){				
+				template += '\
+					<div class="field-output"> \
+						<div class="output" ng-bind="fieldVar.value"></div>\
+					</div>';	
+			}
+			
 		var el = angular.element(template);
         compiled = $compile(el);
         element.append(el);
@@ -653,7 +695,12 @@ smoModule.directive('smoFieldGroup', ['$compile', 'util', function($compile, uti
 						groupFields.push('<div ' + showFieldCode + ' smo-string view-type="input" field-var="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
 					if (scope.viewType == 'output')
 						groupFields.push('<div ' + showFieldCode + ' smo-string view-type="output" field-var="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
-				}
+				} else if (field.type == 'Boolean') {
+					if (scope.viewType == 'input') 
+						groupFields.push('<div ' + showFieldCode + ' smo-bool view-type="input" field-var="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
+					if (scope.viewType == 'output')
+						groupFields.push('<div ' + showFieldCode + ' smo-bool view-type="output" field-var="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
+				}				
 			}
 			var template = '<h3>' + (scope.smoFieldGroup.label || "") + '</h3><br>' 
 				+ groupFields.join("");

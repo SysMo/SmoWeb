@@ -74,7 +74,7 @@ class String(Field):
 	def __init__(self, default = None, multiline = False, *args, **kwargs):
 		super(String, self).__init__(*args, **kwargs)
 		if (default is None):
-			self.default = ""
+			self.default = "..."
 		else:
 			self.default = self.parseValue(default)
 		self.multiline = multiline
@@ -126,7 +126,9 @@ class Boolean(Field):
 	
 	def toFormDict(self):
 		fieldDict = {'name' : self._name, 'label': self.label}
-		fieldDict['type'] = 'String'
+		fieldDict['type'] = 'Boolean'
+		if (self.show is not None):
+			fieldDict['show'] = self.show
 		return fieldDict
 
 class Choices(Field):

@@ -8,6 +8,7 @@ from smo.numerical_model.model import NumericalModel
 from smo.numerical_model.fields import *
 from smo.smoflow3d.CoolProp.CoolProp import Fluid, FluidState
 from smo.smoflow3d.SimpleMaterials import Fluids
+from smo.smoflow3d.CoolProp.CoolPropReferences import References
 
 StateVariableOptions = OrderedDict((
 	('P', 'pressure (P)'),
@@ -120,8 +121,9 @@ class FluidInfo(NumericalModel):
 	accentric_factor = Quantity('Dimensionless', label = 'accentric factor')
 	cas = String('CAS', label = 'CAS')
 	ashrae34 = String('ASHRAE34', label = 'ASHRAE34')
-	multt = String('Multstr', label='multiline one', multiline=True)
-	other = FieldGroup([molar_mass, accentric_factor, cas, ashrae34, multt], label = 'Other')
+	multt = String(label='multiline one', multiline=True)
+	boool = Boolean( label='boolean one')
+	other = FieldGroup([molar_mass, accentric_factor, cas, ashrae34, multt, boool], label = 'Other')
 	
 	constants = SuperGroup([critPoint, tripplePoint, fluidLimits, other])
 	
@@ -129,6 +131,7 @@ class FluidInfo(NumericalModel):
 	
 	def __init__(self, fluidName):
 		f = Fluid(fluidName)
+		print f.EOSReference()
 		crit = f.critical()
 		self.crit_p = crit['p']
 		self.crit_T = crit['T']

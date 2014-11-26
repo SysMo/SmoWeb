@@ -68,7 +68,7 @@
 	vertical-align: top;
 }
 
-.field-input, .field-output {
+.field-input, .field-output, .bool-input {
 	display: inline-block; 
 	white-space: nowrap;
 	margin-left: 5px; 
