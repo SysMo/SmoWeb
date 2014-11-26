@@ -54,7 +54,7 @@ class NumericalModel(object):
 	
 	def __setattr__(self, name, value):
 		if name in self.declared_fields.keys():
-			object.__setattr__(self, name, self.declared_fields[name].setValue(value))
+			object.__setattr__(self, name, self.declared_fields[name].parseValue(value))
 		else:
 			raise AttributeError("Class '{0}' has no field '{1}'".format(self.__class__.__name__, name))
 	
@@ -99,4 +99,4 @@ class NumericalModel(object):
 	def fieldValuesFromJson(self, jsonDict):
 		for key, value in jsonDict.iteritems():
 			field = self.declared_fields[key]
-			self.__dict__[key] = field.setValue(value)
+			self.__dict__[key] = field.parseValue(value)

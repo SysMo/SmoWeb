@@ -4,9 +4,9 @@ Created on Nov 05, 2014
 '''
 import numpy as np
 from collections import OrderedDict
-from smo.smoflow3d.CoolProp.CoolProp import Fluid, FluidState
 from smo.numerical_model.model import NumericalModel 
 from smo.numerical_model.fields import *
+from smo.smoflow3d.CoolProp.CoolProp import Fluid, FluidState
 from smo.smoflow3d.SimpleMaterials import Fluids
 
 StateVariableOptions = OrderedDict((
@@ -66,7 +66,6 @@ class FluidPropsCalculator(NumericalModel):
 		return self.__dict__[sVarDict[sVar]+str(index)]
 			
 	def compute(self):
-		#fluid = getFluid(str(self.fluid))
 		fState = FluidState(self.fluidName)
 		fState.update(self.stateVariable1, self.getStateValue(self.stateVariable1, 1), 
 						self.stateVariable2, self.getStateValue(self.stateVariable2, 2))
@@ -99,37 +98,60 @@ class FluidPropsCalculator(NumericalModel):
 		print
 		print fc.rho
 
-# def getFluidConstants():
-# 	from smo.CoolProp import CoolProp as CP
-# 	Fluid  = 'ParaHydrogen'
-# 	params = dict(mm = CP.Props(Fluid,'molemass'),
-#               Tt = CP.Props(Fluid,'Ttriple'),
-#               pt = CP.Props(Fluid,'ptriple'),
-#               Tc = CP.Props(Fluid,'Tcrit'),
-#               pc = CP.Props(Fluid,'pcrit'),
-#               rhoc = CP.Props(Fluid,'rhocrit'),
-#               Tmin = CP.Props(Fluid,'Tmin'),
-#               CAS = CP.get_fluid_param_string(Fluid,'CAS'),
-#               ASHRAE = CP.get_fluid_param_string(Fluid,'ASHRAE34')
-#               )
-# 	return params
+class FluidInfo(NumericalModel):
+	crit_p = Quantity('Pressure', default = (1, 'bar'), label = 'pressure')
+	crit_T = Quantity('Temperature', default = (300, 'K'), label = 'temperature')
+	crit_rho = Quantity('Density', default = (1, 'kg/m**3'), label = 'density')
+	critPoint = FieldGroup([crit_p, crit_T, crit_rho], label = 'Critical point')
 
+	tripple_p = Quantity('Pressure', default = (1, 'bar'), label = 'pressure')
+	tripple_T = Quantity('Temperature', default = (300, 'K'), label = 'temperature')
+	tripple_rhoV = Quantity('Density', default = (1, 'kg/m**3'), label = 'vapor density')
+	tripple_rhoL = Quantity('Density', default = (1, 'kg/m**3'), label = 'liquid density')
+	tripplePoint = FieldGroup([tripple_p, tripple_T, tripple_rhoL, tripple_rhoV], label = 'Tripple point')
 	
-# 	s = """<table border = "1">
-# 	<tr> <th>Parameter</th> <th>Value</th> </tr>
-# 	<tr > <td colspan="2"><center>Triple point</center></td> </tr>
-# 	<tr> <td>Triple Point Temp. [K]</td> <td>{Tt:0.3f}</td> </tr>
-# 	<tr> <td>Triple Point Press. [kPa]</td> <td>{pt:0.10g}</td> </tr>
-# 	<tr > <td colspan="2" ><center>Critical point</center></td> </tr>
-# 	<tr> <td>Critical Point Temp. [K]</td> <td>{Tc:0.3f}</td> </tr>
-# 	<tr> <td>Critical Point Press. [kPa]</td> <td>{pc:0.10g}</td> </tr>
-# 	<tr> <td>Critical Point Density. [kPa]</td> <td>{rhoc:0.10g}</td> </tr>
-# 	<tr> <td colspan="2"><center>Other Values</center></td> </tr>
-# 	<tr> <td>Mole Mass [kg/kmol]</td> <td>{mm:0.5f}</td> </tr>
-# 	<tr> <td>Minimum temperature [K]</td> <td>{Tmin:0.3f}</td> </tr>
-# 	<tr> <td>CAS number</td> <td>{CAS:s}</td> </tr>
-# 	<tr> <td>ASHRAE classification</td> <td>{ASHRAE:s}</td> </tr>
-# 	</table>""".format(**params) 
+	constants = SuperGroup([critPoint, tripplePoint]) 
+	def __init__(self, fluidName):
+		f = Fluid(fluidName)
+		crit = f.critical()
+		self.crit_p = crit['p']
+		self.crit_T = crit['T']
+		self.crit_rho = crit['rho']
+
+		tripple = f.tripple()
+		self.tripple_p = tripple['p']
+		self.tripple_T = tripple['T']
+		self.tripple_rhoV = tripple['rhoV']
+		self.tripple_rhoL = tripple['rhoL']
+		
+		
+	@staticmethod
+	def getList(fluidList = None):
+		if (fluidList is None):
+			fluidList = Fluids
+		fluidDataList = []
+		for fluid in fluidList:
+			fc = FluidInfo(fluid)
+			fluidData = {
+				'name': fluid,
+				'label': Fluids[fluid],
+				'constants': fc.superGroupList2Json([fc.constants])
+			}
+			fluidDataList.append(fluidData)
+			
+		return fluidDataList
+# 	fluidsData = OrderedDict()
+# 	for key in Fluids:
+# 		fluidsData[key] = {'label' : Fluids[key], 'Constants': [], 'References': []}
+# 		f = Fluid(key)
+# 		fluidsData[key]['Constants'].append(['Tripple point', list(f.tripple().iteritems())])
+# 		fluidsData[key]['Constants'].append(['Critical point', list(f.critical().iteritems())])			
+# 		fluidsData[key]['Constants'].append(['Molar mass', [f.molarMass()]])
+# # 				fluidsData[key]['Constants']['Accentric factor'] = f.accentricFactor()
+# # 				fluidsData[key]['Constants']['Fluid limits'] = f.fluidLimits()
+# # 				fluidsData[key]['Constants']['Minimum temperature'] = f.minimumTemperature()
+# 		fluidsData[key]['Constants'].append(['CAS', [f.CAS()]])
+# 		fluidsData[key]['Constants'].append(['ASHRAE34', [f.ASHRAE34()]])
 
 if __name__ == '__main__':
 	FluidPropsCalculator.test()

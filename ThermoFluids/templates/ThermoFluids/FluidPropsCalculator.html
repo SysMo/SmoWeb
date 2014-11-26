@@ -45,7 +45,7 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 			$('#FP' + String($scope.inputs.length) + 'Tab').tab('show');
 		}
 		
-		$scope.fetchFluids = function() {
+		$scope.fetchFluidInfo = function() {
 			$scope.fluids = {};
 			$scope.fluids.obtained = false;
 			$scope.fluids.loading = true;
@@ -53,23 +53,24 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 			$http({
 		        method  : 'POST',
 		        url     : '/ThermoFluids/FluidPropsCalculator/',
-		        data    : {action : 'getFluids', parameters: {}},
+		        data    : {action : 'getFluidInfo', parameters: {}},
 		        headers : { 'Content-Type': 'application/x-www-form-urlencoded' }, // set the headers so angular passing info as form data (not request payload)
 		    })
 		    .success(function(data) {
 		    	$scope.fluids.loading = false;
 		    	$scope.fluids.obtained = true;
-		    	for (item in data){
-		    		$scope.fluids[item] = data[item];
-		    	}
-		    	$scope.fluid = "ParaHydrogen";
+// 		    	for (item in data){
+// 		    		$scope.fluids[item] = data[item];
+// 		    	}
+				$scope.fluidList = data;
+		    	$scope.selectedFluid = data[0];
 		    })
 		    .error(function(data) {
 		    	$scope.fluids.loading = false;
 		    	$scope.fluids.errorLoading = true;
 		    });
 		}
-		$scope.fetchFluids();
+		$scope.fetchFluidInfo();
 }])
 </script>
 {% endblock %}
@@ -123,31 +124,28 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 				<div class="fluidInfoContainer">
 						<div class="select-text">Select a fluid:</div>
 						<div class="field-select choice">
-							<select ng-model="fluid" ng-options="key as value.label for (key,value) in fluids"></select>
+							<select ng-model="selectedFluid" ng-options="fluid as fluid.label for fluid in fluidList"></select>
 						</div>
 				</div>
-				<div ng-repeat="(key, value) in fluids">
-					<div ng-if="key==fluid">
-						<table border="1" class="nice-table docutils">
-							<thead valign="bottom">
-								<tr>
-									<th class="head">Parameter</th>
-									<th class="head">Value</th>
-								</tr>
-							</thead>
-							<tbody valign="top">	
-								<tr ng-repeat="pair in fluids[fluid].Constants">
-									<td ng-if="pair[1].length>1" ng-bind="pair[0]"></td>
-									<td ng-if="pair[1].length>1">
-										<div ng-repeat="quantity in pair[1]">{{quantity[0]}} = {{quantity[1]}}</div>
-									</td>
-									<td ng-if="pair[1].length==1" ng-bind="pair[0]"></td>
-									<td ng-if="pair[1].length==1" ng-bind="pair[1]"></td>
-								</tr>
-							</tbody>
-						</table>
-					</div>
-				</div>
+
+				<table border="1" class="nice-table docutils">
+					<thead valign="bottom">
+						<tr>
+							<th class="head">Group</th>
+							<th class="head">Properties</th>
+						</tr>
+					</thead>
+					<tbody valign="top">	
+						<tr ng-repeat="constant in selectedFluid.constants.definitions[0].groups">
+							<td ng-bind="constant.label"></td>
+							<td>
+								<div ng-repeat="field in constant.fields">
+									<div smo-quantity view-type="output" field-var="field" smo-data-source="selectedFluid.constants.values"></div>
+								</div>
+							</td>
+						</tr>
+					</tbody>
+				</table>
 			</div>
 		</div>
 {% endverbatim %}

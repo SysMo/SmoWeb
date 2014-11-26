@@ -17,8 +17,8 @@ class Quantity(Field):
 	def __init__(self, type, default = None, minValue = 1e-99, maxValue = 1e99, *args, **kwargs):
 		super(Quantity, self).__init__(*args, **kwargs)
 		self.type = type
-		self.minValue = self.setValue(minValue)
-		self.maxValue = self.setValue(maxValue)
+		self.minValue = self.parseValue(minValue)
+		self.maxValue = self.parseValue(maxValue)
 		if (default is None):
 			self.default = 1.0
 			if ('defDispUnit' in Quantities[self.type].keys()):
@@ -26,7 +26,7 @@ class Quantity(Field):
 			else:
 				self.defaultDispUnit = Quantities[self.type]['SIUnit']
 		elif (isinstance(default, tuple) and len(default) == 2):
-			self.default = self.setValue(default)
+			self.default = self.parseValue(default)
 			self.defaultDispUnit = default[1]
 		elif (isinstance(default, (float, int))):
 			self.default = default
@@ -37,7 +37,7 @@ class Quantity(Field):
 		else:
 			raise ValueError("To set quantity default value you should either use a number or a tuple e.g. (2, 'mm')")
 		
-	def setValue(self, value):
+	def parseValue(self, value):
 		if (isinstance(value, tuple) and len(value) == 2):
 			unitDef = Quantities[self.type]['units'][value[1]]
 			unitOffset = 0 if ('offset' not in unitDef.keys()) else unitDef['offset']
@@ -70,6 +70,45 @@ class Quantity(Field):
 		fieldDict['SIUnit'] = Quantities[self.type]['SIUnit']
 		return fieldDict
 
+class String(Field):
+	def __init__(self, default = None, multiline = False, *args, **kwargs):
+		self.default = default
+		self.multiline = multiline
+
+	def parseValue(self, value):
+		return value	
+
+	def getValueRepr(self, value):
+		return value
+	
+	def toFormDict(self):
+		fieldDict = {'name' : self._name, 'label': self.label}
+		fieldDict['type'] = 'String'
+		fieldDict['multiline'] = self.multiline
+		return fieldDict
+
+class Boolean(Field):
+	def __init__(self, default = None, *args, **kwargs):		
+		self.default = default
+
+	def parseValue(self, value):
+		if ((value is True) or (value is False)):
+			return value
+		elif (value == 'true' or value == 'True'):
+			return True
+		elif (value == 'false' or value == 'False'):
+			return False
+		else:
+			raise ValueError("To set boolean field you should either use boolean value or string")
+
+	def getValueRepr(self, value):
+		return value
+	
+	def toFormDict(self):
+		fieldDict = {'name' : self._name, 'label': self.label}
+		fieldDict['type'] = 'String'
+		return fieldDict
+
 class Choices(Field):
 	def __init__(self, options, default = None, *args, **kwargs):
 		super(Choices, self).__init__(*args, **kwargs)
@@ -77,9 +116,9 @@ class Choices(Field):
 		if (default is None):
 			self.default = options.keys()[0]
 		else:
-			self.default = self.setValue(default)
+			self.default = self.parseValue(default)
 	
-	def setValue(self, value):
+	def parseValue(self, value):
 		if (value in self.options.keys()):
 			return value
 		else:
@@ -101,9 +140,9 @@ class ObjectReference(Field):
 	def __init__(self, targetContainer, default, *args, **kwargs):
 		super(ObjectReference, self).__init__(*args, **kwargs)
 		self.targetContainer = targetContainer
-		self.default = self.setValue(default)
+		self.default = self.parseValue(default)
 		
-	def setValue(self, value):
+	def parseValue(self, value):
 		if (isinstance(value, (str, unicode))):
 			try:
 				return self.targetContainer[value]

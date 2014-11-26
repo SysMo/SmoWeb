@@ -3,7 +3,6 @@ from django.shortcuts import render_to_response, RequestContext
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from smo.numerical_model.quantity import Quantities
 from smo.smoflow3d.SimpleMaterials import Fluids
-from smo.smoflow3d.CoolProp.CoolProp import Fluid, FluidState
 from collections import OrderedDict
 
 def heatPumpView(request):
@@ -34,7 +33,7 @@ def fluidPropsCalculatorView(request):
 		return render_to_response('ThermoFluids/FluidPropsCalculator.html', locals(), 
 				context_instance=RequestContext(request))
 	elif request.method == 'POST':
-		from smo.smoflow3d.calculators.FluidPropsCalculator import FluidPropsCalculator
+		from smo.smoflow3d.calculators.FluidPropsCalculator import FluidPropsCalculator, FluidInfo
 		postData = json.loads(request.body)
 		action = postData['action']
 		parameters = postData['parameters']
@@ -42,20 +41,9 @@ def fluidPropsCalculatorView(request):
 			fpc = FluidPropsCalculator()
 			inputs = fpc.superGroupList2Json([fpc.inputs])
 			return HttpResponse(json.dumps(inputs), content_type="application/json")
-		elif (action == 'getFluids'):
-			fluidsData = OrderedDict()
-			for key in Fluids:
-				fluidsData[key] = {'label' : Fluids[key], 'Constants': [], 'References': []}
-				f = Fluid(key)
-				fluidsData[key]['Constants'].append(['Tripple point', list(f.tripple().iteritems())])
-				fluidsData[key]['Constants'].append(['Critical point', list(f.critical().iteritems())])			
-				fluidsData[key]['Constants'].append(['Molar mass', [f.molarMass()]])
-# 				fluidsData[key]['Constants']['Accentric factor'] = f.accentricFactor()
-# 				fluidsData[key]['Constants']['Fluid limits'] = f.fluidLimits()
-# 				fluidsData[key]['Constants']['Minimum temperature'] = f.minimumTemperature()
-				fluidsData[key]['Constants'].append(['CAS', [f.CAS()]])
-				fluidsData[key]['Constants'].append(['ASHRAE34', [f.ASHRAE34()]])
-			return HttpResponse(json.dumps(fluidsData), content_type="application/json")
+		elif (action == 'getFluidInfo'):
+			fluidDataList = FluidInfo.getList()
+			return HttpResponse(json.dumps(fluidDataList), content_type="application/json")
 		elif (action == 'compute'):
 			try: 
 				fpc = FluidPropsCalculator()
