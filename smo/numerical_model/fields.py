@@ -72,24 +72,44 @@ class Quantity(Field):
 
 class String(Field):
 	def __init__(self, default = None, multiline = False, *args, **kwargs):
-		self.default = default
+		super(String, self).__init__(*args, **kwargs)
+		if (default is None):
+			self.default = ""
+		else:
+			self.default = self.parseValue(default)
 		self.multiline = multiline
 
 	def parseValue(self, value):
 		return value	
 
 	def getValueRepr(self, value):
+		if (self.multiline):
+			resultStr = "";
+			for i in range(len(value)/10):
+				resultStr += value[:10]
+				resultStr += '\n'
+				value = value[10:]
+			if len(value)>0:
+				resultStr += value[:]
+			else: resultStr=resultStr[:-1]
+			return resultStr
 		return value
 	
 	def toFormDict(self):
 		fieldDict = {'name' : self._name, 'label': self.label}
 		fieldDict['type'] = 'String'
 		fieldDict['multiline'] = self.multiline
+		if (self.show is not None):
+			fieldDict['show'] = self.show
 		return fieldDict
 
 class Boolean(Field):
 	def __init__(self, default = None, *args, **kwargs):		
-		self.default = default
+		super(Boolean, self).__init__(*args, **kwargs)
+		if (default is None):
+			self.default = True;
+		else:
+			self.default = self.parseValue(default)
 
 	def parseValue(self, value):
 		if ((value is True) or (value is False)):
@@ -134,6 +154,8 @@ class Choices(Field):
 		for key in self.options.keys():			
 			optionsList.append([key, self.options[key]])
 		fieldDict['options'] = optionsList
+		if (self.show is not None):
+			fieldDict['show'] = self.show
 		return fieldDict
 
 class ObjectReference(Field):

@@ -110,7 +110,23 @@ class FluidInfo(NumericalModel):
 	tripple_rhoL = Quantity('Density', default = (1, 'kg/m**3'), label = 'liquid density')
 	tripplePoint = FieldGroup([tripple_p, tripple_T, tripple_rhoL, tripple_rhoV], label = 'Tripple point')
 	
-	constants = SuperGroup([critPoint, tripplePoint]) 
+	t_max = Quantity('Temperature', default = (300, 'K'), label = 'temperature')
+	rho_max = Quantity('Density', label = 'density')
+	t_min = Quantity('Temperature', default = (300, 'K'), label = 'temperature')
+	p_max = Quantity('Pressure', default = (1, 'bar'), label = 'pressure')
+	fluidLimits = FieldGroup([t_max, rho_max, t_min, p_max], label = 'Fluid limits')
+	
+	molar_mass = Quantity('MolarMass', label = 'molar mass')
+	accentric_factor = Quantity('Dimensionless', label = 'accentric factor')
+	cas = String('CAS', label = 'CAS')
+	ashrae34 = String('ASHRAE34', label = 'ASHRAE34')
+	multt = String('Multstr', label='multiline one', multiline=True)
+	other = FieldGroup([molar_mass, accentric_factor, cas, ashrae34, multt], label = 'Other')
+	
+	constants = SuperGroup([critPoint, tripplePoint, fluidLimits, other])
+	
+	
+	
 	def __init__(self, fluidName):
 		f = Fluid(fluidName)
 		crit = f.critical()
@@ -124,6 +140,17 @@ class FluidInfo(NumericalModel):
 		self.tripple_rhoV = tripple['rhoV']
 		self.tripple_rhoL = tripple['rhoL']
 		
+		fLimits = f.fluidLimits()
+		self.t_max = fLimits['TMax']
+		self.rho_max = fLimits['rhoMax']
+		self.t_min = fLimits['TMin']
+		self.p_max = fLimits['pMax']
+		
+		self.molar_mass = f.molarMass()*10**-3
+		self.accentric_factor = f.accentricFactor()
+		self.cas = f.CAS()
+		self.ashrae34 = f.ASHRAE34()
+		self.multt = '01234567890123456789012345678901234567890123456789012asdfafafasdfasdfasdfgeavava'
 		
 	@staticmethod
 	def getList(fluidList = None):
@@ -131,11 +158,11 @@ class FluidInfo(NumericalModel):
 			fluidList = Fluids
 		fluidDataList = []
 		for fluid in fluidList:
-			fc = FluidInfo(fluid)
+			fi = FluidInfo(fluid)
 			fluidData = {
 				'name': fluid,
 				'label': Fluids[fluid],
-				'constants': fc.superGroupList2Json([fc.constants])
+				'constants': fi.superGroupList2Json([fi.constants])
 			}
 			fluidDataList.append(fluidData)
 			

@@ -45,7 +45,7 @@
 }
 
 /* Field */
-[smo-input-quantity], [smo-output-quantity], [smo-input-choice] {
+[smo-quantity], [smo-quantity], [smo-choice], [smo-string] {
 	margin-top: 5px; 
 	margin-bottom: 5px; 
 	white-space: nowrap;
@@ -57,6 +57,15 @@
 	text-align: left;
 	width: 150px;
 	height: 30px;
+}
+
+.multiline-label {
+	display: inline-block;
+	white-space: nowrap;
+	text-align: left;
+	width: 150px;
+	height: 30px;
+	vertical-align: top;
 }
 
 .field-input, .field-output {
@@ -74,6 +83,14 @@
 .field-output .output {
 	width : 120px; 
 	height: 30px; 
+	background-color: #FFF; 
+	border: 1px solid #AAA; 
+	padding: 1px;
+}
+
+.field-output .multiline-output {
+	width : 120px;
+	white-space: pre-wrap;	
 	background-color: #FFF; 
 	border: 1px solid #AAA; 
 	padding: 1px;

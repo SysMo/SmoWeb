@@ -458,7 +458,6 @@ smoModule.directive('smoQuantity', ['$compile', 'util', function($compile, util)
 						offset = $scope.fieldVar.dispUnitDef.offset;
 					}
 					$scope.fieldVar.displayValue = util.formatNumber(($scope.fieldVar.value - offset) / $scope.fieldVar.dispUnitDef.mult);
-					console.log($scope.fieldVar.displayValue);
 				}
 			}
 			
@@ -485,7 +484,7 @@ smoModule.directive('smoQuantity', ['$compile', 'util', function($compile, util)
 			}
 			
 			$scope.fieldVar.unit = $scope.fieldVar.unit || $scope.fieldVar.SIUnit;
-			$scope.fieldVar.displayUnit = $scope.fieldVar.displayUnit || $scope.fieldVar.defaultDispUnit || $scope.fieldVar.unit;			
+			$scope.fieldVar.displayUnit = $scope.fieldVar.displayUnit || $scope.fieldVar.defaultDispUnit || $scope.fieldVar.unit;
 			for (var i=0; i < $scope.fieldVar.units.length; i++) {
 				if ($scope.fieldVar.unit == $scope.fieldVar.units[i][0]){
 					$scope.fieldVar.unitDef = $scope.fieldVar.units[i][1];
@@ -495,11 +494,11 @@ smoModule.directive('smoQuantity', ['$compile', 'util', function($compile, util)
 				}	
 			}
 			
-			var offset = $scope.fieldVar.unitDef.offset || 0;					
+			var offset = $scope.fieldVar.unitDef.offset || 0;
 			$scope.fieldVar.value = $scope.fieldVar.value * $scope.fieldVar.unitDef.mult + offset;
 			offset = $scope.fieldVar.dispUnitDef.offset || 0;
 			$scope.fieldVar.displayValue = util.formatNumber(($scope.fieldVar.value - offset) / $scope.fieldVar.dispUnitDef.mult); 
-		
+			
 		},
 		link : function(scope, element, attr) {
 			scope.util = util;
@@ -564,6 +563,60 @@ smoModule.directive('smoChoice', ['$compile', 'util', function($compile, util) {
 	}
 }]);
 
+smoModule.directive('smoString', ['$compile', function($compile) {
+	return {
+		restrict : 'A',
+		scope : {
+			fieldVar: '=',
+			viewType: '@viewType',
+			smoDataSource : '='
+		},
+		controller: function($scope){
+			$scope.fieldVar.value = $scope.smoDataSource[$scope.fieldVar.name];
+		},
+		link : function(scope, element, attr) {
+			if (scope.fieldVar.multiline==true){
+				var template = '\
+					<div class="multiline-label">' + scope.fieldVar.label + '</div>';
+			} else {
+				var template = '\
+					<div class="field-label">' + scope.fieldVar.label + '</div>';
+			}			
+			
+			if (scope.viewType == 'input')
+				template += '\
+					<div class="field-input"> \
+						<div ng-form name="' + scope.fieldVar.name + 'Form">\
+							<input name="input" required type="text" ng-model="fieldVar.value">\
+						</div>\
+					</div>';
+			else if (scope.viewType == 'output'){
+				if (scope.fieldVar.multiline==true){
+					template += '\
+						<div class="field-output"> \
+							<div class="multiline-output" ng-bind="fieldVar.value"></div>\
+						</div>';
+				} else {
+					template += '\
+						<div class="field-output"> \
+							<div class="output" ng-bind="fieldVar.value"></div>\
+						</div>';
+				}
+				
+			}
+			if (scope.viewType == 'input')
+				template += '\
+					<div class="input-validity-error" ng-show="' + scope.fieldVar.name + 'Form.input.$error.required">Required value</div>';
+
+		var el = angular.element(template);
+        compiled = $compile(el);
+        element.append(el);
+        compiled(scope);
+
+		}
+	}
+}]);
+
 smoModule.directive('smoFieldGroup', ['$compile', 'util', function($compile, util) {
 	return {
 		restrict : 'A',
@@ -595,6 +648,11 @@ smoModule.directive('smoFieldGroup', ['$compile', 'util', function($compile, uti
 					if (scope.viewType == 'input')
 						groupFields.push('<div ' + showFieldCode + ' smo-choice choice-var="smoDataSource.' + field.name + '"' +
 						' smo-options="smoFieldGroup.fields[' + i + '].options" smo-title="' + field.label + '"></div>');
+				} else if (field.type == 'String') {
+					if (scope.viewType == 'input') 
+						groupFields.push('<div ' + showFieldCode + ' smo-string view-type="input" field-var="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
+					if (scope.viewType == 'output')
+						groupFields.push('<div ' + showFieldCode + ' smo-string view-type="output" field-var="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
 				}
 			}
 			var template = '<h3>' + (scope.smoFieldGroup.label || "") + '</h3><br>' 

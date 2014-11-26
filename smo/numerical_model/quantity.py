@@ -19,6 +19,8 @@ Quantities = {
 			'units' : OrderedDict((('m/s', {'mult' : 1}), ('km/h', {'mult' : 1/3.6}), ('km/s', {'mult' : 1e3}), ('mm/s', {'mult' : 1e-3}),))},
 	'Mass' : {'title' : 'mass', 'nominalValue' : 1, 'SIUnit' : 'kg', 
 		'units' : OrderedDict((('kg', {'mult' : 1}), ('g', {'mult' : 1e-3}), ('ton', {'mult' : 1e3}),))},
+	'MolarMass' : {'title' : 'molar mass', 'nominalValue' : 1e-3, 'SIUnit' : 'kg/mol', 'defDispUnit' : 'g/mol',
+		'units' : OrderedDict((('kg/mol', {'mult' : 1}), ('g/mol', {'mult' : 1e-3}),))},
 	'Energy' : {'title' : 'energy', 'nominalValue' : 1, 'SIUnit' : 'J', 'defDispUnit' : 'kJ',
 		'units' : OrderedDict((('J', {'mult' : 1}), ('kJ', {'mult' : 1e3}), ('MJ', {'mult' : 1e6}), ('GJ', {'mult' : 1e9}), ('Cal', {'mult' : 4.184}), ('kCal', {'mult' : 4.184e3}),
 		('Wh', {'mult' : 3.6e3}),  ('kWh', {'mult' : 3.6e6}),  ('MWh', {'mult' : 3.6e9}), ('BTU', {'mult' : 1055}), ('eV', {'mult' : 1.60217657e-19}),))},

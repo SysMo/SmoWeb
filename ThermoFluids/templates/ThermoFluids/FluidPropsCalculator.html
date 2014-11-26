@@ -139,9 +139,7 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 						<tr ng-repeat="constant in selectedFluid.constants.definitions[0].groups">
 							<td ng-bind="constant.label"></td>
 							<td>
-								<div ng-repeat="field in constant.fields">
-									<div smo-quantity view-type="output" field-var="field" smo-data-source="selectedFluid.constants.values"></div>
-								</div>
+								<div smo-field-group="constant" view-type="'output'" smo-data-source="selectedFluid.constants.values"></div>
 							</td>
 						</tr>
 					</tbody>
