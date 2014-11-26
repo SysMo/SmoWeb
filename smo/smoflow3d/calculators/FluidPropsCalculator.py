@@ -121,10 +121,10 @@ class FluidInfo(NumericalModel):
 	tripple_rhoL = Quantity('Density', default = (1, 'kg/m**3'), label = 'liquid density')
 	tripplePoint = FieldGroup([tripple_p, tripple_T, tripple_rhoL, tripple_rhoV], label = 'Tripple point')
 	
-	t_max = Quantity('Temperature', default = (300, 'K'), label = 'temperature')
-	rho_max = Quantity('Density', label = 'density')
-	t_min = Quantity('Temperature', default = (300, 'K'), label = 'temperature')
-	p_max = Quantity('Pressure', default = (1, 'bar'), label = 'pressure')
+	t_max = Quantity('Temperature', default = (300, 'K'), label = 'Max. temperature')
+	rho_max = Quantity('Density', label = 'Max. density')
+	t_min = Quantity('Temperature', default = (300, 'K'), label = 'Min. temperature')
+	p_max = Quantity('Pressure', default = (1, 'bar'), label = 'Max. pressure')
 	fluidLimits = FieldGroup([t_max, rho_max, t_min, p_max], label = 'Fluid limits')
 	
 	molar_mass = Quantity('MolarMass', label = 'molar mass')

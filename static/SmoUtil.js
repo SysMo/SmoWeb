@@ -702,7 +702,7 @@ smoModule.directive('smoFieldGroup', ['$compile', 'util', function($compile, uti
 						groupFields.push('<div ' + showFieldCode + ' smo-bool view-type="output" field-var="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
 				}				
 			}
-			var template = '<h3>' + (scope.smoFieldGroup.label || "") + '</h3><br>' 
+			var template = '<div class="field-group-label">' + (scope.smoFieldGroup.label || "") + '</div><br>' 
 				+ groupFields.join("");
 
 			var el = angular.element(template);

@@ -212,5 +212,4 @@ cdef class FluidState:
 		return self.ptr.Prandtl()
 	def gamma(self):
 		return self.ptr.cp() / self.ptr.cv();
-# 	def R(self):
-# 		return self.ptr.R()
+

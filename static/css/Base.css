@@ -194,29 +194,33 @@ table.nice-table tr:nth-child(odd) {
 	background: #FFFFFF;
 }
 
-/* Info container styles */
-.infoContainer {
-	margin-top: 40px; 
-	text-align: center;
+.page-container {
+	max-width: 1000px; 
+	margin-left: auto; 
+	margin-right: auto;	
 }
 
-.infoContainer > h3 {
+.page-section {
+	margin-top: 40px; 	
+}
+
+.page-section > h1 {
 	color: #0875CA;
 }
 
-.infoContainer .select-text {
+.page-section .select-text {
 	font-size: medium;  
 	margin-bottom: 5px;
-	color: #0875CA;
+/* 	color: #0875CA; */
 	display: inline-block;
 }
 
-.infoContainer .label-text {
+.page-section .label-text {
 	font-weight: bold;  
 	margin-bottom: 5px;
 	margin-right: 5px;
 }
 
-.infoContainer .italic-text {
+.page-section .italic-text {
 	font-style: italic;
 }

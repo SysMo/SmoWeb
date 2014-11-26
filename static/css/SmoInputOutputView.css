@@ -15,8 +15,11 @@
 }
 
 /* Field group label style */
-[smo-field-group] > h3 {
-
+.field-group-label {
+	background-color: #BABABA;
+	font-size: medium;
+	text-align: center;
+	font-weight: bold;
 }
 
 /* Super group */
@@ -30,11 +33,10 @@
 
 .tab-content.super-group {
 	border-style: solid; 
-	border-top: none; 
-	border-color: #DDD; 
+	border-color: #777; 
 	border-width: 1px; 
 	padding-left: 20px; 
-	background-color: #E6E6FA;
+	padding-top: 20px;
 	padding-bottom: 20px;
 	overflow: auto;
 }
