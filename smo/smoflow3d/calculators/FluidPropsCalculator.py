@@ -19,6 +19,16 @@ StateVariableOptions = OrderedDict((
 	('Q', 'vapor quality (Q)')
 	))
 
+referenceKeys = OrderedDict((
+						('EOS', 'Equation of State'), 
+						('CP0', 'CP0 reference'),
+						('VISCOSITY', 'Viscosity'),
+						('CONDUCTIVITY', 'Conductivity'),
+						('ECS_LENNARD_JONES', 'Lennard-Jones Parameters for ECS'),
+						('ECS_FITS', 'ECS_FITS reference'),
+						('SURFACE_TENSION', 'Surface Tension')
+						))
+
 class FluidPropsCalculator(NumericalModel):
 	fluidName = Choices(Fluids, default = 'ParaHydrogen', label = 'fluid')	
 	stateVariable1 = Choices(options = StateVariableOptions, default = 'P', label = 'first state variable')
@@ -121,9 +131,7 @@ class FluidInfo(NumericalModel):
 	accentric_factor = Quantity('Dimensionless', label = 'accentric factor')
 	cas = String('CAS', label = 'CAS')
 	ashrae34 = String('ASHRAE34', label = 'ASHRAE34')
-	multt = String(label='multiline one', multiline=True)
-	boool = Boolean( label='boolean one')
-	other = FieldGroup([molar_mass, accentric_factor, cas, ashrae34, multt, boool], label = 'Other')
+	other = FieldGroup([molar_mass, accentric_factor, cas, ashrae34], label = 'Other')
 	
 	constants = SuperGroup([critPoint, tripplePoint, fluidLimits, other])
 	
@@ -153,8 +161,20 @@ class FluidInfo(NumericalModel):
 		self.accentric_factor = f.accentricFactor()
 		self.cas = f.CAS()
 		self.ashrae34 = f.ASHRAE34()
-		self.multt = '01234567890123456789012345678901234567890123456789012asdfafafasdfasdfasdfgeavava'
 		
+	def getReferences(self, fluidName):
+		f = Fluid(fluidName)
+		refList = []
+		for key in referenceKeys:
+			try:
+				reference = References[f.BibTeXKey(key)]
+			except KeyError:
+				reference = None
+			refList.append([referenceKeys[key], reference])
+		print json.dumps(refList, True)
+		return refList
+		
+			
 	@staticmethod
 	def getList(fluidList = None):
 		if (fluidList is None):
@@ -165,7 +185,8 @@ class FluidInfo(NumericalModel):
 			fluidData = {
 				'name': fluid,
 				'label': Fluids[fluid],
-				'constants': fi.superGroupList2Json([fi.constants])
+				'constants': fi.superGroupList2Json([fi.constants]),
+				'references': fi.getReferences(fluid)
 			}
 			fluidDataList.append(fluidData)
 			

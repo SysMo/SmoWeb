@@ -193,3 +193,30 @@ table.nice-table tr:nth-child(even) {
 table.nice-table tr:nth-child(odd) {
 	background: #FFFFFF;
 }
+
+/* Info container styles */
+.infoContainer {
+	margin-top: 40px; 
+	text-align: center;
+}
+
+.infoContainer > h3 {
+	color: #0875CA;
+}
+
+.infoContainer .select-text {
+	font-size: medium;  
+	margin-bottom: 5px;
+	color: #0875CA;
+	display: inline-block;
+}
+
+.infoContainer .label-text {
+	font-weight: bold;  
+	margin-bottom: 5px;
+	margin-right: 5px;
+}
+
+.infoContainer .italic-text {
+	font-style: italic;
+}
