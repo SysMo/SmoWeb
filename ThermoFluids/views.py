@@ -112,6 +112,22 @@ def flowResistanceView(request):
 	else:
 		return render_to_response('ThermoFluids/FlowResistance.html', locals(), 
 				context_instance=RequestContext(request))
+
+def freeConvectionView(request):
+	if request.method == 'POST':
+		postData = json.loads(request.body)
+		action = postData['action']
+		parameters = postData['parameters']
+		if (action == 'getInputs'):
+			pass
+		elif (action == 'compute'):
+			pass
+		else:
+			raise ValueError('Unknown action "{0}"'.format(action)) 
+	else:
+		return render_to_response('ThermoFluids/FreeConvection.html', locals(), 
+				context_instance=RequestContext(request))
+	
 		
 def testView(request):
 	if request.method == 'GET':

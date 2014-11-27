@@ -10,5 +10,6 @@ urlpatterns = patterns('',
     url(r'^FluidPropsCalculator/$', views.fluidPropsCalculatorView, name='FluidPropsCalculator'),
     url(r'^FlowResistance/', views.flowResistanceView, name='FlowResistance'),
 	url(r'^HeatPump/', views.heatPumpView, name='HeatPump'),
+    url(r'^FreeConvection/', views.freeConvectionView, name='FreeConvection'),
 	url(r'^TestView/', views.testView, name='testView'),
 )
