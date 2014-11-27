@@ -9,7 +9,8 @@
 
 /* Field group */
 [smo-field-group] {
-	display: inline-block; 
+	display: inline-block;
+	margin: 20px;
 	margin-right: 70px; 
 	vertical-align:top;
 }
@@ -17,9 +18,8 @@
 /* Field group label style */
 .field-group-label {
 	background-color: #BABABA;
-	font-size: medium;
+	font-size: large;
 	text-align: center;
-	font-weight: bold;
 }
 
 /* Super group */
