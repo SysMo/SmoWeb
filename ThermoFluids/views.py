@@ -45,23 +45,22 @@ def fluidPropsCalculatorView(request):
 			fluidDataList = FluidInfo.getList()
 			return HttpResponse(json.dumps(fluidDataList), content_type="application/json")
 		elif (action == 'compute'):
+			results = {}
 			try: 
 				fpc = FluidPropsCalculator()
 				fpc.fieldValuesFromJson(parameters)
 				fpc.compute()
 				results = fpc.superGroupList2Json([fpc.results])
 				results['errStatus'] = False
+				return HttpResponse(json.dumps(results), content_type="application/json")
 			except RuntimeError, e: 
-				results = {}
 				results['errStatus'] = True
 				results['error'] = str(e)
 				return HttpResponse(json.dumps(results), content_type="application/json")
 			except Exception, e:
-				results = {}
 				results['errStatus'] = True
 				results['error'] = str(e)
 				return HttpResponse(json.dumps(results), content_type="application/json")
-			return HttpResponse(json.dumps(results), content_type="application/json")
 		else:
 			raise ValueError('Unknown post action "{0}" for URL: {1}'.format(action, 'ThermoFluids/FluidPropsCalculator.html'))
 
@@ -72,21 +71,42 @@ def flowResistanceView(request):
 		action = postData['action']
 		parameters = postData['parameters']
 		if (action == 'getInputs'):
-			pipe = Pipe()
-			inputs = pipe.superGroupList2Json([Pipe.inputs])
-			return JsonResponse(inputs)
+			inputs = {}
+			try:
+				pipe = Pipe()
+				inputs = pipe.superGroupList2Json([Pipe.inputs])
+				return JsonResponse(inputs)
+			except RuntimeError, e: 
+				inputs['errStatus'] = True
+				inputs['error'] = str(e)
+				return HttpResponse(json.dumps(inputs), content_type="application/json")
+			except Exception, e:
+				inputs['errStatus'] = True
+				inputs['error'] = str(e)
+				return HttpResponse(json.dumps(inputs), content_type="application/json")
 		elif (action == 'compute'):
 			results = {}
+			print parameters
 			if (parameters['externalDiameter'] <= parameters['internalDiameter']):
 				results['errStatus'] = True
 				results['error']='External diameter value must be bigger than internal diameter value.'
 				return JsonResponse(results)
-			pipe = Pipe()
-			pipe.fieldValuesFromJson(parameters)
-			pipe.computeGeometry()
-			pipe.computePressureDrop()
-			results = pipe.superGroupList2Json([Pipe.results]) 
-			return JsonResponse(results)
+			try:
+				pipe = Pipe()
+				pipe.fieldValuesFromJson(parameters)
+				pipe.computeGeometry()
+				pipe.computePressureDrop()
+				results = pipe.superGroupList2Json([Pipe.results])
+				results['errStatus'] = False 
+				return JsonResponse(results)
+			except RuntimeError, e: 
+				results['errStatus'] = True
+				results['error'] = str(e)
+				return HttpResponse(json.dumps(results), content_type="application/json")
+			except Exception, e:
+				results['errStatus'] = True
+				results['error'] = str(e)
+				return HttpResponse(json.dumps(results), content_type="application/json")
 		else:
 			raise ValueError('Unknown action "{0}"'.format(action)) 
 	else:

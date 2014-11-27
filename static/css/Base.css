@@ -148,16 +148,6 @@ div.docview {
 		counter-reset: figure;
 }
 
-.section > h1 {
-	margin-top: 30px;	
-	margin-bottom: 30px;	
-}
-
-.section > h2 {
-	margin-top: 20px;	
-	margin-bottom: 20px;	
-}
-
 .align-center {
 	text-align: center;
 }
@@ -200,27 +190,33 @@ table.nice-table tr:nth-child(odd) {
 	margin-right: auto;	
 }
 
-.page-section {
-	margin-top: 40px; 	
+.section {
+	margin-top: 20px; 	
 }
 
-.page-section > h1 {
-	color: #0875CA;
+.section > h1 {
+	margin-bottom: 10px;
+	font-size: x-large;
 }
 
-.page-section .select-text {
+.section > h2 {
+	margin-bottom: 10px;
+	font-size: large;	
+}
+
+.section .select-text {
 	font-size: medium;  
 	margin-bottom: 5px;
 /* 	color: #0875CA; */
 	display: inline-block;
 }
 
-.page-section .label-text {
+.section .label-text {
 	font-weight: bold;  
 	margin-bottom: 5px;
 	margin-right: 5px;
 }
 
-.page-section .italic-text {
+.section .italic-text {
 	font-style: italic;
 }

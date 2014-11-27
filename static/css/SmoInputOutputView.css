@@ -10,7 +10,7 @@
 /* Field group */
 [smo-field-group] {
 	display: inline-block;
-	margin: 20px;
+	margin-bottom: 20px;
 	margin-right: 70px; 
 	vertical-align:top;
 }

@@ -59,12 +59,8 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 		    .success(function(data) {
 		    	$scope.fluids.loading = false;
 		    	$scope.fluids.obtained = true;
-// 		    	for (item in data){
-// 		    		$scope.fluids[item] = data[item];
-// 		    	}
 				$scope.fluidList = data;
 		    	$scope.selectedFluid = data[0];
-		    	console.log($scope.selectedFluid.references);
 		    })
 		    .error(function(data) {
 		    	$scope.fluids.loading = false;
@@ -121,8 +117,7 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 			<h1 class="title">Fluid information</h1>
 			<div ng-if="fluids.loading"><h2 class="loading">Loading...</h2></div>
 			<div ng-if="fluids.errorLoading"><h2 class="error">Error loading!</h2></div>
-			<div ng-if="fluids.obtained">			
-				
+			<div ng-if="fluids.obtained">							
 				<div class="page-section">
 					<div class="field-select select-text">Select a fluid:</div>
 					<div class="field-select choice">
