@@ -43,7 +43,7 @@ def fluidPropsCalculatorView(request):
 			return JsonResponse(inputs)
 		elif (action == 'getFluidInfo'):
 			fluidDataList = FluidInfo.getList()
-			return JsonResponse(fluidDataList)
+			return JsonResponse(fluidDataList, safe = False)
 		elif (action == 'compute'):
 			results = {}
 			try: 
@@ -97,12 +97,16 @@ def flowResistanceView(request):
 				context_instance=RequestContext(request))
 
 def freeConvectionView(request):
+	from smo.simple_flow.FreeConvection import FreeConvection
 	if request.method == 'POST':
 		postData = json.loads(request.body)
 		action = postData['action']
 		parameters = postData['parameters']
 		if (action == 'getInputs'):
-			pass
+			inputs = {}
+			convection = FreeConvection()
+			inputs = convection.superGroupList2Json([convection.inputs])
+			return JsonResponse(inputs)
 		elif (action == 'compute'):
 			pass
 		else:

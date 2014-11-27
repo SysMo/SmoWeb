@@ -675,7 +675,7 @@ smoModule.directive('smoFieldGroup', ['$compile', 'util', function($compile, uti
 				scope.fields[field.name] = field;
 				var showFieldCode = "";
 				if (!(typeof field.show === "undefined")){
-					showFieldCode = 'ng-show="' + field.show.replace('self', 'smoDataSource') + '"';
+					showFieldCode = 'ng-show="' + field.show.replace(/self/g, 'smoDataSource') + '"';
 				}
 				if (field.type == 'Quantity') {
 					field.value = scope.smoDataSource[field.name];

@@ -13,7 +13,7 @@ angular.module('FreeConvection', ['ui.bootstrap', 'smo'])
 	}])
 	.controller('FreeConvectionController', 
 		[ '$scope', function($scope) {
-//  		$scope.inputs = { autoFetch : true, dataUrl: '/ThermoFluids/FreeConvection/', action: 'getInputs'};
+ 		$scope.inputs = { autoFetch : true, dataUrl: '/ThermoFluids/FreeConvection/', action: 'getInputs'};
 //  		$scope.outputs = { dataUrl: '/ThermoFluids/FreeConvection/', action: 'compute'};
 // 		$scope.compute = function() {
 // 			$scope.outputs.fetchData($scope.inputs.data.values);
@@ -38,7 +38,7 @@ angular.module('FreeConvection', ['ui.bootstrap', 'smo'])
 			</div>
 			<div class="section"> 		
 				<div ng-form name="myForm">
-<!-- 					<div smo-input-view="inputs"></div> -->
+					<div smo-input-view="inputs"></div>
 				</div>
 			</div>
 			<div class="section" style="margin-left: 20px;">		

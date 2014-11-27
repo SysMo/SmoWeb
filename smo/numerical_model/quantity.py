@@ -1,3 +1,5 @@
+import numpy
+
 from collections import OrderedDict
 Quantities = {
 	'Dimensionless' : {'title' : 'dimensionless quantity', 'nominalValue' : 1, 'SIUnit' : '-', 
@@ -11,6 +13,8 @@ Quantities = {
 		'units' : OrderedDict((('m**3', {'mult' : 1}), ('L', {'mult' : 1e-3}), ('cm**3', {'mult' : 1e-6}), ('mm**3', {'mult' : 1e-9}),))},
 	'Time' : {'title' : 'time', 'nominalValue' : 1, 'SIUnit' : 's', 
 		'units' : OrderedDict((('s', {'mult' : 1}), ('ms', {'mult' : 1e-3}), ('us', {'mult' : 1e-6}), ('min', {'mult' : 60}), ('h', {'mult' : 3600}), ('day', {'mult' : 8.64e4}), ('year', {'mult' : 3.15576e7}),))},
+	'Angle' : {'title' : 'angle', 'nominalValue' : numpy.pi/4, 'SIUnit' : 'rad', 
+		'units' : OrderedDict((('rad', {'mult' : 1}), ('deg', {'mult' : numpy.pi/180})))},
 	'Force' : {'title' : 'force', 'nominalValue' : 1, 'SIUnit' : 'N', 
 		'units' : OrderedDict((('N', {'mult' : 1}), ('kN', {'mult' : 1e3}), ('MN', {'mult' : 1e6}), ('lb', {'mult' : 4.44822162825}),))},
 	'Weight' : {'title' : 'weight', 'nominalValue' : 1, 'SIUnit' : 'N', 
