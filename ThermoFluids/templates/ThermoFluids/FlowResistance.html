@@ -12,61 +12,11 @@ angular.module('FlowResistance', ['ui.bootstrap', 'smo'])
 	    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
 	}])
 	.controller('FlowResistanceController', 
-		['$scope', '$http', 'smoJson', function($scope, $http, smoJson) {
-//  		$scope.inputs = { autoFetch : true, dataUrl: '/ThermoFluids/FlowResistance/', action: 'getInputs'};
-//  		$scope.outputs = { dataUrl: '/ThermoFluids/FlowResistance/', action: 'compute'};
-		$scope.action = 'getInputs';
-		$scope.inputs = {}
-		$scope.outputs = {}
-		$scope.fetchData = function(parameters) {
-			$scope.inputs.obtained = false;
-			$scope.outputs.obtained = false;
-			if ($scope.action=='getInputs'){
-				$scope.inputs.loading = true;
-			} else if ($scope.action=='compute'){
-				$scope.outputs.loading = true;
-			}			
-			var parameters = parameters || {};				
-			$http({
-		        method  : 'POST',
-		        url     : '/ThermoFluids/FlowResistance/',
-		        data    : {action : $scope.action, parameters: parameters},
-		        headers : { 'Content-Type': 'application/x-www-form-urlencoded' }, // set the headers so angular passing info as form data (not request payload)
-		        transformResponse: [smoJson.transformResponse]
-			})
-		    .success(function(data) {
-		    	if ($scope.action=='getInputs'){	
-		    		$scope.inputs.loading = false;
-		    		$scope.inputs.errStatus = data.errStatus;
-			    	if (!$scope.inputs.errStatus) {
-				    	$scope.inputs.obtained = true;
-				    	$scope.inputs.data = data;
-			    	}
-			    	else {
-			    		$scope.inputs.obtained = false;
-			    		$scope.outputs.obtained = false;
-				    	$scope.error = data.error || 'Error loading!';
-			    	}
-		    	} else if ($scope.action=='compute'){
-		    		$scope.outputs.loading = false;
-		    		$scope.outputs.errStatus = data.errStatus;
-			    	if (!$scope.outputs.errStatus) {
-				    	$scope.outputs.obtained = true;
-				    	$scope.inputs.obtained = true;
-				    	$scope.outputs.data = data;
-			    	}
-			    	else {
-			    		$scope.outputs.obtained = false;
-			    		$scope.inputs.obtained = true;
-				    	$scope.error = data.error || 'Error loading!';
-			    	}
-		    	}		    	
-		    });
-		}
-		$scope.fetchData();
+		[ '$scope', function($scope) {
+ 		$scope.inputs = { autoFetch : true, dataUrl: '/ThermoFluids/FlowResistance/', action: 'getInputs'};
+ 		$scope.outputs = { dataUrl: '/ThermoFluids/FlowResistance/', action: 'compute'};
 		$scope.compute = function() {
-			$scope.action = 'compute';
-			$scope.fetchData($scope.inputs.data.values);
+			$scope.outputs.fetchData($scope.inputs.data.values);
 		}
 		
 	}]);
@@ -85,40 +35,13 @@ angular.module('FlowResistance', ['ui.bootstrap', 'smo'])
 			<h1 class="title">Pressure losses in pipe flow</h1>
 			<div class="title-figure">
 				<img src="{% static 'ThermoFluids/StraightPipe.svg' %}" type="image/svg+xml"></object>
-			</div>
-			{% verbatim %}
-			<div ng-if="inputs.loading"><h2 class="loading">Loading...</h2></div>
-			<div ng-if="inputs.errStatus">
-				<div class="alert alert-danger" role="alert">
-				  <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-				  <span class="sr-only">Error:</span>
-				  {{error}}
-				</div>
-			</div>				
-			<div ng-show="inputs.obtained">
-				<div class="section"><h1>Input data</h1></div>
-				<div ng-form name="myForm">
-					<div ng-repeat="fieldgroup in inputs.data.definitions[0].groups" 
-							smo-field-group="fieldgroup"
-							view-type="'input'" 
-							smo-data-source="inputs.data.values">
-					</div>
-				</div>
-				<button ng-disabled="!myForm.$valid" class="btn btn-default" ng-click="compute()">Compute</button>
-			</div>
-			<div ng-if="outputs.loading"><h2 class="loading">Loading...</h2></div>
-			<div ng-if="outputs.errStatus">
-				<div class="alert alert-danger" role="alert">
-				  <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-				  <span class="sr-only">Error:</span>
-				  {{error}}
-				</div>
-			</div>
-			<div ng-show="outputs.obtained">
-				<div class="section"><h1>Output data</h1></div>
-				<div smo-field-group="fieldgroup" ng-repeat="fieldgroup in outputs.data.definitions[0].groups" view-type="'output'" smo-data-source="outputs.data.values"></div>
-			</div>
-			{% endverbatim %}
+			</div>		
+			<div ng-form name="myForm">
+				<div smo-input-view="inputs"></div>
+			</div>		
+			<div ng-show="inputs.inputsObtained"><button ng-disabled="!myForm.$valid" class="btn btn-default" ng-click="compute()">Compute</button></div>		
+			<br>
+			<div smo-output-view="outputs"></div>
 		</div>
 		<div class="tab-pane" id="doc">
 			<div class="docview">
@@ -128,5 +51,4 @@ angular.module('FlowResistance', ['ui.bootstrap', 'smo'])
 	</div>
 </div>
 {% endblock %}
-
 
