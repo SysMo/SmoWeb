@@ -6,18 +6,18 @@
 <script src="{% static 'SmoUtil.js' %}"></script>
 <link rel="stylesheet" type="text/css" href="{% static 'css/SmoInputOutputView.css' %}">
 <script>
-angular.module('HeatPump', ['ui.bootstrap', 'smo'])
+angular.module('FreeConvection', ['ui.bootstrap', 'smo'])
 	.config(['$httpProvider', function($httpProvider) {
 	    $httpProvider.defaults.xsrfCookieName = 'csrftoken';
 	    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
 	}])
-	.controller('HeatPumpController', 
+	.controller('FreeConvectionController', 
 		[ '$scope', function($scope) {
- 		$scope.inputs = { autoFetch : true, dataUrl: '/ThermoFluids/HeatPump/', action: 'getInputs'};
- 		$scope.outputs = { dataUrl: '/ThermoFluids/HeatPump/', action: 'compute'};
-		$scope.compute = function() {
-			$scope.outputs.fetchData($scope.inputs.data.values);
-		}
+//  		$scope.inputs = { autoFetch : true, dataUrl: '/ThermoFluids/FreeConvection/', action: 'getInputs'};
+//  		$scope.outputs = { dataUrl: '/ThermoFluids/FreeConvection/', action: 'compute'};
+// 		$scope.compute = function() {
+// 			$scope.outputs.fetchData($scope.inputs.data.values);
+// 		}
 		
 	}]);
 </script>
@@ -29,30 +29,30 @@ angular.module('HeatPump', ['ui.bootstrap', 'smo'])
 {% endblock %}
 
 {% block content %}
-<div ng-app="HeatPump" ng-controller="HeatPumpController">
+<div ng-app="FreeConvection" ng-controller="FreeConvectionController">
 	<div class="tab-content">
 		<div class="tab-pane active page-container" id="calculator">
-			<h1 class="title">Heat pump</h1>
+			<h1 class="title">Free convection</h1>
 			<div class="title-figure">
-				<img src="{% static 'ThermoFluids/HeatPump.svg' %}"></img>
-			</div>		
-			<div class="section">
+<!-- 				<img src="{% static '' %}" type="image/svg+xml"></object> -->
+			</div>
+			<div class="section"> 		
 				<div ng-form name="myForm">
-					<div smo-input-view="inputs"></div>
+<!-- 					<div smo-input-view="inputs"></div> -->
 				</div>
 			</div>
-			<div class="section" style="margin-left: 20px;">
-				<div ng-show="inputs.inputsObtained"><button ng-disabled="!myForm.$valid" class="btn btn-default" ng-click="compute()">Compute</button></div>
+			<div class="section" style="margin-left: 20px;">		
+<!-- 				<div ng-show="inputs.inputsObtained"><button ng-disabled="!myForm.$valid" class="btn btn-default" ng-click="compute()">Compute</button></div> -->
 			</div>
-			<div class="section">
-				<div smo-output-view="outputs"></div>
+			<div class="section"> 
+<!-- 				<div smo-output-view="outputs"></div> -->
 			</div>
 		</div>
 		<div class="tab-pane" id="doc">
-			Documentation
+			<div class="docview">
+			</div>
 		</div>
 	</div>
 </div>
-
 {% endblock %}
 

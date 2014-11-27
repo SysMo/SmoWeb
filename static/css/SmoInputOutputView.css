@@ -10,7 +10,7 @@
 /* Field group */
 [smo-field-group] {
 	display: inline-block;
-	margin: 20px;
+	margin-bottom: 20px;
 	margin-right: 70px; 
 	vertical-align:top;
 }
@@ -31,18 +31,18 @@
 	cursor: default;
 }
 
-.tab-content.super-group {
-	border-style: solid; 
-	border-color: #777; 
-	border-width: 1px; 
+.super-group {
+/* 	border-style: solid;  */
+/* 	border-color: #777;  */
+/* 	border-width: 1px;  */
 	padding-left: 20px; 
-	padding-top: 20px;
-	padding-bottom: 20px;
+/* 	padding-top: 20px; */
+/* 	padding-bottom: 20px; */
 	overflow: auto;
 }
 
-[smo-super-group] {
-	margin-bottom: 20px;
+[smo-super-group-set] {
+/* 	margin-bottom: 20px; */
 	margin-top: 20px;
 }
 
