@@ -54,6 +54,8 @@ class Pipe(NumericalModel):
 	###################
 
 	def computeGeometry(self):
+		if (self.externalDiameter <= self.internalDiameter):
+			raise ValueError('External diameter value must be bigger than internal diameter value.')
 		self.crossSectionalArea = np.pi / 4 * self.internalDiameter ** 2
 		self.fluidVolume = self.crossSectionalArea * self.length
 		self.internalSurfaceArea = np.pi * self.internalDiameter * self.length

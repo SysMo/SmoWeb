@@ -863,7 +863,7 @@ smoModule.directive('smoOutputView', ['$compile', 'smoJson', function($compile, 
 		},
 		link : function(scope, element, attr) {
 			var template = '<div ng-if="it.loading"><h2 class="loading">Loading...</h2></div>\
-							<div ng-if="it.errStatus">\
+							<div ng-if="it.errStatus" style="margin-left:20px;">\
 								<br>\
 								<div class="alert alert-danger" role="alert">\
 								  <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>\
