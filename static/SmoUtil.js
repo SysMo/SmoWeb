@@ -754,7 +754,10 @@ smoModule.directive('smoSuperGroupSet', ['$compile', function($compile) {
 					// Attach the field value to the quantity so that the original value is updated when the quantity value changes
 					superGroupFields.push('<div smo-field-group="smoSuperGroupSet[0].groups[' + j + ']" view-type="viewType" smo-data-source="smoDataSource"></div>');
 				}
-				var template = '<div class="super-group">' + superGroupFields.join("") + '</div>';
+				var template = '<div class="super-group">' +
+									'<h1>' + superGroup.label + '</h1>' +
+									 superGroupFields.join("") + 
+								'</div>';
 			}
 			
 

@@ -194,12 +194,12 @@ table.nice-table tr:nth-child(odd) {
 	margin-top: 20px; 	
 }
 
-.section > h1 {
+.section  h1 {
 	margin-bottom: 10px;
 	font-size: x-large;
 }
 
-.section > h2 {
+.section  h2 {
 	margin-bottom: 10px;
 	font-size: large;	
 }
