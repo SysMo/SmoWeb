@@ -36,13 +36,17 @@ angular.module('HeatPump', ['ui.bootstrap', 'smo'])
 			<div class="title-figure">
 				<img src="{% static 'ThermoFluids/HeatPump.svg' %}" type="image/svg+xml"></object>
 			</div>		
-			<div ng-form name="myForm">
-				<div smo-input-view="inputs"></div>
+			<div class="section">
+				<div ng-form name="myForm">
+					<div smo-input-view="inputs"></div>
+				</div>
 			</div>
-			<br>
-			<div ng-show="inputs.inputsObtained"><button ng-disabled="!myForm.$valid" class="btn btn-default" ng-click="compute()">Compute</button></div>		
-			<br>
-			<div smo-output-view="outputs"></div>
+			<div class="section" style="margin-left: 20px;">
+				<div ng-show="inputs.inputsObtained"><button ng-disabled="!myForm.$valid" class="btn btn-default" ng-click="compute()">Compute</button></div>
+			</div>
+			<div class="section">
+				<div smo-output-view="outputs"></div>
+			</div>
 		</div>
 		<div class="tab-pane" id="doc">
 			Documentation

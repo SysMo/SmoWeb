@@ -97,12 +97,17 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 			</ul>		
 			<div class="tab-content">
 				<div ng-repeat="input in inputs track by $index" ng-class="'tab-pane '+ getTabClass($index)" id="FluidPoint{{$index + 1}}">
-					<br>
-					<div ng-form name="myForm{{$index + 1}}">
-						<div smo-input-view="inputs[$index]"></div>
+					<div class="section">
+						<div ng-form name="myForm{{$index + 1}}">
+							<div smo-input-view="inputs[$index]"></div>
+						</div>
+					</div>
+					<div class="section" style="margin-left: 20px;">
+						<div ng-show="inputs[$index].inputsObtained"><button ng-disabled="!myForm{{$index + 1}}.$valid" class="btn btn-default" ng-click="compute($index)">Compute</button></div>
 					</div>					
-					<div ng-show="inputs[$index].inputsObtained"><button ng-disabled="!myForm{{$index + 1}}.$valid" class="btn btn-default" ng-click="compute($index)">Compute</button></div>
-					<div smo-output-view="outputs[$index]"></div>
+					<div class="section">
+						<div smo-output-view="outputs[$index]"></div>
+					</div>					
 				</div>
 			</div>
 {% endverbatim %}

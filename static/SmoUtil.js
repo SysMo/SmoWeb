@@ -713,39 +713,50 @@ smoModule.directive('smoFieldGroup', ['$compile', 'util', function($compile, uti
 	}
 }]);
 
-smoModule.directive('smoSuperGroup', ['$compile', function($compile) {
+smoModule.directive('smoSuperGroupSet', ['$compile', function($compile) {
 	return {
 		restrict : 'A',
 		scope : {
-			smoSuperGroup : '=',
+			smoSuperGroupSet : '=',
 			smoDataSource : '=',
 			viewType: '@viewType'
 		},
 		link : function(scope, element, attr) {	
-			
-			var navTabs = [];
-			var navTabPanes = [];
-			for (var i = 0; i < scope.smoSuperGroup.length; i++) {
-				var superGroup = scope.smoSuperGroup[i];
-				if (i==0){
-					navTabs.push('<li class="active"><a id="' + superGroup.name + 'Tab" data-target="#' + superGroup.name + '" role="tab" data-toggle="tab">' + superGroup.label + '</a></li>');
-					navTabPanes.push('<div class="tab-pane active" id="' + superGroup.name + '">');
-				} else {
-					navTabs.push('<li><a id="' + superGroup.name + 'Tab" data-target="#' + superGroup.name + '" role="tab" data-toggle="tab">' + superGroup.label + '</a></li>');
-					navTabPanes.push('<div class="tab-pane" id="' + superGroup.name + '">');
+			if (scope.smoSuperGroupSet.length > 1) {
+				var navTabs = [];
+				var navTabPanes = [];
+				for (var i = 0; i < scope.smoSuperGroupSet.length; i++) {
+					var superGroup = scope.smoSuperGroupSet[i];
+					if (i==0){
+						navTabs.push('<li class="active"><a id="' + superGroup.name + 'Tab" data-target="#' + superGroup.name + '" role="tab" data-toggle="tab">' + superGroup.label + '</a></li>');
+						navTabPanes.push('<div class="tab-pane active" id="' + superGroup.name + '">');
+					} else {
+						navTabs.push('<li><a id="' + superGroup.name + 'Tab" data-target="#' + superGroup.name + '" role="tab" data-toggle="tab">' + superGroup.label + '</a></li>');
+						navTabPanes.push('<div class="tab-pane" id="' + superGroup.name + '">');
+					}
+					
+					var superGroupFields = [];
+					for (var j = 0; j < superGroup.groups.length; j++) {
+						var fieldGroup = superGroup.groups[j];
+						// Attach the field value to the quantity so that the original value is updated when the quantity value changes
+						superGroupFields.push('<div smo-field-group="smoSuperGroupSet[' + i + '].groups[' + j + ']" view-type="viewType" smo-data-source="smoDataSource"></div>');
+					}
+					
+					navTabPanes.push(superGroupFields.join(""));
 				}
-				
+				var template = '<ul class="nav nav-tabs super-group" role="tablist">' + navTabs.join("") + '</ul>' +
+				'<div class="super-group">' + navTabPanes.join("") + '</div>';
+			} else if (scope.smoSuperGroupSet.length == 1) {
+				var superGroup = scope.smoSuperGroupSet[0];
 				var superGroupFields = [];
 				for (var j = 0; j < superGroup.groups.length; j++) {
 					var fieldGroup = superGroup.groups[j];
 					// Attach the field value to the quantity so that the original value is updated when the quantity value changes
-					superGroupFields.push('<div smo-field-group="smoSuperGroup[' + i + '].groups[' + j + ']" view-type="viewType" smo-data-source="smoDataSource"></div>');
+					superGroupFields.push('<div smo-field-group="smoSuperGroupSet[0].groups[' + j + ']" view-type="viewType" smo-data-source="smoDataSource"></div>');
 				}
-				
-				navTabPanes.push(superGroupFields.join(""));
+				var template = '<div class="super-group">' + superGroupFields.join("") + '</div>';
 			}
-			var template = '<ul class="nav nav-tabs super-group" role="tablist">' + navTabs.join("") + '</ul>' +
-			'<div class="tab-content super-group">' + navTabPanes.join("") + '</div>';
+			
 
 			
 			var el = angular.element(template);
@@ -798,7 +809,7 @@ smoModule.directive('smoInputView', ['$compile', 'smoJson', function($compile, s
 			var template = '<div ng-if="it.loading"><h2 class="loading">Loading...</h2></div>\
 							<div ng-if="it.errorLoading"><h2 class="error">Error loading!</h2></div>\
 							<div ng-if="it.inputsObtained">\
-								<div  smo-super-group="it.data.definitions" view-type="input" smo-data-source="it.data.values"></div>\
+								<div  smo-super-group-set="it.data.definitions" view-type="input" smo-data-source="it.data.values"></div>\
 							</div>';				
 
 			var el = angular.element(template);
@@ -858,7 +869,7 @@ smoModule.directive('smoOutputView', ['$compile', 'smoJson', function($compile, 
 								</div>\
 							</div>\
 							<div ng-if="it.outputsObtained">\
-								<div smo-super-group="it.data.definitions" view-type="output" smo-data-source="it.data.values"></div>\
+								<div smo-super-group-set="it.data.definitions" view-type="output" smo-data-source="it.data.values"></div>\
 							</div>';		
 			var el = angular.element(template);
 	        compiled = $compile(el);
