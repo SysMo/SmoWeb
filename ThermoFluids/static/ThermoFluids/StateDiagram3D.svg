@@ -11,7 +11,7 @@
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    version="1.0"
-   width="1000"
+   width="500"
    height="300"
    id="svg2"
    inkscape:version="0.48.4 r9939"
@@ -37,7 +37,7 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:window-width="1920"
-     inkscape:window-height="1026"
+     inkscape:window-height="1001"
      id="namedview55"
      showgrid="false"
      inkscape:zoom="1.1616801"
@@ -226,7 +226,7 @@
   </defs>
   <g
      id="g3203"
-     transform="translate(295.54036,5.1649331)">
+     transform="translate(58.082214,6.8865775)">
     <path
        d="m 91.562375,215.48088 97.022105,47.65045 26.12434,-84.78763 C 254.82507,28.044878 176.21917,101.0751 149.40325,125.83708 l 6.18876,26.25447 -64.029635,63.38933 z"
        style="color:#000000;fill:#b9e2ea;fill-opacity:0.7254902;fill-rule:nonzero;stroke:none;stroke-width:1;marker:none;visibility:visible;display:inline;overflow:visible"

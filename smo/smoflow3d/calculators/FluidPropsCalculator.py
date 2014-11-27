@@ -20,14 +20,14 @@ StateVariableOptions = OrderedDict((
 	))
 
 referenceKeys = OrderedDict((
-						('EOS', 'Equation of State'), 
-						('CP0', 'CP0 reference'),
-						('VISCOSITY', 'Viscosity'),
-						('CONDUCTIVITY', 'Conductivity'),
-						('ECS_LENNARD_JONES', 'Lennard-Jones Parameters for ECS'),
-						('ECS_FITS', 'ECS_FITS reference'),
-						('SURFACE_TENSION', 'Surface Tension')
-						))
+	('EOS', 'Equation of State'), 
+	('CP0', 'CP0 reference'),
+	('VISCOSITY', 'Viscosity'),
+	('CONDUCTIVITY', 'Conductivity'),
+	('ECS_LENNARD_JONES', 'Lennard-Jones Parameters for ECS'),
+	('ECS_FITS', 'ECS_FITS reference'),
+	('SURFACE_TENSION', 'Surface Tension')
+	))
 
 class FluidPropsCalculator(NumericalModel):
 	fluidName = Choices(Fluids, default = 'ParaHydrogen', label = 'fluid')	
