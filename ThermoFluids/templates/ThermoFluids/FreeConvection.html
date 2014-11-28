@@ -13,11 +13,13 @@ angular.module('FreeConvection', ['ui.bootstrap', 'smo'])
 	}])
 	.controller('FreeConvectionController', 
 		[ '$scope', function($scope) {
- 		$scope.inputs = { autoFetch : true, dataUrl: '/ThermoFluids/FreeConvection/', action: 'getInputs'};
+ 		$scope.inputsFreeConvection = { autoFetch : true, dataUrl: '/ThermoFluids/FreeConvection/', action: 'getInputs'};
 //  		$scope.outputs = { dataUrl: '/ThermoFluids/FreeConvection/', action: 'compute'};
 // 		$scope.compute = function() {
 // 			$scope.outputs.fetchData($scope.inputs.data.values);
 // 		}
+		
+// 		$scope.inputsFreeConvection = { autoFetch : true, dataUrl: '/ThermoFluids/FreeConvection/', action: 'getInputs_WireSpotHeating'};
 		
 	}]);
 </script>
@@ -26,6 +28,7 @@ angular.module('FreeConvection', ['ui.bootstrap', 'smo'])
 {% block pills %}
 	<li class="active" role="presentation"><a id="calcTab" data-target="#calculator" role="tab" data-toggle="tab">Calculator</a></li>
 	<li role="presentation"><a id="docTab" data-target="#doc" role="tab" data-toggle="tab">Doc</a></li>
+	<li role="presentation"><a id="wireSpotHeatingTab" data-target="#wireSpotHeating" role="tab" data-toggle="tab">Spot heating of wire</a></li>
 {% endblock %}
 
 {% block content %}
@@ -38,7 +41,7 @@ angular.module('FreeConvection', ['ui.bootstrap', 'smo'])
 			</div>
 			<div class="section"> 		
 				<div ng-form name="myForm">
-					<div smo-input-view="inputs"></div>
+					<div smo-input-view="inputsFreeConvection"></div>
 				</div>
 			</div>
 			<div class="section" style="margin-left: 20px;">		
@@ -50,6 +53,18 @@ angular.module('FreeConvection', ['ui.bootstrap', 'smo'])
 		</div>
 		<div class="tab-pane" id="doc">
 			<div class="docview">
+			</div>
+		</div>
+		<div class="tab-pane" id="wireSpotHeating">
+			<div class="tab-pane active page-container" id="calculator">
+				<h1 class="title">Spot heating of wire</h1>
+				<div class="abstract">You can simulate temperature distribution in a wire heated in a single spot (by e.g. contact resistance). 
+				The heat is conducted through the wire and dissipated by convection on the wire surface. Optionally resistive (Joule) heating can be also accounted for.</div>
+				<div class="section"> 		
+					<div ng-form name="spotHeatingForm">
+<!-- 						<div smo-input-view="inputsSpotWireHeating"></div> -->
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
