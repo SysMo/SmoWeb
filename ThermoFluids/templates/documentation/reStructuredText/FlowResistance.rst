@@ -6,7 +6,7 @@ Flow resistance
 ===============
 
 .. figure:: /static/ThermoFluids/StraightPipe.svg
-   :width: 90%
+   :width: 100%
    :align: center
    
    Pipe parameters
@@ -38,7 +38,7 @@ Parameters
 -------------------
 Geometry properties
 -------------------
-The flow area is
+The flow area is:
 
 .. math ::
    A_f = \frac{\pi d_i^2}{4}
@@ -62,7 +62,7 @@ The mass of the pipe is:
 
    m_p =  \rho_p \frac{\pi \left( d_e^2 - d_i^2 \right)}{4}L
    
-where :math:`\rho_p` is the density of the pipe material (steel, aluminium etc.) 
+where :math:`\rho_p` is the density of the pipe material (steel, aluminum etc.) 
 
 ---------------
 Pressure losses
@@ -107,7 +107,7 @@ In the turbulent region the relation is more complex and is given by the *Colebr
    
 In the limit of high Reynolds numbers the friction factor depends solely on the relative surface roughness.
    
-Because the *Colebrook* correlation is implicit in :math:`\zeta`, it is not suitable for direct calculations. 
+As the *Colebrook* correlation is implicit in :math:`\zeta`, it is not suitable for direct calculations. 
 Different approximations have been developed amongst which special attention deserves the *Churchill* correlation [Church77]_, which covers 
 all flow regimes: laminar, transitional and turbulent:
 

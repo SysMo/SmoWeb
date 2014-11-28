@@ -40,7 +40,7 @@ Quantities = {
 	'Temperature' : {'title' : 'temperature', 'nominalValue' : 288, 'SIUnit' : 'K', 
 		'units' : OrderedDict((('K', {'mult' : 1}), ('degC', {'mult' : 1, 'offset' : 273.15}), 
 							('degF', {'mult' : 5./9, 'offset' : 255.372222222222}), ('degR', {'mult' : 5./9})))},
-	'TemperatureDifference' : {'title' : 'temperature', 'nominalValue' : 1, 'SIUnit' : 'K', 
+	'TemperatureDifference' : {'title' : 'temperature difference', 'nominalValue' : 1, 'SIUnit' : 'K', 
 		'units' : OrderedDict((('K', {'mult' : 1}), ('degC', {'mult' : 1}), ('degF', {'mult' : 5./9}), ('degR', {'mult' : 5./9})))},
 	'Density' : {'title' : 'density', 'nominalValue' : 1, 'SIUnit' : 'kg/m**3', 
 		'units' : OrderedDict((('kg/m**3', {'mult' : 1}), ('g/L', {'mult' : 1}), ('g/cm**3', {'mult' : 1e3}),))},

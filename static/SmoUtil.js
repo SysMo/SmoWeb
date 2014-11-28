@@ -438,16 +438,28 @@ smoModule.directive('smoQuantity', ['$compile', 'util', function($compile, util)
 		controller: function($scope){									
 			$scope.checkValueValidity = function(){
 				$scope[$scope.fieldVar.name + 'Form'].input.$setValidity('minVal', true);
-				$scope[$scope.fieldVar.name + 'Form'].input.$setValidity('maxVal', true);							
-				if ($scope.fieldVar.value < $scope.fieldVar.minValue) {
+				$scope[$scope.fieldVar.name + 'Form'].input.$setValidity('maxVal', true);
+				if ($scope[$scope.fieldVar.name + 'Form'].input.required == false 
+						|| $scope[$scope.fieldVar.name + 'Form'].input.pattern == false) {
+					return;
+				}
+				$scope.updateValue();
+				if ($scope.fieldVar.value < Number($scope.fieldVar.minValue)) {
 					$scope[$scope.fieldVar.name + 'Form'].input.$setValidity('minVal', false);
+					return;
 				}		
-				else if ($scope.fieldVar.value > $scope.fieldVar.maxValue){
+				else if ($scope.fieldVar.value > Number($scope.fieldVar.maxValue)){
 					$scope[$scope.fieldVar.name + 'Form'].input.$setValidity('maxVal', false);
+					return;
 				}
-				if ($scope[$scope.fieldVar.name + 'Form'].$valid == true) {
-					$scope.updateValue();
-				}
+				
+				
+//				if ($scope[$scope.fieldVar.name + 'Form'].$valid == true) {
+//					$scope.updateValue();
+//				} else if ($scope[$scope.fieldVar.name + 'Form'].input.minVal == false
+//							|| $scope[$scope.fieldVar.name + 'Form'].input.maxVal == false){
+//					$scope.revertOnInvalidity();
+//				}
 			}
 			
 			$scope.revertOnInvalidity = function(){
@@ -459,6 +471,8 @@ smoModule.directive('smoQuantity', ['$compile', 'util', function($compile, util)
 					}
 					$scope.fieldVar.displayValue = util.formatNumber(($scope.fieldVar.value - offset) / $scope.fieldVar.dispUnitDef.mult);
 				}
+				$scope[$scope.fieldVar.name + 'Form'].input.$setValidity('minVal', true);
+				$scope[$scope.fieldVar.name + 'Form'].input.$setValidity('maxVal', true);
 			}
 			
 			$scope.updateValue = function() {
