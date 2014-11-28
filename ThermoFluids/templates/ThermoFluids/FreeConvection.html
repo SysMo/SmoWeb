@@ -14,10 +14,10 @@ angular.module('FreeConvection', ['ui.bootstrap', 'smo'])
 	.controller('FreeConvectionController', 
 		[ '$scope', function($scope) {
  		$scope.inputs = { autoFetch : true, dataUrl: '/ThermoFluids/FreeConvection/', action: 'getInputs'};
-//  		$scope.outputs = { dataUrl: '/ThermoFluids/FreeConvection/', action: 'compute'};
-// 		$scope.compute = function() {
-// 			$scope.outputs.fetchData($scope.inputs.data.values);
-// 		}
+ 		$scope.outputs = { dataUrl: '/ThermoFluids/FreeConvection/', action: 'compute'};
+		$scope.compute = function() {
+			$scope.outputs.fetchData($scope.inputs.data.values);
+		}
 		
 	}]);
 </script>
@@ -42,10 +42,10 @@ angular.module('FreeConvection', ['ui.bootstrap', 'smo'])
 				</div>
 			</div>
 			<div class="section" style="margin-left: 20px;">		
-<!-- 				<div ng-show="inputs.inputsObtained"><button ng-disabled="!myForm.$valid" class="btn btn-default" ng-click="compute()">Compute</button></div> -->
+				<div ng-show="inputs.inputsObtained"><button ng-disabled="!myForm.$valid" class="btn btn-default" ng-click="compute()">Compute</button></div>
 			</div>
 			<div class="section"> 
-<!-- 				<div smo-output-view="outputs"></div> -->
+				<div smo-output-view="outputs"></div>
 			</div>
 		</div>
 		<div class="tab-pane" id="doc">

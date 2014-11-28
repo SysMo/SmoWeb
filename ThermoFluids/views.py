@@ -108,7 +108,18 @@ def freeConvectionView(request):
 			inputs = convection.superGroupList2Json([convection.inputs])
 			return JsonResponse(inputs)
 		elif (action == 'compute'):
-			pass
+			results = {}
+			try:
+				convection = FreeConvection()
+				convection.fieldValuesFromJson(parameters)
+				convection.compute()
+				results = convection.superGroupList2Json([FreeConvection.results])
+				results['errStatus'] = False 
+				return JsonResponse(results)
+			except Exception, e:
+				results['errStatus'] = True
+				results['error'] = str(e)
+				return JsonResponse(results)
 		else:
 			raise ValueError('Unknown action "{0}"'.format(action)) 
 	else:
