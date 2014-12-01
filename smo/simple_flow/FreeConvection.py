@@ -122,7 +122,7 @@ class FreeConvection(NumericalModel):
 			self.area = self.width * self.height
 		else:
 			raise ValueError("Geometry configuration {0} not implemented".format(GeometryConfigurations[self.geomConf]))
-		print s
+		
 		# Compute free convection dimensionless numbers
 		self.Gr = 9.81 * (s ** 3) * self.beta * self.deltaT / (nu ** 2)
 		self.Ra = self.Gr * self.Pr
