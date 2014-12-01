@@ -102,10 +102,17 @@ class FreeConvection(NumericalModel):
 			self.area = self.width * self.height
 		elif (self.geomConf == 'HC'):
 			s = self.diameter
-			self.area = np.pi * self.diameter * self.length	
+			self.area = np.pi * self.diameter * self.length
+		elif (self.geomConf == 'HPT' or self.geomConf == 'HPB'):
+			if (self.surfaceShape == 'RCT'):
+				s = self.width * self.length / (2.0 * (self.width + self.length))
+				self.area = self.width * self.length
+			elif (self.surfaceShape == 'CI'):
+				s = self.diameter / 4.0
+				self.area = (np.pi / 4) * self.diameter ** 2
 		else:
 			raise ValueError("Geometry configuration {0} not implemented".format(GeometryConfigurations[self.geomConf]))
-		
+		print s
 		# Compute free convection dimensionless numbers
 		self.Gr = 9.81 * (s ** 3) * self.beta * self.deltaT / (nu ** 2)
 		self.Ra = self.Gr * self.Pr
@@ -117,6 +124,18 @@ class FreeConvection(NumericalModel):
 		elif (self.geomConf == 'HC'):
 			fPr = (1 + (0.559 / self.Pr) ** (9.0 / 16)) ** (-16.0 / 9)
 			self.Nu = (0.6 + 0.387 * (self.Ra * fPr) ** (1.0 / 6)) ** 2			
+		elif (self.geomConf == 'HPB'):
+			fPr = (1 + (0.492 / self.Pr) ** (9.0 / 16)) ** (-16.0 / 9)
+			if (self.Ra * fPr > 1e3 and self.Ra * fPr < 1e10):
+				self.Nu = 0.6 * (self.Ra * fPr) ** (1.0 / 5)
+			else: 
+				raise ValueError("Unknown Nusselt correlation")
+		elif (self.geomConf == 'HPT'):
+			fPr = (1 + (0.322 / self.Pr) ** (11.0 / 20)) ** (-20.0 / 11) 
+			if (self.Ra * fPr <= 7 * 1e4):
+				self.Nu = 0.766 * (self.Ra * fPr) ** (1.0 / 5)
+			else:
+				self.Nu = 0.15 * (self.Ra * fPr) ** (1.0 / 3)
 		else: 
 			pass
 		
