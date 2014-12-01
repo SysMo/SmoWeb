@@ -101,6 +101,9 @@ class FreeConvection(NumericalModel):
 		if (self.geomConf == 'VP'):
 			s = self.height
 			self.area = self.width * self.height
+		elif (self.geomConf == 'VC'):
+			s = self.height
+			self.area = np.pi * self.diameter * self.height
 		elif (self.geomConf == 'HC'):
 			s = self.diameter
 			self.area = np.pi * self.diameter * self.length
@@ -127,7 +130,11 @@ class FreeConvection(NumericalModel):
 		# Use the appropriate empirical Nusselt correlation
 		if (self.geomConf == 'VP'):
 			fPr = (1 + (0.492 / self.Pr) ** (9.0 / 16)) ** (-16.0 / 9)
-			self.Nu = (0.825 + 0.387 * (self.Ra * fPr) ** (1.0 / 6)) ** 2			
+			self.Nu = (0.825 + 0.387 * (self.Ra * fPr) ** (1.0 / 6)) ** 2
+		elif (self.geomConf == 'VC'):
+			fPr = (1 + (0.492 / self.Pr) ** (9.0 / 16)) ** (-16.0 / 9)
+			Nu_plate = (0.825 + 0.387 * (self.Ra * fPr) ** (1.0 / 6)) ** 2
+			self.Nu = Nu_plate + 0.97 * self.height / self.diameter		
 		elif (self.geomConf == 'HC'):
 			fPr = (1 + (0.559 / self.Pr) ** (9.0 / 16)) ** (-16.0 / 9)
 			self.Nu = (0.6 + 0.387 * (self.Ra * fPr) ** (1.0 / 6)) ** 2			
