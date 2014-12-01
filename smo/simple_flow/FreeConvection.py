@@ -28,6 +28,11 @@ PropTemperatureConf = OrderedDict((
 	('FT', 'fluid temperature')
 	))
 
+SurfaceShapes = OrderedDict((
+	('RCT', 'rectangular'),
+	('CI', 'circular')
+	))
+
 class FreeConvection(NumericalModel):
 	fluidName = Choices(Fluids, default = 'Nitrogen', label = 'fluid')	
 	TFluid = Quantity('Temperature', default = (15, 'degC'), label = 'fluid temeprature')
@@ -35,21 +40,23 @@ class FreeConvection(NumericalModel):
 	propT = Choices(PropTemperatureConf, label = 'compute props at')
 	pressure = Quantity('Pressure', default = (1, 'bar'), label = 'fluid pressure') 
 	geomConf = Choices(GeometryConfigurations, default = 'VP', label = 'configuration')
+	surfaceShape = Choices(SurfaceShapes, default = 'RCT', label = 'surface shape',
+						show = '(self.geomConf == "HPT") || (self.geomConf == "HPB")')
 	thermalInputs = FieldGroup([fluidName, pressure, TFluid, TWall, propT, geomConf], label = 'Thermal') 
 	
 	width = Quantity('Length', default = (1, 'm'), label = 'width', 
-			show = '(self.geomConf == "VP") || (self.geomConf == "IP") || (self.geomConf == "HPT") || (self.geomConf == "HPB")')
+			show = '(self.geomConf == "VP") || (self.geomConf == "IP") || (self.geomConf == "HPT" && self.surfaceShape == "RCT") || (self.geomConf == "HPB" && self.surfaceShape == "RCT")')
 	length = Quantity('Length', default = (1, 'm'), label = 'length', 
-			show = '(self.geomConf == "IP") || (self.geomConf == "HPT") || (self.geomConf == "HPB") || (self.geomConf == "HC")')
+			show = '(self.geomConf == "IP") || (self.geomConf == "HPT" && self.surfaceShape == "RCT") || (self.geomConf == "HPB" && self.surfaceShape == "RCT") || (self.geomConf == "HC")')
 	height = Quantity('Length', default = (1, 'm'), label = 'height', 
 			show = '(self.geomConf == "VP") || (self.geomConf == "VC")')
 	diameter = Quantity('Length', default = (5, 'mm'), label = 'diameter', 
-		show = '(self.geomConf == "VC") || (self.geomConf == "HC") || (self.geomConf == "SPH")')
+		show = '(self.geomConf == "VC") || (self.geomConf == "HC") || (self.geomConf == "SPH") || (self.geomConf == "HPT" && self.surfaceShape == "CI") || (self.geomConf == "HPB" && self.surfaceShape == "CI")')
 	angle = Quantity('Angle', default = (45, 'deg'), label = 'inclination',
 			show ='self.geomConf == "IP"')
 	inputArea = Quantity('Area', default = (1, 'm**2'), label = 'surface area', show = 'self.geomConf == "CCF"')
 	input_h = Quantity('HeatTransferCoefficient', label = 'convection coefficient', show = 'self.geomConf == "CCF"')
-	geometryInputs = FieldGroup([width, length, height, diameter,  angle, inputArea, input_h], label = 'Geometry')
+	geometryInputs = FieldGroup([surfaceShape, width, length, height, diameter,  angle, inputArea, input_h], label = 'Geometry')
 	
 	inputs = SuperGroup([thermalInputs, geometryInputs])
 	###############
@@ -57,7 +64,7 @@ class FreeConvection(NumericalModel):
 	cond = Quantity('ThermalConductivity', label = 'thermal conductivity')
 	rho = Quantity('Density', label = 'density')
 	mu = Quantity('DynamicViscosity', label = 'dynamic viscosity')
-	beta = Quantity('Dimensionless', label = 'beta')
+	beta = Quantity('ThermalExpansionCoefficient', label = 'beta')
 	Pr = Quantity('Dimensionless', label = 'Prandtl number')
 	fluidProps = FieldGroup([Tfilm, rho, cond, mu, beta, Pr], label = "Fluid propeties")
 
