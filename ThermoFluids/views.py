@@ -109,17 +109,17 @@ def freeConvectionView(request):
 			return JsonResponse(inputs)
 		elif (action == 'compute'):
 			results = {}
-			try:
-				convection = FreeConvection()
-				convection.fieldValuesFromJson(parameters)
-				convection.compute()
-				results = convection.superGroupList2Json([FreeConvection.results])
-				results['errStatus'] = False 
-				return JsonResponse(results)
-			except Exception, e:
-				results['errStatus'] = True
-				results['error'] = str(e)
-				return JsonResponse(results)
+# 			try:
+			convection = FreeConvection()
+			convection.fieldValuesFromJson(parameters)
+			convection.compute()
+			results = convection.superGroupList2Json([FreeConvection.results])
+			results['errStatus'] = False 
+			return JsonResponse(results)
+# 			except Exception, e:
+# 				results['errStatus'] = True
+# 				results['error'] = str(e)
+# 				return JsonResponse(results)
 		else:
 			raise ValueError('Unknown action "{0}"'.format(action)) 
 	else:
