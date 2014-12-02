@@ -1,0 +1,182 @@
+<div class="document" id="free-convection">
+<h1 class="title">Free Convection</h1>
+<div class="section" id="external-flow">
+<h1>1.&nbsp;&nbsp;&nbsp;External Flow</h1>
+<div class="section" id="parameters">
+<h2>1.1.&nbsp;&nbsp;&nbsp;Parameters</h2>
+<p>A geometry configuration among the following can be selected:</p>
+<ul class="simple">
+<li>vertical plane</li>
+<li>inclined plane top</li>
+<li>inclined plane bottom</li>
+<li>horizontal plane top</li>
+<li>horizontal plane bottom</li>
+<li>vertical cylinder</li>
+<li>horizontal cylinder</li>
+<li>sphere</li>
+<li>finned pipe</li>
+<li>convection coefficient</li>
+</ul>
+<p>where the <em>convection coefficient</em> option allows for calculating the heat flow rate directly from a user input for
+the convection coefficient.</p>
+<p>The thermal inputs include the surface temperature of the solid body (<span class="math">\(T_{s}\)</span>) and the fluid temperature far from the surface (<span class="math">\(T_{\infty}\)</span>).
+The computation can be done either at <span class="math">\(T_{s}\)</span> or the mean temperature <span class="math">\(T_{*}=\frac{1}{2}\left(T_{s}+T_{\infty}\right)\)</span> and is also customizable by an input for the heat exchange gain factor.</p>
+<p>The convection coefficient <span class="math">\(\alpha\)</span> is calculated from the formula:</p>
+<div class="math">
+\begin{equation*}
+\alpha=\frac{Nu\cdot\lambda}{L}
+\end{equation*}
+</div>
+<p>where <span class="math">\(Nu\)</span> is the Nusselt number, <span class="math">\(\lambda\)</span> is the thermal conductivity, and <span class="math">\(L\)</span> is the characteristic length.
+The latter is determined for each specific geometry configuration as follows:</p>
+<ul class="simple">
+<li><span class="math">\(h\)</span> for vertical plane, inclined plane and vertical cylinder</li>
+<li><span class="math">\(d\)</span> for horizontal cylinder and sphere</li>
+<li><span class="math">\(\frac{d}{4}\)</span> for a horizontal plane with a circular shape</li>
+<li><span class="math">\(\frac{w\cdot l}{2\left(w+l\right)}\)</span> for a horizontal plane with a rectangular shape</li>
+<li><span class="math">\(d+h_{f}\)</span> for finned pipe</li>
+</ul>
+<p>The heat flow rate <span class="math">\(\dot{Q}\)</span> is then derived from the formula:</p>
+<div class="math">
+\begin{equation*}
+\dot{Q}=\alpha\cdot A\cdot\Delta T
+\end{equation*}
+</div>
+<p>where <span class="math">\(A\)</span> is the surface area of the solid body and <span class="math">\(\Delta T\)</span> is the temperature difference.</p>
+<p>The Nusselt number <span class="math">\(Nu\)</span> is determined for each configuration by a specific <span class="math">\(Nu=f\left(Ra,Pr\right)\)</span> correlation,
+where <span class="math">\(Ra\)</span> is the Rayleigh number and <span class="math">\(Pr\)</span> is the Prandtl number:</p>
+<div class="section" id="vertical-plane">
+<h3>1.1.1.&nbsp;&nbsp;&nbsp;Vertical plane</h3>
+<div class="math">
+\begin{equation*}
+Nu=\left\{ 0.825+0.387\left[Ra\cdot f_{1}\left(Pr\right)\right]^{\frac{1}{6}}\right\} ^{2}
+\end{equation*}
+</div>
+<p>where</p>
+<div class="math">
+\begin{equation*}
+f_{1}\left(Pr\right)=\left[1+\left(\frac{0.492}{Pr}\right)^{\frac{9}{16}}\right]^{-\frac{16}{9}}
+\end{equation*}
+</div>
+</div>
+<div class="section" id="vertical-cylinder">
+<h3>1.1.2.&nbsp;&nbsp;&nbsp;Vertical cylinder</h3>
+<div class="math">
+\begin{equation*}
+Nu=Nu_{plate}+0.97\frac{h}{d}
+\end{equation*}
+</div>
+<p>where <span class="math">\(Nu_{plate}\)</span> is the Nusselt number for a vertical plate with height <span class="math">\(h\)</span></p>
+</div>
+<div class="section" id="inclined-plane">
+<h3>1.1.3.&nbsp;&nbsp;&nbsp;Inclined plane</h3>
+<p>Let <span class="math">\(\alpha\)</span> be the angle of inclination to the vertical. The are two cases:</p>
+<div class="section" id="the-surface-transmits-heat-downward-or-absorbs-heat-from-above">
+<h4>1.1.3.1.&nbsp;&nbsp;&nbsp;The surface transmits heat downward or absorbs heat from above</h4>
+<p>In the equation for vertical plane <span class="math">\(Ra_{\alpha}=Ra\cdot \cos (\alpha)\)</span> is substituted for <span class="math">\(Ra\)</span>.</p>
+</div>
+<div class="section" id="the-surface-transmits-heat-upward-or-absorbs-heat-from-below">
+<h4>1.1.3.2.&nbsp;&nbsp;&nbsp;The surface transmits heat upward or absorbs heat from below</h4>
+<div class="math">
+\begin{equation*}
+Nu=0.56\left(Ra_{c}\cdot \cos (\alpha)\right)^{\frac{1}{4}}+0.13\left(Ra^{\frac{1}{3}}-Ra_{c}^{\frac{1}{3}}\right)
+\end{equation*}
+</div>
+<p>where <span class="math">\(Ra_{c}\)</span> is derived from</p>
+<div class="math">
+\begin{equation*}
+Ra_{c}=10^{\left(8.9-0.00178\cdot\alpha^{1.82}\right)}
+\end{equation*}
+</div>
+</div>
+</div>
+<div class="section" id="horizontal-plane">
+<h3>1.1.4.&nbsp;&nbsp;&nbsp;Horizontal plane</h3>
+<p>There are two cases:</p>
+<div class="section" id="heat-is-emitted-at-the-upper-surface">
+<h4>1.1.4.1.&nbsp;&nbsp;&nbsp;Heat is emitted at the upper surface</h4>
+<p>If</p>
+<div class="math">
+\begin{equation*}
+Ra\cdot f_{1}\left(Pr\right)&lt;7\cdot10^{4}
+\end{equation*}
+</div>
+<p>then</p>
+<div class="math">
+\begin{equation*}
+Nu=0.766\left[Ra\cdot f_{1}\left(Pr\right)\right]^{\frac{1}{5}}
+\end{equation*}
+</div>
+<p>Otherwise</p>
+<div class="math">
+\begin{equation*}
+Nu=0.15\left[Ra\cdot f_{1}\left(Pr\right)\right]^{\frac{1}{3}}
+\end{equation*}
+</div>
+<p>where</p>
+<div class="math">
+\begin{equation*}
+f_{1}\left(Pr\right)=\left[1+\left(\frac{0.322}{Pr}\right)^{\frac{11}{20}}\right]^{-\frac{20}{11}}
+\end{equation*}
+</div>
+</div>
+<div class="section" id="heat-is-emitted-at-the-lower-surface">
+<h4>1.1.4.2.&nbsp;&nbsp;&nbsp;Heat is emitted at the lower surface</h4>
+<div class="math">
+\begin{equation*}
+Nu=0.6\left[Ra\cdot f_{1}(Pr)\right]^{\frac{1}{5}}
+\end{equation*}
+</div>
+<p>on condition that</p>
+<div class="math">
+\begin{equation*}
+10^{3}&lt;Ra\cdot f_{1}\left(Pr\right)&lt;10^{10}
+\end{equation*}
+</div>
+<p>where</p>
+<div class="math">
+\begin{equation*}
+f_{1}\left(Pr\right)=\left[1+\left(\frac{0.492}{Pr}\right)^{\frac{9}{16}}\right]^{-\frac{16}{9}}
+\end{equation*}
+</div>
+</div>
+</div>
+<div class="section" id="horizontal-cylinder">
+<h3>1.1.5.&nbsp;&nbsp;&nbsp;Horizontal cylinder</h3>
+<div class="math">
+\begin{equation*}
+Nu=\left\{ 0.60+0.387\left[Ra\cdot f_{1}\left(Pr\right)\right]^{\frac{1}{6}}\right\} ^{2}
+\end{equation*}
+</div>
+<p>where</p>
+<div class="math">
+\begin{equation*}
+f_{1}\left(Pr\right)=\left[1+\left(\frac{0.559}{Pr}\right)^{\frac{9}{16}}\right]^{-\frac{16}{9}}
+\end{equation*}
+</div>
+</div>
+<div class="section" id="sphere">
+<h3>1.1.6.&nbsp;&nbsp;&nbsp;Sphere</h3>
+<div class="math">
+\begin{equation*}
+Nu=0.56\left[\left(\frac{Pr}{0.846+Pr}\right)Ra\right]^{\frac{1}{4}}+2
+\end{equation*}
+</div>
+</div>
+<div class="section" id="finned-pipe">
+<h3>1.1.7.&nbsp;&nbsp;&nbsp;Finned pipe</h3>
+<div class="math">
+\begin{equation*}
+Nu=0.24\left(Ra\frac{b}{d}\right)^{\frac{1}{3}}
+\end{equation*}
+</div>
+<p>where <span class="math">\(b\)</span> is the fin spacing and <span class="math">\(d\)</span> is the diameter of the core pipe. The area used to
+calculate the heat exchange rate is the total surface area of the core pipe and fins.</p>
+</div>
+</div>
+</div>
+<div class="section" id="references">
+<h1>2.&nbsp;&nbsp;&nbsp;References</h1>
+<p>&quot;VDI Heat Atlas&quot;, Springer</p>
+</div>
+</div>
