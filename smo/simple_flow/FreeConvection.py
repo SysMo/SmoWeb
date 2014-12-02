@@ -34,7 +34,7 @@ SurfaceShapes = OrderedDict((
 	('CIR', 'circular')
 	))
 
-class FreeConvection(NumericalModel):
+class FreeConvection_External(NumericalModel):
 	fluidName = Choices(Fluids, default = 'Nitrogen', label = 'fluid')	
 	TFluid = Quantity('Temperature', default = (15, 'degC'), label = 'fluid temeprature')
 	TWall = Quantity('Temperature', default = (50, 'degC'), label = 'wall temeprature')
