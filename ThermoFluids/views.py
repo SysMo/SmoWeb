@@ -7,9 +7,24 @@ from collections import OrderedDict
 
 class SmoJsonResponse(object):
 	def __enter__(self):
-		pass
+		self.exceptionThrown = False
+		return self
+	
 	def __exit__(self, type, value, traceback):
-		pass
+		if (value is not None):
+			self.exceptionThrown = True
+			self.response = {}
+			self.response['errStatus'] = True
+			self.response['error'] = str(value)
+		return True
+	
+	def set(self, response):
+		if (not self.exceptionThrown):
+			self.response = response
+			self.response['errStatus'] = False
+	
+	def json(self):
+		return JsonResponse(self.response) 
 
 def heatPumpView(request):
 	if request.method == 'GET':
@@ -25,11 +40,12 @@ def heatPumpView(request):
 			inputs = hpc.superGroupList2Json([hpc.inputs])
 			return JsonResponse(inputs)
 		elif (action == 'compute'):
-			hpc = HeatPumpCalculator()
-			hpc.fieldValuesFromJson(parameters)
-			hpc.compute()
-			results = hpc.superGroupList2Json([hpc.results]) 
-			return JsonResponse(results)
+			with SmoJsonResponse() as response:
+				hpc = HeatPumpCalculator()
+				hpc.fieldValuesFromJson(parameters)
+				hpc.compute()
+				response.set(hpc.superGroupList2Json([hpc.results])) 
+			return response.json()
 
 		else:
 			raise ValueError('Unknown post action "{0}" for URL: {1}'.format(action, 'ThermoFluids/HeatPump.html'))
@@ -55,21 +71,8 @@ def fluidPropsCalculatorView(request):
 				fpc = FluidPropsCalculator()
 				fpc.fieldValuesFromJson(parameters)
 				fpc.compute()
-				results = fpc.superGroupList2Json([fpc.results])
-				return JsonResponse(results)
-			print response	
-# 			results = {}
-# 			try: 
-# 				fpc = FluidPropsCalculator()
-# 				fpc.fieldValuesFromJson(parameters)
-# 				fpc.compute()
-# 				results = fpc.superGroupList2Json([fpc.results])
-# 				results['errStatus'] = False
-# 				return JsonResponse(results)
-# 			except Exception, e:
-# 				results['errStatus'] = True
-# 				results['error'] = str(e)
-# 				return JsonResponse(results)
+				response.set(fpc.superGroupList2Json([fpc.results]))
+			return response.json()
 		else:
 			raise ValueError('Unknown post action "{0}" for URL: {1}'.format(action, 'ThermoFluids/FluidPropsCalculator.html'))
 
@@ -81,28 +84,19 @@ def flowResistanceView(request):
 		parameters = postData['parameters']
 		if (action == 'getInputs'):
 			inputs = {}
-			try:
+			with SmoJsonResponse() as response:
 				pipe = Pipe()
 				inputs = pipe.superGroupList2Json([Pipe.inputs])
-				return JsonResponse(inputs)
-			except Exception, e:
-				inputs['errStatus'] = True
-				inputs['error'] = str(e)
-				return JsonResponse(inputs)
+				response.set(inputs)
+			return response.json()
 		elif (action == 'compute'):
-			results = {}
-			try:
+			with SmoJsonResponse() as response:
 				pipe = Pipe()
 				pipe.fieldValuesFromJson(parameters)
 				pipe.computeGeometry()
 				pipe.computePressureDrop()
-				results = pipe.superGroupList2Json([Pipe.results])
-				results['errStatus'] = False 
-				return JsonResponse(results)
-			except Exception, e:
-				results['errStatus'] = True
-				results['error'] = str(e)
-				return JsonResponse(results)
+				response.set(pipe.superGroupList2Json([Pipe.results]))
+			return response.json()
 		else:
 			raise ValueError('Unknown action "{0}"'.format(action)) 
 	else:
@@ -116,23 +110,17 @@ def freeConvectionView(request):
 		action = postData['action']
 		parameters = postData['parameters']
 		if (action == 'getInputs'):
-			inputs = {}
-			convection = FreeConvection()
-			inputs = convection.superGroupList2Json([convection.inputs])
-			return JsonResponse(inputs)
+			with SmoJsonResponse() as response:
+				convection = FreeConvection()
+				response.set(convection.superGroupList2Json([convection.inputs]))
+			return response.json()
 		elif (action == 'compute'):
-			results = {}
-			try:
+			with SmoJsonResponse() as response:
 				convection = FreeConvection()
 				convection.fieldValuesFromJson(parameters)
 				convection.compute()
-				results = convection.superGroupList2Json([FreeConvection.results])
-				results['errStatus'] = False 
-				return JsonResponse(results)
-			except Exception, e:
-				results['errStatus'] = True
-				results['error'] = str(e)
-				return JsonResponse(results)
+				response.set(convection.superGroupList2Json([FreeConvection.results]))
+			return response.json()
 		else:
 			raise ValueError('Unknown action "{0}"'.format(action)) 
 	else:
