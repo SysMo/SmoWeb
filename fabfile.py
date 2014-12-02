@@ -115,7 +115,10 @@ def installAptPackages():
 		'libpng-dev',
 		# necessary for matplotlib
 		'libqhull-dev',
-		'pkg-config',		
+		'pkg-config',
+		'libagg-dev',
+		#'texlive',
+		'ghostscript'
 	]
 	packageString = (" ").join(packageList)
 	sudo('apt-get install {0}'.format(packageString))
@@ -130,6 +133,8 @@ def installPipPackages():
 			'argparse',
 			'six',
 			'python-dateutil',
+			# Template library
+			'jinja2',
 			# Python wrappers for C/C++ 
 			'cython',
 			# Numerical libraries
@@ -139,6 +144,9 @@ def installPipPackages():
 			'pytz',
 			'tornado',
 			'pyparsing',
+			# Matplotlib
+			#'matplotlib',
+			'mpld3',
 			# Finite volume solver
 			'ez_setup',
 			'fipy',
@@ -166,9 +174,9 @@ def installPySparse():
 		
 def installMatplotlib():
 	""" Plotting library"""
+	sudo('apt-get build-dep python-matplotlib')
 	with virtualenv():
-		with shell_env(CFLAGS="-I/usr/include/freetype2"):
-			run('pip install matplotlib')
+		run('pip install matplotlib')
 	
 	
 def installHdf():

@@ -5,6 +5,12 @@ from smo.numerical_model.quantity import Quantities
 from smo.smoflow3d.SimpleMaterials import Fluids
 from collections import OrderedDict
 
+class SmoJsonResponse(object):
+	def __enter__(self):
+		pass
+	def __exit__(self, type, value, traceback):
+		pass
+
 def heatPumpView(request):
 	if request.method == 'GET':
 		return render_to_response('ThermoFluids/HeatPump.html', locals(), 
@@ -45,18 +51,25 @@ def fluidPropsCalculatorView(request):
 			fluidDataList = FluidInfo.getList()
 			return JsonResponse(fluidDataList, safe = False)
 		elif (action == 'compute'):
-			results = {}
-			try: 
+			with SmoJsonResponse() as response:
 				fpc = FluidPropsCalculator()
 				fpc.fieldValuesFromJson(parameters)
 				fpc.compute()
 				results = fpc.superGroupList2Json([fpc.results])
-				results['errStatus'] = False
 				return JsonResponse(results)
-			except Exception, e:
-				results['errStatus'] = True
-				results['error'] = str(e)
-				return JsonResponse(results)
+			print response	
+# 			results = {}
+# 			try: 
+# 				fpc = FluidPropsCalculator()
+# 				fpc.fieldValuesFromJson(parameters)
+# 				fpc.compute()
+# 				results = fpc.superGroupList2Json([fpc.results])
+# 				results['errStatus'] = False
+# 				return JsonResponse(results)
+# 			except Exception, e:
+# 				results['errStatus'] = True
+# 				results['error'] = str(e)
+# 				return JsonResponse(results)
 		else:
 			raise ValueError('Unknown post action "{0}" for URL: {1}'.format(action, 'ThermoFluids/FluidPropsCalculator.html'))
 
