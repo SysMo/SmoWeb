@@ -63,8 +63,8 @@ class FreeConvection(NumericalModel):
 	finHeight = Quantity('Length', default = (0.03, 'm'), label = 'fin height', 
 			show = '(self.geomConf == "FIN")')
 	inputArea = Quantity('Area', default = (1, 'm**2'), label = 'surface area', show = 'self.geomConf == "CCF"')
-	input_h = Quantity('HeatTransferCoefficient', label = 'convection coefficient', show = 'self.geomConf == "CCF"')
-	geometryInputs = FieldGroup([surfaceShape, width, length, height, diameter,  angle, inputArea, input_h, 
+	input_alpha = Quantity('HeatTransferCoefficient', label = 'convection coefficient', show = 'self.geomConf == "CCF"')
+	geometryInputs = FieldGroup([surfaceShape, width, length, height, diameter,  angle, inputArea, input_alpha, 
 								finHeight, finThickness, finSpacing], label = 'Geometry')
 	
 	inputs = SuperGroup([thermalInputs, geometryInputs])
@@ -81,10 +81,10 @@ class FreeConvection(NumericalModel):
 	Gr = Quantity('Dimensionless', label = 'Grashof number')
 	Ra = Quantity('Dimensionless', label = 'Rayleigh number')
 	Nu = Quantity('Dimensionless', label = 'Nusselt number')
-	h = Quantity('HeatTransferCoefficient', label = 'convection coefficient')
+	alpha = Quantity('HeatTransferCoefficient', label = 'convection coefficient')
 	area = Quantity('Area', label = 'surface area')
 	QDot = Quantity('HeatFlowRate', label = 'heat flow rate')	
-	heatExchangeResults = FieldGroup([deltaT, Gr, Ra, Nu, h, area, QDot], label = 'Heat exchange')
+	heatExchangeResults = FieldGroup([deltaT, Gr, Ra, Nu, alpha, area, QDot], label = 'Heat exchange')
 		
 	results = SuperGroup([fluidProps, heatExchangeResults])
 	
@@ -182,8 +182,8 @@ class FreeConvection(NumericalModel):
 		self.Nu = self.Nu * self.heatExchangeGain
 		
 		# Compute the convection coefficient and the total heat flow rate
-		self.h = self.Nu * self.cond / s
-		self.QDot = self.area * self.h * self.deltaT
+		self.alpha = self.Nu * self.cond / s
+		self.QDot = self.area * self.alpha * self.deltaT
 		
 		
 		
