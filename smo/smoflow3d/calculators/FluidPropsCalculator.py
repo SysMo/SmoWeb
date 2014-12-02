@@ -139,7 +139,6 @@ class FluidInfo(NumericalModel):
 	
 	def __init__(self, fluidName):
 		f = Fluid(fluidName)
-		print f.EOSReference()
 		crit = f.critical()
 		self.crit_p = crit['p']
 		self.crit_T = crit['T']
@@ -171,7 +170,6 @@ class FluidInfo(NumericalModel):
 			except KeyError:
 				reference = None
 			refList.append([referenceKeys[key], reference])
-		print json.dumps(refList, True)
 		return refList
 		
 			

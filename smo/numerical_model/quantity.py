@@ -56,6 +56,8 @@ Quantities = {
 		'units' : OrderedDict((('J/kg-K', {'mult' : 1}), ('kJ/kg-K', {'mult' : 1e3}),))},
 	'ThermalConductivity' : {'title' : 'thermal conductivity', 'nominalValue' : 1.0, 'SIUnit' : 'W/m-K', 'defDispUnit' : 'W/m-K',
 		'units' : OrderedDict((('W/m-K', {'mult' : 1}), ('W/cm-K', {'mult' : 1e2}), ('W/mm-K', {'mult' : 1e3})))},
+	'ThermalExpansionCoefficient' : {'title' : 'thermal expansion coefficient', 'nominalValue' : 1.0, 'SIUnit' : '1/K', 'defDispUnit' : '1/K',
+		'units' : OrderedDict((('1/K', {'mult' : 1}), ('1/mK', {'mult' : 1e-3}), ('1/degC', {'mult' : 1}), ('1/degF', {'mult' : 9./5})))},
 	'HeatTransferCoefficient' : {'title' : 'heat transfer coefficient', 'nominalValue' : 1.0, 'SIUnit' : 'W/m**2-K', 'defDispUnit' : 'W/m**2-K',
 		'units' : OrderedDict((('W/m**2-K', {'mult' : 1}), ('kW/m**2-K', {'mult' : 1e3}), ('W/cm**2-K', {'mult' : 1e4})))},
 	'DynamicViscosity' : {'title' : 'dynamic viscosity', 'nominalValue' : 1.0, 'SIUnit' : 'Pa-s', 'defDispUnit' : 'Pa-s',
