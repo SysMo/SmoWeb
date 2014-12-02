@@ -20,7 +20,7 @@ GeometryConfigurations = OrderedDict((
 	('VC', 'vertical cylinder'),
 	('HC', 'horizontal cylinder'),
 	('SPH', 'sphere'),
-#	('Fin', 'finnedPipe'),
+	('FIN', 'finned pipe'),
 	('CCF', 'convection coefficient')
 	))
 
@@ -43,21 +43,29 @@ class FreeConvection(NumericalModel):
 	geomConf = Choices(GeometryConfigurations, default = 'VP', label = 'configuration')
 	surfaceShape = Choices(SurfaceShapes, default = 'RCT', label = 'surface shape',
 						show = '(self.geomConf == "HPT") || (self.geomConf == "HPB")')
-	thermalInputs = FieldGroup([fluidName, pressure, TFluid, TWall, propT, geomConf], label = 'Thermal') 
+	heatExchangeGain = Quantity('Dimensionless', label = 'heat exchange gain')
+	thermalInputs = FieldGroup([fluidName, pressure, TFluid, TWall, propT, geomConf, heatExchangeGain], label = 'Thermal') 
 	
 	width = Quantity('Length', default = (1, 'm'), label = 'width', 
 			show = '(self.geomConf == "VP") || (self.geomConf == "HPT" && self.surfaceShape == "RCT") || (self.geomConf == "HPB" && self.surfaceShape == "RCT") || (self.geomConf == "IPT") || (self.geomConf == "IPB")')
 	length = Quantity('Length', default = (1, 'm'), label = 'length', 
-			show = '(self.geomConf == "HPT" && self.surfaceShape == "RCT") || (self.geomConf == "HPB" && self.surfaceShape == "RCT") || (self.geomConf == "HC")')
+			show = '(self.geomConf == "HPT" && self.surfaceShape == "RCT") || (self.geomConf == "HPB" && self.surfaceShape == "RCT") || (self.geomConf == "HC") || (self.geomConf == "FIN")')
 	height = Quantity('Length', default = (1, 'm'), label = 'height', 
 			show = '(self.geomConf == "VP") || (self.geomConf == "VC") || (self.geomConf == "IPT") || (self.geomConf == "IPB")')
 	diameter = Quantity('Length', default = (5, 'mm'), label = 'diameter', 
-		show = '(self.geomConf == "VC") || (self.geomConf == "HC") || (self.geomConf == "SPH") || (self.geomConf == "HPT" && self.surfaceShape == "CIR") || (self.geomConf == "HPB" && self.surfaceShape == "CIR")')
+		show = '(self.geomConf == "VC") || (self.geomConf == "HC") || (self.geomConf == "SPH") || (self.geomConf == "HPT" && self.surfaceShape == "CIR") || (self.geomConf == "HPB" && self.surfaceShape == "CIR") || (self.geomConf == "FIN")')
 	angle = Quantity('Angle', default = (45, 'deg'), label = 'angle to the vertical',
 			show ='(self.geomConf == "IPT") || (self.geomConf == "IPB")')
+	finSpacing = Quantity('Length', default = (0.020, 'm'), label = 'fin spacing', 
+			show = '(self.geomConf == "FIN")')
+	finThickness = Quantity('Length', default = (0.002, 'm'), label = 'fin thickness', 
+			show = '(self.geomConf == "FIN")')
+	finHeight = Quantity('Length', default = (0.03, 'm'), label = 'fin height', 
+			show = '(self.geomConf == "FIN")')
 	inputArea = Quantity('Area', default = (1, 'm**2'), label = 'surface area', show = 'self.geomConf == "CCF"')
 	input_h = Quantity('HeatTransferCoefficient', label = 'convection coefficient', show = 'self.geomConf == "CCF"')
-	geometryInputs = FieldGroup([surfaceShape, width, length, height, diameter,  angle, inputArea, input_h], label = 'Geometry')
+	geometryInputs = FieldGroup([surfaceShape, width, length, height, diameter,  angle, inputArea, input_h, 
+								finHeight, finThickness, finSpacing], label = 'Geometry')
 	
 	inputs = SuperGroup([thermalInputs, geometryInputs])
 	###############
@@ -120,6 +128,14 @@ class FreeConvection(NumericalModel):
 		elif (self.geomConf == 'IPT' or self.geomConf == 'IPB'):
 			s = self.height
 			self.area = self.width * self.height
+		elif (self.geomConf == 'FIN'):
+			#halfway between full rib and bare pipe
+			s = self.diameter + self.finHeight;
+			finsPerLength = 1.0/(self.finThickness + self.finSpacing)
+			self.area = np.pi * self.diameter * (1 - self.finThickness * finsPerLength)
+			self.area += finsPerLength * np.pi * self.finHeight * 2 * (self.diameter + self.finHeight)
+			self.area += finsPerLength * np.pi * self.finThickness * (self.diameter + 2 * self.finHeight)
+			self.area *= self.length
 		else:
 			raise ValueError("Geometry configuration {0} not implemented".format(GeometryConfigurations[self.geomConf]))
 		
@@ -158,8 +174,12 @@ class FreeConvection(NumericalModel):
 		elif ((self.geomConf == 'IPT' and self.deltaT > 0) or (self.geomConf == 'IPB' and self.deltaT < 0)):
 			Ra_crit = 10 ** (8.9 - 0.00178 * (self.angle * 180 / np.pi) ** 1.82)
 			self.Nu = 0.56 * (Ra_crit * np.cos(self.angle)) ** (1.0 / 4) + 0.13 * (self.Ra ** (1.0 / 3) - Ra_crit ** (1.0 / 3))
+		elif (self.geomConf == 'FIN'):
+			#Correlation from VDI Heat Atlas F2.4.4
+			self.Nu = 0.24 * (self.Ra * self.finSpacing / self.diameter) ** (1.0 / 3)
 		else: 
 			pass
+		self.Nu = self.Nu * self.heatExchangeGain
 		
 		# Compute the convection coefficient and the total heat flow rate
 		self.h = self.Nu * self.cond / s
