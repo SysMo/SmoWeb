@@ -1,52 +1,147 @@
 <div class="document" id="free-convection">
 <h1 class="title">Free Convection</h1>
-<div class="section" id="external-flow">
-<h1>1.&nbsp;&nbsp;&nbsp;External Flow</h1>
-<div class="section" id="parameters">
-<h2>1.1.&nbsp;&nbsp;&nbsp;Parameters</h2>
-<p>A geometry configuration among the following can be selected:</p>
-<ul class="simple">
-<li>vertical plane</li>
-<li>inclined plane top</li>
-<li>inclined plane bottom</li>
-<li>horizontal plane top</li>
-<li>horizontal plane bottom</li>
-<li>vertical cylinder</li>
-<li>horizontal cylinder</li>
-<li>sphere</li>
-<li>finned pipe</li>
-<li>convection coefficient</li>
-</ul>
-<p>where the <em>convection coefficient</em> option allows for calculating the heat flow rate directly from a user input for
-the convection coefficient.</p>
-<p>The thermal inputs include the surface temperature of the solid body (<span class="math">\(T_{s}\)</span>) and the fluid temperature far from the surface (<span class="math">\(T_{\infty}\)</span>).
-The computation can be done either at <span class="math">\(T_{s}\)</span> or the mean temperature <span class="math">\(T_{*}=\frac{1}{2}\left(T_{s}+T_{\infty}\right)\)</span> and is also customizable by an input for the heat exchange gain factor.</p>
-<p>The convection coefficient <span class="math">\(\alpha\)</span> is calculated from the formula:</p>
+<div class="section" id="free-convection-general">
+<h1>1.&nbsp;&nbsp;&nbsp;Free convection (general)</h1>
+<div class="section" id="parameters-and-variables">
+<h2>1.1.&nbsp;&nbsp;&nbsp;Parameters and variables</h2>
+<table border="1" class="nice-table docutils">
+<colgroup>
+<col width="63%" />
+<col width="37%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td><span class="math">\(g\)</span></td>
+<td>earth acceleration (9.81 m/s <sup>2</sup>)</td>
+</tr>
+<tr><td><span class="math">\(T_s\)</span></td>
+<td>surface temperature</td>
+</tr>
+<tr><td><span class="math">\(T_\infty\)</span></td>
+<td>fluid temperature (far from the surface)</td>
+</tr>
+<tr><td><span class="math">\(p\)</span></td>
+<td>fluid pressure</td>
+</tr>
+<tr><td><span class="math">\(\mu\)</span></td>
+<td>dynamic viscosity</td>
+</tr>
+<tr><td><span class="math">\(\nu = \mu / \rho\)</span></td>
+<td>kinematic viscosity</td>
+</tr>
+<tr><td><span class="math">\(c_p\)</span></td>
+<td>specific heat capacity at constant pressure</td>
+</tr>
+<tr><td><span class="math">\(\beta=\frac{1}{\rho}\left(\frac{\partial\rho}{\partial T}\right)_{p}\)</span></td>
+<td>isobaic thermal expansion coefficient</td>
+</tr>
+<tr><td><span class="math">\(\lambda\)</span></td>
+<td>thermal conductivity</td>
+</tr>
+<tr><td><span class="math">\(\alpha\)</span></td>
+<td>convection heat rate coefficient</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="dimensionless-groups">
+<h2>1.2.&nbsp;&nbsp;&nbsp;Dimensionless groups</h2>
+<table border="1" class="nice-table docutils">
+<colgroup>
+<col width="48%" />
+<col width="17%" />
+<col width="35%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Group</th>
+<th class="head">Name</th>
+<th class="head">Meaning</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td><span class="math">\(Pr = \frac{c_p \mu}{\lambda}\)</span></td>
+<td>Prandtl number</td>
+<td><p class="first">ratio of momentum diffusivity</p>
+<p class="last">to thermal diffusivity</p>
+</td>
+</tr>
+<tr><td><span class="math">\(Gr =\frac{g s^3 \beta \Delta T}{\nu^2}\)</span></td>
+<td>Grashof number</td>
+<td><p class="first">ratio of buoyancy forces</p>
+<p class="last">to viscous forces</p>
+</td>
+</tr>
+<tr><td><span class="math">\(Ra = Gr\cdot Pr\)</span></td>
+<td>Rayleigh number</td>
+<td>&nbsp;</td>
+</tr>
+<tr><td><span class="math">\(Nu = \frac{\alpha s}{\lambda}\)</span></td>
+<td>Nusselt number</td>
+<td><p class="first">ratio of convective heat transfer</p>
+<p class="last">to conductive heat transfer</p>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="calculation-algorithm">
+<h2>1.3.&nbsp;&nbsp;&nbsp;Calculation algorithm</h2>
+<p>The following steps are taken to compute the convective heat exchange</p>
+<ol class="arabic simple">
+<li>Compute fluid properties</li>
+<li>Determine characteristic length and surface area for the particular geometry configuration</li>
+<li>Compute Grasshof number</li>
+<li>Compute Rayleigh number</li>
+<li>Determine whether laminar or turbulent flow occurs</li>
+<li>Use the appropriate Nusselt number correlation to compute the <span class="math">\(Nu=f\left(Ra,Pr\right)\)</span></li>
+<li>Compute convection coefficient</li>
+</ol>
 <div class="math">
 \begin{equation*}
-\alpha=\frac{Nu\cdot\lambda}{L}
+\alpha=\frac{Nu\cdot\lambda}{s}
 \end{equation*}
 </div>
-<p>where <span class="math">\(Nu\)</span> is the Nusselt number, <span class="math">\(\lambda\)</span> is the thermal conductivity, and <span class="math">\(L\)</span> is the characteristic length.
-The latter is determined for each specific geometry configuration as follows:</p>
-<ul class="simple">
-<li><span class="math">\(h\)</span> for vertical plane, inclined plane and vertical cylinder</li>
-<li><span class="math">\(d\)</span> for horizontal cylinder and sphere</li>
-<li><span class="math">\(\frac{d}{4}\)</span> for a horizontal plane with a circular shape</li>
-<li><span class="math">\(\frac{w\cdot l}{2\left(w+l\right)}\)</span> for a horizontal plane with a rectangular shape</li>
-<li><span class="math">\(d+h_{f}\)</span> for finned pipe</li>
-</ul>
-<p>The heat flow rate <span class="math">\(\dot{Q}\)</span> is then derived from the formula:</p>
+<ol class="arabic simple" start="8">
+<li>Compute heat flow rate</li>
+</ol>
 <div class="math">
 \begin{equation*}
 \dot{Q}=\alpha\cdot A\cdot\Delta T
 \end{equation*}
 </div>
-<p>where <span class="math">\(A\)</span> is the surface area of the solid body and <span class="math">\(\Delta T\)</span> is the temperature difference.</p>
-<p>The Nusselt number <span class="math">\(Nu\)</span> is determined for each configuration by a specific <span class="math">\(Nu=f\left(Ra,Pr\right)\)</span> correlation,
-where <span class="math">\(Ra\)</span> is the Rayleigh number and <span class="math">\(Pr\)</span> is the Prandtl number:</p>
+</div>
+</div>
+<div class="section" id="external-flow">
+<h1>2.&nbsp;&nbsp;&nbsp;External Flow</h1>
+<p>The folowing geometry configurations have been implemented for external free convection</p>
 <div class="section" id="vertical-plane">
-<h3>1.1.1.&nbsp;&nbsp;&nbsp;Vertical plane</h3>
+<h2>2.1.&nbsp;&nbsp;&nbsp;Vertical plane</h2>
+<table border="1" class="nice-table docutils">
+<colgroup>
+<col width="39%" />
+<col width="61%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td><span class="math">\(h\)</span></td>
+<td>height</td>
+</tr>
+<tr><td><span class="math">\(w\)</span></td>
+<td>width</td>
+</tr>
+<tr><td><span class="math">\(s = h\)</span></td>
+<td>characteristic length</td>
+</tr>
+</tbody>
+</table>
 <div class="math">
 \begin{equation*}
 Nu=\left\{ 0.825+0.387\left[Ra\cdot f_{1}\left(Pr\right)\right]^{\frac{1}{6}}\right\} ^{2}
@@ -60,7 +155,29 @@ f_{1}\left(Pr\right)=\left[1+\left(\frac{0.492}{Pr}\right)^{\frac{9}{16}}\right]
 </div>
 </div>
 <div class="section" id="vertical-cylinder">
-<h3>1.1.2.&nbsp;&nbsp;&nbsp;Vertical cylinder</h3>
+<h2>2.2.&nbsp;&nbsp;&nbsp;Vertical cylinder</h2>
+<table border="1" class="nice-table docutils">
+<colgroup>
+<col width="39%" />
+<col width="61%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td><span class="math">\(h\)</span></td>
+<td>height</td>
+</tr>
+<tr><td><span class="math">\(d\)</span></td>
+<td>diameter</td>
+</tr>
+<tr><td><span class="math">\(s = h\)</span></td>
+<td>characteristic length</td>
+</tr>
+</tbody>
+</table>
 <div class="math">
 \begin{equation*}
 Nu=Nu_{plate}+0.97\frac{h}{d}
@@ -69,20 +186,50 @@ Nu=Nu_{plate}+0.97\frac{h}{d}
 <p>where <span class="math">\(Nu_{plate}\)</span> is the Nusselt number for a vertical plate with height <span class="math">\(h\)</span></p>
 </div>
 <div class="section" id="inclined-plane">
-<h3>1.1.3.&nbsp;&nbsp;&nbsp;Inclined plane</h3>
-<p>Let <span class="math">\(\alpha\)</span> be the angle of inclination to the vertical. The are two cases:</p>
-<div class="section" id="the-surface-transmits-heat-downward-or-absorbs-heat-from-above">
-<h4>1.1.3.1.&nbsp;&nbsp;&nbsp;The surface transmits heat downward or absorbs heat from above</h4>
-<p>In the equation for vertical plane <span class="math">\(Ra_{\alpha}=Ra\cdot \cos (\alpha)\)</span> is substituted for <span class="math">\(Ra\)</span>.</p>
+<h2>2.3.&nbsp;&nbsp;&nbsp;Inclined plane</h2>
+<table border="1" class="nice-table docutils">
+<colgroup>
+<col width="16%" />
+<col width="84%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td><span class="math">\(l\)</span></td>
+<td>length (inclined)</td>
+</tr>
+<tr><td><span class="math">\(w\)</span></td>
+<td>width</td>
+</tr>
+<tr><td><span class="math">\(\alpha\)</span></td>
+<td>inclination angle (<span class="math">\(\alpha = 0\)</span> vertical, <span class="math">\(\alpha = 90^\circ\)</span> horizontal)</td>
+</tr>
+<tr><td><span class="math">\(s = l\)</span></td>
+<td>characteristic length</td>
+</tr>
+</tbody>
+</table>
+<p>There are two cases:</p>
+<div class="section" id="top-side-of-cold-plane-or-bottom-side-of-hot-plane">
+<h3>2.3.1.&nbsp;&nbsp;&nbsp;Top side of cold plane or bottom side of hot plane</h3>
+<p>The favorable pressure gradient stabilizes the boundary layer and pushes it towards the plate.
+The resulting Nusselt number can be obtained from the equation for vertical plane by substituting
+math:<cite>Ra_{alpha}=Racdot cos (alpha)</cite> for <span class="math">\(Ra\)</span>.</p>
 </div>
-<div class="section" id="the-surface-transmits-heat-upward-or-absorbs-heat-from-below">
-<h4>1.1.3.2.&nbsp;&nbsp;&nbsp;The surface transmits heat upward or absorbs heat from below</h4>
+<div class="section" id="top-side-of-hot-plane-or-bottom-side-of-cold-plane">
+<h3>2.3.2.&nbsp;&nbsp;&nbsp;Top side of hot plane or bottom side of cold plane</h3>
+<p>At low <span class="math">\(Ra\)</span> the same holds: substitute <span class="math">\(Ra_{\alpha}=Ra\cdot \cos (\alpha)\)</span> for <span class="math">\(Ra\)</span>
+in the equation for vertical plate. At <span class="math">\(Ra &gt; Ra_{c}\)</span>, the adverse pressure gradient
+tends to cause boundary layer separation. In this case</p>
 <div class="math">
 \begin{equation*}
 Nu=0.56\left(Ra_{c}\cdot \cos (\alpha)\right)^{\frac{1}{4}}+0.13\left(Ra^{\frac{1}{3}}-Ra_{c}^{\frac{1}{3}}\right)
 \end{equation*}
 </div>
-<p>where <span class="math">\(Ra_{c}\)</span> is derived from</p>
+<p>The critical Rayleigh number is a function of the angle <span class="math">\(\alpha\)</span> and is given by:</p>
 <div class="math">
 \begin{equation*}
 Ra_{c}=10^{\left(8.9-0.00178\cdot\alpha^{1.82}\right)}
@@ -91,26 +238,56 @@ Ra_{c}=10^{\left(8.9-0.00178\cdot\alpha^{1.82}\right)}
 </div>
 </div>
 <div class="section" id="horizontal-plane">
-<h3>1.1.4.&nbsp;&nbsp;&nbsp;Horizontal plane</h3>
-<p>There are two cases:</p>
-<div class="section" id="heat-is-emitted-at-the-upper-surface">
-<h4>1.1.4.1.&nbsp;&nbsp;&nbsp;Heat is emitted at the upper surface</h4>
-<p>If</p>
+<h2>2.4.&nbsp;&nbsp;&nbsp;Horizontal plane</h2>
+<table border="1" class="nice-table docutils">
+<colgroup>
+<col width="16%" />
+<col width="51%" />
+<col width="33%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">sdsdfsdf</th>
+<th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>Rectangle</td>
+<td><p class="first"><span class="math">\(l\)</span></p>
+<p><span class="math">\(w\)</span></p>
+<p class="last"><span class="math">\(s = [l\cdot w]/[2(l + w)]\)</span></p>
+</td>
+<td><p class="first">length</p>
+<p>width</p>
+<p class="last">characteristic length</p>
+</td>
+</tr>
+<tr><td>Circle</td>
+<td><p class="first"><span class="math">\(d\)</span></p>
+<p class="last"><span class="math">\(s = d\)</span></p>
+</td>
+<td><p class="first">diameter</p>
+<p class="last">characteristic length</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Once again there are two cases</p>
+<div class="section" id="id1">
+<h3>2.4.1.&nbsp;&nbsp;&nbsp;Top side of hot plane or bottom side of cold plane</h3>
+<p>The fluid flow  is laminar for</p>
 <div class="math">
 \begin{equation*}
 Ra\cdot f_{1}\left(Pr\right)&lt;7\cdot10^{4}
 \end{equation*}
 </div>
-<p>then</p>
+<p>and turbulent otherwise. The Nusselt number is found from:</p>
 <div class="math">
 \begin{equation*}
-Nu=0.766\left[Ra\cdot f_{1}\left(Pr\right)\right]^{\frac{1}{5}}
-\end{equation*}
-</div>
-<p>Otherwise</p>
-<div class="math">
-\begin{equation*}
-Nu=0.15\left[Ra\cdot f_{1}\left(Pr\right)\right]^{\frac{1}{3}}
+Nu=\begin{cases}
+0.766\cdot\left[Ra\cdot f_{1}\left(Pr\right)\right]^{\frac{1}{5}} &amp; \textrm{if flow is laminar}\\
+0.15\cdot\left[Ra\cdot f_{1}\left(Pr\right)\right]^{\frac{1}{3}} &amp; \textrm{if flow is turbulent}
+\end{cases}
 \end{equation*}
 </div>
 <p>where</p>
@@ -120,8 +297,8 @@ f_{1}\left(Pr\right)=\left[1+\left(\frac{0.322}{Pr}\right)^{\frac{11}{20}}\right
 \end{equation*}
 </div>
 </div>
-<div class="section" id="heat-is-emitted-at-the-lower-surface">
-<h4>1.1.4.2.&nbsp;&nbsp;&nbsp;Heat is emitted at the lower surface</h4>
+<div class="section" id="id2">
+<h3>2.4.2.&nbsp;&nbsp;&nbsp;Top side of cold plane or bottom side of hot plane</h3>
 <div class="math">
 \begin{equation*}
 Nu=0.6\left[Ra\cdot f_{1}(Pr)\right]^{\frac{1}{5}}
@@ -142,7 +319,29 @@ f_{1}\left(Pr\right)=\left[1+\left(\frac{0.492}{Pr}\right)^{\frac{9}{16}}\right]
 </div>
 </div>
 <div class="section" id="horizontal-cylinder">
-<h3>1.1.5.&nbsp;&nbsp;&nbsp;Horizontal cylinder</h3>
+<h2>2.5.&nbsp;&nbsp;&nbsp;Horizontal cylinder</h2>
+<table border="1" class="nice-table docutils">
+<colgroup>
+<col width="39%" />
+<col width="61%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td><span class="math">\(d\)</span></td>
+<td>diameter</td>
+</tr>
+<tr><td><span class="math">\(l\)</span></td>
+<td>length</td>
+</tr>
+<tr><td><span class="math">\(s = d\)</span></td>
+<td>characteristic length</td>
+</tr>
+</tbody>
+</table>
 <div class="math">
 \begin{equation*}
 Nu=\left\{ 0.60+0.387\left[Ra\cdot f_{1}\left(Pr\right)\right]^{\frac{1}{6}}\right\} ^{2}
@@ -156,7 +355,26 @@ f_{1}\left(Pr\right)=\left[1+\left(\frac{0.559}{Pr}\right)^{\frac{9}{16}}\right]
 </div>
 </div>
 <div class="section" id="sphere">
-<h3>1.1.6.&nbsp;&nbsp;&nbsp;Sphere</h3>
+<h2>2.6.&nbsp;&nbsp;&nbsp;Sphere</h2>
+<table border="1" class="nice-table docutils">
+<colgroup>
+<col width="39%" />
+<col width="61%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td><span class="math">\(d\)</span></td>
+<td>diameter</td>
+</tr>
+<tr><td><span class="math">\(s = d\)</span></td>
+<td>characteristic length</td>
+</tr>
+</tbody>
+</table>
 <div class="math">
 \begin{equation*}
 Nu=0.56\left[\left(\frac{Pr}{0.846+Pr}\right)Ra\right]^{\frac{1}{4}}+2
@@ -164,19 +382,50 @@ Nu=0.56\left[\left(\frac{Pr}{0.846+Pr}\right)Ra\right]^{\frac{1}{4}}+2
 </div>
 </div>
 <div class="section" id="finned-pipe">
-<h3>1.1.7.&nbsp;&nbsp;&nbsp;Finned pipe</h3>
+<h2>2.7.&nbsp;&nbsp;&nbsp;Finned pipe</h2>
+<table border="1" class="nice-table docutils">
+<colgroup>
+<col width="43%" />
+<col width="57%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td><span class="math">\(d\)</span></td>
+<td>core pipe diameter</td>
+</tr>
+<tr><td><span class="math">\(h_f\)</span></td>
+<td>fin height (above core pipe)</td>
+</tr>
+<tr><td><span class="math">\(d_e = d + h_f\)</span></td>
+<td>effective diameter</td>
+</tr>
+<tr><td><span class="math">\(b\)</span></td>
+<td>fin spacing</td>
+</tr>
+<tr><td><span class="math">\(s = d_e\)</span></td>
+<td>characteristic length</td>
+</tr>
+</tbody>
+</table>
 <div class="math">
 \begin{equation*}
 Nu=0.24\left(Ra\frac{b}{d}\right)^{\frac{1}{3}}
 \end{equation*}
 </div>
-<p>where <span class="math">\(b\)</span> is the fin spacing and <span class="math">\(d\)</span> is the diameter of the core pipe. The area used to
-calculate the heat exchange rate is the total surface area of the core pipe and fins.</p>
-</div>
+<p>Note: the accuracy of the correlation is <span class="math">\(\pm 25\%\)</span></p>
 </div>
 </div>
 <div class="section" id="references">
-<h1>2.&nbsp;&nbsp;&nbsp;References</h1>
-<p>&quot;VDI Heat Atlas&quot;, Springer</p>
+<h1>3.&nbsp;&nbsp;&nbsp;References</h1>
+<table class="docutils citation" frame="void" id="heatatlas" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[HeatAtlas]</td><td>VDI (Verein Deutscher Ingenieure), Heat Atlas, Springer-Verlag, 2010, Part F: Free convection</td></tr>
+</tbody>
+</table>
 </div>
 </div>
