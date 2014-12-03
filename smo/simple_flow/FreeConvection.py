@@ -147,7 +147,7 @@ class FreeConvection_External(NumericalModel):
 			raise ValueError("Geometry configuration {0} not implemented".format(GeometryConfigurationsExternal[self.geomConf]))
 		
 		# Compute free convection dimensionless numbers
-		self.Gr = 9.81 * (s**3) * self.beta * self.deltaT / (nu**2)
+		self.Gr = 9.81 * (s**3) * self.beta * np.abs(self.deltaT) / (nu**2)
 		self.Ra = self.Gr * self.Pr
 		
 		# Use the appropriate empirical Nusselt correlation
@@ -270,7 +270,7 @@ class FreeConvection_Internal(NumericalModel):
 			raise ValueError("Geometry configuration {0} not implemented".format(GeometryConfigurationsInternal[self.geomConf]))
 		
 		# Compute free convection dimensionless numbers
-		self.Gr = 9.81 * (s**3) * self.beta * self.deltaT / (nu**2)
+		self.Gr = 9.81 * (s**3) * self.beta * np.abs(self.deltaT) / (nu**2)
 		self.Ra = self.Gr * self.Pr
 		
 		# Use the appropriate empirical Nusselt correlation
