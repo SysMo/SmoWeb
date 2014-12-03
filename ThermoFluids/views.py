@@ -24,7 +24,7 @@ class SmoJsonResponse(object):
 			self.response['errStatus'] = False
 	
 	def json(self):
-		return JsonResponse(self.response) 
+		return JsonResponse(self.response)
 
 def heatPumpView(request):
 	if request.method == 'GET':
@@ -104,22 +104,35 @@ def flowResistanceView(request):
 				context_instance=RequestContext(request))
 
 def freeConvectionView(request):
-	from smo.simple_flow.FreeConvection import FreeConvection
+	from smo.simple_flow.FreeConvection import FreeConvection_External
+	from smo.simple_flow.FreeConvection import FreeConvection_Internal
 	if request.method == 'POST':
 		postData = json.loads(request.body)
 		action = postData['action']
 		parameters = postData['parameters']
-		if (action == 'getInputs'):
+		if (action == 'getInputs_Internal'):
 			with SmoJsonResponse() as response:
-				convection = FreeConvection()
+				convection = FreeConvection_Internal()
 				response.set(convection.superGroupList2Json([convection.inputs]))
 			return response.json()
-		elif (action == 'compute'):
+		elif (action == 'compute_Internal'):
 			with SmoJsonResponse() as response:
-				convection = FreeConvection()
+				convection = FreeConvection_Internal()
 				convection.fieldValuesFromJson(parameters)
 				convection.compute()
-				response.set(convection.superGroupList2Json([FreeConvection.results]))
+				response.set(convection.superGroupList2Json([convection.results]))
+			return response.json()
+		if (action == 'getInputs_External'):
+			with SmoJsonResponse() as response:
+				convection = FreeConvection_External()
+				response.set(convection.superGroupList2Json([convection.inputs]))
+			return response.json()
+		elif (action == 'compute_External'):
+			with SmoJsonResponse() as response:
+				convection = FreeConvection_External()
+				convection.fieldValuesFromJson(parameters)
+				convection.compute()
+				response.set(convection.superGroupList2Json([convection.results]))
 			return response.json()
 		else:
 			raise ValueError('Unknown action "{0}"'.format(action)) 

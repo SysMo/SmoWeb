@@ -13,11 +13,17 @@ angular.module('FreeConvection', ['ui.bootstrap', 'smo'])
 	}])
 	.controller('FreeConvectionController', 
 		[ '$scope', function($scope) {
- 		$scope.inputsFreeConvection = { autoFetch : true, dataUrl: '/ThermoFluids/FreeConvection/', action: 'getInputs'};
- 		$scope.outputsFreeConvection = { dataUrl: '/ThermoFluids/FreeConvection/', action: 'compute'};
-		$scope.compute = function() {
-			$scope.outputsFreeConvection.fetchData($scope.inputsFreeConvection.data.values);
+ 		$scope.inputsConvection_External = { autoFetch : true, dataUrl: '/ThermoFluids/FreeConvection/', action: 'getInputs_External'};
+ 		$scope.outputsConvection_External = { dataUrl: '/ThermoFluids/FreeConvection/', action: 'compute_External'};
+ 		$scope.inputsConvection_Internal = { autoFetch : true, dataUrl: '/ThermoFluids/FreeConvection/', action: 'getInputs_Internal'};
+ 		$scope.outputsConvection_Internal = { dataUrl: '/ThermoFluids/FreeConvection/', action: 'compute_Internal'};
+ 		
+ 		$scope.compute_External = function() {
+			$scope.outputsConvection_External.fetchData($scope.inputsConvection_External.data.values);
 //	 		$scope.inputsWireHeating = { autoFetch : true, dataUrl: '/ThermoFluids/FreeConvection/', action: 'getInputs_WireSpotHeating'};
+		}
+		$scope.compute_Internal = function() {
+			$scope.outputsConvection_Internal.fetchData($scope.inputsConvection_Internal.data.values);
 		}
 		
 	}]);
@@ -25,46 +31,51 @@ angular.module('FreeConvection', ['ui.bootstrap', 'smo'])
 {% endblock %}
 
 {% block pills %}
-	<li class="active" role="presentation"><a id="calcTab" data-target="#calculator" role="tab" data-toggle="tab">Calculator</a></li>
+	<li class="active" role="presentation"><a id="externalTab" data-target="#external" role="tab" data-toggle="tab">External</a></li>
+	<li role="presentation"><a id="internalTab" data-target="#internal" role="tab" data-toggle="tab">Internal</a></li>
 	<li role="presentation"><a id="docTab" data-target="#doc" role="tab" data-toggle="tab">Doc</a></li>
-	<li role="presentation"><a id="wireHeatingTab" data-target="#wireHeating" role="tab" data-toggle="tab">Wire heating</a></li>
 {% endblock %}
 
 {% block content %}
 <div ng-app="FreeConvection" ng-controller="FreeConvectionController">
 	<div class="tab-content">
-		<div class="tab-pane active page-container" id="calculator">
-			<h1 class="title">Free convection</h1>
+		<div class="tab-pane active page-container" id="external">
+			<h1 class="title">Free convection (external flow)</h1>
 			<div class="title-figure">
 <!-- 				<img src="{% static '' %}" type="image/svg+xml"></object> -->
 			</div>
 			<div class="section"> 		
-				<div ng-form name="myForm">
-					<div smo-input-view="inputsFreeConvection"></div>
+				<div ng-form name="externalForm">
+					<div smo-input-view="inputsConvection_External"></div>
 				</div>
 			</div>
 			<div class="section" style="margin-left: 20px;">		
-				<div ng-show="inputsFreeConvection"><button ng-disabled="!myForm.$valid" class="btn btn-default" ng-click="compute()">Compute</button></div>
+				<div ng-show="inputsConvection_External"><button ng-disabled="!externalForm.$valid" class="btn btn-default" ng-click="compute_External()">Compute</button></div>
 			</div>
 			<div class="section"> 
-				<div smo-output-view="outputsFreeConvection"></div>
+				<div smo-output-view="outputsConvection_External"></div>
+			</div>
+		</div>
+		<div class="tab-pane page-container" id="internal">
+			<h1 class="title">Free convection (internal flow)</h1>
+			<div class="title-figure">
+<!-- 				<img src="{% static '' %}" type="image/svg+xml"></object> -->
+			</div>
+			<div class="section"> 		
+				<div ng-form name="internalForm">
+					<div smo-input-view="inputsConvection_Internal"></div>
+				</div>
+			</div>
+			<div class="section" style="margin-left: 20px;">		
+				<div ng-show="inputsConvection_Internal"><button ng-disabled="!internalForm.$valid" class="btn btn-default" ng-click="compute_Internal()">Compute</button></div>
+			</div>
+			<div class="section"> 
+				<div smo-output-view="outputsConvection_Internal"></div>
 			</div>
 		</div>
 		<div class="tab-pane" id="doc">
 			<div class="docview">
 				{% include 'documentation/html/FreeConvection.html' %}
-			</div>
-		</div>
-		<div class="tab-pane" id="wireHeating">
-			<div class="tab-pane active page-container" id="calculator">
-				<h1 class="title">Wire heating</h1>
-				<div class="abstract">You can simulate temperature distribution in a wire heated in a single spot (by e.g. contact resistance). 
-				The heat is conducted through the wire and dissipated by convection on the wire surface. Optionally resistive (Joule) heating can be also accounted for.</div>
-				<div class="section"> 		
-					<div ng-form name="wireHeatingForm">
-<!-- 						<div smo-input-view="inputsWireHeating"></div> -->
-					</div>
-				</div>
 			</div>
 		</div>
 	</div>
