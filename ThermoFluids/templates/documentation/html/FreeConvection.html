@@ -37,7 +37,7 @@
 <td>specific heat capacity at constant pressure</td>
 </tr>
 <tr><td><span class="math">\(\beta=\frac{1}{\rho}\left(\frac{\partial\rho}{\partial T}\right)_{p}\)</span></td>
-<td>isobaic thermal expansion coefficient</td>
+<td>isobaric thermal expansion coefficient</td>
 </tr>
 <tr><td><span class="math">\(\lambda\)</span></td>
 <td>thermal conductivity</td>
@@ -90,15 +90,15 @@
 </div>
 <div class="section" id="calculation-algorithm">
 <h2>1.3.&nbsp;&nbsp;&nbsp;Calculation algorithm</h2>
-<p>The following steps are taken to compute the convective heat exchange</p>
+<p>The following steps are taken to compute the convective heat exchange:</p>
 <ol class="arabic simple">
-<li>Compute fluid properties</li>
-<li>Determine characteristic length and surface area for the particular geometry configuration</li>
-<li>Compute Grasshof number</li>
-<li>Compute Rayleigh number</li>
+<li>Compute the fluid properties</li>
+<li>Determine the characteristic length and surface area for the particular geometry configuration</li>
+<li>Compute the Grasshof number</li>
+<li>Compute the Rayleigh number</li>
 <li>Determine whether laminar or turbulent flow occurs</li>
 <li>Use the appropriate Nusselt number correlation to compute the <span class="math">\(Nu=f\left(Ra,Pr\right)\)</span></li>
-<li>Compute convection coefficient</li>
+<li>Compute the convection coefficient</li>
 </ol>
 <div class="math">
 \begin{equation*}
@@ -106,7 +106,7 @@
 \end{equation*}
 </div>
 <ol class="arabic simple" start="8">
-<li>Compute heat flow rate</li>
+<li>Compute the heat flow rate</li>
 </ol>
 <div class="math">
 \begin{equation*}
@@ -117,7 +117,7 @@
 </div>
 <div class="section" id="external-flow">
 <h1>2.&nbsp;&nbsp;&nbsp;External Flow</h1>
-<p>The folowing geometry configurations have been implemented for external free convection</p>
+<p>The following geometry configurations have been implemented for external free convection:</p>
 <div class="section" id="vertical-plane">
 <h2>2.1.&nbsp;&nbsp;&nbsp;Vertical plane</h2>
 <table border="1" class="nice-table docutils">
@@ -217,11 +217,11 @@ Nu=Nu_{plate}+0.97\frac{h}{d}
 <h3>2.3.1.&nbsp;&nbsp;&nbsp;Top side of cold plane or bottom side of hot plane</h3>
 <p>The favorable pressure gradient stabilizes the boundary layer and pushes it towards the plate.
 The resulting Nusselt number can be obtained from the equation for vertical plane by substituting
-math:<cite>Ra_{alpha}=Racdot cos (alpha)</cite> for <span class="math">\(Ra\)</span>.</p>
+<span class="math">\(Ra_{\alpha}=Ra\cdot \cos (\alpha)\)</span> for <span class="math">\(Ra\)</span>.</p>
 </div>
 <div class="section" id="top-side-of-hot-plane-or-bottom-side-of-cold-plane">
 <h3>2.3.2.&nbsp;&nbsp;&nbsp;Top side of hot plane or bottom side of cold plane</h3>
-<p>At low <span class="math">\(Ra\)</span> the same holds: substitute <span class="math">\(Ra_{\alpha}=Ra\cdot \cos (\alpha)\)</span> for <span class="math">\(Ra\)</span>
+<p>At low <span class="math">\(Ra\)</span> the same holds: substitute <span class="math">\(Ra_{\alpha}=Ra\cdot\cos(\alpha)\)</span> for <span class="math">\(Ra\)</span>
 in the equation for vertical plate. At <span class="math">\(Ra &gt; Ra_{c}\)</span>, the adverse pressure gradient
 tends to cause boundary layer separation. In this case</p>
 <div class="math">
@@ -246,7 +246,7 @@ Ra_{c}=10^{\left(8.9-0.00178\cdot\alpha^{1.82}\right)}
 <col width="33%" />
 </colgroup>
 <thead valign="bottom">
-<tr><th class="head">sdsdfsdf</th>
+<tr><th class="head">Shape</th>
 <th class="head">Parameter</th>
 <th class="head">Description</th>
 </tr>
@@ -272,7 +272,7 @@ Ra_{c}=10^{\left(8.9-0.00178\cdot\alpha^{1.82}\right)}
 </tr>
 </tbody>
 </table>
-<p>Once again there are two cases</p>
+<p>Once again there are two cases:</p>
 <div class="section" id="id1">
 <h3>2.4.1.&nbsp;&nbsp;&nbsp;Top side of hot plane or bottom side of cold plane</h3>
 <p>The fluid flow  is laminar for</p>
@@ -419,8 +419,236 @@ Nu=0.24\left(Ra\frac{b}{d}\right)^{\frac{1}{3}}
 <p>Note: the accuracy of the correlation is <span class="math">\(\pm 25\%\)</span></p>
 </div>
 </div>
+<div class="section" id="internal-flow">
+<h1>3.&nbsp;&nbsp;&nbsp;Internal Flow</h1>
+<p>The following geometry configurations have been implemented for internal free convection:</p>
+<div class="section" id="vertical-planes">
+<h2>3.1.&nbsp;&nbsp;&nbsp;Vertical planes</h2>
+<table border="1" class="nice-table docutils">
+<colgroup>
+<col width="38%" />
+<col width="63%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td><span class="math">\(h\)</span></td>
+<td>height</td>
+</tr>
+<tr><td><span class="math">\(w\)</span></td>
+<td>width</td>
+</tr>
+<tr><td><span class="math">\(d\)</span></td>
+<td>distance between planes</td>
+</tr>
+<tr><td><span class="math">\(s = d\)</span></td>
+<td>characteristic length</td>
+</tr>
+</tbody>
+</table>
+<p>If</p>
+<div class="math">
+\begin{equation*}
+\frac{h}{s}&lt;80
+\end{equation*}
+</div>
+<p>for</p>
+<div class="math">
+\begin{equation*}
+10^{4}&lt;Ra&lt;10^{7}
+\end{equation*}
+</div>
+<p>then</p>
+<div class="math">
+\begin{equation*}
+Nu=0.42\cdot Pr^{0.012}\cdot Ra^{0.25}\left(\frac{h}{s}\right)^{-0.25}
+\end{equation*}
+</div>
+<p>while for</p>
+<div class="math">
+\begin{equation*}
+10^{7}&lt;Ra&lt;10^{9}
+\end{equation*}
+</div>
+<p>the Nusselt number is derived from</p>
+<div class="math">
+\begin{equation*}
+Nu=0.049\cdot Ra^{0.33}
+\end{equation*}
+</div>
+<p>In the case of</p>
+<div class="math">
+\begin{equation*}
+Ra&gt;10^{9}
+\end{equation*}
+</div>
+<p>the Nusselt correlation is unknown.</p>
+</div>
+<div class="section" id="inclined-planes">
+<h2>3.2.&nbsp;&nbsp;&nbsp;Inclined planes</h2>
+<table border="1" class="nice-table docutils">
+<colgroup>
+<col width="16%" />
+<col width="84%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td><span class="math">\(l\)</span></td>
+<td>length (inclined)</td>
+</tr>
+<tr><td><span class="math">\(w\)</span></td>
+<td>width</td>
+</tr>
+<tr><td><span class="math">\(d\)</span></td>
+<td>distance between planes</td>
+</tr>
+<tr><td><span class="math">\(\alpha\)</span></td>
+<td>inclination angle (<span class="math">\(\alpha = 0\)</span> vertical, <span class="math">\(\alpha = 90^\circ\)</span> horizontal)</td>
+</tr>
+<tr><td><span class="math">\(s = d\)</span></td>
+<td>characteristic length</td>
+</tr>
+</tbody>
+</table>
+<p>There are two cases:</p>
+<div class="section" id="heat-is-transmitted-upwards">
+<h3>3.2.1.&nbsp;&nbsp;&nbsp;Heat is transmitted upwards</h3>
+<div class="math">
+\begin{equation*}
+Nu=C\cdot Ra^{0.33}\cdot Pr^{0.074}
+\end{equation*}
+</div>
+<p>where <span class="math">\(C\)</span> is determined from <span class="math">\(\alpha\)</span> based on the following values:</p>
+<table border="1" class="nice-table docutils">
+<colgroup>
+<col width="40%" />
+<col width="60%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head"><span class="math">\(\alpha\)</span></th>
+<th class="head"><span class="math">\(C\)</span></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td><span class="math">\(0\circ\)</span></td>
+<td><span class="math">\(4.9\cdot10^{-2}\)</span></td>
+</tr>
+<tr><td><span class="math">\(30\circ\)</span></td>
+<td><span class="math">\(5.7\cdot10^{-2}\)</span></td>
+</tr>
+<tr><td><span class="math">\(45\circ\)</span></td>
+<td><span class="math">\(5.9\cdot10^{-2}\)</span></td>
+</tr>
+<tr><td><span class="math">\(60\circ\)</span></td>
+<td><span class="math">\(6.5\cdot10^{-2}\)</span></td>
+</tr>
+<tr><td><span class="math">\(90\circ\)</span></td>
+<td><span class="math">\(6.9\cdot10^{-2}\)</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="heat-is-transmitted-downwards">
+<h3>3.2.2.&nbsp;&nbsp;&nbsp;Heat is transmitted downwards</h3>
+<p>If</p>
+<div class="math">
+\begin{equation*}
+5\cdot10^{3}&lt;Ra&lt;10^{8}
+\end{equation*}
+</div>
+<p>for</p>
+<div class="math">
+\begin{equation*}
+\alpha=45^{\circ}
+\end{equation*}
+</div>
+<p>the Nusselt number is calculated from the formula</p>
+<div class="math">
+\begin{equation*}
+Nu=1+\frac{0.025\cdot Ra^{1.36}}{Ra+1.3\cdot10^{4}}
+\end{equation*}
+</div>
+<p>In the other cases, the Nusselt correlation is unknown.</p>
+</div>
+</div>
+<div class="section" id="horizontal-planes">
+<h2>3.3.&nbsp;&nbsp;&nbsp;Horizontal planes</h2>
+<table border="1" class="nice-table docutils">
+<colgroup>
+<col width="16%" />
+<col width="84%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Parameter</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td><span class="math">\(l\)</span></td>
+<td>length</td>
+</tr>
+<tr><td><span class="math">\(w\)</span></td>
+<td>width</td>
+</tr>
+<tr><td><span class="math">\(d\)</span></td>
+<td>distance between planes</td>
+</tr>
+<tr><td><span class="math">\(\alpha\)</span></td>
+<td>inclination angle (<span class="math">\(\alpha = 0\)</span> vertical, <span class="math">\(\alpha = 90^\circ\)</span> horizontal)</td>
+</tr>
+<tr><td><span class="math">\(s = d\)</span></td>
+<td>characteristic length</td>
+</tr>
+</tbody>
+</table>
+<p>For</p>
+<div class="math">
+\begin{equation*}
+Ra&gt;Ra_{c}\left(Ra_{c}=1708\right)
+\end{equation*}
+</div>
+<p>if</p>
+<div class="math">
+\begin{equation*}
+1708&lt;Ra&lt;2.2\cdot10^{4}
+\end{equation*}
+</div>
+<p>the Nusselt number is determined by the correlation</p>
+<div class="math">
+\begin{equation*}
+Nu=0.208\cdot Ra^{0.25}
+\end{equation*}
+</div>
+<p>while for</p>
+<div class="math">
+\begin{equation*}
+Ra&lt;2.2\cdot10^{4}
+\end{equation*}
+</div>
+<p>it can be obtained using the formula</p>
+<div class="math">
+\begin{equation*}
+Nu=0.092\cdot Ra^{0.33}
+\end{equation*}
+</div>
+<p>For</p>
+<div class="math">
+\begin{equation*}
+Ra&lt;Ra_{c}\left(Ra_{c}=1708\right)
+\end{equation*}
+</div>
+<p>no convection occurs. Heat exchange is purely by conduction.</p>
+</div>
+</div>
 <div class="section" id="references">
-<h1>3.&nbsp;&nbsp;&nbsp;References</h1>
+<h1>4.&nbsp;&nbsp;&nbsp;References</h1>
 <table class="docutils citation" frame="void" id="heatatlas" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">

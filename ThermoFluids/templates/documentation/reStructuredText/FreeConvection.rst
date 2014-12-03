@@ -33,7 +33,7 @@ Parameters and variables
 +------------------------------------------------------------------------------+---------------------------------------------+
 | :math:`c_p`                                                                  | specific heat capacity at constant pressure |
 +------------------------------------------------------------------------------+---------------------------------------------+
-| :math:`\beta=\frac{1}{\rho}\left(\frac{\partial\rho}{\partial T}\right)_{p}` | isobaic thermal expansion coefficient       |
+| :math:`\beta=\frac{1}{\rho}\left(\frac{\partial\rho}{\partial T}\right)_{p}` | isobaric thermal expansion coefficient      |
 +------------------------------------------------------------------------------+---------------------------------------------+
 | :math:`\lambda`                                                              | thermal conductivity                        |
 +------------------------------------------------------------------------------+---------------------------------------------+
@@ -68,20 +68,20 @@ Dimensionless groups
 Calculation algorithm
 ---------------------
 
-The following steps are taken to compute the convective heat exchange
+The following steps are taken to compute the convective heat exchange:
 
-1. Compute fluid properties
-2. Determine characteristic length and surface area for the particular geometry configuration
-3. Compute Grasshof number
-4. Compute Rayleigh number
+1. Compute the fluid properties
+2. Determine the characteristic length and surface area for the particular geometry configuration
+3. Compute the Grasshof number
+4. Compute the Rayleigh number
 5. Determine whether laminar or turbulent flow occurs
 6. Use the appropriate Nusselt number correlation to compute the :math:`Nu=f\left(Ra,Pr\right)`
-7. Compute convection coefficient
+7. Compute the convection coefficient
 
 .. math::
    \alpha=\frac{Nu\cdot\lambda}{s}
    
-8. Compute heat flow rate
+8. Compute the heat flow rate
 
 .. math::
    \dot{Q}=\alpha\cdot A\cdot\Delta T
@@ -91,7 +91,7 @@ The following steps are taken to compute the convective heat exchange
 External Flow
 -------------
 
-The folowing geometry configurations have been implemented for external free convection
+The following geometry configurations have been implemented for external free convection:
   
 
 Vertical plane
@@ -163,12 +163,12 @@ Top side of cold plane or bottom side of hot plane
 """"""""""""""""""""""""""""""""""""""""""""""""""
 The favorable pressure gradient stabilizes the boundary layer and pushes it towards the plate. 
 The resulting Nusselt number can be obtained from the equation for vertical plane by substituting 
-math:`Ra_{\alpha}=Ra\cdot \cos (\alpha)` for :math:`Ra`.
+:math:`Ra_{\alpha}=Ra\cdot \cos (\alpha)` for :math:`Ra`.
 
 """"""""""""""""""""""""""""""""""""""""""""""""""
 Top side of hot plane or bottom side of cold plane
 """"""""""""""""""""""""""""""""""""""""""""""""""
-At low :math:`Ra` the same holds: substitute :math:`Ra_{\alpha}=Ra\cdot \cos (\alpha)` for :math:`Ra`
+At low :math:`Ra` the same holds: substitute :math:`Ra_{\alpha}=Ra\cdot\cos(\alpha)` for :math:`Ra`
 in the equation for vertical plate. At :math:`Ra > Ra_{c}`, the adverse pressure gradient 
 tends to cause boundary layer separation. In this case
 
@@ -187,7 +187,7 @@ Horizontal plane
 .. class:: nice-table
 
 +-----------+-----------------------------------+-----------------------+
-| sdsdfsdf  | Parameter                         | Description           |
+| Shape     | Parameter                         | Description           |
 +===========+===================================+=======================+
 |           | :math:`l`                         | length                |
 | Rectangle |                                   |                       |
@@ -201,7 +201,7 @@ Horizontal plane
 |           |                                   |                       |
 +-----------+-----------------------------------+-----------------------+
 
-Once again there are two cases
+Once again there are two cases:
 
 """"""""""""""""""""""""""""""""""""""""""""""""""
 Top side of hot plane or bottom side of cold plane
@@ -306,6 +306,180 @@ Finned pipe
    Nu=0.24\left(Ra\frac{b}{d}\right)^{\frac{1}{3}}
 
 Note: the accuracy of the correlation is :math:`\pm 25\%`
+
+-------------
+Internal Flow
+-------------
+
+The following geometry configurations have been implemented for internal free convection:
+  
+
+Vertical planes
+---------------
+
+.. class:: nice-table
+
++---------------+-------------------------+
+| Parameter     | Description             |
++===============+=========================+
+| :math:`h`     | height                  |
++---------------+-------------------------+
+| :math:`w`     | width                   |
++---------------+-------------------------+
+| :math:`d`     | distance between planes |
++---------------+-------------------------+
+| :math:`s = d` | characteristic length   |
++---------------+-------------------------+
+
+If 
+
+.. math::
+   \frac{h}{s}<80 
+   
+for 
+
+.. math::
+   10^{4}<Ra<10^{7}
+   
+then
+
+.. math::
+   Nu=0.42\cdot Pr^{0.012}\cdot Ra^{0.25}\left(\frac{h}{s}\right)^{-0.25}
+
+while for 
+
+.. math::
+   10^{7}<Ra<10^{9}
+
+the Nusselt number is derived from
+ 
+.. math::
+   Nu=0.049\cdot Ra^{0.33}
+
+In the case of 
+
+.. math::
+   Ra>10^{9}
+   
+the Nusselt correlation is unknown.
+
+Inclined planes
+---------------
+
+.. class:: nice-table
+
++----------------+---------------------------------------------------------------------------------------+
+| Parameter      | Description                                                                           |
++================+=======================================================================================+
+| :math:`l`      | length (inclined)                                                                     |
++----------------+---------------------------------------------------------------------------------------+
+| :math:`w`      | width                                                                                 |
++----------------+---------------------------------------------------------------------------------------+
+| :math:`d`      | distance between planes                                                               |
++----------------+---------------------------------------------------------------------------------------+
+| :math:`\alpha` | inclination angle (:math:`\alpha = 0` vertical, :math:`\alpha = 90^\circ` horizontal) |
++----------------+---------------------------------------------------------------------------------------+
+| :math:`s = d`  | characteristic length                                                                 |
++----------------+---------------------------------------------------------------------------------------+
+
+There are two cases:
+
+"""""""""""""""""""""""""""
+Heat is transmitted upwards
+"""""""""""""""""""""""""""
+
+.. math::
+   Nu=C\cdot Ra^{0.33}\cdot Pr^{0.074}
+
+where :math:`C` is determined from :math:`\alpha` based on the following values:
+
+.. class:: nice-table
+
++-----------------+-------------------------+
+| :math:`\alpha`  | :math:`C`               |
++=================+=========================+
+| :math:`0\circ`  | :math:`4.9\cdot10^{-2}` |
++-----------------+-------------------------+
+| :math:`30\circ` | :math:`5.7\cdot10^{-2}` |
++-----------------+-------------------------+
+| :math:`45\circ` | :math:`5.9\cdot10^{-2}` |
++-----------------+-------------------------+
+| :math:`60\circ` | :math:`6.5\cdot10^{-2}` |
++-----------------+-------------------------+
+| :math:`90\circ` | :math:`6.9\cdot10^{-2}` |
++-----------------+-------------------------+
+
+
+"""""""""""""""""""""""""""""
+Heat is transmitted downwards
+"""""""""""""""""""""""""""""
+If 
+
+.. math:: 
+   5\cdot10^{3}<Ra<10^{8}
+   
+for 
+
+.. math::
+   \alpha=45^{\circ}
+
+the Nusselt number is calculated from the formula
+
+.. math::
+   Nu=1+\frac{0.025\cdot Ra^{1.36}}{Ra+1.3\cdot10^{4}}
+   
+In the other cases, the Nusselt correlation is unknown.
+
+Horizontal planes
+-----------------
+
+.. class:: nice-table
+
++----------------+---------------------------------------------------------------------------------------+
+| Parameter      | Description                                                                           |
++================+=======================================================================================+
+| :math:`l`      | length                                                                                |
++----------------+---------------------------------------------------------------------------------------+
+| :math:`w`      | width                                                                                 |
++----------------+---------------------------------------------------------------------------------------+
+| :math:`d`      | distance between planes                                                               |
++----------------+---------------------------------------------------------------------------------------+
+| :math:`\alpha` | inclination angle (:math:`\alpha = 0` vertical, :math:`\alpha = 90^\circ` horizontal) |
++----------------+---------------------------------------------------------------------------------------+
+| :math:`s = d`  | characteristic length                                                                 |
++----------------+---------------------------------------------------------------------------------------+
+
+For 
+
+.. math::
+   Ra>Ra_{c}\left(Ra_{c}=1708\right) 
+   
+if 
+
+.. math::
+   1708<Ra<2.2\cdot10^{4}
+
+the Nusselt number is determined by the correlation
+
+.. math::
+   Nu=0.208\cdot Ra^{0.25}
+  
+while for 
+
+.. math::
+   Ra<2.2\cdot10^{4}
+   
+it can be obtained using the formula
+
+.. math:: 
+   Nu=0.092\cdot Ra^{0.33}
+
+For 
+
+.. math::
+   Ra<Ra_{c}\left(Ra_{c}=1708\right)
+    
+no convection occurs. Heat exchange is purely by conduction.
 
 ----------
 References
