@@ -98,22 +98,41 @@ def flowResistanceView(request):
 
 def freeConvectionView(request):
 	from smo.simple_flow.FreeConvection import FreeConvection_External
+	from smo.simple_flow.FreeConvection import FreeConvection_Internal
 	if request.method == 'POST':
 		postData = json.loads(request.body)
 		action = postData['action']
 		parameters = postData['parameters']
-		if (action == 'getInputs'):
+		if (action == 'getInputs_External'):
 			inputs = {}
 			convection = FreeConvection_External()
 			inputs = convection.superGroupList2Json([convection.inputs])
 			return JsonResponse(inputs)
-		elif (action == 'compute'):
+		elif (action == 'compute_External'):
 			results = {}
 			try:
 				convection = FreeConvection_External()
 				convection.fieldValuesFromJson(parameters)
 				convection.compute()
 				results = convection.superGroupList2Json([FreeConvection_External.results])
+				results['errStatus'] = False 
+				return JsonResponse(results)
+			except Exception, e:
+				results['errStatus'] = True
+				results['error'] = str(e)
+				return JsonResponse(results)
+		elif (action == 'getInputs_Internal'):
+			inputs = {}
+			convection = FreeConvection_Internal()
+			inputs = convection.superGroupList2Json([convection.inputs])
+			return JsonResponse(inputs)
+		elif (action == 'compute_Internal'):
+			results = {}
+			try:
+				convection = FreeConvection_Internal()
+				convection.fieldValuesFromJson(parameters)
+				convection.compute()
+				results = convection.superGroupList2Json([FreeConvection_Internal.results])
 				results['errStatus'] = False 
 				return JsonResponse(results)
 			except Exception, e:

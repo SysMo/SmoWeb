@@ -11,7 +11,7 @@ from smo.smoflow3d.CoolProp.CoolProp import Fluid, FluidState
 from collections import OrderedDict
 from django.contrib.messages.tests.urls import show
 
-GeometryConfigurations = OrderedDict((
+GeometryConfigurationsExternal = OrderedDict((
 	('VP', 'vertical plane'),
 	('IPT', 'inclined plane top'),
 	('IPB', 'inclined plane bottom'),
@@ -21,7 +21,13 @@ GeometryConfigurations = OrderedDict((
 	('HC', 'horizontal cylinder'),
 	('SPH', 'sphere'),
 	('FIN', 'finned pipe'),
-	('CCF', 'convection coefficient')
+	('CCF', 'convection coefficient'),
+	))
+
+GeometryConfigurationsInternal = OrderedDict((
+	('HL', 'plane horizontal layers'),
+	('VL', 'vertical layers'),
+	('IL', 'inclined plane layers'),
 	))
 
 PropTemperatureConf = OrderedDict((
@@ -40,7 +46,7 @@ class FreeConvection_External(NumericalModel):
 	TWall = Quantity('Temperature', default = (50, 'degC'), label = 'wall temeprature')
 	propT = Choices(PropTemperatureConf, label = 'compute props at')
 	pressure = Quantity('Pressure', default = (1, 'bar'), label = 'fluid pressure') 
-	geomConf = Choices(GeometryConfigurations, default = 'VP', label = 'configuration')
+	geomConf = Choices(GeometryConfigurationsExternal, default = 'VP', label = 'configuration')
 	surfaceShape = Choices(SurfaceShapes, default = 'RCT', label = 'surface shape',
 						show = '(self.geomConf == "HPT") || (self.geomConf == "HPB")')
 	heatExchangeGain = Quantity('Dimensionless', label = 'heat exchange gain')
@@ -137,7 +143,7 @@ class FreeConvection_External(NumericalModel):
 			self.area += finsPerLength * np.pi * self.finThickness * (self.diameter + 2 * self.finHeight)
 			self.area *= self.length
 		else:
-			raise ValueError("Geometry configuration {0} not implemented".format(GeometryConfigurations[self.geomConf]))
+			raise ValueError("Geometry configuration {0} not implemented".format(GeometryConfigurationsExternal[self.geomConf]))
 		
 		# Compute free convection dimensionless numbers
 		self.Gr = 9.81 * (s ** 3) * self.beta * self.deltaT / (nu ** 2)
@@ -184,9 +190,66 @@ class FreeConvection_External(NumericalModel):
 		# Compute the convection coefficient and the total heat flow rate
 		self.alpha = self.Nu * self.cond / s
 		self.QDot = self.area * self.alpha * self.deltaT
+
+class FreeConvection_Internal(NumericalModel):
+	fluidName = Choices(Fluids, default = 'Nitrogen', label = 'fluid')	
+	geomConf = Choices(GeometryConfigurationsInternal, default = 'HL', label = 'configuration')
+	TWallTop = Quantity('Temperature', default = (50, 'degC'), label = 'top wall temeprature',
+					show = '(self.geomConf == "HL")')
+	TWallBottom = Quantity('Temperature', default = (50, 'degC'), label = 'bottom wall temeprature',
+					show = '(self.geomConf == "HL")')
+	TWallLeft = Quantity('Temperature', default = (50, 'degC'), label = 'left wall temeprature',
+					show = '(self.geomConf == "VL") || (self.geomConf == "IL")')
+	TWallRight = Quantity('Temperature', default = (50, 'degC'), label = 'right wall temeprature',
+					show = '(self.geomConf == "VL") || (self.geomConf == "IL")')
+	pressure = Quantity('Pressure', default = (1, 'bar'), label = 'fluid pressure') 
+	heatExchangeGain = Quantity('Dimensionless', label = 'heat exchange gain')
+	thermalInputs = FieldGroup([fluidName, pressure, TWallTop, TWallBottom, TWallLeft, TWallRight, geomConf, heatExchangeGain], label = 'Thermal') 
+	
+	width = Quantity('Length', default = (1, 'm'), label = 'width', 
+			show = '(self.geomConf == "VP") || (self.geomConf == "HPT" && self.surfaceShape == "RCT") || (self.geomConf == "HPB" && self.surfaceShape == "RCT") || (self.geomConf == "IPT") || (self.geomConf == "IPB")')
+	length = Quantity('Length', default = (1, 'm'), label = 'length', 
+			show = '(self.geomConf == "HPT" && self.surfaceShape == "RCT") || (self.geomConf == "HPB" && self.surfaceShape == "RCT") || (self.geomConf == "HC") || (self.geomConf == "FIN")')
+	height = Quantity('Length', default = (1, 'm'), label = 'height', 
+			show = '(self.geomConf == "VP") || (self.geomConf == "VC") || (self.geomConf == "IPT") || (self.geomConf == "IPB")')
+	diameter = Quantity('Length', default = (5, 'mm'), label = 'diameter', 
+		show = '(self.geomConf == "VC") || (self.geomConf == "HC") || (self.geomConf == "SPH") || (self.geomConf == "HPT" && self.surfaceShape == "CIR") || (self.geomConf == "HPB" && self.surfaceShape == "CIR") || (self.geomConf == "FIN")')
+	angle = Quantity('Angle', default = (45, 'deg'), label = 'angle to the vertical',
+			show ='(self.geomConf == "IPT") || (self.geomConf == "IPB")')
+	finSpacing = Quantity('Length', default = (0.020, 'm'), label = 'fin spacing', 
+			show = '(self.geomConf == "FIN")')
+	finThickness = Quantity('Length', default = (0.002, 'm'), label = 'fin thickness', 
+			show = '(self.geomConf == "FIN")')
+	finHeight = Quantity('Length', default = (0.03, 'm'), label = 'fin height', 
+			show = '(self.geomConf == "FIN")')
+	inputArea = Quantity('Area', default = (1, 'm**2'), label = 'surface area', show = 'self.geomConf == "CCF"')
+	input_alpha = Quantity('HeatTransferCoefficient', label = 'convection coefficient', show = 'self.geomConf == "CCF"')
+	geometryInputs = FieldGroup([width, length, height, diameter,  angle, inputArea, input_alpha, 
+								finHeight, finThickness, finSpacing], label = 'Geometry')
+	
+	inputs = SuperGroup([thermalInputs, geometryInputs])
+	###############
+	Tfilm = Quantity('Temperature', default = (30, 'degC'), label = 'film temperature')
+	cond = Quantity('ThermalConductivity', label = 'thermal conductivity')
+	rho = Quantity('Density', label = 'density')
+	mu = Quantity('DynamicViscosity', label = 'dynamic viscosity')
+	beta = Quantity('ThermalExpansionCoefficient', label = 'beta')
+	Pr = Quantity('Dimensionless', label = 'Prandtl number')
+	fluidProps = FieldGroup([Tfilm, rho, cond, mu, beta, Pr], label = "Fluid propeties")
+
+	deltaT = Quantity('TemperatureDifference', label = 'temperature difference')
+	Gr = Quantity('Dimensionless', label = 'Grashof number')
+	Ra = Quantity('Dimensionless', label = 'Rayleigh number')
+	Nu = Quantity('Dimensionless', label = 'Nusselt number')
+	alpha = Quantity('HeatTransferCoefficient', label = 'convection coefficient')
+	area = Quantity('Area', label = 'surface area')
+	QDot = Quantity('HeatFlowRate', label = 'heat flow rate')	
+	heatExchangeResults = FieldGroup([deltaT, Gr, Ra, Nu, alpha, area, QDot], label = 'Heat exchange')
 		
-		
-		
+	results = SuperGroup([fluidProps, heatExchangeResults])
+	
+	def compute(self):
+		pass
 			
 			
 		

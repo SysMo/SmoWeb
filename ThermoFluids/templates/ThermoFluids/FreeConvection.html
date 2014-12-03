@@ -13,11 +13,17 @@ angular.module('FreeConvection', ['ui.bootstrap', 'smo'])
 	}])
 	.controller('FreeConvectionController', 
 		[ '$scope', function($scope) {
- 		$scope.inputsExternalConvection = { autoFetch : true, dataUrl: '/ThermoFluids/FreeConvection/', action: 'getInputs'};
- 		$scope.outputsFreeConvection = { dataUrl: '/ThermoFluids/FreeConvection/', action: 'compute'};
-		$scope.compute = function() {
-			$scope.outputsFreeConvection.fetchData($scope.inputsExternalConvection.data.values);
+ 		$scope.inputsConvection_External = { autoFetch : true, dataUrl: '/ThermoFluids/FreeConvection/', action: 'getInputs_External'};
+ 		$scope.outputsConvection_External = { dataUrl: '/ThermoFluids/FreeConvection/', action: 'compute_External'};
+ 		$scope.inputsConvection_Internal = { autoFetch : true, dataUrl: '/ThermoFluids/FreeConvection/', action: 'getInputs_Internal'};
+ 		$scope.outputsConvection_Internal = { dataUrl: '/ThermoFluids/FreeConvection/', action: 'compute_Internal'};
+ 		
+ 		$scope.compute_External = function() {
+			$scope.outputsConvection_External.fetchData($scope.inputsConvection_External.data.values);
 //	 		$scope.inputsWireHeating = { autoFetch : true, dataUrl: '/ThermoFluids/FreeConvection/', action: 'getInputs_WireSpotHeating'};
+		}
+		$scope.compute_Internal = function() {
+			$scope.outputsConvection_Internal.fetchData($scope.inputsConvection_Internal.data.values);
 		}
 		
 	}]);
@@ -40,14 +46,14 @@ angular.module('FreeConvection', ['ui.bootstrap', 'smo'])
 			</div>
 			<div class="section"> 		
 				<div ng-form name="externalForm">
-					<div smo-input-view="inputsExternalConvection"></div>
+					<div smo-input-view="inputsConvection_External"></div>
 				</div>
 			</div>
 			<div class="section" style="margin-left: 20px;">		
-				<div ng-show="inputsExternalConvection"><button ng-disabled="!externalForm.$valid" class="btn btn-default" ng-click="compute()">Compute</button></div>
+				<div ng-show="inputsConvection_External"><button ng-disabled="!externalForm.$valid" class="btn btn-default" ng-click="compute_External()">Compute</button></div>
 			</div>
 			<div class="section"> 
-				<div smo-output-view="outputsFreeConvection"></div>
+				<div smo-output-view="outputsConvection_External"></div>
 			</div>
 		</div>
 		<div class="tab-pane page-container" id="internal">
@@ -57,14 +63,14 @@ angular.module('FreeConvection', ['ui.bootstrap', 'smo'])
 			</div>
 			<div class="section"> 		
 				<div ng-form name="internalForm">
-<!-- 					<div smo-input-view="inputsInternalConvection"></div> -->
+					<div smo-input-view="inputsConvection_Internal"></div>
 				</div>
 			</div>
 			<div class="section" style="margin-left: 20px;">		
-				<div ng-show="inputsInternalConvection"><button ng-disabled="!internalForm.$valid" class="btn btn-default" ng-click="compute()">Compute</button></div>
+				<div ng-show="inputsConvection_Internal"><button ng-disabled="!internalForm.$valid" class="btn btn-default" ng-click="compute_Internal()">Compute</button></div>
 			</div>
 			<div class="section"> 
-<!-- 				<div smo-output-view="outputsInternalConvection"></div> -->
+				<div smo-output-view="outputsConvection_Internal"></div>
 			</div>
 		</div>
 		<div class="tab-pane" id="doc">

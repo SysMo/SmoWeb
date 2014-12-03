@@ -30,30 +30,31 @@ body {
 }
 
 .navbar-default .navbar-brand:hover, .navbar-default .navbar-brand:focus {
-    color: white; /*#777;*/ /*#5E5E5E*/
+    color: #0875CA;
     background-color: transparent;
 }
 
 /* Horizontal navigation dropdowns + hover, focus event style */
 .navbar-default .navbar-nav > li > a {
-  	color:  #0875CA; /*#777*/
+  	color:  white; /*#777*/
+  	font-weight: bold;
 }
 
 .navbar-default .navbar-nav > li > a:hover, .navbar-default .navbar-nav > li > a:focus {
-    color: white; /*#333*/
+    color: #0875CA; /*#333*/
     background-color: transparent;
 }
 
 /* Horizontal navigation dropdowns on open + hover, focus event style */
 .navbar-default .navbar-nav > .open > a, .navbar-default .navbar-nav > .open > a:hover, .navbar-default .navbar-nav > .open > a:focus {
-    color: white; /*#555*/
+    color: #0875CA; /*#555*/
     background-color: black; /*#E7E7E7*/
 }
 
 
 /* Horizontal navigation dropdowns color switch on collapse */
 .navbar-default .navbar-nav > li > a[aria-expanded="false"] {
-	color: #0875CA;
+	color: white;
     background-color: black; /*#E7E7E7*/
 }
 
