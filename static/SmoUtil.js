@@ -35,6 +35,9 @@ smoModule.factory('util', function util () {
 		if (n == 0) {
 			return "0";
 		}
+		if (Math.abs(n) < 1e-80){
+			return "0";
+		}
 		if (Math.abs(n) > 1e5 || Math.abs(n) < 1e-3) {
 			return n.toExponential(5);
 		}
@@ -439,18 +442,22 @@ smoModule.directive('smoQuantity', ['$compile', 'util', function($compile, util)
 			$scope.checkValueValidity = function(){
 				$scope[$scope.fieldVar.name + 'Form'].input.$setValidity('minVal', true);
 				$scope[$scope.fieldVar.name + 'Form'].input.$setValidity('maxVal', true);
+				
 				if ($scope[$scope.fieldVar.name + 'Form'].input.$error.required == true 
 						|| $scope[$scope.fieldVar.name + 'Form'].input.$error.pattern == true) {
 					return;
 				}
-				if (Number($scope.fieldVar.displayValue) < Number($scope.fieldVar.minValue)) {
+				
+				if (Number($scope.fieldVar.displayValue) < $scope.fieldVar.minDisplayValue) {
 					$scope[$scope.fieldVar.name + 'Form'].input.$setValidity('minVal', false);
 					return;
-				}		
-				else if (Number($scope.fieldVar.displayValue) > Number($scope.fieldVar.maxValue)){
+				}	
+				
+				if (Number($scope.fieldVar.displayValue) > $scope.fieldVar.maxDisplayValue){
 					$scope[$scope.fieldVar.name + 'Form'].input.$setValidity('maxVal', false);
 					return;
 				}
+				
 				$scope.updateValue();
 			}
 			
@@ -476,7 +483,8 @@ smoModule.directive('smoQuantity', ['$compile', 'util', function($compile, util)
 				$scope.smoDataSource[$scope.fieldVar.name] = $scope.fieldVar.value;	
 			}
 			
-			$scope.changeUnit = function() {		
+			$scope.changeUnit = function() {
+				$scope.checkValueValidity();
 				for (var i=0; i < $scope.fieldVar.units.length; i++) {
 					if ($scope.fieldVar.displayUnit == $scope.fieldVar.units[i][0]){
 						$scope.fieldVar.dispUnitDef = $scope.fieldVar.units[i][1];
@@ -487,6 +495,9 @@ smoModule.directive('smoQuantity', ['$compile', 'util', function($compile, util)
 					offset = $scope.fieldVar.dispUnitDef.offset;
 				}
 				$scope.fieldVar.displayValue = util.formatNumber(($scope.fieldVar.value - offset) / $scope.fieldVar.dispUnitDef.mult);
+				
+				$scope.fieldVar.minDisplayValue = ($scope.fieldVar.minValue - offset) / $scope.fieldVar.dispUnitDef.mult;
+				$scope.fieldVar.maxDisplayValue = ($scope.fieldVar.maxValue - offset) / $scope.fieldVar.dispUnitDef.mult;
 			}
 			
 			$scope.fieldVar.unit = $scope.fieldVar.unit || $scope.fieldVar.SIUnit;
@@ -503,8 +514,10 @@ smoModule.directive('smoQuantity', ['$compile', 'util', function($compile, util)
 			var offset = $scope.fieldVar.unitDef.offset || 0;
 			$scope.fieldVar.value = $scope.fieldVar.value * $scope.fieldVar.unitDef.mult + offset;
 			offset = $scope.fieldVar.dispUnitDef.offset || 0;
-			$scope.fieldVar.displayValue = util.formatNumber(($scope.fieldVar.value - offset) / $scope.fieldVar.dispUnitDef.mult); 
+			$scope.fieldVar.displayValue = util.formatNumber(($scope.fieldVar.value - offset) / $scope.fieldVar.dispUnitDef.mult);
 			
+			$scope.fieldVar.minDisplayValue = ($scope.fieldVar.minValue - offset) / $scope.fieldVar.dispUnitDef.mult;
+			$scope.fieldVar.maxDisplayValue = ($scope.fieldVar.maxValue - offset) / $scope.fieldVar.dispUnitDef.mult;				
 		},
 		link : function(scope, element, attr) {
 			scope.util = util;
@@ -525,14 +538,14 @@ smoModule.directive('smoQuantity', ['$compile', 'util', function($compile, util)
 			
 			template += '\
 					<div class="field-select quantity"> \
-						<select ng-model="fieldVar.displayUnit" ng-options="pair[0] as pair[0] for pair in fieldVar.units" ng-change="changeUnit()"></select> \
+						<select ng-disabled="!' + scope.fieldVar.name + 'Form.$valid" ng-model="fieldVar.displayUnit" ng-options="pair[0] as pair[0] for pair in fieldVar.units" ng-change="changeUnit()"></select> \
 					</div>';
 			if (scope.viewType == 'input')
 				template += '\
 					<div class="input-validity-error" ng-show="' + scope.fieldVar.name + 'Form.input.$error.pattern">Enter a number</div>\
 					<div class="input-validity-error" ng-show="' + scope.fieldVar.name + 'Form.input.$error.required">Required value</div>\
-					<div class="input-validity-error" ng-show="' + scope.fieldVar.name + 'Form.input.$error.minVal">Value should be above {{fieldVar.minValue}}</div>\
-					<div class="input-validity-error" ng-show="' + scope.fieldVar.name + 'Form.input.$error.maxVal">Value should be below {{fieldVar.maxValue}}</div>';
+					<div class="input-validity-error" ng-show="' + scope.fieldVar.name + 'Form.input.$error.minVal">Value should be above {{util.formatNumber(fieldVar.minDisplayValue)}} {{fieldVar.displayUnit}}</div>\
+					<div class="input-validity-error" ng-show="' + scope.fieldVar.name + 'Form.input.$error.maxVal">Value should be below {{util.formatNumber(fieldVar.maxDisplayValue)}} {{fieldVar.displayUnit}}</div>';
 			
 	        var el = angular.element(template);
 	        compiled = $compile(el);
