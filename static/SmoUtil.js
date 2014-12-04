@@ -439,41 +439,33 @@ smoModule.directive('smoQuantity', ['$compile', 'util', function($compile, util)
 			$scope.checkValueValidity = function(){
 				$scope[$scope.fieldVar.name + 'Form'].input.$setValidity('minVal', true);
 				$scope[$scope.fieldVar.name + 'Form'].input.$setValidity('maxVal', true);
-				if ($scope[$scope.fieldVar.name + 'Form'].input.required == false 
-						|| $scope[$scope.fieldVar.name + 'Form'].input.pattern == false) {
+				if ($scope[$scope.fieldVar.name + 'Form'].input.$error.required == true 
+						|| $scope[$scope.fieldVar.name + 'Form'].input.$error.pattern == true) {
 					return;
 				}
-				$scope.updateValue();
-				if ($scope.fieldVar.value < Number($scope.fieldVar.minValue)) {
+				if (Number($scope.fieldVar.displayValue) < Number($scope.fieldVar.minValue)) {
 					$scope[$scope.fieldVar.name + 'Form'].input.$setValidity('minVal', false);
 					return;
 				}		
-				else if ($scope.fieldVar.value > Number($scope.fieldVar.maxValue)){
+				else if (Number($scope.fieldVar.displayValue) > Number($scope.fieldVar.maxValue)){
 					$scope[$scope.fieldVar.name + 'Form'].input.$setValidity('maxVal', false);
 					return;
 				}
-				
-				
-//				if ($scope[$scope.fieldVar.name + 'Form'].$valid == true) {
-//					$scope.updateValue();
-//				} else if ($scope[$scope.fieldVar.name + 'Form'].input.minVal == false
-//							|| $scope[$scope.fieldVar.name + 'Form'].input.maxVal == false){
-//					$scope.revertOnInvalidity();
-//				}
+				$scope.updateValue();
 			}
 			
-			$scope.revertOnInvalidity = function(){
-				if ($scope[$scope.fieldVar.name + 'Form'].$valid == false) {
-					$scope.fieldVar.value = $scope.smoDataSource[$scope.fieldVar.name];
-					var offset = 0;
-					if ('offset' in $scope.fieldVar.dispUnitDef) {
-						offset = $scope.fieldVar.dispUnitDef.offset;
-					}
-					$scope.fieldVar.displayValue = util.formatNumber(($scope.fieldVar.value - offset) / $scope.fieldVar.dispUnitDef.mult);
-				}
-				$scope[$scope.fieldVar.name + 'Form'].input.$setValidity('minVal', true);
-				$scope[$scope.fieldVar.name + 'Form'].input.$setValidity('maxVal', true);
-			}
+//			$scope.revertOnInvalidity = function(){
+//				if ($scope[$scope.fieldVar.name + 'Form'].$valid == false) {
+//					$scope.fieldVar.value = $scope.smoDataSource[$scope.fieldVar.name];
+//					var offset = 0;
+//					if ('offset' in $scope.fieldVar.dispUnitDef) {
+//						offset = $scope.fieldVar.dispUnitDef.offset;
+//					}
+//					$scope.fieldVar.displayValue = util.formatNumber(($scope.fieldVar.value - offset) / $scope.fieldVar.dispUnitDef.mult);
+//				}
+//				$scope[$scope.fieldVar.name + 'Form'].input.$setValidity('minVal', true);
+//				$scope[$scope.fieldVar.name + 'Form'].input.$setValidity('maxVal', true);
+//			}
 			
 			$scope.updateValue = function() {
 				var offset = 0;
@@ -522,7 +514,7 @@ smoModule.directive('smoQuantity', ['$compile', 'util', function($compile, util)
 				template += '\
 					<div class="field-input"> \
 						<div ng-form name="' + scope.fieldVar.name + 'Form">\
-							<input name="input" required type="text" ng-pattern="/^[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$/" ng-model="fieldVar.displayValue" ng-blur="revertOnInvalidity()" ng-change="checkValueValidity();">\
+							<input name="input" required type="text" ng-pattern="/^[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$/" ng-model="fieldVar.displayValue" ng-change="checkValueValidity();">\
 						</div>\
 					</div>';
 			else if (scope.viewType == 'output')
@@ -539,8 +531,8 @@ smoModule.directive('smoQuantity', ['$compile', 'util', function($compile, util)
 				template += '\
 					<div class="input-validity-error" ng-show="' + scope.fieldVar.name + 'Form.input.$error.pattern">Enter a number</div>\
 					<div class="input-validity-error" ng-show="' + scope.fieldVar.name + 'Form.input.$error.required">Required value</div>\
-					<div class="input-validity-error" ng-show="' + scope.fieldVar.name + 'Form.input.$error.minVal">Number is below min value</div>\
-					<div class="input-validity-error" ng-show="' + scope.fieldVar.name + 'Form.input.$error.maxVal">Number exceeds max value</div>';
+					<div class="input-validity-error" ng-show="' + scope.fieldVar.name + 'Form.input.$error.minVal">Value should be above {{fieldVar.minValue}}</div>\
+					<div class="input-validity-error" ng-show="' + scope.fieldVar.name + 'Form.input.$error.maxVal">Value should be below {{fieldVar.maxValue}}</div>';
 			
 	        var el = angular.element(template);
 	        compiled = $compile(el);
