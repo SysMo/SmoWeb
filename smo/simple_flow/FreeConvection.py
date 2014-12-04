@@ -28,6 +28,7 @@ GeometryConfigurationsInternal = OrderedDict((
 	('HP', 'horizontal planes'),
 	('VP', 'vertical planes'),
 	('IP', 'inclined planes'),
+	('HA', 'horizontal annuli'),
 	))
 
 PropTemperatureConf = OrderedDict((
@@ -168,7 +169,7 @@ class FreeConvection_External(NumericalModel):
 				if (self.Nu < 1):
 					self.Nu = 1
 			else: 
-				raise ValueError("Unknown Nusselt correlation")
+				raise ValueError("Outside range of validity")
 		elif ((self.geomConf == 'HPT' and self.deltaT > 0) or (self.geomConf == 'HPB' and self.deltaT < 0)):
 			fPr = (1 + (0.322 / self.Pr)**(11.0 / 20))**(-20.0 / 11) 
 			if (self.Ra * fPr <= 7 * 1e4):
@@ -205,20 +206,30 @@ class FreeConvection_Internal(NumericalModel):
 					show = '(self.geomConf == "VP")')
 	TWallRight = Quantity('Temperature', default = (50, 'degC'), label = 'temeprature right',
 					show = '(self.geomConf == "VP")')
+	TInner = Quantity('Temperature', default = (50, 'degC'), label = 'temeprature inner',
+					show = '(self.geomConf == "HA")')
+	TOuter = Quantity('Temperature', default = (50, 'degC'), label = 'temeprature outer',
+					show = '(self.geomConf == "HA")')
 	pressure = Quantity('Pressure', default = (1, 'bar'), label = 'fluid pressure') 
 	heatExchangeGain = Quantity('Dimensionless', label = 'heat exchange gain')
-	thermalInputs = FieldGroup([fluidName, pressure, TWallTop, TWallBottom, TWallLeft, TWallRight, geomConf, heatExchangeGain], label = 'Thermal') 
+	thermalInputs = FieldGroup([fluidName, pressure, TWallTop, TWallBottom, TWallLeft, TWallRight, TInner, TOuter, geomConf, heatExchangeGain], label = 'Thermal') 
 	
-	width = Quantity('Length', default = (1, 'm'), label = 'width')
+	width = Quantity('Length', default = (1, 'm'), label = 'width',
+					show = '(self.geomConf == "HP") || (self.geomConf == "VP") || (self.geomConf == "IP")')
 	length = Quantity('Length', default = (1, 'm'), label = 'length',
-					show = '(self.geomConf == "HP") || (self.geomConf == "IP")')
+					show = '(self.geomConf == "HP") || (self.geomConf == "IP") || (self.geomConf == "HA")')
 	height = Quantity('Length', default = (1, 'm'), label = 'height',
 					show = '(self.geomConf == "VP")')
-	dist = Quantity('Length', default = (1, 'm'), label = 'distance b/n planes')
+	dist = Quantity('Length', default = (1, 'm'), label = 'distance b/n planes',
+					show = '(self.geomConf == "HP") || (self.geomConf == "VP") || (self.geomConf == "IP")')	
+	rInner = Quantity('Length', default = (1, 'm'), label = 'radius inner',
+					show = '(self.geomConf == "HA")')
+	rOuter = Quantity('Length', default = (1, 'm'), label = 'radius outer',
+					show = '(self.geomConf == "HA")')	
 	angle = Quantity('Angle', default = (45, 'deg'), maxValue = (90, 'deg'), label = 'angle to the vertical',
 			show ='(self.geomConf == "IP")')
 	
-	geometryInputs = FieldGroup([width, length, height, dist, angle], label = 'Geometry')
+	geometryInputs = FieldGroup([width, length, height, dist, rInner, rOuter, angle], label = 'Geometry')
 	
 	inputs = SuperGroup([thermalInputs, geometryInputs])
 	###############
@@ -248,6 +259,9 @@ class FreeConvection_Internal(NumericalModel):
 		elif (self.geomConf == 'VP'):
 			self.Tfilm = (self.TWallLeft + self.TWallRight) / 2.0
 			self.deltaT = self.TWallLeft - self.TWallRight
+		elif (self.geomConf == 'HA'):
+			self.Tfilm = (self.TInner + self.TOuter) / 2.0
+			self.deltaT = self.TInner - self.TOuter
 		
 		# Compute fluid properties
 		fState = FluidState(self.fluidName)
@@ -266,6 +280,9 @@ class FreeConvection_Internal(NumericalModel):
 		elif (self.geomConf == 'VP'):
 			s = self.dist
 			self.area = self.width * self.height
+		elif (self.geomConf == 'HA'):
+			s = self.rOuter - self.rInner
+			self.area = 2 * np.pi * self.rInner * self.length
 		else:
 			raise ValueError("Geometry configuration {0} not implemented".format(GeometryConfigurationsInternal[self.geomConf]))
 		
@@ -284,7 +301,7 @@ class FreeConvection_Internal(NumericalModel):
 		elif (self.geomConf == 'VP'):
 			if (self.height / s <= 80):
 				if (self.Ra > 1e9):
-					raise ValueError("Unknown Nusselt correlation")
+					raise ValueError("Outside range of validity")
 				else:
 					if (self.Ra > 1e7):
 						self.Nu = 0.049 * self.Ra**0.33
@@ -293,7 +310,7 @@ class FreeConvection_Internal(NumericalModel):
 						if (self.Nu < 1.):
 							self.Nu = 1.				
 			else:
-				raise ValueError("Unknown Nusselt correlation")
+				raise ValueError("Outside range of validity")
 		elif (self.geomConf == 'IP'):
 			if (self.deltaT < 0):
 				from scipy.interpolate import interp1d
@@ -307,9 +324,20 @@ class FreeConvection_Internal(NumericalModel):
 					if (self.angle == 45):
 						self.Nu = 1 + (0.025 * self.Ra**1.36) / (self.Ra + 1.3 + 1e4)
 					else:
-						raise ValueError("Unknown Nusselt correlation")
+						raise ValueError("Outside range of validity")
 				else:
-					raise ValueError("Unknown Nusselt correlation")
+					raise ValueError("Outside range of validity")
+		elif (self.geomConf == 'HA'):
+			if (self.deltaT > 0):
+				if (self.Ra > 7.1e3):
+					if (self.rOuter / self.rInner) <= 8:
+						self.Nu = 0.2 * self.Ra**0.25 * (self.rOuter / self.rInner)**0.5
+					else:
+						raise ValueError("Outside range of validity")
+				else:
+					raise ValueError("Outside range of validity")
+			else:
+				raise ValueError("Outside range of validity")
 		else: 
 			pass
 		self.Nu = self.Nu * self.heatExchangeGain
