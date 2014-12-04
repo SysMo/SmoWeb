@@ -484,7 +484,6 @@ smoModule.directive('smoQuantity', ['$compile', 'util', function($compile, util)
 			}
 			
 			$scope.changeUnit = function() {
-				$scope.checkValueValidity();
 				for (var i=0; i < $scope.fieldVar.units.length; i++) {
 					if ($scope.fieldVar.displayUnit == $scope.fieldVar.units[i][0]){
 						$scope.fieldVar.dispUnitDef = $scope.fieldVar.units[i][1];
@@ -523,23 +522,30 @@ smoModule.directive('smoQuantity', ['$compile', 'util', function($compile, util)
 			scope.util = util;
 			var template = '\
 					<div class="field-label">' + scope.fieldVar.label + '</div>';
-			if (scope.viewType == 'input')
+			if (scope.viewType == 'input'){
 				template += '\
 					<div class="field-input"> \
 						<div ng-form name="' + scope.fieldVar.name + 'Form">\
 							<input name="input" required type="text" ng-pattern="/^[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$/" ng-model="fieldVar.displayValue" ng-change="checkValueValidity();">\
 						</div>\
 					</div>';
-			else if (scope.viewType == 'output')
+				template += '\
+					<div class="field-select quantity"> \
+						<select ng-disabled="!' + scope.fieldVar.name + 'Form.$valid" ng-model="fieldVar.displayUnit" ng-options="pair[0] as pair[0] for pair in fieldVar.units" ng-change="changeUnit()"></select> \
+					</div>';
+				
+			}
+			else if (scope.viewType == 'output'){
 				template += '\
 					<div class="field-output"> \
 						<div class="output" ng-bind="fieldVar.displayValue"></div>\
 					</div>';
-			
-			template += '\
+				template += '\
 					<div class="field-select quantity"> \
-						<select ng-disabled="!' + scope.fieldVar.name + 'Form.$valid" ng-model="fieldVar.displayUnit" ng-options="pair[0] as pair[0] for pair in fieldVar.units" ng-change="changeUnit()"></select> \
+						<select ng-model="fieldVar.displayUnit" ng-options="pair[0] as pair[0] for pair in fieldVar.units" ng-change="changeUnit()"></select> \
 					</div>';
+				
+			}
 			if (scope.viewType == 'input')
 				template += '\
 					<div class="input-validity-error" ng-show="' + scope.fieldVar.name + 'Form.input.$error.pattern">Enter a number</div>\
