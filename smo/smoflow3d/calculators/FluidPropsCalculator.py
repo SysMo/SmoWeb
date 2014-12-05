@@ -204,15 +204,16 @@ class SaturationData(object):
 	
 	def getSaturationData(self):
 		f = Fluid(self.fluidName)	
-		pressures = np.logspace(np.log(f.tripple()['p']), np.log(f.critical()['p']), 100)
-		temperatures = []
-		for p in pressures:
-			saturation = f.saturation_p(p)
-			temperatures.append(saturation['TsatL'])
 		
-		return {
-			'temperatures': list(temperatures), 
-			'pressures': list(pressures)}		
+		pressures = np.logspace(np.log10(f.tripple()['p']), np.log10(f.critical()['p']), 100)/1e5
+		temperatures = []
+		data = []
+		for p in pressures:
+			saturation = f.saturation_p(p*1e5)
+			temperatures.append(saturation['TsatL'])
+			data.append([p, saturation['TsatL']])
+					
+		return {'array': data, 'labels': ['pressure [bar]', 'T sat [K]']}
 		
 if __name__ == '__main__':
 # 	FluidPropsCalculator.test()

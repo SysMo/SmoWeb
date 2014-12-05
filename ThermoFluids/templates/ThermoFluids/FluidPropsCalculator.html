@@ -5,6 +5,10 @@
 {% block scripts_and_styles %}
 <script src="{% static 'SmoUtil.js' %}"></script>
 <link rel="stylesheet" type="text/css" href="{% static 'css/SmoInputOutputView.css' %}">
+
+<script type="text/javascript" src="http://dygraphs.com/dygraph-dev.js"></script>
+<script type="text/javascript" src="http://cavorite.com/labs/js/dygraphs-export/dygraph-extra.js"></script>
+
 <script>
 angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 	.config(['$httpProvider', function($httpProvider) {
@@ -12,7 +16,13 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 	    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
 	}])
 	.controller('FluidPropsController', [ '$scope', '$http', function($scope, $http) {
-		$scope.angular = angular;
+		$scope.activeTabId = "";
+		$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+			  $scope.activeTabId = e.target.id; // activated tab
+// 			  e.relatedTarget // previous tab
+			});
+		
+		
 		$scope.inputs = [{autoFetch: true, dataUrl: '/ThermoFluids/FluidPropsCalculator/', action: 'getInputs'}];
 		$scope.outputs = [{ dataUrl: '/ThermoFluids/FluidPropsCalculator/', action: 'compute'}];
 		
@@ -109,6 +119,7 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 		    	$scope.saturation.saturationData.loading = false;
 		    	$scope.saturation.saturationData.obtained = true;
 				$scope.saturation.saturationData.data = data;
+				$scope.plotData();
 		    })
 		    .error(function(data) {
 		    	$scope.saturation.saturationData.loading = false;
@@ -116,6 +127,25 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 		    });
 		}
 		
+		$scope.plotData = function() {
+			$scope.xAxis = 0;
+			$scope.chart = new Dygraph(document.getElementById('plot_div'), $scope.saturation.saturationData.data.array,
+					{
+						labels: $scope.saturation.saturationData.data.labels,
+						labelsDiv: 'dylegend',
+						labelsDivWidth: 150,
+						labelsSeparateLines: true,
+						width: 700,
+						height: 400,
+						xlabel: $scope.saturation.saturationData.data.labels[0],
+						ylabel: $scope.saturation.saturationData.data.labels[1],
+						axes : { x : {  logscale : true }}
+			        });	
+		}		
+		
+		$scope.update = function(){
+					
+		}
 }])
 </script>
 {% endblock %}
@@ -212,10 +242,15 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 			</div>
 			<div ng-if="saturation.saturationData.loading"><h2 class="loading">Loading...</h2></div>
 			<div ng-if="saturation.saturationData.errorLoading"><h2 class="error">Error loading!</h2></div>
-			<div ng-if="saturation.saturationData.obtained">	
-				<div class="section">
-					
-				</div>
+			<div ng-show="saturation.saturationData.obtained">		
+				<div style="white-space: nowrap;">
+					<div style="display: inline-block;">			  
+						<div id="plot_div"></div>
+					</div>
+					<div style="display: inline-block; vertical-align: top;">
+						<div id="dylegend"></div>
+					</div>
+				</div>  				
 			</div>							
 		</div>
 	</div>

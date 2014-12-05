@@ -97,9 +97,10 @@ class HeatPumpCalculator(NumericalModel):
 	QEvap = Quantity('HeatFlowRate', default = (1, 'kW'), label = 'heat flow rate')
 	evaporatorInlet = FieldGroup([T4, q4, QEvap], label = '4. Evaporator inlet')
 	##################	
-	COP = Quantity('Dimensionless', label = 'COP')
+	COPCooling = Quantity('Dimensionless', label = 'COP (cooling)')
+	COPHeating = Quantity('Dimensionless', label = 'COP (heating)')
 	COPCarnot = Quantity('Dimensionless', label = 'COP (Carnot)')
-	summary=FieldGroup([COP, COPCarnot], label = '5. Summary')
+	summary=FieldGroup([COPCooling, COPHeating, COPCarnot], label = '5. Summary')
 	results = SuperGroup([compressorInlet, compressorOutlet, condensorOutlet, evaporatorInlet, summary], label="Results")
 	def compute(self):
 		fluid = Fluid(self.fluidName)
@@ -163,7 +164,8 @@ class HeatPumpCalculator(NumericalModel):
 		self.T4 = state4.T()
 		self.q4 = state4.q()
 		self.QEvap = self.mDotRefrigerant * (state1.h() - state4.h())
-		self.COP = self.QEvap / self.WCompr
+		self.COPCooling = self.QEvap / self.WCompr
+		self.COPHeating = self.QCondens / self.WCompr
 		
 if __name__ == '__main__':
 	IsentropicCompression.test()

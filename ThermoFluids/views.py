@@ -71,9 +71,8 @@ def fluidPropsCalculatorView(request):
 			return JsonResponse(fluidList, safe = False)
 		elif (action == 'getSaturationData'):
 			sd = SaturationData(parameters['fluidName'])
-			data = sd.getSaturationData()
-			print data
-			return JsonResponse(data)
+			satData = sd.getSaturationData()
+			return JsonResponse(satData, safe = False)
 		elif (action == 'compute'):
 			with SmoJsonResponse() as response:
 				fpc = FluidPropsCalculator()
