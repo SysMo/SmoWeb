@@ -51,7 +51,6 @@ smoModule.factory('util', function util () {
 	return functions;
 });
 
-
 smoModule.factory('smoJson', function () {
 	
 	// Adapted from Crockford's JSON.parse (see https://github.com/douglascrockford/JSON-js)
@@ -322,6 +321,53 @@ smoModule.factory('smoJson', function () {
 	
 	return {'parse': parseJSON, 'transformResponse': transformResponse};
 });
+
+smoModule.factory('JsonCommunicator', function($http, smoJson) {
+	function JsonCommunicator(url){
+		this.url = url || '';
+		this.loading = false;
+		this.commError = false;
+		this.serverError = false;
+		this.dataReceived = false;
+		this.errorMsg = "";
+	}
+	JsonCommunicator.prototype.fetchData = function(action, parameters, retDataObject) {
+		this.loading = true;
+		this.commError = false;
+		this.serverError = false;
+		this.dataReceived = false;
+		this.errorMsg = "";
+		// Variable introduced so that success and error functions can access this object
+		var communicator = this;
+		$http({
+	        method  : 'POST',
+	        url     : this.url,
+	        data    : {action : action, parameters: parameters},
+	        headers : { 'Content-Type': 'application/x-www-form-urlencoded' }, // set the headers so angular passing info as form data (not request payload)
+	        transformResponse: [smoJson.transformResponse],
+	    })
+	    .success(function(response) {
+			communicator.loading = false;
+			communicator.commError = false;
+			if (!response.errStatus) {
+				communicator.serverError = false;
+				communicator.dataReceived = true;
+				retDataObject.data = response.data;				
+			} else {
+				communicator.serverError = true;
+				communicator.dataReceived = false;
+				communicator.errorMsg = response.error;
+			}
+	    })
+	    .error(function(response) {
+			communicator.loading = false;
+			communicator.commError = true;
+			communicator.serverError = false;
+			communicator.errorMsg = response;
+	    });
+	}
+	return JsonCommunicator;
+})
 
 smoModule.directive('smoSingleClick', ['$parse', function($parse) {
     return {
@@ -795,50 +841,24 @@ smoModule.directive('smoSuperGroupSet', ['$compile', function($compile) {
 	}
 }]);
 			
-smoModule.directive('smoInputView', ['$compile', 'smoJson', function($compile, smoJson) {
+smoModule.directive('smoInputView', ['$compile', function($compile) {
 	return {
 		restrict : 'A',
 		scope : {
-			it: '=smoInputView'
-		},
-		controller: function($scope, $http){
-			$scope.it.inputsObtained = false;
-			$scope.it.loading = false;
-			$scope.it.errorLoading = false;
-			$scope.it.fetchData = function(parameters) {
-				$scope.it.inputsObtained = false;
-				$scope.it.loading = true;
-				$scope.it.errorLoading = false;
-				var parameters = parameters || {};				
-				$http({
-			        method  : 'POST',
-			        url     : $scope.it.dataUrl,
-			        data    : {action : $scope.it.action, parameters: parameters},
-			        headers : { 'Content-Type': 'application/x-www-form-urlencoded' }, // set the headers so angular passing info as form data (not request payload)
-			        transformResponse: [smoJson.transformResponse]
-				})
-			    .success(function(data) {
-			    	$scope.it.loading = false;
-			    	$scope.it.inputsObtained = true;
-			    	$scope.it.data = data;
-			    })
-			    .error(function(data) {
-			    	$scope.it.loading = false;
-			    	$scope.it.errorLoading = true;
-			    });
-			}
-			if ($scope.it.autoFetch || $scope.it.autoFetch == 'undefined'){
-				$scope.it.fetchData();
-			} else {
-				$scope.it.inputsObtained = true;
-			}
+			model: '=',
+			communicator: '=',
+			name: '@smoInputView'
 		},
 		link : function(scope, element, attr) {
-			var template = '<div ng-if="it.loading"><h2 class="loading">Loading...</h2></div>\
-							<div ng-if="it.errorLoading"><h2 class="error">Error loading!</h2></div>\
-							<div ng-if="it.inputsObtained">\
-								<div  smo-super-group-set="it.data.definitions" view-type="input" smo-data-source="it.data.values"></div>\
-							</div>';				
+			var template = '\
+				<div ng-if="communicator.loading" class="alert alert-info" role="alert">Loading...</div>\
+				<div ng-if="communicator.commError" class="alert alert-danger" role="alert">Communication error: <span ng-bind="communicator.errorMsg"></span></div>\
+				<div ng-if="communicator.serverError" class="alert alert-danger" role="alert">Server error: <span ng-bind="communicator.errorMsg"></span></div>\
+				<div ng-if="communicator.dataReceived" role="alert">\
+					<div ng-form name="my' + scope.name + 'Form">\
+						<div  smo-super-group-set="model.definitions" view-type="input" smo-data-source="model.values"></div>\
+					</div>\
+				</div>'
 
 			var el = angular.element(template);
 	        compiled = $compile(el);

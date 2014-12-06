@@ -59,34 +59,49 @@ class View(object):
 			elif (isinstance(value, PostAction)):
 				instance._postActions[key] = value
 		return instance
+	
 	def execGetAction(self, actionName, parameters):
 		if (actionName in self._getActions.keys()):
-			self._getActions[actionName](self, parameters)
+			return self._getActions[actionName](self, parameters)
 		else:
 			raise NameError('No GET action with name {0}'.format(actionName))
+	
 	def execPostAction(self, actionName, parameters):
+		response = {}
 		if (actionName in self._postActions.keys()):
-			self._postActions[actionName](self, parameters)
+			try:
+				response['data'] = self._postActions[actionName](self, parameters)
+				if (isinstance(response, dict)):					
+					response['errStatus'] = False
+			except Exception, e:
+				response['errStatus'] = True
+				response['error'] = str(e)
 		else:
-			raise NameError('No POST action with name {0}'.format(actionName))
+			if (isinstance(response, dict)):					
+				response['errStatus'] = True
+				response['error'] = 'No POST action with name {0}'.format(actionName)
+		return JsonResponse(response, safe = False)
+	
 	@classmethod
 	def asView(cls):
 		def view(request):
 			instance = cls()
 			if request.method == 'GET':
 				if ('get' in cls.__dict__):
-					return instance.get()
+					return instance.get(request)
 				else:
 					raise NotImplementedError(
 						'View {0} can not serve GET request'.format(cls.__name__))
 			elif request.method == 'POST':
 				if ('post' in cls.__dict__):
-					return instance.post()
+					return instance.post(request)
 				else:
 					postData = json.loads(request.body)
 					action = postData['action']
 					parameters = postData['parameters']
 					return instance.execPostAction(action, parameters)
+			else:
+				raise ValueError('Only GET and POST requests can be served')
 				
 		return view
 	

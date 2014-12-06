@@ -9,7 +9,6 @@ import numpy as np
 from smo.smoflow3d.SimpleMaterials import Fluids
 from smo.smoflow3d.CoolProp.CoolProp import Fluid, FluidState
 from collections import OrderedDict
-from django.contrib.messages.tests.urls import show
 
 GeometryConfigurationsExternal = OrderedDict((
 	('VP', 'vertical plane'),
