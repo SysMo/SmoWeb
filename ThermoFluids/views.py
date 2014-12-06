@@ -36,7 +36,7 @@ def fluidPropsCalculatorView(request):
 		return render_to_response('ThermoFluids/FluidPropsCalculator.html', locals(), 
 				context_instance=RequestContext(request))
 	elif request.method == 'POST':
-		from smo.smoflow3d.calculators.FluidPropsCalculator import FluidPropsCalculator, FluidInfo
+		from smo.smoflow3d.calculators.FluidPropsCalculator import FluidPropsCalculator, FluidInfo, SaturationData
 		postData = json.loads(request.body)
 		action = postData['action']
 		parameters = postData['parameters']
@@ -45,8 +45,15 @@ def fluidPropsCalculatorView(request):
 			inputs = fpc.superGroupList2Json([fpc.inputs])
 			return JsonResponse(inputs)
 		elif (action == 'getFluidInfo'):
-			fluidDataList = FluidInfo.getList()
-			return JsonResponse(fluidDataList, safe = False)
+			fluidInformation = FluidInfo.getFluidInfo()
+			return JsonResponse(fluidInformation, safe = False)
+		elif (action == 'getFluidList'):
+			fluidList = FluidInfo.getFluidList()
+			return JsonResponse(fluidList, safe = False)
+		elif (action == 'getSaturationData'):
+			sd = SaturationData(parameters['fluidName'])
+			satData = sd.getSaturationData()
+			return JsonResponse(satData, safe = False)
 		elif (action == 'compute'):
 			with SmoJsonResponse() as response:
 				fpc = FluidPropsCalculator()

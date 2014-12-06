@@ -108,6 +108,7 @@ class FluidPropsCalculator(NumericalModel):
 		fc.compute()
 		print
 		print fc.rho
+		
 
 class FluidInfo(NumericalModel):
 	crit_p = Quantity('Pressure', default = (1, 'bar'), label = 'pressure')
@@ -134,8 +135,6 @@ class FluidInfo(NumericalModel):
 	other = FieldGroup([molar_mass, accentric_factor, cas, ashrae34], label = 'Other')
 	
 	constants = SuperGroup([critPoint, tripplePoint, fluidLimits, other])
-	
-	
 	
 	def __init__(self, fluidName):
 		f = Fluid(fluidName)
@@ -172,12 +171,11 @@ class FluidInfo(NumericalModel):
 			refList.append([referenceKeys[key], reference])
 		return refList
 		
-			
 	@staticmethod
-	def getList(fluidList = None):
+	def getFluidInfo(fluidList = None):
 		if (fluidList is None):
 			fluidList = Fluids
-		fluidDataList = []
+		fluidInformation = []
 		for fluid in fluidList:
 			fi = FluidInfo(fluid)
 			fluidData = {
@@ -186,23 +184,39 @@ class FluidInfo(NumericalModel):
 				'constants': fi.superGroupList2Json([fi.constants]),
 				'references': fi.getReferences(fluid)
 			}
-			fluidDataList.append(fluidData)
+			fluidInformation.append(fluidData)		
+		return fluidInformation
+	
+	@staticmethod
+	def getFluidList():
+		fluidList = []
+		for fluid in Fluids:
+			fluidList.append([fluid, Fluids[fluid]])
+		return fluidList
 			
-		return fluidDataList
-# 	fluidsData = OrderedDict()
-# 	for key in Fluids:
-# 		fluidsData[key] = {'label' : Fluids[key], 'Constants': [], 'References': []}
-# 		f = Fluid(key)
-# 		fluidsData[key]['Constants'].append(['Tripple point', list(f.tripple().iteritems())])
-# 		fluidsData[key]['Constants'].append(['Critical point', list(f.critical().iteritems())])			
-# 		fluidsData[key]['Constants'].append(['Molar mass', [f.molarMass()]])
-# # 				fluidsData[key]['Constants']['Accentric factor'] = f.accentricFactor()
-# # 				fluidsData[key]['Constants']['Fluid limits'] = f.fluidLimits()
-# # 				fluidsData[key]['Constants']['Minimum temperature'] = f.minimumTemperature()
-# 		fluidsData[key]['Constants'].append(['CAS', [f.CAS()]])
-# 		fluidsData[key]['Constants'].append(['ASHRAE34', [f.ASHRAE34()]])
+	@staticmethod
+	def test():
+		print FluidInfo.getFluidList()
 
+class SaturationData(object):
+	def __init__(self, fluidName):
+		self.fluidName = fluidName
+	
+	def getSaturationData(self):
+		f = Fluid(self.fluidName)	
+		
+		pressures = np.logspace(np.log10(f.tripple()['p']), np.log10(f.critical()['p']), 100)/1e5
+		temperatures = []
+		data = []
+		for p in pressures:
+			saturation = f.saturation_p(p*1e5)
+			temperatures.append(saturation['TsatL'])
+			data.append([p, saturation['TsatL']])
+					
+		return {'array': data, 'labels': ['pressure [bar]', 'T sat [K]']}
+		
 if __name__ == '__main__':
-	FluidPropsCalculator.test()
+# 	FluidPropsCalculator.test()
 # 	print getFluidConstants()
 # 	print getLiteratureReferences()
+	FluidInfo.test()
