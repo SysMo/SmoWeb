@@ -4,27 +4,8 @@ from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from smo.numerical_model.quantity import Quantities
 from smo.smoflow3d.SimpleMaterials import Fluids
 from collections import OrderedDict
-
-class SmoJsonResponse(object):
-	def __enter__(self):
-		self.exceptionThrown = False
-		return self
-	
-	def __exit__(self, type, value, traceback):
-		if (value is not None):
-			self.exceptionThrown = True
-			self.response = {}
-			self.response['errStatus'] = True
-			self.response['error'] = str(value)
-		return True
-	
-	def set(self, response):
-		if (not self.exceptionThrown):
-			self.response = response
-			self.response['errStatus'] = False
-	
-	def json(self):
-		return JsonResponse(self.response)
+from smo.django.view import SmoJsonResponse, View
+from smo.django.view import action as smo_action
 
 def heatPumpView(request):
 	if request.method == 'GET':
