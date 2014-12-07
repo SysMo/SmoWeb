@@ -4,9 +4,11 @@ from collections import OrderedDict
 Quantities = {
 	'Dimensionless' : {'title' : 'dimensionless quantity', 'nominalValue' : 1, 'SIUnit' : '-', 
 			'units' : OrderedDict((('-', {'mult' : 1}),))},
+	
 	'Length' : {'title' : 'length', 'nominalValue' : 1, 'SIUnit' : 'm', 
-		'units' : OrderedDict((('m', {'mult' : 1}), ('km', {'mult' : 1e3}), ('cm', {'mult' : 1e-2}), ('mm', {'mult' : 1e-3}), 
-		('um', {'mult' : 1e-6}), ('nm', {'mult' : 1e-9}), ('in', {'mult' : 2.54e-2}), ('ft', {'mult' : 3.048e-1}), ('yd', {'mult' : 0.9144}), ('mi', {'mult' : 1609.344}),))},
+		'units' : OrderedDict((('nm', {'mult' : 1e-9}), ('um', {'mult' : 1e-6}), ('mm', {'mult' : 1e-3}), ('cm', {'mult' : 1e-2}), ('m', {'mult' : 1}), 
+			('km', {'mult' : 1e3}), ('in', {'mult' : 2.54e-2}), ('ft', {'mult' : 3.048e-1}), ('yd', {'mult' : 0.9144}), ('mi', {'mult' : 1609.344}),))},
+	
 	'Area' : {'title' : 'area', 'nominalValue' : 1, 'SIUnit' : 'm**2', 
 		'units' : {'m**2' : {'mult' : 1}, 'cm**2' : {'mult' : 1e-4}, 'mm**2' : {'mult' : 1e-6}}},
 	'Volume' : {'title' : 'volume', 'nominalValue' : 1, 'SIUnit' : 'm**3', 
@@ -60,6 +62,18 @@ Quantities = {
 		'units' : OrderedDict((('1/K', {'mult' : 1}), ('1/mK', {'mult' : 1e-3}), ('1/degC', {'mult' : 1}), ('1/degF', {'mult' : 9./5})))},
 	'HeatTransferCoefficient' : {'title' : 'heat transfer coefficient', 'nominalValue' : 1.0, 'SIUnit' : 'W/m**2-K', 'defDispUnit' : 'W/m**2-K',
 		'units' : OrderedDict((('W/m**2-K', {'mult' : 1}), ('kW/m**2-K', {'mult' : 1e3}), ('W/cm**2-K', {'mult' : 1e4})))},
+			
+	'ElectricalConductivity' : {'title' : 'electrical conductivity', 'nominalValue' : 1.0, 'SIUnit' : 'S/m', 'defDispUnit' : 'S/m',
+		'units' : OrderedDict((('S/m', {'mult' : 1}), ('S/cm', {'mult' : 1e2}), ('S/mm', {'mult' : 1e3})))},
+	'ElectricalResistivity' : {'title' : 'electrical resistivity', 'nominalValue' : 1.0, 'SIUnit' : 'Ohm-m', 'defDispUnit' : 'Ohm-m',
+		'units' : OrderedDict((('Ohm-m', {'mult' : 1}), ('Ohm-cm', {'mult' : 1e-2}), ('Ohm-mm', {'mult' : 1e-3})))},			
+	'ElectricalResistance' : {'title' : 'electrical resistance', 'nominalValue' : 1.0, 'SIUnit' : 'Ohm', 'defDispUnit' : 'Ohm',
+		'units' : OrderedDict((('mOhm', {'mult' : 1e-3}), ('Ohm', {'mult' : 1}), ('kOhm', {'mult' : 1e3}),
+			('MOhm', {'mult' : 1e6}), ('GOhm', {'mult' : 1e9})))},
+	'ElectricalCurrent' : {'title' : 'electrical current', 'nominalValue' : 1.0, 'SIUnit' : 'A', 'defDispUnit' : 'A',
+		'units' : OrderedDict((('nA', {'mult' : 1e-9}), ('uA', {'mult' : 1e-6}), ('mA', {'mult' : 1e-3}), 
+			('A', {'mult' : 1}), ('kA', {'mult' : 1e3})))},			
+			
 	'DynamicViscosity' : {'title' : 'dynamic viscosity', 'nominalValue' : 1.0, 'SIUnit' : 'Pa-s', 'defDispUnit' : 'Pa-s',
 		'units' : OrderedDict((('Pa-s', {'mult' : 1}), ('mPa-s', {'mult' : 1e-3}), ('P', {'mult' : 0.1}), ('cP', {'mult' : 1e-3}),))},
 	'VaporQuality' : {'title' : 'vapor quality', 'nominalValue' : 1, 'SIUnit' : '-', 

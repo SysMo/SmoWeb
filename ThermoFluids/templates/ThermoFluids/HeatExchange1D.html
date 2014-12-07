@@ -12,14 +12,21 @@ angular.module('HeatExchange1D', ['ui.bootstrap', 'smo'])
 	    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
 	}])
 	.controller('HeatExchange1DController', 
-		[ '$scope', 'JsonCommunicator', function($scope, JsonCommunicator) {
-			$scope.angular = angular;
-			$scope.wireHeating = {
-				inputs: {},
-				inputCommunicator: new JsonCommunicator(),
-				results: {}};
-			$scope.wireHeating.inputCommunicator.fetchData(
-					'getWireHeatingInputs', {}, $scope.wireHeating.inputs);
+			[ '$scope', 'JsonCommunicator', function($scope, JsonCommunicator) {
+		$scope.angular = angular;
+		$scope.wireHeating = {
+			inputs: {},
+			inputCommunicator: new JsonCommunicator(),
+			results: {},
+			resultsCommunicator: new JsonCommunicator()
+		};
+		$scope.wireHeating.inputCommunicator.fetchData(
+				'getWireHeatingInputs', {}, $scope.wireHeating.inputs);
+		
+		$scope.compute = function() {
+			$scope.wireHeating.resultsCommunicator.fetchData(
+				'computeWireHeating', $scope.wireHeating.inputs.data.values, $scope.wireHeating.results);
+		}
 	}]);
 </script>
 {% endblock %}
@@ -34,21 +41,15 @@ angular.module('HeatExchange1D', ['ui.bootstrap', 'smo'])
 	<div class="tab-content">
 		<div class="tab-pane active page-container" id="calculator">
 			<h1 class="title">Wire heating</h1>
-			<div smo-input-view="wireHeatingInputs" model="wireHeating.inputs.data" communicator="wireHeating.inputCommunicator"></div>
-<!-- 			<div class="title-figure"> -->
-<!-- 				<img src="{% static 'ThermoFluids/StraightPipe.svg' %}"></img> -->
-<!-- 			</div> -->
-<!-- 			<div class="section"> 		 -->
-<!-- 				<div ng-form name="myForm"> -->
-<!-- 					<div smo-input-view="inputs"></div> -->
-<!-- 				</div> -->
-<!-- 			</div> -->
-<!-- 			<div class="section" style="margin-left: 20px;">		 -->
-<!-- 				<div ng-show="inputs.inputsObtained"><button ng-disabled="!myForm.$valid" class="btn btn-default" ng-click="compute()">Compute</button></div> -->
-<!-- 			</div> -->
-<!-- 			<div class="section">  -->
-<!-- 				<div smo-output-view="outputs"></div> -->
-<!-- 			</div> -->
+			<div smo-model-view="wireHeatingInputs" view-type="input" model="wireHeating.inputs" communicator="wireHeating.inputCommunicator"></div>
+			<div class="section" style="margin-left: 20px;">		
+				<div ng-show="wireHeating.inputs.dataReceived"><button ng-disabled="!wireHeating.inputs.fieldsValid" 
+					 class="btn btn-default" ng-click="compute()">Compute</button>
+				</div>
+			</div>
+			<div class="section"> 
+				<div smo-model-view="wireHeatingResults" view-type="output" model="wireHeating.results" communicator="wireHeating.resultsCommunicator"></div>
+			</div>
 		</div>
 		<div class="tab-pane" id="doc">
 			<div class="docview">

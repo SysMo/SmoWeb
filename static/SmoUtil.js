@@ -324,12 +324,18 @@ smoModule.factory('smoJson', function () {
 
 smoModule.factory('JsonCommunicator', function($http, smoJson) {
 	function JsonCommunicator(url){
+		// Communication URL. Can be left empty if the same as the current page URL
 		this.url = url || '';
+		// true if waiting to load from the server
 		this.loading = false;
+		// true if there is error in communication (no response from server or incorrect URL)
 		this.commError = false;
+		// true if there was an error during processing the request on the server 
 		this.serverError = false;
-		this.dataReceived = false;
+		// error message from commError or serverError
 		this.errorMsg = "";
+		// true if data has arrived from the server
+		this.dataReceived = false;
 	}
 	JsonCommunicator.prototype.fetchData = function(action, parameters, retDataObject) {
 		this.loading = true;
@@ -337,6 +343,10 @@ smoModule.factory('JsonCommunicator', function($http, smoJson) {
 		this.serverError = false;
 		this.dataReceived = false;
 		this.errorMsg = "";
+		// Empty the receiver object
+		retDataObject.data = {};
+		retDataObject.dataReceived = false;
+
 		// Variable introduced so that success and error functions can access this object
 		var communicator = this;
 		$http({
@@ -352,7 +362,8 @@ smoModule.factory('JsonCommunicator', function($http, smoJson) {
 			if (!response.errStatus) {
 				communicator.serverError = false;
 				communicator.dataReceived = true;
-				retDataObject.data = response.data;				
+				retDataObject.data = response.data;
+				retDataObject.dataReceived = true;
 			} else {
 				communicator.serverError = true;
 				communicator.dataReceived = false;
@@ -841,29 +852,36 @@ smoModule.directive('smoSuperGroupSet', ['$compile', function($compile) {
 	}
 }]);
 			
-smoModule.directive('smoInputView', ['$compile', function($compile) {
+smoModule.directive('smoModelView', ['$compile', function($compile) {
 	return {
 		restrict : 'A',
 		scope : {
 			model: '=',
 			communicator: '=',
-			name: '@smoInputView'
+			name: '@smoModelView',
+			viewType: '@viewType'
+		},
+		controller: function($scope) {
+			$scope.formName = $scope.name+'Form';
 		},
 		link : function(scope, element, attr) {
 			var template = '\
 				<div ng-if="communicator.loading" class="alert alert-info" role="alert">Loading...</div>\
 				<div ng-if="communicator.commError" class="alert alert-danger" role="alert">Communication error: <span ng-bind="communicator.errorMsg"></span></div>\
 				<div ng-if="communicator.serverError" class="alert alert-danger" role="alert">Server error: <span ng-bind="communicator.errorMsg"></span></div>\
-				<div ng-if="communicator.dataReceived" role="alert">\
-					<div ng-form name="my' + scope.name + 'Form">\
-						<div  smo-super-group-set="model.definitions" view-type="input" smo-data-source="model.values"></div>\
+				<div ng-form name="' + scope.formName + '">\
+					<div ng-if="communicator.dataReceived" role="alert">\
+						<div smo-super-group-set="model.data.definitions" view-type="' + scope.viewType + '" smo-data-source="model.data.values"></div>\
 					</div>\
-				</div>'
+				</div>';
 
 			var el = angular.element(template);
 	        compiled = $compile(el);
 	        element.append(el);
 	        compiled(scope);
+			scope.$watch(scope.formName + '.$valid', function(validity) {
+					scope.model.fieldsValid = validity;					
+			});	        
 		}	
 	}
 }]);
@@ -874,37 +892,6 @@ smoModule.directive('smoOutputView', ['$compile', 'smoJson', function($compile, 
 		restrict : 'A',
 		scope : {			
 			it: '=smoOutputView'
-		},
-		controller: function($scope, $http){
-			$scope.it.outputsObtained = false;
-			$scope.it.loading = false;
-			$scope.it.errStatus = false;
-			$scope.it.fetchData = function(parameters) {
-				$scope.it.outputsObtained = false;
-				$scope.it.loading = true;
-				$scope.it.errorLoading = false;
-				var parameters = parameters || {};
-				$http({
-			        method  : 'POST',
-			        url     : $scope.it.dataUrl,
-			        data    : { action : $scope.it.action, parameters: parameters},
-			        headers : { 'Content-Type': 'application/x-www-form-urlencoded' },  // set the headers so angular passing info as form data (not request payload)
-			        transformResponse: [smoJson.transformResponse]
-				})
-			    .success(function(data) {
-			    	$scope.it.errStatus = data.errStatus;
-			    	if (!$scope.it.errStatus) {
-			    		$scope.it.loading = false;
-				    	$scope.it.outputsObtained = true;
-				    	$scope.it.data = data;
-			    	}
-			    	else {
-			    		$scope.it.loading = false;
-			    		$scope.it.outputsObtained = false;
-				    	$scope.it.error = data.error || 'Error loading!';
-			    	}
-			    });
-			}
 		},
 		link : function(scope, element, attr) {
 			var template = '<div ng-if="it.loading"><h2 class="loading">Loading...</h2></div>\

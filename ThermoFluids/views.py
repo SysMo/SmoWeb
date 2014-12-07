@@ -122,6 +122,12 @@ class HeatExchange1DView(View):
 	def getWireHeatingInputs(self, parameters):
 		wireHeating = WireHeating1D()
 		return wireHeating.superGroupList2Json([wireHeating.inputs])
+	@smo_action('post')
+	def computeWireHeating(self, parameters):
+		wireHeating = WireHeating1D()
+		wireHeating.fieldValuesFromJson(parameters)
+		wireHeating.compute()
+		return wireHeating.superGroupList2Json([wireHeating.results])
 	
 def testView(request):
 	if request.method == 'GET':
