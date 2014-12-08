@@ -11,7 +11,7 @@ angular.module('SmoConvert', ['ui.bootstrap', 'smo'])
 	    $httpProvider.defaults.xsrfCookieName = 'csrftoken';
 	    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
 	}])
-	.controller('SmoConvertController', [ '$scope', function($scope) {
+	.controller('SmoConvertController', 'ModelCommunicator', [ '$scope', function($scope, ModelCommunicator) {
 
 	$scope.input = {autoFetch: true, dataUrl: '/ThermoFluids/TestView/', action: 'getInputs'};
 // 	$scope.outputs = [{ dataUrl: '/ThermoFluids/TestView/', action: 'compute'}];

@@ -12,11 +12,17 @@ angular.module('HeatPump', ['ui.bootstrap', 'smo'])
 	    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
 	}])
 	.controller('HeatPumpController', 
-		[ '$scope', function($scope) {
- 		$scope.inputs = { autoFetch : true, dataUrl: '/ThermoFluids/HeatPump/', action: 'getInputs'};
- 		$scope.outputs = { dataUrl: '/ThermoFluids/HeatPump/', action: 'compute'};
+		[ '$scope', 'ModelCommunicator', function($scope, ModelCommunicator) {
+		$scope.heatPump = {
+			inputCommunicator: new ModelCommunicator(),
+			resultsCommunicator: new ModelCommunicator()
+		};
+		$scope.heatPump.inputCommunicator.fetchData(
+			'getHeatPumpInputs', {});
+		
 		$scope.compute = function() {
-			$scope.outputs.fetchData($scope.inputs.data.values);
+			$scope.heatPump.resultsCommunicator.fetchData(
+				'computeHeatPump', $scope.heatPump.inputCommunicator.data.values);
 		}
 		
 	}]);
@@ -36,16 +42,14 @@ angular.module('HeatPump', ['ui.bootstrap', 'smo'])
 			<div class="title-figure">
 				<img src="{% static 'ThermoFluids/HeatPump.svg' %}"></img>
 			</div>		
-			<div class="section">
-				<div ng-form name="myForm">
-					<div smo-input-view="inputs"></div>
+			<div smo-model-view="heatPumpInputs" view-type="input" communicator="heatPump.inputCommunicator"></div>
+			<div class="section" style="margin-left: 20px;"> 		
+				<div ng-show="heatPump.inputCommunicator.dataReceived"><button ng-disabled="!heatPump.inputCommunicator.fieldsValid" 
+					 class="btn btn-default" ng-click="compute()">Compute</button>
 				</div>
 			</div>
-			<div class="section" style="margin-left: 20px;">
-				<div ng-show="inputs.inputsObtained"><button ng-disabled="!myForm.$valid" class="btn btn-default" ng-click="compute()">Compute</button></div>
-			</div>
-			<div class="section">
-				<div smo-output-view="outputs"></div>
+			<div class="section"> 
+				<div smo-model-view="heatPumpResults" view-type="output" communicator="heatPump.resultsCommunicator"></div>
 			</div>
 		</div>
 		<div class="tab-pane" id="doc">

@@ -12,7 +12,7 @@ angular.module('FlowResistance', ['ui.bootstrap', 'smo'])
 	    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
 	}])
 	.controller('FlowResistanceController', 
-		[ '$scope', function($scope) {
+		[ '$scope', 'ModelCommunicator', function($scope, ModelCommunicator) {
 		$scope.flowResistance = {
 			inputCommunicator: new ModelCommunicator(),
 			resultsCommunicator: new ModelCommunicator()

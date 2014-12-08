@@ -337,7 +337,7 @@ smoModule.factory('ModelCommunicator', function($http, smoJson) {
 		// true if data has arrived from the server
 		this.dataReceived = false;
 	}
-	ModelCommunicator.prototype.fetchData = function(action, parameters) {
+	ModelCommunicator.prototype.fetchData = function(action, parameters, onSuccess, onFailure) {
 		this.loading = true;
 		this.commError = false;
 		this.serverError = false;
@@ -346,9 +346,11 @@ smoModule.factory('ModelCommunicator', function($http, smoJson) {
 		// Empty the receiver object
 		this.data = {};
 		this.dataReceived = false;
-
 		// Variable introduced so that success and error functions can access this object
 		var communicator = this;
+		this.onSuccess = onSuccess;
+		this.onFailure = onFailure;
+		this.action = action;
 		$http({
 	        method  : 'POST',
 	        url     : this.url,
@@ -364,10 +366,16 @@ smoModule.factory('ModelCommunicator', function($http, smoJson) {
 				communicator.dataReceived = true;
 				communicator.data = response.data;
 				communicator.dataReceived = true;
+				if (!(typeof onSuccess === 'undefined')) {
+					communicator.onSuccess(communicator);
+				}
 			} else {
 				communicator.serverError = true;
 				communicator.dataReceived = false;
 				communicator.errorMsg = response.error;
+				if (!(typeof onFailure === 'undefined')) {
+					communicator.onFailure(communicator);
+				}
 			}
 	    })
 	    .error(function(response) {
@@ -375,6 +383,9 @@ smoModule.factory('ModelCommunicator', function($http, smoJson) {
 			communicator.commError = true;
 			communicator.serverError = false;
 			communicator.errorMsg = response;
+			if (!(typeof onFailure === 'undefined')) {
+				communicator.onFailure(communicator);
+			}
 	    });
 	}
 	return ModelCommunicator;
@@ -834,34 +845,6 @@ smoModule.directive('smoModelView', ['$compile', function($compile) {
 	}
 }]);
 
-
-//smoModule.directive('smoOutputView', ['$compile', 'smoJson', function($compile, smoJson) {
-//	return {
-//		restrict : 'A',
-//		scope : {			
-//			it: '=smoOutputView'
-//		},
-//		link : function(scope, element, attr) {
-//			var template = '<div ng-if="it.loading"><h2 class="loading">Loading...</h2></div>\
-//							<div ng-if="it.errStatus" style="margin-left:20px;">\
-//								<br>\
-//								<div class="alert alert-danger" role="alert">\
-//								  <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>\
-//								  <span class="sr-only">Error:</span>\
-//								  {{it.error}}\
-//								</div>\
-//							</div>\
-//							<div ng-if="it.outputsObtained">\
-//								<div smo-super-group-set="it.data.definitions" view-type="output" smo-data-source="it.data.values"></div>\
-//							</div>';		
-//			var el = angular.element(template);
-//	        compiled = $compile(el);
-//	        element.append(el);
-//	        compiled(scope);
-//		}
-//	}
-//}]);
-
 smoModule.directive('converterInputView', ['$compile', 'variables', function($compile, variables) {
 	return {
 		restrict : 'A',
@@ -886,7 +869,7 @@ smoModule.directive('converterInputView', ['$compile', 'variables', function($co
 			    .success(function(data) {
 			    	$scope.it.loading = false;
 			    	$scope.it.inputsObtained = true;
-			    	$scope.it.quantities = data;
+			    	$scope.it.quantities = data.data;
 			    	$scope.renderConverter();
 			    })
 			    .error(function(data) {
@@ -940,5 +923,3 @@ smoModule.directive('converterInputView', ['$compile', 'variables', function($co
 		}	
 	}
 }]);
-
-//<div ng-show="Form{{$index}}.input.$error.pattern"></div>\

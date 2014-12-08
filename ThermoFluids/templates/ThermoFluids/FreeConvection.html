@@ -12,7 +12,7 @@ angular.module('FreeConvection', ['ui.bootstrap', 'smo'])
 	    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
 	}])
 	.controller('FreeConvectionController', 
-		[ '$scope', function($scope) {
+		[ '$scope', 'ModelCommunicator', function($scope, ModelCommunicator) {
 		$scope.convectionExternal = {
 			inputCommunicator: new ModelCommunicator(),
 			resultsCommunicator: new ModelCommunicator()
