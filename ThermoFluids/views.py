@@ -40,12 +40,12 @@ class FlowResistanceView(View):
 				context_instance=RequestContext(request))
 	
 	@smo_action('post')
-	def getInputs(self, parameters):
+	def getFlowResistanceInputs(self, parameters):
 		pipe = Pipe()
 		return pipe.superGroupList2Json([Pipe.inputs])
 	
 	@smo_action('post')	
-	def compute(self, parameters):
+	def computeFlowResistance(self, parameters):
 		pipe = Pipe()
 		pipe.fieldValuesFromJson(parameters)
 		pipe.computeGeometry()

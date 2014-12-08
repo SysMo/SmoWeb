@@ -12,20 +12,17 @@ angular.module('HeatExchange1D', ['ui.bootstrap', 'smo'])
 	    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
 	}])
 	.controller('HeatExchange1DController', 
-			[ '$scope', 'JsonCommunicator', function($scope, JsonCommunicator) {
-		$scope.angular = angular;
+			[ '$scope', 'ModelCommunicator', function($scope, ModelCommunicator) {
 		$scope.wireHeating = {
-			inputs: {},
-			inputCommunicator: new JsonCommunicator(),
-			results: {},
-			resultsCommunicator: new JsonCommunicator()
+			inputCommunicator: new ModelCommunicator(),
+			resultsCommunicator: new ModelCommunicator()
 		};
 		$scope.wireHeating.inputCommunicator.fetchData(
-				'getWireHeatingInputs', {}, $scope.wireHeating.inputs);
+				'getWireHeatingInputs', {});
 		
 		$scope.compute = function() {
 			$scope.wireHeating.resultsCommunicator.fetchData(
-				'computeWireHeating', $scope.wireHeating.inputs.data.values, $scope.wireHeating.results);
+				'computeWireHeating', $scope.wireHeating.inputCommunicator.data.values);
 		}
 	}]);
 </script>
@@ -41,14 +38,14 @@ angular.module('HeatExchange1D', ['ui.bootstrap', 'smo'])
 	<div class="tab-content">
 		<div class="tab-pane active page-container" id="calculator">
 			<h1 class="title">Wire heating</h1>
-			<div smo-model-view="wireHeatingInputs" view-type="input" model="wireHeating.inputs" communicator="wireHeating.inputCommunicator"></div>
+			<div smo-model-view="wireHeatingInputs" view-type="input" communicator="wireHeating.inputCommunicator"></div>
 			<div class="section" style="margin-left: 20px;">		
-				<div ng-show="wireHeating.inputs.dataReceived"><button ng-disabled="!wireHeating.inputs.fieldsValid" 
+				<div ng-show="wireHeating.inputCommunicator.dataReceived"><button ng-disabled="!wireHeating.inputCommunicator.fieldsValid" 
 					 class="btn btn-default" ng-click="compute()">Compute</button>
 				</div>
 			</div>
 			<div class="section"> 
-				<div smo-model-view="wireHeatingResults" view-type="output" model="wireHeating.results" communicator="wireHeating.resultsCommunicator"></div>
+				<div smo-model-view="wireHeatingResults" view-type="output" communicator="wireHeating.resultsCommunicator"></div>
 			</div>
 		</div>
 		<div class="tab-pane" id="doc">

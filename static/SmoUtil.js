@@ -322,8 +322,8 @@ smoModule.factory('smoJson', function () {
 	return {'parse': parseJSON, 'transformResponse': transformResponse};
 });
 
-smoModule.factory('JsonCommunicator', function($http, smoJson) {
-	function JsonCommunicator(url){
+smoModule.factory('ModelCommunicator', function($http, smoJson) {
+	function ModelCommunicator(url){
 		// Communication URL. Can be left empty if the same as the current page URL
 		this.url = url || '';
 		// true if waiting to load from the server
@@ -337,15 +337,15 @@ smoModule.factory('JsonCommunicator', function($http, smoJson) {
 		// true if data has arrived from the server
 		this.dataReceived = false;
 	}
-	JsonCommunicator.prototype.fetchData = function(action, parameters, retDataObject) {
+	ModelCommunicator.prototype.fetchData = function(action, parameters) {
 		this.loading = true;
 		this.commError = false;
 		this.serverError = false;
 		this.dataReceived = false;
 		this.errorMsg = "";
 		// Empty the receiver object
-		retDataObject.data = {};
-		retDataObject.dataReceived = false;
+		this.data = {};
+		this.dataReceived = false;
 
 		// Variable introduced so that success and error functions can access this object
 		var communicator = this;
@@ -362,8 +362,8 @@ smoModule.factory('JsonCommunicator', function($http, smoJson) {
 			if (!response.errStatus) {
 				communicator.serverError = false;
 				communicator.dataReceived = true;
-				retDataObject.data = response.data;
-				retDataObject.dataReceived = true;
+				communicator.data = response.data;
+				communicator.dataReceived = true;
 			} else {
 				communicator.serverError = true;
 				communicator.dataReceived = false;
@@ -377,7 +377,7 @@ smoModule.factory('JsonCommunicator', function($http, smoJson) {
 			communicator.errorMsg = response;
 	    });
 	}
-	return JsonCommunicator;
+	return ModelCommunicator;
 })
 
 smoModule.directive('smoSingleClick', ['$parse', function($parse) {
@@ -403,44 +403,6 @@ smoModule.directive('smoSingleClick', ['$parse', function($parse) {
         }
     };
 }]);
-
-smoModule.factory('materials', function() {
-	var materials = {
-		solids : {
-			'StainlessSteel304': {'title': 'stainless steel 304'}, 
-			'Aluminium6061': {'title': 'aluminium 6061'}
-		},
-		fluids : {
-			"ParaHydrogen" : {title : "ParaHydrogen"},
-			"OrthoHydrogen" : {title : "OrthoHydrogen"},
-			"Hydrogen" : {title : "Hydrogen"},
-			"Water" : {title : "Water"},
-			"Air" : {title : "Air"},
-			"Nitrogen" : {title : "Nitrogen"},
-			"Oxygen" : {title : "Oxygen"},
-			"CarbonDioxide" : {title : "CarbonDioxide"},
-			"CarbonMonoxide" : {title : "CarbonMonoxide"},
-			"R134a" : {title : "R134a"},
-			"R1234yf" : {title : "R1234yf"},
-			"R1234ze(Z)" : {title : "R1234ze(Z)"},
-			"Ammonia" : {title : "Ammonia"},
-			"Argon" : {title : "Argon"},
-			"Neon" : {title : "Neon"},
-			"Helium" : {title : "Helium"},
-			"Methane" : {title : "Methane"},
-			"Ethane" : {title : "Ethane"},
-			"Ethylene" : {title : "Ethylene"},
-			"n-Propane" : {title : "n-Propane"},
-			"n-Butane" : {title : "n-Butane"},
-			"IsoButane" : {title : "IsoButane"},
-			"n-Pentane" : {title : "n-Pentane"},
-			"Isopentane" : {title : "Isopentane"},
-			"Methanol" : {title : "Methanol"},
-			"Ethanol" : {title : "Ethanol"}
-		}
-	};
-	return materials;
-});
 
 smoModule.factory('variables', ['util', function(util) {
 	var variables = {};
@@ -517,19 +479,6 @@ smoModule.directive('smoQuantity', ['$compile', 'util', function($compile, util)
 				
 				$scope.updateValue();
 			}
-			
-//			$scope.revertOnInvalidity = function(){
-//				if ($scope[$scope.fieldVar.name + 'Form'].$valid == false) {
-//					$scope.fieldVar.value = $scope.smoDataSource[$scope.fieldVar.name];
-//					var offset = 0;
-//					if ('offset' in $scope.fieldVar.dispUnitDef) {
-//						offset = $scope.fieldVar.dispUnitDef.offset;
-//					}
-//					$scope.fieldVar.displayValue = util.formatNumber(($scope.fieldVar.value - offset) / $scope.fieldVar.dispUnitDef.mult);
-//				}
-//				$scope[$scope.fieldVar.name + 'Form'].input.$setValidity('minVal', true);
-//				$scope[$scope.fieldVar.name + 'Form'].input.$setValidity('maxVal', true);
-//			}
 			
 			$scope.updateValue = function() {
 				var offset = 0;
@@ -856,7 +805,6 @@ smoModule.directive('smoModelView', ['$compile', function($compile) {
 	return {
 		restrict : 'A',
 		scope : {
-			model: '=',
 			communicator: '=',
 			name: '@smoModelView',
 			viewType: '@viewType'
@@ -870,8 +818,8 @@ smoModule.directive('smoModelView', ['$compile', function($compile) {
 				<div ng-if="communicator.commError" class="alert alert-danger" role="alert">Communication error: <span ng-bind="communicator.errorMsg"></span></div>\
 				<div ng-if="communicator.serverError" class="alert alert-danger" role="alert">Server error: <span ng-bind="communicator.errorMsg"></span></div>\
 				<div ng-form name="' + scope.formName + '">\
-					<div ng-if="communicator.dataReceived" role="alert">\
-						<div smo-super-group-set="model.data.definitions" view-type="' + scope.viewType + '" smo-data-source="model.data.values"></div>\
+					<div ng-if="communicator.dataReceived">\
+						<div smo-super-group-set="communicator.data.definitions" view-type="' + scope.viewType + '" smo-data-source="communicator.data.values"></div>\
 					</div>\
 				</div>';
 
@@ -880,39 +828,39 @@ smoModule.directive('smoModelView', ['$compile', function($compile) {
 	        element.append(el);
 	        compiled(scope);
 			scope.$watch(scope.formName + '.$valid', function(validity) {
-					scope.model.fieldsValid = validity;					
+					scope.communicator.fieldsValid = validity;					
 			});	        
 		}	
 	}
 }]);
 
 
-smoModule.directive('smoOutputView', ['$compile', 'smoJson', function($compile, smoJson) {
-	return {
-		restrict : 'A',
-		scope : {			
-			it: '=smoOutputView'
-		},
-		link : function(scope, element, attr) {
-			var template = '<div ng-if="it.loading"><h2 class="loading">Loading...</h2></div>\
-							<div ng-if="it.errStatus" style="margin-left:20px;">\
-								<br>\
-								<div class="alert alert-danger" role="alert">\
-								  <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>\
-								  <span class="sr-only">Error:</span>\
-								  {{it.error}}\
-								</div>\
-							</div>\
-							<div ng-if="it.outputsObtained">\
-								<div smo-super-group-set="it.data.definitions" view-type="output" smo-data-source="it.data.values"></div>\
-							</div>';		
-			var el = angular.element(template);
-	        compiled = $compile(el);
-	        element.append(el);
-	        compiled(scope);
-		}
-	}
-}]);
+//smoModule.directive('smoOutputView', ['$compile', 'smoJson', function($compile, smoJson) {
+//	return {
+//		restrict : 'A',
+//		scope : {			
+//			it: '=smoOutputView'
+//		},
+//		link : function(scope, element, attr) {
+//			var template = '<div ng-if="it.loading"><h2 class="loading">Loading...</h2></div>\
+//							<div ng-if="it.errStatus" style="margin-left:20px;">\
+//								<br>\
+//								<div class="alert alert-danger" role="alert">\
+//								  <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>\
+//								  <span class="sr-only">Error:</span>\
+//								  {{it.error}}\
+//								</div>\
+//							</div>\
+//							<div ng-if="it.outputsObtained">\
+//								<div smo-super-group-set="it.data.definitions" view-type="output" smo-data-source="it.data.values"></div>\
+//							</div>';		
+//			var el = angular.element(template);
+//	        compiled = $compile(el);
+//	        element.append(el);
+//	        compiled(scope);
+//		}
+//	}
+//}]);
 
 smoModule.directive('converterInputView', ['$compile', 'variables', function($compile, variables) {
 	return {
