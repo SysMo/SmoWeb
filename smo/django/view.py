@@ -1,6 +1,9 @@
 import json
 from django.http import JsonResponse
 
+import logging
+logger = logging.getLogger('django.request.smo.view')
+
 class SmoJsonResponse(object):
 	def __enter__(self):
 		self.exceptionThrown = False
@@ -87,18 +90,22 @@ class View(object):
 		def view(request):
 			instance = cls()
 			if request.method == 'GET':
+				logger.debug('GET ' + request.path)
 				if ('get' in cls.__dict__):
 					return instance.get(request)
 				else:
 					raise NotImplementedError(
 						'View {0} can not serve GET request'.format(cls.__name__))
 			elif request.method == 'POST':
+				logger.debug('POST ' + request.path)
 				if ('post' in cls.__dict__):
 					return instance.post(request)
 				else:
 					postData = json.loads(request.body)
 					action = postData['action']
 					parameters = postData['parameters']
+					logger.debug('Action: ' + action)
+					logger.debug('Parameters: ' + json.dumps(parameters))
 					return instance.execPostAction(action, parameters)
 			else:
 				raise ValueError('Only GET and POST requests can be served')

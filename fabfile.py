@@ -55,7 +55,7 @@ def deploy():
 		print("Collected static files")
 		for module in env.folderCopyList:
 			local('cp -r ./{0} {1}'.format(module, os.path.join(env.installDir, 'Platform')), shell='bash')
-	local('unison -ignore "Name {*.pyc}" /srv/SmoWeb ssh://' + srvAddress + '//srv/SmoWeb')
+	local('unison -ignore "Name {*.pyc, *.sql*}" -ignore "Path Log/*" /srv/SmoWeb ssh://' + srvAddress + '//srv/SmoWeb')
 	sudo('chown -R www-data:www-data /srv/SmoWeb ')
 	sudo('service apache2 restart')
 		

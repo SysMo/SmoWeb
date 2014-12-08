@@ -106,23 +106,23 @@ class HeatPumpView(View):
 		hpc.compute()
 		return hpc.superGroupList2Json([hpc.results])
 
-from smo.simple_flow.WireHeating import WireHeating1D
-class HeatExchange1DView(View):
-	def get(self, request):
-		return render_to_response('ThermoFluids/HeatExchange1D.html', locals(), 
-				context_instance=RequestContext(request))
-	
-	@smo_action('post')
-	def getWireHeatingInputs(self, parameters):
-		wireHeating = WireHeating1D()
-		return wireHeating.superGroupList2Json([wireHeating.inputs])
-	
-	@smo_action('post')
-	def computeWireHeating(self, parameters):
-		wireHeating = WireHeating1D()
-		wireHeating.fieldValuesFromJson(parameters)
-		wireHeating.compute()
-		return wireHeating.superGroupList2Json([wireHeating.results])
+# from smo.simple_flow.WireHeating import WireHeating1D
+# class HeatExchange1DView(View):
+# 	def get(self, request):
+# 		return render_to_response('ThermoFluids/HeatExchange1D.html', locals(), 
+# 				context_instance=RequestContext(request))
+# 	
+# 	@smo_action('post')
+# 	def getWireHeatingInputs(self, parameters):
+# 		wireHeating = WireHeating1D()
+# 		return wireHeating.superGroupList2Json([wireHeating.inputs])
+# 	
+# 	@smo_action('post')
+# 	def computeWireHeating(self, parameters):
+# 		wireHeating = WireHeating1D()
+# 		wireHeating.fieldValuesFromJson(parameters)
+# 		wireHeating.compute()
+# 		return wireHeating.superGroupList2Json([wireHeating.results])
 
 class TestView(View):
 	def get(self, request):

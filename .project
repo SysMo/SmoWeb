@@ -15,11 +15,4 @@
 		<nature>org.python.pydev.pythonNature</nature>
 		<nature>org.python.pydev.django.djangoNature</nature>
 	</natures>
-	<linkedResources>
-		<link>
-			<name>AppServer</name>
-			<type>2</type>
-			<location>/data/AppServer</location>
-		</link>
-	</linkedResources>
 </projectDescription>
