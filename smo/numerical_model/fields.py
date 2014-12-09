@@ -1,5 +1,6 @@
 from quantity import Quantities
 import json
+import numpy as np
 
 class Field(object):
 	# Tracks each time an instance is created. Used to retain order.
@@ -192,6 +193,46 @@ class ObjectReference(Field):
 # 		fieldDict['options'] = {key : value['label'] for key, value in self.targetContainer.iteritems()}
 		return fieldDict
 	
+class TableView(Field):
+	def __init__(self, data, columnLabels, options = None, *args, **kwargs):
+		super(TableView, self).__init__(*args, **kwargs)
+		self.data = data
+		self.columnLabels = columnLabels
+		if (options is None):
+			options = {}
+		self.options = options
+		
+	def toFormDict(self):
+		extendedData = self.data.toList()
+		extendedData.insert(0, self.columnLabels)
+		fieldDict = {
+			'name': self._name, 
+			'label': self.label, 
+			'type': 'TableView',
+			'data': extendedData,
+			'options': self.options
+			}
+		return fieldDict
+
+class PlotView(Field):
+	def __init__(self, data, columnLabels, options = None, *args, **kwargs):
+		super(PlotView, self).__init__(*args, **kwargs)
+		self.data = data
+		self.columnLabels = columnLabels
+		if (options is None):
+			options = {}
+		self.options = options
+		
+	def toFormDict(self):
+		self.options['labels'] = self.columnLabels
+		fieldDict = {
+			'name': self._name, 
+			'label': self.label, 
+			'type': 'PlotView',
+			'data': self.data.toList(),
+			'options': self.options
+			}
+		return fieldDict
 
 class Group(object):
 	# Tracks each time an instance is created. Used to retain order.
@@ -205,6 +246,11 @@ class Group(object):
 class FieldGroup(Group):
 	def __init__(self, fields = None, *args, **kwargs):
 		super(FieldGroup, self).__init__(*args, **kwargs)
+		self.fields = [] if (fields is None) else fields
+
+class ViewGroup(Group):
+	def __init__(self, fields = None, *args, **kwargs):
+		super(ViewGroup, self).__init__(*args, **kwargs)
 		self.fields = [] if (fields is None) else fields
 
 class SuperGroup(Group):
