@@ -96,7 +96,7 @@ class FluidPropsCalculator(NumericalModel):
 		self.mu = fState.mu
 		self.dpdt_v = fState.dpdt_v
 		self.dpdv_t = fState.dpdv_t
-	
+			
 	@staticmethod	
 	def test():
 		fc = FluidPropsCalculator()

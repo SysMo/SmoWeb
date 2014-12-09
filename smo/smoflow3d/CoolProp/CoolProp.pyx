@@ -114,49 +114,29 @@ cdef long iH = CP.get_param_index('H')
 cdef long iS = CP.get_param_index('S')
 cdef long iQ = CP.get_param_index('Q')
 
-cdef class LiquidSaturationState:
-	cdef FluidState state
-	def __cinit__(self, FluidState state):		
-		self.state = state
-
+# cdef class LiquidSaturationState:
+# 	cdef FluidState state
+# 	def __cinit__(self, FluidState state):		
+# 		self.state = state
 
 cdef class FluidState:
-	cdef CP.CoolPropStateClassSI* ptr
-	def __cinit__(self, fluid):		
+	cdef CP.SmoFlow_CoolPropState* ptr
+
+	def __cinit__(self, fluid, opt = None):		
 		cdef string fluidName
+		# From fluid name
 		if (isinstance(fluid, str) or isinstance(fluid, unicode)):
 			fluidName = fluid
-			self.ptr = new CP.CoolPropStateClassSI(fluidName)
+			self.ptr = new CP.SmoFlow_CoolPropState(fluidName)
+		# From fluid object
 		elif (isinstance(fluid, Fluid)):
-			self.ptr = new CP.CoolPropStateClassSI((<Fluid>fluid).ptr)
+			self.ptr = new CP.SmoFlow_CoolPropState((<Fluid>fluid).ptr)
 		else:
 			raise TypeError('The argument of FluidState constructor must be either str or Fluid')
 			
 	def __dealloc__(self):
 		del self.ptr
-		
-	def update(self, 
-			string state1, double state1Value,
-			string state2, double state2Value):
-		cdef long p1Index = CP.get_param_index(state1)
-		cdef long p2Index = CP.get_param_index(state2)
-		self.ptr.update(p1Index, state1Value, p2Index, state2Value, -1, -1)
 
-	def update_Tp(self, double T, double p):
-		self.ptr.update(iT, T, iP, p, -1, -1)
-	def update_Trho(self, double T, double rho):
-		self.ptr.update(iT, T, iD, rho, -1, -1)	
-	def update_prho(self, double p, double rho):
-		self.ptr.update(iP, p, iD, rho, -1, -1)	
-	def update_ph(self, double p, double h):
-		self.ptr.update(iP, p, iH, h, -1, -1)	
-	def update_ps(self, double p, double s):
-		self.ptr.update(iP, p, iS, s, -1, -1)	
-	def update_pq(self, double p, double q):
-		self.ptr.update(iP, p, iQ, q, -1, -1)	
-	def update_Tq(self, double T, double q):
-		self.ptr.update(iT, T, iQ, q, -1, -1)	
-	
 	property T:	
 		def __get__(self):
 			return self.ptr.T()
@@ -196,7 +176,7 @@ cdef class FluidState:
 		def __get__(self):		
 			cdef double _dpdt_v
 			if (self.ptr.TwoPhase):
-				_dpdt_v = self.dpdt_sat()
+				_dpdt_v = self.dpdt_sat
 			else:
 				_dpdt_v = self.ptr.dpdT_constrho()
 			return _dpdt_v
@@ -241,3 +221,49 @@ cdef class FluidState:
 		def __get__(self):
 			return self.ptr.cp() / self.ptr.cv();
 
+	def update(self, 
+			string state1, double state1Value,
+			string state2, double state2Value):
+		cdef long p1Index = CP.get_param_index(state1)
+		cdef long p2Index = CP.get_param_index(state2)
+		self.ptr.update(p1Index, state1Value, p2Index, state2Value, -1, -1)
+
+	def update_Tp(self, double T, double p):
+		self.ptr.update(iT, T, iP, p, -1, -1)
+	def update_Trho(self, double T, double rho):
+		self.ptr.update(iT, T, iD, rho, -1, -1)	
+	def update_prho(self, double p, double rho):
+		self.ptr.update(iP, p, iD, rho, -1, -1)	
+	def update_ph(self, double p, double h):
+		self.ptr.update(iP, p, iH, h, -1, -1)	
+	def update_ps(self, double p, double s):
+		self.ptr.update(iP, p, iS, s, -1, -1)	
+	def update_pq(self, double p, double q):
+		self.ptr.update(iP, p, iQ, q, -1, -1)	
+	def update_Tq(self, double T, double q):
+		self.ptr.update(iT, T, iQ, q, -1, -1)
+		
+	def getSatL(self):
+		cdef CP.CoolPropStateClassSI* satL
+		if (self.isTwoPhase()):
+			satL = self.ptr.getSatL()
+			return {
+				'rho': 	satL.rho(),
+				's':	satL.s(),
+				'h':	satL.h()
+			}
+		else:
+			return None
+
+	def getSatV(self):
+		cdef CP.CoolPropStateClassSI* satV
+		if (self.isTwoPhase()):
+			satV = self.ptr.getSatV()
+			return {
+				'rho': 	satV.rho(),
+				's':	satV.s(),
+				'h':	satV.h()
+
+			}
+		else:
+			return None

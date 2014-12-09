@@ -343,6 +343,7 @@ smoModule.factory('ModelCommunicator', function($http, smoJson) {
 		this.serverError = false;
 		this.dataReceived = false;
 		this.errorMsg = "";
+		this.stackTrace = "";
 		// Empty the receiver object
 		this.data = {};
 		this.dataReceived = false;
@@ -373,6 +374,7 @@ smoModule.factory('ModelCommunicator', function($http, smoJson) {
 				communicator.serverError = true;
 				communicator.dataReceived = false;
 				communicator.errorMsg = response.error;
+				communicator.stackTrace = response.stackTrace;
 				if (!(typeof onFailure === 'undefined')) {
 					communicator.onFailure(communicator);
 				}
@@ -827,7 +829,9 @@ smoModule.directive('smoModelView', ['$compile', function($compile) {
 			var template = '\
 				<div ng-if="communicator.loading" class="alert alert-info" role="alert">Loading...</div>\
 				<div ng-if="communicator.commError" class="alert alert-danger" role="alert">Communication error: <span ng-bind="communicator.errorMsg"></span></div>\
-				<div ng-if="communicator.serverError" class="alert alert-danger" role="alert">Server error: <span ng-bind="communicator.errorMsg"></span></div>\
+				<div ng-if="communicator.serverError" class="alert alert-danger" role="alert">Server error: <span ng-bind="communicator.errorMsg"></span>\
+					<div>Stack trace:</div><pre><div ng-bind="communicator.stackTrace"></div></pre>\
+				</div>\
 				<div ng-form name="' + scope.formName + '">\
 					<div ng-if="communicator.dataReceived">\
 						<div smo-super-group-set="communicator.data.definitions" view-type="' + scope.viewType + '" smo-data-source="communicator.data.values"></div>\

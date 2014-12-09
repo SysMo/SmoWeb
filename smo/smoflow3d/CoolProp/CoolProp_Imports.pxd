@@ -49,10 +49,20 @@ cdef extern from "CoolProp/CoolProp.h":
 		
 
 
-cdef extern from "CoolProp/CPState.h":
+cdef extern from "SmoFlowMediaExt.h":
 	cdef cppclass CoolPropStateClassSI:
-		CoolPropStateClassSI(string FluidName) except +
-		CoolPropStateClassSI(Fluid *pFluid) except +
+		double T()
+		double rho()
+		double p()
+		double Q()
+		double h()
+		double s()
+		double cp()
+		double cv()
+
+	cdef cppclass SmoFlow_CoolPropState:
+		SmoFlow_CoolPropState(string FluidName) except +
+		SmoFlow_CoolPropState(Fluid *pFluid) except +
 		void update(long iInput1, double Value1, 
 				long iInput2, double Value2, 
 				double T0, double rho0) except +
@@ -78,5 +88,5 @@ cdef extern from "CoolProp/CPState.h":
 	
 		double surface_tension()
 		bool TwoPhase
-		CoolPropStateClassSI *SatL
-		CoolPropStateClassSI *SatV
+		CoolPropStateClassSI* getSatL()
+		CoolPropStateClassSI* getSatV()

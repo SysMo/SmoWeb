@@ -1,6 +1,6 @@
 import json
 from django.http import JsonResponse
-
+import traceback
 import logging
 logger = logging.getLogger('django.request.smo.view')
 
@@ -74,15 +74,14 @@ class View(object):
 		if (actionName in self._postActions.keys()):
 			try:
 				response['data'] = self._postActions[actionName](self, parameters)
-				if (isinstance(response, dict)):					
-					response['errStatus'] = False
+				response['errStatus'] = False
 			except Exception, e:
 				response['errStatus'] = True
 				response['error'] = str(e)
+				response['stackTrace'] = traceback.format_exc()#.replace("\n", '<br />')
 		else:
-			if (isinstance(response, dict)):					
-				response['errStatus'] = True
-				response['error'] = 'No POST action with name {0}'.format(actionName)
+			response['errStatus'] = True
+			response['error'] = 'No POST action with name {0}'.format(actionName)
 		return JsonResponse(response, safe = False)
 	
 	@classmethod

@@ -9,7 +9,7 @@ LDFLAGS = ["-L/data/Workspace/Projects/SysMo/SmoFlow3D/smoflow3d/com.sysmo.smofl
 
 pyCoolProp = Extension(
 		"CoolProp",
-		['CoolProp.pyx'],
+		['CoolProp.pyx', 'SmoFlowMediaExt.cpp'],
 	   language="c++",
 	   extra_compile_args = CXXFLAGS,
 	   extra_link_args = LDFLAGS,

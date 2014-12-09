@@ -168,4 +168,5 @@ class HeatPumpCalculator(NumericalModel):
 		self.COPHeating = self.QCondens / self.WCompr
 		
 if __name__ == '__main__':
-	IsentropicCompression.test()
+	#IsentropicCompression.test()
+	pass
