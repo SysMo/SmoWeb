@@ -213,7 +213,7 @@ class SaturationData(object):
 			temperatures.append(saturation['TsatL'])
 			data.append([p, saturation['TsatL']])
 					
-		return {'array': data, 'labels': ['pressure [bar]', 'T sat [K]']}
+		return {'array': data, 'labels': ['pressure [bar]', 'T sat [K]'], 'formats': ['0.00E0', '#.00']}
 		
 if __name__ == '__main__':
 # 	FluidPropsCalculator.test()

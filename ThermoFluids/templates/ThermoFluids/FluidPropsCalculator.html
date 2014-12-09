@@ -8,8 +8,10 @@
 
 <script type="text/javascript" src="http://dygraphs.com/dygraph-dev.js"></script>
 <script type="text/javascript" src="http://cavorite.com/labs/js/dygraphs-export/dygraph-extra.js"></script>
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
 
 <script>
+google.load('visualization', '1.0', {'packages':["corechart", "table", "controls"]});
 angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 	.config(['$httpProvider', function($httpProvider) {
 	    $httpProvider.defaults.xsrfCookieName = 'csrftoken';
@@ -36,7 +38,8 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 		}
 		
 		$scope.createNewTab = function() {
-			var newInputCommunicator = jQuery.extend(true, {}, $scope.fluidProps.inputs[$scope.fluidProps.inputs.length-1].inputCommunicator);			
+// 			var newInputCommunicator = jQuery.extend(true, {}, $scope.fluidProps.inputs[$scope.fluidProps.inputs.length-1].inputCommunicator);			
+			var newInputCommunicator = angular.copy($scope.fluidProps.inputs[$scope.fluidProps.inputs.length-1].inputCommunicator);
 			$scope.fluidProps.inputs.push({inputCommunicator : newInputCommunicator});			
 			$scope.fluidProps.results.push({resultsCommunicator: new ModelCommunicator()});
 			$('#FP' + String($scope.fluidProps.inputs.length-1) + 'Tab').tab('show');
@@ -80,26 +83,37 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 				$scope.saturation.selectedFluid = comm.data[0][0];
 			});
 		
-		$scope.plotData = function() {
-			$scope.xAxis = 0;
-			$scope.chart = new Dygraph(document.getElementById('plot_div'), $scope.saturation.resultsCommunicator.data.array,
-					{
-						labels: $scope.saturation.resultsCommunicator.data.labels,
-						labelsDiv: 'dylegend',
-						labelsDivWidth: 150,
-						labelsSeparateLines: true,
-						width: 700,
-						height: 400,
-						xlabel: $scope.saturation.resultsCommunicator.data.labels[0],
-						ylabel: $scope.saturation.resultsCommunicator.data.labels[1],
-						axes : { x : {  logscale : true }}
-			        });	
-		}
+// 		$scope.plotData = function() {
+// 			$scope.xAxis = 0;
+// 			$scope.chart = new Dygraph(document.getElementById('plot_div'), $scope.saturation.resultsCommunicator.data.array,
+// 					{
+// 						labels: $scope.saturation.resultsCommunicator.data.labels,
+// 						labelsDiv: 'dylegend',
+// 						labelsDivWidth: 150,
+// 						labelsSeparateLines: true,
+// 						width: 700,
+// 						height: 400,
+// 						xlabel: $scope.saturation.resultsCommunicator.data.labels[0],
+// 						ylabel: $scope.saturation.resultsCommunicator.data.labels[1],
+// 						axes : { x : {  logscale : true }}
+// 			        });	
+// 		}
+		
+		
 		
 		$scope.fetchSaturationData = function (){
 			$scope.saturation.resultsCommunicator.fetchData(
 					'getSaturationData', {fluidName : $scope.saturation.selectedFluid}, function(comm){
-						$scope.plotData();
+// 						$scope.plotData();
+						$scope.plotObject = {name: 'saturationPlot', 
+								title: $scope.saturation.selectedFluid,
+								data: $scope.saturation.resultsCommunicator.data.array, 
+								labels: $scope.saturation.resultsCommunicator.data.labels,
+								formats: $scope.saturation.resultsCommunicator.data.formats,
+								xlabel: $scope.saturation.resultsCommunicator.data.labels[0],
+								ylabel: $scope.saturation.resultsCommunicator.data.labels[1],
+								xlogscale: true,
+								ylogscale: false};
 					});			
 		}
 }])
@@ -201,15 +215,17 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 			<div ng-if="saturation.resultsCommunicator.loading" class="alert alert-info" role="alert">Loading...</div>
 			<div ng-if="saturation.resultsCommunicator.commError" class="alert alert-danger" role="alert">Communication error: <span ng-bind="saturation.resultsCommunicator.errorMsg"></span></div>
 			<div ng-if="saturation.resultsCommunicator.serverError" class="alert alert-danger" role="alert">Server error: <span ng-bind="saturation.resultsCommunicator.errorMsg"></span></div>
-			<div ng-show="saturation.resultsCommunicator.dataReceived">			
-				<div style="white-space: nowrap;">
-					<div style="display: inline-block;">			  
-						<div id="plot_div"></div>
-					</div>
-					<div style="display: inline-block; vertical-align: top;">
-						<div id="dylegend"></div>
-					</div>
-				</div>  				
+			<div ng-if="saturation.resultsCommunicator.dataReceived">			
+<!-- 				<div style="white-space: nowrap;"> -->
+<!-- 					<div style="display: inline-block;">			   -->
+<!-- 						<div id="plot_div"></div> -->
+<!-- 					</div> -->
+<!-- 					<div style="display: inline-block; vertical-align: top;"> -->
+<!-- 						<div id="dylegend"></div> -->
+<!-- 					</div> -->
+<!-- 				</div>  				 -->
+			
+				<div smo-plot='saturationPlot' src-data='plotObject'></div>
 			</div>
 		</div>
 	</div>

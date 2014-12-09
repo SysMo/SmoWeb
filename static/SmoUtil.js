@@ -845,6 +845,91 @@ smoModule.directive('smoModelView', ['$compile', function($compile) {
 	}
 }]);
 
+smoModule.directive('smoPlot', ['$compile', function($compile) {
+	return {
+		restrict : 'A',
+		scope : {
+			name: '@smoPlot',
+			srcData: '='
+		},
+		controller: function($scope) {
+			$scope.dataArray = $scope.srcData.data;
+			$scope.plotData = function() {
+				$scope.chart = new Dygraph(document.getElementById('plot_div'), $scope.dataArray,
+						{
+							title: $scope.srcData.title,
+							labels: $scope.srcData.labels,
+							labelsDiv: 'dylegend',
+							labelsDivWidth: 150,
+							labelsSeparateLines: true,
+							width: 700,
+							height: 400,
+							xlabel: $scope.srcData.xlabel,
+							ylabel: $scope.srcData.ylabel,
+							axes : { x : {  logscale : $scope.srcData.xlogscale || false }, y: {  logscale : $scope.srcData.ylogscale || false } }
+				        });				
+			}
+			
+			$scope.drawData = function() {
+				//Adding column names
+				$scope.tableArray = angular.copy($scope.dataArray);
+				$scope.tableArray.unshift($scope.srcData.labels);
+				//Creating the GViz DataTable object
+				$scope.dataTable = google.visualization.arrayToDataTable($scope.tableArray);
+				//Drawing the table
+				var tableView = new google.visualization.Table(document.getElementById('table_div'));
+				
+				if (!$scope.srcData.formats) { //Applying custom formats
+					for (var i=0; i < $scope.tableArray[0].length; i++){
+						var formatter = new google.visualization.NumberFormat();
+						formatter.format($scope.dataTable, i);
+					}
+				} else {
+					for (var i=0; i < $scope.srcData.formats.length; i++){
+						var formatter = new google.visualization.NumberFormat({pattern: $scope.srcData.formats[i]});
+						formatter.format($scope.dataTable, i);
+					}
+				}
+				
+				tableView.draw($scope.dataTable, {showRowNumber: true, sort:'disable', page:'enable', pageSize:14});
+			}
+		},
+		link : function(scope, element, attr) {
+			var template = '\
+				<div style="white-space: nowrap; background-color: white;">\
+					<div style="display: inline-block; vertical-align: top; cursor: pointer;">\
+						<ul class="nav nav-pills nav-stacked">\
+							<li role="presentation" class="active"><a data-target="#plotPane" role="tab" data-toggle="tab">Plot</a></li>\
+							<li role="presentation"><a data-target="#dataPane" role="tab" data-toggle="tab">Data</a></li>\
+						</ul>\
+				    </div>\
+					<div class="tab-content" style="display: inline-block;">\
+						<div class="tab-pane active" id="plotPane">\
+							<div style="display: inline-block;">\
+								<div id="plot_div"></div>\
+							</div>\
+							<div style="display: inline-block; vertical-align: top;">\
+								<div id="dylegend"></div>\
+							</div>\
+						</div>\
+						<div class="tab-pane" id="dataPane">\
+							<div id="table_div"></div>\
+						</div>\
+					</div>\
+				</div>';  
+
+			var el = angular.element(template);
+	        compiled = $compile(el);
+	        element.append(el);
+	        compiled(scope); 
+	        scope.$watch(scope.srcData, function(value) {
+	        	scope.plotData();
+				scope.drawData();
+		});
+		}	
+	}
+}]);
+
 smoModule.directive('converterInputView', ['$compile', 'variables', function($compile, variables) {
 	return {
 		restrict : 'A',
