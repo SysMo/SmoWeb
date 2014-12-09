@@ -105,12 +105,12 @@ class FreeConvection_External(NumericalModel):
 		# Compute fluid properties
 		fState = FluidState(self.fluidName)
 		fState.update_Tp(self.Tfilm, self.pressure)		
-		self.rho = fState.rho()
-		self.mu = fState.mu()
+		self.rho = fState.rho
+		self.mu = fState.mu
 		nu = self.mu / self.rho
-		self.beta = fState.beta()
-		self.Pr = fState.Pr()
-		self.cond = fState.cond()
+		self.beta = fState.beta
+		self.Pr = fState.Pr
+		self.cond = fState.cond
 		
 		# Compute geometry factors
 		if (self.geomConf == 'VP'):
@@ -265,12 +265,12 @@ class FreeConvection_Internal(NumericalModel):
 		# Compute fluid properties
 		fState = FluidState(self.fluidName)
 		fState.update_Tp(self.Tfilm, self.pressure)		
-		self.rho = fState.rho()
-		self.mu = fState.mu()
+		self.rho = fState.rho
+		self.mu = fState.mu
 		nu = self.mu / self.rho
-		self.beta = fState.beta()
-		self.Pr = fState.Pr()
-		self.cond = fState.cond()
+		self.beta = fState.beta
+		self.Pr = fState.Pr
+		self.cond = fState.cond
 			
 		# Compute geometry factors
 		if (self.geomConf == 'HP' or self.geomConf == 'IP'):

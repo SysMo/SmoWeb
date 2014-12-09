@@ -116,54 +116,54 @@ class HeatPumpCalculator(NumericalModel):
 		
 		# Determine saturation states
 		state1Sat.update_pq(self.pLow, 0)
-		self.T1Sat = state1Sat.T()
+		self.T1Sat = state1Sat.T
 		state2Sat.update_pq(self.pHigh, 0)
-		self.T2Sat = state2Sat.T()
+		self.T2Sat = state2Sat.T
 		
 		self.T1 = self.TCold
 		state1.update_Tp(self.T1, self.pLow)
-		self.rho1 = state1.rho()
+		self.rho1 = state1.rho
 		# Compression
 		if (self.compressionType == 'isentropic'):
-			sIn = state1.s()
+			sIn = state1.s
 			state2Ideal.update_ps(self.pHigh, sIn)
 			qIdeal = 0
-			wIdeal = state2Ideal.h() - state1.h()
+			wIdeal = state2Ideal.h - state1.h
 			wReal = wIdeal / self.etaComprIsentropic
-			h2Real = wReal + state1.h()
+			h2Real = wReal + state1.h
 			state2.update_ph(self.pHigh, h2Real)
 			self.WCompr = self.mDotRefrigerant * wReal
 		elif (self.compressionType == 'isothermal'):
 			state2Ideal.update_Tp(self.T1, self.pHigh)
-			qIdeal = self.T1 * (state1.s() - state2Ideal.s())
-			wIdeal = (state2Ideal.h() - state1.h()) + qIdeal
+			qIdeal = self.T1 * (state1.s - state2Ideal.s)
+			wIdeal = (state2Ideal.h - state1.h) + qIdeal
 			wReal = wIdeal / self.etaComprIsothermal
-			h2Real = state1.h() + wReal - qIdeal
+			h2Real = state1.h + wReal - qIdeal
 			state2.update_ph(self.pHigh, h2Real)
 			self.WCompr = self.mDotRefrigerant * wReal
 		else:
 			raise ValueError("Compression type must be either 'isentropic' or 'isothermal'")
-		self.T2 = state2.T()
-		self.rho2 = state2.rho()
+		self.T2 = state2.T
+		self.rho2 = state2.rho
 		# Condensation
 		self.T3 = self.THot
 		state3.update_Tp(self.T3, self.pHigh)
-		self.rho3 = state3.rho()
-		self.QCondens = - self.mDotRefrigerant * (state3.h() - state2.h())
+		self.rho3 = state3.rho
+		self.QCondens = - self.mDotRefrigerant * (state3.h - state2.h)
 		# Expansion
 		if (self.expansionType == 'isenthalpic'):
-			state4.update_ph(self.pLow, state3.h())
+			state4.update_ph(self.pLow, state3.h)
 		elif (self.expansionType == 'isentropic'):
-			state4Ideal.update_ps(self.pLow, state3.s())
-			wExpIdeal = state3.h() - state4Ideal.h()
+			state4Ideal.update_ps(self.pLow, state3.s)
+			wExpIdeal = state3.h - state4Ideal.h
 			wExpReal = wExpIdeal * self.etaExpandIsentropic
-			h4Real = state3.h() - wExpReal
+			h4Real = state3.h - wExpReal
 			state4.update_ph(self.pLow, h4Real)
 		else:
 			raise ValueError("Compression type must be either 'isentropic' or 'isothermal'")
-		self.T4 = state4.T()
-		self.q4 = state4.q()
-		self.QEvap = self.mDotRefrigerant * (state1.h() - state4.h())
+		self.T4 = state4.T
+		self.q4 = state4.q
+		self.QEvap = self.mDotRefrigerant * (state1.h - state4.h)
 		self.COPCooling = self.QEvap / self.WCompr
 		self.COPHeating = self.QCondens / self.WCompr
 		

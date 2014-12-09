@@ -1,6 +1,7 @@
 import os
 import glob
-from fabric.api import run, sudo, env, cd, prefix, local, hosts
+from fabric.api import run, sudo, env, cd, prefix, hosts
+from fabric.api import local, lcd
 from contextlib import contextmanager as _contextmanager
 from fabric.contrib import files
 from fabric.context_managers import shell_env
@@ -33,6 +34,17 @@ env.tempFolder = os.path.abspath(os.path.join(os.path.expanduser('~'), 'tmp'))
 def virtualenv():
 	with prefix(env.activate):
 		yield
+
+#######################################################################
+# Build the local C extension modules
+#######################################################################
+#@hosts('localhost')
+def buildExtModules():
+	with virtualenv():
+		print ("Building CoolProp extension module.....") 
+		with lcd(os.path.join(env.projectRoot, 'smo', 'smoflow3d', 'CoolProp')):
+			local('python setup.py build_ext --inplace', shell='bash')
+		print ("CoolProp module built successfully!") 
 
 #######################################################################
 # Synchronize the local and remote virtual environments

@@ -21,54 +21,65 @@ cdef class Fluid:
 			raise KeyError('BibTexKey must be one of ' + ', '.join(validKeys))
 		return CP.get_BibTeXKey(self.fluidName, item)
 
-	def EOSReference(self):
-		return self.ptr.get_EOSReference()
+	property EOSReference:
+		def __get__(self):
+			return self.ptr.get_EOSReference()
+			
+	property TransportReference:
+		def __get__(self):
+			return self.ptr.get_TransportReference()
 		
-	def TransportReference(self):
-		return self.ptr.get_TransportReference()
-	
-	def CAS(self):
-		return self.ptr.params.CAS
-	
-	def ASHRAE34(self):
-		return self.ptr.environment.ASHRAE34
-	
-	def name(self):
-		return self.fluidName
-	
-	def aliases(self):
-		return self.ptr.get_aliases()
-	
-	def molarMass(self):
-		return self.ptr.params.molemass;
+	property CAS:
+		def __get__(self):
+			return self.ptr.params.CAS
 		
-	def accentricFactor(self):
-		return self.ptr.params.accentricfactor
+	property ASHRAE34:
+		def __get__(self):
+			return self.ptr.environment.ASHRAE34
 		
-	def critical(self):
-		return {
-			'p': self.ptr.crit.p.Pa,
-			'T': self.ptr.crit.T,
-			'rho': self.ptr.crit.rho,
-			'h': self.ptr.crit.h,
-			's': self.ptr.crit.s,
-			}
-	
-	def tripple(self):
-		return {
-			'p': self.ptr.params.ptriple,
-			'T' : self.ptr.params.Ttriple,
-			'rhoV': self.ptr.params.rhoVtriple,
-			'rhoL': self.ptr.params.rhoLtriple,
-			}
-	
-	def fluidLimits(self):
-		return {
-			'TMin': self.ptr.limits.Tmin, 
-			'TMax': self.ptr.limits.Tmax, 
-			'pMax': self.ptr.limits.pmax, 
-			'rhoMax': self.ptr.limits.rhomax
-			}
+	property name:
+		def __get__(self):
+			return self.fluidName
+		
+	property aliases:
+		def __get__(self):
+			return self.ptr.get_aliases()
+		
+	property molarMass:
+		def __get__(self):
+			return self.ptr.params.molemass;
+			
+	property accentricFactor:
+		def __get__(self):
+			return self.ptr.params.accentricfactor
+			
+	property critical:
+		def __get__(self):
+			return {
+				'p': self.ptr.crit.p.Pa,
+				'T': self.ptr.crit.T,
+				'rho': self.ptr.crit.rho,
+				'h': self.ptr.crit.h,
+				's': self.ptr.crit.s,
+				}
+		
+	property tripple:
+		def __get__(self):
+			return {
+				'p': self.ptr.params.ptriple,
+				'T' : self.ptr.params.Ttriple,
+				'rhoV': self.ptr.params.rhoVtriple,
+				'rhoL': self.ptr.params.rhoLtriple,
+				}
+		
+	property fluidLimits:
+		def __get__(self):
+			return {
+				'TMin': self.ptr.limits.Tmin, 
+				'TMax': self.ptr.limits.Tmax, 
+				'pMax': self.ptr.limits.pmax, 
+				'rhoMax': self.ptr.limits.rhomax
+				}
 	
 	def saturation_p(self, double p):
 		cdef double TsatLout = 0
@@ -145,71 +156,88 @@ cdef class FluidState:
 		self.ptr.update(iP, p, iQ, q, -1, -1)	
 	def update_Tq(self, double T, double q):
 		self.ptr.update(iT, T, iQ, q, -1, -1)	
-		
-	def T(self):
-		return self.ptr.T()
-	def p(self):
-		return self.ptr.p()
-	def rho(self):
-		return self.ptr.rho()
-	def h(self):
-		return self.ptr.h()
-	def q(self):
-		if (self.ptr.TwoPhase):
-			return self.ptr.Q()
-		else:
-			return -1.0;
+	
+	property T:	
+		def __get__(self):
+			return self.ptr.T()
+	property p:	
+		def __get__(self):
+			return self.ptr.p()
+	property rho:	
+		def __get__(self):
+			return self.ptr.rho()
+	property h:	
+		def __get__(self):
+			return self.ptr.h()
+	property q:	
+		def __get__(self):
+			if (self.ptr.TwoPhase):
+				return self.ptr.Q()
+			else:
+				return -1.0;
+
 	def isTwoPhase(self):
 		return self.ptr.TwoPhase
 	
-	def s(self):
-		return self.ptr.s()
-	def u(self):
-		return self.ptr.h() - self.ptr.p() / self.ptr.rho()
-	def cp(self):
-		return self.ptr.cp()
-	def cv(self):
-		return self.ptr.cv()
-	
-	def dpdt_v(self):
-		cdef double _dpdt_v
-		if (self.ptr.TwoPhase):
-			_dpdt_v = self.dpdt_sat()
-		else:
-			_dpdt_v = self.ptr.dpdT_constrho()
-		return _dpdt_v
-	
-	def dpdv_t(self):
-		cdef double _dpdv_t
-		if (self.ptr.TwoPhase):
-			_dpdv_t = 0
-		else:
-			_dpdv_t = - self.ptr.rho() * self.ptr.rho() * self.ptr.dpdrho_constT();
-		return _dpdv_t
-		
-	def dpdrho_t(self):
-		cdef double _dpdrho_t
-		if (self.ptr.TwoPhase):
-			_dpdrho_t = 0
-		else:
-			_dpdrho_t = self.ptr.dpdrho_constT();
-		return _dpdrho_t
-		
-	def dpdt_sat(self):
-		return 1./self.ptr.dTdp_along_sat();
+	property s:	
+		def __get__(self):
+			return self.ptr.s()
+	property u:	
+		def __get__(self):
+			return self.ptr.h() - self.ptr.p() / self.ptr.rho()
+	property cp:	
+		def __get__(self):
+			return self.ptr.cp()
+	property cv:	
+		def __get__(self):
+			return self.ptr.cv()
 
-	def beta(self):
-		if (not self.ptr.TwoPhase):
-			return self.ptr.rho() * self.ptr.dvdT_constp()
-		else:
-			return 0
-					
-	def mu(self):
-		return self.ptr.viscosity()
-	def cond(self):
-		return self.ptr.conductivity()
-	def Pr(self):
-		return self.ptr.Prandtl()
-	def gamma(self):
-		return self.ptr.cp() / self.ptr.cv();
+	property dpdt_v:	
+		def __get__(self):		
+			cdef double _dpdt_v
+			if (self.ptr.TwoPhase):
+				_dpdt_v = self.dpdt_sat()
+			else:
+				_dpdt_v = self.ptr.dpdT_constrho()
+			return _dpdt_v
+		
+	property dpdv_t:	
+		def __get__(self):		
+			cdef double _dpdv_t
+			if (self.ptr.TwoPhase):
+				_dpdv_t = 0
+			else:
+				_dpdv_t = - self.ptr.rho() * self.ptr.rho() * self.ptr.dpdrho_constT();
+			return _dpdv_t
+			
+	property dpdrho_t:	
+		def __get__(self):
+			cdef double _dpdrho_t
+			if (self.ptr.TwoPhase):
+				_dpdrho_t = 0
+			else:
+				_dpdrho_t = self.ptr.dpdrho_constT();
+			return _dpdrho_t
+			
+	property dpdt_sat:	
+		def __get__(self):
+			return 1./self.ptr.dTdp_along_sat();
+	property beta:	
+		def __get__(self):
+			if (not self.ptr.TwoPhase):
+				return self.ptr.rho() * self.ptr.dvdT_constp()
+			else:
+				return 0
+	property mu:					
+		def __get__(self):
+			return self.ptr.viscosity()
+	property cond:
+		def __get__(self):
+			return self.ptr.conductivity()
+	property Pr:
+		def __get__(self):
+			return self.ptr.Prandtl()
+	property gamma:
+		def __get__(self):
+			return self.ptr.cp() / self.ptr.cv();
 

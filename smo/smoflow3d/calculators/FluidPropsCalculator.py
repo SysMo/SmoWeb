@@ -80,22 +80,22 @@ class FluidPropsCalculator(NumericalModel):
 		fState = FluidState(self.fluidName)
 		fState.update(self.stateVariable1, self.getStateValue(self.stateVariable1, 1), 
 						self.stateVariable2, self.getStateValue(self.stateVariable2, 2))
-		self.T = fState.T()
-		self.p = fState.p()
-		self.rho = fState.rho()
-		self.h = fState.h()
-		self.s = fState.s()
-		self.q = fState.q()
-		self.u = fState.u()
+		self.T = fState.T
+		self.p = fState.p
+		self.rho = fState.rho
+		self.h = fState.h
+		self.s = fState.s
+		self.q = fState.q
+		self.u = fState.u
 		
-		self.cp = fState.cp()
-		self.cv = fState.cv()
-		self.gamma = fState.gamma()
-		self.Pr = fState.Pr()
-		self.cond = fState.cond()
-		self.mu = fState.mu()
-		self.dpdt_v = fState.dpdt_v()
-		self.dpdv_t = fState.dpdv_t()
+		self.cp = fState.cp
+		self.cv = fState.cv
+		self.gamma = fState.gamma
+		self.Pr = fState.Pr
+		self.cond = fState.cond
+		self.mu = fState.mu
+		self.dpdt_v = fState.dpdt_v
+		self.dpdv_t = fState.dpdv_t
 	
 	@staticmethod	
 	def test():
@@ -138,27 +138,27 @@ class FluidInfo(NumericalModel):
 	
 	def __init__(self, fluidName):
 		f = Fluid(fluidName)
-		crit = f.critical()
+		crit = f.critical
 		self.crit_p = crit['p']
 		self.crit_T = crit['T']
 		self.crit_rho = crit['rho']
 
-		tripple = f.tripple()
+		tripple = f.tripple
 		self.tripple_p = tripple['p']
 		self.tripple_T = tripple['T']
 		self.tripple_rhoV = tripple['rhoV']
 		self.tripple_rhoL = tripple['rhoL']
 		
-		fLimits = f.fluidLimits()
+		fLimits = f.fluidLimits
 		self.t_max = fLimits['TMax']
 		self.rho_max = fLimits['rhoMax']
 		self.t_min = fLimits['TMin']
 		self.p_max = fLimits['pMax']
 		
-		self.molar_mass = f.molarMass()*10**-3
-		self.accentric_factor = f.accentricFactor()
-		self.cas = f.CAS()
-		self.ashrae34 = f.ASHRAE34()
+		self.molar_mass = f.molarMass*10**-3
+		self.accentric_factor = f.accentricFactor
+		self.cas = f.CAS
+		self.ashrae34 = f.ASHRAE34
 		
 	def getReferences(self, fluidName):
 		f = Fluid(fluidName)
@@ -205,7 +205,7 @@ class SaturationData(object):
 	def getSaturationData(self):
 		f = Fluid(self.fluidName)	
 		
-		pressures = np.logspace(np.log10(f.tripple()['p']), np.log10(f.critical()['p']), 100)/1e5
+		pressures = np.logspace(np.log10(f.tripple['p']), np.log10(f.critical['p']), 100)/1e5
 		temperatures = []
 		data = []
 		for p in pressures:

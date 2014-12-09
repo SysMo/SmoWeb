@@ -67,12 +67,12 @@ class Pipe(NumericalModel):
 		upstreamState = FluidState(self.fluidName)
 		upstreamState.update_Tp(self.inletTemperature, self.inletPressure)
 
-		self.inletDensity = upstreamState.rho()
+		self.inletDensity = upstreamState.rho
 		self.massFlowRate = self.inletMassFlowRate
 		self.fluidMass = self.fluidVolume * self.inletDensity
 		self.volumetricFlowRate = self.massFlowRate / self.inletDensity	
 		self.flowVelocity = self.massFlowRate / (self.inletDensity * self.crossSectionalArea )
-		self.Re = self.inletDensity * self.flowVelocity * self.internalDiameter / upstreamState.mu()
+		self.Re = self.inletDensity * self.flowVelocity * self.internalDiameter / upstreamState.mu
 		self.zeta = Pipe.ChurchilCorrelation(self.Re, self.internalDiameter, self.surfaceRoughness)
 		self.dragCoefficient = self.zeta * self.length / self.internalDiameter
 		self.pressureDrop = self.dragCoefficient * self.inletDensity * self.flowVelocity * self.flowVelocity / 2
@@ -193,15 +193,15 @@ class Elbow(object):
 		return fluidState
 
 	def computePressureDrop(self, upstreamState, mDot):
-		self.flowVelocity = mDot / (upstreamState.rho() * self.crossSectionalArea )
-		self.Re = upstreamState.rho() * self.flowVelocity * self.internalDiameter / upstreamState.mu()
+		self.flowVelocity = mDot / (upstreamState.rho * self.crossSectionalArea )
+		self.Re = upstreamState.rho * self.flowVelocity * self.internalDiameter / upstreamState.mu
 		print ('Re=', self.Re)
 		
 		self.cFriction = Pipe.ChurchilCorrelation(self.Re, self.internalDiameter, self.surfaceRoughness) \
 			* self.length / self.internalDiameter
 		self.cLocal = self.a1 * self.b1 * self.kd * Elbow.kRe(self.Re)
 		self.dragCoefficient =  self.cFriction + self.cLocal
-		self.pressureDrop = self.dragCoefficient * upstreamState.rho() * self.flowVelocity * self.flowVelocity / 2
+		self.pressureDrop = self.dragCoefficient * upstreamState.rho * self.flowVelocity * self.flowVelocity / 2
 	
 		print ('cLocal=', self.cLocal)
 		print ('cFriction=', self.cFriction)
