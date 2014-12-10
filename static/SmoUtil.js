@@ -755,17 +755,30 @@ smoModule.directive('smoTable', ['$compile', function($compile) {
 			smoDataSource : '='
 		},
 		controller: function($scope) {
-			$scope.drawTable = function() {
+			$scope.drawTable = function() {				
+				var tableArray = angular.copy($scope.smoDataSource[$scope.fieldVar.name]);
+				var labels;
+				
 				//Adding column names
-				$scope.tableArray = angular.copy($scope.smoDataSource[$scope.fieldVar.name]);
-				$scope.tableArray.unshift($scope.fieldVar.options.labels);
+				if (!$scope.fieldVar.options.labels) {
+					var labelsArr = [];
+					for (var i=0; i < tableArray[0].length; i++){
+						labelsArr.push('col ' + String(i+1));
+					}
+					labels = labelsArr;
+				} else {
+					labels = $scope.fieldVar.options.labels;
+				}
+				
+				tableArray.unshift(labels);
+				
 				//Creating the GViz DataTable object
-				$scope.dataTable = google.visualization.arrayToDataTable($scope.tableArray);
+				$scope.dataTable = google.visualization.arrayToDataTable(tableArray);
 				//Drawing the table
 				var tableView = new google.visualization.Table(document.getElementById($scope.fieldVar.name + 'TableDiv'));
 				
 				if (!$scope.fieldVar.options.formats) { //Applying custom formats
-					for (var i=0; i < $scope.tableArray[0].length; i++){
+					for (var i=0; i < tableArray[0].length; i++){
 						var formatter = new google.visualization.NumberFormat();
 						formatter.format($scope.dataTable, i);
 					}
