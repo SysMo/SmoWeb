@@ -1,4 +1,4 @@
-from fields import Field, Quantity, Group, FieldGroup, SuperGroup
+from fields import Field, Quantity, Group, FieldGroup, ViewGroup, SuperGroup
 from collections import OrderedDict
 
 #TODO: Currently inheritance not supported
@@ -74,6 +74,8 @@ class NumericalModel(object):
 		for subgroup in group.groups:
 			if (isinstance(subgroup, FieldGroup)):
 				subgroupList.append(self.fieldGroup2Json(subgroup, fieldValues))
+			elif (isinstance(subgroup, ViewGroup)):
+				subgroupList.append(self.fieldGroup2Json(subgroup, fieldValues))
 			elif (isinstance(subgroup, SuperGroup)):
 				subgroupList.append(self.superGroup2Json(subgroup, fieldValues))
 		jsonObject['groups'] = subgroupList				
@@ -88,7 +90,14 @@ class NumericalModel(object):
 		jsonObject['fields'] = fieldList
 		return jsonObject
 				
-
+	def viewGroup2Json(self, group, fieldValues):
+		jsonObject = {'type': 'ViewGroup', 'name': group._name, 'label': group.label}
+		fieldList = []
+		for field in group.fields:
+			fieldList.append(field.toFormDict())
+			fieldValues[field._name] = field.getValueRepr(self.__dict__[field._name])
+		jsonObject['fields'] = fieldList
+		return jsonObject
 	
 	def fieldValues2Json(self):
 		jsonObject = {}
