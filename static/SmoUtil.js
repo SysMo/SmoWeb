@@ -745,17 +745,7 @@ smoModule.directive('smoFieldGroup', ['$compile', 'util', function($compile, uti
 					if (scope.viewType == 'output')
 						groupFields.push('<div ' + showFieldCode + ' smo-bool view-type="output" field-var="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
 				} else if (field.type == 'PlotView') {
-					scope.srcData = {name: field.name, 
-							title: field.options.title,
-							data: scope.smoDataSource[field.name], 
-							labels: field.options.labels,
-							formats: field.options.formats || null,
-							xlabel: field.options.labels[0],
-							ylabel: field.options.labels[1],
-							xlogscale: field.options.xlogscale || false,
-							ylogscale: field.options.ylogscale || false
-					}
-					groupFields.push('<div ' + showFieldCode + ' smo-plot="' + field.name + '" src-data="srcData"></div>');
+					groupFields.push('<div ' + showFieldCode + ' smo-plot field-var="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
 				}				
 			}
 			var template = '<div class="field-group-label">' + (scope.smoFieldGroup.label || "") + '</div><br>' 
@@ -865,44 +855,43 @@ smoModule.directive('smoPlot', ['$compile', function($compile) {
 	return {
 		restrict : 'A',
 		scope : {
-			name: '@smoPlot',
-			srcData: '='
+			fieldVar: '=',
+			smoDataSource : '='
 		},
 		controller: function($scope) {
-			$scope.dataArray = $scope.srcData.data;
 			$scope.plotData = function() {
-				$scope.chart = new Dygraph(document.getElementById('plot_div'), $scope.dataArray,
+				$scope.chart = new Dygraph(document.getElementById('plot_div'), $scope.smoDataSource[$scope.fieldVar.name],
 						{
-							title: $scope.srcData.title,
-							labels: $scope.srcData.labels,
+							title: $scope.fieldVar.options.title,
+							labels: $scope.fieldVar.options.labels,
 							labelsDiv: 'dylegend',
 							labelsDivWidth: 150,
 							labelsSeparateLines: true,
 							width: 700,
 							height: 400,
-							xlabel: $scope.srcData.xlabel,
-							ylabel: $scope.srcData.ylabel,
-							axes : { x : {  logscale : $scope.srcData.xlogscale || false }, y: {  logscale : $scope.srcData.ylogscale || false } }
+							xlabel: $scope.fieldVar.options.xlabel,
+							ylabel: $scope.fieldVar.options.ylabel,
+							axes : { x : {  logscale : $scope.fieldVar.options.xlogscale || false }, y: {  logscale : $scope.fieldVar.options.ylogscale || false } }
 				        });				
 			}
 			
 			$scope.drawData = function() {
 				//Adding column names
-				$scope.tableArray = angular.copy($scope.dataArray);
-				$scope.tableArray.unshift($scope.srcData.labels);
+				$scope.tableArray = angular.copy($scope.smoDataSource[$scope.fieldVar.name]);
+				$scope.tableArray.unshift($scope.fieldVar.options.labels);
 				//Creating the GViz DataTable object
 				$scope.dataTable = google.visualization.arrayToDataTable($scope.tableArray);
 				//Drawing the table
 				var tableView = new google.visualization.Table(document.getElementById('table_div'));
 				
-				if (!$scope.srcData.formats) { //Applying custom formats
+				if (!$scope.fieldVar.options.formats) { //Applying custom formats
 					for (var i=0; i < $scope.tableArray[0].length; i++){
 						var formatter = new google.visualization.NumberFormat();
 						formatter.format($scope.dataTable, i);
 					}
 				} else {
-					for (var i=0; i < $scope.srcData.formats.length; i++){
-						var formatter = new google.visualization.NumberFormat({pattern: $scope.srcData.formats[i]});
+					for (var i=0; i < $scope.fieldVar.options.formats.length; i++){
+						var formatter = new google.visualization.NumberFormat({pattern: $scope.fieldVar.options.formats[i]});
 						formatter.format($scope.dataTable, i);
 					}
 				}
@@ -938,7 +927,7 @@ smoModule.directive('smoPlot', ['$compile', function($compile) {
 	        compiled = $compile(el);
 	        element.append(el);
 	        compiled(scope); 
-	        scope.$watch(scope.srcData, function(value) {
+	        scope.$watch(scope.smoSrc, function(value) {
 	        	scope.plotData();
 				scope.drawData();
 		});
