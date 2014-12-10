@@ -703,6 +703,96 @@ smoModule.directive('smoBool', ['$compile', function($compile) {
 	}
 }]);
 
+smoModule.directive('smoPlot', ['$compile', function($compile) {
+	return {
+		restrict : 'A',
+		scope : {
+			fieldVar: '=',
+			smoDataSource : '='
+		},
+		controller: function($scope) {
+			$scope.plotData = function() {
+				$scope.chart = new Dygraph(document.getElementById($scope.fieldVar.name + 'PlotDiv'), $scope.smoDataSource[$scope.fieldVar.name],
+						{
+							title: $scope.fieldVar.options.title,
+							labels: $scope.fieldVar.options.labels,
+							labelsDiv: 'dylegend',
+							labelsDivWidth: 150,
+							labelsSeparateLines: true,
+							width: 700,
+							height: 400,
+							xlabel: $scope.fieldVar.options.xlabel,
+							ylabel: $scope.fieldVar.options.ylabel,
+							axes : { x : {  logscale : $scope.fieldVar.options.xlogscale || false }, y: {  logscale : $scope.fieldVar.options.ylogscale || false } }
+				        });				
+			}
+		},
+		link : function(scope, element, attr) {
+			var template = '\
+							<div style="display: inline-block;">\
+								<div id="' + scope.fieldVar.name + 'PlotDiv"></div>\
+							</div>\
+							<div style="display: inline-block; vertical-align: top;">\
+								<div id="dylegend"></div>\
+							</div>';
+
+			var el = angular.element(template);
+	        compiled = $compile(el);
+	        element.append(el);
+	        compiled(scope); 
+	        scope.$watch(scope.smoDataSource[scope.fieldVar.name], function(value) {
+	        	scope.plotData();
+		});
+		}	
+	}
+}]);
+
+smoModule.directive('smoTable', ['$compile', function($compile) {
+	return {
+		restrict : 'A',
+		scope : {
+			fieldVar: '=',
+			smoDataSource : '='
+		},
+		controller: function($scope) {
+			$scope.drawTable = function() {
+				//Adding column names
+				$scope.tableArray = angular.copy($scope.smoDataSource[$scope.fieldVar.name]);
+				$scope.tableArray.unshift($scope.fieldVar.options.labels);
+				//Creating the GViz DataTable object
+				$scope.dataTable = google.visualization.arrayToDataTable($scope.tableArray);
+				//Drawing the table
+				var tableView = new google.visualization.Table(document.getElementById($scope.fieldVar.name + 'TableDiv'));
+				
+				if (!$scope.fieldVar.options.formats) { //Applying custom formats
+					for (var i=0; i < $scope.tableArray[0].length; i++){
+						var formatter = new google.visualization.NumberFormat();
+						formatter.format($scope.dataTable, i);
+					}
+				} else {
+					for (var i=0; i < $scope.fieldVar.options.formats.length; i++){
+						var formatter = new google.visualization.NumberFormat({pattern: $scope.fieldVar.options.formats[i]});
+						formatter.format($scope.dataTable, i);
+					}
+				}
+				
+				tableView.draw($scope.dataTable, {showRowNumber: true, sort:'disable', page:'enable', pageSize:14});
+			}
+		},
+		link : function(scope, element, attr) {
+			var template = '<div id="' + scope.fieldVar.name + 'TableDiv"></div>';  
+
+			var el = angular.element(template);
+	        compiled = $compile(el);
+	        element.append(el);
+	        compiled(scope); 
+	        scope.$watch(scope.smoDataSource[scope.fieldVar.name], function(value) {
+				scope.drawTable();
+		});
+		}	
+	}
+}]);
+
 smoModule.directive('smoFieldGroup', ['$compile', 'util', function($compile, util) {
 	return {
 		restrict : 'A',
@@ -759,6 +849,63 @@ smoModule.directive('smoFieldGroup', ['$compile', 'util', function($compile, uti
 	}
 }]);
 
+smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util) {
+	return {
+		restrict : 'A',
+		scope : {
+			smoViewGroup : '=',
+			smoDataSource : '='
+		},
+		link : function(scope, element, attr) {
+			var navPills = [];
+			var navPillPanes = [];
+			scope.fields = {};
+			
+			for (var i = 0; i < scope.smoViewGroup.fields.length; i++) {
+				var field = scope.smoViewGroup.fields[i];
+				scope.fields[field.name] = field;
+				var showFieldCode = "";
+				if (!(typeof field.show === "undefined")){
+					showFieldCode = 'ng-show="' + field.show.replace(/self/g, 'smoDataSource') + '"';
+				}
+				
+				if (i==0){
+					navPills.push('<li class="active"><a id="' + field.name + 'Tab" data-target="#' + field.name + '" role="tab" data-toggle="tab">' + field.options.title + '</a></li>');
+					navPillPanes.push('<div class="tab-pane active" id="' + field.name + '">');
+				} else {
+					navPills.push('<li><a id="' + field.name + 'Tab" data-target="#' + field.name + '" role="tab" data-toggle="tab">' + field.options.title + '</a></li>');
+					navPillPanes.push('<div class="tab-pane" id="' + field.name + '">');
+				}
+				
+				if (field.type == 'PlotView') {
+					navPillPanes.push('<div ' + showFieldCode + ' smo-plot field-var="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
+				} else if (field.type == 'TableView') {
+					navPillPanes.push('<div ' + showFieldCode + ' smo-table field-var="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
+				}
+				
+				navPillPanes.push('</div>'); 
+				
+			}
+			
+			var template = '<div class="field-group-label">' + (scope.smoViewGroup.label || "") + '</div><br>\
+							<div style="white-space: nowrap; background-color: white; padding:10px; padding-top:10px; padding-bottom:10px;">\
+								<div style="display: inline-block; vertical-align: top; cursor: pointer;">\
+									<ul class="nav nav-pills nav-stacked">' + navPills.join("") + '</ul>\
+								</div>\
+								<div class="tab-content" style="display: inline-block;">'
+									+ navPillPanes.join("") + 
+								'</div>\
+							</div>';
+			
+			var el = angular.element(template);
+	        compiled = $compile(el);
+	        element.append(el);
+	        compiled(scope);
+		}	
+	}
+}]);
+
+
 smoModule.directive('smoSuperGroupSet', ['$compile', function($compile) {
 	return {
 		restrict : 'A',
@@ -783,9 +930,12 @@ smoModule.directive('smoSuperGroupSet', ['$compile', function($compile) {
 					
 					var superGroupFields = [];
 					for (var j = 0; j < superGroup.groups.length; j++) {
-						var fieldGroup = superGroup.groups[j];
-						// Attach the field value to the quantity so that the original value is updated when the quantity value changes
-						superGroupFields.push('<div smo-field-group="smoSuperGroupSet[' + i + '].groups[' + j + ']" view-type="viewType" smo-data-source="smoDataSource"></div>');
+						if (superGroup.groups[j].type == 'FieldGroup') {
+							// Attach the field value to the quantity so that the original value is updated when the quantity value changes
+							superGroupFields.push('<div smo-field-group="smoSuperGroupSet[' + i + '].groups[' + j + ']" view-type="viewType" smo-data-source="smoDataSource"></div>');
+						} else if (superGroup.groups[j].type == 'ViewGroup') {
+							superGroupFields.push('<div smo-view-group="smoSuperGroupSet[' + i + '].groups[' + j + ']" smo-data-source="smoDataSource"></div>');
+						}						
 					}
 					
 					navTabPanes.push(superGroupFields.join(""));
@@ -796,9 +946,12 @@ smoModule.directive('smoSuperGroupSet', ['$compile', function($compile) {
 				var superGroup = scope.smoSuperGroupSet[0];
 				var superGroupFields = [];
 				for (var j = 0; j < superGroup.groups.length; j++) {
-					var fieldGroup = superGroup.groups[j];
-					// Attach the field value to the quantity so that the original value is updated when the quantity value changes
-					superGroupFields.push('<div smo-field-group="smoSuperGroupSet[0].groups[' + j + ']" view-type="viewType" smo-data-source="smoDataSource"></div>');
+					if (superGroup.groups[j].type == 'FieldGroup') {
+						// Attach the field value to the quantity so that the original value is updated when the quantity value changes
+						superGroupFields.push('<div smo-field-group="smoSuperGroupSet[0].groups[' + j + ']" view-type="viewType" smo-data-source="smoDataSource"></div>');
+					} else if (superGroup.groups[j].type == 'ViewGroup') {
+						superGroupFields.push('<div smo-view-group="smoSuperGroupSet[0].groups[' + j + ']" smo-data-source="smoDataSource"></div>');
+					}					
 				}
 				var template = '<div class="super-group">' +
 									'<h1>' + superGroup.label + '</h1>' +
@@ -851,89 +1004,7 @@ smoModule.directive('smoModelView', ['$compile', function($compile) {
 	}
 }]);
 
-smoModule.directive('smoPlot', ['$compile', function($compile) {
-	return {
-		restrict : 'A',
-		scope : {
-			fieldVar: '=',
-			smoDataSource : '='
-		},
-		controller: function($scope) {
-			$scope.plotData = function() {
-				$scope.chart = new Dygraph(document.getElementById('plot_div'), $scope.smoDataSource[$scope.fieldVar.name],
-						{
-							title: $scope.fieldVar.options.title,
-							labels: $scope.fieldVar.options.labels,
-							labelsDiv: 'dylegend',
-							labelsDivWidth: 150,
-							labelsSeparateLines: true,
-							width: 700,
-							height: 400,
-							xlabel: $scope.fieldVar.options.xlabel,
-							ylabel: $scope.fieldVar.options.ylabel,
-							axes : { x : {  logscale : $scope.fieldVar.options.xlogscale || false }, y: {  logscale : $scope.fieldVar.options.ylogscale || false } }
-				        });				
-			}
-			
-			$scope.drawData = function() {
-				//Adding column names
-				$scope.tableArray = angular.copy($scope.smoDataSource[$scope.fieldVar.name]);
-				$scope.tableArray.unshift($scope.fieldVar.options.labels);
-				//Creating the GViz DataTable object
-				$scope.dataTable = google.visualization.arrayToDataTable($scope.tableArray);
-				//Drawing the table
-				var tableView = new google.visualization.Table(document.getElementById('table_div'));
-				
-				if (!$scope.fieldVar.options.formats) { //Applying custom formats
-					for (var i=0; i < $scope.tableArray[0].length; i++){
-						var formatter = new google.visualization.NumberFormat();
-						formatter.format($scope.dataTable, i);
-					}
-				} else {
-					for (var i=0; i < $scope.fieldVar.options.formats.length; i++){
-						var formatter = new google.visualization.NumberFormat({pattern: $scope.fieldVar.options.formats[i]});
-						formatter.format($scope.dataTable, i);
-					}
-				}
-				
-				tableView.draw($scope.dataTable, {showRowNumber: true, sort:'disable', page:'enable', pageSize:14});
-			}
-		},
-		link : function(scope, element, attr) {
-			var template = '\
-				<div style="white-space: nowrap; background-color: white;">\
-					<div style="display: inline-block; vertical-align: top; cursor: pointer;">\
-						<ul class="nav nav-pills nav-stacked">\
-							<li role="presentation" class="active"><a data-target="#plotPane" role="tab" data-toggle="tab">Plot</a></li>\
-							<li role="presentation"><a data-target="#dataPane" role="tab" data-toggle="tab">Data</a></li>\
-						</ul>\
-				    </div>\
-					<div class="tab-content" style="display: inline-block;">\
-						<div class="tab-pane active" id="plotPane">\
-							<div style="display: inline-block;">\
-								<div id="plot_div"></div>\
-							</div>\
-							<div style="display: inline-block; vertical-align: top;">\
-								<div id="dylegend"></div>\
-							</div>\
-						</div>\
-						<div class="tab-pane" id="dataPane">\
-							<div id="table_div"></div>\
-						</div>\
-					</div>\
-				</div>';  
 
-			var el = angular.element(template);
-	        compiled = $compile(el);
-	        element.append(el);
-	        compiled(scope); 
-	        scope.$watch(scope.smoSrc, function(value) {
-	        	scope.plotData();
-				scope.drawData();
-		});
-		}	
-	}
-}]);
 
 smoModule.directive('converterInputView', ['$compile', 'variables', function($compile, variables) {
 	return {
