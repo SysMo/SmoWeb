@@ -744,6 +744,18 @@ smoModule.directive('smoFieldGroup', ['$compile', 'util', function($compile, uti
 						groupFields.push('<div ' + showFieldCode + ' smo-bool view-type="input" field-var="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
 					if (scope.viewType == 'output')
 						groupFields.push('<div ' + showFieldCode + ' smo-bool view-type="output" field-var="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
+				} else if (field.type == 'PlotView') {
+					scope.srcData = {name: field.name, 
+							title: field.options.title,
+							data: scope.smoDataSource[field.name], 
+							labels: field.options.labels,
+							formats: field.options.formats || null,
+							xlabel: field.options.labels[0],
+							ylabel: field.options.labels[1],
+							xlogscale: field.options.xlogscale || false,
+							ylogscale: field.options.ylogscale || false
+					}
+					groupFields.push('<div ' + showFieldCode + ' smo-plot="' + field.name + '" src-data="srcData"></div>');
 				}				
 			}
 			var template = '<div class="field-group-label">' + (scope.smoFieldGroup.label || "") + '</div><br>' 

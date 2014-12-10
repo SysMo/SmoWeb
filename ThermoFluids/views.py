@@ -142,14 +142,17 @@ class HeatExchange1DView(View):
 		wireHeating.compute()
 		return wireHeating.superGroupList2Json([wireHeating.results])
 
+from smo.simple_flow.TestModel import PlotModel
 class TestView(View):
 	def get(self, request):
 		return render_to_response('ThermoFluids/TestView.html', locals(), 
 				context_instance=RequestContext(request))
 	
 	@smo_action('post')
-	def getInputs(self, parameters):
-		return Quantities
+	def getPlotData(self, parameters):
+		plotModel = PlotModel()
+		print plotModel.superGroupList2Json([plotModel.plotSuperGroup])
+		return plotModel.superGroupList2Json([plotModel.plotSuperGroup])
 		
 		
 		

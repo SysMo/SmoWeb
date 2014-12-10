@@ -193,43 +193,76 @@ class ObjectReference(Field):
 # 		fieldDict['options'] = {key : value['label'] for key, value in self.targetContainer.iteritems()}
 		return fieldDict
 	
-class TableView(Field):
-	def __init__(self, data, columnLabels, options = None, *args, **kwargs):
-		super(TableView, self).__init__(*args, **kwargs)
+class ViewContent(object):
+	def __init__(self, data = None, columnLabels = None):
 		self.data = data
-		self.columnLabels = columnLabels
+		self.columnLabels = columnLabels or []
+
+class TableView(Field):
+	def __init__(self, default = None, options = None, *args, **kwargs):
+		super(TableView, self).__init__(*args, **kwargs)
+		if (default is None):
+			self.default = ViewContent()
+		else:
+			self.default = self.parseValue(default)
 		if (options is None):
-			options = {}
-		self.options = options
+			self.options = {}
+		else:
+			if (isinstance(options, dict)):
+				self.options = options
+			else:
+				raise TypeError('Options passed to TableView must be a dictionary object')
+
+	def parseValue(self, value):
+		if (isinstance(value, ViewContent)):
+			return value
+		else:
+			raise TypeError('The value of TableView must be a ViewContent object')
 		
 	def toFormDict(self):
-		extendedData = self.data.toList()
-		extendedData.insert(0, self.columnLabels)
 		fieldDict = {
 			'name': self._name, 
 			'label': self.label, 
 			'type': 'TableView',
-			'data': extendedData,
 			'options': self.options
 			}
 		return fieldDict
 
+	def getValueRepr(self, value):
+		extendedData = value.data.tolist()
+		extendedData.insert(0, value.columnLabels)
+		return extendedData
+
 class PlotView(Field):
-	def __init__(self, data, columnLabels, options = None, *args, **kwargs):
+	def __init__(self, default = None, options = None, *args, **kwargs):
 		super(PlotView, self).__init__(*args, **kwargs)
-		self.data = data
-		self.columnLabels = columnLabels
+		if (default is None):
+			self.default = ViewContent()
+		else:
+			self.default = self.parseValue(default)
 		if (options is None):
-			options = {}
-		self.options = options
+			self.options = {}
+		else:
+			if (isinstance(options, dict)):
+				self.options = options
+			else:
+				raise TypeError('Options passed to PlotView must be a dictionary object')
 		
+	def parseValue(self, value):
+		if (isinstance(value, ViewContent)):
+			return value
+		else:
+			raise TypeError('The value of PlotView must be a ViewContent object')
+	
+	def getValueRepr(self, value):
+		return self.default.data.tolist()
+
 	def toFormDict(self):
-		self.options['labels'] = self.columnLabels
+		self.options['labels'] = self.default.columnLabels
 		fieldDict = {
 			'name': self._name, 
 			'label': self.label, 
 			'type': 'PlotView',
-			'data': self.data.toList(),
 			'options': self.options
 			}
 		return fieldDict
