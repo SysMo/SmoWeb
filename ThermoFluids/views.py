@@ -152,7 +152,7 @@ class TestView(View):
 	def getPlotData(self, parameters):
 		plotModel = PlotModel()
 		print plotModel.superGroupList2Json([plotModel.plotSuperGroup])
-		return plotModel.superGroupList2Json([plotModel.plotSuperGroup])
+		return plotModel.superGroupList2Json([plotModel.plotSuperGroup, plotModel.otherSuperGroup])
 		
 		
 		
