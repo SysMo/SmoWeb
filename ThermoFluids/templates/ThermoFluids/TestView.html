@@ -31,68 +31,6 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 		
 		$scope.plotObject.inputCommunicator.fetchData(
 			'getPlotData', {});
-		
-		console.log($scope.plotObject.inputCommunicator);
-		
-// 		$scope.compute = function(index) {
-// 			$scope.fluidProps.results[index].resultsCommunicator.fetchData(
-// 				'compute', $scope.fluidProps.inputs[index].inputCommunicator.data.values);
-// 		}
-		
-// 		// Fluids info		
-// 		$scope.fluidInfo = {
-// 			inputCommunicator: new ModelCommunicator()
-// 		};
-		
-// 		$scope.fluidInfo.inputCommunicator.fetchData(
-// 			'getFluidInfo', {}, function(comm){
-// 				$scope.fluidInfo.selectedFluid = comm.data[0];
-// 			});
-		
-// 		// Saturation properties		
-// 		$scope.saturation = {
-// 			inputCommunicator: new ModelCommunicator(),
-// 			resultsCommunicator: new ModelCommunicator()
-// 		};
-		
-// 		$scope.saturation.inputCommunicator.fetchData(
-// 			'getFluidList', {}, function(comm){
-// 				$scope.saturation.selectedFluid = comm.data[0][0];
-// 			});
-		
-// 		$scope.plotData = function() {
-// 			$scope.xAxis = 0;
-// 			$scope.chart = new Dygraph(document.getElementById('plot_div'), $scope.saturation.resultsCommunicator.data.array,
-// 					{
-// 						labels: $scope.saturation.resultsCommunicator.data.labels,
-// 						labelsDiv: 'dylegend',
-// 						labelsDivWidth: 150,
-// 						labelsSeparateLines: true,
-// 						width: 700,
-// 						height: 400,
-// 						xlabel: $scope.saturation.resultsCommunicator.data.labels[0],
-// 						ylabel: $scope.saturation.resultsCommunicator.data.labels[1],
-// 						axes : { x : {  logscale : true }}
-// 			        });	
-// 		}
-		
-		
-		
-		$scope.fetchSaturationData = function (){
-			$scope.saturation.resultsCommunicator.fetchData(
-					'getSaturationData', {fluidName : $scope.saturation.selectedFluid}, function(comm){
-// 						$scope.plotData();
-						$scope.plotObject = {name: 'saturationPlot', 
-								title: $scope.saturation.selectedFluid,
-								data: $scope.saturation.resultsCommunicator.data.array, 
-								labels: $scope.saturation.resultsCommunicator.data.labels,
-								formats: $scope.saturation.resultsCommunicator.data.formats,
-								xlabel: $scope.saturation.resultsCommunicator.data.labels[0],
-								ylabel: $scope.saturation.resultsCommunicator.data.labels[1],
-								xlogscale: true,
-								ylogscale: false};
-					});			
-		}
 }])
 </script>
 {% endblock %}
@@ -125,55 +63,10 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 		<div class="tab-pane page-container" id="fluids">
 {% verbatim %}	
 			<h1 class="title">Fluid information</h1>			
-			<div ng-if="fluidInfo.inputCommunicator.loading" class="alert alert-info" role="alert">Loading...</div>
-			<div ng-if="fluidInfo.inputCommunicator.commError" class="alert alert-danger" role="alert">Communication error: <span ng-bind="fluidInfo.inputCommunicator.errorMsg"></span></div>
-			<div ng-if="fluidInfo.inputCommunicator.serverError" class="alert alert-danger" role="alert">Server error: <span ng-bind="fluidInfo.inputCommunicator.errorMsg"></span></div>
-			<div ng-if="fluidInfo.inputCommunicator.dataReceived">
-				<div class="section">
-					<div class="field-label">Select a fluid:</div>
-					<div class="field-select choice">
-						<select ng-model="fluidInfo.selectedFluid" ng-options="fluid as fluid.label for fluid in fluidInfo.inputCommunicator.data"></select>
-					</div>
-				</div>
-				
-				<div class="section">
-					<div style="display: inline-block;" ng-repeat="constant in fluidInfo.selectedFluid.constants.definitions[0].groups">
-						<div smo-field-group="constant" view-type="'output'" smo-data-source="fluidInfo.selectedFluid.constants.values">
-						</div>
-					</div>
-				</div>				
-				<div class="section">
-					<h1>Literature References</h1>				
-					<div ng-repeat="pair in fluidInfo.selectedFluid.references" ng-show="pair[1]">
-						<span class="label-text">{{pair[0]}}:</span> {{pair[1].author}}, <span class="italic-text">{{pair[1].title}}</span>
-					</div>			
-				</div>
-			</div>
-			
 		</div>
 {% endverbatim %}
 		<div class="tab-pane page-container" id="saturation">
 			<h1 class="title">Saturation</h1>
-			<div ng-if="saturation.inputCommunicator.loading" class="alert alert-info" role="alert">Loading...</div>
-			<div ng-if="saturation.inputCommunicator.commError" class="alert alert-danger" role="alert">Communication error: <span ng-bind="saturation.inputCommunicator.errorMsg"></span></div>
-			<div ng-if="saturation.inputCommunicator.serverError" class="alert alert-danger" role="alert">Server error: <span ng-bind="saturation.inputCommunicator.errorMsg"></span></div>
-			<div ng-if="saturation.inputCommunicator.dataReceived">						
-				<div class="section">
-					<div class="field-label">Select a fluid:</div>
-					<div class="field-select choice">
-						<select ng-model="saturation.selectedFluid" ng-options="pair[0] as pair[1] for pair in saturation.inputCommunicator.data"></select>
-					</div>
-					<div class="field-select choice" style="margin-left: 5px;">
-						<button ng-click="fetchSaturationData()">Go!</button>
-					</div>
-				</div>
-			</div>
-			<div ng-if="saturation.resultsCommunicator.loading" class="alert alert-info" role="alert">Loading...</div>
-			<div ng-if="saturation.resultsCommunicator.commError" class="alert alert-danger" role="alert">Communication error: <span ng-bind="saturation.resultsCommunicator.errorMsg"></span></div>
-			<div ng-if="saturation.resultsCommunicator.serverError" class="alert alert-danger" role="alert">Server error: <span ng-bind="saturation.resultsCommunicator.errorMsg"></span></div>
-			<div ng-if="saturation.resultsCommunicator.dataReceived">			
-				<div smo-plot='saturationPlot' src-data='plotObject'></div>
-			</div>
 		</div>
 	</div>
 </div>

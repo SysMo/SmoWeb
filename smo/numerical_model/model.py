@@ -75,7 +75,7 @@ class NumericalModel(object):
 			if (isinstance(subgroup, FieldGroup)):
 				subgroupList.append(self.fieldGroup2Json(subgroup, fieldValues))
 			elif (isinstance(subgroup, ViewGroup)):
-				subgroupList.append(self.fieldGroup2Json(subgroup, fieldValues))
+				subgroupList.append(self.viewGroup2Json(subgroup, fieldValues))
 			elif (isinstance(subgroup, SuperGroup)):
 				subgroupList.append(self.superGroup2Json(subgroup, fieldValues))
 		jsonObject['groups'] = subgroupList				
