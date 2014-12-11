@@ -262,10 +262,9 @@ class PlotView(Field):
 			raise TypeError('The value of PlotView must be a ViewContent object')
 	
 	def getValueRepr(self, value):
-		return self.default.data.tolist()
+		return value.data.tolist()
 
 	def toFormDict(self):
-		self.options['labels'] = self.default.columnLabels
 		fieldDict = {
 			'name': self._name, 
 			'label': self.label, 

@@ -200,28 +200,25 @@ class FluidInfo(NumericalModel):
 
 class SaturationData(NumericalModel):	
 	fluidName = String(default = 'ParaHydrogen', label = 'fluid')
-	satPlotView = PlotView(options = {'title': 'Sat Plot', 'labels': ['pressure [bar]', 'T sat [K]']})
+	satPlotView = PlotView(options = {'title': 'Sat Plot', 'labels': ['pressure [bar]', 'T sat [K]'], 'xlogscale' : True})
 	satTableView = TableView(options = {'title': 'Sat Table', 'formats': ['0.00E0', '#.00']})
-	satPlotView2 = PlotView(options = {'title': 'Sat Plot', 'labels': ['pressure [bar]', 'T sat [K]']})
-	satTableView2 = TableView(options = {'title': 'Sat Table', 'formats': ['0.00E0', '#.00']})
 	
-	satViewGroup = ViewGroup([satPlotView, satTableView, satPlotView2, satTableView2], label="Saturation Data")
+	satViewGroup = ViewGroup([satPlotView, satTableView], label="Saturation Data")
 	satSuperGroup = SuperGroup([satViewGroup])
 	
 	def compute(self):
 		f = Fluid(self.fluidName)
 		pressures = np.logspace(np.log10(f.tripple['p']), np.log10(f.critical['p']), 100)/1e5
-		temperatures = []
 		data = []
 		for p in pressures:
 			saturation = f.saturation_p(p*1e5)
-			temperatures.append(saturation['TsatL'])
 			data.append([p, saturation['TsatL']])
-		
-		viewContentObj = ViewContent(data = np.array(data), columnLabels = ['p [bar]', 'T sat [K]'])
+		data1 = np.array(data)
+		viewContentObj = ViewContent(data = data1, columnLabels = ['p [bar]', 'T sat [K]'])
 		self.satPlotView = viewContentObj
 		self.satTableView = viewContentObj
-		
+	
+		return
 		
 if __name__ == '__main__':
 # 	FluidPropsCalculator.test()
