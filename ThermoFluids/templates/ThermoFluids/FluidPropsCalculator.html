@@ -103,18 +103,19 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 		
 		$scope.fetchSaturationData = function (){
 			$scope.saturation.resultsCommunicator.fetchData(
-					'getSaturationData', {fluidName : $scope.saturation.selectedFluid}, function(comm){
-// 						$scope.plotData();
-						$scope.plotObject = {name: 'saturationPlot', 
-								title: $scope.saturation.selectedFluid,
-								data: $scope.saturation.resultsCommunicator.data.array, 
-								labels: $scope.saturation.resultsCommunicator.data.labels,
-								formats: $scope.saturation.resultsCommunicator.data.formats,
-								xlabel: $scope.saturation.resultsCommunicator.data.labels[0],
-								ylabel: $scope.saturation.resultsCommunicator.data.labels[1],
-								xlogscale: true,
-								ylogscale: false};
-					});			
+					'getSaturationData', {fluidName : $scope.saturation.selectedFluid});
+// 					,function(comm){
+// // 						$scope.plotData();
+// 						$scope.plotObject = {name: 'saturationPlot', 
+// 								title: $scope.saturation.selectedFluid,
+// 								data: $scope.saturation.resultsCommunicator.data.array, 
+// 								labels: $scope.saturation.resultsCommunicator.data.labels,
+// 								formats: $scope.saturation.resultsCommunicator.data.formats,
+// 								xlabel: $scope.saturation.resultsCommunicator.data.labels[0],
+// 								ylabel: $scope.saturation.resultsCommunicator.data.labels[1],
+// 								xlogscale: true,
+// 								ylogscale: false};
+// 					});			
 		}
 }])
 </script>
@@ -215,17 +216,8 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 			<div ng-if="saturation.resultsCommunicator.loading" class="alert alert-info" role="alert">Loading...</div>
 			<div ng-if="saturation.resultsCommunicator.commError" class="alert alert-danger" role="alert">Communication error: <span ng-bind="saturation.resultsCommunicator.errorMsg"></span></div>
 			<div ng-if="saturation.resultsCommunicator.serverError" class="alert alert-danger" role="alert">Server error: <span ng-bind="saturation.resultsCommunicator.errorMsg"></span></div>
-			<div ng-if="saturation.resultsCommunicator.dataReceived">			
-<!-- 				<div style="white-space: nowrap;"> -->
-<!-- 					<div style="display: inline-block;">			   -->
-<!-- 						<div id="plot_div"></div> -->
-<!-- 					</div> -->
-<!-- 					<div style="display: inline-block; vertical-align: top;"> -->
-<!-- 						<div id="dylegend"></div> -->
-<!-- 					</div> -->
-<!-- 				</div>  				 -->
-			
-				<div smo-plot='saturationPlot' src-data='plotObject'></div>
+			<div ng-if="saturation.resultsCommunicator.dataReceived">
+				<div smo-model-view="satView" view-type="input" communicator="saturation.resultsCommunicator"></div>
 			</div>
 		</div>
 	</div>

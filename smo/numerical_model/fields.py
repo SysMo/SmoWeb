@@ -195,8 +195,15 @@ class ObjectReference(Field):
 	
 class ViewContent(object):
 	def __init__(self, data = None, columnLabels = None):
-		self.data = data
-		self.columnLabels = columnLabels or []
+		if (data is None):
+			self.data = np.array([])
+		else:
+			self.data = data	
+		
+		if (columnLabels is None):
+			self.columnLabels = []
+		else:
+			self.columnLabels = columnLabels
 
 class TableView(Field):
 	def __init__(self, default = None, options = None, *args, **kwargs):

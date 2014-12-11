@@ -35,8 +35,11 @@ class FluidPropsCalculatorView(View):
 	
 	@smo_action('post')
 	def getSaturationData(self, parameters):
-		sd = SaturationData(parameters['fluidName'])
-		return sd.getSaturationData()
+		sd = SaturationData()
+		sd.fieldValuesFromJson(parameters)
+		sd.compute()
+		print sd.superGroupList2Json([sd.satSuperGroup])
+		return sd.superGroupList2Json([sd.satSuperGroup])
 
 from smo.simple_flow.FlowResistance import Pipe 
 class FlowResistanceView(View):
@@ -151,7 +154,7 @@ class TestView(View):
 	@smo_action('post')
 	def getPlotData(self, parameters):
 		plotModel = PlotModel()
-		print plotModel.superGroupList2Json([plotModel.plotSuperGroup])
+		print plotModel.superGroupList2Json([plotModel.plotSuperGroup, plotModel.otherSuperGroup])
 		return plotModel.superGroupList2Json([plotModel.plotSuperGroup, plotModel.otherSuperGroup])
 		
 		
