@@ -38,6 +38,7 @@ class FluidPropsCalculatorView(View):
 		sd = SaturationData()
 		sd.fieldValuesFromJson(parameters)
 		sd.compute()
+		print sd.superGroupList2Json([sd.satSuperGroup])
 		return sd.superGroupList2Json([sd.satSuperGroup])
 
 from smo.simple_flow.FlowResistance import Pipe 

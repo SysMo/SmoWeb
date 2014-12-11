@@ -716,7 +716,7 @@ smoModule.directive('smoPlot', ['$compile', function($compile) {
 						{
 							title: $scope.fieldVar.options.title,
 							labels: $scope.fieldVar.options.labels,
-							labelsDiv: 'dylegend',
+							labelsDiv: $scope.fieldVar.name + 'LegendDiv',
 							labelsDivWidth: 150,
 							labelsSeparateLines: true,
 							width: 700,
@@ -733,7 +733,7 @@ smoModule.directive('smoPlot', ['$compile', function($compile) {
 								<div id="' + scope.fieldVar.name + 'PlotDiv"></div>\
 							</div>\
 							<div style="display: inline-block; vertical-align: top;">\
-								<div id="dylegend"></div>\
+								<div id="' + scope.fieldVar.name + 'LegendDiv"></div>\
 							</div>';
 
 			var el = angular.element(template);

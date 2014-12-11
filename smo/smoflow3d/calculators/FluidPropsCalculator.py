@@ -201,9 +201,9 @@ class FluidInfo(NumericalModel):
 class SaturationData(NumericalModel):	
 	fluidName = String(default = 'ParaHydrogen', label = 'fluid')
 	T_p_satPlot = PlotView(options = {'title': 'T(p) Sat Plot', 'labels': ['pressure [bar]', 'T sat [K]']})
-	rho_p_satPlot = PlotView(options = {'title': 'rho(p) Sat Plot', 'labels': ['pressure [bar]', 'rho sat [kg/m**3]']})
+	rho_p_satPlot = PlotView(options = {'title': 'rho(p) Sat Plot', 'labels': ['pressure [bar]', 'rho_L sat [kg/m**3]', 'rho_V sat [kg/m**3]']})
 	delta_h_p_satPlot = PlotView(options = {'title': 'delta_h(p) Sat Plot', 'labels': ['pressure [bar]', 'delta_h sat [J]']})
-	delta_s_p_satPlot = PlotView(options = {'title': 'delta_s(p) Sat Table', 'labels': ['pressure [bar]', 'delta_s sat [J]']})
+	delta_s_p_satPlot = PlotView(options = {'title': 'delta_s(p) Sat Plot', 'labels': ['pressure [bar]', 'delta_s sat [J]']})
 	
 	satTableView = TableView(options = {'title': 'Sat Table', 'formats': ['0.00E0', '#.00']})	
 	satViewGroup = ViewGroup([T_p_satPlot, rho_p_satPlot, delta_h_p_satPlot, delta_s_p_satPlot,
@@ -214,7 +214,7 @@ class SaturationData(NumericalModel):
 		f = Fluid(self.fluidName)
 		fState = FluidState(self.fluidName)
 		
-		pressures = np.logspace(np.log10(f.tripple['p']), np.log10(f.critical['p']), 100)/1e5
+		pressures = np.logspace(np.log10(f.tripple['p']), np.log10(f.critical['p']), 100, endpoint = False)/1e5
 		T_list = []
 		rhoL_list = []
 		rhoV_list = []
@@ -240,17 +240,17 @@ class SaturationData(NumericalModel):
 			data.append([p, fState.T, satL['rho'], satL['s'], satL['h'], 
 						satV['rho'], satV['s'], satV['h']])
 		
-		viewContentObj = ViewContent(data = np.array([pressures, T_list]), columnLabels = ['p [bar]', 'T [K]'])		
+		viewContentObj = ViewContent(data = np.array([[p, T] for (p, T) in zip(pressures, T_list)]), columnLabels = ['p [bar]', 'T [K]'])		
 		self.T_p_satPlot = viewContentObj
 		
-		viewContentObj = ViewContent(data = np.array([pressures, rhoL_list, rhoV_list]), columnLabels = ['p [bar]', 'rho_L [kg/m**3]',
+		viewContentObj = ViewContent(data = np.array([[p, rhoL, rhoV] for (p, rhoL, rhoV) in zip(pressures, rhoL_list, rhoV_list)]), columnLabels = ['p [bar]', 'rho_L [kg/m**3]',
 																											'rho_V [kg/m**3]'])
 		self.rho_p_satPlot = viewContentObj
 		
-		viewContentObj = ViewContent(data = np.array([pressures, np.array(hV_list) - np.array(hL_list)]), columnLabels = ['p [bar]', 'delta_h [J]'])
+		viewContentObj = ViewContent(data = np.array([[p, hV - hL] for (p, hV, hL) in zip(pressures, hV_list, hL_list)]), columnLabels = ['p [bar]', 'delta_h [J]'])
 		self.delta_h_p_satPlot = viewContentObj
 		
-		viewContentObj = ViewContent(data = np.array([pressures, np.array(sV_list) - np.array(sL_list)]), columnLabels = ['p [bar]', 'delta_s [J]'])
+		viewContentObj = ViewContent(data = np.array([[p, sV - sL] for (p, sV, sL) in zip(pressures, sV_list, sL_list)]), columnLabels = ['p [bar]', 'delta_s [J]'])
 		self.delta_s_p_satPlot = viewContentObj
 		
 		viewContentObj = ViewContent(data = np.array(data), columnLabels = ['p [bar]', 'T [K]', 
