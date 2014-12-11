@@ -851,8 +851,16 @@ smoModule.directive('smoFieldGroup', ['$compile', 'util', function($compile, uti
 					groupFields.push('<div ' + showFieldCode + ' smo-plot field-var="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
 				}				
 			}
-			var template = '<div class="field-group-label">' + (scope.smoFieldGroup.label || "") + '</div><br>' 
+			
+			var template;
+			
+			if (scope.smoFieldGroup.label) {
+				template = '<div class="field-group-label" style="margin-top: 25px;">' + scope.smoFieldGroup.label + '</div><br>' 
 				+ groupFields.join("");
+			} else {
+				template = '<br>' 
+				+ groupFields.join("");
+			}
 
 			var el = angular.element(template);
 	        compiled = $compile(el);
@@ -900,15 +908,23 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 				
 			}
 			
-			var template = '<div class="field-group-label">' + (scope.smoViewGroup.label || "") + '</div><br>\
-							<div style="white-space: nowrap; background-color: white; padding:10px; padding-top:10px; padding-bottom:10px;">\
-								<div style="display: inline-block; vertical-align: top; cursor: pointer;">\
-									<ul class="nav nav-pills nav-stacked">' + navPills.join("") + '</ul>\
-								</div>\
-								<div class="tab-content" style="display: inline-block;">'
-									+ navPillPanes.join("") + 
-								'</div>\
-							</div>';
+			var template;
+			
+			if (scope.smoViewGroup.label) {
+				template = '<div class="field-group-label" style="margin-top: 25px;">' + scope.smoViewGroup.label + '</div><br>';
+			} else {
+				template = '<br>';
+			}
+			
+			template += '\
+						<div style="white-space: nowrap; background-color: white; padding-left:10px; padding-top:10px; padding-bottom:10px;">\
+							<div style="display: inline-block; vertical-align: top; cursor: pointer;">\
+								<ul class="nav nav-pills nav-stacked">' + navPills.join("") + '</ul>\
+							</div>\
+							<div class="tab-content" style="display: inline-block; padding-left: 7px;">'
+								+ navPillPanes.join("") + 
+							'</div>\
+						</div>';
 			
 			var el = angular.element(template);
 	        compiled = $compile(el);
@@ -952,9 +968,10 @@ smoModule.directive('smoSuperGroupSet', ['$compile', function($compile) {
 					}
 					
 					navTabPanes.push(superGroupFields.join(""));
+					navTabPanes.push('</div>');
 				}
-				var template = '<ul class="nav nav-tabs super-group" role="tablist">' + navTabs.join("") + '</ul>' +
-				'<div class="super-group">' + navTabPanes.join("") + '</div>';
+				var template = '<ul class="nav nav-tabs" role="tablist">' + navTabs.join("") + '</ul>' +
+				'<div class="tab-content super-group">' + navTabPanes.join("") + '</div>';
 			} else if (scope.smoSuperGroupSet.length == 1) {
 				var superGroup = scope.smoSuperGroupSet[0];
 				var superGroupFields = [];

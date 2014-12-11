@@ -19,7 +19,7 @@ class PlotModel(NumericalModel):
            'formats': ['0.00E0', '#.00'], 'labels': ['pressure \n[bar]', 'T sat [K]']})
     plotViewGroup = ViewGroup([plotView, tableView, tableView2], label="View Group")
     
-    plotSuperGroup = SuperGroup([g1], label="Plot Super Group" )
+    plotSuperGroup = SuperGroup([plotViewGroup], label="Plot Super Group" )
     
     otherSuperGroup = SuperGroup([g1], label = "sads")
     
