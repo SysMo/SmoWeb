@@ -200,25 +200,63 @@ class FluidInfo(NumericalModel):
 
 class SaturationData(NumericalModel):	
 	fluidName = String(default = 'ParaHydrogen', label = 'fluid')
-	satPlotView = PlotView(options = {'title': 'Sat Plot', 'labels': ['pressure [bar]', 'T sat [K]'], 'xlogscale' : True})
-	satTableView = TableView(options = {'title': 'Sat Table', 'formats': ['0.00E0', '#.00']})
+	T_p_satPlot = PlotView(options = {'title': 'T(p) Sat Plot', 'labels': ['pressure [bar]', 'T sat [K]']})
+	rho_p_satPlot = PlotView(options = {'title': 'rho(p) Sat Plot', 'labels': ['pressure [bar]', 'rho sat [kg/m**3]']})
+	delta_h_p_satPlot = PlotView(options = {'title': 'delta_h(p) Sat Plot', 'labels': ['pressure [bar]', 'delta_h sat [J]']})
+	delta_s_p_satPlot = PlotView(options = {'title': 'delta_s(p) Sat Table', 'labels': ['pressure [bar]', 'delta_s sat [J]']})
 	
-	satViewGroup = ViewGroup([satPlotView, satTableView], label="Saturation Data")
+	satTableView = TableView(options = {'title': 'Sat Table', 'formats': ['0.00E0', '#.00']})	
+	satViewGroup = ViewGroup([T_p_satPlot, rho_p_satPlot, delta_h_p_satPlot, delta_s_p_satPlot,
+								satTableView], label="Saturation Data")
 	satSuperGroup = SuperGroup([satViewGroup])
 	
 	def compute(self):
 		f = Fluid(self.fluidName)
+		fState = FluidState(self.fluidName)
+		
 		pressures = np.logspace(np.log10(f.tripple['p']), np.log10(f.critical['p']), 100)/1e5
+		T_list = []
+		rhoL_list = []
+		rhoV_list = []
+		hL_list = []
+		hV_list = []
+		sL_list = []
+		sV_list = []
 		data = []
+		
 		for p in pressures:
-			saturation = f.saturation_p(p*1e5)
-			data.append([p, saturation['TsatL']])
-		data1 = np.array(data)
-		viewContentObj = ViewContent(data = data1, columnLabels = ['p [bar]', 'T sat [K]'])
-		self.satPlotView = viewContentObj
+			fState.update_pq(p*1e5, 0)			
+			satL = fState.getSatL()			
+			satV = fState.getSatV()
+			
+			T_list.append(fState.T)
+			rhoL_list.append(satL['rho'])
+			rhoV_list.append(satV['rho'])
+			hL_list.append(satL['h'])
+			hV_list.append(satV['h'])
+			sL_list.append(satL['s'])
+			sV_list.append(satV['s'])
+						
+			data.append([p, fState.T, satL['rho'], satL['s'], satL['h'], 
+						satV['rho'], satV['s'], satV['h']])
+		
+		viewContentObj = ViewContent(data = np.array([pressures, T_list]), columnLabels = ['p [bar]', 'T [K]'])		
+		self.T_p_satPlot = viewContentObj
+		
+		viewContentObj = ViewContent(data = np.array([pressures, rhoL_list, rhoV_list]), columnLabels = ['p [bar]', 'rho_L [kg/m**3]',
+																											'rho_V [kg/m**3]'])
+		self.rho_p_satPlot = viewContentObj
+		
+		viewContentObj = ViewContent(data = np.array([pressures, np.array(hV_list) - np.array(hL_list)]), columnLabels = ['p [bar]', 'delta_h [J]'])
+		self.delta_h_p_satPlot = viewContentObj
+		
+		viewContentObj = ViewContent(data = np.array([pressures, np.array(sV_list) - np.array(sL_list)]), columnLabels = ['p [bar]', 'delta_s [J]'])
+		self.delta_s_p_satPlot = viewContentObj
+		
+		viewContentObj = ViewContent(data = np.array(data), columnLabels = ['p [bar]', 'T [K]', 
+																			'rho_L [kg/m**3]', 's_L [J]', 'h_L [J]',
+																		'rho_V [kg/m**3]', 's_V [J]', 'h_V [J]'])
 		self.satTableView = viewContentObj
-	
-		return
 		
 if __name__ == '__main__':
 # 	FluidPropsCalculator.test()
