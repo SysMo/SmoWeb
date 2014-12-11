@@ -15,39 +15,66 @@ angular.module('HeatExchange1D', ['ui.bootstrap', 'smo'])
 			[ '$scope', 'ModelCommunicator', function($scope, ModelCommunicator) {
 		$scope.wireHeating = {
 			inputCommunicator: new ModelCommunicator(),
-			resultsCommunicator: new ModelCommunicator()
+			resultsCommunicator: new ModelCommunicator(),
+			compute: function() {
+				$scope.wireHeating.resultsCommunicator.fetchData(
+					'computeWireHeating', $scope.wireHeating.inputCommunicator.data.values);
+			}
 		};
 		$scope.wireHeating.inputCommunicator.fetchData(
 				'getWireHeatingInputs', {});
 		
-		$scope.compute = function() {
-			$scope.wireHeating.resultsCommunicator.fetchData(
-				'computeWireHeating', $scope.wireHeating.inputCommunicator.data.values);
-		}
+		$scope.cryogenicPipe = {
+			inputCommunicator: new ModelCommunicator(),
+			resultsCommunicator: new ModelCommunicator(),
+			compute: function() {
+				$scope.wireHeating.resultsCommunicator.fetchData(
+					'computeCryogenicPipe', $scope.wireHeating.inputCommunicator.data.values);
+			}
+		};
+		$scope.cryogenicPipe.inputCommunicator.fetchData(
+					'getCryogenicPipeInputs', {});
 	}]);
 </script>
 {% endblock %}
 
 {% block pills %}
 	<li class="active" role="presentation"><a id="wireHeatingTab" data-target="#wireHeating" role="tab" data-toggle="tab">Wire heating</a></li>
+	<li role="presentation"><a id="cryogenicPipeTab" data-target="#cryogenicPipe" role="tab" data-toggle="tab">Cryogenic pipe</a></li>
 	<li role="presentation"><a id="docTab" data-target="#doc" role="tab" data-toggle="tab">Doc</a></li>
 {% endblock %}
 
 {% block content %}
 <div ng-app="HeatExchange1D" ng-controller="HeatExchange1DController">
 	<div class="tab-content">
-		<div class="tab-pane active page-container" id="calculator">
+		
+		<div class="tab-pane active page-container" id="wireHeating">
 			<h1 class="title">Wire heating</h1>
 			<div smo-model-view="wireHeatingInputs" view-type="input" communicator="wireHeating.inputCommunicator"></div>
 			<div class="section" style="margin-left: 20px;">		
 				<div ng-show="wireHeating.inputCommunicator.dataReceived"><button ng-disabled="!wireHeating.inputCommunicator.fieldsValid" 
-					 class="btn btn-default" ng-click="compute()">Compute</button>
+					 class="btn btn-default" ng-click="wireHeating.compute()">Compute</button>
 				</div>
 			</div>
 			<div class="section"> 
 				<div smo-model-view="wireHeatingResults" view-type="output" communicator="wireHeating.resultsCommunicator"></div>
 			</div>
 		</div>
+		
+		<div class="tab-pane page-container" id="cryogenicPipe">
+			<h1 class="title">Cryogenic pipe</h1>
+			<div smo-model-view="cryogenicPipeInputs" view-type="input" communicator="cryogenicPipe.inputCommunicator"></div>
+			<div class="section" style="margin-left: 20px;">		
+				<div ng-show="cryogenicPipe.inputCommunicator.dataReceived"><button ng-disabled="!cryogenicPipe.inputCommunicator.fieldsValid" 
+					 class="btn btn-default" ng-click="cryogenicPipe.compute()">Compute</button>
+				</div>
+			</div>
+			<div class="section"> 
+				<div smo-model-view="cryogenicPipeResults" view-type="output" communicator="cryogenicPipe.resultsCommunicator"></div>
+			</div>
+		</div>
+		
+		
 		<div class="tab-pane" id="doc">
 			<div class="docview">
 			</div>

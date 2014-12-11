@@ -78,7 +78,7 @@ class View(object):
 			except Exception, e:
 				response['errStatus'] = True
 				response['error'] = str(e)
-				response['stackTrace'] = traceback.format_exc()#.replace("\n", '<br />')
+				response['stackTrace'] = traceback.format_exc()
 		else:
 			response['errStatus'] = True
 			response['error'] = 'No POST action with name {0}'.format(actionName)

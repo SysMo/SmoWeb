@@ -16,27 +16,27 @@ class DictObject(object):
 		for key, value in kwargs.iteritems():
 			self.__dict__[key] = value
 
-Acs = 2.5e-6
-d = np.sqrt(Acs * 4 / np.pi)
-print ("d = ", d * 1e3)
-As = np.pi * d   
-L = 1.
-
-TAmb = 20. # degC
-h = 5 # w/m**2-K
-
-Copper = DictObject(
-	eCond = 16.78e-9, # Ohm * m
-	thermalCond = 401.0, # W/m-K
-	cp = 385, # J/kg-K
-	rho = 8960, # kg/m**3
-)
-
-POM = DictObject(
-	thermalCond = 0.23, # W/m-K
-	cp = 1500, # J/kg-K
-	rho = 1420, # kg/m**3
-)
+# Acs = 2.5e-6
+# d = np.sqrt(Acs * 4 / np.pi)
+# print ("d = ", d * 1e3)
+# As = np.pi * d   
+# L = 1.
+# 
+# TAmb = 20. # degC
+# h = 5 # w/m**2-K
+# 
+# Copper = DictObject(
+# 	eCond = 16.78e-9, # Ohm * m
+# 	thermalCond = 401.0, # W/m-K
+# 	cp = 385, # J/kg-K
+# 	rho = 8960, # kg/m**3
+# )
+# 
+# POM = DictObject(
+# 	thermalCond = 0.23, # W/m-K
+# 	cp = 1500, # J/kg-K
+# 	rho = 1420, # kg/m**3
+# )
 
 #def computeHeatFlux(T):
 #	return thermCond * Acs / L * (T - TAmb)
@@ -77,10 +77,6 @@ class ThermalModel1D(object):
 			faceAreas = self.angle / 2 * (faceCenters[1:]**2 - faceCenters[:-1]**2)
 		return faceAreas
 	
-	@property
-	def cellVolumes(self):
-		pass
-
 	@property
 	def heatFluxes(self):
 		return - (self.thermalCond * self.T.faceGrad() *  self.mesh.scaledFaceAreas * self.areaMult)
@@ -174,7 +170,7 @@ class WireHeating1D(NumericalModel):
 			model.setBoundaryConditions(1, 'T', self.TRightInput)
 		else:
 			model.setBoundaryConditions(1, 'Q', self.QRightInput)
-
+			
 # model = ThermalModel1D()
 # model.thermalCond = Copper.thermalCond
 # model.createLinearMesh(L = 1, d = 1.784e-3, n = 30)
@@ -186,3 +182,34 @@ class WireHeating1D(NumericalModel):
 # model.solve()
 # print model.heatFluxes[0][0]
 # model.plotTemperature()
+
+class CryogenicPipe(NumericalModel):
+	d_in = Quantity('Length', default = (5, 'mm'), label = 'internal diameter')
+	d_ext = Quantity('Length', default = (10, 'mm'), label = 'external diameter')
+	L = Quantity('Length', default = (1, 'm'), label = 'length')
+	n = Quantity(default = 50, maxValue=200, label = 'num. elements')
+	thermalCond = Quantity('ThermalConductivity', default = 401, label = 'thermal conductivity')
+	emissivity = Quantity(default = 0.5, maxValue=1.0, label = 'emissivity')
+	g1 = FieldGroup([d_in, d_ext, L, n, thermalCond, emissivity], label = 'Pipe')
+	
+	bcLeft = Choices(BoundaryConditionChoice, label='boundary condition (left)')
+	TLeftInput = Quantity('Temperature', default = (20, 'degC'), label = 'temperature (left)', show = 'self.bcLeft == "T"')
+	QLeftInput = Quantity('HeatFlowRate', default = (0, 'W'), label = 'heat flow (left)', show = 'self.bcLeft == "Q"')
+	bcRight = Choices(BoundaryConditionChoice, label='boundary condition (right)')
+	TRightInput = Quantity('Temperature', default = (20, 'degC'), label = 'temperature (right)', show = 'self.bcRight == "T"')
+	QRightInput = Quantity('HeatFlowRate', default = (0, 'W'), label = 'heat flow (right)', show = 'self.bcRight == "Q"')
+	TAmb = Quantity('Temperature', default = (20, 'degC'), label = 'ambient temperature')
+	g2 = FieldGroup([bcLeft, TLeftInput, QLeftInput, bcRight, TRightInput, QRightInput, TAmb], label = 'Boundary conditions')
+	
+	inputs = SuperGroup([g1, g2]) 
+	
+	#####################
+	
+	Acs = Quantity('Area', default = (1, 'mm**2'), label = 'conduction area')
+	As = Quantity('Area', default = (1, 'mm**2'), label = 'surface area')
+	r1 = FieldGroup([Acs, As], label = 'Res') 
+
+	results = SuperGroup([r1])
+	
+	def compute(self):
+		pass
