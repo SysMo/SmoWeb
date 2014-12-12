@@ -194,24 +194,25 @@ class ObjectReference(Field):
 		return fieldDict
 	
 class ViewContent(object):
-	def __init__(self, data = None, columnLabels = None):
+	def __init__(self, data = None):
 		if (data is None):
 			self.data = np.array([])
 		else:
-			self.data = data	
-		
-		if (columnLabels is None):
-			self.columnLabels = []
-		else:
-			self.columnLabels = columnLabels
+			self.data = data
 
 class TableView(Field):
-	def __init__(self, default = None, options = None, *args, **kwargs):
+	def __init__(self, default = None, columnLabels = None, options = None, *args, **kwargs):
 		super(TableView, self).__init__(*args, **kwargs)
 		if (default is None):
 			self.default = ViewContent()
 		else:
 			self.default = self.parseValue(default)
+		
+		if (columnLabels is None):
+			self.columnLabels = []
+		else:
+			self.columnLabels = columnLabels		
+		
 		if (options is None):
 			self.options = {}
 		else:
@@ -219,7 +220,7 @@ class TableView(Field):
 				self.options = options
 			else:
 				raise TypeError('Options passed to TableView must be a dictionary object')
-
+	
 	def parseValue(self, value):
 		if (isinstance(value, ViewContent)):
 			return value
@@ -237,16 +238,22 @@ class TableView(Field):
 
 	def getValueRepr(self, value):
 		extendedData = value.data.tolist()
-		extendedData.insert(0, value.columnLabels)
+		extendedData.insert(0, self.columnLabels)
 		return extendedData
 
 class PlotView(Field):
-	def __init__(self, default = None, options = None, *args, **kwargs):
+	def __init__(self, default = None, columnLabels = None, options = None, *args, **kwargs):
 		super(PlotView, self).__init__(*args, **kwargs)
 		if (default is None):
 			self.default = ViewContent()
 		else:
 			self.default = self.parseValue(default)
+		
+		if (columnLabels is None):
+			self.columnLabels = []
+		else:
+			self.columnLabels = columnLabels
+		
 		if (options is None):
 			self.options = {}
 		else:
