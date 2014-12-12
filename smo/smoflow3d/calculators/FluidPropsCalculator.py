@@ -213,49 +213,37 @@ class SaturationData(NumericalModel):
 	def compute(self):
 		f = Fluid(self.fluidName)
 		fState = FluidState(self.fluidName)
+		numPoints = 100
+		pressures = np.logspace(np.log10(f.tripple['p']), np.log10(f.critical['p']), numPoints, endpoint = False)/1e5
+		data = np.zeros((numPoints, 10))
+		data[:,0] = pressures
 		
-		pressures = np.logspace(np.log10(f.tripple['p']), np.log10(f.critical['p']), 100, endpoint = False)/1e5
-		T_list = []
-		rhoL_list = []
-		rhoV_list = []
-		hL_list = []
-		hV_list = []
-		sL_list = []
-		sV_list = []
-		data = []
-		
-		for p in pressures:
-			fState.update_pq(p*1e5, 0)			
+		for i in range(len(pressures)):
+			fState.update_pq(pressures[i]*1e5, 0)			
 			satL = fState.getSatL()			
 			satV = fState.getSatV()
 			
-			T_list.append(fState.T)
-			rhoL_list.append(satL['rho'])
-			rhoV_list.append(satV['rho'])
-			hL_list.append(satL['h']/1e3)
-			hV_list.append(satV['h']/1e3)
-			sL_list.append(satL['s']/1e3)
-			sV_list.append(satV['s']/1e3)
-						
-			data.append([p, fState.T, satL['rho'], satV['rho'], satL['h']/1e3, satV['h']/1e3, satL['s']/1e3, satV['s']/1e3, ])
-		
-		viewContentObj = ViewContent(data = np.array([[p, T] for (p, T) in zip(pressures, T_list)]), columnLabels = ['p [bar]', 'T [K]'])		
-		self.T_p_satPlot = viewContentObj
-		
-		viewContentObj = ViewContent(data = np.array([[p, rhoL, rhoV] for (p, rhoL, rhoV) in zip(pressures, rhoL_list, rhoV_list)]), columnLabels = ['p [bar]', 'rho_L [kg/m**3]',
+			data[i,1] = fState.T
+			data[i,2] = satL['rho']
+			data[i,3] = satV['rho']
+			data[i,4] = satL['h']/1e3
+			data[i,5] = satV['h']/1e3
+			data[i,7] = satL['s']/1e3
+			data[i,8] = satV['s']/1e3
+		# Compute evaporation enthalpy
+		data[:,6] = data[:, 5] - data[:, 4]	
+		# Compute evaporation entropy
+		data[:,9] = data[:, 8] - data[:, 7]	
+
+		self.T_p_satPlot = ViewContent(data = data[:,(0,1)], columnLabels = ['p [bar]', 'T [K]'])		
+		self.rho_p_satPlot = ViewContent(data = data[:, (0, 2, 3)], columnLabels = ['p [bar]', 'rho_L [kg/m**3]',
 																											'rho_V [kg/m**3]'])
-		self.rho_p_satPlot = viewContentObj
+		self.delta_h_p_satPlot = ViewContent(data = data[:, (0, 6)], columnLabels = ['p [bar]', 'delta_h [J]'])
 		
-		viewContentObj = ViewContent(data = np.array([[p, hV - hL] for (p, hV, hL) in zip(pressures, hV_list, hL_list)]), columnLabels = ['p [bar]', 'delta_h [J]'])
-		self.delta_h_p_satPlot = viewContentObj
-		
-		viewContentObj = ViewContent(data = np.array([[p, sV - sL] for (p, sV, sL) in zip(pressures, sV_list, sL_list)]), columnLabels = ['p [bar]', 'delta_s [J]'])
-		self.delta_s_p_satPlot = viewContentObj
-		
-		viewContentObj = ViewContent(data = np.array(data), columnLabels = [
-			'p [bar]', 'T [K]', 'rho_L [kg/m**3]', 'rho_V [kg/m**3]', 'h_L [kJ/kg]', 'h_V [kJ/kg]', 
-			's_L [kJ/kg-K]', 's_V [kJ/kg-K]'])
-		self.satTableView = viewContentObj
+		self.delta_s_p_satPlot = ViewContent(data = data[:, (0, 9)], columnLabels = ['p [bar]', 'delta_s [J]'])
+		self.satTableView = ViewContent(data = data, columnLabels = [
+			'p [bar]', 'T [K]', 'rho_L [kg/m**3]', 'rho_V [kg/m**3]', 'h_L [kJ/kg]', 'h_V [kJ/kg]', 'h_V - h_L [kJ/kg]',
+			's_L [kJ/kg-K]', 's_V [kJ/kg-K]', 's_V - s_L [kJ/kg-K]'])
 		
 if __name__ == '__main__':
 # 	FluidPropsCalculator.test()
