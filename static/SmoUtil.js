@@ -901,7 +901,7 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 				if (field.type == 'PlotView') {
 					navPillPanes.push('<div ' + showFieldCode + ' smo-plot field-var="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
 				} else if (field.type == 'TableView') {
-					navPillPanes.push('<div ' + showFieldCode + ' smo-table field-var="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
+					navPillPanes.push('<div ' + showFieldCode + ' smo-table field-var="fields.' + field.name + '" smo-data-source="smoDataSource" style="max-width: 840px; overflow: auto;"></div>');
 				}
 				
 				navPillPanes.push('</div>'); 
@@ -917,11 +917,11 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 			}
 			
 			template += '\
-						<div style="white-space: nowrap; background-color: white; padding :10px; overflow: auto;">\
+						<div style="white-space: nowrap; background-color: white; padding :10px;">\
 							<div style="display: inline-block; vertical-align: top; cursor: pointer;">\
 								<ul class="nav nav-pills nav-stacked">' + navPills.join("") + '</ul>\
 							</div>\
-							<div class="tab-content" style="display: inline-block; padding-left: 7px; margin-right: 10px;">'
+							<div class="tab-content" style="display: inline-block; padding-left: 7px;">'
 								+ navPillPanes.join("") + 
 							'</div>\
 						</div>';
