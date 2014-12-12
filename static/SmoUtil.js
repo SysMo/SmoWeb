@@ -712,19 +712,9 @@ smoModule.directive('smoPlot', ['$compile', function($compile) {
 		},
 		controller: function($scope) {
 			$scope.plotData = function() {
-				$scope.chart = new Dygraph(document.getElementById($scope.fieldVar.name + 'PlotDiv'), $scope.smoDataSource[$scope.fieldVar.name],
-						{
-							title: $scope.fieldVar.options.title,
-							labels: $scope.fieldVar.options.labels,
-							labelsDiv: $scope.fieldVar.name + 'LegendDiv',
-							labelsDivWidth: 150,
-							labelsSeparateLines: true,
-							width: 700,
-							height: 400,
-							xlabel: $scope.fieldVar.options.xlabel,
-							ylabel: $scope.fieldVar.options.ylabel,
-							axes : { x : {  logscale : $scope.fieldVar.options.xlogscale || false }, y: {  logscale : $scope.fieldVar.options.ylogscale || false } }
-				        });				
+				$scope.chart = new Dygraph(document.getElementById($scope.fieldVar.name + 'PlotDiv'), 
+						$scope.smoDataSource[$scope.fieldVar.name],
+						$scope.fieldVar.options);
 			}
 		},
 		link : function(scope, element, attr) {
@@ -732,7 +722,7 @@ smoModule.directive('smoPlot', ['$compile', function($compile) {
 							<div style="display: inline-block;">\
 								<div id="' + scope.fieldVar.name + 'PlotDiv"></div>\
 							</div>\
-							<div style="display: inline-block; vertical-align: top;">\
+							<div style="margin-left: 55px; margin-top: 10px;">\
 								<div id="' + scope.fieldVar.name + 'LegendDiv"></div>\
 							</div>';
 
@@ -756,35 +746,27 @@ smoModule.directive('smoTable', ['$compile', function($compile) {
 		},
 		controller: function($scope) {
 			$scope.drawTable = function() {				
-				var tableArray = angular.copy($scope.smoDataSource[$scope.fieldVar.name]);
-				var labels;
-				
-				//Adding column names
-				if (!$scope.fieldVar.options.labels) {
-					var labelsArr = [];
-					for (var i=0; i < tableArray[0].length; i++){
-						labelsArr.push('col ' + String(i+1));
-					}
-					labels = labelsArr;
-				} else {
-					labels = $scope.fieldVar.options.labels;
-				}
-				
-				tableArray.unshift(labels);
+				var tableArray = $scope.smoDataSource[$scope.fieldVar.name];
 				
 				//Creating the GViz DataTable object
 				$scope.dataTable = google.visualization.arrayToDataTable(tableArray);
 				//Drawing the table
 				var tableView = new google.visualization.Table(document.getElementById($scope.fieldVar.name + 'TableDiv'));
 				
-				if (!$scope.fieldVar.options.formats) { //Applying custom formats
+				if(typeof $scope.fieldVar.options.formats === 'string'){
 					for (var i=0; i < tableArray[0].length; i++){
-						var formatter = new google.visualization.NumberFormat();
+						formatter = new google.visualization.NumberFormat({pattern: $scope.fieldVar.options.formats});
 						formatter.format($scope.dataTable, i);
 					}
 				} else {
-					for (var i=0; i < $scope.fieldVar.options.formats.length; i++){
-						var formatter = new google.visualization.NumberFormat({pattern: $scope.fieldVar.options.formats[i]});
+					for (var i=0; i < tableArray[0].length; i++){
+						try {
+							formatter = new google.visualization.NumberFormat({pattern: $scope.fieldVar.options.formats[i]});
+						}
+						catch(err) {
+							formatter = new google.visualization.NumberFormat();
+						}
+						
 						formatter.format($scope.dataTable, i);
 					}
 				}
@@ -901,7 +883,7 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 				if (field.type == 'PlotView') {
 					navPillPanes.push('<div ' + showFieldCode + ' smo-plot field-var="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
 				} else if (field.type == 'TableView') {
-					navPillPanes.push('<div ' + showFieldCode + ' smo-table field-var="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
+					navPillPanes.push('<div ' + showFieldCode + ' smo-table field-var="fields.' + field.name + '" smo-data-source="smoDataSource" style="max-width: 840px; overflow: auto;"></div>');
 				}
 				
 				navPillPanes.push('</div>'); 
@@ -917,7 +899,7 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 			}
 			
 			template += '\
-						<div style="white-space: nowrap; background-color: white; padding-left:10px; padding-top:10px; padding-bottom:10px;">\
+						<div style="white-space: nowrap; background-color: white; padding :10px;">\
 							<div style="display: inline-block; vertical-align: top; cursor: pointer;">\
 								<ul class="nav nav-pills nav-stacked">' + navPills.join("") + '</ul>\
 							</div>\

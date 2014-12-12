@@ -192,26 +192,20 @@ class ObjectReference(Field):
 		fieldDict['options'] = optionsList
 # 		fieldDict['options'] = {key : value['label'] for key, value in self.targetContainer.iteritems()}
 		return fieldDict
-	
-class ViewContent(object):
-	def __init__(self, data = None, columnLabels = None):
-		if (data is None):
-			self.data = np.array([])
-		else:
-			self.data = data	
-		
-		if (columnLabels is None):
-			self.columnLabels = []
-		else:
-			self.columnLabels = columnLabels
 
 class TableView(Field):
-	def __init__(self, default = None, options = None, *args, **kwargs):
+	def __init__(self, default = None, dataLabels = None, options = None, *args, **kwargs):
 		super(TableView, self).__init__(*args, **kwargs)
 		if (default is None):
-			self.default = ViewContent()
+			self.default = np.array([])
 		else:
 			self.default = self.parseValue(default)
+		
+		if (dataLabels is None):
+			self.dataLabels = []
+		else:
+			self.dataLabels = dataLabels		
+		
 		if (options is None):
 			self.options = {}
 		else:
@@ -219,12 +213,12 @@ class TableView(Field):
 				self.options = options
 			else:
 				raise TypeError('Options passed to TableView must be a dictionary object')
-
+	
 	def parseValue(self, value):
-		if (isinstance(value, ViewContent)):
+		if (isinstance(value, np.ndarray)):
 			return value
 		else:
-			raise TypeError('The value of TableView must be a ViewContent object')
+			raise TypeError('The value of TableView must be a numpy array')
 		
 	def toFormDict(self):
 		fieldDict = {
@@ -236,17 +230,23 @@ class TableView(Field):
 		return fieldDict
 
 	def getValueRepr(self, value):
-		extendedData = value.data.tolist()
-		extendedData.insert(0, value.columnLabels)
+		extendedData = value.tolist()
+		extendedData.insert(0, self.dataLabels)
 		return extendedData
 
 class PlotView(Field):
-	def __init__(self, default = None, options = None, *args, **kwargs):
+	def __init__(self, default = None, dataLabels = None, options = None, *args, **kwargs):
 		super(PlotView, self).__init__(*args, **kwargs)
 		if (default is None):
-			self.default = ViewContent()
+			self.default = np.array([])
 		else:
 			self.default = self.parseValue(default)
+		
+		if (dataLabels is None):
+			self.dataLabels = []
+		else:
+			self.dataLabels = dataLabels
+		
 		if (options is None):
 			self.options = {}
 		else:
@@ -256,15 +256,29 @@ class PlotView(Field):
 				raise TypeError('Options passed to PlotView must be a dictionary object')
 		
 	def parseValue(self, value):
-		if (isinstance(value, ViewContent)):
+		if (isinstance(value, np.ndarray)):
 			return value
 		else:
-			raise TypeError('The value of PlotView must be a ViewContent object')
+			raise TypeError('The value of PlotView must be a numpy array')
 	
 	def getValueRepr(self, value):
-		return value.data.tolist()
+		return value.tolist()
 
 	def toFormDict(self):
+		if ('width' not in self.options.keys()):
+			self.options['width'] = 700
+		
+		if ('height' not in self.options.keys()):
+			self.options['height'] = 400
+		
+		self.options['labels'] = self.dataLabels
+		self.options['labelsDiv'] = self._name + 'LegendDiv'
+		
+		if ('labelsDivWidth' not in self.options.keys()):
+			self.options['labelsDivWidth'] = 400
+			
+		self.options['labelsSeparateLines'] = True
+		
 		fieldDict = {
 			'name': self._name, 
 			'label': self.label, 
