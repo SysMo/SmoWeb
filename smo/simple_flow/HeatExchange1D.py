@@ -10,6 +10,7 @@ import pylab as plt
 from smo.numerical_model.model import NumericalModel
 from smo.numerical_model.fields import *
 from collections import OrderedDict
+from fipy.variables.faceVariable import FaceVariable
 
 class DictObject(object):
 	def __init__(self, **kwargs):
@@ -50,6 +51,11 @@ class ThermalModel1D(object):
 		self.radiation = {
 			'active' : False,
 			'epsilon' : 1
+		}
+		self.solver = {
+			'nonlinear': False,
+			'tolerance': 1e-8,
+			'maxIterations': 1000
 		}
 		
 	def createLinearMesh(self, L, Acs, As, n = 50): 
@@ -116,13 +122,25 @@ class ThermalModel1D(object):
 			mesh = self.mesh, value = self.sideFaceAreas / (self.areaMult * self.mesh.cellVolumes))
 						
 		eqX = fp.DiffusionTerm(coeff = self.thermalCond)
-#		if (self.radiation['active']):
-#			eqX = eqX + sigmaSB * epsilon
+		if (self.radiation['active']):
+			epsilon = self.radiation['epsilon']
+			eqX = eqX + sigmaSB * epsilon * (sideFaceFactor * self.TAmb**4 - fp.ImplicitSourceTerm(coeff = sideFaceFactor * self.T**3))
 		#+  self.h * (sideFaceFactor * TAmb - fp.ImplicitSourceTerm(coeff = sideFaceFactor))
 		# Initial conditions
 		self.T.setValue(self.TAmb)
 		# Run solver
-		eqX.solve(var = self.T)				
+		if (self.solver['nonlinear']):
+			res = 1
+			sweep = 0
+			self.resVector = [res]
+			while (res > self.solver['tolerance'] and sweep < self.solver['maxIterations']):
+				res = eqX.sweep(self.T, underRelaxation = 1.0)
+				sweep += 1
+				self.resVector.append(res)							
+		else:
+			eqX.solve(var = self.T)
+		
+		self.Q = FaceVariable(mesh = self.mesh, value = - self.thermalCond * self.areaMult * self.mesh.scaledFaceAreas * self.T.faceGrad)
 	
 	def plotTemperature(self):
 		# Print results
@@ -203,14 +221,15 @@ class CryogenicPipe(NumericalModel):
 	L = Quantity('Length', default = (1, 'm'), label = 'length')
 	n = Quantity(default = 50, maxValue=200, label = 'num. elements')
 	thermalCond = Quantity('ThermalConductivity', default = 401, label = 'thermal conductivity')
-	emissivity = Quantity(default = 0.5, maxValue=1.0, label = 'emissivity')
-	g1 = FieldGroup([d_int, d_ext, L, n, thermalCond, emissivity], label = 'Pipe')
+	computeRadiation = Boolean(default = True, label = 'compute radiation')
+	emissivity = Quantity(default = 0.5, maxValue=1.0, label = 'emissivity', show = 'self.computeRadiation')
+	g1 = FieldGroup([d_int, d_ext, L, n, thermalCond, computeRadiation, emissivity], label = 'Pipe')
 	
 	bcLeft = Choices(BoundaryConditionChoice, label='boundary condition (left)')
 	TLeftInput = Quantity('Temperature', default = (20, 'degC'), label = 'temperature (left)', show = 'self.bcLeft == "T"')
 	QLeftInput = Quantity('HeatFlowRate', default = (0, 'W'), label = 'heat flow (left)', show = 'self.bcLeft == "Q"')
 	bcRight = Choices(BoundaryConditionChoice, label='boundary condition (right)')
-	TRightInput = Quantity('Temperature', default = (20, 'degC'), label = 'temperature (right)', show = 'self.bcRight == "T"')
+	TRightInput = Quantity('Temperature', default = (40, 'K'), label = 'temperature (right)', show = 'self.bcRight == "T"')
 	QRightInput = Quantity('HeatFlowRate', default = (0, 'W'), label = 'heat flow (right)', show = 'self.bcRight == "Q"')
 	TAmb = Quantity('Temperature', default = (20, 'degC'), label = 'ambient temperature')
 	g2 = FieldGroup([bcLeft, TLeftInput, QLeftInput, bcRight, TRightInput, QRightInput, TAmb], label = 'Boundary conditions')
@@ -225,10 +244,15 @@ class CryogenicPipe(NumericalModel):
 	r1g = SuperGroup([r1], label = 'Values')
 
 	T_x = PlotView(options = {'title': 'Temperature', 'labels': ['x position [m]', 'temperature [K]']})
-	r2 = ViewGroup([T_x], label =  'Temperature distribution')
-	r2g = SuperGroup([r2], label = 'Plot')
+	Q_x = PlotView(options = {'title': 'Axial heat flow', 'labels': ['x position [m]', 'heat flow [W]']})
+	r2 = ViewGroup([T_x], label =  'Distributions')
+	r2g = SuperGroup([r2], label = 'Distributions')
 	
-	results = [r1g, r2g]
+	residual = PlotView(options = {'title': 'Residual', 'labels': ['iteration #', 'residual']})
+	r3 = ViewGroup([residual], label = 'Convergence')
+	r3g = SuperGroup([r3], label = 'Convergence')
+	
+	results = [r1g, r2g, r3g]
 	
 	def compute(self):
 		self.Acs = np.pi/4 * (self.d_ext * self.d_ext - self.d_int * self.d_int)
@@ -249,15 +273,33 @@ class CryogenicPipe(NumericalModel):
 			model.setBoundaryConditions(1, 'T', self.TRightInput)
 		else:
 			model.setBoundaryConditions(1, 'Q', self.QRightInput)
-			
+		# Activate radiation if necessary
+		if (self.computeRadiation):
+			model.radiation['active'] = True
+			model.radiation['epsilon'] = self.emissivity
+		
+		model.solver['nonlinear'] = True
+		model.solver['tolerance'] = 1e-7
+		model.solver['maxIterations'] = 1000
 		model.solve()
+		
 		resArray = np.zeros((self.n, 2))
 		resArray[:, 0] = model.mesh.cellCenters.value[0]
 		resArray[:, 1] = model.T
-		print resArray
-		print resArray.shape
-
 		self.T_x = ViewContent(data = resArray, columnLabels = ['x position [m]', 'temperature [K]'])
+		
+		Qx = np.zeros((self.n, 2))
+		Qx[:, 0] = model.mesh.cellCenters.value[0]
+		Qx[:, 1] = model.Q
+		self.Q_x = ViewContent(data = Qx, columnLabels = [])
+		
+		
+		numIter = len(model.resVector)
+		residual = np.zeros((numIter, 2))
+		residual[:, 0] = np.arange(numIter)
+		residual[:, 1] = model.resVector
+		self.residual = ViewContent(data = residual, columnLabels = ['iteration #', 'residual'])
+
 		
 
 			
