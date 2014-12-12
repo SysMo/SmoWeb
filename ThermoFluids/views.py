@@ -155,7 +155,7 @@ class HeatExchange1DView(View):
 		pipe = CryogenicPipe()
 		pipe.fieldValuesFromJson(parameters)
 		pipe.compute()
-		return pipe.superGroupList2Json([pipe.results])
+		return pipe.superGroupList2Json(pipe.results)
 	
 
 from smo.simple_flow.TestModel import PlotModel

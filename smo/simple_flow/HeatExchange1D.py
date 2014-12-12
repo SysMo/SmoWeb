@@ -41,14 +41,25 @@ class DictObject(object):
 #def computeHeatFlux(T):
 #	return thermCond * Acs / L * (T - TAmb)
 
+sigmaSB = 5.67e-8
+
 class ThermalModel1D(object):
-	def __init__(self):
+	def __init__(self, TAmb):
 		self.BCs = (None, None)
+		self.TAmb = TAmb
+		self.radiation = {
+			'active' : False,
+			'epsilon' : 1
+		}
 		
-	def createLinearMesh(self, L, d, n = 50): 
+	def createLinearMesh(self, L, Acs, As, n = 50): 
 		""" Define mesh """
-		self.d = d
-		self.areaMult = np.pi / 4 * d * d
+		# Cross sectional area
+		self.Acs = Acs
+		# Area multiplier for face area
+		self.areaMult = Acs
+		# Surface area per unit length
+		self.As = As
 		#dx = np.ones((nx,)) * float(L) / nx
 		dx = float(L) / n
 		self.mesh = fp.Grid1D(nx = n, dx = dx)
@@ -72,7 +83,7 @@ class ThermalModel1D(object):
 	def sideFaceAreas(self):
 		faceCenters = self.mesh.faceCenters()[0]
 		if (self.meshType == 'Linear'):
-			faceAreas = np.pi * self.d * (faceCenters[1:] - faceCenters[:-1])
+			faceAreas = self.As * (faceCenters[1:] - faceCenters[:-1])
 		elif (self.meshType == 'Radial'):
 			faceAreas = self.angle / 2 * (faceCenters[1:]**2 - faceCenters[:-1]**2)
 		return faceAreas
@@ -104,9 +115,12 @@ class ThermalModel1D(object):
 		sideFaceFactor = fp.CellVariable(name = "sideFaceFactor",
 			mesh = self.mesh, value = self.sideFaceAreas / (self.areaMult * self.mesh.cellVolumes))
 						
-		eqX = fp.DiffusionTerm(coeff = self.thermalCond) +  self.h * (sideFaceFactor * TAmb - fp.ImplicitSourceTerm(coeff = sideFaceFactor))
+		eqX = fp.DiffusionTerm(coeff = self.thermalCond)
+#		if (self.radiation['active']):
+#			eqX = eqX + sigmaSB * epsilon
+		#+  self.h * (sideFaceFactor * TAmb - fp.ImplicitSourceTerm(coeff = sideFaceFactor))
 		# Initial conditions
-		self.T.setValue(TAmb)
+		self.T.setValue(self.TAmb)
 		# Run solver
 		eqX.solve(var = self.T)				
 	
@@ -184,13 +198,13 @@ class WireHeating1D(NumericalModel):
 # model.plotTemperature()
 
 class CryogenicPipe(NumericalModel):
-	d_in = Quantity('Length', default = (5, 'mm'), label = 'internal diameter')
+	d_int = Quantity('Length', default = (5, 'mm'), label = 'internal diameter')
 	d_ext = Quantity('Length', default = (10, 'mm'), label = 'external diameter')
 	L = Quantity('Length', default = (1, 'm'), label = 'length')
 	n = Quantity(default = 50, maxValue=200, label = 'num. elements')
 	thermalCond = Quantity('ThermalConductivity', default = 401, label = 'thermal conductivity')
 	emissivity = Quantity(default = 0.5, maxValue=1.0, label = 'emissivity')
-	g1 = FieldGroup([d_in, d_ext, L, n, thermalCond, emissivity], label = 'Pipe')
+	g1 = FieldGroup([d_int, d_ext, L, n, thermalCond, emissivity], label = 'Pipe')
 	
 	bcLeft = Choices(BoundaryConditionChoice, label='boundary condition (left)')
 	TLeftInput = Quantity('Temperature', default = (20, 'degC'), label = 'temperature (left)', show = 'self.bcLeft == "T"')
@@ -208,8 +222,42 @@ class CryogenicPipe(NumericalModel):
 	Acs = Quantity('Area', default = (1, 'mm**2'), label = 'conduction area')
 	As = Quantity('Area', default = (1, 'mm**2'), label = 'surface area')
 	r1 = FieldGroup([Acs, As], label = 'Res') 
+	r1g = SuperGroup([r1], label = 'Values')
 
-	results = SuperGroup([r1])
+	T_x = PlotView(options = {'title': 'Temperature', 'labels': ['x position [m]', 'temperature [K]']})
+	r2 = ViewGroup([T_x], label =  'Temperature distribution')
+	r2g = SuperGroup([r2], label = 'Plot')
+	
+	results = [r1g, r2g]
 	
 	def compute(self):
-		pass
+		self.Acs = np.pi/4 * (self.d_ext * self.d_ext - self.d_int * self.d_int)
+		self.As = np.pi * self.d_ext * self.L
+		
+		# Create the thermal model object
+		model = ThermalModel1D(self.TAmb)
+		model.thermalCond = self.thermalCond
+		# Create mesh
+		model.createLinearMesh(L = self.L, Acs = self.Acs, As = self.As, n = self.n)
+		# Set boundary conditions
+		if (self.bcLeft == 'T'):
+			model.setBoundaryConditions(0, 'T', self.TLeftInput)
+		else:
+			model.setBoundaryConditions(0, 'Q', self.QLeftInput)
+		
+		if (self.bcRight == 'T'):
+			model.setBoundaryConditions(1, 'T', self.TRightInput)
+		else:
+			model.setBoundaryConditions(1, 'Q', self.QRightInput)
+			
+		model.solve()
+		resArray = np.zeros((self.n, 2))
+		resArray[:, 0] = model.mesh.cellCenters.value[0]
+		resArray[:, 1] = model.T
+		print resArray
+		print resArray.shape
+
+		self.T_x = ViewContent(data = resArray, columnLabels = ['x position [m]', 'temperature [K]'])
+		
+
+			

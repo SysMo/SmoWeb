@@ -5,6 +5,11 @@
 {% block scripts_and_styles %}
 <script src="{% static 'SmoUtil.js' %}"></script>
 <link rel="stylesheet" type="text/css" href="{% static 'css/SmoInputOutputView.css' %}">
+
+<script type="text/javascript" src="http://dygraphs.com/dygraph-dev.js"></script>
+<script type="text/javascript" src="http://cavorite.com/labs/js/dygraphs-export/dygraph-extra.js"></script>
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+
 <script>
 angular.module('HeatExchange1D', ['ui.bootstrap', 'smo'])
 	.config(['$httpProvider', function($httpProvider) {
@@ -28,8 +33,8 @@ angular.module('HeatExchange1D', ['ui.bootstrap', 'smo'])
 			inputCommunicator: new ModelCommunicator(),
 			resultsCommunicator: new ModelCommunicator(),
 			compute: function() {
-				$scope.wireHeating.resultsCommunicator.fetchData(
-					'computeCryogenicPipe', $scope.wireHeating.inputCommunicator.data.values);
+				$scope.cryogenicPipe.resultsCommunicator.fetchData(
+					'computeCryogenicPipe', $scope.cryogenicPipe.inputCommunicator.data.values);
 			}
 		};
 		$scope.cryogenicPipe.inputCommunicator.fetchData(

@@ -4,8 +4,14 @@ html{
 		
 body {	
 	height: 100%;
-/* 	background-color: rgba(252, 240, 194, 1); */
+	/* Variant 1 */
 	background-color: #FFDA80;
+	/* Variant 2 */
+/*     background-color: #CCC; */
+/*     background-image: url("/static/img/background-2-grey.jpg"); */
+/*     background-repeat: repeat; */
+/*     background-position: left top; */
+
 	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
 	font-size: 14px;
 	line-height: 1.42857;
