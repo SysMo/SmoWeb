@@ -201,31 +201,24 @@ class FluidInfo(NumericalModel):
 class SaturationData(NumericalModel):	
 	fluidName = String(default = 'ParaHydrogen', label = 'fluid')
 	
-	TestPlot = PlotView(ViewContent(data=np.array([[1,2,3],[10, 20000, 300000]])), columnLabels = ['p [bar]', 'T [K]', 'blah[kg]'],
-						options = {'title': 'Test Plot', 'labels': ['pressure [bar]', 'saturation temperature [K]', 'blah[kg]'], 
-									'axes':{ 'x' : {'logscale': True} } })
-	T_p_satPlot = PlotView(columnLabels = ['p [bar]', 'T [K]'], 
-							options = {'title': 'Temperature', 'labels': ['pressure [bar]', 'saturation temperature [K]'],
-									'xlabel': 'pressure'})
-	rho_p_satPlot = PlotView(columnLabels = ['p [bar]', 'rho_L [kg/m**3]', 'rho_V [kg/m**3]'], 
-								options = {'title': 'Density', 
-										'labels': ['pressure [bar]', 'liquid density [kg/m**3]', 'vapor density [kg/m**3]'],
-										'xlabel': 'pressure'})
-	delta_h_p_satPlot = PlotView(columnLabels = ['p [bar]', 'delta_h [J]'], 
-									options = {'title': 'Evap. enthalpy', 
-											'labels': ['pressure [bar]', 'h evap [kJ/kg]'],
-											'xlabel': 'pressure'})
-	delta_s_p_satPlot = PlotView(columnLabels = ['p [bar]', 'delta_s [J]'], 
-									options = {'title': 'Evap. entropy', 
-										'labels': ['pressure [bar]', 's evap. [kJ/kg-K]'],
-										'xlabel': 'pressure'})
+# 	TestPlot = PlotView(ViewContent(data=np.array([[1,2,3],[10, 20000, 300000]])),
+# 						options = {'title': 'Test Plot', 'labels': ['pressure [bar]', 'saturation temperature [K]', 'blah[kg]'], 
+# 									'axes':{ 'x' : {'logscale': True} } })
+	T_p_satPlot = PlotView(dataLabels = ['pressure [bar]', 'saturation temperature [K]'], 
+							options = {'title': 'Temperature', 'xlabel': 'pressure'})
+	rho_p_satPlot = PlotView(dataLabels = ['pressure [bar]', 'liquid density [kg/m**3]', 'vapor density [kg/m**3]'],
+							options = {'title': 'Density', 'xlabel': 'pressure'})
+	delta_h_p_satPlot = PlotView(dataLabels = ['pressure [bar]', 'h evap [kJ/kg]'],
+								options = {'title': 'Evap. enthalpy', 'xlabel': 'pressure'})
+	delta_s_p_satPlot = PlotView(dataLabels = ['pressure [bar]', 's evap. [kJ/kg-K]'], 
+								options = {'title': 'Evap. entropy', 'xlabel': 'pressure'})
 	
-	satTableView = TableView(columnLabels = ['p [bar]', 'T [K]', 'rho_L [kg/m**3]', 'rho_V [kg/m**3]', 'h_L [kJ/kg]', 
+	satTableView = TableView(dataLabels = ['p [bar]', 'T [K]', 'rho_L [kg/m**3]', 'rho_V [kg/m**3]', 'h_L [kJ/kg]', 
 											'h_V [kJ/kg]', 'h_V - h_L [kJ/kg]', 's_L [kJ/kg-K]', 's_V [kJ/kg-K]', 
 											's_V - s_L [kJ/kg-K]'], 
 									options = {'title': 'Sat Table', 'formats': ['0.00E0', '#.00', '0.0000E0']})	
 	
-	satViewGroup = ViewGroup([TestPlot, T_p_satPlot, rho_p_satPlot, delta_h_p_satPlot, delta_s_p_satPlot,
+	satViewGroup = ViewGroup([T_p_satPlot, rho_p_satPlot, delta_h_p_satPlot, delta_s_p_satPlot,
 								satTableView], label="Saturation Data")
 	satSuperGroup = SuperGroup([satViewGroup])
 	

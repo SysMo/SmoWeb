@@ -201,17 +201,17 @@ class ViewContent(object):
 			self.data = data
 
 class TableView(Field):
-	def __init__(self, default = None, columnLabels = None, options = None, *args, **kwargs):
+	def __init__(self, default = None, dataLabels = None, options = None, *args, **kwargs):
 		super(TableView, self).__init__(*args, **kwargs)
 		if (default is None):
 			self.default = ViewContent()
 		else:
 			self.default = self.parseValue(default)
 		
-		if (columnLabels is None):
-			self.columnLabels = []
+		if (dataLabels is None):
+			self.dataLabels = []
 		else:
-			self.columnLabels = columnLabels		
+			self.dataLabels = dataLabels		
 		
 		if (options is None):
 			self.options = {}
@@ -225,7 +225,7 @@ class TableView(Field):
 		if (isinstance(value, ViewContent)):
 			return value
 		else:
-			raise TypeError('The value of TableView must be a ViewContent object')
+			raise TypeError('The value of TableView must be a numpy array')
 		
 	def toFormDict(self):
 		fieldDict = {
@@ -238,21 +238,21 @@ class TableView(Field):
 
 	def getValueRepr(self, value):
 		extendedData = value.data.tolist()
-		extendedData.insert(0, self.columnLabels)
+		extendedData.insert(0, self.dataLabels)
 		return extendedData
 
 class PlotView(Field):
-	def __init__(self, default = None, columnLabels = None, options = None, *args, **kwargs):
+	def __init__(self, default = None, dataLabels = None, options = None, *args, **kwargs):
 		super(PlotView, self).__init__(*args, **kwargs)
 		if (default is None):
 			self.default = ViewContent()
 		else:
 			self.default = self.parseValue(default)
 		
-		if (columnLabels is None):
-			self.columnLabels = []
+		if (dataLabels is None):
+			self.dataLabels = []
 		else:
-			self.columnLabels = columnLabels
+			self.dataLabels = dataLabels
 		
 		if (options is None):
 			self.options = {}
@@ -266,7 +266,7 @@ class PlotView(Field):
 		if (isinstance(value, ViewContent)):
 			return value
 		else:
-			raise TypeError('The value of PlotView must be a ViewContent object')
+			raise TypeError('The value of PlotView must be a numpy array')
 	
 	def getValueRepr(self, value):
 		return value.data.tolist()
@@ -277,11 +277,13 @@ class PlotView(Field):
 		
 		if ('height' not in self.options.keys()):
 			self.options['height'] = 400
-			
+		
+		self.options['labels'] = self.dataLabels
+		self.options['labelsDiv'] = self._name + 'LegendDiv'
+		
 		if ('labelsDivWidth' not in self.options.keys()):
 			self.options['labelsDivWidth'] = 400
-		
-		self.options['labelsDiv'] = self._name + 'LegendDiv'
+			
 		self.options['labelsSeparateLines'] = True
 		
 		fieldDict = {

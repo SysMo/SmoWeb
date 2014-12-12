@@ -12,10 +12,10 @@ class PlotModel(NumericalModel):
     g1 = FieldGroup([p], 'FieldGroup')
     
     
-    plotView = PlotView(default = viewContentObj, columnLabels = ['p', 'T'], options = {'title': 'TestPlot'})
-    tableView = TableView(default = viewContentObj, columnLabels = ['p', 'T'], options = {'title': 'TestTable', 
+    plotView = PlotView(default = viewContentObj, options = {'title': 'TestPlot'})
+    tableView = TableView(default = viewContentObj, dataLabels = ['p', 'T'], options = {'title': 'TestTable', 
            'formats': ['0.00E0', '#.00'], 'labels': ['pressure [bar]', 'T sat [K]']})
-    tableView2 = TableView(default = viewContentObj, columnLabels = ['p', 'T'], options = {'title': 'nasko table', 
+    tableView2 = TableView(default = viewContentObj, dataLabels = ['p', 'T'], options = {'title': 'nasko table', 
            'formats': ['0.00E0', '#.00'], 'labels': ['pressure \n[bar]', 'T sat [K]']})
     plotViewGroup = ViewGroup([plotView, tableView, tableView2], label="View Group")
     
