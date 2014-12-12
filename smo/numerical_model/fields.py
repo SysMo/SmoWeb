@@ -235,7 +235,7 @@ class TableView(Field):
 		return extendedData
 
 class PlotView(Field):
-	def __init__(self, default = None, dataLabels = None, options = None, *args, **kwargs):
+	def __init__(self, default = None, dataLabels = None, xlog = None, ylog = None, options = None, *args, **kwargs):
 		super(PlotView, self).__init__(*args, **kwargs)
 		if (default is None):
 			self.default = np.array([])
@@ -246,6 +246,16 @@ class PlotView(Field):
 			self.dataLabels = []
 		else:
 			self.dataLabels = dataLabels
+			
+		if (xlog is None):
+			self.xlog = False
+		else:
+			self.xlog = xlog
+			
+		if (ylog is None):
+			self.ylog = False
+		else:
+			self.ylog = ylog
 		
 		if (options is None):
 			self.options = {}
@@ -278,6 +288,12 @@ class PlotView(Field):
 			self.options['labelsDivWidth'] = 400
 			
 		self.options['labelsSeparateLines'] = True
+		
+		if (self.xlog):
+			self.options['axes'] = { 'x' : {'logscale': True} }
+		
+		if (self.ylog):
+			self.options['logscale'] = True
 		
 		fieldDict = {
 			'name': self._name, 
