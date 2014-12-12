@@ -747,37 +747,29 @@ smoModule.directive('smoTable', ['$compile', function($compile) {
 		controller: function($scope) {
 			$scope.drawTable = function() {				
 				var tableArray = $scope.smoDataSource[$scope.fieldVar.name];
-//				var labels;
-//				
-//				//Adding column names
-//				if (!$scope.fieldVar.options.labels) {
-//					var labelsArr = [];
-//					for (var i=0; i < tableArray[0].length; i++){
-//						labelsArr.push('col ' + String(i+1));
-//					}
-//					labels = labelsArr;
-//				} else {
-//					labels = $scope.fieldVar.options.labels;
-//				}
-//				
-//				tableArray.unshift(labels);
 				
 				//Creating the GViz DataTable object
 				$scope.dataTable = google.visualization.arrayToDataTable(tableArray);
 				//Drawing the table
 				var tableView = new google.visualization.Table(document.getElementById($scope.fieldVar.name + 'TableDiv'));
 				
-				for (var i=0; i < tableArray[0].length; i++){
-					try {
-						formatter = new google.visualization.NumberFormat({pattern: $scope.fieldVar.options.formats[i]});
+				if(typeof $scope.fieldVar.options.formats === 'string'){
+					for (var i=0; i < tableArray[0].length; i++){
+						formatter = new google.visualization.NumberFormat({pattern: $scope.fieldVar.options.formats});
+						formatter.format($scope.dataTable, i);
 					}
-					catch(err) {
-						formatter = new google.visualization.NumberFormat();
+				} else {
+					for (var i=0; i < tableArray[0].length; i++){
+						try {
+							formatter = new google.visualization.NumberFormat({pattern: $scope.fieldVar.options.formats[i]});
+						}
+						catch(err) {
+							formatter = new google.visualization.NumberFormat();
+						}
+						
+						formatter.format($scope.dataTable, i);
 					}
-					
-					formatter.format($scope.dataTable, i);
 				}
-				
 				
 				tableView.draw($scope.dataTable, {showRowNumber: true, sort:'disable', page:'enable', pageSize:14});
 			}

@@ -216,7 +216,7 @@ class SaturationData(NumericalModel):
 	satTableView = TableView(dataLabels = ['p [bar]', 'T [K]', 'rho_L [kg/m**3]', 'rho_V [kg/m**3]', 'h_L [kJ/kg]', 
 											'h_V [kJ/kg]', 'h_V - h_L [kJ/kg]', 's_L [kJ/kg-K]', 's_V [kJ/kg-K]', 
 											's_V - s_L [kJ/kg-K]'], 
-									options = {'title': 'Sat Table', 'formats': ['0.00E0', '#.00', '0.0000E0']})	
+									options = {'title': 'Sat Table', 'formats': '0.0000E0'})	
 	
 	satViewGroup = ViewGroup([T_p_satPlot, rho_p_satPlot, delta_h_p_satPlot, delta_s_p_satPlot,
 								satTableView], label="Saturation Data")
@@ -247,12 +247,11 @@ class SaturationData(NumericalModel):
 		# Compute evaporation entropy
 		data[:,9] = data[:, 8] - data[:, 7]	
 
-		self.T_p_satPlot = ViewContent(data = data[:,(0,1)])		
-		self.rho_p_satPlot = ViewContent(data = data[:, (0, 2, 3)])
-		self.delta_h_p_satPlot = ViewContent(data = data[:, (0, 6)])
-		
-		self.delta_s_p_satPlot = ViewContent(data = data[:, (0, 9)])
-		self.satTableView = ViewContent(data = data)
+		self.T_p_satPlot = data[:,(0,1)]		
+		self.rho_p_satPlot = data[:, (0, 2, 3)]
+		self.delta_h_p_satPlot = data[:, (0, 6)]	
+		self.delta_s_p_satPlot = data[:, (0, 9)]
+		self.satTableView = data
 		
 if __name__ == '__main__':
 # 	FluidPropsCalculator.test()

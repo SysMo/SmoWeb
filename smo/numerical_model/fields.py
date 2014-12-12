@@ -192,19 +192,12 @@ class ObjectReference(Field):
 		fieldDict['options'] = optionsList
 # 		fieldDict['options'] = {key : value['label'] for key, value in self.targetContainer.iteritems()}
 		return fieldDict
-	
-class ViewContent(object):
-	def __init__(self, data = None):
-		if (data is None):
-			self.data = np.array([])
-		else:
-			self.data = data
 
 class TableView(Field):
 	def __init__(self, default = None, dataLabels = None, options = None, *args, **kwargs):
 		super(TableView, self).__init__(*args, **kwargs)
 		if (default is None):
-			self.default = ViewContent()
+			self.default = np.array([])
 		else:
 			self.default = self.parseValue(default)
 		
@@ -222,7 +215,7 @@ class TableView(Field):
 				raise TypeError('Options passed to TableView must be a dictionary object')
 	
 	def parseValue(self, value):
-		if (isinstance(value, ViewContent)):
+		if (isinstance(value, np.ndarray)):
 			return value
 		else:
 			raise TypeError('The value of TableView must be a numpy array')
@@ -237,7 +230,7 @@ class TableView(Field):
 		return fieldDict
 
 	def getValueRepr(self, value):
-		extendedData = value.data.tolist()
+		extendedData = value.tolist()
 		extendedData.insert(0, self.dataLabels)
 		return extendedData
 
@@ -245,7 +238,7 @@ class PlotView(Field):
 	def __init__(self, default = None, dataLabels = None, options = None, *args, **kwargs):
 		super(PlotView, self).__init__(*args, **kwargs)
 		if (default is None):
-			self.default = ViewContent()
+			self.default = np.array([])
 		else:
 			self.default = self.parseValue(default)
 		
@@ -263,13 +256,13 @@ class PlotView(Field):
 				raise TypeError('Options passed to PlotView must be a dictionary object')
 		
 	def parseValue(self, value):
-		if (isinstance(value, ViewContent)):
+		if (isinstance(value, np.ndarray)):
 			return value
 		else:
 			raise TypeError('The value of PlotView must be a numpy array')
 	
 	def getValueRepr(self, value):
-		return value.data.tolist()
+		return value.tolist()
 
 	def toFormDict(self):
 		if ('width' not in self.options.keys()):
