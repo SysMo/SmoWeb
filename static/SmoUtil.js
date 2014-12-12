@@ -732,7 +732,7 @@ smoModule.directive('smoPlot', ['$compile', function($compile) {
 							<div style="display: inline-block;">\
 								<div id="' + scope.fieldVar.name + 'PlotDiv"></div>\
 							</div>\
-							<div style="display: inline-block; vertical-align: top;">\
+							<div style="margin-left: 55px; margin-top: 10px;">\
 								<div id="' + scope.fieldVar.name + 'LegendDiv"></div>\
 							</div>';
 
