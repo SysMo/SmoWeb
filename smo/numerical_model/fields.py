@@ -272,6 +272,18 @@ class PlotView(Field):
 		return value.data.tolist()
 
 	def toFormDict(self):
+		if ('width' not in self.options.keys()):
+			self.options['width'] = 700
+		
+		if ('height' not in self.options.keys()):
+			self.options['height'] = 400
+			
+		if ('labelsDivWidth' not in self.options.keys()):
+			self.options['labelsDivWidth'] = 400
+		
+		self.options['labelsDiv'] = self._name + 'LegendDiv'
+		self.options['labelsSeparateLines'] = True
+		
 		fieldDict = {
 			'name': self._name, 
 			'label': self.label, 

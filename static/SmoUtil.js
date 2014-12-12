@@ -712,19 +712,9 @@ smoModule.directive('smoPlot', ['$compile', function($compile) {
 		},
 		controller: function($scope) {
 			$scope.plotData = function() {
-				$scope.chart = new Dygraph(document.getElementById($scope.fieldVar.name + 'PlotDiv'), $scope.smoDataSource[$scope.fieldVar.name],
-						{
-							title: $scope.fieldVar.options.title,
-							labels: $scope.fieldVar.options.labels,
-							labelsDiv: $scope.fieldVar.name + 'LegendDiv',
-							labelsDivWidth: 150,
-							labelsSeparateLines: true,
-							width: 700,
-							height: 400,
-							xlabel: $scope.fieldVar.options.xlabel,
-							ylabel: $scope.fieldVar.options.ylabel,
-							axes : { x : {  logscale : $scope.fieldVar.options.xlogscale || false }, y: {  logscale : $scope.fieldVar.options.ylogscale || false } }
-				        });				
+				$scope.chart = new Dygraph(document.getElementById($scope.fieldVar.name + 'PlotDiv'), 
+						$scope.smoDataSource[$scope.fieldVar.name],
+						$scope.fieldVar.options);
 			}
 		},
 		link : function(scope, element, attr) {
