@@ -756,38 +756,38 @@ smoModule.directive('smoTable', ['$compile', function($compile) {
 		},
 		controller: function($scope) {
 			$scope.drawTable = function() {				
-				var tableArray = angular.copy($scope.smoDataSource[$scope.fieldVar.name]);
-				var labels;
-				
-				//Adding column names
-				if (!$scope.fieldVar.options.labels) {
-					var labelsArr = [];
-					for (var i=0; i < tableArray[0].length; i++){
-						labelsArr.push('col ' + String(i+1));
-					}
-					labels = labelsArr;
-				} else {
-					labels = $scope.fieldVar.options.labels;
-				}
-				
-				tableArray.unshift(labels);
+				var tableArray = $scope.smoDataSource[$scope.fieldVar.name];
+//				var labels;
+//				
+//				//Adding column names
+//				if (!$scope.fieldVar.options.labels) {
+//					var labelsArr = [];
+//					for (var i=0; i < tableArray[0].length; i++){
+//						labelsArr.push('col ' + String(i+1));
+//					}
+//					labels = labelsArr;
+//				} else {
+//					labels = $scope.fieldVar.options.labels;
+//				}
+//				
+//				tableArray.unshift(labels);
 				
 				//Creating the GViz DataTable object
 				$scope.dataTable = google.visualization.arrayToDataTable(tableArray);
 				//Drawing the table
 				var tableView = new google.visualization.Table(document.getElementById($scope.fieldVar.name + 'TableDiv'));
 				
-				if (!$scope.fieldVar.options.formats) { //Applying custom formats
-					for (var i=0; i < tableArray[0].length; i++){
-						var formatter = new google.visualization.NumberFormat();
-						formatter.format($scope.dataTable, i);
+				for (var i=0; i < tableArray[0].length; i++){
+					try {
+						formatter = new google.visualization.NumberFormat({pattern: $scope.fieldVar.options.formats[i]});
 					}
-				} else {
-					for (var i=0; i < $scope.fieldVar.options.formats.length; i++){
-						var formatter = new google.visualization.NumberFormat({pattern: $scope.fieldVar.options.formats[i]});
-						formatter.format($scope.dataTable, i);
+					catch(err) {
+						formatter = new google.visualization.NumberFormat();
 					}
+					
+					formatter.format($scope.dataTable, i);
 				}
+				
 				
 				tableView.draw($scope.dataTable, {showRowNumber: true, sort:'disable', page:'enable', pageSize:14});
 			}
@@ -917,11 +917,11 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 			}
 			
 			template += '\
-						<div style="white-space: nowrap; background-color: white; padding-left:10px; padding-top:10px; padding-bottom:10px;">\
+						<div style="white-space: nowrap; background-color: white; padding :10px; overflow: auto;">\
 							<div style="display: inline-block; vertical-align: top; cursor: pointer;">\
 								<ul class="nav nav-pills nav-stacked">' + navPills.join("") + '</ul>\
 							</div>\
-							<div class="tab-content" style="display: inline-block; padding-left: 7px;">'
+							<div class="tab-content" style="display: inline-block; padding-left: 7px; margin-right: 10px;">'
 								+ navPillPanes.join("") + 
 							'</div>\
 						</div>';

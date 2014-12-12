@@ -205,7 +205,7 @@ class SaturationData(NumericalModel):
 	delta_h_p_satPlot = PlotView(options = {'title': 'Evap. enthalpy', 'labels': ['pressure [bar]', 'h evap [kJ/kg]'], 'xlogscale': True})
 	delta_s_p_satPlot = PlotView(options = {'title': 'Evap. entropy', 'labels': ['pressure [bar]', 's evap. [kJ/kg-K]'], 'xlogscale': True})
 	
-	satTableView = TableView(options = {'title': 'Sat Table', 'formats': ['0.00E0', '#.00']})	
+	satTableView = TableView(options = {'title': 'Sat Table', 'formats': ['0.00E0', '#.00', '0.0000E0']})	
 	satViewGroup = ViewGroup([T_p_satPlot, rho_p_satPlot, delta_h_p_satPlot, delta_s_p_satPlot,
 								satTableView], label="Saturation Data")
 	satSuperGroup = SuperGroup([satViewGroup])
