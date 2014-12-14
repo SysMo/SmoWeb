@@ -147,7 +147,7 @@ class HeatExchange1DView(View):
 	@action('post')
 	def getCryogenicPipeInputs(self, parameters):
 		pipe = CryogenicPipe()
-		return pipe.superGroupList2Json([pipe.inputs])
+		return pipe.superGroupList2Json([pipe.inputValues, pipe.settings])
 	
 	@action('post')
 	def computeCryogenicPipe(self, parameters):

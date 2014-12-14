@@ -66,7 +66,8 @@ class ThermalModel1D(object):
 		self.solverSettings = {
 			'nonlinear': False,
 			'tolerance': 1e-8,
-			'maxIterations': 1000
+			'maxIterations': 1000,
+			'relaxationFactor': 1.0
 		}
 		self.thermCondModel = interp1d(StainlessSteel['thermalCond_T']['T'], StainlessSteel['thermalCond_T']['cond'])
 		self.emissivityModel = interp1d(StainlessSteel['emissivity_T']['T'], StainlessSteel['emissivity_T']['epsilon'])
@@ -171,15 +172,17 @@ class ThermalModel1D(object):
 					self.emissivity.setValue(self.emissivityModel(self.T))
 					# Add radiation term to the equation
 					radMultiplier = sigmaSB * self.emissivity * sideFaceFactor
-					eqX = eqX + radMultiplier * self.TAmb**4 -  fp.ImplicitSourceTerm(coeff = radMultiplier * self.T**3)
+					eqX = eqX + radMultiplier * (self.TAmb**4 - self.T**4) #fp.ImplicitSourceTerm(coeff = radMultiplier * self.T**3)
 				# Perform iteration
-					res = eqX.sweep(var = self.T, solver = solver, underRelaxation = 0.99)
-					self.resVector.append(res)
-					TFaces = self.T.arithmeticFaceValue()
-					self.TLeft.append(TFaces[0])
-					self.TRight.append(TFaces[-1])
-					self.QLeft.append(self.QAx[0])
-					self.QRight.append(self.QAx[-1])
+				res = eqX.sweep(var = self.T, solver = solver, underRelaxation = self.solverSettings['relaxationFactor'])
+				# Save residual
+				self.resVector.append(res)
+				# Save temperature and fluxes at the ends
+				TFaces = self.T.arithmeticFaceValue()
+				self.TLeft.append(TFaces[0])
+				self.TRight.append(TFaces[-1])
+				self.QLeft.append(self.QAx[0])
+				self.QRight.append(self.QAx[-1])
 							
 				sweep += 1
 		else:
@@ -195,24 +198,33 @@ class CryogenicPipe(NumericalModel):
 	d_int = Quantity('Length', default = (5, 'mm'), label = 'internal diameter')
 	d_ext = Quantity('Length', default = (10, 'mm'), label = 'external diameter')
 	L = Quantity('Length', default = (1, 'm'), label = 'length')
-	n = Quantity(default = 50, minValue = 10, maxValue=200, label = 'num. elements')
 	#thermalCond = Quantity('ThermalConductivity', default = 401, label = 'thermal conductivity')
-	computeRadiation = Boolean(default = True, label = 'compute radiation')
 	#emissivity = Quantity(default = 0.5, minValue = 0, maxValue=1.0, label = 'emissivity', show = 'self.computeRadiation')
-	g1 = FieldGroup([d_int, d_ext, L, n, computeRadiation], label = 'Pipe')
+	g1 = FieldGroup([d_int, d_ext, L], label = 'Pipe')
 	
 	bcLeft = Choices(BoundaryConditionChoice, label='boundary condition (left)')
-	TLeftInput = Quantity('Temperature', default = (15, 'degC'), label = 'temperature (left)', show = 'self.bcLeft == "T"')
+	TLeftInput = Quantity('Temperature', default = (300, 'K'), label = 'temperature (left)', show = 'self.bcLeft == "T"')
 	QLeftInput = Quantity('HeatFlowRate', default = (0, 'W'), minValue = -1e99, maxValue = 1e99, 
 			label = 'heat flow (left)', show = 'self.bcLeft == "Q"')
 	bcRight = Choices(BoundaryConditionChoice, label='boundary condition (right)')
 	TRightInput = Quantity('Temperature', default = (40, 'K'), label = 'temperature (right)', show = 'self.bcRight == "T"')
 	QRightInput = Quantity('HeatFlowRate', default = (0, 'W'), minValue = -1e99, maxValue = 1e99, 
 			label = 'heat flow (right)', show = 'self.bcRight == "Q"')
-	TAmb = Quantity('Temperature', default = (20, 'degC'), label = 'ambient temperature')
-	g2 = FieldGroup([bcLeft, TLeftInput, QLeftInput, bcRight, TRightInput, QRightInput, TAmb], label = 'Boundary conditions')
+	computeRadiation = Boolean(default = True, label = 'compute radiation')
+	TAmb = Quantity('Temperature', default = (300, 'K'), label = 'ambient temperature', show = 'self.computeRadiation')
+	g2 = FieldGroup([bcLeft, TLeftInput, QLeftInput, bcRight, TRightInput, QRightInput, computeRadiation, TAmb], label = 'Boundary conditions')
 	
-	inputs = SuperGroup([g1, g2]) 
+	inputValues = SuperGroup([g1, g2], label = 'Input values')
+	###
+	n = Quantity(default = 50, minValue = 10, maxValue = 500, label = 'num. mesh elements')
+	s1 = FieldGroup([n], label = 'Mesh')
+	
+	maxNumIter = Quantity(default = 100, minValue = 20, maxValue=500, label = 'max num. iterations')
+	absTolerance = Quantity(default = 1e-6, label = 'absolute tolerance')
+	relaxationFactor = Quantity(default = 0.99, maxValue = 2.0, label = 'relaxation factor')
+	s2 = FieldGroup([maxNumIter, absTolerance, relaxationFactor], label = 'Solver')
+	
+	settings = SuperGroup([s1, s2], label = 'Settings')
 	
 	#####################
 	
@@ -236,7 +248,8 @@ class CryogenicPipe(NumericalModel):
 	QRad_x = PlotView(dataLabels = ['x position [m]', 'flux density [W/m]'], options = {'title': 'Radiation flux', 'xlabel': 'x position [m]', 'ylabel': 'flux density [W/m]'})
 	cond_x = PlotView(dataLabels = ['x position [m]', 'thermal conductivity [W/m-K]'], options = {'title': 'Conductivity (pipe)', 'xlabel': 'x position [m]', 'ylabel': 'thermal conductivity [W/m-K]'})
 	emiss_x = PlotView(dataLabels = ['x position [m]', 'emissivity [-]'], options = {'title': 'Emissivity', 'xlabel': 'x position [m]', 'ylabel': 'emissivity[-]'})
-	r3 = ViewGroup([T_x, QAx_x, QRad_x, cond_x, emiss_x], label =  'Distributions')
+	table_x = TableView(dataLabels = ['x position [m]', 'temperature [K]', 'heat flow [W]'], options = {'title': 'Distributions (table)', 'formats': ['0.000', '0.00', '0.000E00'] })
+	r3 = ViewGroup([T_x, QAx_x, QRad_x, cond_x, emiss_x, table_x], label =  'Distributions')
 	r3g = SuperGroup([r3], label = 'Distributions')
 	
 	residualPlot = PlotView(dataLabels = ['iteration #', 'residual'], ylog = True, options = {'title': 'Residual'})
@@ -270,8 +283,9 @@ class CryogenicPipe(NumericalModel):
 			model.radiation['active'] = True
 		
 		model.solverSettings['nonlinear'] = True
-		model.solverSettings['tolerance'] = 1e-6
-		model.solverSettings['maxIterations'] = 200
+		model.solverSettings['tolerance'] = self.absTolerance
+		model.solverSettings['maxIterations'] = self.maxNumIter
+		model.solverSettings['relaxationFactor'] = self.relaxationFactor
 		model.solve()
 		
 		cellCenters = model.mesh.cellCenters.value[0]
@@ -316,7 +330,13 @@ class CryogenicPipe(NumericalModel):
 		self.emiss_x = np.zeros((self.n, 2))
 		self.emiss_x[:, 0] = cellCenters
 		self.emiss_x[:, 1] = model.emissivity
-
+		
+		# Table with x distributions
+		self.table_x = np.zeros((self.n + 1, 3))
+		self.table_x[:, 0] = faceCenters
+		self.table_x[:, 1] = model.T.arithmeticFaceValue()
+		self.table_x[:, 2] = model.QAx
+		
 		# Convergence 
 		numIter = len(model.resVector)
 		self.residualPlot = np.zeros((numIter, 2))
