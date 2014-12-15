@@ -156,12 +156,12 @@ class ThermalModel1D(object):
 		if (self.solverSettings['nonlinear']):
 			res = 1
 			sweep = 0
-			self.resVector = [res]
+			self.resVector = []
 			TFaces = self.T.arithmeticFaceValue()
-			self.TLeft = [TFaces[0]]
-			self.TRight = [TFaces[-1]]
-			self.QLeft = [self.QAx[0]]
-			self.QRight = [self.QAx[-1]]
+			self.TLeft = []
+			self.TRight = []
+			self.QLeft = []
+			self.QRight = []
 			while (res > self.solverSettings['tolerance'] and sweep < self.solverSettings['maxIterations']):
 				# Compute temperature dependent thermal conductivity 
 				self.thermCond.setValue(self.thermCondModel(TFaces))
@@ -261,7 +261,7 @@ class CryogenicPipe(NumericalModel):
 	
 	def compute(self):
 		self.Acs = np.pi/4 * (self.d_ext * self.d_ext - self.d_int * self.d_int)
-		self.As = np.pi * self.d_ext * self.L
+		self.As = np.pi * self.d_ext
 		
 		# Create the thermal model object
 		model = ThermalModel1D(self.TAmb)
@@ -320,6 +320,14 @@ class CryogenicPipe(NumericalModel):
 		self.QRad_x[:, 0] = cellCenters
 		self.QRad_x[:, 1] = model.QRad()
 		self.QRadSum = self.QRight - self.QLeft
+		
+# 		import csv
+# 		import os
+# 		print os.getcwd()
+# 		with open('res.csv', 'w') as fRes:
+# 			writer = csv.writer(fRes)
+# 			for i in range(len(model.T)):
+# 				writer.writerow([cellCenters[i], model.T[i], model.QRad[i]])
 		
 		# Conduction vs. x
 		self.cond_x = np.zeros((self.n + 1, 2))
