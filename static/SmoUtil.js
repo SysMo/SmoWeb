@@ -829,9 +829,7 @@ smoModule.directive('smoFieldGroup', ['$compile', 'util', function($compile, uti
 						groupFields.push('<div ' + showFieldCode + ' smo-bool view-type="input" field-var="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
 					if (scope.viewType == 'output')
 						groupFields.push('<div ' + showFieldCode + ' smo-bool view-type="output" field-var="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
-				} else if (field.type == 'PlotView') {
-					groupFields.push('<div ' + showFieldCode + ' smo-plot field-var="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
-				}				
+				}			
 			}
 			
 			var template;
@@ -859,6 +857,37 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 			smoViewGroup : '=',
 			smoDataSource : '='
 		},
+		controller: function($scope) {
+			$scope.exportCSV = function(field){
+				var dataLabels = $scope.smoDataSource[$scope.activeField.name][0];
+				var dataLabelsString = dataLabels.join(",");
+				var csvString = dataLabelsString + "\n";
+				
+				var dataTable = google.visualization.arrayToDataTable($scope.smoDataSource[$scope.activeField.name]);
+				var dataTableCSV = google.visualization.dataTableToCsv(dataTable);
+				
+				csvString += dataTableCSV;
+				
+				// download stuff
+			 	var blob = new Blob([csvString], {
+			 	  "type": "text/csv;charset=utf8;"			
+			 	});
+			 	var link = document.getElementById('csvElem');
+							
+			 	if(link.download !== undefined) { // feature detection
+			 	  // Browsers that support HTML5 download attribute
+			 	  link.setAttribute("href", window.URL.createObjectURL(blob));
+			 	  link.setAttribute("download", $scope.csvFileName);
+			 	 } else {
+			 		// it needs to implement server side export
+					//link.setAttribute("href", "http://www.example.com/export");
+			 		  alert("Needs to implement server side export");
+			 		  return;
+			 	}
+//	 		 	document.body.appendChild(link);
+			 	link.click();
+			}
+		},
 		link : function(scope, element, attr) {
 			var navPills = [];
 			var navPillPanes = [];
@@ -873,6 +902,9 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 				}
 				
 				if (i==0){
+					scope.activeField = field;
+					activeFieldName = field.name;
+					scope.csvFileName = activeFieldName + '.csv';
 					navPills.push('<li class="active"><a id="' + field.name + 'Tab" data-target="#' + field.name + '" role="tab" data-toggle="tab">' + field.label + '</a></li>');
 					navPillPanes.push('<div class="tab-pane active" id="' + field.name + '">');
 				} else {
@@ -901,7 +933,14 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 			template += '\
 						<div style="white-space: nowrap; background-color: white; padding :10px;">\
 							<div style="display: inline-block; vertical-align: top; cursor: pointer;">\
-								<ul class="nav nav-pills nav-stacked">' + navPills.join("") + '</ul>\
+								<ul id="' + scope.smoViewGroup.name + '" class="nav nav-pills nav-stacked">' + navPills.join("") + '</ul>\
+								<div style="margin-top: 10px;">\
+									<input style="width: 109px;" ng-model="csvFileName"></input>\
+								</div>\
+								<div>\
+									<button ng-click=exportCSV()>Export as CSV</button>\
+								</div>\
+								<a id="csvElem" hidden></a>\
 							</div>\
 							<div class="tab-content" style="display: inline-block; padding-left: 7px;">'
 								+ navPillPanes.join("") + 
@@ -912,6 +951,13 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 	        compiled = $compile(el);
 	        element.append(el);
 	        compiled(scope);
+	        
+	        angular.element('#' + scope.smoViewGroup.name + ' a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+				  scope.activeTabId = e.target.id; // activated tab
+				  activeFieldName = scope.activeTabId.slice(0, -3);
+				  scope.activeField = scope.fields[activeFieldName];
+				  scope.csvFileName = activeFieldName + '.csv';
+				});
 		}	
 	}
 }]);

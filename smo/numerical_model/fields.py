@@ -221,6 +221,9 @@ class TableView(Field):
 			raise TypeError('The value of TableView must be a numpy array')
 		
 	def toFormDict(self):
+		if ('title' not in self.options.keys()):
+			self.options['title'] = self.label
+		
 		fieldDict = {
 			'name': self._name, 
 			'label': self.label, 
