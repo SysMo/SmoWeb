@@ -4,14 +4,40 @@ from collections import OrderedDict
 Solids = OrderedDict((
 	('Aluminium6061', {'label' : 'aluminium 6061',
 		'refValues' : {
-			'density' : 2700
+			'density' : 2700.
 		}
 	}),
 	('StainlessSteel304', {'label' : 'stainless steel 304', 
 		'refValues' : {
-			'density' : 7800
+			'density' : 7800.
+		},
+		'thermalCond_T': {
+			'T': [20.0 , 50.0 , 75.0 , 100.0 , 125.0 , 150.0 , 175.0 , 200.0 , 225.0 , 250.0 , 275.0 , 300.0, 400.0],
+			'cond': [1.95, 5.8, 7.94, 9.4, 10.6, 11.5, 12.3, 13, 13.6, 14.1, 14.5, 14.9, 14.9],
+		},
+		'emissivity_T':{
+			'unfinishedSurface': { 
+				'T': [0, 20.0, 40.0, 80.0, 120.0, 200.0, 300.0, 400],
+				'epsilon': [0, 0.023, 0.036, 0.051, 0.064, 0.0985, 0.1385, 0.1385]
+			}
 		}
 	}),
+	('Copper', {'label': 'copper (pure)',
+		'refValues': {
+			'density': 8960.,
+			'eResistivity': 16.78e-9,
+			'eConductivity': 5.96e7,
+			'cp':  385.,
+			'tConductivity': 401.
+		}
+	}),
+	('Polyoxymethylene', {'label': 'polyoxymethylene (POM)', 
+		'refValues': {
+			'density': 1420,
+			'tConductivity': 0.23,
+			'cp': 1500.
+		}	
+	})
 ))
 
 addKeyFieldToValues(Solids)

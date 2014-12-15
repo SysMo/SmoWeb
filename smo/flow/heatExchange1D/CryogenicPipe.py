@@ -5,58 +5,22 @@ Created on Nov 30, 2014
 '''
 
 import numpy as np
-#import pylab as plt
 from smo.numerical_model.model import NumericalModel
 from smo.numerical_model.fields import *
+from smo.smoflow3d.SimpleMaterials import Solids
 from collections import OrderedDict
 import fipy as fp
 from fipy.solvers.pysparse import LinearLUSolver
-#from fipy.boundaryConditions.fixedFlux import FixedFlux
+from scipy.interpolate import interp1d
 
 class DictObject(object):
 	def __init__(self, **kwargs):
 		for key, value in kwargs.iteritems():
 			self.__dict__[key] = value
 
-# Acs = 2.5e-6
-# d = np.sqrt(Acs * 4 / np.pi)
-# print ("d = ", d * 1e3)
-# As = np.pi * d   
-# L = 1.
-# 
-# TAmb = 20. # degC
-# h = 5 # w/m**2-K
-# 
-# Copper = DictObject(
-# 	eCond = 16.78e-9, # Ohm * m
-# 	thermalCond = 401.0, # W/m-K
-# 	cp = 385, # J/kg-K
-# 	rho = 8960, # kg/m**3
-# )
-# 
-# POM = DictObject(
-# 	thermalCond = 0.23, # W/m-K
-# 	cp = 1500, # J/kg-K
-# 	rho = 1420, # kg/m**3
-# )
-
-#def computeHeatFlux(T):
-#	return thermCond * Acs / L * (T - TAmb)
-from scipy.interpolate import interp1d
-StainlessSteel = {
-	'thermalCond_T': {
-		'T': [20.0 , 50.0 , 75.0 , 100.0 , 125.0 , 150.0 , 175.0 , 200.0 , 225.0 , 250.0 , 275.0 , 300.0, 400.0],
-		'cond': [1.95, 5.8, 7.94, 9.4, 10.6, 11.5, 12.3, 13, 13.6, 14.1, 14.5, 14.9, 14.9],
-	},
-	'emissivity_T':{
-		'T': [0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0, 110.0, 120.0, 200.0, 300.0, 400],
-		'epsilon': [0, 0.036, 0.039, 0.044, 0.048, 0.051, 0.055, 0.058, 0.062, 0.064, 0.0985, 0.1385, 0.1385]
-	}
-}
-
 sigmaSB = 5.67e-8
 
-class ThermalModel1D(object):
+class CryogenicPipeSolver(object):
 	def __init__(self, TAmb):
 		self.BCs = (None, None)
 		self.TAmb = TAmb
@@ -69,10 +33,12 @@ class ThermalModel1D(object):
 			'maxIterations': 1000,
 			'relaxationFactor': 1.0
 		}
-		self.thermCondModel = interp1d(StainlessSteel['thermalCond_T']['T'], StainlessSteel['thermalCond_T']['cond'])
-		self.emissivityModel = interp1d(StainlessSteel['emissivity_T']['T'], StainlessSteel['emissivity_T']['epsilon'])
+		material = Solids['StainlessSteel304']
+		self.thermCondModel = interp1d(material['thermalCond_T']['T'], material['thermalCond_T']['cond'])
+		emissivityData = material['emissivity_T']['unfinishedSurface']
+		self.emissivityModel = interp1d(emissivityData['T'], emissivityData['epsilon'])
 		
-	def createLinearMesh(self, L, Acs, As, n = 50): 
+	def createLinearMesh(self, L, Acs, As, n = 100): 
 		""" Define mesh """
 		# Cross sectional area
 		self.Acs = Acs
@@ -229,7 +195,7 @@ class CryogenicPipe(NumericalModel):
 	#####################
 	
 	Acs = Quantity('Area', default = (1, 'mm**2'), label = 'conduction area')
-	As = Quantity('Area', default = (1, 'mm**2'), label = 'surface area')
+	As = Quantity('Length', default = (1, 'm'), label = 'surface area / length')
 	TLeft = Quantity('Temperature', label = 'temperature (left)')
 	QLeft = Quantity('HeatFlowRate', default = (1, 'W'), label = 'heat flow (left)')
 	TRight = Quantity('Temperature', label = 'temperature (right)')
@@ -264,7 +230,7 @@ class CryogenicPipe(NumericalModel):
 		self.As = np.pi * self.d_ext
 		
 		# Create the thermal model object
-		model = ThermalModel1D(self.TAmb)
+		model = CryogenicPipeSolver(self.TAmb)
 		#model.thermalCond = self.thermalCond
 		# Create mesh
 		model.createLinearMesh(L = self.L, Acs = self.Acs, As = self.As, n = self.n)
@@ -320,15 +286,7 @@ class CryogenicPipe(NumericalModel):
 		self.QRad_x[:, 0] = cellCenters
 		self.QRad_x[:, 1] = model.QRad()
 		self.QRadSum = self.QRight - self.QLeft
-		
-# 		import csv
-# 		import os
-# 		print os.getcwd()
-# 		with open('res.csv', 'w') as fRes:
-# 			writer = csv.writer(fRes)
-# 			for i in range(len(model.T)):
-# 				writer.writerow([cellCenters[i], model.T[i], model.QRad[i]])
-		
+			
 		# Conduction vs. x
 		self.cond_x = np.zeros((self.n + 1, 2))
 		self.cond_x[:, 0] = faceCenters
@@ -361,68 +319,15 @@ class CryogenicPipe(NumericalModel):
 		pipe = CryogenicPipe()
 		pipe.compute()
 
+# 		import csv
+# 		import os
+# 		print os.getcwd()
+# 		with open('res.csv', 'w') as fRes:
+# 			writer = csv.writer(fRes)
+# 			for i in range(len(model.T)):
+# 				writer.writerow([cellCenters[i], model.T[i], model.QRad[i]])
 
 		
-class WireHeating1D(NumericalModel):
-	d = Quantity('Length', default = (2, 'mm'), label = 'diameter')
-	L = Quantity('Length', default = (1, 'm'), label = 'length')
-	n = Quantity('Dimensionless', default = 50, maxValue=200, label = 'num. elements')
-	thermalCond = Quantity('ThermalConductivity', default = 401, label = 'thermal conductivity')
-	eCond = Quantity('ElectricalConductivity', default = 5.96e7, label = 'electrical conductivity')
-	I = Quantity('ElectricalCurrent', default = (10, 'A'), label = 'electrical current')
-	g1 = FieldGroup([d, L, n, thermalCond, eCond, I], label = 'Wire')
-	
-	bcLeft = Choices(BoundaryConditionChoice, label='boundary condition (left)')
-	TLeftInput = Quantity('Temperature', default = (20, 'degC'), label = 'temperature (left)', show = 'self.bcLeft == "T"')
-	QLeftInput = Quantity('HeatFlowRate', default = (0, 'W'), label = 'heat flow (left)', show = 'self.bcLeft == "Q"')
-	bcRight = Choices(BoundaryConditionChoice, label='boundary condition (right)')
-	TRightInput = Quantity('Temperature', default = (20, 'degC'), label = 'temperature (right)', show = 'self.bcRight == "T"')
-	QRightInput = Quantity('HeatFlowRate', default = (0, 'W'), label = 'heat flow (right)', show = 'self.bcRight == "Q"')
-	h = Quantity('HeatTransferCoefficient', default = (10, 'W/m**2-K'), label = 'convection coefficient')	
-	g2 = FieldGroup([bcLeft, TLeftInput, QLeftInput, bcRight, TRightInput, QRightInput, h], label = 'Boundary conditions')
-	
-	inputs = SuperGroup([g1, g2]) 
-	#####################
-	Acs = Quantity('Area', default = (1, 'mm**2'), label = 'cross sectional area')
-	As = Quantity('Area', default = (1, 'mm**2'), label = 'surface area')
-	r1 = FieldGroup([Acs, As], label = 'Res') 
-	
-	TLeft = Quantity('Temperature', default = (20, 'degC'), label = 'temperature (left)', show = 'self.bcLeft == "T"')
-	QLeft = Quantity('HeatFlowRate', default = (0, 'W'), label = 'heat flow (left)', show = 'self.bcLeft == "Q"')
-	TRight = Quantity('Temperature', default = (20, 'degC'), label = 'temperature (right)', show = 'self.bcRight == "T"')
-	QRight = Quantity('HeatFlowRate', default = (0, 'W'), label = 'heat flow (right)', show = 'self.bcRight == "Q"')
-	
-	results = SuperGroup([r1])
-	
-	def compute(self):
-		self.Acs = np.pi/4 * self.d * self.d
-		self.As = np.pi * self.d * self.L
-		
-		# Create the thermal model object
-		model = ThermalModel1D()
-		# Create mesh
-		model.createLinearMesh(L = self.L, d = self.d, n = self.n)
-		# Set boundary conditions
-		if (self.bcLeft == 'T'):
-			model.setBoundaryConditions(0, 'T', self.TLeftInput)
-		else:
-			model.setBoundaryConditions(0, 'Q', self.QLeftInput)
-		
-		if (self.bcRight == 'T'):
-			model.setBoundaryConditions(1, 'T', self.TRightInput)
-		else:
-			model.setBoundaryConditions(1, 'Q', self.QRightInput)
-			
-# model = ThermalModel1D()
-# model.thermalCond = Copper.thermalCond
-# model.createLinearMesh(L = 1, d = 1.784e-3, n = 30)
-# #model.thermalCond = POM.thermalCond
-# #model.createRadialMesh(rMin = 0.005, rMax = 0.2, width = 3.0e-3, n = 50)
-# model.setBoundaryConditions(0, 'T', 80)
-# model.setBoundaryConditions(1, 'T', 20)
-# model.h = 5
-# model.solve()
-# print model.heatFluxes[0][0]
-# model.plotTemperature()
+
 if __name__ == '__main__':
 	CryogenicPipe.test()

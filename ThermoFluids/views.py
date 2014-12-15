@@ -40,7 +40,7 @@ class FluidPropsCalculatorView(View):
 		sd.compute()
 		return sd.superGroupList2Json([sd.satSuperGroup])
 
-from smo.simple_flow.FlowResistance import Pipe 
+from smo.flow.FlowResistance import Pipe 
 class FlowResistanceView(View):
 	def get(self, request):
 		return render_to_response('ThermoFluids/FlowResistance.html', locals(), 
@@ -59,8 +59,8 @@ class FlowResistanceView(View):
 		pipe.computePressureDrop()
 		return pipe.superGroupList2Json([Pipe.results])
 
-from smo.simple_flow.FreeConvection import FreeConvection_External
-from smo.simple_flow.FreeConvection import FreeConvection_Internal
+from smo.flow.FreeConvection import FreeConvection_External
+from smo.flow.FreeConvection import FreeConvection_Internal
 class FreeConvectionView(View):
 	def get(self, request):
 		return render_to_response('ThermoFluids/FreeConvection.html', locals(), 
@@ -90,7 +90,7 @@ class FreeConvectionView(View):
 		convection.compute()
 		return convection.superGroupList2Json([convection.results])
 	
-from smo.simple_flow.CryogenicInsulation import GasConduction
+from smo.flow.CryogenicInsulation import GasConduction
 class CryogenicInsulation(View):	
 	def get(self, request):
 		return render_to_response('ThermoFluids/CryogenicInsulation.html', locals(), 
@@ -126,7 +126,8 @@ class HeatPumpView(View):
 		hpc.compute()
 		return hpc.superGroupList2Json([hpc.results])
 
-from smo.simple_flow.HeatExchange1D import WireHeating1D, CryogenicPipe
+from smo.flow.heatExchange1D.WireHeating import WireHeating1D
+from smo.flow.heatExchange1D.CryogenicPipe import CryogenicPipe
 class HeatExchange1DView(View):
 	def get(self, request):
 		return render_to_response('ThermoFluids/HeatExchange1D.html', locals(), 
@@ -157,7 +158,7 @@ class HeatExchange1DView(View):
 		return pipe.superGroupList2Json(pipe.results)
 	
 
-from smo.simple_flow.TestModel import PlotModel
+from smo.flow.TestModel import PlotModel
 class TestView(View):
 	def get(self, request):
 		return render_to_response('ThermoFluids/TestView.html', locals(), 
