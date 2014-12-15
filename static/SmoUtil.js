@@ -903,7 +903,7 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 				
 				if (i==0){
 					scope.activeField = field;
-					activeFieldName = field.name;
+					var activeFieldName = field.name;
 					scope.csvFileName = activeFieldName + '.csv';
 					navPills.push('<li class="active"><a id="' + field.name + 'Tab" data-target="#' + field.name + '" role="tab" data-toggle="tab">' + field.label + '</a></li>');
 					navPillPanes.push('<div class="tab-pane active" id="' + field.name + '">');
@@ -954,9 +954,9 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 	        
 	        angular.element('#' + scope.smoViewGroup.name + ' a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
 				  scope.activeTabId = e.target.id; // activated tab
-				  activeFieldName = scope.activeTabId.slice(0, -3);
+				  var activeFieldName = scope.activeTabId.slice(0, -3);
 				  scope.activeField = scope.fields[activeFieldName];
-				  scope.csvFileName = activeFieldName + '.csv';
+				  scope.csvFileName =  activeFieldName + '.csv';
 				});
 		}	
 	}
