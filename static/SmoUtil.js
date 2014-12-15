@@ -873,10 +873,10 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 				}
 				
 				if (i==0){
-					navPills.push('<li class="active"><a id="' + field.name + 'Tab" data-target="#' + field.name + '" role="tab" data-toggle="tab">' + field.options.title + '</a></li>');
+					navPills.push('<li class="active"><a id="' + field.name + 'Tab" data-target="#' + field.name + '" role="tab" data-toggle="tab">' + field.label + '</a></li>');
 					navPillPanes.push('<div class="tab-pane active" id="' + field.name + '">');
 				} else {
-					navPills.push('<li><a id="' + field.name + 'Tab" data-target="#' + field.name + '" role="tab" data-toggle="tab">' + field.options.title + '</a></li>');
+					navPills.push('<li><a id="' + field.name + 'Tab" data-target="#' + field.name + '" role="tab" data-toggle="tab">' + field.label + '</a></li>');
 					navPillPanes.push('<div class="tab-pane" id="' + field.name + '">');
 				}
 				

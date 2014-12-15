@@ -205,22 +205,22 @@ class SaturationData(NumericalModel):
 # 						dataLabels = ['pressure [bar]', 'saturation temperature [K]', 'blah[kg]'],
 # 						xlog = True, ylog = True, 
 # 						options = {'title': 'Test Plot'})
-	T_p_satPlot = PlotView(dataLabels = ['pressure [bar]', 'saturation temperature [K]'], 
+	T_p_satPlot = PlotView(label = 'Temperature', dataLabels = ['pressure [bar]', 'saturation temperature [K]'], 
 							xlog = True, 
-							options = {'title': 'Temperature', 'xlabel': 'pressure'})
-	rho_p_satPlot = PlotView(dataLabels = ['pressure [bar]', 'liquid density [kg/m**3]', 'vapor density [kg/m**3]'],
-							options = {'title': 'Density', 'xlabel': 'pressure'})
-	delta_h_p_satPlot = PlotView(dataLabels = ['pressure [bar]', 'h evap [kJ/kg]'], 
+							options = {'xlabel': 'pressure [bar]'})
+	rho_p_satPlot = PlotView(label = 'Density', dataLabels = ['pressure [bar]', 'liquid density [kg/m**3]', 'vapor density [kg/m**3]'],
+							options = {'ylabel': 'density [kg/m**3]'})
+	delta_h_p_satPlot = PlotView(label = 'Evap. enthalpy', dataLabels = ['pressure [bar]', 'h evap [kJ/kg]'], 
 								xlog = True, 
-								options = {'title': 'Evap. enthalpy', 'xlabel': 'pressure'})
-	delta_s_p_satPlot = PlotView(dataLabels = ['pressure [bar]', 's evap. [kJ/kg-K]'],
+								options = {'title': 'Evaporation enthalpy'})
+	delta_s_p_satPlot = PlotView(label = 'Evap. entropy', dataLabels = ['pressure [bar]', 's evap. [kJ/kg-K]'],
 								xlog = True,  
-								options = {'title': 'Evap. entropy', 'xlabel': 'pressure'})
+								options = {'title': 'Evaporation entropy'})
 	
-	satTableView = TableView(dataLabels = ['p [bar]', 'T [K]', 'rho_L [kg/m**3]', 'rho_V [kg/m**3]', 'h_L [kJ/kg]', 
+	satTableView = TableView(label = 'Sat. table', dataLabels = ['p [bar]', 'T [K]', 'rho_L [kg/m**3]', 'rho_V [kg/m**3]', 'h_L [kJ/kg]', 
 											'h_V [kJ/kg]', 'h_V - h_L [kJ/kg]', 's_L [kJ/kg-K]', 's_V [kJ/kg-K]', 
 											's_V - s_L [kJ/kg-K]'], 
-									options = {'title': 'Sat Table', 'formats': '0.0000E0'})	
+									options = {'formats': '0.0000E0'})	
 	
 	satViewGroup = ViewGroup([T_p_satPlot, rho_p_satPlot, delta_h_p_satPlot, delta_s_p_satPlot,
 								satTableView], label="Saturation Data")
