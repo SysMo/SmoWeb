@@ -1,7 +1,7 @@
 import json
 from django.shortcuts import render_to_response, RequestContext
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
-from smo.numerical_model.quantity import Quantities
+from smo.model.quantity import Quantities
 
 # def home(request):
 #     return render_to_response('Home.html', context_instance=RequestContext(request))

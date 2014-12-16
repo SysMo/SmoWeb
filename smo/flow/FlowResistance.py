@@ -4,10 +4,10 @@ try:
 except Exception: 
 	pass
 import scipy.interpolate
-from smo.smoflow3d.CoolProp.CoolProp import FluidState
-from smo.numerical_model.fields import Quantity, ObjectReference, FieldGroup, SuperGroup, Choices
-from smo.numerical_model.model import NumericalModel
-from smo.smoflow3d.SimpleMaterials import Solids, Fluids
+from smo.media.CoolProp.CoolProp import FluidState
+from smo.model.fields import Quantity, ObjectReference, FieldGroup, SuperGroup, Choices
+from smo.model.model import NumericalModel
+from smo.media.SimpleMaterials import Solids, Fluids
 import json
 
 class Pipe(NumericalModel):

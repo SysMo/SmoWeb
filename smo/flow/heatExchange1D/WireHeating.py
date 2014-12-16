@@ -4,9 +4,9 @@ Created on Dec 15, 2014
 @author: Atanas Pavlov
 '''
 import numpy as np
-from smo.numerical_model.model import NumericalModel
-from smo.numerical_model.fields import *
-from smo.smoflow3d.SimpleMaterials import Solids
+from smo.model.model import NumericalModel
+from smo.model.fields import *
+from smo.media.SimpleMaterials import Solids
 from collections import OrderedDict
 
 class WireHeatingSolver(object):

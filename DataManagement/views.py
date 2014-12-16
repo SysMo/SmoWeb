@@ -7,7 +7,7 @@ import os.path
 from smo.util.django_utils import handle_uploaded_file, TemporaryObjectsHash
 from smo.data.hdf import CSV2HDFImporter, HDFInterface
 from decimal import Decimal
-from smo.numerical_model.quantity import Quantities
+from smo.model.quantity import Quantities
 
 # Create your views here.
 

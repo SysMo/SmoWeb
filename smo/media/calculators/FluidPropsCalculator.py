@@ -4,11 +4,11 @@ Created on Nov 05, 2014
 '''
 import numpy as np
 from collections import OrderedDict
-from smo.numerical_model.model import NumericalModel 
-from smo.numerical_model.fields import *
-from smo.smoflow3d.CoolProp.CoolProp import Fluid, FluidState
-from smo.smoflow3d.SimpleMaterials import Fluids
-from smo.smoflow3d.CoolProp.CoolPropReferences import References
+from smo.model.model import NumericalModel 
+from smo.model.fields import *
+from smo.media.CoolProp.CoolProp import Fluid, FluidState
+from smo.media.SimpleMaterials import Fluids
+from smo.media.CoolProp.CoolPropReferences import References
 
 StateVariableOptions = OrderedDict((
 	('P', 'pressure (P)'),

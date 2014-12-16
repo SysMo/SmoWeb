@@ -1,13 +1,13 @@
 import json
 from django.shortcuts import render_to_response, RequestContext
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
-from smo.numerical_model.quantity import Quantities
-from smo.smoflow3d.SimpleMaterials import Fluids
+from smo.model.quantity import Quantities
+from smo.media.SimpleMaterials import Fluids
 from collections import OrderedDict
 from smo.django.view import SmoJsonResponse, View
 from smo.django.view import action
 
-from smo.smoflow3d.calculators.FluidPropsCalculator import FluidPropsCalculator, FluidInfo, SaturationData
+from smo.media.calculators.FluidPropsCalculator import FluidPropsCalculator, FluidInfo, SaturationData
 class FluidPropsCalculatorView(View):
 	def get(self, request):
 		return render_to_response('ThermoFluids/FluidPropsCalculator.html', locals(), 
@@ -108,7 +108,7 @@ class CryogenicInsulation(View):
 		gc.compute()		
 		return gc.superGroupList2Json([gc.results])
 	
-from smo.smoflow3d.calculators.CycleCalculator import HeatPumpCalculator
+from smo.media.calculators.CycleCalculator import HeatPumpCalculator
 class HeatPumpView(View):
 	def get(self, request):
 		return render_to_response('ThermoFluids/HeatPump.html', locals(), 

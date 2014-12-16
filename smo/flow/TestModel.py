@@ -1,8 +1,8 @@
-from smo.numerical_model.model import NumericalModel
-from smo.numerical_model.fields import *
+from smo.model.model import NumericalModel
+from smo.model.fields import *
 import numpy as np
-from smo.smoflow3d.SimpleMaterials import Fluids
-from smo.smoflow3d.CoolProp.CoolProp import Fluid, FluidState
+from smo.media.SimpleMaterials import Fluids
+from smo.media.CoolProp.CoolProp import Fluid, FluidState
 from collections import OrderedDict
 
 data = np.array([[1,2],[2,3],[3,4]])

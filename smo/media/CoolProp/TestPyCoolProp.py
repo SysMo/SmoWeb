@@ -1,4 +1,4 @@
-from smo.smoflow3d.CoolProp.CoolProp import Fluid, FluidState
+from smo.media.CoolProp.CoolProp import Fluid, FluidState
 
 def testFluid():
 	#f = Fluid('R134a')
