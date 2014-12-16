@@ -43,7 +43,7 @@ angular.module('HeatPump', ['ui.bootstrap', 'smo'])
 				<img src="{% static 'ThermoFluids/HeatPump.svg' %}"></img>
 			</div>		
 			<div smo-model-view="heatPumpInputs" view-type="input" communicator="heatPump.inputCommunicator"></div>
-			<div class="section" style="margin-left: 20px;"> 		
+			<div class="section"> 		
 				<div ng-show="heatPump.inputCommunicator.dataReceived"><button ng-disabled="!heatPump.inputCommunicator.fieldsValid" 
 					 class="btn btn-default" ng-click="compute()">Compute</button>
 				</div>

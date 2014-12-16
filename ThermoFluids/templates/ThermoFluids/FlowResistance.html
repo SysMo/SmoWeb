@@ -43,7 +43,7 @@ angular.module('FlowResistance', ['ui.bootstrap', 'smo'])
 				<img src="{% static 'ThermoFluids/StraightPipe.svg' %}"></img>
 			</div>
 			<div smo-model-view="flowResistanceInputs" view-type="input" communicator="flowResistance.inputCommunicator"></div>
-			<div class="section" style="margin-left: 20px;"> 		
+			<div class="section"> 		
 				<div ng-show="flowResistance.inputCommunicator.dataReceived"><button ng-disabled="!flowResistance.inputCommunicator.fieldsValid" 
 					 class="btn btn-default" ng-click="compute()">Compute</button>
 				</div>
