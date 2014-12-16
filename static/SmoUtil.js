@@ -711,11 +711,35 @@ smoModule.directive('smoPlot', ['$compile', function($compile) {
 			smoDataSource : '='
 		},
 		controller: function($scope) {
+			
 			$scope.plotData = function() {
 				$scope.chart = new Dygraph(document.getElementById($scope.fieldVar.name + 'PlotDiv'), 
 						$scope.smoDataSource[$scope.fieldVar.name],
 						$scope.fieldVar.options);
 			}
+			
+			$scope.pngFileName = $scope.fieldVar.name + '.png';
+			
+			$scope.exportPNG = function(){
+				var img = document.getElementById($scope.fieldVar.name + 'Img');
+				Dygraph.Export.asPNG($scope.chart, img);
+				
+				var link = document.getElementById($scope.fieldVar.name + 'PngElem');
+				
+			 	if(link.download !== undefined) { // feature detection
+			 	  // Browsers that support HTML5 download attribute
+			 	  link.setAttribute("href", img.src);
+			 	  link.setAttribute("download", $scope.pngFileName);
+			 	 } else {
+			 		// it needs to implement server side export
+					//link.setAttribute("href", "http://www.example.com/export");
+			 		  alert("Needs to implement server side export");
+			 		  return;
+			 	}
+			 	
+			 	link.click();
+			}
+			
 		},
 		link : function(scope, element, attr) {
 			var template = '\
@@ -724,6 +748,13 @@ smoModule.directive('smoPlot', ['$compile', function($compile) {
 							</div>\
 							<div style="margin-left: 55px; margin-top: 10px;">\
 								<div id="' + scope.fieldVar.name + 'LegendDiv"></div>\
+							</div>\
+							<div style = "margin-top: 10px; margin-bottom: 10px;">\
+								Export plot&nbsp\
+								<input ng-model="pngFileName"></input>\
+								<button ng-click="exportPNG()"><span style="color:#428BCA" class="glyphicon glyphicon-download-alt"></span></button>\
+								<img id="' + scope.fieldVar.name + 'Img" hidden>\
+								<a id="' + scope.fieldVar.name + 'PngElem" hidden></a>\
 							</div>';
 
 			var el = angular.element(template);
@@ -745,8 +776,6 @@ smoModule.directive('smoTable', ['$compile', function($compile) {
 			smoDataSource : '='
 		},
 		controller: function($scope) {
-			$scope.csvFileName = $scope.fieldVar.name + '.csv';
-			
 			$scope.drawTable = function() {				
 				var tableArray = $scope.smoDataSource[$scope.fieldVar.name];
 				
@@ -775,6 +804,8 @@ smoModule.directive('smoTable', ['$compile', function($compile) {
 				
 				tableView.draw($scope.dataTable, {showRowNumber: true, sort:'disable', page:'enable', pageSize:14});
 			}
+			
+			$scope.csvFileName = $scope.fieldVar.name + '.csv';
 			
 			$scope.exportCSV = function(){
 				var dataLabels = $scope.smoDataSource[$scope.fieldVar.name][0];
