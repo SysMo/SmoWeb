@@ -439,7 +439,7 @@ smoModule.factory('variables', ['util', function(util) {
 		this.updateValues = function(index, inputError){
 			if (inputError) {
 				return;
-			} 
+			}
 			this.unitsArr[index][1] = Number(this.unitsArr[index][2]);
 			if (this.unitsArr[index][0] != this.SIUnit) {
 				unitDef = units[this.unitsArr[index][0]];
@@ -745,6 +745,8 @@ smoModule.directive('smoTable', ['$compile', function($compile) {
 			smoDataSource : '='
 		},
 		controller: function($scope) {
+			$scope.csvFileName = $scope.fieldVar.name + '.csv';
+			
 			$scope.drawTable = function() {				
 				var tableArray = $scope.smoDataSource[$scope.fieldVar.name];
 				
@@ -773,9 +775,45 @@ smoModule.directive('smoTable', ['$compile', function($compile) {
 				
 				tableView.draw($scope.dataTable, {showRowNumber: true, sort:'disable', page:'enable', pageSize:14});
 			}
+			
+			$scope.exportCSV = function(){
+				var dataLabels = $scope.smoDataSource[$scope.fieldVar.name][0];
+				var dataLabelsString = dataLabels.join(",");
+				var csvString = dataLabelsString + "\n";
+				
+				var dataTable = google.visualization.arrayToDataTable($scope.smoDataSource[$scope.fieldVar.name]);
+				var dataTableCSV = google.visualization.dataTableToCsv(dataTable);
+				
+				csvString += dataTableCSV;
+				
+				// download stuff
+			 	var blob = new Blob([csvString], {
+			 	  "type": "text/csv;charset=utf8;"			
+			 	});
+			 	var link = document.getElementById($scope.fieldVar.name + 'CsvElem');
+							
+			 	if(link.download !== undefined) { // feature detection
+			 	  // Browsers that support HTML5 download attribute
+			 	  link.setAttribute("href", window.URL.createObjectURL(blob));
+			 	  link.setAttribute("download", $scope.csvFileName);
+			 	 } else {
+			 		// it needs to implement server side export
+					//link.setAttribute("href", "http://www.example.com/export");
+			 		  alert("Needs to implement server side export");
+			 		  return;
+			 	}
+//	 		 	document.body.appendChild(link);
+			 	link.click();
+			}
 		},
 		link : function(scope, element, attr) {
-			var template = '<div id="' + scope.fieldVar.name + 'TableDiv"></div>';  
+			var template = '<div id="' + scope.fieldVar.name + 'TableDiv"></div>\
+			<div style = "margin-top: 10px; margin-bottom: 10px;">\
+				Export data&nbsp\
+				<input ng-model="csvFileName"></input>\
+				<button ng-click="exportCSV()"><span style="color:#428BCA" class="glyphicon glyphicon-download-alt"></span></button>\
+				<a id="' + scope.fieldVar.name + 'CsvElem" hidden></a>\
+			</div>';  
 
 			var el = angular.element(template);
 	        compiled = $compile(el);
@@ -858,35 +896,7 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 			smoDataSource : '='
 		},
 		controller: function($scope) {
-			$scope.exportCSV = function(field){
-				var dataLabels = $scope.smoDataSource[$scope.activeField.name][0];
-				var dataLabelsString = dataLabels.join(",");
-				var csvString = dataLabelsString + "\n";
-				
-				var dataTable = google.visualization.arrayToDataTable($scope.smoDataSource[$scope.activeField.name]);
-				var dataTableCSV = google.visualization.dataTableToCsv(dataTable);
-				
-				csvString += dataTableCSV;
-				
-				// download stuff
-			 	var blob = new Blob([csvString], {
-			 	  "type": "text/csv;charset=utf8;"			
-			 	});
-			 	var link = document.getElementById('csvElem');
-							
-			 	if(link.download !== undefined) { // feature detection
-			 	  // Browsers that support HTML5 download attribute
-			 	  link.setAttribute("href", window.URL.createObjectURL(blob));
-			 	  link.setAttribute("download", $scope.csvFileName);
-			 	 } else {
-			 		// it needs to implement server side export
-					//link.setAttribute("href", "http://www.example.com/export");
-			 		  alert("Needs to implement server side export");
-			 		  return;
-			 	}
-//	 		 	document.body.appendChild(link);
-			 	link.click();
-			}
+			
 		},
 		link : function(scope, element, attr) {
 			var navPills = [];
@@ -902,9 +912,7 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 				}
 				
 				if (i==0){
-					scope.activeField = field;
-					var activeFieldName = field.name;
-					scope.csvFileName = activeFieldName + '.csv';
+//					scope.activeField = field;
 					navPills.push('<li class="active"><a id="' + field.name + 'Tab" data-target="#' + field.name + '" role="tab" data-toggle="tab">' + field.label + '</a></li>');
 					navPillPanes.push('<div class="tab-pane active" id="' + field.name + '">');
 				} else {
@@ -933,14 +941,7 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 			template += '\
 						<div style="white-space: nowrap; background-color: white; padding :10px;">\
 							<div style="display: inline-block; vertical-align: top; cursor: pointer;">\
-								<ul id="' + scope.smoViewGroup.name + '" class="nav nav-pills nav-stacked">' + navPills.join("") + '</ul>\
-								<div style="margin-top: 10px;">\
-									<input style="width: 109px;" ng-model="csvFileName"></input>\
-								</div>\
-								<div>\
-									<button ng-click=exportCSV()>Export as CSV</button>\
-								</div>\
-								<a id="csvElem" hidden></a>\
+								<ul class="nav nav-pills nav-stacked">' + navPills.join("") + '</ul>\
 							</div>\
 							<div class="tab-content" style="display: inline-block; padding-left: 7px;">'
 								+ navPillPanes.join("") + 
@@ -950,14 +951,16 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 			var el = angular.element(template);
 	        compiled = $compile(el);
 	        element.append(el);
-	        compiled(scope);
 	        
-	        angular.element('#' + scope.smoViewGroup.name + ' a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-				  scope.activeTabId = e.target.id; // activated tab
-				  var activeFieldName = scope.activeTabId.slice(0, -3);
-				  scope.activeField = scope.fields[activeFieldName];
-				  scope.csvFileName =  activeFieldName + '.csv';
-				});
+//	        angular.element('#' + scope.smoViewGroup.name + ' a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+//        		scope.activeTabId = e.target.id; // activated tab
+//        		var activeFieldName = scope.activeTabId.slice(0, -3);
+//        		scope.activeField = scope.fields[activeFieldName];
+//				scope.csvFileName =  scope.activeField.name + '.csv';
+//				scope.$digest();
+//				});
+	        
+	        compiled(scope);
 		}	
 	}
 }]);
