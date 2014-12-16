@@ -221,6 +221,9 @@ class TableView(Field):
 			raise TypeError('The value of TableView must be a numpy array')
 		
 	def toFormDict(self):
+		if ('title' not in self.options.keys()):
+			self.options['title'] = self.label
+		
 		fieldDict = {
 			'name': self._name, 
 			'label': self.label, 
@@ -275,6 +278,9 @@ class PlotView(Field):
 		return value.tolist()
 
 	def toFormDict(self):
+		if ('title' not in self.options.keys()):
+			self.options['title'] = self.label
+			
 		if ('width' not in self.options.keys()):
 			self.options['width'] = 700
 		
@@ -282,6 +288,13 @@ class PlotView(Field):
 			self.options['height'] = 400
 		
 		self.options['labels'] = self.dataLabels
+		
+		if ('xlabel' not in self.options.keys()):
+			self.options['xlabel'] = self.dataLabels[0]
+		
+		if ('ylabel' not in self.options.keys()):
+			self.options['ylabel'] = self.dataLabels[1]
+		
 		self.options['labelsDiv'] = self._name + 'LegendDiv'
 		
 		if ('labelsDivWidth' not in self.options.keys()):
