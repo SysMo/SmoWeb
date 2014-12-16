@@ -35,7 +35,6 @@ angular.module('SmoConvert', ['ui.bootstrap', 'smo'])
 			}
 		}
 		$scope.choiceVar = $scope.quantities[Object.keys($scope.quantities)[0]];
-		console.log($scope.choiceVar.unitsArr);
 	}
 }])
 </script>
@@ -48,7 +47,7 @@ angular.module('SmoConvert', ['ui.bootstrap', 'smo'])
 <div ng-app="SmoConvert" ng-controller="SmoConvertController">
 	<div class="page-container">
 		<h1 class="title">Unit converter</h1>
-		<div class="section">
+		<div class="section" style="text-align: center;">
 			<div ng-if="unitConverter.communicator.loading" class="alert alert-info" role="alert">Loading...</div>
 			<div ng-if="unitConverter.communicator.commError" class="alert alert-danger" role="alert">Communication error: <span ng-bind="unitConverter.communicator.errorMsg"></span></div>
 			<div ng-if="unitConverter.communicator.serverError" class="alert alert-danger" role="alert">Server error: <span ng-bind="unitConverter.communicator.errorMsg"></span>
