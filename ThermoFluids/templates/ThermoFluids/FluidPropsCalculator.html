@@ -83,39 +83,9 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 				$scope.saturation.selectedFluid = comm.data[0][0];
 			});
 		
-// 		$scope.plotData = function() {
-// 			$scope.xAxis = 0;
-// 			$scope.chart = new Dygraph(document.getElementById('plot_div'), $scope.saturation.resultsCommunicator.data.array,
-// 					{
-// 						labels: $scope.saturation.resultsCommunicator.data.labels,
-// 						labelsDiv: 'dylegend',
-// 						labelsDivWidth: 150,
-// 						labelsSeparateLines: true,
-// 						width: 700,
-// 						height: 400,
-// 						xlabel: $scope.saturation.resultsCommunicator.data.labels[0],
-// 						ylabel: $scope.saturation.resultsCommunicator.data.labels[1],
-// 						axes : { x : {  logscale : true }}
-// 			        });	
-// 		}
-		
-		
-		
 		$scope.fetchSaturationData = function (){
 			$scope.saturation.resultsCommunicator.fetchData(
-					'getSaturationData', {fluidName : $scope.saturation.selectedFluid});
-// 					,function(comm){
-// // 						$scope.plotData();
-// 						$scope.plotObject = {name: 'saturationPlot', 
-// 								title: $scope.saturation.selectedFluid,
-// 								data: $scope.saturation.resultsCommunicator.data.array, 
-// 								labels: $scope.saturation.resultsCommunicator.data.labels,
-// 								formats: $scope.saturation.resultsCommunicator.data.formats,
-// 								xlabel: $scope.saturation.resultsCommunicator.data.labels[0],
-// 								ylabel: $scope.saturation.resultsCommunicator.data.labels[1],
-// 								xlogscale: true,
-// 								ylogscale: false};
-// 					});			
+					'getSaturationData', {fluidName : $scope.saturation.selectedFluid});	
 		}
 }])
 </script>

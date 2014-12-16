@@ -8,7 +8,7 @@
 }
 
 /* Field group */
-[smo-field-group] {
+[smo-field-group], .converter {
 	display: inline-block;
 	margin-bottom: 20px;
 	margin-right: 70px;
@@ -137,9 +137,6 @@
 .converter {
 	margin-top: 40px;
 	text-align: center;
-}
-
-.converter > .super-group {
 	border-style: solid; 
 	border-top: none; 
 	border-color: #DDD; 

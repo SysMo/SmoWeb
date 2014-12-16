@@ -438,6 +438,7 @@ smoModule.factory('variables', ['util', function(util) {
 		
 		this.updateValues = function(index, inputError){
 			if (inputError) {
+				console.log('here');
 				return;
 			} 
 			this.unitsArr[index][1] = Number(this.unitsArr[index][2]);

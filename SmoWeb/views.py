@@ -1,24 +1,19 @@
 import json
 from django.shortcuts import render_to_response, RequestContext
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.http import JsonResponse
 from smo.model.quantity import Quantities
+from smo.django.view import action, View
 
-# def home(request):
-#     return render_to_response('Home.html', context_instance=RequestContext(request))
-
-def home(request):
-    return render_to_response('Base.html', context_instance=RequestContext(request))
-
-def unitConverterView(request):
-    if request.method == 'GET':
-        return render_to_response('UnitConverter.html', 
-                                context_instance=RequestContext(request))
-    elif request.method == 'POST':
-        postData = json.loads(request.body)
-        action = postData['action']
-        parameters = postData['parameters']
-        if (action == 'getInputs'):
-            print json.dumps(Quantities, True)
-            return JsonResponse(Quantities)
-        else:
-            raise ValueError('Unknown post action "{0}" for URL: {1}'.format(action, 'UnitConverter.html'))
+class HomeView(View):
+    def get(self, request):
+        return render_to_response('Base.html', locals(), 
+                context_instance=RequestContext(request))
+        
+class unitConverterView(View):
+    def get(self, request):
+        return render_to_response('UnitConverter.html', locals(), 
+                context_instance=RequestContext(request))
+        
+    @action('post')
+    def getQuantities(self, parameters):
+        return Quantities
