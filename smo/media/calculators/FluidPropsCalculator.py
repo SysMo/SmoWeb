@@ -75,12 +75,14 @@ class FluidPropsCalculator(NumericalModel):
 	#####
 	rho_L = Quantity('Density', label = 'density')
 	h_L = Quantity('SpecificEnthalpy', label = 'specific enthalpy')
-	s_L = Quantity('SpecificEntropy', label = 'specific entropy')
-	liquidResults = FieldGroup([rho_L, h_L, s_L], label="Liquid")
+	s_L = Quantity('SpecificEntropy', label = 'specific entropy')	
 	#####
 	rho_V = Quantity('Density', label = 'density')
 	h_V = Quantity('SpecificEnthalpy', label = 'specific enthalpy')
 	s_V = Quantity('SpecificEntropy', label = 'specific entropy')
+	#####
+	isTwoPhase = Boolean(label = 'is two phase')
+	liquidResults = FieldGroup([rho_L, h_L, s_L], label="Liquid")
 	vaporResults = FieldGroup([rho_V, h_V, s_V], label="Vapor")
 	saturationResults = SuperGroup([liquidResults, vaporResults], label="Saturation")
 	
@@ -109,7 +111,8 @@ class FluidPropsCalculator(NumericalModel):
 		self.dpdt_v = fState.dpdt_v
 		self.dpdv_t = fState.dpdv_t
 		
-		if (fState.isTwoPhase() == True):
+		self.isTwoPhase = fState.isTwoPhase()
+		if (self.isTwoPhase == True):
 			satL = fState.getSatL()			
 			satV = fState.getSatV()
 			
