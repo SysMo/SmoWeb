@@ -228,10 +228,6 @@ class FluidInfo(NumericalModel):
 class SaturationData(NumericalModel):	
 	fluidName = String(default = 'ParaHydrogen', label = 'fluid')
 	
-# 	TestPlot = PlotView(np.array([[1,2,3],[10, 20000, 300000]]),
-# 						dataLabels = ['pressure [bar]', 'saturation temperature [K]', 'blah[kg]'],
-# 						xlog = True, ylog = True, 
-# 						options = {'title': 'Test Plot'})
 	T_p_satPlot = PlotView(label = 'Temperature', dataLabels = ['pressure [bar]', 'saturation temperature [K]'], 
 							xlog = True, 
 							options = {'ylabel': 'temperature [K]'})
@@ -251,7 +247,6 @@ class SaturationData(NumericalModel):
 	
 	satViewGroup = ViewGroup([T_p_satPlot, rho_p_satPlot, delta_h_p_satPlot, delta_s_p_satPlot,
 								satTableView], label="Saturation Data")
-# 	satViewGroup = ViewGroup([T_p_satPlot], label="Saturation Data")
 	satSuperGroup = SuperGroup([satViewGroup])
 	
 	def compute(self):
