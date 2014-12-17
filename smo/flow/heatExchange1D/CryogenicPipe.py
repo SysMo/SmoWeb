@@ -84,10 +84,10 @@ class CryogenicPipeSolver(object):
 		return fp.CellVariable(mesh = self.mesh, value = sigmaSB * self.emissivity * (self.As * (self.TAmb**4 - self.T**4)))
 	@property
 	def minT(self):
-		return np.min(self.T())
+		return np.min(self.T.arithmeticFaceValue())
 	@property
 	def maxT(self):
-		return np.max(self.T())
+		return np.max(self.T.arithmeticFaceValue())
 
 
 	def setBoundaryConditions(self, side, bcType, value):
@@ -204,22 +204,24 @@ class CryogenicPipe(NumericalModel):
 	r1 = FieldGroup([Acs, As, TLeft, QLeft, TRight, QRight, QRadSum], label = 'Results') 
 	r1g = SuperGroup([r1], label = 'Values')
 
-	cond_T = PlotView(dataLabels = ['temperature [K]', 'thermal conductivity [W/m-K]'], options = {'title': 'Conductivity pipe', 'xlabel': 'temperature [K]', 'ylabel': 'thermal conductivity [W/m-K]'})
-	emiss_T = PlotView(dataLabels = ['temperature [K]', 'emissivity [-]'], options = {'title': 'Emissivity', 'xlabel': 'temperature [K]', 'ylabel': 'emissivity[-]'})
+	cond_T = PlotView(label = 'Conductivity pipe', dataLabels = ['temperature [K]', 'thermal conductivity [W/m-K]'])
+	emiss_T = PlotView(label = 'Emissivity', dataLabels = ['temperature [K]', 'emissivity [-]'])
 	r2 = ViewGroup([cond_T, emiss_T], label = 'Material properties')
 	r2g = SuperGroup([r2], label = 'Material properties')
 
-	T_x = PlotView(dataLabels = ['x position [m]', 'temperature [K]'], options = {'title': 'Temperature', 'xlabel': 'x position [m]', 'ylabel': 'temperature [K]'})
-	QAx_x = PlotView(dataLabels = ['x position [m]', 'heat flow [W]'], options = {'title': 'Axial heat flow', 'xlabel': 'x position [m]', 'ylabel': 'heat flow [W]'})
-	QRad_x = PlotView(dataLabels = ['x position [m]', 'flux density [W/m]'], options = {'title': 'Radiation flux', 'xlabel': 'x position [m]', 'ylabel': 'flux density [W/m]'})
-	cond_x = PlotView(dataLabels = ['x position [m]', 'thermal conductivity [W/m-K]'], options = {'title': 'Conductivity (pipe)', 'xlabel': 'x position [m]', 'ylabel': 'thermal conductivity [W/m-K]'})
-	emiss_x = PlotView(dataLabels = ['x position [m]', 'emissivity [-]'], options = {'title': 'Emissivity', 'xlabel': 'x position [m]', 'ylabel': 'emissivity[-]'})
-	table_x = TableView(dataLabels = ['x position [m]', 'temperature [K]', 'heat flow [W]'], options = {'title': 'Distributions (table)', 'formats': ['0.000', '0.00', '0.000E00'] })
+	T_x = PlotView(label = 'Temperature', dataLabels = ['x position [m]', 'temperature [K]'])
+	QAx_x = PlotView(label = 'Axial heat flow', dataLabels = ['x position [m]', 'heat flow [W]'])
+	QRad_x = PlotView(label = 'Radiation flux', dataLabels = ['x position [m]', 'flux density [W/m]'])
+	cond_x = PlotView(label = 'Conductivity (pipe)', dataLabels = ['x position [m]', 'thermal conductivity [W/m-K]'])
+	emiss_x = PlotView(label = 'Emissivity', dataLabels = ['x position [m]', 'emissivity [-]'])
+	table_x = TableView(label = 'Distributions (table)', dataLabels = ['x position [m]', 'temperature [K]', 'heat flow [W]'],
+			options = {'formats': ['0.000', '0.00', '0.000E00'] })
 	r3 = ViewGroup([T_x, QAx_x, QRad_x, cond_x, emiss_x, table_x], label =  'Distributions')
 	r3g = SuperGroup([r3], label = 'Distributions')
 	
-	residualPlot = PlotView(dataLabels = ['iteration #', 'residual'], ylog = True, options = {'title': 'Residual'})
-	residualTable = TableView(dataLabels = ['residual', 'TLeft', 'TRight'], options = {'title': 'Residual (table)', 'formats': ['0.0000E0', '0.000', '0.000']})
+	residualPlot = PlotView(label = 'Residual (plot)', dataLabels = ['iteration #', 'residual'], ylog = True)
+	residualTable = TableView(label = 'Residual (table)', dataLabels = ['residual', 'TLeft', 'TRight'], 
+			options = {'formats': ['0.0000E0', '0.000', '0.000']})
 	r4 = ViewGroup([residualPlot, residualTable], label = 'Convergence')
 	r4g = SuperGroup([r4], label = 'Convergence')
 	
