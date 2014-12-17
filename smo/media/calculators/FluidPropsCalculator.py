@@ -46,9 +46,9 @@ class FluidPropsCalculator(NumericalModel):
 	s2 = Quantity('SpecificEntropy', default = (100, 'kJ/kg-K'), label = 'specific entropy', show="self.stateVariable2 == 'S'")
 	q2 = Quantity('VaporQuality', default = (1, '-'), minValue = 0, maxValue = 1, label = 'vapour quality', show="self.stateVariable2 == 'Q'")
 	####
-	stateGroup1 = FieldGroup([stateVariable1, p1, T1, rho1, h1, s1, q1])
-	stateGroup2 = FieldGroup([stateVariable2, p2, T2, rho2, h2, s2, q2, fluidName])
-	inputs = SuperGroup([stateGroup1, stateGroup2], label='State inputs')
+	stateGroup1 = FieldGroup([fluidName], label = 'Fluid')
+	stateGroup2 = FieldGroup([stateVariable1, p1, T1, rho1, h1, s1, q1, stateVariable2, p2, T2, rho2, h2, s2, q2], label = 'States')
+	inputs = SuperGroup([stateGroup1, stateGroup2])
 	####
 	T = Quantity('Temperature', label = 'temperature')
 	p = Quantity('Pressure', label = 'pressure')
@@ -69,9 +69,9 @@ class FluidPropsCalculator(NumericalModel):
 	dpdt_v = Quantity('Dimensionless', label = '(dp/dT)<sub>v</sub>')
 	dpdv_t = Quantity('Dimensionless', label = '(dp/dv)<sub>T</sub>')
 	#####
-	stateVariablesResults = FieldGroup([T, p, rho, h, s, q, u])
-	derivativeResults = FieldGroup([cp, cv, gamma, Pr, cond, mu, dpdt_v, dpdv_t])
-	results = SuperGroup([stateVariablesResults, derivativeResults], label="Computed properties")
+	stateVariablesResults = FieldGroup([T, p, rho, h, s, q, u], label = 'States')
+	derivativeResults = FieldGroup([cp, cv, gamma, Pr, cond, mu, dpdt_v, dpdv_t], label = 'Derivatives & Transport')
+	props = SuperGroup([stateVariablesResults, derivativeResults], label = "Propeties")
 	#####
 	rho_L = Quantity('Density', label = 'density')
 	h_L = Quantity('SpecificEnthalpy', label = 'specific enthalpy')
@@ -84,7 +84,7 @@ class FluidPropsCalculator(NumericalModel):
 	isTwoPhase = Boolean(label = 'is two phase')
 	liquidResults = FieldGroup([rho_L, h_L, s_L], label="Liquid")
 	vaporResults = FieldGroup([rho_V, h_V, s_V], label="Vapor")
-	saturationResults = SuperGroup([liquidResults, vaporResults], label="Saturation")
+	saturationProps = SuperGroup([liquidResults, vaporResults], label="Phases")
 	
 	def getStateValue(self, sVar, index):
 		sVarDict = {'P': 'p', 'T': 'T', 'D': 'rho', 'H': 'h', 'S': 's', 'Q': 'q'}

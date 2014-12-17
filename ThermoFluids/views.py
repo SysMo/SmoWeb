@@ -24,9 +24,9 @@ class FluidPropsCalculatorView(View):
 		fpc.fieldValuesFromJson(parameters)
 		fpc.compute()
 		if (fpc.isTwoPhase == True):
-			return fpc.superGroupList2Json([fpc.results, fpc.saturationResults])
+			return fpc.superGroupList2Json([fpc.props, fpc.saturationProps])
 		else:
-			return fpc.superGroupList2Json([fpc.results])
+			return fpc.superGroupList2Json([fpc.props])
 	
 	@action('post')
 	def getFluidInfo(self, parameters):
