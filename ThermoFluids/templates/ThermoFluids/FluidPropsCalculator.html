@@ -117,7 +117,9 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 			</ul>		
 			<div class="tab-content">
 				<div ng-repeat="input in fluidProps.inputs track by $index" ng-class="'tab-pane '+ getTabClass($index)" id="FluidPoint{{$index + 1}}">					
-					<div smo-model-view="fluidPropsInputs" view-type="input" communicator="fluidProps.inputs[$index].inputCommunicator"></div>
+					<div class="section"> 
+						<div smo-model-view="fluidPropsInputs" view-type="input" communicator="fluidProps.inputs[$index].inputCommunicator"></div>
+					</div>
 					<div class="section"> 		
 						<div ng-show="fluidProps.inputs[$index].inputCommunicator.dataReceived"><button ng-disabled="!fluidProps.inputs[$index].inputCommunicator.fieldsValid" 
 							 class="btn btn-default" ng-click="compute($index)">Compute</button>

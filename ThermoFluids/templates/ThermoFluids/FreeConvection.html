@@ -55,7 +55,9 @@ angular.module('FreeConvection', ['ui.bootstrap', 'smo'])
 			<div class="title-figure">
 <!-- 				<img src="{% static '' %}" type="image/svg+xml"></object> -->
 			</div>
-			<div smo-model-view="convectionExternalInputs" view-type="input" communicator="convectionExternal.inputCommunicator"></div>
+			<div class="section">
+				<div smo-model-view="convectionExternalInputs" view-type="input" communicator="convectionExternal.inputCommunicator"></div>
+			</div>
 			<div class="section"> 		
 				<div ng-show="convectionExternal.inputCommunicator.dataReceived"><button ng-disabled="!convectionExternal.inputCommunicator.fieldsValid" 
 					 class="btn btn-default" ng-click="computeExternal()">Compute</button>
@@ -70,7 +72,9 @@ angular.module('FreeConvection', ['ui.bootstrap', 'smo'])
 			<div class="title-figure">
 <!-- 				<img src="{% static '' %}" type="image/svg+xml"></object> -->
 			</div>
-			<div smo-model-view="convectionInternalInputs" view-type="input" communicator="convectionInternal.inputCommunicator"></div>
+			<div class="section"> 
+				<div smo-model-view="convectionInternalInputs" view-type="input" communicator="convectionInternal.inputCommunicator"></div>
+			</div>
 			<div class="section"> 		
 				<div ng-show="convectionInternal.inputCommunicator.dataReceived"><button ng-disabled="!convectionInternal.inputCommunicator.fieldsValid" 
 					 class="btn btn-default" ng-click="computeInternal()">Compute</button>

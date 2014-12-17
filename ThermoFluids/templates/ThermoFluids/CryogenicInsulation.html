@@ -39,7 +39,9 @@ angular.module('CryogenicInsulation', ['ui.bootstrap', 'smo'])
 	<div class="tab-content">
 		<div class="tab-pane active page-container" id="calculator">
 			<h1 class="title">Rarefied gas conduction </h1>
-			<div smo-model-view="CryogenicInsulationInputs" view-type="input" communicator="cryogenicInsulation.inputCommunicator"></div>
+			<div class="section">
+				<div smo-model-view="CryogenicInsulationInputs" view-type="input" communicator="cryogenicInsulation.inputCommunicator"></div>
+			</div>
 			<div class="section"> 		
 				<div ng-show="cryogenicInsulation.inputCommunicator.dataReceived"><button ng-disabled="!cryogenicInsulation.inputCommunicator.fieldsValid" 
 					 class="btn btn-default" ng-click="compute()">Compute</button>

@@ -56,7 +56,9 @@ angular.module('HeatExchange1D', ['ui.bootstrap', 'smo'])
 		
 		<div class="tab-pane page-container" id="wireHeating">
 			<h1 class="title">Wire heating</h1>
-			<div smo-model-view="wireHeatingInputs" view-type="input" communicator="wireHeating.inputCommunicator"></div>
+			<div class="section">
+				<div smo-model-view="wireHeatingInputs" view-type="input" communicator="wireHeating.inputCommunicator"></div>
+			</div>
 			<div class="section">		
 				<div ng-show="wireHeating.inputCommunicator.dataReceived"><button ng-disabled="!wireHeating.inputCommunicator.fieldsValid" 
 					 class="btn btn-default" ng-click="wireHeating.compute()">Compute</button>
@@ -69,7 +71,9 @@ angular.module('HeatExchange1D', ['ui.bootstrap', 'smo'])
 		
 		<div class="tab-pane active page-container" id="cryogenicPipe">
 			<h1 class="title">Cryogenic pipe</h1>
-			<div smo-model-view="cryogenicPipeInputs" view-type="input" communicator="cryogenicPipe.inputCommunicator"></div>
+			<div class="section">
+				<div smo-model-view="cryogenicPipeInputs" view-type="input" communicator="cryogenicPipe.inputCommunicator"></div>
+			</div>
 			<div class="section">		
 				<div ng-show="cryogenicPipe.inputCommunicator.dataReceived"><button ng-disabled="!cryogenicPipe.inputCommunicator.fieldsValid" 
 					 class="btn btn-default" ng-click="cryogenicPipe.compute()">Compute</button>

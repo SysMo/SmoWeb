@@ -23,7 +23,7 @@ class FluidPropsCalculatorView(View):
 		fpc = FluidPropsCalculator()
 		fpc.fieldValuesFromJson(parameters)
 		fpc.compute()
-		return fpc.superGroupList2Json([fpc.results])
+		return fpc.superGroupList2Json([fpc.results, fpc.saturationResults])
 	
 	@action('post')
 	def getFluidInfo(self, parameters):

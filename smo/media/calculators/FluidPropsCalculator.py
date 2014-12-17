@@ -57,7 +57,6 @@ class FluidPropsCalculator(NumericalModel):
 	s = Quantity('SpecificEntropy', label = 'specific entropy')
 	q = Quantity('VaporQuality', label = 'vapor quality')
 	u = Quantity('SpecificInternalEnergy', label = 'specific internal energy')
-	stateVariablesResults = FieldGroup([T, p, rho, h, s, q, u])
 	#####
 	cp = Quantity('SpecificHeatCapacity', label = 'heat capacity (cp)')
 	cv = Quantity('SpecificHeatCapacity', label = 'heat capacity (cv)')	
@@ -69,9 +68,22 @@ class FluidPropsCalculator(NumericalModel):
 	mu = Quantity('DynamicViscosity', label = 'dynamic viscosity')
 	dpdt_v = Quantity('Dimensionless', label = '(dp/dT)<sub>v</sub>')
 	dpdv_t = Quantity('Dimensionless', label = '(dp/dv)<sub>T</sub>')
+	#####
+	stateVariablesResults = FieldGroup([T, p, rho, h, s, q, u])
 	derivativeResults = FieldGroup([cp, cv, gamma, Pr, cond, mu, dpdt_v, dpdv_t])
-	###
 	results = SuperGroup([stateVariablesResults, derivativeResults], label="Computed properties")
+	#####
+	rho_L = Quantity('Density', label = 'density')
+	h_L = Quantity('SpecificEnthalpy', label = 'specific enthalpy')
+	s_L = Quantity('SpecificEntropy', label = 'specific entropy')
+	liquidResults = FieldGroup([rho_L, h_L, s_L], label="Liquid")
+	#####
+	rho_V = Quantity('Density', label = 'density')
+	h_V = Quantity('SpecificEnthalpy', label = 'specific enthalpy')
+	s_V = Quantity('SpecificEntropy', label = 'specific entropy')
+	vaporResults = FieldGroup([rho_V, h_V, s_V], label="Vapor")
+	saturationResults = SuperGroup([liquidResults, vaporResults], label="Saturation")
+	
 	def getStateValue(self, sVar, index):
 		sVarDict = {'P': 'p', 'T': 'T', 'D': 'rho', 'H': 'h', 'S': 's', 'Q': 'q'}
 		return self.__dict__[sVarDict[sVar]+str(index)]
@@ -96,6 +108,18 @@ class FluidPropsCalculator(NumericalModel):
 		self.mu = fState.mu
 		self.dpdt_v = fState.dpdt_v
 		self.dpdv_t = fState.dpdv_t
+		
+		if (fState.isTwoPhase() == True):
+			satL = fState.getSatL()			
+			satV = fState.getSatV()
+			
+			self.rho_L = satL['rho']
+			self.h_L = satL['h']/1e3
+			self.s_L = satL['s']/1e3
+			
+			self.rho_V = satV['rho']
+			self.h_V = satV['h']/1e3
+			self.s_V = satV['s']/1e3
 			
 	@staticmethod	
 	def test():

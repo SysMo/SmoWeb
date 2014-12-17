@@ -40,7 +40,16 @@
 	margin-top: 20px;
 }
 
-[smo-super-group-set] > ul > li > a, [smo-super-group-set] > ul > li.active > a {
+
+[smo-super-group-set] > .nav-tabs > li > a, [smo-super-group-set] > .nav-tabs > li.active > a, 
+[smo-super-group-set] > .nav-tabs > li.active > a:hover, [smo-super-group-set] > .nav-tabs > li.active > a:focus {
+	cursor: pointer;
+	font-size: medium;
+	color: black;
+}
+
+/* Inactive tabs */
+[smo-super-group-set] > li > a, #FluidPointTabs.nav-tabs > li > a:hover, #FluidPointTabs.nav-tabs > li > a:focus {
 	cursor: pointer;
 }
 
@@ -126,11 +135,15 @@
 /* Active tab */
 #FluidPointTabs.nav-tabs > li.active > a, #FluidPointTabs.nav-tabs > li.active > a:hover, #FluidPointTabs.nav-tabs > li.active > a:focus {
 	cursor: pointer;
+	font-size: medium;
+	color: black;
 }
 
 /* Inactive tabs */
 #FluidPointTabs.nav-tabs > li > a, #FluidPointTabs.nav-tabs > li > a:hover, #FluidPointTabs.nav-tabs > li > a:focus {
 	cursor: pointer;
+	font-size: medium;
+	color: black;
 }
 
 /* Unit Converter specific styles */
