@@ -251,6 +251,7 @@ class SaturationData(NumericalModel):
 	
 	satViewGroup = ViewGroup([T_p_satPlot, rho_p_satPlot, delta_h_p_satPlot, delta_s_p_satPlot,
 								satTableView], label="Saturation Data")
+# 	satViewGroup = ViewGroup([T_p_satPlot], label="Saturation Data")
 	satSuperGroup = SuperGroup([satViewGroup])
 	
 	def compute(self):

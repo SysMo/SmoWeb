@@ -930,54 +930,72 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 			
 		},
 		link : function(scope, element, attr) {
-			var navPills = [];
-			var navPillPanes = [];
-			scope.fields = {};
-			
-			for (var i = 0; i < scope.smoViewGroup.fields.length; i++) {
-				var field = scope.smoViewGroup.fields[i];
-				scope.fields[field.name] = field;
-				var showFieldCode = "";
-				if (!(typeof field.show === "undefined")){
-					showFieldCode = 'ng-show="' + field.show.replace(/self/g, 'smoDataSource') + '"';
-				}
-				
-				if (i==0){
-//					scope.activeField = field;
-					navPills.push('<li class="active"><a id="' + field.name + 'Tab" data-target="#' + field.name + '" role="tab" data-toggle="tab">' + field.label + '</a></li>');
-					navPillPanes.push('<div class="tab-pane active" id="' + field.name + '">');
-				} else {
-					navPills.push('<li><a id="' + field.name + 'Tab" data-target="#' + field.name + '" role="tab" data-toggle="tab">' + field.label + '</a></li>');
-					navPillPanes.push('<div class="tab-pane" id="' + field.name + '">');
-				}
-				
-				if (field.type == 'PlotView') {
-					navPillPanes.push('<div ' + showFieldCode + ' smo-plot field-var="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
-				} else if (field.type == 'TableView') {
-					navPillPanes.push('<div ' + showFieldCode + ' smo-table field-var="fields.' + field.name + '" smo-data-source="smoDataSource" style="max-width: 840px; overflow: auto;"></div>');
-				}
-				
-				navPillPanes.push('</div>'); 
-				
-			}
-			
 			var template;
-			
 			if (scope.smoViewGroup.label) {
 				template = '<div class="field-group-label" style="margin-top: 25px;">' + scope.smoViewGroup.label + '</div><br>';
 			} else {
 				template = '<br>';
 			}
 			
-			template += '\
-						<div style="white-space: nowrap; background-color: white; padding :10px;">\
-							<div style="display: inline-block; vertical-align: top; cursor: pointer;">\
-								<ul class="nav nav-pills nav-stacked">' + navPills.join("") + '</ul>\
-							</div>\
-							<div class="tab-content" style="display: inline-block; padding-left: 7px;">'
-								+ navPillPanes.join("") + 
-							'</div>\
-						</div>';
+			if (scope.smoViewGroup.fields.length > 1) {
+				var navPills = [];
+				var navPillPanes = [];
+				scope.fields = {};
+				
+				for (var i = 0; i < scope.smoViewGroup.fields.length; i++) {
+					var field = scope.smoViewGroup.fields[i];
+					scope.fields[field.name] = field;
+					var showFieldCode = "";
+					if (!(typeof field.show === "undefined")){
+						showFieldCode = 'ng-show="' + field.show.replace(/self/g, 'smoDataSource') + '"';
+					}
+					
+					if (i==0){
+						navPills.push('<li class="active"><a id="' + field.name + 'Tab" data-target="#' + field.name + '" role="tab" data-toggle="tab">' + field.label + '</a></li>');
+						navPillPanes.push('<div class="tab-pane active" id="' + field.name + '">');
+					} else {
+						navPills.push('<li><a id="' + field.name + 'Tab" data-target="#' + field.name + '" role="tab" data-toggle="tab">' + field.label + '</a></li>');
+						navPillPanes.push('<div class="tab-pane" id="' + field.name + '">');
+					}
+					
+					if (field.type == 'PlotView') {
+						navPillPanes.push('<div ' + showFieldCode + ' smo-plot field-var="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
+					} else if (field.type == 'TableView') {
+						navPillPanes.push('<div ' + showFieldCode + ' smo-table field-var="fields.' + field.name + '" smo-data-source="smoDataSource" style="max-width: 840px; overflow: auto;"></div>');
+					}
+					
+					navPillPanes.push('</div>'); 
+					
+				}
+				
+				template += '\
+					<div style="white-space: nowrap; background-color: white; padding :10px;">\
+						<div style="display: inline-block; vertical-align: top; cursor: pointer;">\
+							<ul class="nav nav-pills nav-stacked">' + navPills.join("") + '</ul>\
+						</div>\
+						<div class="tab-content" style="display: inline-block; padding-left: 7px;">'
+							+ navPillPanes.join("") + 
+						'</div>\
+					</div>';
+				
+			} else if (scope.smoViewGroup.fields.length == 1) {
+				var field = scope.smoViewGroup.fields[0];
+				var showFieldCode = "";
+				if (!(typeof field.show === "undefined")){
+					showFieldCode = 'ng-show="' + field.show.replace(/self/g, 'smoDataSource') + '"';
+				}
+				
+				template += '\
+					<div style="white-space: nowrap; background-color: white; padding :10px; text-align: center;">';
+				
+				if (field.type == 'PlotView') {
+					template += '<div ' + showFieldCode + ' smo-plot field-var="smoViewGroup.fields[0]" smo-data-source="smoDataSource"></div>';
+				} else if (field.type == 'TableView') {
+					template += '<div ' + showFieldCode + ' smo-table field-var="smoViewGroup.fields[0]" smo-data-source="smoDataSource" style="max-width: 840px; overflow: auto;"></div>';
+				}
+				
+				template += '</div>';					
+			}
 			
 			var el = angular.element(template);
 	        compiled = $compile(el);
@@ -1092,87 +1110,6 @@ smoModule.directive('smoModelView', ['$compile', function($compile) {
 			scope.$watch(scope.formName + '.$valid', function(validity) {
 					scope.communicator.fieldsValid = validity;					
 			});	        
-		}	
-	}
-}]);
-
-
-
-smoModule.directive('converterInputView', ['$compile', 'variables', function($compile, variables) {
-	return {
-		restrict : 'A',
-		scope : {
-			it: '=converterInputView'
-		},
-		controller: function($scope, $http){
-			$scope.it.inputsObtained = false;
-			$scope.it.loading = false;
-			$scope.it.errorLoading = false;
-			$scope.it.fetchData = function(parameters) {
-				$scope.it.inputsObtained = false;
-				$scope.it.loading = true;
-				$scope.it.errorLoading = false;
-				var parameters = parameters || {};
-				$http({
-			        method  : 'POST',
-			        url     : $scope.it.dataUrl,
-			        data    : {action : $scope.it.action, parameters: parameters},
-			        headers : { 'Content-Type': 'application/x-www-form-urlencoded' }, // set the headers so angular passing info as form data (not request payload)
-			    })
-			    .success(function(data) {
-			    	$scope.it.loading = false;
-			    	$scope.it.inputsObtained = true;
-			    	$scope.it.quantities = data.data;
-			    	$scope.renderConverter();
-			    })
-			    .error(function(data) {
-			    	$scope.it.loading = false;
-			    	$scope.it.errorLoading = true;
-			    });
-			}
-			if ($scope.it.autoFetch || $scope.it.autoFetch == 'undefined'){
-				$scope.it.fetchData();
-			}
-			$scope.renderConverter = function() {
-				$scope.quantities = {};
-				for (name in $scope.it.quantities) {
-					var value = $scope.it.quantities[name];
-					if (value.SIUnit == '-')
-						continue
-					else {
-						$scope.quantities[value.title] = new variables.Quantity(name, value.title, value.nominalValue, value.SIUnit, value.units);
-					}
-				}
-				$scope.choiceVar = $scope.quantities[Object.keys($scope.quantities)[0]];
-			}
-		},
-		link : function(scope, element, attr) {
-			var template = '<div ng-if="it.loading"><h2 class="loading">Loading...</h2></div>\
-							<div ng-if="it.errorLoading"><h2 class="error">Error loading!</h2></div>\
-							<div class="converter" ng-if="it.inputsObtained">\
-								<div class="super-group">\
-									<div class="choice-group">\
-										<div class="select-text">Select a quantity:</div>\
-										<div>\
-											<select ng-model="choiceVar" ng-options="value as name for (name, value) in quantities"></select> \
-										</div>\
-									</div>\
-									<div class="results-group">\
-										<div class="field" ng-repeat="unit in choiceVar.unitsArr track by $index">\
-											<div ng-form name="Form{{$index}}" class="field-input">\
-												<input name="input" type="text" ng-pattern="/^[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$/" ng-model="unit[2]" ng-change="choiceVar.updateValues($index, Form{{$index}}.input.$error.pattern)">\
-											</div>\
-											<div class="field-label" ng-bind="unit[0]"></div>\
-											<div class="input-error" ng-show="Form{{$index}}.input.$error.pattern">Enter a valid number</div>\
-										</div>\
-									</div>\
-								</div>\
-							</div>';
-
-			var el = angular.element(template);
-	        compiled = $compile(el);
-	        element.append(el);
-	        compiled(scope);
 		}	
 	}
 }]);
