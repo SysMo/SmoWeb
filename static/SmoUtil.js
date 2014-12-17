@@ -439,7 +439,7 @@ smoModule.factory('variables', ['util', function(util) {
 		this.updateValues = function(index, inputError){
 			if (inputError) {
 				return;
-			} 
+			}
 			this.unitsArr[index][1] = Number(this.unitsArr[index][2]);
 			if (this.unitsArr[index][0] != this.SIUnit) {
 				unitDef = units[this.unitsArr[index][0]];
@@ -711,11 +711,35 @@ smoModule.directive('smoPlot', ['$compile', function($compile) {
 			smoDataSource : '='
 		},
 		controller: function($scope) {
+			
 			$scope.plotData = function() {
 				$scope.chart = new Dygraph(document.getElementById($scope.fieldVar.name + 'PlotDiv'), 
 						$scope.smoDataSource[$scope.fieldVar.name],
 						$scope.fieldVar.options);
 			}
+			
+			$scope.pngFileName = $scope.fieldVar.name + '.png';
+			
+			$scope.exportPNG = function(){
+				var img = document.getElementById($scope.fieldVar.name + 'Img');
+				Dygraph.Export.asPNG($scope.chart, img);
+				
+				var link = document.getElementById($scope.fieldVar.name + 'PngElem');
+				
+			 	if(link.download !== undefined) { // feature detection
+			 	  // Browsers that support HTML5 download attribute
+			 	  link.setAttribute("href", img.src);
+			 	  link.setAttribute("download", $scope.pngFileName);
+			 	 } else {
+			 		// it needs to implement server side export
+					//link.setAttribute("href", "http://www.example.com/export");
+			 		  alert("Needs to implement server side export");
+			 		  return;
+			 	}
+			 	
+			 	link.click();
+			}
+			
 		},
 		link : function(scope, element, attr) {
 			var template = '\
@@ -724,6 +748,13 @@ smoModule.directive('smoPlot', ['$compile', function($compile) {
 							</div>\
 							<div style="margin-left: 55px; margin-top: 10px;">\
 								<div id="' + scope.fieldVar.name + 'LegendDiv"></div>\
+							</div>\
+							<div style = "margin-top: 10px; margin-bottom: 10px;">\
+								Export plot&nbsp\
+								<input ng-model="pngFileName"></input>\
+								<button ng-click="exportPNG()"><span style="color:#428BCA" class="glyphicon glyphicon-download-alt"></span></button>\
+								<img id="' + scope.fieldVar.name + 'Img" hidden>\
+								<a id="' + scope.fieldVar.name + 'PngElem" hidden></a>\
 							</div>';
 
 			var el = angular.element(template);
@@ -773,9 +804,47 @@ smoModule.directive('smoTable', ['$compile', function($compile) {
 				
 				tableView.draw($scope.dataTable, {showRowNumber: true, sort:'disable', page:'enable', pageSize:14});
 			}
+			
+			$scope.csvFileName = $scope.fieldVar.name + '.csv';
+			
+			$scope.exportCSV = function(){
+				var dataLabels = $scope.smoDataSource[$scope.fieldVar.name][0];
+				var dataLabelsString = dataLabels.join(",");
+				var csvString = dataLabelsString + "\n";
+				
+				var dataTable = google.visualization.arrayToDataTable($scope.smoDataSource[$scope.fieldVar.name]);
+				var dataTableCSV = google.visualization.dataTableToCsv(dataTable);
+				
+				csvString += dataTableCSV;
+				
+				// download stuff
+			 	var blob = new Blob([csvString], {
+			 	  "type": "text/csv;charset=utf8;"			
+			 	});
+			 	var link = document.getElementById($scope.fieldVar.name + 'CsvElem');
+							
+			 	if(link.download !== undefined) { // feature detection
+			 	  // Browsers that support HTML5 download attribute
+			 	  link.setAttribute("href", window.URL.createObjectURL(blob));
+			 	  link.setAttribute("download", $scope.csvFileName);
+			 	 } else {
+			 		// it needs to implement server side export
+					//link.setAttribute("href", "http://www.example.com/export");
+			 		  alert("Needs to implement server side export");
+			 		  return;
+			 	}
+//	 		 	document.body.appendChild(link);
+			 	link.click();
+			}
 		},
 		link : function(scope, element, attr) {
-			var template = '<div id="' + scope.fieldVar.name + 'TableDiv"></div>';  
+			var template = '<div id="' + scope.fieldVar.name + 'TableDiv"></div>\
+			<div style = "margin-top: 10px; margin-bottom: 10px;">\
+				Export data&nbsp\
+				<input ng-model="csvFileName"></input>\
+				<button ng-click="exportCSV()"><span style="color:#428BCA" class="glyphicon glyphicon-download-alt"></span></button>\
+				<a id="' + scope.fieldVar.name + 'CsvElem" hidden></a>\
+			</div>';  
 
 			var el = angular.element(template);
 	        compiled = $compile(el);
@@ -858,106 +927,89 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 			smoDataSource : '='
 		},
 		controller: function($scope) {
-			$scope.exportCSV = function(field){
-				var dataLabels = $scope.smoDataSource[$scope.activeField.name][0];
-				var dataLabelsString = dataLabels.join(",");
-				var csvString = dataLabelsString + "\n";
-				
-				var dataTable = google.visualization.arrayToDataTable($scope.smoDataSource[$scope.activeField.name]);
-				var dataTableCSV = google.visualization.dataTableToCsv(dataTable);
-				
-				csvString += dataTableCSV;
-				
-				// download stuff
-			 	var blob = new Blob([csvString], {
-			 	  "type": "text/csv;charset=utf8;"			
-			 	});
-			 	var link = document.getElementById('csvElem');
-							
-			 	if(link.download !== undefined) { // feature detection
-			 	  // Browsers that support HTML5 download attribute
-			 	  link.setAttribute("href", window.URL.createObjectURL(blob));
-			 	  link.setAttribute("download", $scope.csvFileName);
-			 	 } else {
-			 		// it needs to implement server side export
-					//link.setAttribute("href", "http://www.example.com/export");
-			 		  alert("Needs to implement server side export");
-			 		  return;
-			 	}
-//	 		 	document.body.appendChild(link);
-			 	link.click();
-			}
+			
 		},
 		link : function(scope, element, attr) {
-			var navPills = [];
-			var navPillPanes = [];
-			scope.fields = {};
-			
-			for (var i = 0; i < scope.smoViewGroup.fields.length; i++) {
-				var field = scope.smoViewGroup.fields[i];
-				scope.fields[field.name] = field;
-				var showFieldCode = "";
-				if (!(typeof field.show === "undefined")){
-					showFieldCode = 'ng-show="' + field.show.replace(/self/g, 'smoDataSource') + '"';
-				}
-				
-				if (i==0){
-					scope.activeField = field;
-					var activeFieldName = field.name;
-					scope.csvFileName = activeFieldName + '.csv';
-					navPills.push('<li class="active"><a id="' + field.name + 'Tab" data-target="#' + field.name + '" role="tab" data-toggle="tab">' + field.label + '</a></li>');
-					navPillPanes.push('<div class="tab-pane active" id="' + field.name + '">');
-				} else {
-					navPills.push('<li><a id="' + field.name + 'Tab" data-target="#' + field.name + '" role="tab" data-toggle="tab">' + field.label + '</a></li>');
-					navPillPanes.push('<div class="tab-pane" id="' + field.name + '">');
-				}
-				
-				if (field.type == 'PlotView') {
-					navPillPanes.push('<div ' + showFieldCode + ' smo-plot field-var="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
-				} else if (field.type == 'TableView') {
-					navPillPanes.push('<div ' + showFieldCode + ' smo-table field-var="fields.' + field.name + '" smo-data-source="smoDataSource" style="max-width: 840px; overflow: auto;"></div>');
-				}
-				
-				navPillPanes.push('</div>'); 
-				
-			}
-			
 			var template;
-			
 			if (scope.smoViewGroup.label) {
 				template = '<div class="field-group-label" style="margin-top: 25px;">' + scope.smoViewGroup.label + '</div><br>';
 			} else {
 				template = '<br>';
 			}
 			
-			template += '\
-						<div style="white-space: nowrap; background-color: white; padding :10px;">\
-							<div style="display: inline-block; vertical-align: top; cursor: pointer;">\
-								<ul id="' + scope.smoViewGroup.name + '" class="nav nav-pills nav-stacked">' + navPills.join("") + '</ul>\
-								<div style="margin-top: 10px;">\
-									<input style="width: 109px;" ng-model="csvFileName"></input>\
-								</div>\
-								<div>\
-									<button ng-click=exportCSV()>Export as CSV</button>\
-								</div>\
-								<a id="csvElem" hidden></a>\
-							</div>\
-							<div class="tab-content" style="display: inline-block; padding-left: 7px;">'
-								+ navPillPanes.join("") + 
-							'</div>\
-						</div>';
+			if (scope.smoViewGroup.fields.length > 1) {
+				var navPills = [];
+				var navPillPanes = [];
+				scope.fields = {};
+				
+				for (var i = 0; i < scope.smoViewGroup.fields.length; i++) {
+					var field = scope.smoViewGroup.fields[i];
+					scope.fields[field.name] = field;
+					var showFieldCode = "";
+					if (!(typeof field.show === "undefined")){
+						showFieldCode = 'ng-show="' + field.show.replace(/self/g, 'smoDataSource') + '"';
+					}
+					
+					if (i==0){
+						navPills.push('<li class="active"><a id="' + field.name + 'Tab" data-target="#' + field.name + '" role="tab" data-toggle="tab">' + field.label + '</a></li>');
+						navPillPanes.push('<div class="tab-pane active" id="' + field.name + '">');
+					} else {
+						navPills.push('<li><a id="' + field.name + 'Tab" data-target="#' + field.name + '" role="tab" data-toggle="tab">' + field.label + '</a></li>');
+						navPillPanes.push('<div class="tab-pane" id="' + field.name + '">');
+					}
+					
+					if (field.type == 'PlotView') {
+						navPillPanes.push('<div ' + showFieldCode + ' smo-plot field-var="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
+					} else if (field.type == 'TableView') {
+						navPillPanes.push('<div ' + showFieldCode + ' smo-table field-var="fields.' + field.name + '" smo-data-source="smoDataSource" style="max-width: 840px; overflow: auto;"></div>');
+					}
+					
+					navPillPanes.push('</div>'); 
+					
+				}
+				
+				template += '\
+					<div style="white-space: nowrap; background-color: white; padding :10px;">\
+						<div style="display: inline-block; vertical-align: top; cursor: pointer;">\
+							<ul class="nav nav-pills nav-stacked">' + navPills.join("") + '</ul>\
+						</div>\
+						<div class="tab-content" style="display: inline-block; padding-left: 7px;">'
+							+ navPillPanes.join("") + 
+						'</div>\
+					</div>';
+				
+			} else if (scope.smoViewGroup.fields.length == 1) {
+				var field = scope.smoViewGroup.fields[0];
+				var showFieldCode = "";
+				if (!(typeof field.show === "undefined")){
+					showFieldCode = 'ng-show="' + field.show.replace(/self/g, 'smoDataSource') + '"';
+				}
+				
+				template += '\
+					<div style="white-space: nowrap; background-color: white; padding :10px; text-align: center;">';
+				
+				if (field.type == 'PlotView') {
+					template += '<div ' + showFieldCode + ' smo-plot field-var="smoViewGroup.fields[0]" smo-data-source="smoDataSource"></div>';
+				} else if (field.type == 'TableView') {
+					template += '<div ' + showFieldCode + ' smo-table field-var="smoViewGroup.fields[0]" smo-data-source="smoDataSource" style="max-width: 840px; overflow: auto;"></div>';
+				}
+				
+				template += '</div>';					
+			}
 			
 			var el = angular.element(template);
 	        compiled = $compile(el);
 	        element.append(el);
-	        compiled(scope);
 	        
-	        angular.element('#' + scope.smoViewGroup.name + ' a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-				  scope.activeTabId = e.target.id; // activated tab
-				  var activeFieldName = scope.activeTabId.slice(0, -3);
-				  scope.activeField = scope.fields[activeFieldName];
-				  scope.csvFileName =  activeFieldName + '.csv';
-				});
+//	        angular.element('#' + scope.smoViewGroup.name + ' a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+//        		scope.activeTabId = e.target.id; // activated tab
+//        		var activeFieldName = scope.activeTabId.slice(0, -3);
+//        		scope.activeField = scope.fields[activeFieldName];
+//				scope.csvFileName =  scope.activeField.name + '.csv';
+//				scope.$digest();
+//				});
+	        
+	        compiled(scope);
 		}	
 	}
 }]);
@@ -1058,87 +1110,6 @@ smoModule.directive('smoModelView', ['$compile', function($compile) {
 			scope.$watch(scope.formName + '.$valid', function(validity) {
 					scope.communicator.fieldsValid = validity;					
 			});	        
-		}	
-	}
-}]);
-
-
-
-smoModule.directive('converterInputView', ['$compile', 'variables', function($compile, variables) {
-	return {
-		restrict : 'A',
-		scope : {
-			it: '=converterInputView'
-		},
-		controller: function($scope, $http){
-			$scope.it.inputsObtained = false;
-			$scope.it.loading = false;
-			$scope.it.errorLoading = false;
-			$scope.it.fetchData = function(parameters) {
-				$scope.it.inputsObtained = false;
-				$scope.it.loading = true;
-				$scope.it.errorLoading = false;
-				var parameters = parameters || {};
-				$http({
-			        method  : 'POST',
-			        url     : $scope.it.dataUrl,
-			        data    : {action : $scope.it.action, parameters: parameters},
-			        headers : { 'Content-Type': 'application/x-www-form-urlencoded' }, // set the headers so angular passing info as form data (not request payload)
-			    })
-			    .success(function(data) {
-			    	$scope.it.loading = false;
-			    	$scope.it.inputsObtained = true;
-			    	$scope.it.quantities = data.data;
-			    	$scope.renderConverter();
-			    })
-			    .error(function(data) {
-			    	$scope.it.loading = false;
-			    	$scope.it.errorLoading = true;
-			    });
-			}
-			if ($scope.it.autoFetch || $scope.it.autoFetch == 'undefined'){
-				$scope.it.fetchData();
-			}
-			$scope.renderConverter = function() {
-				$scope.quantities = {};
-				for (name in $scope.it.quantities) {
-					var value = $scope.it.quantities[name];
-					if (value.SIUnit == '-')
-						continue
-					else {
-						$scope.quantities[value.title] = new variables.Quantity(name, value.title, value.nominalValue, value.SIUnit, value.units);
-					}
-				}
-				$scope.choiceVar = $scope.quantities[Object.keys($scope.quantities)[0]];
-			}
-		},
-		link : function(scope, element, attr) {
-			var template = '<div ng-if="it.loading"><h2 class="loading">Loading...</h2></div>\
-							<div ng-if="it.errorLoading"><h2 class="error">Error loading!</h2></div>\
-							<div class="converter" ng-if="it.inputsObtained">\
-								<div class="super-group">\
-									<div class="choice-group">\
-										<div class="select-text">Select a quantity:</div>\
-										<div>\
-											<select ng-model="choiceVar" ng-options="value as name for (name, value) in quantities"></select> \
-										</div>\
-									</div>\
-									<div class="results-group">\
-										<div class="field" ng-repeat="unit in choiceVar.unitsArr track by $index">\
-											<div ng-form name="Form{{$index}}" class="field-input">\
-												<input name="input" type="text" ng-pattern="/^[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$/" ng-model="unit[2]" ng-change="choiceVar.updateValues($index, Form{{$index}}.input.$error.pattern)">\
-											</div>\
-											<div class="field-label" ng-bind="unit[0]"></div>\
-											<div class="input-error" ng-show="Form{{$index}}.input.$error.pattern">Enter a valid number</div>\
-										</div>\
-									</div>\
-								</div>\
-							</div>';
-
-			var el = angular.element(template);
-	        compiled = $compile(el);
-	        element.append(el);
-	        compiled(scope);
 		}	
 	}
 }]);

@@ -41,9 +41,11 @@ angular.module('HeatPump', ['ui.bootstrap', 'smo'])
 			<h1 class="title">Heat pump</h1>
 			<div class="title-figure">
 				<img src="{% static 'ThermoFluids/HeatPump.svg' %}"></img>
-			</div>		
-			<div smo-model-view="heatPumpInputs" view-type="input" communicator="heatPump.inputCommunicator"></div>
-			<div class="section" style="margin-left: 20px;"> 		
+			</div>			
+			<div class="section">
+				<div smo-model-view="heatPumpInputs" view-type="input" communicator="heatPump.inputCommunicator"></div>
+			</div>
+			<div class="section"> 		
 				<div ng-show="heatPump.inputCommunicator.dataReceived"><button ng-disabled="!heatPump.inputCommunicator.fieldsValid" 
 					 class="btn btn-default" ng-click="compute()">Compute</button>
 				</div>

@@ -1,13 +1,11 @@
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
+from SmoWeb import views
 
 urlpatterns = patterns('',
-    # Examples:
-    # url(r'^$', 'SmoWeb.views.home', name='home'),
-    # url(r'^blog/', include('blog.urls')),
-    url(r'^$', 'SmoWeb.views.home', name='home' ),
+    url(r'^$', views.HomeView.asView(), name='Home' ),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^ThermoFluids/', include('ThermoFluids.urls', namespace='ThermoFluids')),
     url(r'^DataManagement/', include('DataManagement.urls', namespace='DataManagement')),
-    url(r'^UnitConverter/', 'SmoWeb.views.unitConverterView', name='UnitConverter'),  
+    url(r'^UnitConverter/', views.unitConverterView.asView(), name='UnitConverter'),  
 )

@@ -57,7 +57,6 @@ class FluidPropsCalculator(NumericalModel):
 	s = Quantity('SpecificEntropy', label = 'specific entropy')
 	q = Quantity('VaporQuality', label = 'vapor quality')
 	u = Quantity('SpecificInternalEnergy', label = 'specific internal energy')
-	stateVariablesResults = FieldGroup([T, p, rho, h, s, q, u])
 	#####
 	cp = Quantity('SpecificHeatCapacity', label = 'heat capacity (cp)')
 	cv = Quantity('SpecificHeatCapacity', label = 'heat capacity (cv)')	
@@ -69,9 +68,24 @@ class FluidPropsCalculator(NumericalModel):
 	mu = Quantity('DynamicViscosity', label = 'dynamic viscosity')
 	dpdt_v = Quantity('Dimensionless', label = '(dp/dT)<sub>v</sub>')
 	dpdv_t = Quantity('Dimensionless', label = '(dp/dv)<sub>T</sub>')
+	#####
+	stateVariablesResults = FieldGroup([T, p, rho, h, s, q, u])
 	derivativeResults = FieldGroup([cp, cv, gamma, Pr, cond, mu, dpdt_v, dpdv_t])
-	###
 	results = SuperGroup([stateVariablesResults, derivativeResults], label="Computed properties")
+	#####
+	rho_L = Quantity('Density', label = 'density')
+	h_L = Quantity('SpecificEnthalpy', label = 'specific enthalpy')
+	s_L = Quantity('SpecificEntropy', label = 'specific entropy')	
+	#####
+	rho_V = Quantity('Density', label = 'density')
+	h_V = Quantity('SpecificEnthalpy', label = 'specific enthalpy')
+	s_V = Quantity('SpecificEntropy', label = 'specific entropy')
+	#####
+	isTwoPhase = Boolean(label = 'is two phase')
+	liquidResults = FieldGroup([rho_L, h_L, s_L], label="Liquid")
+	vaporResults = FieldGroup([rho_V, h_V, s_V], label="Vapor")
+	saturationResults = SuperGroup([liquidResults, vaporResults], label="Saturation")
+	
 	def getStateValue(self, sVar, index):
 		sVarDict = {'P': 'p', 'T': 'T', 'D': 'rho', 'H': 'h', 'S': 's', 'Q': 'q'}
 		return self.__dict__[sVarDict[sVar]+str(index)]
@@ -96,6 +110,19 @@ class FluidPropsCalculator(NumericalModel):
 		self.mu = fState.mu
 		self.dpdt_v = fState.dpdt_v
 		self.dpdv_t = fState.dpdv_t
+		
+		self.isTwoPhase = fState.isTwoPhase()
+		if (self.isTwoPhase == True):
+			satL = fState.getSatL()			
+			satV = fState.getSatV()
+			
+			self.rho_L = satL['rho']
+			self.h_L = satL['h']/1e3
+			self.s_L = satL['s']/1e3
+			
+			self.rho_V = satV['rho']
+			self.h_V = satV['h']/1e3
+			self.s_V = satV['s']/1e3
 			
 	@staticmethod	
 	def test():
@@ -201,13 +228,9 @@ class FluidInfo(NumericalModel):
 class SaturationData(NumericalModel):	
 	fluidName = String(default = 'ParaHydrogen', label = 'fluid')
 	
-# 	TestPlot = PlotView(np.array([[1,2,3],[10, 20000, 300000]]),
-# 						dataLabels = ['pressure [bar]', 'saturation temperature [K]', 'blah[kg]'],
-# 						xlog = True, ylog = True, 
-# 						options = {'title': 'Test Plot'})
 	T_p_satPlot = PlotView(label = 'Temperature', dataLabels = ['pressure [bar]', 'saturation temperature [K]'], 
 							xlog = True, 
-							options = {'xlabel': 'pressure [bar]'})
+							options = {'ylabel': 'temperature [K]'})
 	rho_p_satPlot = PlotView(label = 'Density', dataLabels = ['pressure [bar]', 'liquid density [kg/m**3]', 'vapor density [kg/m**3]'],
 							options = {'ylabel': 'density [kg/m**3]'})
 	delta_h_p_satPlot = PlotView(label = 'Evap. enthalpy', dataLabels = ['pressure [bar]', 'h evap [kJ/kg]'], 
@@ -220,7 +243,7 @@ class SaturationData(NumericalModel):
 	satTableView = TableView(label = 'Sat. table', dataLabels = ['p [bar]', 'T [K]', 'rho_L [kg/m**3]', 'rho_V [kg/m**3]', 'h_L [kJ/kg]', 
 											'h_V [kJ/kg]', 'h_V - h_L [kJ/kg]', 's_L [kJ/kg-K]', 's_V [kJ/kg-K]', 
 											's_V - s_L [kJ/kg-K]'], 
-									options = {'title': 'Saturation data', 'formats': '0.0000E0'})	
+									options = {'title': 'Saturation data', 'formats': '0.0000E0'})
 	
 	satViewGroup = ViewGroup([T_p_satPlot, rho_p_satPlot, delta_h_p_satPlot, delta_s_p_satPlot,
 								satTableView], label="Saturation Data")

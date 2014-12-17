@@ -8,7 +8,7 @@
 }
 
 /* Field group */
-[smo-field-group] {
+[smo-field-group], .converter {
 	display: inline-block;
 	margin-bottom: 20px;
 	margin-right: 70px;
@@ -40,7 +40,16 @@
 	margin-top: 20px;
 }
 
-[smo-super-group-set] > ul > li > a, [smo-super-group-set] > ul > li.active > a {
+
+[smo-super-group-set] > .nav-tabs > li > a, [smo-super-group-set] > .nav-tabs > li.active > a, 
+[smo-super-group-set] > .nav-tabs > li.active > a:hover, [smo-super-group-set] > .nav-tabs > li.active > a:focus {
+	cursor: pointer;
+	font-size: medium;
+	color: black;
+}
+
+/* Inactive tabs */
+[smo-super-group-set] > li > a, #FluidPointTabs.nav-tabs > li > a:hover, #FluidPointTabs.nav-tabs > li > a:focus {
 	cursor: pointer;
 }
 
@@ -118,7 +127,7 @@
 }
 
 .input-validity-error {
-	margin-left: 160px; 
+	margin-left: 180px; 
 	color:red;
 }
 
@@ -126,20 +135,20 @@
 /* Active tab */
 #FluidPointTabs.nav-tabs > li.active > a, #FluidPointTabs.nav-tabs > li.active > a:hover, #FluidPointTabs.nav-tabs > li.active > a:focus {
 	cursor: pointer;
+	font-size: medium;
+	color: black;
 }
 
 /* Inactive tabs */
 #FluidPointTabs.nav-tabs > li > a, #FluidPointTabs.nav-tabs > li > a:hover, #FluidPointTabs.nav-tabs > li > a:focus {
 	cursor: pointer;
+	font-size: medium;
+	color: black;
 }
 
 /* Unit Converter specific styles */
 .converter {
 	margin-top: 40px;
-	text-align: center;
-}
-
-.converter > .super-group {
 	border-style: solid; 
 	border-top: none; 
 	border-color: #DDD; 
@@ -148,6 +157,7 @@
 	padding-right: 20px;
 	display: inline-block;
 	overflow: auto;
+	text-align: left;
 }
 
 .converter .choice-group {
