@@ -347,34 +347,34 @@ class Record():
 		if (len(structDict) == 0):
 			raise ValueError("Undefined record")
 		
-		self.structDict = structDict
-		self.structLabels = []
 		self.structFields = []
-		for key, value in structDict.items():
-			self.structLabels.append(key)
-			self.structFields.append(value)
+		
+		for name, field in structDict.items():
+			structField = field
+			structField._name = name
+			self.structFields.append(structField)
+			
+		
 
 class ArrayGroup(Group):
 	def __init__(self, record = None, numRows = None, *args, **kwargs):
 		super(ArrayGroup, self).__init__(*args, **kwargs)	
+		
 		if (record is None):
 			raise ValueError('Undefined array type')
 		
-		if (numRows is None):
-			self.numRows = 0
-		else:
-			self.numRows = numRows
-		
 		self.structFields = record.structFields
 		
-		typeList = []
-		for label in record.structLabels:
-			typeList.append((label, 'f'))
+		if (numRows is None):
+			numRows = 0
 		
-		self.structType = np.dtype(typeList)
-		self.array = np.zeros((self.numRows,), dtype=self.structType)
+		structTypeList = []
+		for field in self.structFields:
+			structTypeList.append((field._name, 'f'))
 		
-		for i in range(self.numRows):
+		self.array = np.zeros((numRows,), dtype=np.dtype(structTypeList))
+		
+		for i in range(numRows):
 			rowValueList = []
 			for j in range(len(self.structFields)):
 				rowValueList.append(self.structFields[j].default)

@@ -14,9 +14,9 @@ class TestModel(NumericalModel):
     ####
     testArray = ArrayGroup(Record(
         OrderedDict((
-                     ('p', p),
-                     ('T', T),
-                     ('rho', rho1)
+                     ('p', Quantity('Pressure', default = (1, 'bar'), label = 'pressure')),
+                     ('T', Quantity('Temperature', default = (300, 'K'), label = 'temperature')),
+                     ('rho', Quantity('Density', default = (1, 'kg/m**3'), label = 'density'))
                      ))), 
         numRows=7, label="testArray")
     testSuperGroup = SuperGroup([testArray], label = "testSuperGroup")
