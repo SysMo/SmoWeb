@@ -470,7 +470,7 @@ smoModule.directive('smoQuantity', ['$compile', 'util', function($compile, util)
 			viewType: '@viewType',
 			smoDataSource : '='
 		},
-		controller: function($scope){									
+		controller: function($scope){
 			$scope.checkValueValidity = function(){
 				$scope[$scope.fieldVar.name + 'Form'].input.$setValidity('minVal', true);
 				$scope[$scope.fieldVar.name + 'Form'].input.$setValidity('maxVal', true);
@@ -1111,5 +1111,124 @@ smoModule.directive('smoModelView', ['$compile', function($compile) {
 					scope.communicator.fieldsValid = validity;					
 			});	        
 		}	
+	}
+}]);
+
+smoModule.directive('smoArrayQuantity', ['$compile', 'util', function($compile, util) {
+	return {
+		restrict : 'A',
+		scope : {
+			fieldVar: '=',
+			viewType: '@viewType',
+			smoDataSource : '='
+		},
+		controller: function($scope){
+			$scope.fieldVar.value = $scope.smoDataSource[$scope.fieldVar.name];
+			$scope.checkValueValidity = function(){
+				$scope[$scope.fieldVar.name + 'Form'].input.$setValidity('minVal', true);
+				$scope[$scope.fieldVar.name + 'Form'].input.$setValidity('maxVal', true);
+				
+				if ($scope[$scope.fieldVar.name + 'Form'].input.$error.required == true 
+						|| $scope[$scope.fieldVar.name + 'Form'].input.$error.pattern == true) {
+					return;
+				}
+				
+				if (Number($scope.fieldVar.displayValue) < $scope.fieldVar.minDisplayValue) {
+					$scope[$scope.fieldVar.name + 'Form'].input.$setValidity('minVal', false);
+					return;
+				}	
+				
+				if (Number($scope.fieldVar.displayValue) > $scope.fieldVar.maxDisplayValue){
+					$scope[$scope.fieldVar.name + 'Form'].input.$setValidity('maxVal', false);
+					return;
+				}
+				
+				$scope.updateValue();
+			}
+			
+			$scope.updateValue = function() {
+				var offset = 0;
+				if ('offset' in $scope.fieldVar.dispUnitDef) {
+					offset = $scope.fieldVar.dispUnitDef.offset;
+				}
+				$scope.fieldVar.value = Number($scope.fieldVar.displayValue) * $scope.fieldVar.dispUnitDef.mult + offset ;
+				$scope.smoDataSource[$scope.fieldVar.name] = $scope.fieldVar.value;	
+			}
+			
+			$scope.changeUnit = function() {
+				for (var i=0; i < $scope.fieldVar.units.length; i++) {
+					if ($scope.fieldVar.displayUnit == $scope.fieldVar.units[i][0]){
+						$scope.fieldVar.dispUnitDef = $scope.fieldVar.units[i][1];
+					}	
+				}
+				var offset = 0;
+				if ('offset' in $scope.fieldVar.dispUnitDef) {
+					offset = $scope.fieldVar.dispUnitDef.offset;
+				}
+				$scope.fieldVar.displayValue = util.formatNumber(($scope.fieldVar.value - offset) / $scope.fieldVar.dispUnitDef.mult);
+				
+				$scope.fieldVar.minDisplayValue = ($scope.fieldVar.minValue - offset) / $scope.fieldVar.dispUnitDef.mult;
+				$scope.fieldVar.maxDisplayValue = ($scope.fieldVar.maxValue - offset) / $scope.fieldVar.dispUnitDef.mult;
+			}
+			
+			$scope.fieldVar.unit = $scope.fieldVar.unit || $scope.fieldVar.SIUnit;
+			$scope.fieldVar.displayUnit = $scope.fieldVar.displayUnit || $scope.fieldVar.defaultDispUnit || $scope.fieldVar.unit;
+			for (var i=0; i < $scope.fieldVar.units.length; i++) {
+				if ($scope.fieldVar.unit == $scope.fieldVar.units[i][0]){
+					$scope.fieldVar.unitDef = $scope.fieldVar.units[i][1];
+				}
+				if ($scope.fieldVar.displayUnit == $scope.fieldVar.units[i][0]){
+					$scope.fieldVar.dispUnitDef = $scope.fieldVar.units[i][1];
+				}	
+			}
+			
+			var offset = $scope.fieldVar.unitDef.offset || 0;
+			$scope.fieldVar.value = $scope.fieldVar.value * $scope.fieldVar.unitDef.mult + offset;
+			offset = $scope.fieldVar.dispUnitDef.offset || 0;
+			$scope.fieldVar.displayValue = util.formatNumber(($scope.fieldVar.value - offset) / $scope.fieldVar.dispUnitDef.mult);
+			
+			$scope.fieldVar.minDisplayValue = ($scope.fieldVar.minValue - offset) / $scope.fieldVar.dispUnitDef.mult;
+			$scope.fieldVar.maxDisplayValue = ($scope.fieldVar.maxValue - offset) / $scope.fieldVar.dispUnitDef.mult;				
+		},
+		link : function(scope, element, attr) {
+			scope.util = util;
+			var template = '\
+					<div class="field-label">' + scope.fieldVar.label + '</div>';
+			if (scope.viewType == 'input'){
+				template += '\
+					<div class="field-input"> \
+						<div ng-form name="' + scope.fieldVar.name + 'Form">\
+							<input name="input" required type="text" ng-pattern="/^[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$/" ng-model="fieldVar.displayValue" ng-change="checkValueValidity();">\
+						</div>\
+					</div>';
+				template += '\
+					<div class="field-select quantity"> \
+						<select ng-disabled="!' + scope.fieldVar.name + 'Form.$valid" ng-model="fieldVar.displayUnit" ng-options="pair[0] as pair[0] for pair in fieldVar.units" ng-change="changeUnit()"></select> \
+					</div>';
+				
+			}
+			else if (scope.viewType == 'output'){
+				template += '\
+					<div class="field-output"> \
+						<div class="output" ng-bind="fieldVar.displayValue"></div>\
+					</div>';
+				template += '\
+					<div class="field-select quantity"> \
+						<select ng-model="fieldVar.displayUnit" ng-options="pair[0] as pair[0] for pair in fieldVar.units" ng-change="changeUnit()"></select> \
+					</div>';
+				
+			}
+			if (scope.viewType == 'input')
+				template += '\
+					<div class="input-validity-error" ng-show="' + scope.fieldVar.name + 'Form.input.$error.pattern">Enter a number</div>\
+					<div class="input-validity-error" ng-show="' + scope.fieldVar.name + 'Form.input.$error.required">Required value</div>\
+					<div class="input-validity-error" ng-show="' + scope.fieldVar.name + 'Form.input.$error.minVal">Value should be above {{util.formatNumber(fieldVar.minDisplayValue)}} {{fieldVar.displayUnit}}</div>\
+					<div class="input-validity-error" ng-show="' + scope.fieldVar.name + 'Form.input.$error.maxVal">Value should be below {{util.formatNumber(fieldVar.maxDisplayValue)}} {{fieldVar.displayUnit}}</div>';
+			
+	        var el = angular.element(template);
+	        compiled = $compile(el);
+	        element.append(el);
+	        compiled(scope);
+		}
 	}
 }]);

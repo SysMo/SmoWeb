@@ -54,7 +54,7 @@ class Quantity(Field):
 	def getValueRepr(self, value):
 		return value
 		
-	def toFormDict(self):
+	def toFormDict(self):			
 		fieldDict = {'name' : self._name, 'label': self.label}
 		fieldDict['type'] = 'Quantity'
 		fieldDict['quantity'] = self.type
@@ -339,6 +339,52 @@ class SuperGroup(Group):
 	def __init__(self, groups = None, *args, **kwargs):
 		super(SuperGroup, self).__init__(*args, **kwargs)
 		self.groups = [] if (groups is None) else groups
+		
+class Record():
+	def __init__(self, structDict = None, *args, **kwargs):
+		if (structDict is None):
+			raise ValueError("Undefined record")
+		if (len(structDict) == 0):
+			raise ValueError("Undefined record")
+		
+		self.structDict = structDict
+		self.structLabels = []
+		self.structFields = []
+		for key, value in structDict.items():
+			self.structLabels.append(key)
+			self.structFields.append(value)
+
+class Array(Group):
+	def __init__(self, record = None, size = None, *args, **kwargs):
+		super(Array, self).__init__(*args, **kwargs)	
+		if (record is None):
+			raise ValueError('Undefined array type')
+		
+		if (size is None):
+			self.size = 0
+		else:
+			self.size = size
+		
+		self.structDict = record.structDict
+		self.structFields = record.structFields
+		
+		typeList = []
+		for label in record.structLabels:
+			typeList.append((label, 'f'))
+		
+		self.structType = np.dtype(typeList)
+		self.array = np.zeros((self.size,), dtype=self.structType)
+		
+		for i in range(self.size):
+			rowValueList = []
+			for j in range(len(self.structFields)):
+				rowValueList.append(self.structFields[j].default)
+			self.array[i] = tuple(rowValueList)	
+			
+# 				arrField = copy.deepcopy(fields[j])
+# 				arrField._name = fields[j]._name + str(i)
+# 				self.array[i][j] = arrField
+		
 
 		
 

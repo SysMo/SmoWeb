@@ -7,24 +7,22 @@ from collections import OrderedDict
 
 data = np.array([[1,2],[2,3],[3,4]])
 
-class PlotModel(NumericalModel):
-    p = Quantity('Pressure', label = 'pressure')
-    g1 = FieldGroup([p], 'FieldGroup')
+class TestModel(NumericalModel):
+    p = Quantity('Pressure', default = (1, 'bar'), label = 'pressure')
+    T = Quantity('Temperature', default = (300, 'K'), label = 'temperature')
+    rho1 = Quantity('Density', default = (1, 'kg/m**3'), label = 'density')
+    h1 = Quantity('SpecificEnthalpy', default = (1000, 'kJ/kg'), label = 'specific enthalpy')
+    s1 = Quantity('SpecificEntropy', default = (100, 'kJ/kg-K'), label = 'specific entropy')
+    ####
+    testArray = Array(Record(
+        OrderedDict((
+                     ('p', p),
+                     ('T', T)
+                     ))), 
+        size=2, label="testArray")
+    testSuperGroup = SuperGroup([testArray], label = "testSuperGroup")
     
-    
-    plotView = PlotView(default = data, options = {'title': 'TestPlot'})
-    tableView = TableView(default = data, dataLabels = ['p', 'T'], options = {'title': 'TestTable', 
-           'formats': ['0.00E0', '#.00'], 'labels': ['pressure [bar]', 'T sat [K]']})
-    tableView2 = TableView(default = data, dataLabels = ['p', 'T'], options = {'title': 'nasko table', 
-           'formats': ['0.00E0', '#.00'], 'labels': ['pressure \n[bar]', 'T sat [K]']})
-    plotViewGroup = ViewGroup([plotView, tableView, tableView2], label="View Group")
-    
-    plotSuperGroup = SuperGroup([plotViewGroup], label="Plot Super Group" )
-    
-    otherSuperGroup = SuperGroup([g1], label = "sads")
-    
-if __name__ == '__main__':
+# if __name__ == '__main__':
 #     FluidPropsCalculator.test()
 #     print getFluidConstants()
 #     print getLiteratureReferences()
-    plotView = PlotModel()

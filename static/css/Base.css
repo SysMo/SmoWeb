@@ -174,7 +174,8 @@ table.nice-table {
 table.nice-table td,
 table.nice-table th {
     padding: 10px;	
-    border: solid 1px #A0A0A0; 
+    border: solid 1px #A0A0A0;
+    min-width: 70px; 
 }
 
 table.nice-table th {
