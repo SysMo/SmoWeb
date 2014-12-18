@@ -354,18 +354,17 @@ class Record():
 			self.structLabels.append(key)
 			self.structFields.append(value)
 
-class Array(Group):
-	def __init__(self, record = None, size = None, *args, **kwargs):
-		super(Array, self).__init__(*args, **kwargs)	
+class ArrayGroup(Group):
+	def __init__(self, record = None, numRows = None, *args, **kwargs):
+		super(ArrayGroup, self).__init__(*args, **kwargs)	
 		if (record is None):
 			raise ValueError('Undefined array type')
 		
-		if (size is None):
-			self.size = 0
+		if (numRows is None):
+			self.numRows = 0
 		else:
-			self.size = size
+			self.numRows = numRows
 		
-		self.structDict = record.structDict
 		self.structFields = record.structFields
 		
 		typeList = []
@@ -373,17 +372,13 @@ class Array(Group):
 			typeList.append((label, 'f'))
 		
 		self.structType = np.dtype(typeList)
-		self.array = np.zeros((self.size,), dtype=self.structType)
+		self.array = np.zeros((self.numRows,), dtype=self.structType)
 		
-		for i in range(self.size):
+		for i in range(self.numRows):
 			rowValueList = []
 			for j in range(len(self.structFields)):
 				rowValueList.append(self.structFields[j].default)
-			self.array[i] = tuple(rowValueList)	
-			
-# 				arrField = copy.deepcopy(fields[j])
-# 				arrField._name = fields[j]._name + str(i)
-# 				self.array[i][j] = arrField
+			self.array[i] = tuple(rowValueList)
 		
 
 		

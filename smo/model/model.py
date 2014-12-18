@@ -1,4 +1,4 @@
-from fields import Field, Quantity, Group, FieldGroup, ViewGroup, Array, SuperGroup
+from fields import Field, Quantity, Group, FieldGroup, ViewGroup, ArrayGroup, SuperGroup
 from collections import OrderedDict
 import copy
 
@@ -68,7 +68,6 @@ class NumericalModel(object):
 			else:
 				raise TypeError("The argument to 'groupList2Json' must be a list of SuperGroups" )
 		
-		print fieldValues
 		return {'definitions': definitions, 'values': fieldValues}
 
 	def superGroup2Json(self, group, fieldValues):
@@ -79,7 +78,7 @@ class NumericalModel(object):
 				subgroupList.append(self.fieldGroup2Json(subgroup, fieldValues))
 			elif (isinstance(subgroup, ViewGroup)):
 				subgroupList.append(self.viewGroup2Json(subgroup, fieldValues))
-			elif (isinstance(subgroup, Array)):
+			elif (isinstance(subgroup, ArrayGroup)):
 				subgroupList.append(self.array2Json(subgroup, fieldValues))
 			elif (isinstance(subgroup, SuperGroup)):
 				subgroupList.append(self.superGroup2Json(subgroup, fieldValues))
@@ -104,20 +103,20 @@ class NumericalModel(object):
 		jsonObject['fields'] = fieldList
 		return jsonObject
 	
-	def array2Json(self, array, fieldValues):
-		jsonObject = {'type': 'Array', 'name': array._name, 'label': array.label}
-		arrayList = []
-		for i in range(array.size):
-			fieldList = []
-			for j in range(len(array.structFields)):
-				structField = array.structFields[j]
-				field = copy.deepcopy(structField)
-				field._name = structField._name + str(i)
-				fieldDict = field.toFormDict()
-				fieldList.append(fieldDict)
-				fieldValues[field._name] = field.getValueRepr(field.default)
-			arrayList.append(fieldList)
-		jsonObject['arrayRows'] = arrayList
+	def array2Json(self, arrayGroup, fieldValues):
+		jsonObject = {'type': 'ArrayGroup', 'name': arrayGroup._name,
+					'label': arrayGroup.label}
+		
+		structFieldList = []		
+		for i in range(len(arrayGroup.structFields)):
+			structField = arrayGroup.structFields[i]
+			fieldDict = structField.toFormDict()
+			structFieldList.append(fieldDict)
+		
+		fieldValues[arrayGroup._name] = arrayGroup.array.tolist()
+		
+		jsonObject['fields'] = structFieldList
+# 		print jsonObject
 		return jsonObject
 	
 	def fieldValues2Json(self):

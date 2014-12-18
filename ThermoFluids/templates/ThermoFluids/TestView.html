@@ -28,14 +28,23 @@ angular.module('TestApp', ['ui.bootstrap', 'smo'])
 			
 			$scope.testModel.inputCommunicator.fetchData(
 				'getData', {}, function(comm){
-					$scope.dataArray = comm.data.definitions[0].groups;
-					$scope.dataValues = comm.data.values;
-					$scope.renderArray();
+					$scope.arrayDefs= comm.data.definitions[0].groups[0];
+					$scope.arrayVals = comm.data.values.testArray;
+					console.log($scope.arrayDefs);
+					console.log($scope.arrayVals);
+// 					$scope.renderArray();
 				});
 			
-			$scope.renderArray = function(){
-				console.log($scope.dataArray);
-				console.log($scope.dataValues);
+			$scope.renderArray = function(){			
+// 				var numRows = $scope.arrayVals.length;
+// 				var numCols = $scope.arrayDefs.fields.length;
+// 				$scope.fields = [];
+// 				for (var i=0; i<numRows; i++){
+// 					var row = [];
+// 					for (var j=0; j<numCols; j++){
+// 						row.push()
+// 					}
+// 				}
 			}
 		
 		
@@ -62,22 +71,19 @@ angular.module('TestApp', ['ui.bootstrap', 'smo'])
 {% verbatim %}
 				<div class="section">
 					<table class="nice-table">
-						<tr ng-repeat="row in dataArray[0].arrayRows">
-							<td ng-repeat="field in row">
-								<div smo-array-quantity view-type="input" field-var="field" smo-data-source="dataValues"></div>
+						<th ng-repeat="field in arrayDefs.fields">
+							{{field.name}}
+						</th>
+						<tr ng-repeat="row in arrayVals">
+							<td ng-repeat="value in row">
+								{{value}}
 							</td>
 						</tr>
 					</table>
 				</div>
+<!-- <div smo-array-quantity view-type="input" field-var="field" smo-data-source="dataValues[i][$index]"></div> -->
 {% endverbatim %}
 				<div class="section">
-<!-- 					<table class="nice-table"> -->
-<!-- 						<tr ng-repeat="row in dataArray[0].rows"> -->
-<!-- 							<td ng-repeat="field in row"> -->
-<!-- 								<div smo-array-quantity view-type="output" field-var="field" smo-data-source="dataValues"></div> -->
-<!-- 							</td> -->
-<!-- 						</tr> -->
-<!-- 					</table> -->
 				</div>
 			</div>
 		</div>

@@ -5,8 +5,6 @@ from smo.media.SimpleMaterials import Fluids
 from smo.media.CoolProp.CoolProp import Fluid, FluidState
 from collections import OrderedDict
 
-data = np.array([[1,2],[2,3],[3,4]])
-
 class TestModel(NumericalModel):
     p = Quantity('Pressure', default = (1, 'bar'), label = 'pressure')
     T = Quantity('Temperature', default = (300, 'K'), label = 'temperature')
@@ -14,12 +12,13 @@ class TestModel(NumericalModel):
     h1 = Quantity('SpecificEnthalpy', default = (1000, 'kJ/kg'), label = 'specific enthalpy')
     s1 = Quantity('SpecificEntropy', default = (100, 'kJ/kg-K'), label = 'specific entropy')
     ####
-    testArray = Array(Record(
+    testArray = ArrayGroup(Record(
         OrderedDict((
                      ('p', p),
-                     ('T', T)
+                     ('T', T),
+                     ('rho', rho1)
                      ))), 
-        size=2, label="testArray")
+        numRows=7, label="testArray")
     testSuperGroup = SuperGroup([testArray], label = "testSuperGroup")
     
 # if __name__ == '__main__':
