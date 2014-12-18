@@ -2,6 +2,7 @@
 Created on Nov 30, 2014
 
 @author: Atanas Pavlov
+@copyright: SysMo Ltd.
 '''
 
 import numpy as np
@@ -41,7 +42,7 @@ class CryogenicPipeSolver(object):
 	def createLinearMesh(self, L, Acs, As, n = 100): 
 		""" Define mesh """
 		# Cross sectional area
-		self.Acs = Acs
+		self.AcsMult = Acs
 		# Area multiplier for face area
 		self.areaMult = Acs
 		# Surface area per unit length
@@ -105,7 +106,7 @@ class CryogenicPipeSolver(object):
 		elif (bcType == 'Q'):
 			raise NotImplementedError('Heat boundary condition not yet implemented')
 			faceArea = meshFaceArea * self.areaMult
-			gradValue = value / faceArea / self.thermalCond
+			gradValue = value / faceArea / self.thermalConductivity
 			self.T.faceGrad.constrain([-gradValue], face)
 		else:
 			raise ValueError('BC type must be T(temperature) or Q(heat flux)')
@@ -194,14 +195,14 @@ class CryogenicPipe(NumericalModel):
 	
 	#####################
 	
-	Acs = Quantity('Area', default = (1, 'mm**2'), label = 'conduction area')
+	AcsMult = Quantity('Area', default = (1, 'mm**2'), label = 'conduction area')
 	As = Quantity('Length', default = (1, 'm'), label = 'surface area / length')
 	TLeft = Quantity('Temperature', label = 'temperature (left)')
 	QLeft = Quantity('HeatFlowRate', default = (1, 'W'), label = 'heat flow (left)')
 	TRight = Quantity('Temperature', label = 'temperature (right)')
 	QRight = Quantity('HeatFlowRate', default = (1, 'W'), label = 'heat flow (right)')
 	QRadSum = Quantity('HeatFlowRate', default = (1, 'W'), label = 'absorbed radiation')
-	r1 = FieldGroup([Acs, As, TLeft, QLeft, TRight, QRight, QRadSum], label = 'Results') 
+	r1 = FieldGroup([AcsMult, As, TLeft, QLeft, TRight, QRight, QRadSum], label = 'Results') 
 	r1g = SuperGroup([r1], label = 'Values')
 
 	cond_T = PlotView(label = 'Conductivity pipe', dataLabels = ['temperature [K]', 'thermal conductivity [W/m-K]'])
@@ -228,14 +229,14 @@ class CryogenicPipe(NumericalModel):
 	results = [r1g, r2g, r3g, r4g]
 	
 	def compute(self):
-		self.Acs = np.pi/4 * (self.d_ext * self.d_ext - self.d_int * self.d_int)
+		self.AcsMult = np.pi/4 * (self.d_ext * self.d_ext - self.d_int * self.d_int)
 		self.As = np.pi * self.d_ext
 		
 		# Create the thermal model object
 		model = CryogenicPipeSolver(self.TAmb)
 		#model.thermalCond = self.thermalCond
 		# Create mesh
-		model.createLinearMesh(L = self.L, Acs = self.Acs, As = self.As, n = self.n)
+		model.createLinearMesh(L = self.L, Acs = self.AcsMult, As = self.As, n = self.n)
 		# Set boundary conditions
 		if (self.bcLeft == 'T'):
 			model.setBoundaryConditions(0, 'T', self.TLeftInput)

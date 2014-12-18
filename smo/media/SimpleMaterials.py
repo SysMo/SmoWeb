@@ -37,6 +37,11 @@ Solids = OrderedDict((
 			'tConductivity': 0.23,
 			'cp': 1500.
 		}	
+	}),
+	('Polyvinylchloride', {'label': 'polyvinylchloride (PVC)',
+		'refValues': {
+			'tConductivity': 0.19
+		}
 	})
 ))
 

@@ -135,19 +135,7 @@ class HeatExchange1DView(View):
 	def get(self, request):
 		return render_to_response('ThermoFluids/HeatExchange1D.html', locals(), 
 				context_instance=RequestContext(request))
-	
-	@action('post')
-	def getWireHeatingInputs(self, parameters):
-		wireHeating = WireHeating1D()
-		return wireHeating.superGroupList2Json([wireHeating.inputs])
-	
-	@action('post')
-	def computeWireHeating(self, parameters):
-		wireHeating = WireHeating1D()
-		wireHeating.fieldValuesFromJson(parameters)
-		wireHeating.compute()
-		return wireHeating.superGroupList2Json([wireHeating.results])
-	
+		
 	@action('post')
 	def getCryogenicPipeInputs(self, parameters):
 		pipe = CryogenicPipe()
@@ -160,6 +148,17 @@ class HeatExchange1DView(View):
 		pipe.compute()
 		return pipe.superGroupList2Json(pipe.results)
 	
+	@action('post')
+	def getWireHeatingInputs(self, parameters):
+		wireHeating = WireHeating1D()
+		return wireHeating.superGroupList2Json(wireHeating.inputs)
+	
+	@action('post')
+	def computeWireHeating(self, parameters):
+		wireHeating = WireHeating1D()
+		wireHeating.fieldValuesFromJson(parameters)
+		wireHeating.compute()
+		return wireHeating.superGroupList2Json(wireHeating.results)
 
 from smo.flow.TestModel import PlotModel
 class TestView(View):
