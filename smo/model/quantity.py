@@ -53,7 +53,7 @@ Quantities = {
 		'units' : OrderedDict((('J/kg-K', {'mult' : 1}), ('kJ/kg-K', {'mult' : 1e3}),))},
 	'SpecificHeatCapacity' : {'title' : 'specific heat capacity', 'nominalValue' : 1e3, 'SIUnit' : 'J/kg-K', 'defDispUnit' : 'kJ/kg-K',
 		'units' : OrderedDict((('J/kg-K', {'mult' : 1}), ('kJ/kg-K', {'mult' : 1e3}),))},
-	
+	# Thermal
 	'HeatFlowRate' : {'title' : 'heat flow rate', 'nominalValue' : 1e3, 'SIUnit' : 'W', 'defDispUnit' : 'kW',
 		'units' : OrderedDict((('W', {'mult' : 1}), ('kW', {'mult' : 1e3}), ('MW', {'mult' : 1e6}), ('GW', {'mult' : 1e9}),
 		('mW', {'mult' : 1e-3}),  ('uW', {'mult' : 1e-6}),  ('hp', {'mult' : 746.0}), ('BTU/h', {'mult' : 0.293}),))},
@@ -65,7 +65,12 @@ Quantities = {
 		'units' : OrderedDict((('1/K', {'mult' : 1}), ('1/mK', {'mult' : 1e-3}), ('1/degC', {'mult' : 1}), ('1/degF', {'mult' : 9./5})))},
 	'HeatTransferCoefficient' : {'title' : 'heat transfer coefficient', 'nominalValue' : 1.0, 'SIUnit' : 'W/m**2-K', 'defDispUnit' : 'W/m**2-K',
 		'units' : OrderedDict((('W/m**2-K', {'mult' : 1}), ('kW/m**2-K', {'mult' : 1e3}), ('W/cm**2-K', {'mult' : 1e4})))},
+	'ThermalResistance' : {'title' : 'thermal resistance', 'nominalValue' : 1.0, 'SIUnit' : 'K/W', 'defDispUnit' : 'K/W',
+		'units' : OrderedDict((('K/W', {'mult' : 1}), ('K/kW', {'mult' : 1e-3})))},
+	'ThermalConductance' : {'title' : 'thermal conductance', 'nominalValue' : 1.0, 'SIUnit' : 'W/K', 'defDispUnit' : 'W/K',
+		'units' : OrderedDict((('W/K', {'mult' : 1}), ('kW/K', {'mult' : 1e3})))},
 			
+	# Electrical
 	'ElectricalConductivity' : {'title' : 'electrical conductivity', 'nominalValue' : 1.0, 'SIUnit' : 'S/m', 'defDispUnit' : 'S/m',
 		'units' : OrderedDict((('S/m', {'mult' : 1}), ('S/cm', {'mult' : 1e2}), ('S/mm', {'mult' : 1e3})))},
 	'ElectricalResistivity' : {'title' : 'electrical resistivity', 'nominalValue' : 1.0, 'SIUnit' : 'Ohm-m', 'defDispUnit' : 'Ohm-m',

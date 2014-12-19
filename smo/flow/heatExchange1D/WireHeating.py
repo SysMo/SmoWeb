@@ -150,10 +150,11 @@ class WireHeatingSolver(object):
 
 BoundaryConditionChoice = OrderedDict((
 	('T', 'temperature'),
-	('Q', 'heat flux')	
+	('Q', 'heat flux'),
+	('R', 'resistive heating')
 	))
 
-class WireHeating1D(NumericalModel):
+class CableHeating1D(NumericalModel):
 	d = Quantity('Length', default = (2, 'mm'), label = 'diameter')
 	L = Quantity('Length', default = (1, 'm'), label = 'length')
 	thermalConductivity = Quantity('ThermalConductivity', default = Solids['Copper']['refValues']['tConductivity'], label = 'cable thermal conductivity')
@@ -168,11 +169,15 @@ class WireHeating1D(NumericalModel):
 	bcLeft = Choices(BoundaryConditionChoice, label='boundary condition (left)')
 	TLeftInput = Quantity('Temperature', default = (20, 'degC'), label = 'temperature (left)', show = 'self.bcLeft == "T"')
 	QLeftInput = Quantity('HeatFlowRate', default = (0, 'W'), minValue = -1e99, maxValue = 1e99, 
-			label = 'heat flow (left)', show = 'self.bcLeft == "Q"')
+			label = 'heat entering (left)', show = 'self.bcLeft == "Q"')
+	hLeftDissipation = Quantity('ThermalConductance', default = (0, 'W/K'), minValue = 0, 
+			label = 'local dissipation (left)', show = 'self.bcLeft == "Q"')
 	bcRight = Choices(BoundaryConditionChoice, label='boundary condition (right)')
 	TRightInput = Quantity('Temperature', default = (20, 'degC'), label = 'temperature (right)', show = 'self.bcRight == "T"')
 	QRightInput = Quantity('HeatFlowRate', default = (0, 'W'), minValue = -1e99, maxValue = 1e99, 
-			label = 'heat flow (right)', show = 'self.bcRight == "Q"')
+			label = 'heat entering (right)', show = 'self.bcRight == "Q"')
+	hRightDissipation = Quantity('ThermalConductance', default = (0, 'W/K'), minValue = 0, 
+			label = 'local dissipation (left)', show = 'self.bcRight == "Q"')
 	computeRadiation = Boolean(default = False, label = 'compute radiation')
 	computeConvection = Boolean(default = True, label = 'compute convection')
 	TAmb = Quantity('Temperature', default = (20, 'degC'), label = 'ambient temperature', show = 'self.computeRadiation || self.computeConvection')
@@ -180,7 +185,7 @@ class WireHeating1D(NumericalModel):
 				show = "self.computeConvection")	
 	emissivity = Quantity(default = 0.9, minValue = 0, maxValue = 1, label = 'surface emissivity', 
 				show = "self.computeRadiation")	
-	g2 = FieldGroup([bcLeft, TLeftInput, QLeftInput, bcRight, TRightInput, QRightInput, 
+	g2 = FieldGroup([bcLeft, TLeftInput, QLeftInput, hLeftDissipation, bcRight, TRightInput, QRightInput, hRightDissipation, 
 					computeRadiation, computeConvection, TAmb, convCoeff, emissivity], label = 'Boundary conditions')
 	
 	inputValues = SuperGroup([g1, g2], label = "Input values")
@@ -199,14 +204,15 @@ class WireHeating1D(NumericalModel):
 	Acs = Quantity('Area', default = (1, 'mm**2'), label = 'conduction area')
 	As = Quantity('Length', default = (1, 'm'), label = 'surface area / length')
 	TLeft = Quantity('Temperature', default = (20, 'degC'), label = 'temperature (left)')
-	QLeft = Quantity('HeatFlowRate', default = (1, 'W'), label = 'heat flow (left)')
+	QLeft = Quantity('HeatFlowRate', default = (1, 'W'), label = 'heat entering (left)')
 	TRight = Quantity('Temperature', default = (20, 'degC'), label = 'temperature (right)')
-	QRight = Quantity('HeatFlowRate', default = (1, 'W'), label = 'heat flow (right)')
+	QRight = Quantity('HeatFlowRate', default = (1, 'W'), label = 'heat entering (right)')
 	QRadSum = Quantity('HeatFlowRate', default = (1, 'W'), label = 'heat emitted (radiation)')
 	QConvSum = Quantity('HeatFlowRate', default = (1, 'W'), label = 'heat emitted (convection)')
 	QJouleSum = Quantity('HeatFlowRate', default = (1, 'W'), label = 'joule heating')
-	r1 = FieldGroup([Acs, As, TLeft, QLeft, TRight, QRight, QRadSum, QConvSum, QJouleSum], label = 'Results') 
-	r1g = SuperGroup([r1], label = 'Values')
+	r11 = FieldGroup([TLeft, QLeft, TRight, QRight, QRadSum, QConvSum, QJouleSum], label = 'Temperatures & fluxes') 
+	r12 = FieldGroup([Acs, As], label = 'Miscellaneous') 
+	r1g = SuperGroup([r11, r12], label = 'Values')
 
 	T_x = PlotView(label = 'Temperatures', dataLabels = ['x position [m]', 'core temperature [degC]', 'surface temperature [degC]'],
 				options = {'ylabel': 'temperature [degC]'})
@@ -249,7 +255,7 @@ class WireHeating1D(NumericalModel):
 			model.BC[-1]['temperature'] = self.TRightInput
 		else:
 			model.BC[-1]['type'] = 'Q'
-			model.BC[-1]['flux'] = self.QRightInput
+			model.BC[-1]['flux'] = - self.QRightInput
 				
 # 		self.convection = {
 # 			'active': False,
@@ -301,7 +307,7 @@ class WireHeating1D(NumericalModel):
 		self.QAx_x[:, 0] = faceCenters
 		self.QAx_x[:, 1] = model.QAx
 		self.QLeft = self.QAx_x[0, 1]
-		self.QRight = self.QAx_x[-1, 1]
+		self.QRight = - self.QAx_x[-1, 1]
 		
 		# Convection flux
 		self.QConv_x = np.zeros((self.n, 2))

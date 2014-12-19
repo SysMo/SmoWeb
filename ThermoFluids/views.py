@@ -129,7 +129,7 @@ class HeatPumpView(View):
 		hpc.compute()
 		return hpc.superGroupList2Json([hpc.results])
 
-from smo.flow.heatExchange1D.WireHeating import WireHeating1D
+from smo.flow.heatExchange1D.WireHeating import CableHeating1D
 from smo.flow.heatExchange1D.CryogenicPipe import CryogenicPipe
 class HeatExchange1DView(View):
 	def get(self, request):
@@ -150,12 +150,12 @@ class HeatExchange1DView(View):
 	
 	@action('post')
 	def getWireHeatingInputs(self, parameters):
-		wireHeating = WireHeating1D()
+		wireHeating = CableHeating1D()
 		return wireHeating.superGroupList2Json(wireHeating.inputs)
 	
 	@action('post')
 	def computeWireHeating(self, parameters):
-		wireHeating = WireHeating1D()
+		wireHeating = CableHeating1D()
 		wireHeating.fieldValuesFromJson(parameters)
 		wireHeating.compute()
 		return wireHeating.superGroupList2Json(wireHeating.results)
