@@ -1,5 +1,6 @@
-from fields import Field, Quantity, Group, FieldGroup, ViewGroup, SuperGroup
+from fields import Field, Quantity, Group, FieldGroup, ViewGroup, RecordArray, SuperGroup
 from collections import OrderedDict
+import copy
 
 #TODO: Currently inheritance not supported
 class NumericalModelMeta(type):
@@ -47,7 +48,10 @@ class NumericalModel(object):
 	def __new__(cls, *args, **kwargs):
 		instance = object.__new__(cls)
 		for name, field in instance.declared_fields.iteritems():
-			instance.__setattr__(name, field.default)  
+			if (isinstance(object, RecordArray)):
+				instance.__setattr__(name, field.default.copy())
+			else:
+				instance.__setattr__(name, field.default)  
 		for name, value in kwargs.iteritems():
 			instance.__setattr__(name, value)
 		return instance
@@ -66,6 +70,7 @@ class NumericalModel(object):
 				definitions.append(self.superGroup2Json(group, fieldValues))
 			else:
 				raise TypeError("The argument to 'groupList2Json' must be a list of SuperGroups" )
+		
 		return {'definitions': definitions, 'values': fieldValues}
 
 	def superGroup2Json(self, group, fieldValues):
@@ -99,11 +104,12 @@ class NumericalModel(object):
 		jsonObject['fields'] = fieldList
 		return jsonObject
 	
-	def fieldValues2Json(self):
-		jsonObject = {}
-		for name, field in self.declared_fields.iteritems():
-			jsonObject[name] = field.getValueRepr(self.__dict__[name])
-		return jsonObject
+	
+# 	def fieldValues2Json(self):
+# 		jsonObject = {}
+# 		for name, field in self.declared_fields.iteritems():
+# 			jsonObject[name] = field.getValueRepr(self.__dict__[name])
+# 		return jsonObject
 	
 	def fieldValuesFromJson(self, jsonDict):
 		for key, value in jsonDict.iteritems():

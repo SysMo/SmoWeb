@@ -115,6 +115,53 @@ body {
 	height: 30px; 
 }
 
+/* Move down content because we have a fixed navbar that is 50px tall */
+body {
+  padding-top: 50px;
+}
+
+/* Sidebar */
+.sidebar {
+  position: fixed;
+  top: 50px;
+  bottom: 0px;
+  left: 0;
+  z-index: 1000;
+  display: block;    
+  overflow-x: hidden;
+  overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+  background-color: #E6E6FA;
+  border-right: 1px solid #eee;
+  width: 120px;
+  padding-top: 20px;
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-bottom: 5px;
+}
+
+/* Sidebar navigation */
+
+.nav-sidebar {
+  display: inline-block;
+  background-color: #E6E6FA;	
+}
+
+.nav-sidebar > li {
+	width: 100px;
+	display: inline-block;
+}
+
+.nav-sidebar > li > a {
+  width: 100px;
+  cursor: pointer;
+}
+ 
+.nav-sidebar > .active > a,
+.nav-sidebar > .active > a:hover,
+.nav-sidebar > .active > a:focus {
+  color: #fff;
+  background-color: #0875CA; 
+}
 
 h1.title {
 	text-align: center;
@@ -174,7 +221,8 @@ table.nice-table {
 table.nice-table td,
 table.nice-table th {
     padding: 10px;	
-    border: solid 1px #A0A0A0; 
+    border: solid 1px #A0A0A0;
+    min-width: 70px; 
 }
 
 table.nice-table th {
@@ -236,3 +284,5 @@ table.nice-table tr:nth-child(odd) {
 .section .italic-text {
 	font-style: italic;
 }
+
+

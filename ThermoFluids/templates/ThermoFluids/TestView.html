@@ -4,70 +4,52 @@
 
 {% block scripts_and_styles %}
 <script src="{% static 'SmoUtil.js' %}"></script>
-<link rel="stylesheet" type="text/css" href="{% static 'css/SmoInputOutputView.css' %}">
-
 <script type="text/javascript" src="http://dygraphs.com/dygraph-dev.js"></script>
 <script type="text/javascript" src="http://cavorite.com/labs/js/dygraphs-export/dygraph-extra.js"></script>
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-
 <script>
-google.load('visualization', '1.0', {'packages':["corechart", "table", "controls"]});
-angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
+angular.module('TestApp', ['ui.bootstrap', 'smo'])
 	.config(['$httpProvider', function($httpProvider) {
 	    $httpProvider.defaults.xsrfCookieName = 'csrftoken';
 	    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
 	}])
-	.controller('FluidPropsController', [ '$scope', '$http', 'ModelCommunicator', function($scope, $http, ModelCommunicator) {
-		$scope.activeTabId = "";
-		$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-			  $scope.activeTabId = e.target.id; // activated tab
-// 			  e.relatedTarget // previous tab
-			});
-		
-		$scope.plotObject = {
-			inputCommunicator: new ModelCommunicator(),
-			resultsCommunicator: new ModelCommunicator()
-		};
-		
-		$scope.plotObject.inputCommunicator.fetchData(
-			'getPlotData', {});
+	.controller('TestController', [ '$scope', '$http', 'ModelCommunicator', function($scope, $http, ModelCommunicator) {
+		$scope.testModel = {
+				inputCommunicator: new ModelCommunicator(),
+				resultsCommunicator: new ModelCommunicator()
+			};
+			
+			$scope.testModel.inputCommunicator.fetchData(
+				'getData', {}, function(comm){
+					$scope.arrayGroup = comm.data.definitions[0].groups[0];
+					$scope.dataValues = comm.data.values;
+				});
 }])
 </script>
 {% endblock %}
 
 
 {% block pills %}
-	<li class="active" role="presentation"><a id="calcTab" data-target="#calculator" role="tab" data-toggle="tab">Calculator</a></li>
-	<li role="presentation"> <a id="fluidsTab" data-target="#fluids" role="tab" data-toggle="tab">Fluid info</a></li>
-	<li role="presentation"> <a id="saturationTab" data-target="#saturation" role="tab" data-toggle="tab">Saturation</a></li>
-	<li role="presentation"> <a id="docTab" data-target="#doc" role="tab" data-toggle="tab">Doc</a></li>
+	<li class="active" role="presentation"><a id="testTab" data-target="#test" role="tab" data-toggle="tab">Test</a></li>
 {% endblock %}
 
 {% block content %}
-<div ng-app="FluidPropsCalculator" ng-controller="FluidPropsController">
-	<div class="tab-content">
-		<div class="tab-pane active page-container" id="calculator">		
-			<h1 class="title">Fluid properties calculator</h1>
-			<div class="title-figure">
-				<img src="{% static 'ThermoFluids/StateDiagram3D.svg' %}"></img>
-			</div>		
-{% verbatim %}	
-				<div smo-model-view="PlotViewInputs" view-type="input" communicator="plotObject.inputCommunicator"></div>
+<div ng-app="TestApp" ng-controller="TestController">
+		<div class="page-container">		
+			<h1 class="title">Test calculator</h1>
+			<div ng-if="testModel.inputCommunicator.loading" class="alert alert-info" role="alert">Loading...</div>
+				<div ng-if="testModel.inputCommunicator.commError" class="alert alert-danger" role="alert">Communication error: <span ng-bind="testModel.inputCommunicator.errorMsg"></span></div>
+				<div ng-if="testModel.inputCommunicator.serverError" class="alert alert-danger" role="alert">Server error: <span ng-bind="testModel.inputCommunicator.errorMsg"></span>
+					<div>Stack trace:</div><pre><div ng-bind="testModel.inputCommunicator.stackTrace"></div></pre>
+				</div>
+			
+			<div ng-if="testModel.inputCommunicator.dataReceived">
+{% verbatim %}
+				<div class="section">
+					<div smo-model-view="testModelInputs" view-type="input" communicator="testModel.inputCommunicator"></div> 
+				</div>
 {% endverbatim %}
-		</div>
-		<div class="tab-pane" id="doc">
-			<div class="docview">
-				{% include 'documentation/html/FluidPropsCalculator.html' %}
 			</div>
 		</div>
-		<div class="tab-pane page-container" id="fluids">
-{% verbatim %}	
-			<h1 class="title">Fluid information</h1>			
-		</div>
-{% endverbatim %}
-		<div class="tab-pane page-container" id="saturation">
-			<h1 class="title">Saturation</h1>
-		</div>
-	</div>
 </div>
 {% endblock %}

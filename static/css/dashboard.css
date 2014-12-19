@@ -24,56 +24,28 @@ body {
   border: 0;
 }
 
-/*
- * Sidebar
- */
-
-/* Footer */
-footer {
-	text-align: left;
-	clear: both;
-	position: relative;
-	z-index: 10;
-	height: 20px;
-	margin-top: -20px;
-	padding-left: 15px;
-	padding-right: 15px;
-	background-color: #F8F8F8;
-}
-
-@media (min-width: 768px) {
-  .sidebar {
-    position: fixed;
-    top: 50px;
-    bottom: 0px;
-    left: 0;
-    z-index: 1000;
-    display: block;    
-    overflow-x: hidden;
-    overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
-    background-color: #E6E6FA;
-    border-right: 1px solid #eee;
-    width: 120px;
-  }
-  footer {
-	text-align: left;
-	clear: both;
-	position: relative;
-	z-index: 10;
-	height: 20px;
-	margin-top: -20px;
-	padding-left: 135px;
-	padding-right: 15px;
-	background-color: #F8F8F8;
-}
+/* Sidebar */
+.sidebar {
+  position: fixed;
+  top: 50px;
+  bottom: 0px;
+  left: 0;
+  z-index: 1000;
+  display: block;    
+  overflow-x: hidden;
+  overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+  background-color: #E6E6FA;
+  border-right: 1px solid #eee;
+  width: 120px;
+  padding-top: 20px;
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-bottom: 5px;
 }
 
 /* Sidebar navigation */
 
 .nav-sidebar {
-  margin-right: -21px; /* 20px padding + 1px border */
-  margin-bottom: 20px;
-  margin-left: -31px;
   display: inline-block;
   background-color: #E6E6FA;	
 }
@@ -93,48 +65,4 @@ footer {
 .nav-sidebar > .active > a:focus {
   color: #fff;
   background-color: #0875CA; 
-}
-
-
-
-/*
- * Main content
- */
-
-.main {
-	padding-top: 0px;
-	padding-left: 31px;
-	padding-right: 21px;
-	padding-bottom: 20px;
-}
-@media (min-width: 768px) {
-  .main {
-  	padding-top: 20px;
-  	padding-bottom: 20px;
-    padding-right: 40px;
-    padding-left: 40px;
-  }
-}
-.main .page-header {
-  margin-top: 0;
-}
-
-
-/*
- * Placeholder dashboard ideas
- */
-
-.placeholders {
-  margin-bottom: 30px;
-  text-align: center;
-}
-.placeholders h4 {
-  margin-bottom: 0;
-}
-.placeholder {
-  margin-bottom: 20px;
-}
-.placeholder img {
-  display: inline-block;
-  border-radius: 50%;
 }

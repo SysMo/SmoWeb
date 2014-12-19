@@ -145,6 +145,24 @@
 	font-size: medium;
 	color: black;
 }
+/* Record array table editor */
+.record-array {
+	display: inline-block;
+	width: 1000px;
+	position: absolute;
+	z-index: 10000;
+	left: 190px;
+	white-space: nowrap;
+	background-color: white;
+	border: 1px solid black;
+	text-align: center;
+}
+
+.record-array > div {
+	display: inline-block;
+	vertical-align: top;
+	position: relative;
+}
 
 /* Unit Converter specific styles */
 .converter {
@@ -198,7 +216,7 @@
 	white-space: nowrap;
 	margin-left: 5px; 
 }
-
+a
 .converter .field-input input {
 	width: 120px; 
 	height: 30px;

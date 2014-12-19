@@ -3,23 +3,18 @@
 <!DOCTYPE HTML>
 <html lang="en">
 	<head>
-	<!-- Bootstrap core CSS -->	
 	<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"> 
-    <!-- Custom styles for this template -->
-	<!--     <link href="http://getbootstrap.com/examples/navbar-static-top/navbar-static-top.css" rel="stylesheet"> -->
 	<link rel="stylesheet" href="{% static 'css/Base.css' %}">
-	<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
-    <!-- JQuery -->
- 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>  
+	<link rel="stylesheet" type="text/css" href="{% static 'css/SmoInputOutputView.css' %}">
     
+    <!-- JQuery -->
+ 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>      
     <!-- AngularJS -->   
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular.min.js"></script> 
 	<script src="{% static "ui-bootstrap-tpls-0.11.0.min.js" %}"></script>
 	
 	<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-
-
-
+	
 	{% block scripts_and_styles %}
 	{% endblock %}	 
 	<script>
@@ -87,13 +82,17 @@
     
     <div class="container-fluid" id="content">
 		<div class="row">
-	        <div class="col-sm-2 col-md-1 sidebar main">
+	        <div class="sidebar">
 	          <ul class="nav nav-sidebar">
 	            {% block pills %}
 	            {% endblock %}
 	          </ul>
+	          <div style="position: fixed; bottom: 10px;">
+	          	<div><a href="http://www.sysmoltd.com/?q=contact">Contact us</a></div>
+	          	<div><span class="text-muted">&copy </span><a href="http://www.sysmoltd.com">Sysmo Ltd.</a></div>
+	          </div>
 	        </div>
-			<div class="col-sm-10 col-sm-offset-2 col-md-11 col-md-offset-1 main">
+			<div style="margin-left: 120px;">
 			{% block content %}
 				<h1 class="title">SmoWeb Computational Platform</h1>
 				<div class="align-center" style="margin-top: 50px;">
@@ -117,10 +116,6 @@
 			</div>
 		</div>
 	</div>
-	<footer id="footer">         
-       <span class="text-muted">Questions? <a href="http://www.sysmoltd.com/?q=contact">Contact us</a></span> 
-       <span class="text-muted" style="float: right;">&copy 2014 <a href="http://www.sysmoltd.com">Sysmo Ltd.</a></span>    
-    </footer>
 	<!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->

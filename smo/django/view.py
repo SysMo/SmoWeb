@@ -82,7 +82,7 @@ class View(object):
 		else:
 			response['errStatus'] = True
 			response['error'] = 'No POST action with name {0}'.format(actionName)
-		return JsonResponse(response, safe = False)
+		return JsonResponse(response)
 	
 	@classmethod
 	def asView(cls):
