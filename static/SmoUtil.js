@@ -1275,12 +1275,31 @@ smoModule.directive('smoArrayGroup', ['$compile', 'util', function($compile, uti
 					field.displayValue[row] 
 						= util.formatNumber((field.value[row] - offset) / field.dispUnitDef.mult);
 				}
-			}		
+			}
+			
+			$scope.addRow = function(row) {
+				$scope.smoDataSource[$scope.smoArrayGroup.name].splice(row, 0, 
+						$scope.smoDataSource[$scope.smoArrayGroup.name][row]);
+				for (var i=0; i<$scope.smoArrayGroup.fields.length; i++){
+					$scope.smoArrayGroup.fields[i].value.splice(row, 0,
+							$scope.smoArrayGroup.fields[i].value[row]);
+					$scope.smoArrayGroup.fields[i].displayValue.splice(row, 0,
+							$scope.smoArrayGroup.fields[i].displayValue[row]);
+				}
+				
+			}
+			
+			$scope.delRow = function(row) {
+				$scope.smoDataSource[$scope.smoArrayGroup.name].splice(row, 1);
+				for (var i=0; i<$scope.smoArrayGroup.fields.length; i++){
+					$scope.smoArrayGroup.fields[i].value.splice(row, 1);
+					$scope.smoArrayGroup.fields[i].displayValue.splice(row, 1);
+				}
+			}
 		},
 		link : function(scope, element, attr) {
 			scope.util = util;
 			scope.arrValue = scope.smoDataSource[scope.smoArrayGroup.name];
-			console.log(scope.arrValue);
 			
 			for (var i=0; i<scope.smoArrayGroup.fields.length; i++){
 				scope.smoArrayGroup.fields[i].value = [];
@@ -1325,19 +1344,27 @@ smoModule.directive('smoArrayGroup', ['$compile', 'util', function($compile, uti
 			template += '\
 			<div>\
 				<table class="nice-table">\
-					<th style="text-align: center;" ng-repeat="field in smoArrayGroup.fields">\
-						<div style="margin-bottom: 5px;">\
-							{{field.name}}\
-						</div>\
-						<div class="field-select quantity"> \
-							<select ng-model="field.displayUnit" ng-options="pair[0] as pair[0] for pair in field.units" ng-change="changeUnit(field)"></select>\
-						</div>\
-					</th>\
+					<tr>\
+						<th style="text-align: center;" ng-repeat="field in smoArrayGroup.fields">\
+							<div style="margin-bottom: 5px;">\
+								{{field.name}}\
+							</div>\
+							<div class="field-select quantity"> \
+								<select ng-model="field.displayUnit" ng-options="pair[0] as pair[0] for pair in field.units" ng-change="changeUnit(field)"></select>\
+							</div>\
+						</th>\
+						<th style="min-width: 10px;">\
+						</th>\
+					</tr>\
 					<tr ng-repeat="row in arrValue track by $index" ng-init="i=$index">\
 						<td ng-repeat="field in smoArrayGroup.fields">\
 							<div class="field-input">\
 								<input name="input" required type="text" ng-pattern="/^[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$/" ng-model="field.displayValue[i]" ng-change="updateValue(field)">\
 							</div>\
+						</td>\
+						<td style="min-width: 10px; cursor: pointer;">\
+							<div><a ng-click="addRow(i)">+</a></div>\
+							<div><a ng-click="delRow(i)">x</a></div>\
 						</td>\
 					</tr>\
 				</table>\
