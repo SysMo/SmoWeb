@@ -4,8 +4,6 @@
 
 {% block scripts_and_styles %}
 <script src="{% static 'SmoUtil.js' %}"></script>
-<link rel="stylesheet" type="text/css" href="{% static 'css/SmoInputOutputView.css' %}">
-
 <script type="text/javascript" src="http://dygraphs.com/dygraph-dev.js"></script>
 <script type="text/javascript" src="http://cavorite.com/labs/js/dygraphs-export/dygraph-extra.js"></script>
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
@@ -26,20 +24,6 @@ angular.module('TestApp', ['ui.bootstrap', 'smo'])
 					$scope.arrayGroup = comm.data.definitions[0].groups[0];
 					$scope.dataValues = comm.data.values;
 				});
-			
-			$scope.renderArray = function(){			
-// 				var numRows = $scope.arrayVals.length;
-// 				var numCols = $scope.arrayDefs.fields.length;
-// 				$scope.fields = [];
-// 				for (var i=0; i<numRows; i++){
-// 					var row = [];
-// 					for (var j=0; j<numCols; j++){
-// 						row.push()
-// 					}
-// 				}
-			}
-		
-		
 }])
 </script>
 {% endblock %}
@@ -62,7 +46,6 @@ angular.module('TestApp', ['ui.bootstrap', 'smo'])
 			<div ng-if="testModel.inputCommunicator.dataReceived">
 {% verbatim %}
 				<div class="section">
-<!-- 					<div smo-array-group="arrayGroup" smo-data-source="dataValues"></div> -->
 					<div smo-model-view="testModelInputs" view-type="input" communicator="testModel.inputCommunicator"></div> 
 				</div>
 {% endverbatim %}

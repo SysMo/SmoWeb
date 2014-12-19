@@ -13,83 +13,70 @@
 
 {% block content %}
 <div ng-app="csvImportApp" ng-controller="CsvImportController">
-	<h1>Import CSV</h1>
-	<div class="text-field">
-		<div class="text-area">Select CSV file to import</div>
-	</div>
-	<div class="form-field">
-		<div class="form-label">CSV File</div><input ng-file-select="fileSelect($files)" type="file" />
-	</div>
-	<div class="form-field">
-		<div class="form-label">Rows to Display</div><input ng-model="numRowsInPreview" name="numRowsInPreview" type="number" value="10" />
-	</div>	
-	<div class="form-field">
-		<button  ng-click="sendFile()" >Upload</button>
-	</div>
-				
-<!-- 	  	<tr> -->
-<!-- 			<td></td>	 -->
-<!-- 		</tr>  -->
-<!-- 		<tr> -->
-<!-- 			<td> -->
-<!-- {% verbatim %}			 -->
-<!-- 				<div class="progress"> -->
-<!-- 					<div style="width:{{ progress }}%" ng-bind="progress"></div> -->
-<!-- 				</div> -->
-<!-- {% endverbatim %} -->
-<!-- 			</td> -->
-<!-- 			<td> -->
-<!-- 				<button ng-click="upload.abort()">Cancel Upload</button> -->
-<!-- 			</td>			 -->
-<!-- 		</tr> -->
-	<div ng-if="showPreviewTable">
-		<div class="text-field">
-			<div class="text-label">The file contains:</div><div class="text-area" ng-bind="csvPreviewData.numRows"></div><div class="text-area">rows</div>
-		</div>
-		<table class="dataTable"> 
-			<tr>
-				<td class="row-label"><span class="glyphicon glyphicon-question-sign" data-toggle="popover"  
-				title="	- Select column names by double-clicking on a row header (leftmost cell with row number)
-	- Column names can also be edited directly 
-	- Select a storage type for the column
-	- Select columns to import using the checkboxes at the top
-	- Select the first data row with a single mouse-click 
-	- Submit!"></span> Use column</td>
-				<td ng-repeat="column in columnProps" class = "column-label">
-					<input type = "checkbox" ng-model="column.use"></input> 
-				</td>
-			</tr>
-			<tr>
-				<td class="row-label">Column type</td>
-				<td ng-repeat="column in columnProps" class = "column-label">
-					<select ng-model = "column.dataType" ng-options = "typeName for typeName in columnTypeChoices"></select> 
-				</td>
-			</tr>
-			<tr>
-				<td class="row-label">Column name</td>
-				<td ng-repeat="column in columnProps">
-					<input ng-model="column.name" class = "column-label tableInput"></input>
-				</td>
-			</tr>
-			<tr ng-repeat = "row in csvPreviewData.tableValues track by $index" ng-init = "rowIndex = $index + 1">
-				<td class="row-label" ng-dblclick="onRowHeaderDblClick(rowIndex)" smo-single-click = "onRowHeaderClick(rowIndex)"><div ng-bind="rowIndex" class="noselect"></div></td>
-				<td ng-repeat = "cellValue in row track by $index" ng-init = "colIndex = $index + 1">
-					<div class="output" ng-bind="cellValue" ng-style="cellStyle(rowIndex, colIndex)"></div>
-				</td>
-			</tr>
-		</table>			
-		<div class="form-field">
-			<div class="form-label">HDF dataset name:</div><input ng-model="datasetProps.name"></input> 
-		</div>		
-		<div class="text-field">
-			<div class="text-label">Selected dataset name:</div><div class="text-area" ng-bind="datasetProps.name"></div>
-		</div>
-		<div class="form-field"><div class="form-label">Select HDF group:</div></div>
-		<smo-hdf-browser tree-id="hdfView"></smo-hdf-browser>		
-		<div class="form-field">
-			<button ng-click="importDataset(hdfView.currentNode.path)">Submit</button>
+	<div class="page-container">
+		<h1 class="title">Import CSV</h1>
+		<div class="section">
+			<div class="text-field">
+				<div class="text-area">Select CSV file to import</div>
+			</div>
+			<div class="form-field">
+				<div class="form-label">CSV File</div><input ng-file-select="fileSelect($files)" type="file" />
+			</div>
+			<div class="form-field">
+				<div class="form-label">Rows to Display</div><input ng-model="numRowsInPreview" name="numRowsInPreview" type="number" value="10" />
+			</div>	
+			<div class="form-field">
+				<button  ng-click="sendFile()" >Upload</button>
+			</div>
+			<div ng-if="showPreviewTable">
+				<div class="text-field">
+					<div class="text-label">The file contains:</div><div class="text-area" ng-bind="csvPreviewData.numRows"></div><div class="text-area">rows</div>
+				</div>
+				<table class="dataTable"> 
+					<tr>
+						<td class="row-label"><span class="glyphicon glyphicon-question-sign" data-toggle="popover"  
+						title="	- Select column names by double-clicking on a row header (leftmost cell with row number)
+			- Column names can also be edited directly 
+			- Select a storage type for the column
+			- Select columns to import using the checkboxes at the top
+			- Select the first data row with a single mouse-click 
+			- Submit!"></span> Use column</td>
+						<td ng-repeat="column in columnProps" class = "column-label">
+							<input type = "checkbox" ng-model="column.use"></input> 
+						</td>
+					</tr>
+					<tr>
+						<td class="row-label">Column type</td>
+						<td ng-repeat="column in columnProps" class = "column-label">
+							<select ng-model = "column.dataType" ng-options = "typeName for typeName in columnTypeChoices"></select> 
+						</td>
+					</tr>
+					<tr>
+						<td class="row-label">Column name</td>
+						<td ng-repeat="column in columnProps">
+							<input ng-model="column.name" class = "column-label tableInput"></input>
+						</td>
+					</tr>
+					<tr ng-repeat = "row in csvPreviewData.tableValues track by $index" ng-init = "rowIndex = $index + 1">
+						<td class="row-label" ng-dblclick="onRowHeaderDblClick(rowIndex)" smo-single-click = "onRowHeaderClick(rowIndex)"><div ng-bind="rowIndex" class="noselect"></div></td>
+						<td ng-repeat = "cellValue in row track by $index" ng-init = "colIndex = $index + 1">
+							<div class="output" ng-bind="cellValue" ng-style="cellStyle(rowIndex, colIndex)"></div>
+						</td>
+					</tr>
+				</table>			
+				<div class="form-field">
+					<div class="form-label">HDF dataset name:</div><input ng-model="datasetProps.name"></input> 
+				</div>		
+				<div class="text-field">
+					<div class="text-label">Selected dataset name:</div><div class="text-area" ng-bind="datasetProps.name"></div>
+				</div>
+				<div class="form-field"><div class="form-label">Select HDF group:</div></div>
+				<smo-hdf-browser tree-id="hdfView"></smo-hdf-browser>		
+				<div class="form-field">
+					<button ng-click="importDataset(hdfView.currentNode.path)">Submit</button>
+				</div>
+			</div>
 		</div>
 	</div>
-
 </div>	
 {% endblock %}
