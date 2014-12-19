@@ -1241,6 +1241,16 @@ smoModule.directive('smoArrayGroup', ['$compile', 'util', function($compile, uti
 			smoDataSource : '='
 		},
 		controller: function($scope){
+			$scope.toggleMess = "Show";
+			$scope.expanded = false;
+			$scope.toggle = function(){
+				$scope.expanded = !$scope.expanded;
+				if ($scope.expanded == true){
+					$scope.toggleMess = "Hide";
+				} else {
+					$scope.toggleMess = "Show";
+				}
+			}
 			$scope.updateValue = function(field) {
 				var offset = 0;
 				if ('offset' in field.dispUnitDef) {
@@ -1339,11 +1349,14 @@ smoModule.directive('smoArrayGroup', ['$compile', 'util', function($compile, uti
 			
 			
 			var template = '\
-					<div class="field-label">' + scope.smoArrayGroup.label + '</div>';
+			<div class="field-label" style="display: inline-block; vertical-align: top;">\
+				<span style="margin-right: 5px;">' + scope.smoArrayGroup.label + '</span>\
+				<span><button ng-click="toggle()" ng-bind="toggleMess"></button></span>\
+			</div>';
 			
 			template += '\
-			<div>\
-				<table class="nice-table">\
+			<div style="display: inline-block" ng-show="expanded">\
+				<table class="nice-table" style="margin: 0px;">\
 					<tr>\
 						<th style="min-width: 10px;">\
 						</th>\
