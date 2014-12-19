@@ -1241,11 +1241,46 @@ smoModule.directive('smoArrayGroup', ['$compile', 'util', function($compile, uti
 			smoDataSource : '='
 		},
 		controller: function($scope){
-							
+			$scope.updateValue = function(field) {
+				var offset = 0;
+				if ('offset' in field.dispUnitDef) {
+					offset = field.dispUnitDef.offset;
+				}
+				
+				for (var row=0; row<$scope.arrValue.length; row++){
+					field.value[row] 
+						= Number(field.displayValue[row]) * field.dispUnitDef.mult + offset;
+				}
+				
+				for (var i=0; i<$scope.smoArrayGroup.fields.length; i++){
+					for (row in $scope.smoDataSource[$scope.smoArrayGroup.name]){
+						$scope.smoDataSource[$scope.smoArrayGroup.name][row][i] = $scope.smoArrayGroup.fields[i].value[row];
+					}
+				}
+			}
+			
+			$scope.changeUnit = function(field) {
+				for (var i=0; i<field.units.length; i++) {
+					if (field.displayUnit == field.units[i][0]){
+						field.dispUnitDef = field.units[i][1];
+					}	
+				}
+				
+				var offset = 0;
+				if ('offset' in field.dispUnitDef) {
+					offset = field.dispUnitDef.offset;
+				}
+				
+				for (var row=0; row<$scope.arrValue.length; row++){
+					field.displayValue[row] 
+						= util.formatNumber((field.value[row] - offset) / field.dispUnitDef.mult);
+				}
+			}		
 		},
 		link : function(scope, element, attr) {
 			scope.util = util;
 			scope.arrValue = scope.smoDataSource[scope.smoArrayGroup.name];
+			console.log(scope.arrValue);
 			
 			for (var i=0; i<scope.smoArrayGroup.fields.length; i++){
 				scope.smoArrayGroup.fields[i].value = [];
@@ -1295,13 +1330,13 @@ smoModule.directive('smoArrayGroup', ['$compile', 'util', function($compile, uti
 							{{field.name}}\
 						</div>\
 						<div class="field-select quantity"> \
-							<select ng-model="field.displayUnit" ng-options="pair[0] as pair[0] for pair in field.units"></select>\
+							<select ng-model="field.displayUnit" ng-options="pair[0] as pair[0] for pair in field.units" ng-change="changeUnit(field)"></select>\
 						</div>\
 					</th>\
-					<tr ng-repeat="row in arrValue track by $index">\
+					<tr ng-repeat="row in arrValue track by $index" ng-init="i=$index">\
 						<td ng-repeat="field in smoArrayGroup.fields">\
 							<div class="field-input">\
-								<input name="input" required type="text" ng-pattern="/^[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$/" ng-model="field.displayValue[$index]">\
+								<input name="input" required type="text" ng-pattern="/^[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$/" ng-model="field.displayValue[i]" ng-change="updateValue(field)">\
 							</div>\
 						</td>\
 					</tr>\
