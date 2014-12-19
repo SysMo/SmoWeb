@@ -1232,3 +1232,115 @@ smoModule.directive('smoArrayQuantity', ['$compile', 'util', function($compile, 
 		}
 	}
 }]);
+
+smoModule.directive('smoArrayGroup', ['$compile', 'util', function($compile, util) {
+	return {
+		restrict : 'A',
+		scope : {
+			smoArrayGroup: '=',
+			smoDataSource : '='
+		},
+		controller: function($scope){
+			
+			console.log($scope.smoArrayGroup);
+			
+//			$scope.fieldVar.unit = $scope.fieldVar.unit || $scope.fieldVar.SIUnit;
+//			$scope.fieldVar.displayUnit = $scope.fieldVar.displayUnit || $scope.fieldVar.defaultDispUnit || $scope.fieldVar.unit;
+//			for (var i=0; i < $scope.fieldVar.units.length; i++) {
+//				if ($scope.fieldVar.unit == $scope.fieldVar.units[i][0]){
+//					$scope.fieldVar.unitDef = $scope.fieldVar.units[i][1];
+//				}
+//				if ($scope.fieldVar.displayUnit == $scope.fieldVar.units[i][0]){
+//					$scope.fieldVar.dispUnitDef = $scope.fieldVar.units[i][1];
+//				}	
+//			}
+//			
+//			var offset = $scope.fieldVar.unitDef.offset || 0;
+//			$scope.fieldVar.value = $scope.fieldVar.value * $scope.fieldVar.unitDef.mult + offset;
+//			offset = $scope.fieldVar.dispUnitDef.offset || 0;
+//			$scope.fieldVar.displayValue = util.formatNumber(($scope.fieldVar.value - offset) / $scope.fieldVar.dispUnitDef.mult);
+//			
+//			$scope.fieldVar.minDisplayValue = ($scope.fieldVar.minValue - offset) / $scope.fieldVar.dispUnitDef.mult;
+//			$scope.fieldVar.maxDisplayValue = ($scope.fieldVar.maxValue - offset) / $scope.fieldVar.dispUnitDef.mult;				
+		},
+		link : function(scope, element, attr) {
+			scope.util = util;
+			scope.arrValue = scope.smoDataSource[scope.smoArrayGroup.name];
+			
+			for (var i=0; i<scope.smoArrayGroup.fields.length; i++){
+				scope.smoArrayGroup.fields[i].value = [];
+				for (row in scope.arrValue){
+					scope.smoArrayGroup.fields[i].value.push(scope.arrValue[row][i]);
+				}
+				console.log(scope.smoArrayGroup.fields[i].value);
+			}
+			
+			
+			
+			for (var i=0; i<scope.smoArrayGroup.fields.length; i++){
+				scope.smoArrayGroup.fields[i].unit 
+					= scope.smoArrayGroup.fields[i].unit || scope.smoArrayGroup.fields[i].SIUnit;
+				scope.smoArrayGroup.fields[i].displayUnit 
+					= scope.smoArrayGroup.fields[i].displayUnit || scope.smoArrayGroup.fields[i].defaultDispUnit || scope.smoArrayGroup.fields[i].unit;
+				
+				for (var j=0; j<scope.smoArrayGroup.fields[i].units.length; j++) {
+					if (scope.smoArrayGroup.fields[i].unit == scope.smoArrayGroup.fields[i].units[j][0]){
+						scope.smoArrayGroup.fields[i].unitDef = scope.smoArrayGroup.fields[i].units[j][1];
+					}
+					if (scope.smoArrayGroup.fields[i].displayUnit == scope.smoArrayGroup.fields[i].units[j][0]){
+						scope.smoArrayGroup.fields[i].dispUnitDef = scope.smoArrayGroup.fields[i].units[j][1];
+					}	
+				}
+				
+				var offset = scope.smoArrayGroup.fields[i].unitDef.offset || 0;
+				
+				
+//				for (var row=0; row<scope.smoDataSource.length; row++){
+//					scope.smoArrayGroup.value[row][i] 
+//						= scope.smoArrayGroup.value[row][i] * scope.smoArrayGroup.fields[i].unitDef.mult + offset;
+//					offset = scope.smoArrayGroup.fields[i].dispUnitDef.offset || 0;
+//					scope.smoArrayGroup.displayValue[row][i] 
+//						= util.formatNumber((scope.smoArrayGroup.value[row][i] - offset) / scope.smoArrayGroup.fields[i].dispUnitDef.mult);
+//				}
+				
+//				scope.smoArrayGroup.fields[i].value 
+//					= scope.smoArrayGroup.fields[i].value * scope.smoArrayGroup.fields[i].unitDef.mult + offset;
+//				offset = scope.smoArrayGroup.fields[i].dispUnitDef.offset || 0;
+//				scope.smoArrayGroup.fields[i].displayValue 
+//					= util.formatNumber((scope.smoArrayGroup.fields[i].value - offset) / scope.smoArrayGroup.fields[i].dispUnitDef.mult);
+				
+				
+			}
+			
+			
+			var template = '\
+					<div class="field-label">' + scope.smoArrayGroup.label + '</div>';
+			
+			template += '\
+			<div>\
+				<table class="nice-table">\
+					<th style="text-align: center;" ng-repeat="field in smoArrayGroup.fields">\
+						<div style="margin-bottom: 5px;">\
+							{{field.name}}\
+						</div>\
+						<div class="field-select quantity"> \
+							<select ng-model="field.displayUnit" ng-options="pair[0] as pair[0] for pair in field.units"></select>\
+						</div>\
+					</th>\
+					<tr ng-repeat="row in arrValue track by $index">\
+						<td ng-repeat="field in smoArrayGroup.fields">\
+							<div class="field-input">\
+								<input name="input" required type="text" ng-pattern="/^[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$/" ng-model="field.value[$index]">\
+							</div>\
+						</td>\
+					</tr>\
+				</table>\
+			</div>';
+			
+	        var el = angular.element(template);
+	        compiled = $compile(el);
+	        element.append(el);
+	        compiled(scope);
+		}
+	}
+}]);

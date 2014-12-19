@@ -353,7 +353,6 @@ class Record():
 			structField = field
 			structField._name = name
 			self.structFields.append(structField)
-			
 		
 
 class ArrayGroup(Group):

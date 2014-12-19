@@ -16,11 +16,6 @@ angular.module('TestApp', ['ui.bootstrap', 'smo'])
 	    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
 	}])
 	.controller('TestController', [ '$scope', '$http', 'ModelCommunicator', function($scope, $http, ModelCommunicator) {
-		$scope.testArray = [
-		                    [{'value': 1}, {'value': 2}, {'value': 3}], 
-		                    [{'value': 1}, {'value': 2}, {'value': 3}]
-							];
-		
 		$scope.testModel = {
 				inputCommunicator: new ModelCommunicator(),
 				resultsCommunicator: new ModelCommunicator()
@@ -28,11 +23,8 @@ angular.module('TestApp', ['ui.bootstrap', 'smo'])
 			
 			$scope.testModel.inputCommunicator.fetchData(
 				'getData', {}, function(comm){
-					$scope.arrayDefs= comm.data.definitions[0].groups[0];
-					$scope.arrayVals = comm.data.values.testArray;
-					console.log($scope.arrayDefs);
-					console.log($scope.arrayVals);
-// 					$scope.renderArray();
+					$scope.arrayGroup = comm.data.definitions[0].groups[0];
+					$scope.dataValues = comm.data.values;
 				});
 			
 			$scope.renderArray = function(){			
@@ -70,21 +62,9 @@ angular.module('TestApp', ['ui.bootstrap', 'smo'])
 			<div ng-if="testModel.inputCommunicator.dataReceived">
 {% verbatim %}
 				<div class="section">
-					<table class="nice-table">
-						<th ng-repeat="field in arrayDefs.fields">
-							{{field.name}}
-						</th>
-						<tr ng-repeat="row in arrayVals">
-							<td ng-repeat="value in row">
-								{{value}}
-							</td>
-						</tr>
-					</table>
+					<div smo-array-group="arrayGroup" smo-data-source="dataValues"></div>
 				</div>
-<!-- <div smo-array-quantity view-type="input" field-var="field" smo-data-source="dataValues[i][$index]"></div> -->
 {% endverbatim %}
-				<div class="section">
-				</div>
 			</div>
 		</div>
 </div>
