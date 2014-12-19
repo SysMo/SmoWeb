@@ -1241,27 +1241,7 @@ smoModule.directive('smoArrayGroup', ['$compile', 'util', function($compile, uti
 			smoDataSource : '='
 		},
 		controller: function($scope){
-			
-			console.log($scope.smoArrayGroup);
-			
-//			$scope.fieldVar.unit = $scope.fieldVar.unit || $scope.fieldVar.SIUnit;
-//			$scope.fieldVar.displayUnit = $scope.fieldVar.displayUnit || $scope.fieldVar.defaultDispUnit || $scope.fieldVar.unit;
-//			for (var i=0; i < $scope.fieldVar.units.length; i++) {
-//				if ($scope.fieldVar.unit == $scope.fieldVar.units[i][0]){
-//					$scope.fieldVar.unitDef = $scope.fieldVar.units[i][1];
-//				}
-//				if ($scope.fieldVar.displayUnit == $scope.fieldVar.units[i][0]){
-//					$scope.fieldVar.dispUnitDef = $scope.fieldVar.units[i][1];
-//				}	
-//			}
-//			
-//			var offset = $scope.fieldVar.unitDef.offset || 0;
-//			$scope.fieldVar.value = $scope.fieldVar.value * $scope.fieldVar.unitDef.mult + offset;
-//			offset = $scope.fieldVar.dispUnitDef.offset || 0;
-//			$scope.fieldVar.displayValue = util.formatNumber(($scope.fieldVar.value - offset) / $scope.fieldVar.dispUnitDef.mult);
-//			
-//			$scope.fieldVar.minDisplayValue = ($scope.fieldVar.minValue - offset) / $scope.fieldVar.dispUnitDef.mult;
-//			$scope.fieldVar.maxDisplayValue = ($scope.fieldVar.maxValue - offset) / $scope.fieldVar.dispUnitDef.mult;				
+							
 		},
 		link : function(scope, element, attr) {
 			scope.util = util;
@@ -1269,13 +1249,11 @@ smoModule.directive('smoArrayGroup', ['$compile', 'util', function($compile, uti
 			
 			for (var i=0; i<scope.smoArrayGroup.fields.length; i++){
 				scope.smoArrayGroup.fields[i].value = [];
+				scope.smoArrayGroup.fields[i].displayValue = [];
 				for (row in scope.arrValue){
 					scope.smoArrayGroup.fields[i].value.push(scope.arrValue[row][i]);
 				}
-				console.log(scope.smoArrayGroup.fields[i].value);
 			}
-			
-			
 			
 			for (var i=0; i<scope.smoArrayGroup.fields.length; i++){
 				scope.smoArrayGroup.fields[i].unit 
@@ -1295,20 +1273,13 @@ smoModule.directive('smoArrayGroup', ['$compile', 'util', function($compile, uti
 				var offset = scope.smoArrayGroup.fields[i].unitDef.offset || 0;
 				
 				
-//				for (var row=0; row<scope.smoDataSource.length; row++){
-//					scope.smoArrayGroup.value[row][i] 
-//						= scope.smoArrayGroup.value[row][i] * scope.smoArrayGroup.fields[i].unitDef.mult + offset;
-//					offset = scope.smoArrayGroup.fields[i].dispUnitDef.offset || 0;
-//					scope.smoArrayGroup.displayValue[row][i] 
-//						= util.formatNumber((scope.smoArrayGroup.value[row][i] - offset) / scope.smoArrayGroup.fields[i].dispUnitDef.mult);
-//				}
-				
-//				scope.smoArrayGroup.fields[i].value 
-//					= scope.smoArrayGroup.fields[i].value * scope.smoArrayGroup.fields[i].unitDef.mult + offset;
-//				offset = scope.smoArrayGroup.fields[i].dispUnitDef.offset || 0;
-//				scope.smoArrayGroup.fields[i].displayValue 
-//					= util.formatNumber((scope.smoArrayGroup.fields[i].value - offset) / scope.smoArrayGroup.fields[i].dispUnitDef.mult);
-				
+				for (var row=0; row<scope.arrValue.length; row++){
+					scope.smoArrayGroup.fields[i].value[row]
+						= scope.smoArrayGroup.fields[i].value[row] * scope.smoArrayGroup.fields[i].unitDef.mult + offset;
+					offset = scope.smoArrayGroup.fields[i].dispUnitDef.offset || 0;
+					scope.smoArrayGroup.fields[i].displayValue[row] 
+						= util.formatNumber((scope.smoArrayGroup.fields[i].value[row] - offset) / scope.smoArrayGroup.fields[i].dispUnitDef.mult);
+				}
 				
 			}
 			
@@ -1330,7 +1301,7 @@ smoModule.directive('smoArrayGroup', ['$compile', 'util', function($compile, uti
 					<tr ng-repeat="row in arrValue track by $index">\
 						<td ng-repeat="field in smoArrayGroup.fields">\
 							<div class="field-input">\
-								<input name="input" required type="text" ng-pattern="/^[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$/" ng-model="field.value[$index]">\
+								<input name="input" required type="text" ng-pattern="/^[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$/" ng-model="field.displayValue[$index]">\
 							</div>\
 						</td>\
 					</tr>\
