@@ -1,4 +1,4 @@
-from fields import Field, Quantity, Group, FieldGroup, ViewGroup, ArrayGroup, SuperGroup
+from fields import Field, Quantity, Group, FieldGroup, ViewGroup, RecordArray, SuperGroup
 from collections import OrderedDict
 import copy
 
@@ -48,7 +48,10 @@ class NumericalModel(object):
 	def __new__(cls, *args, **kwargs):
 		instance = object.__new__(cls)
 		for name, field in instance.declared_fields.iteritems():
-			instance.__setattr__(name, field.default)  
+			if (isinstance(object, RecordArray)):
+				instance.__setattr__(name, field.default.copy())
+			else:
+				instance.__setattr__(name, field.default)  
 		for name, value in kwargs.iteritems():
 			instance.__setattr__(name, value)
 		return instance
@@ -78,8 +81,6 @@ class NumericalModel(object):
 				subgroupList.append(self.fieldGroup2Json(subgroup, fieldValues))
 			elif (isinstance(subgroup, ViewGroup)):
 				subgroupList.append(self.viewGroup2Json(subgroup, fieldValues))
-			elif (isinstance(subgroup, ArrayGroup)):
-				subgroupList.append(self.array2Json(subgroup, fieldValues))
 			elif (isinstance(subgroup, SuperGroup)):
 				subgroupList.append(self.superGroup2Json(subgroup, fieldValues))
 		jsonObject['groups'] = subgroupList				
@@ -103,27 +104,12 @@ class NumericalModel(object):
 		jsonObject['fields'] = fieldList
 		return jsonObject
 	
-	def array2Json(self, arrayGroup, fieldValues):
-		jsonObject = {'type': 'ArrayGroup', 'name': arrayGroup._name,
-					'label': arrayGroup.label}
-		
-		structFieldList = []		
-		for i in range(len(arrayGroup.structFields)):
-			structField = arrayGroup.structFields[i]
-			fieldDict = structField.toFormDict()
-			structFieldList.append(fieldDict)
-		
-		fieldValues[arrayGroup._name] = arrayGroup.array.tolist()
-		
-		jsonObject['fields'] = structFieldList
-# 		print jsonObject
-		return jsonObject
 	
-	def fieldValues2Json(self):
-		jsonObject = {}
-		for name, field in self.declared_fields.iteritems():
-			jsonObject[name] = field.getValueRepr(self.__dict__[name])
-		return jsonObject
+# 	def fieldValues2Json(self):
+# 		jsonObject = {}
+# 		for name, field in self.declared_fields.iteritems():
+# 			jsonObject[name] = field.getValueRepr(self.__dict__[name])
+# 		return jsonObject
 	
 	def fieldValuesFromJson(self, jsonDict):
 		for key, value in jsonDict.iteritems():

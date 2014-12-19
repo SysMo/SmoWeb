@@ -340,45 +340,72 @@ class SuperGroup(Group):
 		super(SuperGroup, self).__init__(*args, **kwargs)
 		self.groups = [] if (groups is None) else groups
 		
-class Record():
-	def __init__(self, structDict = None, *args, **kwargs):
-		if (structDict is None):
-			raise ValueError("Undefined record")
-		if (len(structDict) == 0):
-			raise ValueError("Undefined record")
+# class Record():
+# 	def __init__(self, structDict = None, *args, **kwargs):
+# 		if (structDict is None):
+# 			raise ValueError("Undefined record")
+# 		if (len(structDict) == 0):
+# 			raise ValueError("Undefined record")
+# 		
+# 		self.fieldList = []
+# 		
+# 		for name, field in structDict.items():
+# 			structField = field
+# 			structField._name = name
+# 			self.fieldList.append(structField)
 		
-		self.structFields = []
+
+class RecordArray(Field):
+	def __init__(self, structDict = None, numRows = None, *args, **kwargs):
+		super(RecordArray, self).__init__(*args, **kwargs)	
+		
+		if (structDict is None):
+			raise ValueError('The structure of the array is not defined')
+		if (len(structDict) == 0):
+			raise ValueError('The structure of the array is not defined')
+		
+		self.fieldList = []
+		typeList = []
+		defaultValueList = []
 		
 		for name, field in structDict.items():
 			structField = field
 			structField._name = name
-			self.structFields.append(structField)
-		
-
-class ArrayGroup(Group):
-	def __init__(self, record = None, numRows = None, *args, **kwargs):
-		super(ArrayGroup, self).__init__(*args, **kwargs)	
-		
-		if (record is None):
-			raise ValueError('Undefined array type')
-		
-		self.structFields = record.structFields
+			defaultValueList.append(field.default)
+			self.fieldList.append(structField)
+			typeList.append((field._name, 'f'))
+		defaultValueList = tuple(defaultValueList)
 		
 		if (numRows is None):
 			numRows = 0
-		
-		structTypeList = []
-		for field in self.structFields:
-			structTypeList.append((field._name, 'f'))
-		
-		self.array = np.zeros((numRows,), dtype=np.dtype(structTypeList))
+				
+		self.default = np.zeros((numRows,), dtype=np.dtype(typeList))
 		
 		for i in range(numRows):
-			rowValueList = []
-			for j in range(len(self.structFields)):
-				rowValueList.append(self.structFields[j].default)
-			self.array[i] = tuple(rowValueList)
+			self.default[i] = defaultValueList
 		
+	def parseValue(self, value):
+		if (isinstance(value, np.ndarray)):
+			return value
+		else:
+			raise TypeError('The value of RecordArray must be a numpy structured array')
+	
+	def getValueRepr(self, value):
+		return value.tolist()
+
+	def toFormDict(self):
+		fieldDict = {'type': 'RecordArray', 
+					'name': self._name,
+					'label': self.label
+					}
+		
+		jsonFieldList = []		
+		for field in self.fieldList:
+			jsonFieldList.append(field.toFormDict())
+		
+		fieldDict['fields'] = jsonFieldList
+		
+		return fieldDict
 
 		
-
+		

@@ -170,7 +170,8 @@ class TestView(View):
 	@action('post')
 	def getData(self, parameters):
 		testModel = TestModel()
-		return testModel.superGroupList2Json([testModel.testSuperGroup])
+		res = testModel.superGroupList2Json([testModel.testSuperGroup])
+		return res
 		
 		
 		

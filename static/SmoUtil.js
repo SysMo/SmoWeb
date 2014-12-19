@@ -898,7 +898,9 @@ smoModule.directive('smoFieldGroup', ['$compile', 'util', function($compile, uti
 						groupFields.push('<div ' + showFieldCode + ' smo-bool view-type="input" field-var="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
 					if (scope.viewType == 'output')
 						groupFields.push('<div ' + showFieldCode + ' smo-bool view-type="output" field-var="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
-				}			
+				} else if (field.type == 'RecordArray') {
+						groupFields.push('<div smo-record-array="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
+				}	
 			}
 			
 			var template;
@@ -1233,23 +1235,17 @@ smoModule.directive('smoArrayQuantity', ['$compile', 'util', function($compile, 
 	}
 }]);
 
-smoModule.directive('smoArrayGroup', ['$compile', 'util', function($compile, util) {
+smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, util) {
 	return {
 		restrict : 'A',
 		scope : {
-			smoArrayGroup: '=',
+			smoRecordArray: '=',
 			smoDataSource : '='
 		},
 		controller: function($scope){
-			$scope.toggleMess = "Show";
 			$scope.expanded = false;
 			$scope.toggle = function(){
 				$scope.expanded = !$scope.expanded;
-				if ($scope.expanded == true){
-					$scope.toggleMess = "Hide";
-				} else {
-					$scope.toggleMess = "Show";
-				}
 			}
 			$scope.updateValue = function(field) {
 				var offset = 0;
@@ -1262,9 +1258,9 @@ smoModule.directive('smoArrayGroup', ['$compile', 'util', function($compile, uti
 						= Number(field.displayValue[row]) * field.dispUnitDef.mult + offset;
 				}
 				
-				for (var i=0; i<$scope.smoArrayGroup.fields.length; i++){
-					for (row in $scope.smoDataSource[$scope.smoArrayGroup.name]){
-						$scope.smoDataSource[$scope.smoArrayGroup.name][row][i] = $scope.smoArrayGroup.fields[i].value[row];
+				for (var i=0; i<$scope.smoRecordArray.fields.length; i++){
+					for (row in $scope.smoDataSource[$scope.smoRecordArray.name]){
+						$scope.smoDataSource[$scope.smoRecordArray.name][row][i] = $scope.smoRecordArray.fields[i].value[row];
 					}
 				}
 			}
@@ -1288,79 +1284,79 @@ smoModule.directive('smoArrayGroup', ['$compile', 'util', function($compile, uti
 			}
 			
 			$scope.addRow = function(row) {
-				$scope.smoDataSource[$scope.smoArrayGroup.name].splice(row, 0, 
-						$scope.smoDataSource[$scope.smoArrayGroup.name][row]);
-				for (var i=0; i<$scope.smoArrayGroup.fields.length; i++){
-					$scope.smoArrayGroup.fields[i].value.splice(row, 0,
-							$scope.smoArrayGroup.fields[i].value[row]);
-					$scope.smoArrayGroup.fields[i].displayValue.splice(row, 0,
-							$scope.smoArrayGroup.fields[i].displayValue[row]);
+				$scope.smoDataSource[$scope.smoRecordArray.name].splice(row, 0, 
+						$scope.smoDataSource[$scope.smoRecordArray.name][row]);
+				for (var i=0; i<$scope.smoRecordArray.fields.length; i++){
+					$scope.smoRecordArray.fields[i].value.splice(row, 0,
+							$scope.smoRecordArray.fields[i].value[row]);
+					$scope.smoRecordArray.fields[i].displayValue.splice(row, 0,
+							$scope.smoRecordArray.fields[i].displayValue[row]);
 				}
 				
 			}
 			
 			$scope.delRow = function(row) {
-				$scope.smoDataSource[$scope.smoArrayGroup.name].splice(row, 1);
-				for (var i=0; i<$scope.smoArrayGroup.fields.length; i++){
-					$scope.smoArrayGroup.fields[i].value.splice(row, 1);
-					$scope.smoArrayGroup.fields[i].displayValue.splice(row, 1);
+				$scope.smoDataSource[$scope.smoRecordArray.name].splice(row, 1);
+				for (var i=0; i<$scope.smoRecordArray.fields.length; i++){
+					$scope.smoRecordArray.fields[i].value.splice(row, 1);
+					$scope.smoRecordArray.fields[i].displayValue.splice(row, 1);
 				}
 			}
 		},
 		link : function(scope, element, attr) {
 			scope.util = util;
-			scope.arrValue = scope.smoDataSource[scope.smoArrayGroup.name];
+			scope.arrValue = scope.smoDataSource[scope.smoRecordArray.name];
 			
-			for (var i=0; i<scope.smoArrayGroup.fields.length; i++){
-				scope.smoArrayGroup.fields[i].value = [];
-				scope.smoArrayGroup.fields[i].displayValue = [];
+			for (var i=0; i<scope.smoRecordArray.fields.length; i++){
+				scope.smoRecordArray.fields[i].value = [];
+				scope.smoRecordArray.fields[i].displayValue = [];
 				for (row in scope.arrValue){
-					scope.smoArrayGroup.fields[i].value.push(scope.arrValue[row][i]);
+					scope.smoRecordArray.fields[i].value.push(scope.arrValue[row][i]);
 				}
 			}
 			
-			for (var i=0; i<scope.smoArrayGroup.fields.length; i++){
-				scope.smoArrayGroup.fields[i].unit 
-					= scope.smoArrayGroup.fields[i].unit || scope.smoArrayGroup.fields[i].SIUnit;
-				scope.smoArrayGroup.fields[i].displayUnit 
-					= scope.smoArrayGroup.fields[i].displayUnit || scope.smoArrayGroup.fields[i].defaultDispUnit || scope.smoArrayGroup.fields[i].unit;
+			for (var i=0; i<scope.smoRecordArray.fields.length; i++){
+				scope.smoRecordArray.fields[i].unit 
+					= scope.smoRecordArray.fields[i].unit || scope.smoRecordArray.fields[i].SIUnit;
+				scope.smoRecordArray.fields[i].displayUnit 
+					= scope.smoRecordArray.fields[i].displayUnit || scope.smoRecordArray.fields[i].defaultDispUnit || scope.smoRecordArray.fields[i].unit;
 				
-				for (var j=0; j<scope.smoArrayGroup.fields[i].units.length; j++) {
-					if (scope.smoArrayGroup.fields[i].unit == scope.smoArrayGroup.fields[i].units[j][0]){
-						scope.smoArrayGroup.fields[i].unitDef = scope.smoArrayGroup.fields[i].units[j][1];
+				for (var j=0; j<scope.smoRecordArray.fields[i].units.length; j++) {
+					if (scope.smoRecordArray.fields[i].unit == scope.smoRecordArray.fields[i].units[j][0]){
+						scope.smoRecordArray.fields[i].unitDef = scope.smoRecordArray.fields[i].units[j][1];
 					}
-					if (scope.smoArrayGroup.fields[i].displayUnit == scope.smoArrayGroup.fields[i].units[j][0]){
-						scope.smoArrayGroup.fields[i].dispUnitDef = scope.smoArrayGroup.fields[i].units[j][1];
+					if (scope.smoRecordArray.fields[i].displayUnit == scope.smoRecordArray.fields[i].units[j][0]){
+						scope.smoRecordArray.fields[i].dispUnitDef = scope.smoRecordArray.fields[i].units[j][1];
 					}	
 				}
 				
-				var offset = scope.smoArrayGroup.fields[i].unitDef.offset || 0;
+				var offset = scope.smoRecordArray.fields[i].unitDef.offset || 0;
 				
 				
 				for (var row=0; row<scope.arrValue.length; row++){
-					scope.smoArrayGroup.fields[i].value[row]
-						= scope.smoArrayGroup.fields[i].value[row] * scope.smoArrayGroup.fields[i].unitDef.mult + offset;
-					offset = scope.smoArrayGroup.fields[i].dispUnitDef.offset || 0;
-					scope.smoArrayGroup.fields[i].displayValue[row] 
-						= util.formatNumber((scope.smoArrayGroup.fields[i].value[row] - offset) / scope.smoArrayGroup.fields[i].dispUnitDef.mult);
+					scope.smoRecordArray.fields[i].value[row]
+						= scope.smoRecordArray.fields[i].value[row] * scope.smoRecordArray.fields[i].unitDef.mult + offset;
+					offset = scope.smoRecordArray.fields[i].dispUnitDef.offset || 0;
+					scope.smoRecordArray.fields[i].displayValue[row] 
+						= util.formatNumber((scope.smoRecordArray.fields[i].value[row] - offset) / scope.smoRecordArray.fields[i].dispUnitDef.mult);
 				}
 				
 			}
 			
 			
 			var template = '\
-			<div class="field-label" style="display: inline-block; vertical-align: top;">\
-				<span style="margin-right: 5px;">' + scope.smoArrayGroup.label + '</span>\
-				<span><button ng-click="toggle()" ng-bind="toggleMess"></button></span>\
-			</div>';
+			<div class="field-label">' + scope.smoRecordArray.label + '</div>\
+			<div class="field-input"><button style="height: 30px;" ng-click="toggle()">Edit</button></div>';
 			
 			template += '\
-			<div style="display: inline-block" ng-show="expanded">\
-				<table class="nice-table" style="margin: 0px;">\
+			<div class="record-array" ng-show="expanded">\
+				<div style="cursor: pointer; margin-top: 50px; margin-right: 20px;" ng-click="toggle()">X</div>\
+				<div>\
+				<table class="nice-table">\
 					<tr>\
 						<th style="min-width: 10px;">\
 						</th>\
-						<th style="text-align: center;" ng-repeat="field in smoArrayGroup.fields">\
+						<th style="text-align: center;" ng-repeat="field in smoRecordArray.fields">\
 							<div style="margin-bottom: 5px;">\
 								{{field.name}}\
 							</div>\
@@ -1375,7 +1371,7 @@ smoModule.directive('smoArrayGroup', ['$compile', 'util', function($compile, uti
 						<td style="min-width: 10px;">\
 							{{i}}\
 						</td>\
-						<td ng-repeat="field in smoArrayGroup.fields">\
+						<td ng-repeat="field in smoRecordArray.fields">\
 							<div class="field-input">\
 								<input name="input" required type="text" ng-pattern="/^[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$/" ng-model="field.displayValue[i]" ng-change="updateValue(field)">\
 							</div>\
@@ -1386,6 +1382,7 @@ smoModule.directive('smoArrayGroup', ['$compile', 'util', function($compile, uti
 						</td>\
 					</tr>\
 				</table>\
+				</div>\
 			</div>';
 			
 	        var el = angular.element(template);

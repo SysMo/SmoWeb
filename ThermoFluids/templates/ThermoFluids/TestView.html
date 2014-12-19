@@ -62,7 +62,8 @@ angular.module('TestApp', ['ui.bootstrap', 'smo'])
 			<div ng-if="testModel.inputCommunicator.dataReceived">
 {% verbatim %}
 				<div class="section">
-					<div smo-array-group="arrayGroup" smo-data-source="dataValues"></div>
+<!-- 					<div smo-array-group="arrayGroup" smo-data-source="dataValues"></div> -->
+					<div smo-model-view="testModelInputs" view-type="input" communicator="testModel.inputCommunicator"></div> 
 				</div>
 {% endverbatim %}
 			</div>
