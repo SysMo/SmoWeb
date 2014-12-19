@@ -19,8 +19,17 @@ class TestModel(NumericalModel):
                      ('rho', Quantity('Density', default = (1, 'kg/m**3'), label = 'density'))
                      )),
         numRows=7, label="testArray")
-    testFieldGroup = FieldGroup([h1, s1, testArray, p, T], label = "testFieldGroup")
-    testSuperGroup = SuperGroup([testFieldGroup], label = "testSuperGroup")
+    
+    testArray2 = RecordArray(
+        OrderedDict((
+                     ('p', Quantity('Pressure', default = (1, 'bar'), label = 'pressure')),
+                     ('rho', Quantity('Density', default = (1, 'kg/m**3'), label = 'density'))
+                     )),
+        numRows=3, label="testArray2")
+    
+    testFieldGroup = FieldGroup([h1, s1, testArray, p], label = "testFieldGroup")
+    testFieldGroup2 = FieldGroup([testArray2, T], label = "testFieldGroup2")
+    testSuperGroup = SuperGroup([testFieldGroup, testFieldGroup2], label = "testSuperGroup")
     
     @classmethod
     def test(cls):
