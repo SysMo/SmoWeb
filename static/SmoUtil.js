@@ -1345,6 +1345,8 @@ smoModule.directive('smoArrayGroup', ['$compile', 'util', function($compile, uti
 			<div>\
 				<table class="nice-table">\
 					<tr>\
+						<th style="min-width: 10px;">\
+						</th>\
 						<th style="text-align: center;" ng-repeat="field in smoArrayGroup.fields">\
 							<div style="margin-bottom: 5px;">\
 								{{field.name}}\
@@ -1357,6 +1359,9 @@ smoModule.directive('smoArrayGroup', ['$compile', 'util', function($compile, uti
 						</th>\
 					</tr>\
 					<tr ng-repeat="row in arrValue track by $index" ng-init="i=$index">\
+						<td style="min-width: 10px;">\
+							{{i}}\
+						</td>\
 						<td ng-repeat="field in smoArrayGroup.fields">\
 							<div class="field-input">\
 								<input name="input" required type="text" ng-pattern="/^[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$/" ng-model="field.displayValue[i]" ng-change="updateValue(field)">\
