@@ -1151,6 +1151,32 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 				$scope.expanded = !$scope.expanded;
 			}
 			
+			
+			$scope.checkValueValidity = function(row, col){
+				var field = $scope.smoRecordArray.fields[col];
+				console.log($scope);
+				$scope[$scope.smoRecordArray.name + '_' + String(row) + '_' + String(col) + 'Form'].input.$setValidity('minVal', true);
+				$scope[$scope.smoRecordArray.name + '_' + String(row) + '_' + String(col) + 'Form'].input.$setValidity('maxVal', true);
+				
+				
+				if ($scope[$scope.smoRecordArray.name + '_' + String(row) + '_' + String(col) + 'Form'].input.$error.required == true 
+						|| $scope[$scope.smoRecordArray.name + '_' + String(row) + '_' + String(col) + 'Form'].input.$error.pattern == true) {
+					return;
+				}
+				
+				if (Number($scope.arrDisplayValue[row][col]) < field.minDisplayValue) {
+					$scope[$scope.smoRecordArray.name + '_' + String(row) + '_' + String(col) + 'Form'].input.$setValidity('minVal', false);
+					return;
+				}	
+				
+				if (Number($scope.arrDisplayValue[row][col]) > field.maxDisplayValue){
+					$scope[$scope.smoRecordArray.name + '_' + String(row) + '_' + String(col) + 'Form'].input.$setValidity('maxVal', false);
+					return;
+				}
+				
+				$scope.updateQuantity(row, col);
+			}
+			
 			$scope.updateQuantity = function(row, col) {
 				var field = $scope.smoRecordArray.fields[col];
 				
@@ -1180,6 +1206,9 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 					$scope.arrDisplayValue[row][col]
 						= util.formatNumber(($scope.arrValue[row][col] - offset) / field.dispUnitDef.mult);
 				}
+				
+				field.minDisplayValue = (field.minValue - offset) / field.dispUnitDef.mult;
+				field.maxDisplayValue = (field.maxValue - offset) / field.dispUnitDef.mult;
 			}
 			
 			$scope.addRow = function(row) {
@@ -1232,11 +1261,17 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 					rowTemplate += '\
 							<td>\
 								<div class="field-input">\
+									<div ng-form name="' + scope.smoRecordArray.name + '_{{i}}_' + String(col) + 'Form">\
 									<input name="input" required type="text" ng-pattern="/^[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$/" \
-										ng-model="arrDisplayValue[i][' + String(col) + ']" ng-change="updateQuantity(i,' + String(col) + ')">\
+										ng-model="arrDisplayValue[i][' + String(col) + ']" ng-change="checkValueValidity(i,' + String(col) + ')">\
+									</div>\
 								</div>\
+								<div style="margin-left: 5px; color:red;" ng-show="' + scope.smoRecordArray.name + '_{{i}}_' + String(col) + 'Form.input.$error.pattern">Enter a number</div>\
+								<div style="margin-left: 5px; color:red;" ng-show="' + scope.smoRecordArray.name + '_{{i}}_' + String(col) + 'Form.input.$error.required">Required value</div>\
+								<div style="margin-left: 5px; color:red;" ng-show="' + scope.smoRecordArray.name + '_{{i}}_' + String(col) + 'Form.input.$error.minVal">Value should be above {{util.formatNumber(fieldVar.minDisplayValue)}} {{fieldVar.displayUnit}}</div>\
+								<div style="margin-left: 5px; color:red;" ng-show="' + scope.smoRecordArray.name + '_{{i}}_' + String(col) + 'Form.input.$error.maxVal">Value should be below {{util.formatNumber(fieldVar.maxDisplayValue)}} {{fieldVar.displayUnit}}</div>\
 							</td>';
-						
+					
 					field.unit 
 						= field.unit || field.SIUnit;
 					field.displayUnit 
@@ -1260,12 +1295,16 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 						
 						scope.arrDisplayValue[row][col] 
 							= util.formatNumber((scope.arrValue[row][col] - dispUnitOffset) / field.dispUnitDef.mult); 
-					} 
+					}
+					
+					field.minDisplayValue = (field.minValue - dispUnitOffset) / field.dispUnitDef.mult;
+					field.maxDisplayValue = (field.maxValue - dispUnitOffset) / field.dispUnitDef.mult;				
+					
 				} else if (field.type == 'Boolean') {
 					rowTemplate += '\
 						<td>\
 							<div class="bool-input">\
-								<input name="input" required type="checkbox" \
+								<input name="input" type="checkbox" \
 									ng-model="arrValue[i][' + String(col) + ']">\
 							</div>\
 						</td>';
@@ -1273,8 +1312,12 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 					rowTemplate += '\
 						<td>\
 							<div class="field-input">\
-								<input name="input" required type="text" \
-									ng-model="arrValue[i][' + String(col) + ']">\
+								<div ng-form name="' + scope.smoRecordArray.name + '_{{i}}_' + String(col) + 'Form">\
+									<input name="input" required type="text" \
+										ng-model="arrValue[i][' + String(col) + ']">\
+								</div>\
+							</div>\
+							<div style="margin-left: 5px; color:red;" ng-show="' + scope.smoRecordArray.name + '_{{i}}_' + String(col) + 'Form.input.$error.required">Required value\
 							</div>\
 						</td>';
 				} else if (field.type == 'Choices') {
