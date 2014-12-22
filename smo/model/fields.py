@@ -340,21 +340,6 @@ class SuperGroup(Group):
 		super(SuperGroup, self).__init__(*args, **kwargs)
 		self.groups = [] if (groups is None) else groups
 		
-# class Record():
-# 	def __init__(self, structDict = None, *args, **kwargs):
-# 		if (structDict is None):
-# 			raise ValueError("Undefined record")
-# 		if (len(structDict) == 0):
-# 			raise ValueError("Undefined record")
-# 		
-# 		self.fieldList = []
-# 		
-# 		for name, field in structDict.items():
-# 			structField = field
-# 			structField._name = name
-# 			self.fieldList.append(structField)
-		
-
 class RecordArray(Field):
 	def __init__(self, structDict = None, numRows = None, *args, **kwargs):
 		super(RecordArray, self).__init__(*args, **kwargs)	
@@ -373,7 +358,13 @@ class RecordArray(Field):
 			structField._name = name
 			defaultValueList.append(field.default)
 			self.fieldList.append(structField)
-			typeList.append((field._name, 'f'))
+			if isinstance(field, Quantity):
+				typeList.append((field._name, 'f'))
+			elif isinstance(field, Boolean): 
+				typeList.append((field._name, np.dtype(bool)))
+			elif (isinstance(field, String) or isinstance(field, Choices)): 
+				typeList.append((field._name, np.dtype(str)))
+			
 		defaultValueList = tuple(defaultValueList)
 		
 		if (numRows is None):
