@@ -5,13 +5,14 @@ html{
 body {	
 	height: 100%;
 	/* Variant 1 */
-	background-color: #FFDA80;
+	/* background-color: #FFDA80;
 	/* Variant 2 */
 /*     background-color: #CCC; */
 /*     background-image: url("/static/img/background-2-grey.jpg"); */
 /*     background-repeat: repeat; */
 /*     background-position: left top; */
-
+	/* Variant 3*/
+	background-color: #3a678a;
 	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
 	font-size: 14px;
 	line-height: 1.42857;
@@ -132,7 +133,7 @@ body {
   overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
   background-color: #E6E6FA;
   border-right: 1px solid #eee;
-  width: 120px;
+  width: 180px;
   padding-top: 20px;
   padding-left: 10px;
   padding-right: 10px;
@@ -147,12 +148,11 @@ body {
 }
 
 .nav-sidebar > li {
-	width: 100px;
-	display: inline-block;
+  width: 150px;
+  display: inline-block;
 }
 
 .nav-sidebar > li > a {
-  width: 100px;
   cursor: pointer;
 }
  
@@ -238,9 +238,14 @@ table.nice-table tr:nth-child(odd) {
 }
 
 .page-container {
-	max-width: 1000px; 
+	max-width: 1000px;
 	margin-left: auto; 
-	margin-right: auto;	
+	margin-right: auto;
+	margin-top: 30px;	
+    background-image: url("/static/img/GreyStripes.png");
+    background-repeat: repeat;
+    padding: 30px;
+    border-radius: 10px;
 }
 
 .section {

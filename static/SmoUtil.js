@@ -462,6 +462,24 @@ smoModule.factory('variables', ['util', function(util) {
 	return variables;
 }]);
 
+//<smo-button action="addRow(i)" icon="plus">
+smoModule.directive('smoButton', ['$compile', 'util', function($compile, util) {
+	return {
+		restrict: 'E',
+		link : function(scope, element, attr) {
+			var action = attr['action'];
+			var icon = attr['icon'];
+			var template = '<img src="/static/icons/' + icon + '.png" ng-click="' + action + '" width="16px">';
+
+			var el = angular.element(template);
+	        compiled = $compile(el);
+	        element.replaceWith(el);
+	        compiled(scope);
+
+		}
+	};
+}]);
+
 smoModule.directive('smoQuantity', ['$compile', 'util', function($compile, util) {
 	return {
 		restrict : 'A',
@@ -906,11 +924,14 @@ smoModule.directive('smoFieldGroup', ['$compile', 'util', function($compile, uti
 			var template;
 			
 			if (scope.smoFieldGroup.label) {
-				template = '<div class="field-group-label" style="margin-top: 25px;">' + scope.smoFieldGroup.label + '</div><br>' 
-				+ groupFields.join("");
+				template = '<div class="field-group-label" style="margin-top: 25px;">' + scope.smoFieldGroup.label + '</div>' + 
+					'<div class="field-group-container">' +
+						groupFields.join("") +
+					'</div>';
 			} else {
-				template = '<br>' 
-				+ groupFields.join("");
+				template = '<div class="field-group-container">' +
+					groupFields.join("") +
+				'</div>';
 			}
 
 			var el = angular.element(template);
@@ -1346,11 +1367,11 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 			
 			var template = '\
 			<div class="field-label">' + scope.smoRecordArray.label + '</div>\
-			<div class="field-input"><button style="height: 30px;" ng-click="toggle()">Edit</button></div>';
+			<div class="field-input"><button class="btn btn-primary" style="height: 30px;" ng-click="toggle()">Edit</button></div>';
 			
 			template += '\
 			<div class="record-array" ng-show="expanded">\
-				<div style="cursor: pointer; margin-top: 50px; margin-right: 20px;" ng-click="toggle()">X</div>\
+				<div style="cursor: pointer; margin-top: 50px; margin-right: 20px;"><smo-button action="toggle()" icon="close"></smo-button></div>\
 				<div>\
 				<table class="nice-table">\
 					<tr>\
@@ -1377,8 +1398,8 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 							</div>\
 						</td>\
 						<td style="min-width: 10px; cursor: pointer;">\
-							<div><a ng-click="addRow(i)">+</a></div>\
-							<div><a ng-click="delRow(i)">x</a></div>\
+							<div><smo-button action="addRow(i)" icon="plus"></smo-button></div>\
+							<div><smo-button action="delRow(i)" icon="minus"></smo-button></div>\
 						</td>\
 					</tr>\
 				</table>\
