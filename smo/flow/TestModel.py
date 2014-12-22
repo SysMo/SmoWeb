@@ -16,7 +16,8 @@ class TestModel(NumericalModel):
         OrderedDict((
                      ('p', Quantity('Pressure', default = (1, 'bar'), label = 'pressure')),
                      ('T', Quantity('Temperature', default = (300, 'K'), label = 'temperature')),
-                     ('rho', Quantity('Density', default = (1, 'kg/m**3'), label = 'density'))
+                     ('rho', Quantity('Density', default = (1, 'kg/m**3'), label = 'density')),
+                     ('fluid', Choices(Fluids, default = 'ParaHydrogen', label = 'fluid'))
                      )),
         numRows=7, label="testArray")
     

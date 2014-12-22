@@ -1145,6 +1145,7 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 			smoDataSource : '='
 		},
 		controller: function($scope){
+			
 			$scope.expanded = false;
 			$scope.toggle = function(){
 				$scope.expanded = !$scope.expanded;
@@ -1265,7 +1266,7 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 						<td>\
 							<div class="bool-input">\
 								<input name="input" required type="checkbox" \
-									ng-model="arrDisplayValue[i][' + String(col) + ']">\
+									ng-model="arrValue[i][' + String(col) + ']">\
 							</div>\
 						</td>';
 				} else if (field.type == 'String') {
@@ -1273,15 +1274,16 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 						<td>\
 							<div class="field-input">\
 								<input name="input" required type="text" \
-									ng-model="arrDisplayValue[i][' + String(col) + ']">\
+									ng-model="arrValue[i][' + String(col) + ']">\
 							</div>\
 						</td>';
 				} else if (field.type == 'Choices') {
 					rowTemplate += '\
 					<td>\
 						<div class="field-select choice"> \
-							<select ng-model="arrDisplayValue[i][' + String(col) + ']" \
-								ng-options="pair[0] as pair[1] for pair in smoRecordArray.fields[' + String(col) + '].options"></select>\
+							<select ng-model="arrValue[i][' + String(col) + ']" \
+								ng-options="pair[0] as pair[1] for pair in smoRecordArray.fields[' + String(col) + '].options" \
+								ng-init="arrValue[i][' + String(col) + ']=smoRecordArray.fields[' + String(col) + '].options[0][0]"></select>\
 						</div>\
 					</td>';
 				}
