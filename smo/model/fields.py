@@ -73,19 +73,28 @@ class Quantity(Field):
 		return fieldDict
 
 class String(Field):
-	def __init__(self, default = None, multiline = False, *args, **kwargs):
+	def __init__(self, default = None, maxLength = None, multiline = None, *args, **kwargs):
 		super(String, self).__init__(*args, **kwargs)
 		if (default is None):
 			self.default = "..."
 		else:
 			self.default = self.parseValue(default)
-		self.multiline = multiline
+		
+		if (multiline is None):
+			self.multiline = False
+		else:
+			self.multiline = multiline
+			
+		if (maxLength is None):
+			self.maxLength = 100
+		else:
+			self.maxLength = maxLength
 
 	def parseValue(self, value):
 		return value	
 
 	def getValueRepr(self, value):
-		if (self.multiline):
+		if (self.multiline == True):
 			resultStr = "";
 			for i in range(len(value)/10):
 				resultStr += value[:10]
@@ -95,7 +104,8 @@ class String(Field):
 				resultStr += value[:]
 			else: resultStr=resultStr[:-1]
 			return resultStr
-		return value
+		else:
+			return value
 	
 	def toFormDict(self):
 		fieldDict = {'name' : self._name, 'label': self.label}
@@ -134,13 +144,18 @@ class Boolean(Field):
 		return fieldDict
 
 class Choices(Field):
-	def __init__(self, options, default = None, *args, **kwargs):
+	def __init__(self, options, default = None, maxLength = None, *args, **kwargs):
 		super(Choices, self).__init__(*args, **kwargs)
 		self.options = options
 		if (default is None):
 			self.default = options.keys()[0]
 		else:
 			self.default = self.parseValue(default)
+			
+		if (maxLength is None):
+			self.maxLength = 100
+		else:
+			self.maxLength = maxLength
 	
 	def parseValue(self, value):
 		if (value in self.options.keys()):
@@ -340,21 +355,6 @@ class SuperGroup(Group):
 		super(SuperGroup, self).__init__(*args, **kwargs)
 		self.groups = [] if (groups is None) else groups
 		
-# class Record():
-# 	def __init__(self, structDict = None, *args, **kwargs):
-# 		if (structDict is None):
-# 			raise ValueError("Undefined record")
-# 		if (len(structDict) == 0):
-# 			raise ValueError("Undefined record")
-# 		
-# 		self.fieldList = []
-# 		
-# 		for name, field in structDict.items():
-# 			structField = field
-# 			structField._name = name
-# 			self.fieldList.append(structField)
-		
-
 class RecordArray(Field):
 	def __init__(self, structDict = None, numRows = None, *args, **kwargs):
 		super(RecordArray, self).__init__(*args, **kwargs)	
@@ -373,7 +373,13 @@ class RecordArray(Field):
 			structField._name = name
 			defaultValueList.append(field.default)
 			self.fieldList.append(structField)
-			typeList.append((field._name, 'f'))
+			if isinstance(field, Quantity):
+				typeList.append((field._name, 'f'))
+			elif isinstance(field, Boolean): 
+				typeList.append((field._name, np.dtype(bool)))
+			elif (isinstance(field, String) or isinstance(field, Choices)): 
+				typeList.append((field._name, np.dtype('S' + str(field.maxLength))))
+			
 		defaultValueList = tuple(defaultValueList)
 		
 		if (numRows is None):

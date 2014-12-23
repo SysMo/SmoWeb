@@ -1137,125 +1137,6 @@ smoModule.directive('smoModelView', ['$compile', function($compile) {
 	}
 }]);
 
-smoModule.directive('smoArrayQuantity', ['$compile', 'util', function($compile, util) {
-	return {
-		restrict : 'A',
-		scope : {
-			fieldVar: '=',
-			viewType: '@viewType',
-			smoDataSource : '='
-		},
-		controller: function($scope){
-			$scope.fieldVar.value = $scope.smoDataSource[$scope.fieldVar.name];
-			$scope.checkValueValidity = function(){
-				$scope[$scope.fieldVar.name + 'Form'].input.$setValidity('minVal', true);
-				$scope[$scope.fieldVar.name + 'Form'].input.$setValidity('maxVal', true);
-				
-				if ($scope[$scope.fieldVar.name + 'Form'].input.$error.required == true 
-						|| $scope[$scope.fieldVar.name + 'Form'].input.$error.pattern == true) {
-					return;
-				}
-				
-				if (Number($scope.fieldVar.displayValue) < $scope.fieldVar.minDisplayValue) {
-					$scope[$scope.fieldVar.name + 'Form'].input.$setValidity('minVal', false);
-					return;
-				}	
-				
-				if (Number($scope.fieldVar.displayValue) > $scope.fieldVar.maxDisplayValue){
-					$scope[$scope.fieldVar.name + 'Form'].input.$setValidity('maxVal', false);
-					return;
-				}
-				
-				$scope.updateValue();
-			}
-			
-			$scope.updateValue = function() {
-				var offset = 0;
-				if ('offset' in $scope.fieldVar.dispUnitDef) {
-					offset = $scope.fieldVar.dispUnitDef.offset;
-				}
-				$scope.fieldVar.value = Number($scope.fieldVar.displayValue) * $scope.fieldVar.dispUnitDef.mult + offset ;
-				$scope.smoDataSource[$scope.fieldVar.name] = $scope.fieldVar.value;	
-			}
-			
-			$scope.changeUnit = function() {
-				for (var i=0; i < $scope.fieldVar.units.length; i++) {
-					if ($scope.fieldVar.displayUnit == $scope.fieldVar.units[i][0]){
-						$scope.fieldVar.dispUnitDef = $scope.fieldVar.units[i][1];
-					}	
-				}
-				var offset = 0;
-				if ('offset' in $scope.fieldVar.dispUnitDef) {
-					offset = $scope.fieldVar.dispUnitDef.offset;
-				}
-				$scope.fieldVar.displayValue = util.formatNumber(($scope.fieldVar.value - offset) / $scope.fieldVar.dispUnitDef.mult);
-				
-				$scope.fieldVar.minDisplayValue = ($scope.fieldVar.minValue - offset) / $scope.fieldVar.dispUnitDef.mult;
-				$scope.fieldVar.maxDisplayValue = ($scope.fieldVar.maxValue - offset) / $scope.fieldVar.dispUnitDef.mult;
-			}
-			
-			$scope.fieldVar.unit = $scope.fieldVar.unit || $scope.fieldVar.SIUnit;
-			$scope.fieldVar.displayUnit = $scope.fieldVar.displayUnit || $scope.fieldVar.defaultDispUnit || $scope.fieldVar.unit;
-			for (var i=0; i < $scope.fieldVar.units.length; i++) {
-				if ($scope.fieldVar.unit == $scope.fieldVar.units[i][0]){
-					$scope.fieldVar.unitDef = $scope.fieldVar.units[i][1];
-				}
-				if ($scope.fieldVar.displayUnit == $scope.fieldVar.units[i][0]){
-					$scope.fieldVar.dispUnitDef = $scope.fieldVar.units[i][1];
-				}	
-			}
-			
-			var offset = $scope.fieldVar.unitDef.offset || 0;
-			$scope.fieldVar.value = $scope.fieldVar.value * $scope.fieldVar.unitDef.mult + offset;
-			offset = $scope.fieldVar.dispUnitDef.offset || 0;
-			$scope.fieldVar.displayValue = util.formatNumber(($scope.fieldVar.value - offset) / $scope.fieldVar.dispUnitDef.mult);
-			
-			$scope.fieldVar.minDisplayValue = ($scope.fieldVar.minValue - offset) / $scope.fieldVar.dispUnitDef.mult;
-			$scope.fieldVar.maxDisplayValue = ($scope.fieldVar.maxValue - offset) / $scope.fieldVar.dispUnitDef.mult;				
-		},
-		link : function(scope, element, attr) {
-			scope.util = util;
-			var template = '\
-					<div class="field-label">' + scope.fieldVar.label + '</div>';
-			if (scope.viewType == 'input'){
-				template += '\
-					<div class="field-input"> \
-						<div ng-form name="' + scope.fieldVar.name + 'Form">\
-							<input name="input" required type="text" ng-pattern="/^[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$/" ng-model="fieldVar.displayValue" ng-change="checkValueValidity();">\
-						</div>\
-					</div>';
-				template += '\
-					<div class="field-select quantity"> \
-						<select ng-disabled="!' + scope.fieldVar.name + 'Form.$valid" ng-model="fieldVar.displayUnit" ng-options="pair[0] as pair[0] for pair in fieldVar.units" ng-change="changeUnit()"></select> \
-					</div>';
-				
-			}
-			else if (scope.viewType == 'output'){
-				template += '\
-					<div class="field-output"> \
-						<div class="output" ng-bind="fieldVar.displayValue"></div>\
-					</div>';
-				template += '\
-					<div class="field-select quantity"> \
-						<select ng-model="fieldVar.displayUnit" ng-options="pair[0] as pair[0] for pair in fieldVar.units" ng-change="changeUnit()"></select> \
-					</div>';
-				
-			}
-			if (scope.viewType == 'input')
-				template += '\
-					<div class="input-validity-error" ng-show="' + scope.fieldVar.name + 'Form.input.$error.pattern">Enter a number</div>\
-					<div class="input-validity-error" ng-show="' + scope.fieldVar.name + 'Form.input.$error.required">Required value</div>\
-					<div class="input-validity-error" ng-show="' + scope.fieldVar.name + 'Form.input.$error.minVal">Value should be above {{util.formatNumber(fieldVar.minDisplayValue)}} {{fieldVar.displayUnit}}</div>\
-					<div class="input-validity-error" ng-show="' + scope.fieldVar.name + 'Form.input.$error.maxVal">Value should be below {{util.formatNumber(fieldVar.maxDisplayValue)}} {{fieldVar.displayUnit}}</div>';
-			
-	        var el = angular.element(template);
-	        compiled = $compile(el);
-	        element.append(el);
-	        compiled(scope);
-		}
-	}
-}]);
-
 smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, util) {
 	return {
 		restrict : 'A',
@@ -1264,29 +1145,52 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 			smoDataSource : '='
 		},
 		controller: function($scope){
+			
 			$scope.expanded = false;
 			$scope.toggle = function(){
 				$scope.expanded = !$scope.expanded;
 			}
-			$scope.updateValue = function(field) {
+			
+			
+			$scope.checkValueValidity = function(row, col, form){
+				var field = $scope.smoRecordArray.fields[col];
+				
+				form.input.$setValidity('minVal', true);
+				form.input.$setValidity('maxVal', true);
+				
+				
+				if (form.input.$error.required == true 
+						|| form.input.$error.pattern == true) {
+					return;
+				}
+				
+				if (Number($scope.arrDisplayValue[row][col]) < field.minDisplayValue) {
+					form.input.$setValidity('minVal', false);
+					return;
+				}	
+				
+				if (Number($scope.arrDisplayValue[row][col]) > field.maxDisplayValue){
+					form.input.$setValidity('maxVal', false);
+					return;
+				}
+				
+				$scope.updateQuantity(row, col);
+			}
+			
+			$scope.updateQuantity = function(row, col) {
+				var field = $scope.smoRecordArray.fields[col];
+				
 				var offset = 0;
 				if ('offset' in field.dispUnitDef) {
 					offset = field.dispUnitDef.offset;
 				}
 				
-				for (var row=0; row<$scope.arrValue.length; row++){
-					field.value[row] 
-						= Number(field.displayValue[row]) * field.dispUnitDef.mult + offset;
-				}
-				
-				for (var i=0; i<$scope.smoRecordArray.fields.length; i++){
-					for (row in $scope.smoDataSource[$scope.smoRecordArray.name]){
-						$scope.smoDataSource[$scope.smoRecordArray.name][row][i] = $scope.smoRecordArray.fields[i].value[row];
-					}
-				}
+				$scope.arrValue[row][col] = Number($scope.arrDisplayValue[row][col]) * field.dispUnitDef.mult + offset;
 			}
 			
-			$scope.changeUnit = function(field) {
+			$scope.changeUnit = function(col) {
+				var field = $scope.smoRecordArray.fields[col];
+				
 				for (var i=0; i<field.units.length; i++) {
 					if (field.displayUnit == field.units[i][0]){
 						field.dispUnitDef = field.units[i][1];
@@ -1299,71 +1203,135 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 				}
 				
 				for (var row=0; row<$scope.arrValue.length; row++){
-					field.displayValue[row] 
-						= util.formatNumber((field.value[row] - offset) / field.dispUnitDef.mult);
+					$scope.arrDisplayValue[row][col]
+						= util.formatNumber(($scope.arrValue[row][col] - offset) / field.dispUnitDef.mult);
 				}
+				
+				field.minDisplayValue = (field.minValue - offset) / field.dispUnitDef.mult;
+				field.maxDisplayValue = (field.maxValue - offset) / field.dispUnitDef.mult;
 			}
 			
 			$scope.addRow = function(row) {
 				$scope.smoDataSource[$scope.smoRecordArray.name].splice(row, 0, 
-						$scope.smoDataSource[$scope.smoRecordArray.name][row]);
-				for (var i=0; i<$scope.smoRecordArray.fields.length; i++){
-					$scope.smoRecordArray.fields[i].value.splice(row, 0,
-							$scope.smoRecordArray.fields[i].value[row]);
-					$scope.smoRecordArray.fields[i].displayValue.splice(row, 0,
-							$scope.smoRecordArray.fields[i].displayValue[row]);
-				}
-				
+						angular.copy($scope.smoDataSource[$scope.smoRecordArray.name][row]));
+				$scope.arrDisplayValue.splice(row, 0, 
+						angular.copy($scope.arrDisplayValue[row]));
 			}
 			
 			$scope.delRow = function(row) {
 				$scope.smoDataSource[$scope.smoRecordArray.name].splice(row, 1);
-				for (var i=0; i<$scope.smoRecordArray.fields.length; i++){
-					$scope.smoRecordArray.fields[i].value.splice(row, 1);
-					$scope.smoRecordArray.fields[i].displayValue.splice(row, 1);
-				}
+				$scope.arrDisplayValue.splice(row, 1);
 			}
+			
 		},
 		link : function(scope, element, attr) {
 			scope.util = util;
 			scope.arrValue = scope.smoDataSource[scope.smoRecordArray.name];
+			scope.arrDisplayValue = angular.copy(scope.arrValue);
 			
-			for (var i=0; i<scope.smoRecordArray.fields.length; i++){
-				scope.smoRecordArray.fields[i].value = [];
-				scope.smoRecordArray.fields[i].displayValue = [];
-				for (row in scope.arrValue){
-					scope.smoRecordArray.fields[i].value.push(scope.arrValue[row][i]);
-				}
-			}
+			var headerRowTemplate = '';
+			var rowTemplate = '';
 			
-			for (var i=0; i<scope.smoRecordArray.fields.length; i++){
-				scope.smoRecordArray.fields[i].unit 
-					= scope.smoRecordArray.fields[i].unit || scope.smoRecordArray.fields[i].SIUnit;
-				scope.smoRecordArray.fields[i].displayUnit 
-					= scope.smoRecordArray.fields[i].displayUnit || scope.smoRecordArray.fields[i].defaultDispUnit || scope.smoRecordArray.fields[i].unit;
+			for (var col=0; col<scope.smoRecordArray.fields.length; col++){
+				var field = scope.smoRecordArray.fields[col];
 				
-				for (var j=0; j<scope.smoRecordArray.fields[i].units.length; j++) {
-					if (scope.smoRecordArray.fields[i].unit == scope.smoRecordArray.fields[i].units[j][0]){
-						scope.smoRecordArray.fields[i].unitDef = scope.smoRecordArray.fields[i].units[j][1];
+				if (field.type == 'Quantity') {
+					headerRowTemplate += '\
+							<th>\
+								<div style="margin-bottom: 5px;">\
+									{{smoRecordArray.fields[' + String(col) + '].name}}\
+								</div>\
+								<div class="field-select quantity"> \
+									<select ng-model="smoRecordArray.fields[' + String(col) + '].displayUnit" \
+										ng-options="pair[0] as pair[0] for pair in smoRecordArray.fields[' + String(col) + '].units" \
+										ng-change="changeUnit(' + String(col) + ')"></select>\
+								</div>\
+							</th>';
+				} else {
+					headerRowTemplate += '\
+							<th>\
+								<div style="margin-bottom: 5px;">\
+									{{smoRecordArray.fields[' + String(col) + '].name}}\
+								</div>\
+							</th>';
+				}
+				
+				
+				if (field.type == 'Quantity') {
+					
+					field.unit 
+						= field.unit || field.SIUnit;
+					field.displayUnit 
+						= field.displayUnit || field.defaultDispUnit || field.unit;
+					
+					for (var i=0; i<field.units.length; i++) {
+						if (field.unit == field.units[i][0]){
+							field.unitDef = field.units[i][1];
+						}
+						if (field.displayUnit == field.units[i][0]){
+							field.dispUnitDef = field.units[i][1];
+						}	
 					}
-					if (scope.smoRecordArray.fields[i].displayUnit == scope.smoRecordArray.fields[i].units[j][0]){
-						scope.smoRecordArray.fields[i].dispUnitDef = scope.smoRecordArray.fields[i].units[j][1];
-					}	
+					
+					var unitOffset = field.unitDef.offset || 0;
+					var dispUnitOffset = field.dispUnitDef.offset || 0;
+					
+					for (var row=0; row<scope.arrValue.length; row++){
+						scope.arrValue[row][col]
+							= scope.arrValue[row][col] * field.unitDef.mult + unitOffset;
+						
+						scope.arrDisplayValue[row][col] 
+							= util.formatNumber((scope.arrValue[row][col] - dispUnitOffset) / field.dispUnitDef.mult); 
+					}
+					
+					field.minDisplayValue = (field.minValue - dispUnitOffset) / field.dispUnitDef.mult;
+					field.maxDisplayValue = (field.maxValue - dispUnitOffset) / field.dispUnitDef.mult;
+					
+					rowTemplate += '\
+						<td>\
+							<div class="field-input">\
+								<div ng-form name="' + scope.smoRecordArray.name + '_{{i}}_' + String(col) + 'Form">\
+									<input name="input" required type="text" ng-pattern="/^[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$/" \
+										ng-model="arrDisplayValue[i][' + String(col) + ']" ng-change="checkValueValidity(i,' + String(col) + ', ' + scope.smoRecordArray.name + '_{{i}}_' + String(col) + 'Form)">\
+								</div>\
+							</div>\
+							<div style="margin-left: 5px; color:red;" ng-show="' + scope.smoRecordArray.name + '_{{i}}_' + String(col) + 'Form.input.$error.pattern">Enter a number</div>\
+							<div style="margin-left: 5px; color:red;" ng-show="' + scope.smoRecordArray.name + '_{{i}}_' + String(col) + 'Form.input.$error.required">Required value</div>\
+							<div style="margin-left: 5px; color:red;" ng-show="' + scope.smoRecordArray.name + '_{{i}}_' + String(col) + 'Form.input.$error.minVal">Value should be above ' + util.formatNumber(scope.smoRecordArray.fields[col].minDisplayValue) + ' ' + scope.smoRecordArray.fields[col].displayUnit + '</div>\
+							<div style="margin-left: 5px; color:red;" ng-show="' + scope.smoRecordArray.name + '_{{i}}_' + String(col) + 'Form.input.$error.maxVal">Value should be below ' + util.formatNumber(scope.smoRecordArray.fields[col].maxDisplayValue) + ' ' + scope.smoRecordArray.fields[col].displayUnit + '</div>\
+						</td>';
+					
+				} else if (field.type == 'Boolean') {
+					rowTemplate += '\
+						<td>\
+							<div class="bool-input">\
+								<input name="input" type="checkbox" \
+									ng-model="arrValue[i][' + String(col) + ']">\
+							</div>\
+						</td>';
+				} else if (field.type == 'String') {
+					rowTemplate += '\
+						<td>\
+							<div class="field-input">\
+								<div ng-form name="' + scope.smoRecordArray.name + '_{{i}}_' + String(col) + 'Form">\
+									<input name="input" required type="text" \
+										ng-model="arrValue[i][' + String(col) + ']">\
+								</div>\
+							</div>\
+							<div style="margin-left: 5px; color:red;" ng-show="' + scope.smoRecordArray.name + '_{{i}}_' + String(col) + 'Form.input.$error.required">Required value\
+							</div>\
+						</td>';
+				} else if (field.type == 'Choices') {
+					rowTemplate += '\
+					<td>\
+						<div class="field-select choice"> \
+							<select ng-model="arrValue[i][' + String(col) + ']" \
+								ng-options="pair[0] as pair[1] for pair in smoRecordArray.fields[' + String(col) + '].options" \
+								ng-init="arrValue[i][' + String(col) + ']=smoRecordArray.fields[' + String(col) + '].options[0][0]"></select>\
+						</div>\
+					</td>';
 				}
-				
-				var offset = scope.smoRecordArray.fields[i].unitDef.offset || 0;
-				
-				
-				for (var row=0; row<scope.arrValue.length; row++){
-					scope.smoRecordArray.fields[i].value[row]
-						= scope.smoRecordArray.fields[i].value[row] * scope.smoRecordArray.fields[i].unitDef.mult + offset;
-					offset = scope.smoRecordArray.fields[i].dispUnitDef.offset || 0;
-					scope.smoRecordArray.fields[i].displayValue[row] 
-						= util.formatNumber((scope.smoRecordArray.fields[i].value[row] - offset) / scope.smoRecordArray.fields[i].dispUnitDef.mult);
-				}
-				
 			}
-			
 			
 			var template = '\
 			<div class="field-label">' + scope.smoRecordArray.label + '</div>\
@@ -1376,28 +1344,17 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 				<table class="nice-table">\
 					<tr>\
 						<th style="min-width: 10px;">\
-						</th>\
-						<th style="text-align: center;" ng-repeat="field in smoRecordArray.fields">\
-							<div style="margin-bottom: 5px;">\
-								{{field.name}}\
-							</div>\
-							<div class="field-select quantity"> \
-								<select ng-model="field.displayUnit" ng-options="pair[0] as pair[0] for pair in field.units" ng-change="changeUnit(field)"></select>\
-							</div>\
-						</th>\
-						<th style="min-width: 10px;">\
+						</th>' +
+							headerRowTemplate +
+						'<th style="min-width: 10px;">\
 						</th>\
 					</tr>\
 					<tr ng-repeat="row in arrValue track by $index" ng-init="i=$index">\
 						<td style="min-width: 10px;">\
 							{{i}}\
-						</td>\
-						<td ng-repeat="field in smoRecordArray.fields">\
-							<div class="field-input">\
-								<input name="input" required type="text" ng-pattern="/^[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$/" ng-model="field.displayValue[i]" ng-change="updateValue(field)">\
-							</div>\
-						</td>\
-						<td style="min-width: 10px; cursor: pointer;">\
+						</td>' +
+							rowTemplate + 
+						'<td style="min-width: 10px; cursor: pointer;">\
 							<div><smo-button action="addRow(i)" icon="plus"></smo-button></div>\
 							<div><smo-button action="delRow(i)" icon="minus"></smo-button></div>\
 						</td>\
