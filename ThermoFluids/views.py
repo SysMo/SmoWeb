@@ -170,6 +170,24 @@ class TestView(View):
 	def getData(self, parameters):
 		testModel = TestModel()
 		return testModel.superGroupList2Json([testModel.testSuperGroup])
+
+from smo.flow.ExampleModel import ExampleModel
+class ExampleView(View):
+	def get(self, request):
+		return render_to_response('ThermoFluids/ExampleView.html', locals(), 
+				context_instance=RequestContext(request))
+	
+	@action('post')
+	def getInputs(self, parameters):
+		exampleModel = ExampleModel()
+		return exampleModel.superGroupList2Json([exampleModel.inputSuperGroup])
+	
+	@action('post')	
+	def compute(self, parameters):
+		exampleModel = ExampleModel()
+		exampleModel.fieldValuesFromJson(parameters)
+		exampleModel.compute()
+		return exampleModel.superGroupList2Json([exampleModel.resultsSuperGroup])
 		
 		
 		

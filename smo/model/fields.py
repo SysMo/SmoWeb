@@ -44,8 +44,8 @@ class Quantity(Field):
 			unitDef = Quantities[self.type]['units'][value[1]]
 			unitOffset = 0 if ('offset' not in unitDef.keys()) else unitDef['offset']
 			return value[0] * unitDef['mult'] + unitOffset
-		elif (isinstance(value, float)):
-			return value
+		elif (isinstance(value, (float, np.float32, np.float64))):
+			return float(value)
 		elif (isinstance(value, int)):
 			return float(value)
 		else:
@@ -356,7 +356,7 @@ class SuperGroup(Group):
 		self.groups = [] if (groups is None) else groups
 		
 class RecordArray(Field):
-	def __init__(self, structDict = None, numRows = None, *args, **kwargs):
+	def __init__(self, structDict = None, numRows = 1, *args, **kwargs):
 		super(RecordArray, self).__init__(*args, **kwargs)	
 		
 		if (structDict is None):
@@ -374,18 +374,15 @@ class RecordArray(Field):
 			defaultValueList.append(field.default)
 			self.fieldList.append(structField)
 			if isinstance(field, Quantity):
-				typeList.append((field._name, 'f'))
+				typeList.append((field._name, np.float64))
 			elif isinstance(field, Boolean): 
 				typeList.append((field._name, np.dtype(bool)))
 			elif (isinstance(field, String) or isinstance(field, Choices)): 
 				typeList.append((field._name, np.dtype('S' + str(field.maxLength))))
 			
 		defaultValueList = tuple(defaultValueList)
-		
-		if (numRows is None):
-			numRows = 0
-				
-		self.default = np.zeros((numRows,), dtype=np.dtype(typeList))
+		self.dtype = np.dtype(typeList)	
+		self.default = np.zeros((numRows,), dtype = self.dtype)
 		
 		for i in range(numRows):
 			self.default[i] = defaultValueList
@@ -393,8 +390,18 @@ class RecordArray(Field):
 	def parseValue(self, value):
 		if (isinstance(value, np.ndarray)):
 			return value
+		elif (isinstance(value, list)):
+			array = np.zeros((len(value),), dtype = self.dtype)
+			i = 0
+			for elem in value:
+				if isinstance(elem, list):
+					array[i] = tuple(elem)
+				else:
+					raise TypeError('Trying to set row of RecordArray from non-list object')
+				i += 1
+			return array
 		else:
-			raise TypeError('The value of RecordArray must be a numpy structured array')
+			raise TypeError('The value of RecordArray must be a numpy structured array or a list of lists')
 	
 	def getValueRepr(self, value):
 		return value.tolist()
