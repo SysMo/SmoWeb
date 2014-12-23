@@ -1152,25 +1152,25 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 			}
 			
 			
-			$scope.checkValueValidity = function(row, col){
+			$scope.checkValueValidity = function(row, col, form){
 				var field = $scope.smoRecordArray.fields[col];
-				console.log($scope);
-				$scope[$scope.smoRecordArray.name + '_' + String(row) + '_' + String(col) + 'Form'].input.$setValidity('minVal', true);
-				$scope[$scope.smoRecordArray.name + '_' + String(row) + '_' + String(col) + 'Form'].input.$setValidity('maxVal', true);
+				
+				form.input.$setValidity('minVal', true);
+				form.input.$setValidity('maxVal', true);
 				
 				
-				if ($scope[$scope.smoRecordArray.name + '_' + String(row) + '_' + String(col) + 'Form'].input.$error.required == true 
-						|| $scope[$scope.smoRecordArray.name + '_' + String(row) + '_' + String(col) + 'Form'].input.$error.pattern == true) {
+				if (form.input.$error.required == true 
+						|| form.input.$error.pattern == true) {
 					return;
 				}
 				
 				if (Number($scope.arrDisplayValue[row][col]) < field.minDisplayValue) {
-					$scope[$scope.smoRecordArray.name + '_' + String(row) + '_' + String(col) + 'Form'].input.$setValidity('minVal', false);
+					form.input.$setValidity('minVal', false);
 					return;
 				}	
 				
 				if (Number($scope.arrDisplayValue[row][col]) > field.maxDisplayValue){
-					$scope[$scope.smoRecordArray.name + '_' + String(row) + '_' + String(col) + 'Form'].input.$setValidity('maxVal', false);
+					form.input.$setValidity('maxVal', false);
 					return;
 				}
 				
@@ -1258,19 +1258,6 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 				
 				
 				if (field.type == 'Quantity') {
-					rowTemplate += '\
-							<td>\
-								<div class="field-input">\
-									<div ng-form name="' + scope.smoRecordArray.name + '_{{i}}_' + String(col) + 'Form">\
-									<input name="input" required type="text" ng-pattern="/^[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$/" \
-										ng-model="arrDisplayValue[i][' + String(col) + ']" ng-change="checkValueValidity(i,' + String(col) + ')">\
-									</div>\
-								</div>\
-								<div style="margin-left: 5px; color:red;" ng-show="' + scope.smoRecordArray.name + '_{{i}}_' + String(col) + 'Form.input.$error.pattern">Enter a number</div>\
-								<div style="margin-left: 5px; color:red;" ng-show="' + scope.smoRecordArray.name + '_{{i}}_' + String(col) + 'Form.input.$error.required">Required value</div>\
-								<div style="margin-left: 5px; color:red;" ng-show="' + scope.smoRecordArray.name + '_{{i}}_' + String(col) + 'Form.input.$error.minVal">Value should be above {{util.formatNumber(fieldVar.minDisplayValue)}} {{fieldVar.displayUnit}}</div>\
-								<div style="margin-left: 5px; color:red;" ng-show="' + scope.smoRecordArray.name + '_{{i}}_' + String(col) + 'Form.input.$error.maxVal">Value should be below {{util.formatNumber(fieldVar.maxDisplayValue)}} {{fieldVar.displayUnit}}</div>\
-							</td>';
 					
 					field.unit 
 						= field.unit || field.SIUnit;
@@ -1298,7 +1285,21 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 					}
 					
 					field.minDisplayValue = (field.minValue - dispUnitOffset) / field.dispUnitDef.mult;
-					field.maxDisplayValue = (field.maxValue - dispUnitOffset) / field.dispUnitDef.mult;				
+					field.maxDisplayValue = (field.maxValue - dispUnitOffset) / field.dispUnitDef.mult;
+					
+					rowTemplate += '\
+						<td>\
+							<div class="field-input">\
+								<div ng-form name="' + scope.smoRecordArray.name + '_{{i}}_' + String(col) + 'Form">\
+									<input name="input" required type="text" ng-pattern="/^[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$/" \
+										ng-model="arrDisplayValue[i][' + String(col) + ']" ng-change="checkValueValidity(i,' + String(col) + ', ' + scope.smoRecordArray.name + '_{{i}}_' + String(col) + 'Form)">\
+								</div>\
+							</div>\
+							<div style="margin-left: 5px; color:red;" ng-show="' + scope.smoRecordArray.name + '_{{i}}_' + String(col) + 'Form.input.$error.pattern">Enter a number</div>\
+							<div style="margin-left: 5px; color:red;" ng-show="' + scope.smoRecordArray.name + '_{{i}}_' + String(col) + 'Form.input.$error.required">Required value</div>\
+							<div style="margin-left: 5px; color:red;" ng-show="' + scope.smoRecordArray.name + '_{{i}}_' + String(col) + 'Form.input.$error.minVal">Value should be above ' + util.formatNumber(scope.smoRecordArray.fields[col].minDisplayValue) + ' ' + scope.smoRecordArray.fields[col].displayUnit + '</div>\
+							<div style="margin-left: 5px; color:red;" ng-show="' + scope.smoRecordArray.name + '_{{i}}_' + String(col) + 'Form.input.$error.maxVal">Value should be below ' + util.formatNumber(scope.smoRecordArray.fields[col].maxDisplayValue) + ' ' + scope.smoRecordArray.fields[col].displayUnit + '</div>\
+						</td>';
 					
 				} else if (field.type == 'Boolean') {
 					rowTemplate += '\
