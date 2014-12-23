@@ -1044,6 +1044,7 @@ smoModule.directive('smoSuperGroupSet', ['$compile', function($compile) {
 		scope : {
 			smoSuperGroupSet : '=',
 			smoDataSource : '=',
+			modelName: '@modelName',
 			viewType: '@viewType'
 		},
 		link : function(scope, element, attr) {	
@@ -1053,11 +1054,11 @@ smoModule.directive('smoSuperGroupSet', ['$compile', function($compile) {
 				for (var i = 0; i < scope.smoSuperGroupSet.length; i++) {
 					var superGroup = scope.smoSuperGroupSet[i];
 					if (i==0){
-						navTabs.push('<li class="active"><a id="' + superGroup.name + 'Tab" data-target="#' + superGroup.name + '" role="tab" data-toggle="tab">' + superGroup.label + '</a></li>');
-						navTabPanes.push('<div class="tab-pane active" id="' + superGroup.name + '">');
+						navTabs.push('<li class="active"><a id="' + scope.modelName + superGroup.name + 'Tab" data-target="#' + scope.modelName + superGroup.name + '" role="tab" data-toggle="tab">' + superGroup.label + '</a></li>');
+						navTabPanes.push('<div class="tab-pane active" id="' + scope.modelName + superGroup.name + '">');
 					} else {
-						navTabs.push('<li><a id="' + superGroup.name + 'Tab" data-target="#' + superGroup.name + '" role="tab" data-toggle="tab">' + superGroup.label + '</a></li>');
-						navTabPanes.push('<div class="tab-pane" id="' + superGroup.name + '">');
+						navTabs.push('<li><a id="' + scope.modelName + superGroup.name + 'Tab" data-target="#' + scope.modelName + superGroup.name + '" role="tab" data-toggle="tab">' + superGroup.label + '</a></li>');
+						navTabPanes.push('<div class="tab-pane" id="' + scope.modelName + superGroup.name + '">');
 					}
 					
 					var superGroupFields = [];
@@ -1107,11 +1108,11 @@ smoModule.directive('smoModelView', ['$compile', function($compile) {
 		restrict : 'A',
 		scope : {
 			communicator: '=',
-			name: '@smoModelView',
+			modelName: '@smoModelView',
 			viewType: '@viewType'
 		},
 		controller: function($scope) {
-			$scope.formName = $scope.name+'Form';
+			$scope.formName = $scope.modelName + 'Form';
 		},
 		link : function(scope, element, attr) {
 			var template = '\
@@ -1122,7 +1123,7 @@ smoModule.directive('smoModelView', ['$compile', function($compile) {
 				</div>\
 				<div ng-form name="' + scope.formName + '">\
 					<div ng-if="communicator.dataReceived">\
-						<div smo-super-group-set="communicator.data.definitions" view-type="' + scope.viewType + '" smo-data-source="communicator.data.values"></div>\
+						<div smo-super-group-set="communicator.data.definitions" model-name="' + scope.modelName + '" view-type="' + scope.viewType + '" smo-data-source="communicator.data.values"></div>\
 					</div>\
 				</div>';
 
