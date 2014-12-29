@@ -112,8 +112,6 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 		  		</li>
 		  		<li><a><smo-button action="createNewTab()" icon="plus"></a></li>
 		  		<li><a><smo-button action="delLastTab()" icon="minus"></smo-button></a></li>
-<!-- 			  	<li><a data-target="" id="FluidPointNew" ng-click="createNewTab()"><div smo-icon="plus"></div></a></li> -->
-<!-- 			  	<li><a data-target="" ng-click="delLastTab()"><div smo-icon="minus"></div></a></li>			  	 -->
 			</ul>		
 			<div class="tab-content">
 				<div ng-repeat="input in fluidProps.inputs track by $index" ng-class="'tab-pane '+ getTabClass($index)" id="FluidPoint{{$index + 1}}">					
@@ -122,7 +120,7 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 					</div>
 					<div class="section"> 		
 						<div ng-show="fluidProps.inputs[$index].inputCommunicator.dataReceived"><button ng-disabled="!fluidProps.inputs[$index].inputCommunicator.fieldsValid" 
-							 class="btn btn-default" ng-click="compute($index)">Compute</button>
+							 class="btn btn-primary" ng-click="compute($index)">Compute</button>
 						</div>
 					</div>
 					<div class="section"> 
@@ -181,7 +179,7 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 						<select ng-model="saturation.selectedFluid" ng-options="pair[0] as pair[1] for pair in saturation.inputCommunicator.data"></select>
 					</div>
 					<div class="field-select choice" style="margin-left: 5px;">
-						<button ng-click="fetchSaturationData()">Go!</button>
+						<button class="btn btn-primary" ng-click="fetchSaturationData()">Go!</button>
 					</div>
 				</div>
 			</div>

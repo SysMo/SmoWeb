@@ -101,6 +101,7 @@ def rest2html():
 # Installing all the necessary apt packages on the server
 #######################################################################
 def installAptPackages():
+	"Install packages from the ubuntu repository"
 	packageList = [
 		# Revision control system
 		'git',
@@ -121,20 +122,16 @@ def installAptPackages():
 		'apache2',
 		# Mod wsgi for running python web applications (necessary for Django)
 		'libapache2-mod-wsgi',
-		# Font library, necessary for matplotlib
-		'libfreetype6-dev',
-		# PNG read/write; necessary for matplotlib
-		'libpng-dev',
-		# necessary for matplotlib
-		'libqhull-dev',
-		'pkg-config',
-		'libagg-dev',
-		#'texlive',
-		'ghostscript'
+		# The Mongo-DB database
+		'mongodb',
+		# RabbitMQ message broker
+		'rabbitmq-server',
 	]
 	packageString = (" ").join(packageList)
 	sudo('apt-get install {0}'.format(packageString))
-
+	
+	# Installing the packages necessary for building the matplotlib library
+	sudo('apt-get build-dep python-matplotlib')
 
 #######################################################################
 # Installing the necessary python virtualenv packages on the server
@@ -157,7 +154,7 @@ def installPipPackages():
 			'tornado',
 			'pyparsing',
 			# Matplotlib
-			#'matplotlib',
+			'matplotlib',
 			'mpld3',
 			# Finite volume solver
 			'ez_setup',
@@ -169,7 +166,10 @@ def installPipPackages():
 			'wsgiref',
 			# System administration/deployment
 			'fabric',
-			
+			# PyMongo non-relational database
+			'pymongo',
+			# Celery distributed task queue
+			'celery',
 		]
 		for package in packageList:
 			run('pip install {0}'.format(package))
@@ -183,16 +183,35 @@ def installPySparse():
 		with cd('pysparse'):
 			run('python setup.py build')
 			run('python setup.py install')
-		
-def installMatplotlib():
-	""" Plotting library"""
-	sudo('apt-get build-dep python-matplotlib')
-	with virtualenv():
-		run('pip install matplotlib')
-	
 	
 def installHdf():
 	with virtualenv():
 		with shell_env(CFLAGS="-I/usr/lib/openmpi/include/"):
 			run('pip install h5py')
-		
+
+def configureApache():
+	platformConfig="""
+<VirtualHost *:80>
+	ServerAdmin nasko.js@gmail.com
+	ErrorLog ${APACHE_LOG_DIR}/SmowWeb_error.log
+	CustomLog ${APACHE_LOG_DIR}/SmoWeb_access.log combined
+	LogLevel info
+
+	ServerName platform.sysmoltd.com
+	ServerAlias platform.sysmoltd.com
+	WSGIScriptAlias / /srv/SmoWeb/Platform/SmoWeb/wsgi.py
+	WSGIDaemonProcess platform.sysmoltd.com python-path=/srv/SmoWeb/Platform:/srv/VirtualEnv/SmoWebPlatform/lib/python2.7/site-packages
+	WSGIProcessGroup platform.sysmoltd.com
+	WSGIApplicationGroup %{GLOBAL}
+	<Directory /srv/SmoWeb/Platform/SmoWeb/ >
+	  <Files wsgi.py>
+	  	 Require all granted
+	  </Files>
+	</Directory>
+
+	Alias /static/ /srv/SmoWeb/Static/
+	<Directory /srv/SmoWeb/Static>
+	    Require all granted
+	</Directory>
+</VirtualHost>
+"""

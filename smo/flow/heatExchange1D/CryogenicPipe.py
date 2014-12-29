@@ -111,11 +111,17 @@ class CryogenicPipeSolver(object):
 		else:
 			raise ValueError('BC type must be T(temperature) or Q(heat flux)')
 		
-	def solve(self):
+	def solve(self, progressMonitor = None):
+		if (progressMonitor == None):
+			progressMonitor = {
+				'maxIterations' : self.solverSettings['maxIterations'],
+				'tolerance': self.solverSettings['tolerance'],
+				'iterationNum': 0,
+				'residual': 1
+			}
 		sideFaceFactor = fp.CellVariable(name = "sideFaceFactor",
 			mesh = self.mesh, value = self.sideFaceAreas / (self.areaMult * self.mesh.cellVolumes))
 
-		#+  self.h * (sideFaceFactor * TAmb - fp.ImplicitSourceTerm(coeff = sideFaceFactor))
 		# Initial conditions
 		self.T.setValue(self.TAmb)
 		# Run solverSettings
@@ -139,7 +145,7 @@ class CryogenicPipeSolver(object):
 					self.emissivity.setValue(self.emissivityModel(self.T))
 					# Add radiation term to the equation
 					radMultiplier = sigmaSB * self.emissivity * sideFaceFactor
-					eqX = eqX + radMultiplier * (self.TAmb**4 - self.T**4) #fp.ImplicitSourceTerm(coeff = radMultiplier * self.T**3)
+					eqX = eqX + radMultiplier * (self.TAmb**4 - self.T**4)
 				# Perform iteration
 				res = eqX.sweep(var = self.T, solver = solver, underRelaxation = self.solverSettings['relaxationFactor'])
 				# Save residual
@@ -152,6 +158,10 @@ class CryogenicPipeSolver(object):
 				self.QRight.append(self.QAx[-1])
 							
 				sweep += 1
+				# Update monitor
+				progressMonitor['iterationNum'] = sweep 
+				progressMonitor['residual'] = res  
+
 		else:
 			eqX.solve(var = self.T)
 		

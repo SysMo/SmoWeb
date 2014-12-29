@@ -19,7 +19,7 @@ angular.module('ExampleApp', ['ui.bootstrap', 'smo'])
 				resultsCommunicator: new ModelCommunicator(),
 				compute: function() {
 					$scope.exampleModel.resultsCommunicator.fetchData(
-						'compute', $scope.exampleModel.inputCommunicator.data.values);
+						'computeCryogenicPipe', $scope.exampleModel.inputCommunicator.data.values);
 				}
 			};
 			
@@ -46,7 +46,7 @@ angular.module('ExampleApp', ['ui.bootstrap', 'smo'])
 				</div>
 				<div class="section"> 		
 					<button ng-disabled="!exampleModel.inputCommunicator.fieldsValid" 
-						 class="btn btn-default" ng-click="exampleModel.compute()">Compute</button>
+						 class="btn btn-primary" ng-click="exampleModel.compute()">Compute</button>
 				</div>
 				<div class="section"> 
 					<div smo-model-view="exampleModelResults" view-type="output" communicator="exampleModel.resultsCommunicator"></div>

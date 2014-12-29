@@ -45,8 +45,8 @@ angular.module('FlowResistance', ['ui.bootstrap', 'smo'])
 				<div smo-model-view="flowResistanceInputs" view-type="input" communicator="flowResistance.inputCommunicator"></div>
 			</div>
 			<div class="section"> 		
-				<div ng-show="flowResistance.inputCommunicator.dataReceived"><button ng-disabled="!flowResistance.inputCommunicator.fieldsValid" 
-					 class="btn btn-default" ng-click="compute()">Compute</button>
+				<div ng-show="flowResistance.inputCommunicator.dataReceived">
+					<button ng-disabled="!flowResistance.inputCommunicator.fieldsValid" class="btn btn-primary" ng-click="compute()">Compute</button>
 				</div>
 			</div>
 			<div class="section"> 

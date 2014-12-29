@@ -469,8 +469,15 @@ smoModule.directive('smoButton', ['$compile', 'util', function($compile, util) {
 		link : function(scope, element, attr) {
 			var action = attr['action'];
 			var icon = attr['icon'];
-			var template = '<img src="/static/icons/' + icon + '.png" ng-click="' + action + '" width="16px">';
-
+			var tooltip = attr['tip'] || '';
+			var size = attr['size'] || 'sm';
+			var width = 16;
+			if (size == 'lg') {
+				width = 32;
+			} else if (size == 'md') {
+				width = 24;
+			}
+			var template = '<img class="smo-button" src="/static/icons/' + icon + '.png" ng-click="' + action + '" width="' + width + 'px" data-tooltip="' + tooltip + '">';
 			var el = angular.element(template);
 	        compiled = $compile(el);
 	        element.replaceWith(el);
@@ -760,6 +767,7 @@ smoModule.directive('smoPlot', ['$compile', function($compile) {
 			
 		},
 		link : function(scope, element, attr) {
+//								<button ng-click="exportPNG()"><span style="color:#428BCA" class="glyphicon glyphicon-download-alt"></span></button>\
 			var template = '\
 							<div style="display: inline-block;">\
 								<div id="' + scope.fieldVar.name + 'PlotDiv"></div>\
@@ -770,7 +778,7 @@ smoModule.directive('smoPlot', ['$compile', function($compile) {
 							<div style = "margin-top: 10px; margin-bottom: 10px;">\
 								Export plot&nbsp\
 								<input ng-model="pngFileName"></input>\
-								<button ng-click="exportPNG()"><span style="color:#428BCA" class="glyphicon glyphicon-download-alt"></span></button>\
+								<smo-button icon="save" size="md" action="exportPNG()" tip="Save plot"></smo-button>\
 								<img id="' + scope.fieldVar.name + 'Img" hidden>\
 								<a id="' + scope.fieldVar.name + 'PngElem" hidden></a>\
 							</div>';
@@ -856,11 +864,13 @@ smoModule.directive('smoTable', ['$compile', function($compile) {
 			}
 		},
 		link : function(scope, element, attr) {
+//				<button ng-click="exportCSV()"><span style="color:#428BCA" class="glyphicon glyphicon-download-alt"></span></button>\
+
 			var template = '<div id="' + scope.fieldVar.name + 'TableDiv"></div>\
 			<div style = "margin-top: 10px; margin-bottom: 10px;">\
 				Export data&nbsp\
 				<input ng-model="csvFileName"></input>\
-				<button ng-click="exportCSV()"><span style="color:#428BCA" class="glyphicon glyphicon-download-alt"></span></button>\
+				<smo-button icon="save" size="md" action="exportCSV()" tip="Save data"></smo-button>\
 				<a id="' + scope.fieldVar.name + 'CsvElem" hidden></a>\
 			</div>';  
 
@@ -955,9 +965,9 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 		link : function(scope, element, attr) {
 			var template;
 			if (scope.smoViewGroup.label) {
-				template = '<div class="field-group-label" style="margin-top: 25px;">' + scope.smoViewGroup.label + '</div><br>';
+				template = '<div class="field-group-label" style="margin-top: 25px;">' + scope.smoViewGroup.label + '</div>';
 			} else {
-				template = '<br>';
+				template = '';
 			}
 			
 			if (scope.smoViewGroup.fields.length > 1) {
@@ -992,7 +1002,7 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 				}
 				
 				template += '\
-					<div style="white-space: nowrap; background-color: white; padding :10px;">\
+					<div class="view-group-container" style="white-space: nowrap;">\
 						<div style="display: inline-block; vertical-align: top; cursor: pointer;">\
 							<ul class="nav nav-pills nav-stacked">' + navPills.join("") + '</ul>\
 						</div>\
@@ -1023,15 +1033,6 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 			var el = angular.element(template);
 	        compiled = $compile(el);
 	        element.append(el);
-	        
-//	        angular.element('#' + scope.smoViewGroup.name + ' a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-//        		scope.activeTabId = e.target.id; // activated tab
-//        		var activeFieldName = scope.activeTabId.slice(0, -3);
-//        		scope.activeField = scope.fields[activeFieldName];
-//				scope.csvFileName =  scope.activeField.name + '.csv';
-//				scope.$digest();
-//				});
-	        
 	        compiled(scope);
 		}	
 	}
@@ -1336,11 +1337,12 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 			
 			var template = '\
 			<div class="field-label">' + scope.smoRecordArray.label + '</div>\
-			<div class="field-input"><button class="btn btn-primary" style="height: 30px;" ng-click="toggle()">Edit</button></div>';
+			<div class="field-input"><smo-button action="toggle()" icon="edit" tip="Edit" size="md"></smo-button></div>';
+			//			<div class="field-input"><button class="btn btn-primary" style="height: 30px;" ng-click="toggle()">Edit</button></div>';
 			
 			template += '\
 			<div class="record-array" ng-show="expanded">\
-				<div style="cursor: pointer; margin-top: 50px; margin-right: 20px;"><smo-button action="toggle()" icon="close"></smo-button></div>\
+				<div style="cursor: pointer; margin-top: 50px; margin-right: 20px;"><smo-button action="toggle()" icon="close" tip="Close editor"></smo-button></div>\
 				<div>\
 				<table class="nice-table">\
 					<tr>\
@@ -1356,8 +1358,8 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 						</td>' +
 							rowTemplate + 
 						'<td style="min-width: 10px; cursor: pointer;">\
-							<div><smo-button action="addRow(i)" icon="plus"></smo-button></div>\
-							<div><smo-button action="delRow(i)" icon="minus"></smo-button></div>\
+							<div><smo-button action="addRow(i)" icon="plus" tip="Add row"></smo-button></div>\
+							<div><smo-button action="delRow(i)" icon="minus" tip="Remove row"></smo-button></div>\
 						</td>\
 					</tr>\
 				</table>\

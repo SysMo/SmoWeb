@@ -33,13 +33,23 @@
 	border-top-right-radius: 10px;
 }
 
-.field-group-container {
-	background-color: #ABBFCF;
+/* Field group content */
+.field-group-container, .view-group-container {
 	border: 2px solid #0875CA;
 	padding: 10px;
 	border-bottom-left-radius: 10px;
 	border-bottom-right-radius: 10px;
 }
+
+.field-group-container {
+	background-color: #ABBFCF;	
+}
+
+/* View group content */
+.view-group-container {
+	background-color: #FFFFFF;	
+}
+
 
 /* Super group */
 .nav-tabs.super-group {
@@ -68,8 +78,10 @@
 }
 
 
-[smo-super-group-set] > .nav-tabs > li > a, [smo-super-group-set] > .nav-tabs > li.active > a, 
-[smo-super-group-set] > .nav-tabs > li.active > a:hover, [smo-super-group-set] > .nav-tabs > li.active > a:focus {
+[smo-super-group-set] > .nav-tabs > li > a, 
+[smo-super-group-set] > .nav-tabs > li.active > a, 
+[smo-super-group-set] > .nav-tabs > li.active > a:hover, 
+[smo-super-group-set] > .nav-tabs > li.active > a:focus {
 	cursor: pointer;
 	font-size: medium;
 	color: black;

@@ -13,7 +13,7 @@ class ExampleModel(NumericalModel):
                                 ('inputs', Quantity()),       
                             )), label='input array')
     ####
-    inputFieldGroup = FieldGroup([inputsArray], label = 'Input Field Group')
+    inputFieldGroup = FieldGroup([p1, T1], label = 'Input Field Group')
     inputSuperGroup = SuperGroup([inputFieldGroup], label= 'Input Super Group')
     ####
     
@@ -22,5 +22,5 @@ class ExampleModel(NumericalModel):
     resultsSuperGroup = SuperGroup([resultsFieldGroup], label= 'Results Super Group')
     
     def compute(self):
-        print type(np.prod(self.inputsArray['inputs']))
-        self.x = np.prod(self.inputsArray['inputs'])
+        #self.x = np.prod(self.inputsArray['inputs'])
+        self.x = self.p1 * self.T1

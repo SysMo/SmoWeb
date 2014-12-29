@@ -6,6 +6,7 @@ from smo.media.SimpleMaterials import Fluids
 from collections import OrderedDict
 from smo.django.view import SmoJsonResponse, View
 from smo.django.view import action
+import tasks
 
 from smo.media.calculators.FluidPropsCalculator import FluidPropsCalculator, FluidInfo, SaturationData
 class FluidPropsCalculatorView(View):
@@ -129,8 +130,6 @@ class HeatPumpView(View):
 		hpc.compute()
 		return hpc.superGroupList2Json([hpc.results])
 
-from smo.flow.heatExchange1D.WireHeating import CableHeating1D
-from smo.flow.heatExchange1D.CryogenicPipe import CryogenicPipe
 class HeatExchange1DView(View):
 	def get(self, request):
 		return render_to_response('ThermoFluids/HeatExchange1D.html', locals(), 
@@ -138,11 +137,13 @@ class HeatExchange1DView(View):
 		
 	@action('post')
 	def getCryogenicPipeInputs(self, parameters):
+		from smo.flow.heatExchange1D.CryogenicPipe import CryogenicPipe
 		pipe = CryogenicPipe()
 		return pipe.superGroupList2Json([pipe.inputValues, pipe.settings])
 	
 	@action('post')
 	def computeCryogenicPipe(self, parameters):
+		from smo.flow.heatExchange1D.CryogenicPipe import CryogenicPipe
 		pipe = CryogenicPipe()
 		pipe.fieldValuesFromJson(parameters)
 		pipe.compute()
@@ -150,11 +151,13 @@ class HeatExchange1DView(View):
 	
 	@action('post')
 	def getWireHeatingInputs(self, parameters):
+		from smo.flow.heatExchange1D.WireHeating import CableHeating1D
 		wireHeating = CableHeating1D()
 		return wireHeating.superGroupList2Json(wireHeating.inputs)
 	
 	@action('post')
 	def computeWireHeating(self, parameters):
+		from smo.flow.heatExchange1D.WireHeating import CableHeating1D
 		wireHeating = CableHeating1D()
 		wireHeating.fieldValuesFromJson(parameters)
 		wireHeating.compute()
@@ -171,23 +174,19 @@ class TestView(View):
 		testModel = TestModel()
 		return testModel.superGroupList2Json([testModel.testSuperGroup])
 
-from smo.flow.ExampleModel import ExampleModel
 class ExampleView(View):
 	def get(self, request):
-		return render_to_response('ThermoFluids/ExampleView.html', locals(), 
+		return render_to_response('ThermoFluids/HeatExchange1D.html', locals(), 
 				context_instance=RequestContext(request))
+		
+	@action('post')
+	def getCryogenicPipeInputs(self, parameters):
+		from smo.flow.heatExchange1D.CryogenicPipe import CryogenicPipe
+		pipe = CryogenicPipe()
+		return pipe.superGroupList2Json([pipe.inputValues, pipe.settings])
 	
 	@action('post')
-	def getInputs(self, parameters):
-		exampleModel = ExampleModel()
-		return exampleModel.superGroupList2Json([exampleModel.inputSuperGroup])
-	
-	@action('post')	
-	def compute(self, parameters):
-		exampleModel = ExampleModel()
-		exampleModel.fieldValuesFromJson(parameters)
-		exampleModel.compute()
-		return exampleModel.superGroupList2Json([exampleModel.resultsSuperGroup])
-		
-		
+	def computeCryogenicPipe(self, parameters):
+		result = tasks.ExampleModel_compute.delay(parameters)
+		return result.get(timeout = 5)
 		
