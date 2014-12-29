@@ -23,10 +23,14 @@ angular.module('HeatExchange1D', ['ui.bootstrap', 'smo'])
 			compute: function() {
 				$scope.wireHeating.resultsCommunicator.fetchData(
 					'computeWireHeating', $scope.wireHeating.inputCommunicator.data.values);
-			}
+			},
 		};
+		$scope.wireHeating.saveInputs = function() {
+			$scope.wireHeating.inputCommunicator.saveUserInput('saveWireHeatingInputs');
+		}
+		
 		$scope.wireHeating.inputCommunicator.fetchData(
-				'getWireHeatingInputs', {});
+				'getWireHeatingInputs', {'id' : '{{wireHeatingInputsId}}'});
 		
 		$scope.cryogenicPipe = {
 			inputCommunicator: new ModelCommunicator(),
@@ -61,6 +65,7 @@ angular.module('HeatExchange1D', ['ui.bootstrap', 'smo'])
 				<div ng-show="wireHeating.inputCommunicator.dataReceived"><button ng-disabled="!wireHeating.inputCommunicator.fieldsValid" 
 					 class="btn btn-primary" ng-click="wireHeating.compute()">Compute</button>
 				</div>
+				<smo-button action="wireHeating.saveInputs()" icon="save" size="lg"></smo-button>
 			</div>
 			<div class="section"> 
 				<div smo-model-view="wireHeatingResults" view-type="output" communicator="wireHeating.resultsCommunicator"></div>

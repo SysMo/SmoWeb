@@ -111,14 +111,14 @@ class CryogenicPipeSolver(object):
 		else:
 			raise ValueError('BC type must be T(temperature) or Q(heat flux)')
 		
-	def solve(self, progressMonitor = None):
-		if (progressMonitor == None):
-			progressMonitor = {
-				'maxIterations' : self.solverSettings['maxIterations'],
-				'tolerance': self.solverSettings['tolerance'],
-				'iterationNum': 0,
-				'residual': 1
-			}
+	def solve(self):
+# 		if (progressMonitor == None):
+# 			progressMonitor = {
+# 				'maxIterations' : self.solverSettings['maxIterations'],
+# 				'tolerance': self.solverSettings['tolerance'],
+# 				'iterationNum': 0,
+# 				'residual': 1
+# 			}
 		sideFaceFactor = fp.CellVariable(name = "sideFaceFactor",
 			mesh = self.mesh, value = self.sideFaceAreas / (self.areaMult * self.mesh.cellVolumes))
 
@@ -159,8 +159,8 @@ class CryogenicPipeSolver(object):
 							
 				sweep += 1
 				# Update monitor
-				progressMonitor['iterationNum'] = sweep 
-				progressMonitor['residual'] = res  
+# 				progressMonitor['iterationNum'] = sweep 
+# 				progressMonitor['residual'] = res  
 
 		else:
 			eqX.solve(var = self.T)

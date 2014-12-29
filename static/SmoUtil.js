@@ -322,7 +322,7 @@ smoModule.factory('smoJson', function () {
 	return {'parse': parseJSON, 'transformResponse': transformResponse};
 });
 
-smoModule.factory('ModelCommunicator', function($http, smoJson) {
+smoModule.factory('ModelCommunicator', function($http, $window, $timeout, smoJson) {
 	function ModelCommunicator(url){
 		// Communication URL. Can be left empty if the same as the current page URL
 		this.url = url || '';
@@ -351,7 +351,7 @@ smoModule.factory('ModelCommunicator', function($http, smoJson) {
 		var communicator = this;
 		this.onSuccess = onSuccess;
 		this.onFailure = onFailure;
-		this.action = action;
+		//this.action = action;
 		$http({
 	        method  : 'POST',
 	        url     : this.url,
@@ -390,6 +390,32 @@ smoModule.factory('ModelCommunicator', function($http, smoJson) {
 			}
 	    });
 	}
+	ModelCommunicator.prototype.saveUserInput = function(action, data) {
+		var communicator = this;
+		var parameters = data || this.data.values;
+		$http({
+	        method  : 'POST',
+	        url     : this.url,
+	        data    : {action: action, parameters: parameters},
+	        headers : { 'Content-Type': 'application/x-www-form-urlencoded' }, // set the headers so angular passing info as form data (not request payload)
+	        transformResponse: [smoJson.transformResponse],
+	    })
+	    .success(function(response) {
+			if (!response.errStatus) {
+				console.log("Input data saved. id=" + response.data.id);
+				//$timeout($window.alert("Input data saved"));
+			} else {
+				//$timeout($window.alert("Failed to save input data"));
+				console.log("Failed to save input data");
+			}
+	    })
+	    .error(function(response) {
+			console.log("Failed to save input data");
+	    	//$timeout($window.alert("Failed to save input data"));
+	    });
+		
+	}
+
 	return ModelCommunicator;
 })
 

@@ -8,6 +8,11 @@ from smo.django.view import SmoJsonResponse, View
 from smo.django.view import action
 import tasks
 
+from pymongo import MongoClient
+from bson.objectid import ObjectId
+mongoClient = MongoClient()
+
+
 from smo.media.calculators.FluidPropsCalculator import FluidPropsCalculator, FluidInfo, SaturationData
 class FluidPropsCalculatorView(View):
 	def get(self, request):
@@ -132,6 +137,9 @@ class HeatPumpView(View):
 
 class HeatExchange1DView(View):
 	def get(self, request):
+		wireHeatingInputsId = ''
+		if ('wireHeatingInputsId' in request.GET):
+			wireHeatingInputsId = request.GET['wireHeatingInputsId']
 		return render_to_response('ThermoFluids/HeatExchange1D.html', locals(), 
 				context_instance=RequestContext(request))
 		
@@ -152,9 +160,24 @@ class HeatExchange1DView(View):
 	@action('post')
 	def getWireHeatingInputs(self, parameters):
 		from smo.flow.heatExchange1D.WireHeating import CableHeating1D
-		wireHeating = CableHeating1D()
-		return wireHeating.superGroupList2Json(wireHeating.inputs)
+		cableHeating = CableHeating1D()
+		if ('id' in parameters):
+			id = parameters['id']
+			if (len(id) > 0):
+				id = ObjectId(id)
+				coll = mongoClient.SmoWeb.savedInputs
+				conf = coll.find_one({'_id': id})
+				if (conf is not None):
+					cableHeating.fieldValuesFromJson(conf['data'])
+		return cableHeating.superGroupList2Json(cableHeating.inputs)
 	
+	@action('post')
+	def saveWireHeatingInputs(self, parameters):
+		db = mongoClient.SmoWeb
+		coll = db.savedInputs
+		id = coll.insert({'url':'ThermoFluids/HeatExchange1D', 'action': 'getWireHeatingInputs', 'data': parameters})
+		return {'id': str(id), 'url': 'ThermoFluids/HeatExchange1D/' + str(id)}
+		
 	@action('post')
 	def computeWireHeating(self, parameters):
 		from smo.flow.heatExchange1D.WireHeating import CableHeating1D
@@ -187,6 +210,7 @@ class ExampleView(View):
 	
 	@action('post')
 	def computeCryogenicPipe(self, parameters):
-		result = tasks.ExampleModel_compute.delay(parameters)
-		return result.get(timeout = 5)
+		from smo.flow.heatExchange1D.CryogenicPipe import CryogenicPipe
+		result = tasks.Celery_compute.delay(CryogenicPipe, parameters)
+		return result.get(timeout = 10)
 		
