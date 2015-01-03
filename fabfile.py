@@ -75,7 +75,15 @@ def deploy():
 #######################################################################
 # Generate HTML files from restructuredText documents
 #######################################################################
-def rest2html():
+def docs():
+	"""
+	Generate documentation for the project and for the individual apps and pages
+	"""
+	# Project documetation
+	with lcd('doc'):
+		local('make html')
+	
+	# Pages documetation
 	from docutils.core import publish_parts
 	from docutils import io
 	import codecs
@@ -96,6 +104,7 @@ def rest2html():
 				with codecs.open(outputFilePath, 'w', 'utf-8') as fOut:
 					fOut.write(result['html_body'])
 				print ('Wrote output file: ' + outputFilePath)
+	
 
 #######################################################################
 # Installing all the necessary apt packages on the server
@@ -170,6 +179,8 @@ def installPipPackages():
 			'pymongo',
 			# Celery distributed task queue
 			'celery',
+			# Documentation utility for python
+			'sphinx'
 		]
 		for package in packageList:
 			run('pip install {0}'.format(package))
