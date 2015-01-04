@@ -36,6 +36,8 @@ processes the parameters of the request, and itself calls classes and functions,
 part of the *Computational engine*, to perform the calculations. Finally a response 
 is formed based on the results of the computation and sent back to the client.
 
+:ref:`More information <PageApplicationServer>`
+
 Dynamic and static content
 ==========================
 
@@ -72,6 +74,7 @@ designated data storage backend:
  * Finally, static content (CSS, Java Script, images etc.) is stored directly as files
    on the server file system.
 
+:ref:`More information <PageDataStorage>`
 
 Computational engine
 ====================

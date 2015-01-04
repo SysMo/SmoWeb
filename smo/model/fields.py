@@ -4,12 +4,18 @@ import numpy as np
 
 class Field(object):
 	"""
-	Abstract base class for numerical models.
+	Abstract base class for all the field types.
 	"""
 	# Tracks each time an instance is created. Used to retain order.
 	creation_counter = 0
 	
 	def __init__(self, label = "", show = None):
+		"""
+	 	:param str label: the text label used in the user interface usually in front of the field
+		:param str show: expression (as a string), which is evaluated on the client side and is used to 
+			dynamically show and hide a field, based on the values of other fields. The
+			other fields in the model are referenced by prefixing them with ``self.``
+		"""
 		self.label = label
 		self.show = show
 		if (self.show is not None):
@@ -17,9 +23,43 @@ class Field(object):
 		# Increase the creation counter, and save our local copy.
 		self.creation_counter = Field.creation_counter
 		Field.creation_counter += 1
+	
+	def parseValue(self, value):
+		"""
+		Checks if the value is of valid type for this field type, and, if not, 
+		attempts to convert it into one.
+   		For example if the Field is of type :class:`Quantity`\ ('Length') 
+   		then parseValue((2, 'mm')) will return 2e-3 (in the base SI unit 'm') which
+   		can be assigned to the field. Used implicitly by the 
+   		:func:`smo.model.model.NumericalModel.__setattr__` method
+   		"""
+		raise NotImplementedError
+	
+	def getValueRepr(self, value):
+		"""
+		Converts the value of the field to a form suitable for JSON serialization
+		"""
+		raise NotImplementedError
+	
+	def toFormDict(self):
+		"""
+		Converts the definition of the field to a form suitable for JSON serialization
+		"""
+		raise NotImplementedError
 
 class Quantity(Field):
+	'''
+	Represents a physical quantity (e.g. Length, Time, Mass etc.). Allows values to 
+	be set using units e.g. (2, 'km')  
+	'''
 	def __init__(self, type = 'Dimensionless', default = None, minValue = 1e-99, maxValue = 1e99, *args, **kwargs):
+		"""
+		:param str type: The quantity time (Length, Mass, Time etc.)
+		:param default: default value for the field. Could be a number or a tuple (value, unit)
+			like (2, 'mm')
+		:param float minValue: the minimum allowable value for the field
+		:param float maxValue: the maxiumum allowable value for the field
+		"""
 		super(Quantity, self).__init__(*args, **kwargs)
 		self.type = type
 		self.minValue = self.parseValue(minValue)
@@ -76,7 +116,15 @@ class Quantity(Field):
 		return fieldDict
 
 class String(Field):
+	"""
+	Represents a string field
+	"""
 	def __init__(self, default = None, maxLength = None, multiline = None, *args, **kwargs):
+		"""
+		:param str default: default value
+		:param int maxLength: the maximum number of characters in the string
+		:param bool multiline: whether line breaks are allowed in the string
+		"""
 		super(String, self).__init__(*args, **kwargs)
 		if (default is None):
 			self.default = "..."
@@ -119,7 +167,11 @@ class String(Field):
 		return fieldDict
 
 class Boolean(Field):
-	def __init__(self, default = None, *args, **kwargs):		
+	"""
+	Represents a boolean value (True or False)
+	"""
+	def __init__(self, default = None, *args, **kwargs):
+		""":param bool default: default value"""
 		super(Boolean, self).__init__(*args, **kwargs)
 		if (default is None):
 			self.default = True;
@@ -147,7 +199,17 @@ class Boolean(Field):
 		return fieldDict
 
 class Choices(Field):
+	"""
+	Allows the user to make a choice from a list of options
+	"""
 	def __init__(self, options, default = None, maxLength = None, *args, **kwargs):
+		"""
+		:param options: dictionary or ordered dictionary containing the possible 
+			choices represented by (value, label) pairs. The label is used in the
+			display combo-box
+		:param default: default value (from options)
+		:param maxLength: ???
+		"""
 		super(Choices, self).__init__(*args, **kwargs)
 		self.options = options
 		if (default is None):
@@ -181,6 +243,9 @@ class Choices(Field):
 		return fieldDict
 
 class ObjectReference(Field):
+	"""
+	Object reference
+	"""
 	def __init__(self, targetContainer, default, *args, **kwargs):
 		super(ObjectReference, self).__init__(*args, **kwargs)
 		self.targetContainer = targetContainer
@@ -211,8 +276,102 @@ class ObjectReference(Field):
 # 		fieldDict['options'] = {key : value['label'] for key, value in self.targetContainer.iteritems()}
 		return fieldDict
 
+class RecordArray(Field):
+	"""
+	Composite input field for representing structured table (array of records)
+	"""
+	def __init__(self, structDict = None, numRows = 1, *args, **kwargs):
+		"""
+		:param OrderedDict structDict: a dictionary defining the structure of the 
+			record array. The dictionary consists of ``(name, type)`` pairs, 
+			where ``name`` is the column name, and ``type`` is one of the basic
+			field types (:class:`Quantity`, :class:`String`, :class:`Boolean` etc.)
+		:param int numRows: initial number of rows in the table
+		
+		Example::
+		
+			compositePipe = RecordArray(
+				OrderedDict((
+					('name', String(maxLength = 20)),
+					('length', Quantity('Length')),
+					('diameter', Quantity('Length')),	   
+				)), label='composite pipe'
+			)
+  
+		"""
+		super(RecordArray, self).__init__(*args, **kwargs)	
+		
+		if (structDict is None):
+			raise ValueError('The structure of the array is not defined')
+		if (len(structDict) == 0):
+			raise ValueError('The structure of the array is not defined')
+		
+		self.fieldList = []
+		typeList = []
+		defaultValueList = []
+		
+		for name, field in structDict.items():
+			structField = field
+			structField._name = name
+			defaultValueList.append(field.default)
+			self.fieldList.append(structField)
+			if isinstance(field, Quantity):
+				typeList.append((field._name, np.float64))
+			elif isinstance(field, Boolean): 
+				typeList.append((field._name, np.dtype(bool)))
+			elif (isinstance(field, String) or isinstance(field, Choices)): 
+				typeList.append((field._name, np.dtype('S' + str(field.maxLength))))
+			
+		defaultValueList = tuple(defaultValueList)
+		self.dtype = np.dtype(typeList)	
+		self.default = np.zeros((numRows,), dtype = self.dtype)
+		
+		for i in range(numRows):
+			self.default[i] = defaultValueList
+		
+	def parseValue(self, value):
+		if (isinstance(value, np.ndarray)):
+			return value
+		elif (isinstance(value, list)):
+			array = np.zeros((len(value),), dtype = self.dtype)
+			i = 0
+			for elem in value:
+				if isinstance(elem, list):
+					array[i] = tuple(elem)
+				else:
+					raise TypeError('Trying to set row of RecordArray from non-list object')
+				i += 1
+			return array
+		else:
+			raise TypeError('The value of RecordArray must be a numpy structured array or a list of lists')
+	
+	def getValueRepr(self, value):
+		return value.tolist()
+
+	def toFormDict(self):
+		fieldDict = {'type': 'RecordArray', 
+					'name': self._name,
+					'label': self.label
+					}
+		
+		jsonFieldList = []		
+		for field in self.fieldList:
+			jsonFieldList.append(field.toFormDict())
+		
+		fieldDict['fields'] = jsonFieldList
+		
+		return fieldDict
+
 class TableView(Field):
+	"""
+	Field for visualization of table data
+	"""
 	def __init__(self, default = None, dataLabels = None, options = None, *args, **kwargs):
+		"""
+		:param numpy.array default: default array
+		:param list dataLabels: list of column data labels
+		:param dict options: additional options to be passed
+		"""
 		super(TableView, self).__init__(*args, **kwargs)
 		if (default is None):
 			self.default = np.array([])
@@ -256,7 +415,17 @@ class TableView(Field):
 		return extendedData
 
 class PlotView(Field):
+	"""
+	Field for creating interactive plots
+	"""
 	def __init__(self, default = None, dataLabels = None, xlog = None, ylog = None, options = None, *args, **kwargs):
+		"""
+		:param numpy.array default: default value
+		:param list dataLabels: list of line labels
+		:param bool xlog: use logarithmic scale for x axis
+		:param bool ylog: use logarithmic scale for y axis
+		:param dict options: additional options to be passed
+		"""
 		super(PlotView, self).__init__(*args, **kwargs)
 		if (default is None):
 			self.default = np.array([])
@@ -334,6 +503,7 @@ class PlotView(Field):
 			}
 		return fieldDict
 
+
 class Group(object):
 	# Tracks each time an instance is created. Used to retain order.
 	creation_counter = 0
@@ -358,70 +528,6 @@ class SuperGroup(Group):
 		super(SuperGroup, self).__init__(*args, **kwargs)
 		self.groups = [] if (groups is None) else groups
 		
-class RecordArray(Field):
-	def __init__(self, structDict = None, numRows = 1, *args, **kwargs):
-		super(RecordArray, self).__init__(*args, **kwargs)	
-		
-		if (structDict is None):
-			raise ValueError('The structure of the array is not defined')
-		if (len(structDict) == 0):
-			raise ValueError('The structure of the array is not defined')
-		
-		self.fieldList = []
-		typeList = []
-		defaultValueList = []
-		
-		for name, field in structDict.items():
-			structField = field
-			structField._name = name
-			defaultValueList.append(field.default)
-			self.fieldList.append(structField)
-			if isinstance(field, Quantity):
-				typeList.append((field._name, np.float64))
-			elif isinstance(field, Boolean): 
-				typeList.append((field._name, np.dtype(bool)))
-			elif (isinstance(field, String) or isinstance(field, Choices)): 
-				typeList.append((field._name, np.dtype('S' + str(field.maxLength))))
-			
-		defaultValueList = tuple(defaultValueList)
-		self.dtype = np.dtype(typeList)	
-		self.default = np.zeros((numRows,), dtype = self.dtype)
-		
-		for i in range(numRows):
-			self.default[i] = defaultValueList
-		
-	def parseValue(self, value):
-		if (isinstance(value, np.ndarray)):
-			return value
-		elif (isinstance(value, list)):
-			array = np.zeros((len(value),), dtype = self.dtype)
-			i = 0
-			for elem in value:
-				if isinstance(elem, list):
-					array[i] = tuple(elem)
-				else:
-					raise TypeError('Trying to set row of RecordArray from non-list object')
-				i += 1
-			return array
-		else:
-			raise TypeError('The value of RecordArray must be a numpy structured array or a list of lists')
-	
-	def getValueRepr(self, value):
-		return value.tolist()
-
-	def toFormDict(self):
-		fieldDict = {'type': 'RecordArray', 
-					'name': self._name,
-					'label': self.label
-					}
-		
-		jsonFieldList = []		
-		for field in self.fieldList:
-			jsonFieldList.append(field.toFormDict())
-		
-		fieldDict['fields'] = jsonFieldList
-		
-		return fieldDict
 
 		
 		

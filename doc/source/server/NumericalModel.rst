@@ -1,6 +1,7 @@
 ===============
 Numerical model
 ===============
+.. module:: smo.model.model
 
 ---------------
 Creating models
@@ -36,7 +37,7 @@ a field group again with label ``Geometry`` (but a different one) which is part 
 supergroup ``Results``. Finally a method :func:`compute` calculates the area from the
 width and the length. The resulting user interface in the browser can be seen in the figure.
 
-.. figure :: _static/img/area_calculator_ui.png
+.. figure:: _static/server/img/area_calculator_ui.png
    :width:  400px
    :align: center
 
@@ -45,25 +46,26 @@ width and the length. The resulting user interface in the browser can be seen in
 Available classes
 -----------------
 
-.. class:: NumericalModel 
+.. autoclass:: NumericalModelMeta
+
+.. todo::
    
-   Abstract base class for numerical models.
+   Inherited models must collect the fields from base classes
+
+.. autoclass:: NumericalModel
+   :special-members: __new__, __setattr__
    
 ---------------------------
 Fields and field attributes
 ---------------------------
 
+.. module:: smo.model.fields
+
+
 :class:`Field` - field base class
 ---------------------------------
 
-Abstract base class for all the field types. Contains the common attributes for all 
-fields:
-
- * label: the text label used in the user interface usually in front of the field
- 
- * show: expression (as a string), which is evaluated on the client side and is used to 
-   dynamically show and hide a field, based on the values of other fields. The
-   other fields in the model are referenced by prefixing them with ``self.``
+.. autoclass:: Field
 
 All the fields also contain a private ``_name`` attribute, which is the name used to declare 
 the field. This attribute is crated in the constructor of :class:`NumericalModel`
@@ -71,47 +73,44 @@ the field. This attribute is crated in the constructor of :class:`NumericalModel
 :class:`Quantity`
 -----------------
 
-.. class::
-   Represents 
+.. autoclass:: Quantity
 
 :class:`String`
 ---------------
 
+.. autoclass:: String
+
 :class:`Boolean`
 ----------------
+
+.. autoclass:: Boolean
 
 :class:`Choices`
 ----------------
 
+.. autoclass:: Choices
+
 :class:`RecordArray`
 --------------------
+
+.. autoclass:: RecordArray
 
 :class:`ObjectReference`
 ------------------------
 
+.. autoclass:: ObjectReference
+
 :class:`TableView`
 ------------------
+
+.. autoclass:: TableView
 
 :class:`PlotView`
 -----------------
 
+.. autoclass:: PlotView
 
 -------------------------------
 Class fields vs instance fields
 -------------------------------
 
-----------------
-Fields internals
-----------------
-
-.. method :: parseValue(value) 
-   
-   Check if the value is of valid type for this field type, and, if not, 
-   attempts to convert it into one.
-   For example if the Field is of type :class:`Quantity`\ ('Length') 
-   then parseValue((2, 'mm')) will return 2e-3 (in the base SI unit 'm') which
-   can be assigned to the field. Used implicitly by the :func:`__setattr__` method
-
-.. method :: getValueRepr(value) 
-
-.. method :: toFormDict() 

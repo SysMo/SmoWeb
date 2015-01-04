@@ -4,6 +4,9 @@ import copy
 
 #TODO: Currently inheritance not supported
 class NumericalModelMeta(type):
+	"""Metaclass facilitating the creation of a numerical
+	model class. Collects all the declared fields in a 
+	dictionary ``self.declared_fields``"""
 	def __new__(cls, name, bases, attrs):
 		# Collect fields from current class.
 		current_fields = []
@@ -43,9 +46,13 @@ class NumericalModelMeta(type):
 		return new_class
 
 class NumericalModel(object):
+	"""Abstract base class for numerical models."""
+
 	__metaclass__ = NumericalModelMeta
 	
 	def __new__(cls, *args, **kwargs):
+		"""Constructor for all numerical models. 
+		Sets default values for all model fields"""
 		instance = object.__new__(cls)
 		for name, field in instance.declared_fields.iteritems():
 			if (isinstance(object, RecordArray)):
@@ -57,12 +64,15 @@ class NumericalModel(object):
 		return instance
 	
 	def __setattr__(self, name, value):
+		"""Sets field value using the :func:`Field.parseValue` method"""
 		if name in self.declared_fields.keys():
 			object.__setattr__(self, name, self.declared_fields[name].parseValue(value))
 		else:
 			raise AttributeError("Class '{0}' has no field '{1}'".format(self.__class__.__name__, name))
 	
 	def superGroupList2Json(self, groupList):
+		"""Creates JSON representation of the supergroups in ``groupList`` including 
+		field definitions and field values"""
 		definitions = [] 
 		fieldValues = {}
 		for group in groupList:
@@ -74,6 +84,7 @@ class NumericalModel(object):
 		return {'definitions': definitions, 'values': fieldValues}
 
 	def superGroup2Json(self, group, fieldValues):
+		""""""
 		jsonObject = {'type': 'SuperGroup', 'name': group._name, 'label': group.label}
 		subgroupList = []
 		for subgroup in group.groups:
@@ -87,6 +98,7 @@ class NumericalModel(object):
 		return jsonObject
 		
 	def fieldGroup2Json(self, group, fieldValues):
+		""""""
 		jsonObject = {'type': 'FieldGroup', 'name': group._name, 'label': group.label}
 		fieldList = []
 		for field in group.fields:
@@ -96,6 +108,7 @@ class NumericalModel(object):
 		return jsonObject
 				
 	def viewGroup2Json(self, group, fieldValues):
+		""""""
 		jsonObject = {'type': 'ViewGroup', 'name': group._name, 'label': group.label}
 		fieldList = []
 		for field in group.fields:
@@ -112,6 +125,7 @@ class NumericalModel(object):
 # 		return jsonObject
 	
 	def fieldValuesFromJson(self, jsonDict):
+		""""""
 		for key, value in jsonDict.iteritems():
 			field = self.declared_fields[key]
 			self.__dict__[key] = field.parseValue(value)

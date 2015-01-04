@@ -18,7 +18,11 @@ import os
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-#sys.path.insert(0, os.path.abspath('.'))
+sys.path.insert(0, os.path.abspath('../../'))
+autodoc_default_flags = ['members']
+autodoc_member_order = 'bysource'
+autoclass_content = 'both'
+todo_include_todos = True
 
 # -- General configuration ------------------------------------------------
 
@@ -29,10 +33,11 @@ import os
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    'sphinx.ext.autodoc',
+    'sphinx.ext.intersphinx',
     'sphinx.ext.todo',
     'sphinx.ext.mathjax',
     'sphinx.ext.viewcode',
-    'sphinx.ext.intersphinx'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -48,8 +53,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'SmoWebDoc'
-copyright = u'2015 SysMo Ltd, Bulgaria'
+project = u'SmoWeb'
+copyright = u'2015, SysMo Ltd, Bulgaria'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -79,7 +84,7 @@ exclude_patterns = []
 #default_role = None
 
 # If true, '()' will be appended to :func: etc. cross-reference text.
-#add_function_parentheses = True
+add_function_parentheses = False
 
 # If true, the current module name will be prepended to all description
 # unit titles (such as .. function::).
@@ -132,7 +137,7 @@ html_theme = 'default'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = ['_static', 'server/_static', 'client/_static']
 
 # Add any extra paths that contain custom files (such as robots.txt or
 # .htaccess) here, relative to this directory. These files are copied
@@ -181,7 +186,7 @@ html_static_path = ['_static']
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'SmoWebDocdoc'
+htmlhelp_basename = 'SmoWebDoc'
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -201,7 +206,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-  ('index', 'SmoWebDoc.tex', u'SmoWebDoc Documentation',
+  ('index', 'SmoWeb.tex', u'SmoWeb Documentation',
    u'Atanas Pavlov, Ivaylo Mihaylov, Milen Borisov', 'manual'),
 ]
 
@@ -231,8 +236,8 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'smowebdoc', u'SmoWebDoc Documentation',
-     [u'Atanas Pavlov, Ivaylo Mihaylov, Milen Borisov'], 1)
+    ('index', 'smoweb', u'SmoWeb Documentation',
+     [u'SysMo Ltd, Bulgaria'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -245,8 +250,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'SmoWebDoc', u'SmoWebDoc Documentation',
-   u'Atanas Pavlov, Ivaylo Mihaylov, Milen Borisov', 'SmoWebDoc', 'One line description of project.',
+  ('index', 'SmoWeb', u'SmoWeb Documentation',
+   u'SysMo Ltd, Bulgaria', 'SmoWeb', 'On line platform for engineering computation and simulations.',
    'Miscellaneous'),
 ]
 
@@ -266,13 +271,13 @@ texinfo_documents = [
 # -- Options for Epub output ----------------------------------------------
 
 # Bibliographic Dublin Core info.
-epub_title = u'SmoWebDoc'
+epub_title = u'SmoWeb'
 epub_author = u'Atanas Pavlov, Ivaylo Mihaylov, Milen Borisov'
-epub_publisher = u'2015, SysMo Ltd., Bulgaria'
-epub_copyright = u'2015, SysMo Ltd., Bulgaria'
+epub_publisher = u'SysMo Ltd, Bulgaria'
+epub_copyright = u'2015, SysMo Ltd, Bulgaria'
 
 # The basename for the epub file. It defaults to the project name.
-#epub_basename = u'SmoWebDoc'
+#epub_basename = u'SmoWeb'
 
 # The HTML theme for the epub output. Since the default themes are not optimized
 # for small screen space, using the same theme for HTML and epub output is
@@ -331,3 +336,7 @@ epub_exclude_files = ['search.html']
 
 # If false, no index is generated.
 #epub_use_index = True
+
+
+# Example configuration for intersphinx: refer to the Python standard library.
+intersphinx_mapping = {'http://docs.python.org/': None}
