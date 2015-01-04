@@ -13,7 +13,10 @@ Contents:
    :maxdepth: 2
    :numbered:
 
-   architecture
+   Architecture
+   NumericalModel
+   WebServer
+   TaskScheduler
 
 ==================
 Indices and tables

@@ -32,6 +32,7 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.mathjax',
     'sphinx.ext.viewcode',
+    'sphinx.ext.intersphinx'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -267,8 +268,8 @@ texinfo_documents = [
 # Bibliographic Dublin Core info.
 epub_title = u'SmoWebDoc'
 epub_author = u'Atanas Pavlov, Ivaylo Mihaylov, Milen Borisov'
-epub_publisher = u'Atanas Pavlov, Ivaylo Mihaylov, Milen Borisov'
-epub_copyright = u'2015, Atanas Pavlov, Ivaylo Mihaylov, Milen Borisov'
+epub_publisher = u'2015, SysMo Ltd., Bulgaria'
+epub_copyright = u'2015, SysMo Ltd., Bulgaria'
 
 # The basename for the epub file. It defaults to the project name.
 #epub_basename = u'SmoWebDoc'

@@ -16,14 +16,15 @@ angular.module('TestApp', ['ui.bootstrap', 'smo'])
 	.controller('TestController', [ '$scope', '$http', 'ModelCommunicator', function($scope, $http, ModelCommunicator) {
 		$scope.testModel = {
 				inputCommunicator: new ModelCommunicator(),
-				resultsCommunicator: new ModelCommunicator()
+				resultCommunicator: new ModelCommunicator()
 			};
 			
 			$scope.testModel.inputCommunicator.fetchData(
-				'getData', {}, function(comm){
-					$scope.arrayGroup = comm.data.definitions[0].groups[0];
-					$scope.dataValues = comm.data.values;
-				});
+				'getInputs', {});
+			$scope.compute = function() {
+				$scope.testModel.resultCommunicator.fetchData(
+					'compute',  $scope.testModel.inputCommunicator.data.values);
+			}
 }])
 </script>
 {% endblock %}
@@ -36,20 +37,18 @@ angular.module('TestApp', ['ui.bootstrap', 'smo'])
 {% block content %}
 <div ng-app="TestApp" ng-controller="TestController">
 		<div class="page-container">		
-			<h1 class="title">Test calculator</h1>
-			<div ng-if="testModel.inputCommunicator.loading" class="alert alert-info" role="alert">Loading...</div>
-				<div ng-if="testModel.inputCommunicator.commError" class="alert alert-danger" role="alert">Communication error: <span ng-bind="testModel.inputCommunicator.errorMsg"></span></div>
-				<div ng-if="testModel.inputCommunicator.serverError" class="alert alert-danger" role="alert">Server error: <span ng-bind="testModel.inputCommunicator.errorMsg"></span>
-					<div>Stack trace:</div><pre><div ng-bind="testModel.inputCommunicator.stackTrace"></div></pre>
-				</div>
-			
-			<div ng-if="testModel.inputCommunicator.dataReceived">
+			<h1 class="title">Test calculator</h1>			
 {% verbatim %}
-				<div class="section">
-					<div smo-model-view="testModelInputs" view-type="input" communicator="testModel.inputCommunicator"></div> 
-				</div>
-{% endverbatim %}
+			<div class="section">
+				<div smo-model-view="testModelInputs" view-type="input" communicator="testModel.inputCommunicator"></div> 
 			</div>
+			<div class="section">
+				<button ng-click="compute()">Compute</button> 
+			</div>
+			<div class="section">
+				<div smo-model-view="testModelResults" view-type="output" communicator="testModel.resultCommunicator"></div> 
+			</div>
+{% endverbatim %}
 		</div>
 </div>
 {% endblock %}

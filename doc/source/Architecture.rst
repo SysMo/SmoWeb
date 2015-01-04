@@ -1,9 +1,9 @@
-====================
-Smo Web Architecture
-====================
+============================
+SmoWeb architecture overview
+============================
 
 .. figure :: _static/img/smoweb_components.svg
-   :width: 1200px
+   :width: 1000px
    :align: center
 
    SmoWeb platform components
@@ -19,7 +19,7 @@ application server with computational engine, data storages and task queue.
 Web server
 ==========
 
-The main web-server provides the network communicaiton with the client. It 
+The web-server provides the network communicaiton with the client. It 
 redirects the client requests through a WSGI interface to the Python application
 server and returns the responses back to the client. The communication with the 
 client uses HTTP protocol, but in the future will likely switch to a secure HTTPS
@@ -53,21 +53,24 @@ The platform stores and retrieves different kind of data and for each there is a
 designated data storage backend:
 
  * Administration and user managamenet information is stored in a SQL relational 
- database.
+   database.
+   
  * Numerical models can be persisted in a non-relational database (MongoDB). They 
- are stored as *records* which do not have predefined structure but use BSON (binary 
- JSON) format to store arbitrary hierarchical data. The actual structure of the data 
- is contained in the Python classes used as numerical models. Using non-relational DB
- allows for easy storage of large number of different models. In contrast, relational DBs have
- well defined tables and table columns, and are suited for saving large number of records
- having identical structure, and require special care when the Python model persisted is
- altered.
+   are stored as *records* which do not have predefined structure but use BSON (binary 
+   JSON) format to store arbitrary hierarchical data. The actual structure of the data 
+   is contained in the Python classes used as numerical models. Using non-relational DB
+   allows for easy storage of large number of different models. In contrast, relational DBs have
+   well defined tables and table columns, and are suited for saving large number of records
+   having identical structure, and require special care when the Python model persisted is
+   altered.
+   
  * Large numerical arrays can be stored as *datasets* in HDF (Hierarchical Data Format)
- numerical database. HDF is suitable for storing large amount of numerical data, allows
- for easy data extraction (like ranges and slices for multi-dimensional data), provides
- interface to numpy for performing numerical operations and allows compact data storage.
+   numerical database. HDF is suitable for storing large amount of numerical data, allows
+   for easy data extraction (like ranges and slices for multi-dimensional data), provides
+   interface to numpy for performing numerical operations and allows compact data storage.
+   
  * Finally, static content (CSS, Java Script, images etc.) is stored directly as files
- on the server file system.
+   on the server file system.
 
 
 Computational engine

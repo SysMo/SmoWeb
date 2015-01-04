@@ -3,6 +3,9 @@ import json
 import numpy as np
 
 class Field(object):
+	"""
+	Abstract base class for numerical models.
+	"""
 	# Tracks each time an instance is created. Used to retain order.
 	creation_counter = 0
 	

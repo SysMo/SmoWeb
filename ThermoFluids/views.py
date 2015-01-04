@@ -193,9 +193,16 @@ class TestView(View):
 				context_instance=RequestContext(request))
 	
 	@action('post')
-	def getData(self, parameters):
+	def getInputs(self, parameters):
 		testModel = TestModel()
-		return testModel.superGroupList2Json([testModel.testSuperGroup])
+		return testModel.superGroupList2Json([testModel.inputs])
+
+	@action('post')
+	def compute(self, parameters):
+		testModel = TestModel()
+		testModel.fieldValuesFromJson(parameters)
+		testModel.compute()
+		return testModel.superGroupList2Json([testModel.results])
 
 class ExampleView(View):
 	def get(self, request):
