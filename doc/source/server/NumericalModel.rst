@@ -68,7 +68,7 @@ Fields and field attributes
 .. autoclass:: Field
 
 All the fields also contain a private ``_name`` attribute, which is the name used to declare 
-the field. This attribute is crated in the constructor of :class:`NumericalModel`
+the field. This attribute is crated in the constructor of :class:`~smo.model.model.NumericalModelMeta`
 
 :class:`Quantity`
 -----------------

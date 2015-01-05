@@ -635,17 +635,14 @@ smoModule.directive('smoChoice', ['$compile', 'util', function($compile, util) {
 	return {
 		restrict : 'A',
 		scope : {
-			choiceVar: '=choiceVar', 
-			options: '=smoOptions',
-			title: '@smoTitle',
-		},
-		controller: function($scope){
+			fieldVar: '=', 
+			smoDataSource : '='
 		},
 		link : function(scope, element, attr) {
 		var template = ' \
-			<div class="field-label">' + scope.title + '</div>\
+			<div class="field-label">' + scope.fieldVar.label + '</div>\
 			<div class="field-select choice"> \
-				<select ng-model="choiceVar" ng-options="pair[0] as pair[1] for pair in options"></select> \
+				<select ng-model="smoDataSource.' + scope.fieldVar.name + '" ng-options="pair[0] as pair[1] for pair in fieldVar.options"></select> \
 			</div>';
 		
 //		element.html('').append($compile(template)(scope));
@@ -940,8 +937,7 @@ smoModule.directive('smoFieldGroup', ['$compile', 'util', function($compile, uti
 						groupFields.push('<div ' + showFieldCode + ' smo-quantity view-type="output" field-var="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
 				} else if (field.type == 'Choices') {
 					if (scope.viewType == 'input')
-						groupFields.push('<div ' + showFieldCode + ' smo-choice choice-var="smoDataSource.' + field.name + '"' +
-						' smo-options="smoFieldGroup.fields[' + i + '].options" smo-title="' + field.label + '"></div>');
+						groupFields.push('<div ' + showFieldCode + ' smo-choice field-var="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
 				} else if (field.type == 'String') {
 					if (scope.viewType == 'input') 
 						groupFields.push('<div ' + showFieldCode + ' smo-string view-type="input" field-var="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
