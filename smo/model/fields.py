@@ -55,11 +55,11 @@ class Quantity(Field):
 	'''
 	def __init__(self, type = 'Dimensionless', default = None, minValue = 1e-99, maxValue = 1e99, *args, **kwargs):
 		"""
-		:param str type: The quantity time (Length, Mass, Time etc.)
+		:param str type: the quantity type (Length, Mass, Time etc.)
 		:param default: default value for the field. Could be a number or a tuple (value, unit)
 			like (2, 'mm')
-		:param float minValue: the minimum allowable value for the field
-		:param float maxValue: the maxiumum allowable value for the field
+		:param float minValue: the minimum allowed value for the field
+		:param float maxValue: the maximum allowed value for the field
 		"""
 		super(Quantity, self).__init__(*args, **kwargs)
 		self.type = type
@@ -279,7 +279,7 @@ class ObjectReference(Field):
 
 class RecordArray(Field):
 	"""
-	Composite input field for representing structured table (array of records)
+	Composite input field for representing a structured table (array of records)
 	"""
 	def __init__(self, structDict = None, numRows = 1, *args, **kwargs):
 		"""
@@ -287,7 +287,7 @@ class RecordArray(Field):
 			record array. The dictionary consists of ``(name, type)`` pairs, 
 			where ``name`` is the column name, and ``type`` is one of the basic
 			field types (:class:`Quantity`, :class:`String`, :class:`Boolean` etc.)
-		:param int numRows: initial number of rows in the table
+		:param int numRows: the initial number of rows in the table
 		
 		Example::
 		

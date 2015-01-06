@@ -31,10 +31,10 @@ Numerical models are defined by subclassing the :class:`NumericalModel` class::
          self.area = self.width * self.length
          
 The :class:`AreaCalculator` class defines 2 input fields (``width`` and ``length``) and one 
-output field (``area``). The input fields are grouped in a field group with label ``Geometry``,
-which is part of a super-group with label ``Inputs``. The outpu field ``area`` is part of 
-a field group again with label ``Geometry`` (but a different one) which is part of the 
-supergroup ``Results``. Finally a method :func:`compute` calculates the area from the
+output field (``area``). The input fields are grouped in a field-group with label ``Geometry``,
+which is part of a super-group with label ``Inputs``. The output field ``area`` is part of 
+a field-group again with label ``Geometry`` (but a different one), which is part of the 
+super-group ``Results``. Finally, a method :func:`compute` calculates the area from the
 width and the length. The resulting user interface in the browser can be seen in the figure.
 
 .. figure:: _static/server/img/area_calculator_ui.png
@@ -68,7 +68,7 @@ Fields and field attributes
 .. autoclass:: Field
 
 All the fields also contain a private ``_name`` attribute, which is the name used to declare 
-the field. This attribute is crated in the constructor of :class:`NumericalModel`
+the field. This attribute is crated in the constructor of :class:`~smo.model.model.NumericalModelMeta`
 
 :class:`Quantity`
 -----------------
