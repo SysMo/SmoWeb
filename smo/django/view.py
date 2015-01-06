@@ -71,11 +71,11 @@ class View(object):
 		else:
 			raise NameError('No GET action with name {0}'.format(actionName))
 	
-	def execPostAction(self, actionName, parameters):
+	def execPostAction(self, actionName, model, view, parameters):
 		response = {}
 		if (actionName in self._postActions.keys()):
 			try:
-				response['data'] = self._postActions[actionName](self, parameters)
+				response['data'] = self._postActions[actionName](self, model, view, parameters)
 				response['errStatus'] = False
 			except Exception, e:
 				response['errStatus'] = True
@@ -87,25 +87,17 @@ class View(object):
 		return JsonResponse(response)
 	
 	@action('post')
-	def load(self, parameters):
-		modelName = parameters['modelName']
-		viewName = parameters['viewName']
-		model = None
-		view = None
-		for module in self.modules:
-			if (module.name == modelName):
-				model = module
-		if (model is None):
-			raise ValueError("Unknown model {0}".format(modelName))
-		
-		for modelView in model.modelBlocks:
-			if (modelView.name == viewName):
-				view = modelView
-		if (view is None):
-			raise ValueError("Unknown model view {0}.{1}".format(modelName, viewName))
+	def load(self, model, view, parameters):
 		instance = model()
 		return instance.modelView2Json(view)
 		
+	@action('post')
+	def compute(self, model, view, parameters):
+		instance = model()
+		instance.fieldValuesFromJson(parameters)
+		instance.compute()
+		return instance.modelView2Json(view)
+	
 	@classmethod
 	def asView(cls):
 		def view(request):
@@ -124,10 +116,33 @@ class View(object):
 				else:
 					postData = json.loads(request.body)
 					action = postData['action']
-					parameters = postData['parameters']
+					data = postData['data']
+					
+					# Get the model and view calling 
+					model = None
+					if ("modelName" in data):
+						modelName = data['modelName']
+						for module in instance.modules:
+							if (module.name == modelName):
+								model = module
+						if (model is None):
+							raise ValueError("Unknown model {0}".format(modelName))
+
+					view = None
+					if (model is not None and "viewName" in data):
+						viewName = data['viewName']
+						for modelView in model.modelBlocks:
+							if (modelView.name == viewName):
+								view = modelView
+						if (view is None):
+							raise ValueError("Unknown model view {0}.{1}".format(modelName, viewName))
+					
+					parameters = {}
+					if ('parameters' in data):
+						parameters = data['parameters']
 					logger.debug('Action: ' + action)
 					logger.debug('Parameters: ' + json.dumps(parameters))
-					return instance.execPostAction(action, parameters)
+					return instance.execPostAction(action, model, view, parameters)
 			else:
 				raise ValueError('Only GET and POST requests can be served')
 				

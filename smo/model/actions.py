@@ -2,10 +2,10 @@ class Action(object):
 	pass
 
 class ServerAction(Action):
-	def __init__(self, name, label, communicator):
+	def __init__(self, name, label, outputView):
 		self.name = name
 		self.label = label
-		self.communicator = communicator
+		self.outputView = outputView
 		
 		self.type = 'ServerAction'
 		
@@ -13,7 +13,7 @@ class ServerAction(Action):
 		jsonObject = {
 			'name': self.name,
 			'label': self.label,
-			'communicator': self.communicator,
+			'outputView': self.outputView,
 			'type': self.type
 		}
 		return jsonObject

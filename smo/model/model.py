@@ -9,7 +9,7 @@ class ModelView(object):
 		self.actionBar = actionBar
 		self.autoFetch = autoFetch
 
-class ModelDocumentation:
+class ModelDocumentation(object):
 	pass
 
 #TODO: Currently inheritance not supported

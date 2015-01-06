@@ -337,7 +337,7 @@ smoModule.factory('ModelCommunicator', function($http, $window, $timeout, smoJso
 		// true if data has arrived from the server
 		this.dataReceived = false;
 	}
-	ModelCommunicator.prototype.fetchData = function(action, parameters, onSuccess, onFailure) {
+	ModelCommunicator.prototype.fetchData = function(action, data, onSuccess, onFailure) {
 		this.loading = true;
 		this.commError = false;
 		this.serverError = false;
@@ -355,7 +355,7 @@ smoModule.factory('ModelCommunicator', function($http, $window, $timeout, smoJso
 		$http({
 	        method  : 'POST',
 	        url     : this.url,
-	        data    : {action : action, parameters: parameters},
+	        data    : {action : action, data: data},
 	        headers : { 'Content-Type': 'application/x-www-form-urlencoded' }, // set the headers so angular passing info as form data (not request payload)
 	        transformResponse: [smoJson.transformResponse],
 	    })
@@ -1364,20 +1364,27 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 
 smoModule.directive('smoViewToolbar', ['$compile', '$rootScope', function($compile, $rootScope) {
 	return {
+		scope: {
+			model: "=",
+			viewName: "=",
+			actions: "="
+		},
 		controller: function($scope) {
-			$scope.mainScope = $rootScope.$$childHead;
-			$scope.actionHandler = function(communicator, action) {
-				communicator.fetchData(action, $scope.communicator.data.values);
+			$scope.actionHandler = function(action) {
+				var communicator = $scope.model[action.outputView + 'Communicator'];
+				communicator.fetchData(action.name, {
+					modelName: $scope.model.name, 
+					viewName: action.outputView, 
+					parameters:	$scope.model[$scope.viewName + 'Communicator'].data.values
+				});
 			}
 		},
 		link : function(scope, element, attr) {
 			buttons = [];
-			var actions = scope.communicator.data.actions;
-			for (var i = 0; i < actions.length; i++) {
-				action = actions[i];
-				buttons.push('<button style="margin-right: 10px;" ng-click="actionHandler(mainScope[\'' + scope.modelName + '\'][\'' + action.communicator + 'Communicator\'], \'' + action.name + '\')">' + action.label + '</button>');
+			for (var i = 0; i < scope.actions.length; i++) {
+				buttons.push('<button style="margin-right: 10px;" ng-click="actionHandler(actions[' + i + '])">' + scope.actions[i].label + '</button>');
 			}
-			var template = '<div style="display: inline-block;">'+ buttons.join("") + '<div>{{injector}}</div>' + '</div>';
+			var template = '<div style="display: inline-block;">'+ buttons.join("") + '</div>';
 			var el = angular.element(template);
 	        compiled = $compile(el);
 	        element.append(el);
@@ -1401,13 +1408,14 @@ smoModule.directive('smoModelView', ['$compile', 'ModelCommunicator',
 		},
 		controller: function($scope) {
 			$scope.formName = $scope.modelName + 'Form';
+			$scope.model = $scope.$parent[$scope.modelName];
 			$scope.communicator = new ModelCommunicator();
-			$scope.$parent[$scope.modelName][$scope.viewName + 'Communicator'] = $scope.communicator;
+			$scope.model[$scope.viewName + 'Communicator'] = $scope.communicator;
 			if ($scope.autoFetch) {
 				$scope.communicator.fetchData("load", {
 					modelName: $scope.modelName, 
 					viewName: $scope.viewName, 
-					dataId: $scope.dataId
+					parameters: {dataId: $scope.dataId}
 				});				
 			}
 		},
@@ -1421,7 +1429,7 @@ smoModule.directive('smoModelView', ['$compile', 'ModelCommunicator',
 				<div ng-form name="' + scope.formName + '">\
 					<div ng-if="communicator.dataReceived">\
 						<div smo-super-group-set="communicator.data.definitions" model-name="' + scope.modelName + '" view-type="' + scope.viewType + '" smo-data-source="communicator.data.values"></div>\
-						<div smo-view-toolbar></div>\
+						<div smo-view-toolbar model="model" view-name="viewName" actions="communicator.data.actions"></div>\
 					</div>\
 				</div>'
 

@@ -10,3 +10,10 @@ def isModelView(obj):
 @register.filter(name = 'isNumericalModel')
 def isNumericalModel(obj):
 	return isinstance(obj, NumericalModel)
+
+@register.filter(name = 'isActive')
+def isActive(view, module):
+	if (isinstance(module, type)):
+		return view.activeModule == module
+	else:
+		return  view.activeModule == module.__class__

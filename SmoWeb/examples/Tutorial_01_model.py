@@ -25,8 +25,8 @@ class AreaCalculator(NumericalModel):
 	inputs = SuperGroup([geometryIn, flowIn], label = "Inputs")
 	
 	# Actions
-	computeAction = ServerAction("compute", label = "Compute", communicator = 'resultView')
-	blahAction = ServerAction("blah", label = "Blah", communicator = 'resultView')
+	computeAction = ServerAction("compute", label = "Compute", outputView = 'resultView')
+	blahAction = ServerAction("blah", label = "Blah", outputView = 'resultView')
 	inputActionBar = ActionBar([computeAction, blahAction], save = True)
 	
 	# Model view

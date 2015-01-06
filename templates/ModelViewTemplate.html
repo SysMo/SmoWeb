@@ -14,7 +14,7 @@ angular.module('{{view.appName}}', ['ui.bootstrap', 'smo'])
 		[ '$scope', function($scope) {
 			{% for module in view.modules %}
 				{% if module|isNumericalModel %}
-			$scope.{{module.name}} = {};
+			$scope.{{module.name}} = { name : "{{module.name}}" };
 					{% for block in module.modelBlocks %}
 						{% if block|isModelView%}
 							{% if block.init %}
@@ -29,7 +29,7 @@ angular.module('{{view.appName}}', ['ui.bootstrap', 'smo'])
 
 {% block pills %}
 	{% for module in view.modules %}
-		<li role="presentation" class="{% if module.active %}active{% endif %}">
+		<li role="presentation" class="{% if view|isActive:module %}active{% endif %}">
 			<a id="{{module.name}}Pill" data-target="#{{module.name}}Content" role="tab" data-toggle="tab">{{module.label}}</a>
 		</li>	
 	{% endfor %}
@@ -39,7 +39,7 @@ angular.module('{{view.appName}}', ['ui.bootstrap', 'smo'])
 <div ng-app="{{view.appName}}" ng-controller="{{view.controllerName}}">
 	<div class="tab-content">
 		{% for module in view.modules %}
-			<div class="tab-pane page-container {% if module.active %} active {% endif %}" id="{{module.name}}Content">				
+			<div class="tab-pane page-container {% if view|isActive:module %}active{% endif %}" id="{{module.name}}Content">				
 				{% for block in module.modelBlocks %}
 					<div class="section">			
 						{% if block|isModelView %}

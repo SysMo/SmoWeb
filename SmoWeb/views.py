@@ -22,14 +22,8 @@ class AreaCalculatorView(View):
 	appName = "AreaCalculator"
 	controllerName = "AreaCalculatorController"
 	
+	
 	def get(self, request):
-		AreaCalculator.active = True
+		self.activeModule = AreaCalculator
 		return render_to_response('ModelViewTemplate.html', {"view": self}, 
 				context_instance=RequestContext(request))
-	
-	@action('post')
-	def compute(self, parameters):
-		calc = AreaCalculator()
-		calc.fieldValuesFromJson(parameters)
-		calc.compute()
-		return calc.modelView2Json(calc.resultView)
