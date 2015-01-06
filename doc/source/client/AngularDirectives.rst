@@ -34,6 +34,11 @@ value validation is also performed::
    
    <div smo-quantity view-type="input" field-var="field" smo-data-source="values"></div>
 
+.. figure:: _static/img/quantity_field.png
+   :align: center
+
+   Quantity field 
+
 **Restrict:** Attribute
 
 **Scope:** Yes
@@ -42,8 +47,8 @@ value validation is also performed::
    * **view-type** - The display type of the field. Valid strings are:
       * 'input'
       * 'output'
-   * **field-var** - An object defining the field.
-   * **smo-data-source** - An object containing the value of the field.  
+   * **field-var** - An object defining the field
+   * **smo-data-source** - An object containing the value of the field  
 
 ---------
 smoChoice
@@ -53,13 +58,18 @@ Visualizes a field for selecting a value from a dropdown list of options::
    
    <div smo-choice field-var="field" smo-data-source="values"></div>
 
+.. figure:: _static/img/choice_field.png
+   :align: center
+
+   Choice field 
+
 **Restrict:** Attribute
 
 **Scope:** Yes
 
 **Parameters:**
-   * **field-var** - An object defining the field, including the list of options.
-   * **smo-data-source** - An object containing the value of the field.  
+   * **field-var** - An object defining the field, including the list of options
+   * **smo-data-source** - An object containing the value of the field  
 
 ---------
 smoString
@@ -77,8 +87,8 @@ Visualizes a field for input or output of single- or multi-line strings::
    * **view-type** - The display type of the field. Valid strings are:
       * 'input'
       * 'output'
-   * **field-var** - An object defining the field, including the multi-line option.
-   * **smo-data-source** - An object containing the value of the field.  
+   * **field-var** - An object defining the field, including the multi-line option
+   * **smo-data-source** - An object containing the value of the field  
 
 -------
 smoBool
@@ -87,7 +97,17 @@ smoBool
 Visualizes a field for handling boolean values. The directive creates a checkbox 
 (if ``view-type`` is 'input') or *true*/*false* (if ``view-type`` is 'output')::
    
-   <div smo-string view-type="input" field-var="field" smo-data-source="values"></div>
+   <div smo-bool view-type="input" field-var="field" smo-data-source="values"></div>
+   
+.. figure:: _static/img/bool_field_input.png
+   :align: center
+
+   Input boolean field 
+
+.. figure:: _static/img/bool_field_output.png
+   :align: center
+
+   Output boolean field
 
 **Restrict:** Attribute
 
@@ -97,26 +117,36 @@ Visualizes a field for handling boolean values. The directive creates a checkbox
    * **view-type** - The display type of the field. Valid strings are:
       * 'input'
       * 'output'
-   * **field-var** - An object defining the field.
-   * **smo-data-source** - An object containing the value of the field.  
+   * **field-var** - An object defining the field
+   * **smo-data-source** - An object containing the value of the field  
 
 --------------
 smoRecordArray
 --------------
 
 Displays a field for the input of an array of records. The structure of the records is a combination of the basic field types.
-The array pops up in edit mode when an icon is clicked on by the user::
+The array pops up in edit mode when an icon is clicked by the user::
    
    <div smo-record-array="field" smo-data-source="values"></div>
+
+.. figure:: _static/img/recordarray_collapsed.png
+   :align: center
+
+   Record array field in collapsed mode 
+   
+.. figure:: _static/img/recordarray_edit.png
+   :align: center
+
+   Record array field in edit mode 
 
 **Restrict:** Attribute
 
 **Scope:** Yes
 
 **Parameters:**
-   * **smo-record-array** - An object defining the field.
-   * **smo-data-source** - An object containing the value of the field.  
-
+   * **smo-record-array** - An object defining the field
+   * **smo-data-source** - An object containing the value of the field 
+   
 -------
 smoPlot
 -------
@@ -124,15 +154,19 @@ Displays a plot field. The directive draws a plot of a set of data using the `dy
 and allows for its export in a *png* format::
 
    <div smo-plot field-var="field" smo-data-source="values"></div>
+
+.. figure:: _static/img/plot.png
+   :align: center
+
+   Plot field
    
 **Restrict:** Attribute
 
 **Scope:** Yes
 
 **Parameters:**
-   * **field-var** - An object defining the field.
-   * **smo-data-source** - An object containing the value of the field.
-
+   * **field-var** - An object defining the field
+   * **smo-data-source** - An object containing the value of the field
 
 --------
 smoTable
@@ -142,34 +176,44 @@ Displays a table field. The directive draws a `Google Charts`_ table for a set o
 and allows for its export in a *csv* file::
 
    <div smo-table field-var="field" smo-data-source="values"></div>
+
+.. figure:: _static/img/table.png
+   :align: center
+
+   Table field
    
 **Restrict:** Attribute
 
 **Scope:** Yes
 
 **Parameters:**
-   * **field-var** - An object defining the field.
-   * **smo-data-source** - An object containing the value of the field.
+   * **field-var** - An object defining the field
+   * **smo-data-source** - An object containing the value of the field
 
 -------------
 smoFieldGroup
 -------------
 
-Visualizes a basic organisation of fields in a group. Each field-group is displayed as a delimited colored area containing 
+Visualizes a basic group of fields. Each field-group is displayed as a delimited colored area containing 
 a label and stacked fields::
 
    <div smo-field-group="fieldGroup" view-type="input" smo-data-source="smoDataSource"></div>
+
+.. figure:: _static/img/fieldgroup.png
+   :align: center
+   
+   Field-group
    
 **Restrict:** Attribute
 
 **Scope:** Yes
 
 **Parameters:**
-   * **smo-field-group** - An object defining the field-group.
-   * **view-type** - The display type of the field-group, which applies to all its fields. Valid strings are:
+   * **smo-field-group** - An object defining the field-group
+   * **view-type** - The display type of the field-group, which applies also to all its fields. Valid strings are:
       * 'input'
       * 'output'
-   * **smo-data-source** - An object containing the values of the fields making up the field-group.
+   * **smo-data-source** - An object containing the values of the fields making up the field-group
    
 **Uses:** *smoQuantity*, *smoChoice*, *smoString*, *smoBool*, *smoRecordArray*
 
@@ -178,17 +222,23 @@ smoViewGroup
 ------------
 
 Displays a grouping of plot and/or table fields. Each view-group is visualized as a delimited area with pill navigation
-to the left for switching among the plots and/or tables contained in its fields::
+on the left for switching among the plots and/or tables::
 
    <div smo-view-group="viewGroup" smo-data-source="smoDataSource"></div>
+
+.. figure:: _static/img/viewgroup.png
+   :align: center
+  
+
+   View-group
    
 **Restrict:** Attribute
 
 **Scope:** Yes
 
 **Parameters:**
-   * **smo-view-group** - An object defining the view-group.
-   * **smo-data-source** - An object containing the values of the fields making up the view-group.
+   * **smo-view-group** - An object defining the view-group
+   * **smo-data-source** - An object containing the values of the fields making up the view-group
    
 **Uses:** *smoPlot*, *smoTable*
 
@@ -197,22 +247,27 @@ to the left for switching among the plots and/or tables contained in its fields:
 smoSuperGroupSet
 ----------------
 
-Displays a set of super-groups, each of which consists of one or more field-groups and/or view-groups::
+Displays a set of super-groups, each of which consists of one or more field-groups and/or view-groups.
+Multiple super-groups are displayed in tabs::
 
    <div smo-super-group-set="superGroupSet" model-name="flowResistanceInputs" view-type="input" smo-data-source="values"></div>
+
+.. figure:: _static/img/supergroupset.png
+   :align: center
+   
+   Super-group set
 
 **Restrict:** Attribute
 
 **Scope:** Yes
 
 **Parameters:**
-   * **smo-super-group-set** - An object defining the set of super-groups.
-   * **model-name** - The name of the model defined by the super-group set.
-   * **view-type** - The display type of the super-groups in the set, 
-   which applies also to all their field-groups and/or view-groups. Valid strings are:
+   * **smo-super-group-set** - An object defining the set of super-groups
+   * **model-name** - The name of the model represented by the super-group set
+   * **view-type** - The display type of the super-groups in the set, which also applies to all their field-groups and/or view-groups. Valid strings are:
       * 'input'
       * 'output'
-   * **smo-data-source** - An object containing the values of the fields making up the view-group.
+   * **smo-data-source** - An object containing the values of the fields which are part of the super-groups
    
 **Uses:** *smoPlot*, *smoTable*
 

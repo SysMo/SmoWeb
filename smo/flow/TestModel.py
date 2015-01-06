@@ -7,15 +7,24 @@ class TestModel(NumericalModel):
 	############# Inputs ###############
 	width = Quantity('Length')
 	length = Quantity('Length')
-	geometryIn = FieldGroup([width, length], label = "Geometry")
+	Tp_array = RecordArray(OrderedDict((
+					('temperature', Quantity('Temperature')),
+					('pressure', Quantity('Pressure')),	   
+				)), numRows=5, label = "Tp state array")
 	
-	inputs = SuperGroup([geometryIn], label = "Inputs")
+	geometryIn = FieldGroup([width, length], label = "Geometry")
+	flowIn = FieldGroup([Tp_array], label = "Flow")
+	
+	inputs = SuperGroup([geometryIn, flowIn], label = "Inputs")
 
 	############# Results ###############
 	area = Quantity('Area')
-	geometryOut = FieldGroup([area], label = "Geometry")
+	isTurblent = Boolean(default = False, label = "turbulent flow")
 	
-	results = SuperGroup([geometryOut], label = "Results")
+	geometryOut = FieldGroup([area], label = "Geometry")
+	flowOut = FieldGroup([isTurblent], label = "Flow")
+	
+	results = SuperGroup([geometryOut, flowOut], label = "Results")
 	
 	############# Methods ###############
 	def compute(self):
