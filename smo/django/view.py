@@ -104,7 +104,7 @@ class View(object):
 		if (view is None):
 			raise ValueError("Unknown model view {0}.{1}".format(modelName, viewName))
 		instance = model()
-		return instance.superGroupList2Json(view.superGroups)
+		return instance.modelView2Json(view)
 		
 	@classmethod
 	def asView(cls):

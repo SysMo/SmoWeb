@@ -1362,6 +1362,32 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 	}
 }]);
 
+smoModule.directive('smoViewToolbar', ['$compile', '$rootScope', function($compile, $rootScope) {
+	return {
+		controller: function($scope) {
+			$scope.mainScope = $rootScope.$$childHead;
+			$scope.actionHandler = function(communicator, action) {
+				communicator.fetchData(action, $scope.communicator.data.values);
+			}
+		},
+		link : function(scope, element, attr) {
+			buttons = [];
+			var actions = scope.communicator.data.actions;
+			for (var i = 0; i < actions.length; i++) {
+				action = actions[i];
+				buttons.push('<button style="margin-right: 10px;" ng-click="actionHandler(mainScope[\'' + scope.modelName + '\'][\'' + action.communicator + 'Communicator\'], \'' + action.name + '\')">' + action.label + '</button>');
+			}
+			var template = '<div style="display: inline-block;">'+ buttons.join("") + '<div>{{injector}}</div>' + '</div>';
+			var el = angular.element(template);
+	        compiled = $compile(el);
+	        element.append(el);
+	        compiled(scope);
+		
+		}		
+	}
+}]);
+                                     
+
 smoModule.directive('smoModelView', ['$compile', 'ModelCommunicator', 
          function($compile, ModelCommunicator) {
 	return {
@@ -1395,8 +1421,9 @@ smoModule.directive('smoModelView', ['$compile', 'ModelCommunicator',
 				<div ng-form name="' + scope.formName + '">\
 					<div ng-if="communicator.dataReceived">\
 						<div smo-super-group-set="communicator.data.definitions" model-name="' + scope.modelName + '" view-type="' + scope.viewType + '" smo-data-source="communicator.data.values"></div>\
+						<div smo-view-toolbar></div>\
 					</div>\
-				</div>';
+				</div>'
 
 			var el = angular.element(template);
 	        compiled = $compile(el);

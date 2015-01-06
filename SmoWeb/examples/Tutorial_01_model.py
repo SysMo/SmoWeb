@@ -13,11 +13,21 @@ class AreaCalculator(NumericalModel):
 	length = Quantity('Length', label='length')
 	geometryIn = FieldGroup([width, length], label = "Geometry")
 	
-	inputs = SuperGroup([geometryIn],  label = "Inputs")
+	compositePipe = RecordArray(
+        OrderedDict((
+                ('name', String(maxLength = 20)),
+                ('length', Quantity('Length')),
+                ('diameter', Quantity('Length')),          
+        )), numRows = 3, label='composite pipe')
+	
+	flowIn = FieldGroup([compositePipe], label = 'Flow')
+	
+	inputs = SuperGroup([geometryIn, flowIn], label = "Inputs")
 	
 	# Actions
-	computeAction = ServerAction("compute", label = "Compute")
-	inputActionBar = ActionBar([computeAction], save = True)
+	computeAction = ServerAction("compute", label = "Compute", communicator = 'resultView')
+	blahAction = ServerAction("blah", label = "Blah", communicator = 'resultView')
+	inputActionBar = ActionBar([computeAction, blahAction], save = True)
 	
 	# Model view
 	inputView = ModelView(ioType = "input", superGroups = [inputs], 

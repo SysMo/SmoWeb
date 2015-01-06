@@ -82,18 +82,24 @@ class NumericalModel(object):
 		else:
 			raise AttributeError("Class '{0}' has no field '{1}'".format(self.__class__.__name__, name))
 	
-	def superGroupList2Json(self, groupList):
-		"""Creates JSON representation of the supergroups in ``groupList`` including 
-		field definitions and field values"""
+	
+	def modelView2Json(self, modelView):
+		"""Creates JSON representation of the modelView including 
+		field definitions, field values and actions"""
 		definitions = [] 
 		fieldValues = {}
-		for group in groupList:
+		actions = []
+		for group in modelView.superGroups:
 			if (isinstance(group, fields.SuperGroup)):
 				definitions.append(self.superGroup2Json(group, fieldValues))
 			else:
 				raise TypeError("The argument to 'groupList2Json' must be a list of SuperGroups" )
 		
-		return {'definitions': definitions, 'values': fieldValues}
+		if (modelView.actionBar is not None):
+			for action in modelView.actionBar.actionList:
+				actions.append(action.toJson())
+		
+		return {'definitions': definitions, 'values': fieldValues, 'actions': actions}
 
 	def superGroup2Json(self, group, fieldValues):
 		""""""
