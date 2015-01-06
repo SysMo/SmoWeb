@@ -12,6 +12,17 @@ angular.module('{{view.appName}}', ['ui.bootstrap', 'smo'])
 	}])
 	.controller('{{view.controllerName}}', 
 		[ '$scope', function($scope) {
+			{% for module in view.modules %}
+				{% if module|isNumericalModel %}
+			$scope.{{module.name}} = {};
+					{% for block in module.modelBlocks %}
+						{% if block|isModelView%}
+							{% if block.init %}
+							{% endif %}
+						{% endif %}
+					{% endfor %}
+				{% endif %}
+			{% endfor %}
 	}]);
 </script>
 {% endblock %}
@@ -32,7 +43,7 @@ angular.module('{{view.appName}}', ['ui.bootstrap', 'smo'])
 				{% for block in module.modelBlocks %}
 					<div class="section">			
 						{% if block|isModelView %}
-							<div smo-model-view="{{block.name}}" view-type="{{block.ioType}}"></div>
+							<div smo-model-view="{{block.name}}" model-name="{{module.name}}" view-type="{{block.ioType}}" auto-fetch="{{block.autoFetch|lower}}"></div>
 						{% endif %}
 					</div>
 				{% endfor %}

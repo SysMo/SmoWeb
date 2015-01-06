@@ -9,18 +9,19 @@ class AreaCalculator(NumericalModel):
 	label = "Area Calculator"
 	############# Inputs ###############
 	# Fields
-	width = Quantity('Length')
-	length = Quantity('Length')
+	width = Quantity('Length', label='width')
+	length = Quantity('Length', label='length')
 	geometryIn = FieldGroup([width, length], label = "Geometry")
 	
 	inputs = SuperGroup([geometryIn],  label = "Inputs")
 	
 	# Actions
-	computeAction = ServerAction("compute", label = "Compute") 
+	computeAction = ServerAction("compute", label = "Compute")
 	inputActionBar = ActionBar([computeAction], save = True)
 	
 	# Model view
-	inputView = ModelView(ioType = "input", superGroups = [inputs], actionBar = inputActionBar)
+	inputView = ModelView(ioType = "input", superGroups = [inputs], 
+		actionBar = inputActionBar, autoFetch = True)
 	
 	############# Results ###############
 	# Fields

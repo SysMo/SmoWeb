@@ -2,7 +2,7 @@ class Action(object):
 	pass
 
 class ServerAction(Action):
-	def __init__(self, name, label):
+	def __init__(self, name, label = None):
 		self.name = name
 		self.label = label
 

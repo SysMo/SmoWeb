@@ -23,7 +23,6 @@ class AreaCalculatorView(View):
 	controllerName = "AreaCalculatorController"
 	
 	def get(self, request):
-		AreaCalculatorDoc.active = True
+		AreaCalculator.active = True
 		return render_to_response('ModelViewTemplate.html', {"view": self}, 
 				context_instance=RequestContext(request))
-

@@ -1,11 +1,12 @@
 from django.template import Library
 register = Library()
 
-from smo.model.model import ModelView
+from smo.model.model import ModelView, NumericalModel
 
 @register.filter(name = 'isModelView')
 def isModelView(obj):
-	result = isinstance(obj, ModelView)
-	print result
-	return result
+	return isinstance(obj, ModelView)
 
+@register.filter(name = 'isNumericalModel')
+def isNumericalModel(obj):
+	return isinstance(obj, NumericalModel)

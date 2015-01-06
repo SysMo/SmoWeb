@@ -3,10 +3,11 @@ from collections import OrderedDict
 import copy
 
 class ModelView(object):
-	def __init__(self, ioType, superGroups, actionBar = None):
+	def __init__(self, ioType, superGroups, actionBar = None, autoFetch = False):
 		self.ioType = ioType
 		self.superGroups = superGroups
 		self.actionBar = actionBar
+		self.autoFetch = autoFetch
 
 class ModelDocumentation:
 	pass

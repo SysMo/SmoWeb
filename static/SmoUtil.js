@@ -1130,40 +1130,6 @@ smoModule.directive('smoSuperGroupSet', ['$compile', function($compile) {
 	}
 }]);
 			
-smoModule.directive('smoModelView', ['$compile', function($compile) {
-	return {
-		restrict : 'A',
-		scope : {
-			communicator: '=',
-			modelName: '@smoModelView',
-			viewType: '@viewType'
-		},
-		controller: function($scope) {
-			$scope.formName = $scope.modelName + 'Form';
-		},
-		link : function(scope, element, attr) {
-			var template = '\
-				<div ng-if="communicator.loading" class="alert alert-info" role="alert">Loading...</div>\
-				<div ng-if="communicator.commError" class="alert alert-danger" role="alert">Communication error: <span ng-bind="communicator.errorMsg"></span></div>\
-				<div ng-if="communicator.serverError" class="alert alert-danger" role="alert">Server error: <span ng-bind="communicator.errorMsg"></span>\
-					<div>Stack trace:</div><pre><div ng-bind="communicator.stackTrace"></div></pre>\
-				</div>\
-				<div ng-form name="' + scope.formName + '">\
-					<div ng-if="communicator.dataReceived">\
-						<div smo-super-group-set="communicator.data.definitions" model-name="' + scope.modelName + '" view-type="' + scope.viewType + '" smo-data-source="communicator.data.values"></div>\
-					</div>\
-				</div>';
-
-			var el = angular.element(template);
-	        compiled = $compile(el);
-	        element.append(el);
-	        compiled(scope);
-			scope.$watch(scope.formName + '.$valid', function(validity) {
-					scope.communicator.fieldsValid = validity;					
-			});	        
-		}	
-	}
-}]);
 
 smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, util) {
 	return {
@@ -1397,5 +1363,52 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 	        element.append(el);
 	        compiled(scope);
 		}
+	}
+}]);
+
+smoModule.directive('smoModelView', ['$compile', 'ModelCommunicator', 
+         function($compile, ModelCommunicator) {
+	return {
+		restrict : 'A',
+		scope : {
+			modelName: '@',
+			viewName: '@smoModelView',
+			viewType: '@viewType',
+			autoFetch: '=',
+			dataId: '@'
+		},
+		controller: function($scope) {
+			$scope.formName = $scope.modelName + 'Form';
+			$scope.communicator = new ModelCommunicator();
+			$scope.$parent[$scope.modelName][$scope.viewName + 'Communicator'] = $scope.communicator;
+			if ($scope.autoFetch) {
+				$scope.communicator.fetchData("load", {
+					modelName: $scope.modelName, 
+					viewName: $scope.viewName, 
+					dataId: $scope.dataId
+				});				
+			}
+		},
+		link : function(scope, element, attr) {
+			var template = '\
+				<div ng-if="communicator.loading" class="alert alert-info" role="alert">Loading...</div>\
+				<div ng-if="communicator.commError" class="alert alert-danger" role="alert">Communication error: <span ng-bind="communicator.errorMsg"></span></div>\
+				<div ng-if="communicator.serverError" class="alert alert-danger" role="alert">Server error: <span ng-bind="communicator.errorMsg"></span>\
+					<div>Stack trace:</div><pre><div ng-bind="communicator.stackTrace"></div></pre>\
+				</div>\
+				<div ng-form name="' + scope.formName + '">\
+					<div ng-if="communicator.dataReceived">\
+						<div smo-super-group-set="communicator.data.definitions" model-name="' + scope.modelName + '" view-type="' + scope.viewType + '" smo-data-source="communicator.data.values"></div>\
+					</div>\
+				</div>';
+
+			var el = angular.element(template);
+	        compiled = $compile(el);
+	        element.append(el);
+	        compiled(scope);
+			scope.$watch(scope.formName + '.$valid', function(validity) {
+					scope.communicator.fieldsValid = validity;					
+			});	        
+		}	
 	}
 }]);
