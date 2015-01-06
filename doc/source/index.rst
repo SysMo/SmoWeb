@@ -15,6 +15,7 @@ Platform overview
    :maxdepth: 2
    :numbered:
 
+   Tutorial
    Architecture
    TODO
 

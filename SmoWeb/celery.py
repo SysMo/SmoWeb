@@ -16,3 +16,5 @@ app = Celery('SmoWeb')
 app.config_from_object('django.conf:settings')
 app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
 
+# If you want to manually start a worker use the command
+# celery -A SmoWeb worker -l info

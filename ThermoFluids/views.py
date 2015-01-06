@@ -219,5 +219,6 @@ class ExampleView(View):
 	def computeCryogenicPipe(self, parameters):
 		from smo.flow.heatExchange1D.CryogenicPipe import CryogenicPipe
 		result = tasks.Celery_compute.delay(CryogenicPipe, parameters)
+		result = tasks.Celery_compute(CryogenicPipe, parameters)
 		return result.get(timeout = 10)
 		

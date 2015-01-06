@@ -1,19 +1,29 @@
-import json
 from django.shortcuts import render_to_response, RequestContext
-from django.http import JsonResponse
 from smo.model.quantity import Quantities
 from smo.django.view import action, View
 
 class HomeView(View):
-    def get(self, request):
-        return render_to_response('Base.html', locals(), 
-                context_instance=RequestContext(request))
-        
+	def get(self, request):
+		return render_to_response('Base.html', locals(), 
+				context_instance=RequestContext(request))
+		
 class unitConverterView(View):
-    def get(self, request):
-        return render_to_response('UnitConverter.html', locals(), 
-                context_instance=RequestContext(request))
-        
-    @action('post')
-    def getQuantities(self, parameters):
-        return Quantities
+	def get(self, request):
+		return render_to_response('UnitConverter.html', locals(), 
+				context_instance=RequestContext(request))
+		
+	@action('post')
+	def getQuantities(self, parameters):
+		return Quantities
+
+from SmoWeb.examples.Tutorial_01_model import AreaCalculator, AreaCalculatorDoc
+class AreaCalculatorView(View):
+	modules = [AreaCalculator, AreaCalculatorDoc]
+	appName = "AreaCalculator"
+	controllerName = "AreaCalculatorController"
+	
+	def get(self, request):
+		AreaCalculatorDoc.active = True
+		return render_to_response('ModelViewTemplate.html', {"view": self}, 
+				context_instance=RequestContext(request))
+

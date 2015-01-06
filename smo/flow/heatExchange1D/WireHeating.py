@@ -50,13 +50,13 @@ class WireHeatingSolver(object):
 		]
 
 	def createLinearMesh(self, L, n = 100): 
-		""" Define mesh """
+		""" Creates 1D mesh """
 		dx = float(L) / n
 		self.mesh = fp.Grid1D(nx = n, dx = dx)
 		self.meshType = 'Linear'
 
 	@property
-	def AExtFaces(self):
+	def areaExtFaces(self):
 		faceCenters = self.mesh.faceCenters()[0]
 		faceAreas = self.AExtMult * (faceCenters[1:] - faceCenters[:-1])
 		return faceAreas
@@ -113,7 +113,7 @@ class WireHeatingSolver(object):
 		
 	def solve(self):
 		sideFaceFactor = fp.CellVariable(name = "sideFaceFactor",
-			mesh = self.mesh, value = self.AExtFaces / (self.AcsMult * self.mesh.cellVolumes))
+			mesh = self.mesh, value = self.areaExtFaces / (self.AcsMult * self.mesh.cellVolumes))
 		# Create variables
 		self.TCore = fp.CellVariable(name = "coreTemperature",
 			mesh = self.mesh, value = self.TAmb)

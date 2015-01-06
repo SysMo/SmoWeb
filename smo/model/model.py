@@ -1,6 +1,15 @@
-from fields import Field, Quantity, Group, FieldGroup, ViewGroup, RecordArray, SuperGroup
+import fields
 from collections import OrderedDict
 import copy
+
+class ModelView(object):
+	def __init__(self, ioType, superGroups, actionBar = None):
+		self.ioType = ioType
+		self.superGroups = superGroups
+		self.actionBar = actionBar
+
+class ModelDocumentation:
+	pass
 
 #TODO: Currently inheritance not supported
 class NumericalModelMeta(type):
@@ -12,13 +21,15 @@ class NumericalModelMeta(type):
 		current_fields = []
 		current_groups = []
 		for key, value in list(attrs.items()):
-			if isinstance(value, Field):
+			if isinstance(value, fields.Field):
 				current_fields.append((key, value))
 				value._name = key
 				attrs.pop(key)
-			elif isinstance(value, Group):
-				current_groups.append((key, value))
+			elif isinstance(value, fields.Group):
+				#current_groups.append((key, value))
 				value._name = key
+			elif isinstance(value, ModelView):
+				value.name = key
 				
 		current_fields.sort(key=lambda x: x[1].creation_counter)
 		attrs['declared_fields'] = OrderedDict(current_fields)
@@ -55,7 +66,7 @@ class NumericalModel(object):
 		Sets default values for all model fields"""
 		instance = object.__new__(cls)
 		for name, field in instance.declared_fields.iteritems():
-			if (isinstance(object, RecordArray)):
+			if (isinstance(object, fields.RecordArray)):
 				instance.__setattr__(name, field.default.copy())
 			else:
 				instance.__setattr__(name, field.default)  
@@ -76,7 +87,7 @@ class NumericalModel(object):
 		definitions = [] 
 		fieldValues = {}
 		for group in groupList:
-			if (isinstance(group, SuperGroup)):
+			if (isinstance(group, fields.SuperGroup)):
 				definitions.append(self.superGroup2Json(group, fieldValues))
 			else:
 				raise TypeError("The argument to 'groupList2Json' must be a list of SuperGroups" )
@@ -88,11 +99,11 @@ class NumericalModel(object):
 		jsonObject = {'type': 'SuperGroup', 'name': group._name, 'label': group.label}
 		subgroupList = []
 		for subgroup in group.groups:
-			if (isinstance(subgroup, FieldGroup)):
+			if (isinstance(subgroup, fields.FieldGroup)):
 				subgroupList.append(self.fieldGroup2Json(subgroup, fieldValues))
-			elif (isinstance(subgroup, ViewGroup)):
+			elif (isinstance(subgroup, fields.ViewGroup)):
 				subgroupList.append(self.viewGroup2Json(subgroup, fieldValues))
-			elif (isinstance(subgroup, SuperGroup)):
+			elif (isinstance(subgroup, fields.SuperGroup)):
 				subgroupList.append(self.superGroup2Json(subgroup, fieldValues))
 		jsonObject['groups'] = subgroupList				
 		return jsonObject
@@ -129,3 +140,4 @@ class NumericalModel(object):
 		for key, value in jsonDict.iteritems():
 			field = self.declared_fields[key]
 			self.__dict__[key] = field.parseValue(value)
+			
