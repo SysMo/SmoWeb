@@ -3,8 +3,27 @@
 {% load SmoCustomFilters %}
 
 {% block scripts_and_styles %}
+
+{% for lib in jsLibraries %}
+<script type="text/javascript" src="{{view.jsLibraries|getItem:lib}}"></script>
+{% endfor %}
+
+{% if googleModules|length > 0 %}
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+{% endif %}
+
 <script src="{% static 'SmoUtil.js' %}"></script>
 <script>
+
+// Load Google modules
+{% autoescape off %}
+{% if googleModules|length > 0 %}
+{% for gModuleName, gModuleOptions in googleModules.iteritems %}
+google.load('{{gModuleName}}', '{{gModuleOptions.version}}', {'packages': {{gModuleOptions.packages}}});
+{% endfor %} 
+{% endif %}
+{% endautoescape %}
+
 angular.module('{{view.appName}}', ['ui.bootstrap', 'smo'])
 	.config(['$httpProvider', function($httpProvider) {
 	    $httpProvider.defaults.xsrfCookieName = 'csrftoken';
@@ -40,7 +59,7 @@ angular.module('{{view.appName}}', ['ui.bootstrap', 'smo'])
 		{% for module in view.modules %}
 			<div class="tab-pane page-container {% if view|isActive:module %}active{% endif %}" id="{{module.name}}Content">
 				{% if module|isNumericalModel %}
-					<h1 class="title">{{module.label}}</h1>
+					<h1 class="title">{{module.title}}</h1>
 					{% for block in module.modelBlocks %}
 						<div class="section">			
 							{% if block|isModelView %}

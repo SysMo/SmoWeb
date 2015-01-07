@@ -135,56 +135,19 @@ class HeatPumpView(View):
 		hpc.compute()
 		return hpc.superGroupList2Json([hpc.results])
 
+from smo.flow.heatExchange1D.CryogenicPipe import CryogenicPipe
 class HeatExchange1DView(View):
+	modules = [CryogenicPipe]	
+	appName = "HeatExchange1D"
+	controllerName = "HeatExchange1DController"
 	def get(self, request):
-		wireHeatingInputsId = ''
-		if ('wireHeatingInputsId' in request.GET):
-			wireHeatingInputsId = request.GET['wireHeatingInputsId']
-		return render_to_response('ThermoFluids/HeatExchange1D.html', locals(), 
+		self.activeModule = CryogenicPipe
+		jsLibraries = ['dygraph', 'dygraphExport']
+		googleModules = {'visualization':{'version': '1.0', 'packages': ["corechart", "table", "controls"]}}
+		return render_to_response('ModelViewTemplate.html', 
+				{'view': self, 'jsLibraries': jsLibraries, 'googleModules': googleModules},
 				context_instance=RequestContext(request))
 		
-	@action('post')
-	def getCryogenicPipeInputs(self, parameters):
-		from smo.flow.heatExchange1D.CryogenicPipe import CryogenicPipe
-		pipe = CryogenicPipe()
-		return pipe.superGroupList2Json([pipe.inputValues, pipe.settings])
-	
-	@action('post')
-	def computeCryogenicPipe(self, parameters):
-		from smo.flow.heatExchange1D.CryogenicPipe import CryogenicPipe
-		pipe = CryogenicPipe()
-		pipe.fieldValuesFromJson(parameters)
-		pipe.compute()
-		return pipe.superGroupList2Json(pipe.results)
-	
-	@action('post')
-	def getWireHeatingInputs(self, parameters):
-		from smo.flow.heatExchange1D.WireHeating import CableHeating1D
-		cableHeating = CableHeating1D()
-		if ('id' in parameters):
-			id = parameters['id']
-			if (len(id) > 0):
-				id = ObjectId(id)
-				coll = mongoClient.SmoWeb.savedInputs
-				conf = coll.find_one({'_id': id})
-				if (conf is not None):
-					cableHeating.fieldValuesFromJson(conf['data'])
-		return cableHeating.superGroupList2Json(cableHeating.inputs)
-	
-	@action('post')
-	def saveWireHeatingInputs(self, parameters):
-		db = mongoClient.SmoWeb
-		coll = db.savedInputs
-		id = coll.insert({'url':'ThermoFluids/HeatExchange1D', 'action': 'getWireHeatingInputs', 'data': parameters})
-		return {'id': str(id), 'url': 'ThermoFluids/HeatExchange1D/' + str(id)}
-		
-	@action('post')
-	def computeWireHeating(self, parameters):
-		from smo.flow.heatExchange1D.WireHeating import CableHeating1D
-		wireHeating = CableHeating1D()
-		wireHeating.fieldValuesFromJson(parameters)
-		wireHeating.compute()
-		return wireHeating.superGroupList2Json(wireHeating.results)
 
 from smo.flow.TestModel import TestModel
 class TestView(View):

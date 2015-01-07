@@ -5,6 +5,7 @@ Created on Nov 30, 2014
 @copyright: SysMo Ltd.
 '''
 
+import numpy as np
 from collections import OrderedDict
 import fipy as fp
 from fipy.solvers.pysparse import LinearLUSolver
@@ -35,7 +36,7 @@ class CryogenicPipeSolver(object):
 		emissivityData = material['emissivity_T']['unfinishedSurface']
 		self.emissivityModel = interp1d(emissivityData['T'], emissivityData['epsilon'])
 		
-	def createLinearMesh(self, L, Acs, As, n = 100): 
+	def createLinearMesh(self, segments, Acs, As, n = 100): 
 		""" Define mesh """
 		# Cross sectional area
 		self.AcsMult = Acs
@@ -43,8 +44,16 @@ class CryogenicPipeSolver(object):
 		self.areaMult = Acs
 		# Surface area per unit length
 		self.As = As
-		#dx = np.ones((nx,)) * float(L) / nx
-		dx = float(L) / n
+		# Create the meshes for each segment
+		self.segmentIndices = []
+		dx = []
+		i = 0
+		for seg in segments:
+			numElements = np.ceil(seg['length'] / seg['meshSize'])
+			self.segmentIndices.append((i, i + numElements - 1))
+			dx += [seg['length'] / numElements] * numElements
+			i += numElements
+			
 		self.mesh = fp.Grid1D(nx = n, dx = dx)
 		self.meshType = 'Linear'
 		# Define variable
@@ -162,7 +171,6 @@ class CryogenicPipeSolver(object):
 			eqX.solve(var = self.T)
 		
 	
-import numpy as np
 from smo.model.model import NumericalModel, ModelView, ModelDocumentation
 from smo.model.fields import *
 from smo.media.SimpleMaterials import Solids
@@ -188,9 +196,17 @@ class CryogenicPipe(NumericalModel):
 	d_int = Quantity('Length', default = (5, 'mm'), label = 'internal diameter')
 	d_ext = Quantity('Length', default = (10, 'mm'), label = 'external diameter')
 	L = Quantity('Length', default = (1, 'm'), label = 'length')
+	sections = RecordArray(OrderedDict((
+			('length', Quantity('Length', default = (1, 'm'), label = 'length')),
+			('emissivity1', Quantity(default = 0.036, label = 'emissivity 1')),
+			('temperature1', Quantity('Temperature', default = (40, 'K'), label = 'temperature 1')),
+			('emissivity2', Quantity(default = 0.1385, label = 'emissivity 2')),
+			('temperature2', Quantity('Temperature', default = (300, 'K'), label = 'temperature 2')),
+			('meshSize', Quantity('Length', default = (5, 'mm'), label = 'meshSize')),
+		)), label = 'sections')
 	#thermalCond = Quantity('ThermalConductivity', default = 401, label = 'thermal conductivity')
 	#emissivity = Quantity(default = 0.5, minValue = 0, maxValue=1.0, label = 'emissivity', show = 'self.computeRadiation')
-	g1 = FieldGroup([d_int, d_ext, L], label = 'Pipe')
+	g1 = FieldGroup([d_int, d_ext, L, sections], label = 'Pipe')
 	
 	bcLeft = Choices(BoundaryConditionChoice, label='boundary condition (left)')
 	TLeftInput = Quantity('Temperature', default = (300, 'K'), label = 'temperature (left)', show = 'self.bcLeft == "T"')

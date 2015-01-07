@@ -30,7 +30,8 @@ class ActionBar(object):
 	"""
 	def __init__(self, actionList = None, save = True):
 		"""
-		:param list actionList: 
+		:param list actionList: the actions assigned to this bar
+		:param bool save: whether to display save button 
 		"""
 		if (actionList is None):
 			self.actionList = []

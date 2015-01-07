@@ -56,6 +56,11 @@ from bson.objectid import ObjectId
 mongoClient = MongoClient()
 
 class View(object):
+	jsLibraries = {
+		'dygraph': '/static/dygraph/dygraph-combined.js',
+		'dygraphExport': 'http://cavorite.com/labs/js/dygraphs-export/dygraph-extra.js',
+		'GoogleAPI': 'https://www.google.com/jsapi',
+	}
 	def __new__(cls, *args, **kwargs):
 		instance = object.__new__(cls)
 		instance._getActions = {}
@@ -109,7 +114,7 @@ class View(object):
 		db = mongoClient.SmoWeb
 		coll = db.savedInputs
 		id = coll.insert(instance.modelView2Json(view))
-		return {'id' : str(id)}
+		return {'id' : str(id)}		
 	
 	@classmethod
 	def asView(cls):
