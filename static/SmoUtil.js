@@ -322,7 +322,7 @@ smoModule.factory('smoJson', function () {
 	return {'parse': parseJSON, 'transformResponse': transformResponse};
 });
 
-smoModule.factory('ModelCommunicator', function($http, $window, $timeout, smoJson) {
+smoModule.factory('ModelCommunicator', function($http, $window, $timeout, $location, smoJson) {
 	function ModelCommunicator(url){
 		// Communication URL. Can be left empty if the same as the current page URL
 		this.url = url || '';
@@ -403,7 +403,10 @@ smoModule.factory('ModelCommunicator', function($http, $window, $timeout, smoJso
 	    })
 	    .success(function(response) {
 			if (!response.errStatus) {
-				communicator.saveFeedbackMsg = "Input data saved. id=" + response.data.id;
+				communicator.savedRecordId = response.data.id;
+				communicator.currentUrl = $location.absUrl();
+				communicator.savedRecordUrl = communicator.currentUrl.replace(/id=*$/, communicator.savedRecordId);
+				communicator.saveFeedbackMsg = "Input data saved. id=" + communicator.savedRecordId;
 				//$timeout($window.alert("Input data saved"));
 			} else {
 				//$timeout($window.alert("Failed to save input data"));
@@ -1405,8 +1408,8 @@ smoModule.directive('smoViewToolbar', ['$compile', '$rootScope', function($compi
 }]);
                                      
 
-smoModule.directive('smoModelView', ['$compile', 'ModelCommunicator', 
-         function($compile, ModelCommunicator) {
+smoModule.directive('smoModelView', ['$compile', '$location', 'ModelCommunicator', 
+         function($compile, $location, ModelCommunicator) {
 	return {
 		restrict : 'A',
 		scope : {
@@ -1414,7 +1417,7 @@ smoModule.directive('smoModelView', ['$compile', 'ModelCommunicator',
 			viewName: '@smoModelView',
 			viewType: '@viewType',
 			autoFetch: '=',
-			dataId: '@'
+			recordId: '@recordId'
 		},
 		controller: function($scope) {
 			$scope.formName = $scope.modelName + 'Form';
@@ -1425,7 +1428,7 @@ smoModule.directive('smoModelView', ['$compile', 'ModelCommunicator',
 				$scope.communicator.fetchData("load", {
 					modelName: $scope.modelName, 
 					viewName: $scope.viewName, 
-					parameters: {dataId: $scope.dataId}
+					parameters: {recordId: $scope.recordId}
 				});				
 			}
 		},
@@ -1441,6 +1444,7 @@ smoModule.directive('smoModelView', ['$compile', 'ModelCommunicator',
 						<div smo-super-group-set="communicator.data.definitions" model-name="' + scope.modelName + '" view-type="' + scope.viewType + '" smo-data-source="communicator.data.values"></div>\
 						<div smo-view-toolbar model="model" view-name="viewName" actions="communicator.data.actions"></div>\
 						<div ng-if="communicator.saveFeedbackMsg">{{communicator.saveFeedbackMsg}}</div>\
+						<div ng-if="communicator.saveFeedbackMsg">URL: <span>{{communicator.savedRecordUrl}}</span></div>\
 					</div>\
 				</div>'
 

@@ -4,6 +4,10 @@ import traceback
 import logging
 logger = logging.getLogger('django.request.smo.view')
 
+from pymongo import MongoClient
+from bson.objectid import ObjectId
+mongoClient = MongoClient()
+
 class SmoJsonResponse(object):
 	def __enter__(self):
 		self.exceptionThrown = False
@@ -51,10 +55,6 @@ def action(actionType):
 	else:
 		raise TypeError('Unknown action type: {0}'.format(actionType))
 
-from pymongo import MongoClient
-from bson.objectid import ObjectId
-mongoClient = MongoClient()
-
 class View(object):
 	jsLibraries = {
 		'dygraph': '/static/dygraph/dygraph-combined.js',
@@ -98,6 +98,17 @@ class View(object):
 	@action('post')
 	def load(self, model, view, parameters):
 		instance = model()
+		
+		if 'recordId' in parameters:
+			recordId = parameters['recordId']
+			id = ObjectId(recordId)
+			db = mongoClient.SmoWeb
+			coll = db.savedInputs
+			conf = coll.find_one({'_id': id})
+			if (conf is not None):
+				instance.fieldValuesFromJson(conf['values'])
+			else: 
+				raise ValueError("Unknown record with id: {0}".format(recordId))
 		return instance.modelView2Json(view)
 		
 	@action('post')
@@ -133,7 +144,6 @@ class View(object):
 					return instance.post(request)
 				else:
 					postData = json.loads(request.body)
-					print postData
 					action = postData['action']
 					data = postData['data']
 					
