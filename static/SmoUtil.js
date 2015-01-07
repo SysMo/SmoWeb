@@ -338,6 +338,7 @@ smoModule.factory('ModelCommunicator', function($http, $window, $timeout, smoJso
 		this.dataReceived = false;
 	}
 	ModelCommunicator.prototype.fetchData = function(action, data, onSuccess, onFailure) {
+		console.log(data);
 		this.loading = true;
 		this.commError = false;
 		this.serverError = false;
@@ -1414,7 +1415,7 @@ smoModule.directive('smoModelView', ['$compile', 'ModelCommunicator',
 			viewName: '@smoModelView',
 			viewType: '@viewType',
 			autoFetch: '=',
-			dataId: '@'
+			recordId: '@recordId'
 		},
 		controller: function($scope) {
 			$scope.formName = $scope.modelName + 'Form';
@@ -1425,7 +1426,7 @@ smoModule.directive('smoModelView', ['$compile', 'ModelCommunicator',
 				$scope.communicator.fetchData("load", {
 					modelName: $scope.modelName, 
 					viewName: $scope.viewName, 
-					parameters: {dataId: $scope.dataId}
+					parameters: {recordId: $scope.recordId}
 				});				
 			}
 		},
