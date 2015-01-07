@@ -5,10 +5,6 @@ Created on Nov 30, 2014
 @copyright: SysMo Ltd.
 '''
 
-import numpy as np
-from smo.model.model import NumericalModel
-from smo.model.fields import *
-from smo.media.SimpleMaterials import Solids
 from collections import OrderedDict
 import fipy as fp
 from fipy.solvers.pysparse import LinearLUSolver
@@ -166,12 +162,29 @@ class CryogenicPipeSolver(object):
 			eqX.solve(var = self.T)
 		
 	
+import numpy as np
+from smo.model.model import NumericalModel, ModelView, ModelDocumentation
+from smo.model.fields import *
+from smo.media.SimpleMaterials import Solids
+from smo.model.actions import ServerAction, ActionBar
+
 BoundaryConditionChoice = OrderedDict((
 	('T', 'temperature'),
 	('Q', 'heat flux')	
 	))
 
 class CryogenicPipe(NumericalModel):
+	"""
+	1D Solver for heat flow of an insulated cryogenic pipe in vacuum. The
+	processes modelled are:
+	
+		* conduction along the pipe
+		* ambient radiation to the pipe surface
+	"""
+	label = "Cryogenic pipe"
+	
+	# 1. ############ Inputs ###############
+	# 1.1 Input values
 	d_int = Quantity('Length', default = (5, 'mm'), label = 'internal diameter')
 	d_ext = Quantity('Length', default = (10, 'mm'), label = 'external diameter')
 	L = Quantity('Length', default = (1, 'm'), label = 'length')
@@ -192,8 +205,9 @@ class CryogenicPipe(NumericalModel):
 	g2 = FieldGroup([bcLeft, TLeftInput, QLeftInput, bcRight, TRightInput, QRightInput, computeRadiation, TAmb], label = 'Boundary conditions')
 	
 	inputValues = SuperGroup([g1, g2], label = 'Input values')
-	###
-	n = Quantity(default = 50, minValue = 10, maxValue = 500, label = 'num. mesh elements')
+	
+	# 1.2 Settings
+	n = Quantity(default = 50, minValue = 10, maxValue = 1000, label = 'num. mesh elements')
 	s1 = FieldGroup([n], label = 'Mesh')
 	
 	maxNumIter = Quantity(default = 100, minValue = 20, maxValue=500, label = 'max num. iterations')
@@ -202,9 +216,17 @@ class CryogenicPipe(NumericalModel):
 	s2 = FieldGroup([maxNumIter, absTolerance, relaxationFactor], label = 'Solver')
 	
 	settings = SuperGroup([s1, s2], label = 'Settings')
+
+	# 1.3 Actions
+	computeAction = ServerAction("compute", label = "Compute", outputView = 'resultView')
+	inputActionBar = ActionBar([computeAction], save = True)
 	
-	#####################
-	
+	# 1.4 Model view
+	inputView = ModelView(ioType = "input", superGroups = [inputValues, settings], 
+		actionBar = inputActionBar, autoFetch = True)
+
+	# 2. ############ Results ###############
+	# 2.1 Values
 	AcsMult = Quantity('Area', default = (1, 'mm**2'), label = 'conduction area')
 	As = Quantity('Length', default = (1, 'm'), label = 'surface area / length')
 	TLeft = Quantity('Temperature', label = 'temperature (left)')
@@ -215,11 +237,13 @@ class CryogenicPipe(NumericalModel):
 	r1 = FieldGroup([AcsMult, As, TLeft, QLeft, TRight, QRight, QRadSum], label = 'Results') 
 	r1g = SuperGroup([r1], label = 'Values')
 
+	# 2.2 Material properties
 	cond_T = PlotView(label = 'Conductivity pipe', dataLabels = ['temperature [K]', 'thermal conductivity [W/m-K]'])
 	emiss_T = PlotView(label = 'Emissivity', dataLabels = ['temperature [K]', 'emissivity [-]'])
 	r2 = ViewGroup([cond_T, emiss_T], label = 'Material properties')
 	r2g = SuperGroup([r2], label = 'Material properties')
 
+	# 2.3 Distributions
 	T_x = PlotView(label = 'Temperature', dataLabels = ['x position [m]', 'temperature [K]'])
 	QAx_x = PlotView(label = 'Axial heat flow', dataLabels = ['x position [m]', 'heat flow [W]'])
 	QRad_x = PlotView(label = 'Radiation flux', dataLabels = ['x position [m]', 'flux density [W/m]'])
@@ -230,14 +254,20 @@ class CryogenicPipe(NumericalModel):
 	r3 = ViewGroup([T_x, QAx_x, QRad_x, cond_x, emiss_x, table_x], label =  'Distributions')
 	r3g = SuperGroup([r3], label = 'Distributions')
 	
+	# 2.4 Residuals 
 	residualPlot = PlotView(label = 'Residual (plot)', dataLabels = ['iteration #', 'residual'], ylog = True)
 	residualTable = TableView(label = 'Residual (table)', dataLabels = ['residual', 'TLeft', 'TRight'], 
 			options = {'formats': ['0.0000E0', '0.000', '0.000']})
 	r4 = ViewGroup([residualPlot, residualTable], label = 'Convergence')
 	r4g = SuperGroup([r4], label = 'Convergence')
 	
-	results = [r1g, r2g, r3g, r4g]
+	# 2.5 Model view
+	resultView = ModelView(ioType = "output", superGroups = [r1g, r2g, r3g, r4g])
+
+	############# Page structure ########
+	modelBlocks = [inputView, resultView]
 	
+	############# Methods ###############
 	def compute(self):
 		self.AcsMult = np.pi/4 * (self.d_ext * self.d_ext - self.d_int * self.d_int)
 		self.As = np.pi * self.d_ext

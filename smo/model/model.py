@@ -18,24 +18,30 @@ class NumericalModelMeta(type):
 	model class. Collects all the declared fields in a 
 	dictionary ``self.declared_fields``"""
 	def __new__(cls, name, bases, attrs):
+		# Name and label
+		if ('name' not in attrs):
+			attrs['name'] = name 
+		if ('label' not in attrs):
+			attrs['label'] = name
+		if ('title' not in attrs):
+			attrs['title'] = attrs['label']
 		# Collect fields from current class.
 		current_fields = []
-		current_groups = []
+# 		current_groups = []
 		for key, value in list(attrs.items()):
 			if isinstance(value, fields.Field):
 				current_fields.append((key, value))
 				value._name = key
 				attrs.pop(key)
 			elif isinstance(value, fields.Group):
-				#current_groups.append((key, value))
 				value._name = key
 			elif isinstance(value, ModelView):
 				value.name = key
 				
 		current_fields.sort(key=lambda x: x[1].creation_counter)
 		attrs['declared_fields'] = OrderedDict(current_fields)
-		current_groups.sort(key=lambda x: x[1].creation_counter)
-		attrs['declared_groups'] = OrderedDict(current_groups)
+# 		current_groups.sort(key=lambda x: x[1].creation_counter)
+# 		attrs['declared_groups'] = OrderedDict(current_groups)
 
 		new_class = (super(NumericalModelMeta, cls)
 			.__new__(cls, name, bases, attrs))
