@@ -28,7 +28,7 @@ class ActionBar(object):
 	to a ModelView. It also generates function handlers, called
 	when any of the buttons is pushed.
 	"""
-	def __init__(self, actionList = None, compute = True, save = True):
+	def __init__(self, actionList = None, save = True):
 		"""
 		:param list actionList: 
 		"""

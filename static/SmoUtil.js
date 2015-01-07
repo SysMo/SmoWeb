@@ -392,25 +392,26 @@ smoModule.factory('ModelCommunicator', function($http, $window, $timeout, smoJso
 	}
 	ModelCommunicator.prototype.saveUserInput = function(action, data) {
 		var communicator = this;
+		this.saveFeedbackMsg = "";
 		var parameters = data || this.data.values;
 		$http({
 	        method  : 'POST',
 	        url     : this.url,
-	        data    : {action: action, parameters: parameters},
+	        data    : {action: action, data: parameters},
 	        headers : { 'Content-Type': 'application/x-www-form-urlencoded' }, // set the headers so angular passing info as form data (not request payload)
 	        transformResponse: [smoJson.transformResponse],
 	    })
 	    .success(function(response) {
 			if (!response.errStatus) {
-				console.log("Input data saved. id=" + response.data.id);
+				communicator.saveFeedbackMsg = "Input data saved. id=" + response.data.id;
 				//$timeout($window.alert("Input data saved"));
 			} else {
 				//$timeout($window.alert("Failed to save input data"));
-				console.log("Failed to save input data");
+				communicator.saveFeedbackMsg = "Failed to save input data";
 			}
 	    })
 	    .error(function(response) {
-			console.log("Failed to save input data");
+	    	communicator.saveFeedbackMsg = "Failed to save input data";
 	    	//$timeout($window.alert("Failed to save input data"));
 	    });
 		
@@ -1371,12 +1372,21 @@ smoModule.directive('smoViewToolbar', ['$compile', '$rootScope', function($compi
 		},
 		controller: function($scope) {
 			$scope.actionHandler = function(action) {
-				var communicator = $scope.model[action.outputView + 'Communicator'];
-				communicator.fetchData(action.name, {
-					modelName: $scope.model.name, 
-					viewName: action.outputView, 
-					parameters:	$scope.model[$scope.viewName + 'Communicator'].data.values
-				});
+				var targetView = action.outputView || $scope.viewName;
+				var communicator = $scope.model[targetView + 'Communicator'];
+				if (action.name == 'save') {
+					communicator.saveUserInput('save', {
+						modelName: $scope.model.name, 
+						viewName: $scope.viewName, 
+						parameters:	$scope.model[$scope.viewName + 'Communicator'].data.values		
+					});
+				} else {
+					communicator.fetchData(action.name, {
+						modelName: $scope.model.name, 
+						viewName: action.outputView, 
+						parameters:	$scope.model[$scope.viewName + 'Communicator'].data.values
+					});
+				}
 			}
 		},
 		link : function(scope, element, attr) {
@@ -1430,6 +1440,7 @@ smoModule.directive('smoModelView', ['$compile', 'ModelCommunicator',
 					<div ng-if="communicator.dataReceived">\
 						<div smo-super-group-set="communicator.data.definitions" model-name="' + scope.modelName + '" view-type="' + scope.viewType + '" smo-data-source="communicator.data.values"></div>\
 						<div smo-view-toolbar model="model" view-name="viewName" actions="communicator.data.actions"></div>\
+						<div ng-if="communicator.saveFeedbackMsg">{{communicator.saveFeedbackMsg}}</div>\
 					</div>\
 				</div>'
 

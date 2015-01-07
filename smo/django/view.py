@@ -51,6 +51,10 @@ def action(actionType):
 	else:
 		raise TypeError('Unknown action type: {0}'.format(actionType))
 
+from pymongo import MongoClient
+from bson.objectid import ObjectId
+mongoClient = MongoClient()
+
 class View(object):
 	def __new__(cls, *args, **kwargs):
 		instance = object.__new__(cls)
@@ -98,6 +102,15 @@ class View(object):
 		instance.compute()
 		return instance.modelView2Json(view)
 	
+	@action('post')
+	def save(self, model, view, parameters):
+		instance = model()
+		instance.fieldValuesFromJson(parameters)
+		db = mongoClient.SmoWeb
+		coll = db.savedInputs
+		id = coll.insert(instance.modelView2Json(view))
+		return {'id' : str(id)}
+	
 	@classmethod
 	def asView(cls):
 		def view(request):
@@ -115,6 +128,7 @@ class View(object):
 					return instance.post(request)
 				else:
 					postData = json.loads(request.body)
+					print postData
 					action = postData['action']
 					data = postData['data']
 					
