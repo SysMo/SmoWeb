@@ -26,8 +26,7 @@ class AreaCalculator(NumericalModel):
 	
 	# Actions
 	computeAction = ServerAction("compute", label = "Compute", outputView = 'resultView')
-	blahAction = ServerAction("blah", label = "Blah", outputView = 'resultView')
-	inputActionBar = ActionBar([computeAction, blahAction], save = True)
+	inputActionBar = ActionBar([computeAction], save = True)
 	
 	# Model view
 	inputView = ModelView(ioType = "input", superGroups = [inputs], 

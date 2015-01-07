@@ -14,11 +14,10 @@ angular.module('{{view.appName}}', ['ui.bootstrap', 'smo'])
 		[ '$scope', function($scope) {
 			{% for module in view.modules %}
 				{% if module|isNumericalModel %}
-			$scope.{{module.name}} = { name : "{{module.name}}" };
+			$scope.{{module.name}} = { name: "{{module.name}}", views: {} };
 					{% for block in module.modelBlocks %}
 						{% if block|isModelView%}
-							{% if block.init %}
-							{% endif %}
+							$scope.{{module.name}}.views.{{block.name}} = {name: "{{block.name}}", type: "{{block.ioType}}"};
 						{% endif %}
 					{% endfor %}
 				{% endif %}
@@ -39,14 +38,17 @@ angular.module('{{view.appName}}', ['ui.bootstrap', 'smo'])
 <div ng-app="{{view.appName}}" ng-controller="{{view.controllerName}}">
 	<div class="tab-content">
 		{% for module in view.modules %}
-			<div class="tab-pane page-container {% if view|isActive:module %}active{% endif %}" id="{{module.name}}Content">				
-				{% for block in module.modelBlocks %}
-					<div class="section">			
-						{% if block|isModelView %}
-							<div smo-model-view="{{block.name}}" model-name="{{module.name}}" view-type="{{block.ioType}}" auto-fetch="{{block.autoFetch|lower}}"></div>
-						{% endif %}
-					</div>
-				{% endfor %}
+			<div class="tab-pane page-container {% if view|isActive:module %}active{% endif %}" id="{{module.name}}Content">
+				{% if module|isNumericalModel %}
+					<h1 class="title">{{module.label}}</h1>
+					{% for block in module.modelBlocks %}
+						<div class="section">			
+							{% if block|isModelView %}
+								<div smo-model-view="{{block.name}}" model-name="{{module.name}}" view-type="{{block.ioType}}" auto-fetch="{{block.autoFetch|lower}}"></div>
+							{% endif %}
+						</div>
+					{% endfor %}
+				{% endif %}
 			</div>
 		{% endfor %}
 	</div>

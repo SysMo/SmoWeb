@@ -2,7 +2,11 @@ class Action(object):
 	pass
 
 class ServerAction(Action):
-	def __init__(self, name, label, outputView):
+	"""
+	Server action is a command sent from the client to the server at a push of
+	a button.
+	"""
+	def __init__(self, name, label, outputView = ""):
 		self.name = name
 		self.label = label
 		self.outputView = outputView
@@ -19,6 +23,19 @@ class ServerAction(Action):
 		return jsonObject
 
 class ActionBar(object):
-	def __init__(self, actionList, save = True):
-		self.actionList = actionList
-		self.save = save
+	"""
+	ActionBar is a placeholder (toolbar) for buttons belonging
+	to a ModelView. It also generates function handlers, called
+	when any of the buttons is pushed.
+	"""
+	def __init__(self, actionList = None, compute = True, save = True):
+		"""
+		:param list actionList: 
+		"""
+		if (actionList is None):
+			self.actionList = []
+		else:
+			self.actionList = actionList
+
+		if save:
+			self.actionList.append(ServerAction("save", label = "Save"))
