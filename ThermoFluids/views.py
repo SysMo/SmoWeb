@@ -95,23 +95,27 @@ class CryogenicInsulation(View):
 		gc.compute()		
 		return gc.superGroupList2Json([gc.results])
 	
-from smo.media.calculators.CycleCalculator import HeatPumpCalculator
+from smo.media.calculators.CycleCalculator import HeatPump
 class HeatPumpView(View):
+	modules = [HeatPump]	
+	appName = "HeatPump"
+	controllerName = "HeatPumpController"
+	
 	def get(self, request):
-		return render_to_response('ThermoFluids/HeatPump.html', locals(), 
+		return render_to_response('ModelViewTemplate.html', {"view": self}, 
 				context_instance=RequestContext(request))
 	
-	@action('post')
-	def getHeatPumpInputs(self, parameters):
-		hpc = HeatPumpCalculator()
-		return hpc.superGroupList2Json([hpc.inputs])
-	
-	@action('post')	
-	def computeHeatPump(self, parameters):
-		hpc = HeatPumpCalculator()
-		hpc.fieldValuesFromJson(parameters)
-		hpc.compute()
-		return hpc.superGroupList2Json([hpc.results])
+# 	@action('post')
+# 	def getHeatPumpInputs(self, parameters):
+# 		hpc = HeatPump()
+# 		return hpc.superGroupList2Json([hpc.inputs])
+# 	
+# 	@action('post')	
+# 	def computeHeatPump(self, parameters):
+# 		hpc = HeatPump()
+# 		hpc.fieldValuesFromJson(parameters)
+# 		hpc.compute()
+# 		return hpc.superGroupList2Json([hpc.results])
 
 from smo.flow.heatExchange1D.CryogenicPipe import CryogenicPipe
 class HeatExchange1DView(View):
