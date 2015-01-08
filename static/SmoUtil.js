@@ -323,7 +323,9 @@ smoModule.factory('smoJson', function () {
 });
 
 smoModule.factory('ModelCommunicator', function($http, $window, $timeout, $location, smoJson) {
-	function ModelCommunicator(url){
+	function ModelCommunicator(modelName, viewName, url){		
+		this.modelName = modelName;
+		this.viewName = viewName;
 		// Communication URL. Can be left empty if the same as the current page URL
 		this.url = url || '';
 		// true if waiting to load from the server
@@ -337,7 +339,13 @@ smoModule.factory('ModelCommunicator', function($http, $window, $timeout, $locat
 		// true if data has arrived from the server
 		this.dataReceived = false;
 	}
-	ModelCommunicator.prototype.fetchData = function(action, data, onSuccess, onFailure) {
+	ModelCommunicator.prototype.fetchData = function(action, parameters, onSuccess, onFailure) {		
+		var postData = {
+			modelName: this.modelName,
+			viewName: this.viewName,
+			parameters: parameters
+		}
+		
 		this.loading = true;
 		this.commError = false;
 		this.serverError = false;
@@ -352,11 +360,10 @@ smoModule.factory('ModelCommunicator', function($http, $window, $timeout, $locat
 		this.onSuccess = onSuccess;
 		this.onFailure = onFailure;
 		//this.action = action;
-		console.log(this.url);
 		$http({
 	        method  : 'POST',
 	        url     : this.url,
-	        data    : {action : action, data: data},
+	        data    : {action : action, data: postData},
 	        headers : { 'Content-Type': 'application/x-www-form-urlencoded' }, // set the headers so angular passing info as form data (not request payload)
 	        transformResponse: [smoJson.transformResponse],
 	    })
@@ -391,14 +398,21 @@ smoModule.factory('ModelCommunicator', function($http, $window, $timeout, $locat
 			}
 	    });
 	}
-	ModelCommunicator.prototype.saveUserInput = function(action, data) {
+	ModelCommunicator.prototype.saveUserInput = function(action, parameters) {
 		var communicator = this;
 		this.saveFeedbackMsg = "";
-		var parameters = data || this.data.values;
+		
+		var parameters = parameters || this.data.values;
+		var postData = {
+			modelName: this.modelName,
+			viewName: this.viewName,
+			parameters: parameters
+		}
+		
 		$http({
 	        method  : 'POST',
 	        url     : this.url,
-	        data    : {action: action, data: parameters},
+	        data    : {action: action, data: postData},
 	        headers : { 'Content-Type': 'application/x-www-form-urlencoded' }, // set the headers so angular passing info as form data (not request payload)
 	        transformResponse: [smoJson.transformResponse],
 	    })
@@ -1380,17 +1394,11 @@ smoModule.directive('smoViewToolbar', ['$compile', '$rootScope', function($compi
 				var targetView = action.outputView || $scope.viewName;
 				var communicator = $scope.model[targetView + 'Communicator'];
 				if (action.name == 'save') {
-					communicator.saveUserInput('save', {
-						modelName: $scope.model.name, 
-						viewName: $scope.viewName, 
-						parameters:	$scope.model[$scope.viewName + 'Communicator'].data.values		
-					});
+					communicator.saveUserInput('save', 
+						$scope.model[$scope.viewName + 'Communicator'].data.values);
 				} else {
-					communicator.fetchData(action.name, {
-						modelName: $scope.model.name, 
-						viewName: action.outputView, 
-						parameters:	$scope.model[$scope.viewName + 'Communicator'].data.values
-					});
+					communicator.fetchData(action.name,
+						$scope.model[$scope.viewName + 'Communicator'].data.values);
 				}
 			}
 		},
@@ -1424,14 +1432,10 @@ smoModule.directive('smoModelView', ['$compile', '$location', 'ModelCommunicator
 		controller: function($scope) {
 			$scope.formName = $scope.modelName + 'Form';
 			$scope.model = $scope.$parent[$scope.modelName];
-			$scope.communicator = new ModelCommunicator();
+			$scope.communicator = new ModelCommunicator($scope.modelName, $scope.viewName);
 			$scope.model[$scope.viewName + 'Communicator'] = $scope.communicator;
 			if ($scope.autoFetch) {
-				$scope.communicator.fetchData("load", {
-					modelName: $scope.modelName, 
-					viewName: $scope.viewName, 
-					parameters: {recordId: $scope.recordId}
-				});				
+				$scope.communicator.fetchData("load", {recordId: $scope.recordId});				
 			}
 		},
 		link : function(scope, element, attr) {
