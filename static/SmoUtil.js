@@ -1235,7 +1235,7 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 					headerRowTemplate += '\
 							<th>\
 								<div style="margin-bottom: 5px;">\
-									{{smoRecordArray.fields[' + String(col) + '].name}}\
+									{{smoRecordArray.fields[' + String(col) + '].label}}\
 								</div>\
 								<div class="field-select quantity"> \
 									<select ng-model="smoRecordArray.fields[' + String(col) + '].displayUnit" \
@@ -1247,7 +1247,7 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 					headerRowTemplate += '\
 							<th>\
 								<div style="margin-bottom: 5px;">\
-									{{smoRecordArray.fields[' + String(col) + '].name}}\
+									{{smoRecordArray.fields[' + String(col) + '].label}}\
 								</div>\
 							</th>';
 				}

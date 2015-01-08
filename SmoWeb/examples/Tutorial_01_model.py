@@ -15,9 +15,9 @@ class AreaCalculator(NumericalModel):
 	
 	compositePipe = RecordArray(
         OrderedDict((
-                ('name', String(maxLength = 20)),
-                ('length', Quantity('Length')),
-                ('diameter', Quantity('Length')),          
+                ('name', String(maxLength = 20, label="name")),
+                ('length', Quantity('Length', label="blah length")),
+                ('diameter', Quantity('Length', label="blah diameter")),          
         )), numRows = 3, label='composite pipe')
 	
 	flowIn = FieldGroup([compositePipe], label = 'Flow')
