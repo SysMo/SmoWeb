@@ -401,6 +401,7 @@ smoModule.factory('ModelCommunicator', function($http, $window, $timeout, $locat
 	ModelCommunicator.prototype.saveUserInput = function(action, parameters) {
 		var communicator = this;
 		this.saveFeedbackMsg = "";
+		this.saveSuccess = false;
 		
 		var parameters = parameters || this.data.values;
 		var postData = {
@@ -422,7 +423,8 @@ smoModule.factory('ModelCommunicator', function($http, $window, $timeout, $locat
 				communicator.savedRecordUrl = $location.protocol() + '://' + $location.host() + ':' 
 					+ $location.port() + $location.path() 
 					+ '?model=' + response.data.model + '&view=' + response.data.view + '&id=' + response.data.id;
-				communicator.saveFeedbackMsg = "Input data saved. id=" + response.data.id;
+				communicator.saveSuccess = true;
+				communicator.saveFeedbackMsg = "Input data saved.";
 				//$timeout($window.alert("Input data saved"));
 			} else {
 				//$timeout($window.alert("Failed to save input data"));
@@ -1449,8 +1451,19 @@ smoModule.directive('smoModelView', ['$compile', '$location', 'ModelCommunicator
 					<div ng-if="communicator.dataReceived">\
 						<div smo-super-group-set="communicator.data.definitions" model-name="' + scope.modelName + '" view-type="' + scope.viewType + '" smo-data-source="communicator.data.values"></div>\
 						<div smo-view-toolbar model="model" view-name="viewName" actions="communicator.data.actions"></div>\
-						<div ng-if="communicator.saveFeedbackMsg">{{communicator.saveFeedbackMsg}}</div>\
-						<div ng-if="communicator.saveFeedbackMsg">URL: <a ng-href={{communicator.savedRecordUrl}}>{{communicator.savedRecordUrl}}</a></div>\
+						<div ng-if="communicator.saveSuccess">\
+							<div class="alert alert-success alert-dismissible" role="alert">\
+							<button type="button" class="close" data-dismiss="alert" aria-label="Close">\
+								<span aria-hidden="true">&times;</span></button>\
+							<span>{{communicator.saveFeedbackMsg}}</span>\
+							URL: <a ng-href={{communicator.savedRecordUrl}}>{{communicator.savedRecordUrl}}</a>\
+						</div>\
+						<div ng-if="!communicator.saveSuccess">\
+							<div class="alert alert-danger alert-dismissible" role="alert">\
+							<button type="button" class="close" data-dismiss="alert" aria-label="Close">\
+								<span aria-hidden="true">&times;</span></button>\
+							<span>{{communicator.saveFeedbackMsg}}</span>\
+						</div>\
 					</div>\
 				</div>'
 
