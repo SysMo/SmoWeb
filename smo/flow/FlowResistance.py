@@ -5,12 +5,18 @@ except Exception:
 	pass
 import scipy.interpolate
 from smo.media.CoolProp.CoolProp import FluidState
-from smo.model.fields import Quantity, ObjectReference, FieldGroup, SuperGroup, Choices
-from smo.model.model import NumericalModel
+from smo.model.model import NumericalModel, ModelView, ModelDocumentation
+from smo.model.actions import ServerAction, ActionBar
+from smo.model.fields import *
 from smo.media.SimpleMaterials import Solids, Fluids
 import json
 
-class Pipe(NumericalModel):
+class PipeFlow(NumericalModel):
+	name = "PipeFlow"
+	label = "Pipe Flow"
+	
+	############# Inputs ###############
+	# Fields
 	internalDiameter = Quantity('Length', default = (5, 'mm'), label = 'internal diameter (d<sub>i</sub>)')
 	externalDiameter = Quantity('Length', default = (6, 'mm'), label = 'external diameter (d<sub>e</sub>)')
 	length = Quantity('Length', default = (1, 'm'),	label = 'pipe length (L)')
@@ -26,8 +32,18 @@ class Pipe(NumericalModel):
 	ambientTemperature = Quantity('Temperature', default = (15, 'degC'), label = 'ambient temperature')
 	flowInput = FieldGroup([fluidName, inletPressure, inletTemperature,	inletMassFlowRate], label = 'Flow')
 	#####	
-	inputs = SuperGroup([geometryInput, flowInput], label = 'Input data')	
-	###################
+	inputs = SuperGroup([geometryInput, flowInput], label = 'Input data')
+	
+	# Actions
+	computeAction = ServerAction("computeFlowResistance", label = "Compute", outputView = 'resultView')
+	inputActionBar = ActionBar([computeAction], save = True)
+	
+	# Model view
+	inputView = ModelView(ioType = "input", superGroups = [inputs], 
+		actionBar = inputActionBar, autoFetch = True)
+	
+	############# Results ###############
+	# Fields
 	fluidVolume = Quantity('Volume', label = 'fluid volume', default = (1, 'L'))
 	internalSurfaceArea = Quantity('Area', label = 'internal surface area')
 	externalSurfaceArea = Quantity('Area', label = 'external surface area')
@@ -51,8 +67,14 @@ class Pipe(NumericalModel):
 		flowVelocity, Re, zeta, dragCoefficient, pressureDrop, outletPressure, outletTemperature], label = "Flow")
 	#####
 	results = SuperGroup([geometryOutput, flowOutput], label = "Results")
-	###################
+	
+	# Model view
+	resultView = ModelView(ioType = "output", superGroups = [results])
+	
+	############# Page structure ########
+	modelBlocks = [inputView, resultView]
 
+	############# Methods ###############
 	def computeGeometry(self):
 		if (self.externalDiameter <= self.internalDiameter):
 			raise ValueError('External diameter value must be bigger than internal diameter value.')
@@ -73,7 +95,7 @@ class Pipe(NumericalModel):
 		self.volumetricFlowRate = self.massFlowRate / self.inletDensity	
 		self.flowVelocity = self.massFlowRate / (self.inletDensity * self.crossSectionalArea )
 		self.Re = self.inletDensity * self.flowVelocity * self.internalDiameter / upstreamState.mu
-		self.zeta = Pipe.ChurchilCorrelation(self.Re, self.internalDiameter, self.surfaceRoughness)
+		self.zeta = PipeFlow.ChurchilCorrelation(self.Re, self.internalDiameter, self.surfaceRoughness)
 		self.dragCoefficient = self.zeta * self.length / self.internalDiameter
 		self.pressureDrop = self.dragCoefficient * self.inletDensity * self.flowVelocity * self.flowVelocity / 2
 		self.outletPressure = self.inletPressure - self.pressureDrop
@@ -95,23 +117,23 @@ class Pipe(NumericalModel):
 		epsilon = 25e-7
 		zeta = 0 * Re
 		for i in range(len(Re)):
-			zeta[i] = Pipe.ChurchilCorrelation(Re[i], d, epsilon)
+			zeta[i] = PipeFlow.ChurchilCorrelation(Re[i], d, epsilon)
 		plt.loglog(Re, zeta)
 		plt.show()
 	
 	@staticmethod
 	def testComputePressureDrop():
-		pipe = Pipe()
+		pipe = PipeFlow()
 		pipe.computeGeometry()
 		pipe.computePressureDrop()
 		print pipe.outletPressure
 	
 	@staticmethod
 	def testMetamodel():
-		#a = Pipe(5e-3, 6e-3, 1.0, 2700)
-		a = Pipe(internalDiameter = (3, 'in'))
-		inputs = a.group2Json(Pipe.inputs)
-		results = a.group2Json(Pipe.results)
+		#a = PipeFlow(5e-3, 6e-3, 1.0, 2700)
+		a = PipeFlow(internalDiameter = (3, 'in'))
+		inputs = a.group2Json(PipeFlow.inputs)
+		results = a.group2Json(PipeFlow.results)
 		print json.dumps(inputs, indent = 4)
 		print json.dumps(results, indent = 4)
 		
@@ -197,7 +219,7 @@ class Elbow(object):
 		self.Re = upstreamState.rho * self.flowVelocity * self.internalDiameter / upstreamState.mu
 		print ('Re=', self.Re)
 		
-		self.cFriction = Pipe.ChurchilCorrelation(self.Re, self.internalDiameter, self.surfaceRoughness) \
+		self.cFriction = PipeFlow.ChurchilCorrelation(self.Re, self.internalDiameter, self.surfaceRoughness) \
 			* self.length / self.internalDiameter
 		self.cLocal = self.a1 * self.b1 * self.kd * Elbow.kRe(self.Re)
 		self.dragCoefficient =  self.cFriction + self.cLocal
@@ -214,9 +236,13 @@ class Elbow(object):
 		upState = b.setUpstreamState(3e7, 288)
 		b.computePressureDrop(upState, 100./3600)
 
+class PipeFlowDoc(ModelDocumentation):
+	name = 'PipeFlowDoc'
+	label = 'Pipe Flow (Docs)'
+	template = 'documentation/html/PipeFlowDoc.html'
 		
 if __name__ == '__main__':
-	#Pipe.testChurchilCorrelation()
+	#PipeFlow.testChurchilCorrelation()
 	#Orifice.test()
 	#Elbow.test()
-	Pipe.testComputePressureDrop()
+	PipeFlow.testComputePressureDrop()

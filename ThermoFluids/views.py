@@ -49,55 +49,33 @@ class FluidPropsCalculatorView(View):
 		sd.compute()
 		return sd.superGroupList2Json([sd.satSuperGroup])
 
-from smo.flow.FlowResistance import Pipe 
+from smo.flow.FlowResistance import PipeFlow, PipeFlowDoc
 class FlowResistanceView(View):
+	modules = [PipeFlow, PipeFlowDoc]
+	appName = "FlowResistance"
+	controllerName = "FlowResistanceController"
+	
 	def get(self, request):
-		return render_to_response('ThermoFluids/FlowResistance.html', locals(), 
+		return render_to_response('ModelViewTemplate.html', {"view": self}, 
 				context_instance=RequestContext(request))
 	
-	@action('post')
-	def getFlowResistanceInputs(self, parameters):
-		pipe = Pipe()
-		return pipe.superGroupList2Json([Pipe.inputs])
-	
 	@action('post')	
-	def computeFlowResistance(self, parameters):
-		pipe = Pipe()
+	def computeFlowResistance(self, model, view, parameters):
+		pipe = PipeFlow()
 		pipe.fieldValuesFromJson(parameters)
 		pipe.computeGeometry()
 		pipe.computePressureDrop()
-		return pipe.superGroupList2Json([Pipe.results])
+		return pipe.modelView2Json(view)
 
-from smo.flow.FreeConvection import FreeConvection_External
-from smo.flow.FreeConvection import FreeConvection_Internal
+from smo.flow.FreeConvection import FreeConvection_External, FreeConvection_Internal, FreeConvectionDoc
 class FreeConvectionView(View):
+	modules = [FreeConvection_External, FreeConvection_Internal, FreeConvectionDoc]
+	appName = "FreeConvection"
+	controllerName = "FreeConvectionController"
+	
 	def get(self, request):
-		return render_to_response('ThermoFluids/FreeConvection.html', locals(), 
+		return render_to_response('ModelViewTemplate.html', {"view": self}, 
 				context_instance=RequestContext(request))
-	
-	@action('post')
-	def getConvectionExternalInputs(self, parameters):
-		convection = FreeConvection_External()
-		return convection.superGroupList2Json([convection.inputs])
-	
-	@action('post')
-	def getConvectionInternalInputs(self, parameters):
-		convection = FreeConvection_Internal()
-		return convection.superGroupList2Json([convection.inputs])
-	
-	@action('post')	
-	def computeConvectionInternal(self, parameters):
-		convection = FreeConvection_Internal()
-		convection.fieldValuesFromJson(parameters)
-		convection.compute()
-		return convection.superGroupList2Json([convection.results])
-	
-	@action('post')	
-	def computeConvectionExternal(self, parameters):
-		convection = FreeConvection_External()
-		convection.fieldValuesFromJson(parameters)
-		convection.compute()
-		return convection.superGroupList2Json([convection.results])
 	
 from smo.flow.CryogenicInsulation import GasConduction
 class CryogenicInsulation(View):	
