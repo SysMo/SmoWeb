@@ -3,7 +3,8 @@ Created on Nov 27, 2014
 
 @author: Atanas Pavlov
 '''
-from smo.model.model import NumericalModel
+from smo.model.model import NumericalModel, ModelView, ModelDocumentation
+from smo.model.actions import ServerAction, ActionBar
 from smo.model.fields import *
 import numpy as np
 from smo.media.SimpleMaterials import Fluids
@@ -41,6 +42,11 @@ SurfaceShapes = OrderedDict((
 	))
 
 class FreeConvection_External(NumericalModel):
+	name = "FreeConvection_External"
+	label = "Free Convection External"
+	
+	############# Inputs ###############
+	# Fields
 	fluidName = Choices(Fluids, default = 'Nitrogen', label = 'fluid')	
 	TFluid = Quantity('Temperature', default = (15, 'degC'), label = 'fluid temeprature')
 	TWall = Quantity('Temperature', default = (50, 'degC'), label = 'wall temeprature')
@@ -51,7 +57,7 @@ class FreeConvection_External(NumericalModel):
 						show = '(self.geomConf == "HPT") || (self.geomConf == "HPB")')
 	heatExchangeGain = Quantity('Dimensionless', label = 'heat exchange gain')
 	thermalInputs = FieldGroup([fluidName, pressure, TFluid, TWall, propT, geomConf, heatExchangeGain], label = 'Thermal') 
-	
+	#####
 	width = Quantity('Length', default = (1, 'm'), label = 'width', 
 			show = '(self.geomConf == "VP") || (self.geomConf == "HPT" && self.surfaceShape == "RCT") || (self.geomConf == "HPB" && self.surfaceShape == "RCT") || (self.geomConf == "IPT") || (self.geomConf == "IPB")')
 	length = Quantity('Length', default = (1, 'm'), label = 'length', 
@@ -75,7 +81,17 @@ class FreeConvection_External(NumericalModel):
 								finHeight, finThickness, finSpacing], label = 'Geometry')
 	
 	inputs = SuperGroup([thermalInputs, geometryInputs])
-	###############
+	
+	# Actions
+	computeAction = ServerAction("compute", label = "Compute", outputView = 'resultView')
+	inputActionBar = ActionBar([computeAction], save = True)
+	
+	# Model view
+	inputView = ModelView(ioType = "input", superGroups = [inputs], 
+		actionBar = inputActionBar, autoFetch = True)
+	
+	############# Results ###############
+	# Fields
 	Tfilm = Quantity('Temperature', default = (30, 'degC'), label = 'film temperature')
 	cond = Quantity('ThermalConductivity', label = 'thermal conductivity')
 	rho = Quantity('Density', label = 'density')
@@ -83,7 +99,7 @@ class FreeConvection_External(NumericalModel):
 	beta = Quantity('ThermalExpansionCoefficient', label = 'beta')
 	Pr = Quantity('Dimensionless', label = 'Prandtl number')
 	fluidProps = FieldGroup([Tfilm, rho, cond, mu, beta, Pr], label = "Fluid propeties")
-
+	#####
 	deltaT = Quantity('TemperatureDifference', label = 'temperature difference')
 	Gr = Quantity('Dimensionless', label = 'Grashof number')
 	Ra = Quantity('Dimensionless', label = 'Rayleigh number')
@@ -95,6 +111,13 @@ class FreeConvection_External(NumericalModel):
 		
 	results = SuperGroup([fluidProps, heatExchangeResults])
 	
+	# Model view
+	resultView = ModelView(ioType = "output", superGroups = [results])
+	
+	############# Page structure ########
+	modelBlocks = [inputView, resultView]
+
+	############# Methods ###############	
 	def compute(self):
 		self.deltaT = self.TWall - self.TFluid
 		if (self.propT == 'MT'):
@@ -195,6 +218,11 @@ class FreeConvection_External(NumericalModel):
 		self.QDot = self.area * self.alpha * self.deltaT
 
 class FreeConvection_Internal(NumericalModel):
+	name = "FreeConvection_Internal"
+	label = "Free Convection Internal"
+	
+	############# Inputs ###############
+	# Fields
 	fluidName = Choices(Fluids, default = 'Nitrogen', label = 'fluid')	
 	geomConf = Choices(GeometryConfigurationsInternal, default = 'HP', label = 'configuration')
 	TWallTop = Quantity('Temperature', default = (50, 'degC'), label = 'temeprature top',
@@ -212,7 +240,7 @@ class FreeConvection_Internal(NumericalModel):
 	pressure = Quantity('Pressure', default = (1, 'bar'), label = 'fluid pressure') 
 	heatExchangeGain = Quantity('Dimensionless', label = 'heat exchange gain')
 	thermalInputs = FieldGroup([fluidName, pressure, TWallTop, TWallBottom, TWallLeft, TWallRight, TInner, TOuter, geomConf, heatExchangeGain], label = 'Thermal') 
-	
+	#####
 	width = Quantity('Length', default = (1, 'm'), label = 'width',
 					show = '(self.geomConf == "HP") || (self.geomConf == "VP") || (self.geomConf == "IP")')
 	length = Quantity('Length', default = (1, 'm'), label = 'length',
@@ -231,7 +259,17 @@ class FreeConvection_Internal(NumericalModel):
 	geometryInputs = FieldGroup([width, length, height, dist, rInner, rOuter, angle], label = 'Geometry')
 	
 	inputs = SuperGroup([thermalInputs, geometryInputs])
-	###############
+	
+	# Actions
+	computeAction = ServerAction("compute", label = "Compute", outputView = 'resultView')
+	inputActionBar = ActionBar([computeAction], save = True)
+	
+	# Model view
+	inputView = ModelView(ioType = "input", superGroups = [inputs], 
+		actionBar = inputActionBar, autoFetch = True)
+	
+	############# Results ###############
+	# Fields
 	Tfilm = Quantity('Temperature', default = (30, 'degC'), label = 'film temperature')
 	cond = Quantity('ThermalConductivity', label = 'thermal conductivity')
 	rho = Quantity('Density', label = 'density')
@@ -239,7 +277,7 @@ class FreeConvection_Internal(NumericalModel):
 	beta = Quantity('ThermalExpansionCoefficient', label = 'beta')
 	Pr = Quantity('Dimensionless', label = 'Prandtl number')
 	fluidProps = FieldGroup([Tfilm, rho, cond, mu, beta, Pr], label = "Fluid propeties")
-
+	#####
 	deltaT = Quantity('TemperatureDifference', label = 'temperature difference')
 	Gr = Quantity('Dimensionless', label = 'Grashof number')
 	Ra = Quantity('Dimensionless', label = 'Rayleigh number')
@@ -251,6 +289,13 @@ class FreeConvection_Internal(NumericalModel):
 		
 	results = SuperGroup([fluidProps, heatExchangeResults])
 	
+	# Model view
+	resultView = ModelView(ioType = "output", superGroups = [results])
+	
+	############# Page structure ########
+	modelBlocks = [inputView, resultView]
+
+	############# Methods ###############	
 	def compute(self):
 		if (self.geomConf == 'HP' or self.geomConf == 'IP'):
 			self.Tfilm = (self.TWallTop + self.TWallBottom) / 2.0
@@ -344,4 +389,8 @@ class FreeConvection_Internal(NumericalModel):
 		# Compute the convection coefficient and the total heat flow rate
 		self.alpha = self.Nu * self.cond / s
 		self.QDot = self.area * self.alpha * self.deltaT
-		
+
+class FreeConvectionDoc(ModelDocumentation):
+	name = 'FreeConvectionDoc'
+	label = 'Free Convection (Docs)'
+	template = 'documentation/html/FreeConvectionDoc.html'	

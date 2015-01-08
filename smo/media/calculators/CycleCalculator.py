@@ -5,7 +5,8 @@ Created on Nov 09, 2014
 
 import numpy as np
 from smo.media.CoolProp.CoolProp import FluidState, Fluid
-from smo.model.model import NumericalModel 
+from smo.model.model import NumericalModel, ModelView, ModelDocumentation
+from smo.model.actions import ServerAction, ActionBar
 from smo.model.fields import *
 from smo.media.SimpleMaterials import Fluids
 from collections import OrderedDict
@@ -46,7 +47,12 @@ from collections import OrderedDict
 # 		self.outState.update_ph(self.pHigh, h2Real)
 #		self.WCompr = self.mDotRefrigerant * wReal
 
-class HeatPumpCalculator(NumericalModel):
+class HeatPump(NumericalModel):
+	name = "HeatPump"
+	label = "Heat Pump"
+	
+	############# Inputs ###############
+	# Fields
 	fluidName = Choices(Fluids, default = 'R134a', label = 'fluid')	
 	mDotRefrigerant = Quantity('MassFlowRate', default = (1, 'kg/min'), label = 'refrigerant flow rate')
 	pLow = Quantity('Pressure', default = (1, 'bar'), label = 'low pressure')
@@ -74,34 +80,51 @@ class HeatPumpCalculator(NumericalModel):
 	basicInputs = FieldGroup([fluidName, mDotRefrigerant, pLow, pHigh, THot, TCold], label = 'Basic')
 	compressionExpansion = FieldGroup([compressionType, etaComprIsentropic, etaComprIsothermal, expansionType, etaExpandIsentropic], label = 'Compression/Expansion')
 	inputs = SuperGroup([basicInputs, compressionExpansion], label = "Input data")
-	################################################################################
-	###############
+	
+	# Actions
+	computeAction = ServerAction("compute", label = "Compute", outputView = 'resultView')
+	inputActionBar = ActionBar([computeAction], save = True)
+	
+	# Model view
+	inputView = ModelView(ioType = "input", superGroups = [inputs], 
+		actionBar = inputActionBar, autoFetch = True)
+	
+	############# Results ###############
+	# Fields
 	T1 = Quantity('Temperature', label = 'temperature')
 	rho1 = Quantity('Density', label = 'density')
 	T1Sat = Quantity('Temperature', label = 'saturation temperature')
 	compressorInlet = FieldGroup([T1, rho1, T1Sat], label="1. Compressor inlet")
-	#################
+	#####
 	T2 = Quantity('Temperature', label = 'temperature')
 	rho2 = Quantity('Density', label = 'density')
 	WCompr = Quantity('Power', label = 'compressor power')
 	T2Sat = Quantity('Temperature', label = 'saturation temperature')
 	compressorOutlet = FieldGroup([T2, rho2, WCompr, T2Sat], label="2. Compressor outlet")
-	####################
+	#####
 	T3 = Quantity('Temperature', default = (330, 'K'), label = 'temperature')
 	rho3 = Quantity('Density', label = 'density')
 	QCondens = Quantity('HeatFlowRate', default = (1, 'kW'), label = 'heat flow rate')
 	condensorOutlet = FieldGroup([T3, rho3, QCondens], label = '3. Condenser outlet')
-	####################
+	#####
 	T4 = Quantity('Temperature', default = (330, 'K'), label = 'temperature')
 	q4 = Quantity('VaporQuality', default = 0.5, label = 'vapor quality')
 	QEvap = Quantity('HeatFlowRate', default = (1, 'kW'), label = 'heat flow rate')
 	evaporatorInlet = FieldGroup([T4, q4, QEvap], label = '4. Evaporator inlet')
-	##################	
+	#####
 	COPCooling = Quantity('Dimensionless', label = 'COP (cooling)')
 	COPHeating = Quantity('Dimensionless', label = 'COP (heating)')
 	COPCarnot = Quantity('Dimensionless', label = 'COP (Carnot)')
 	summary=FieldGroup([COPCooling, COPHeating, COPCarnot], label = '5. Summary')
 	results = SuperGroup([compressorInlet, compressorOutlet, condensorOutlet, evaporatorInlet, summary], label="Results")
+	
+	# Model view
+	resultView = ModelView(ioType = "output", superGroups = [results])
+	
+	############# Page structure ########
+	modelBlocks = [inputView, resultView]
+
+	############# Methods ###############
 	def compute(self):
 		fluid = Fluid(self.fluidName)
 		state1 = FluidState(fluid)
@@ -166,6 +189,11 @@ class HeatPumpCalculator(NumericalModel):
 		self.QEvap = self.mDotRefrigerant * (state1.h - state4.h)
 		self.COPCooling = self.QEvap / self.WCompr
 		self.COPHeating = self.QCondens / self.WCompr
+
+class HeatPumpDoc(ModelDocumentation):
+	name = 'HeatPumpDoc'
+	label = 'Heat Pump (Docs)'
+	template = 'documentation/html/HeatPumpDoc.html'
 		
 if __name__ == '__main__':
 	#IsentropicCompression.test()

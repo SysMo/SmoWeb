@@ -78,6 +78,13 @@ angular.module('{{view.appName}}', ['ui.bootstrap', 'smo'])
 						</div>
 					{% endfor %}
 				{% endif %}
+				{% if module|isModelDocumentation %}
+					<div class="tab-pane" id="{{module.name}}Content">
+						<div class="docview">
+							{% include module|getModelDocUrl %}
+						</div>
+					</div>
+				{% endif %}
 			</div>
 		{% endfor %}
 	</div>

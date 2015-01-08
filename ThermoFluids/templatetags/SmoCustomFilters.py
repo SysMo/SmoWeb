@@ -1,7 +1,7 @@
 from django.template import Library
 register = Library()
 
-from smo.model.model import ModelView, NumericalModel
+from smo.model.model import ModelView, NumericalModel, ModelDocumentation
 
 @register.filter
 def isModelView(obj):
@@ -10,6 +10,14 @@ def isModelView(obj):
 @register.filter
 def isNumericalModel(obj):
 	return isinstance(obj, NumericalModel)
+
+@register.filter
+def isModelDocumentation(obj):
+	return isinstance(obj, ModelDocumentation)
+
+@register.filter
+def getModelDocUrl(module):
+	return "documentation/html/" + module.name + ".html"
 
 @register.filter
 def isActive(view, module):
