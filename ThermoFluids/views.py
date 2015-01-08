@@ -136,12 +136,12 @@ class HeatPumpView(View):
 		return hpc.superGroupList2Json([hpc.results])
 
 from smo.flow.heatExchange1D.CryogenicPipe import CryogenicPipe
+from smo.flow.heatExchange1D.CableHeating import CableHeating1D
 class HeatExchange1DView(View):
-	modules = [CryogenicPipe]	
+	modules = [CryogenicPipe, CableHeating1D]	
 	appName = "HeatExchange1D"
 	controllerName = "HeatExchange1DController"
 	def get(self, request):
-		self.activeModule = CryogenicPipe
 		jsLibraries = ['dygraph', 'dygraphExport']
 		googleModules = {'visualization':{'version': '1.0', 'packages': ["corechart", "table", "controls"]}}
 		return render_to_response('ModelViewTemplate.html', 

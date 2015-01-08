@@ -11,12 +11,46 @@ import fipy as fp
 from fipy.solvers.pysparse import LinearLUSolver
 from scipy.interpolate import interp1d
 
+sigmaSB = 5.67e-8
+
 class DictObject(object):
 	def __init__(self, **kwargs):
 		for key, value in kwargs.iteritems():
 			self.__dict__[key] = value
 
-sigmaSB = 5.67e-8
+class Interpolator1D(object):
+	"""
+	1D interpolator 
+	"""
+	def __init__(self, xValues, yValues, outOfRange = 'value'):
+		self.xValues = np.array(xValues);
+		self.yValues = np.array(yValues);
+		#self.minX = self.xValues[0]
+		#self.maxX = self.xValues[-1]
+		
+
+	def __call__(self, inputValues):
+		from numpy import interp
+		#self.belowMin = inputValues < self.minX
+		#self.aboveMax = inputValues > self.maxX
+		#limitedValues = inputValues[:]
+		#limitedValues[self.belowMin] = self.minX
+		#limitedValues[self.aboveMac] = self.maxX
+		return interp(inputValues, self.xValues, self.yValues)
+
+class SectionCalculator(object):
+	"""
+	Perform calculations over a sectioned object, using different
+	callable objects for each section	
+	"""
+	def __init__(self):
+		self.sectionIndices = []
+		self.sectionCalculators = []
+	
+	def __call__(self, inputValues):
+		for section, calc in zip(self.sectionIndices, self.sectionCalculators):
+			sectionInputs = inputValues[section[0], section[1] + 1]
+			sectionResults = self.sectionCalculators
 
 class CryogenicPipeSolver(object):
 	def __init__(self, TAmb):
@@ -46,15 +80,18 @@ class CryogenicPipeSolver(object):
 		self.As = As
 		# Create the meshes for each segment
 		self.sectionIndices = []
-		dx = []
+		self.sectionEmissivityCalculators = []
+		dx = []		
 		i = 0
 		for sec in sections:
-			numElements = np.ceil(sec['length'] / sec['meshSize'])
+			numElements = np.ceil(sec['length'] / sec['meshSize'])			
 			self.sectionIndices.append((i, i + numElements - 1))
 			dx += [sec['length'] / numElements] * numElements
+			self.sectionEmissivityCalculators.append(
+					Interpolator1D([sec['temperature1'], sec['temperature2']], [sec['emissivity1'], sec['emissivity2']])
+			)
 			i += numElements
-		print dx
-		print self.sectionIndices
+		self.radiation['emissivity'] = np.zeros((len(dx)))
 		self.mesh = fp.Grid1D(dx = dx)
 		self.meshType = 'Linear'
 		# Define variable
@@ -148,6 +185,7 @@ class CryogenicPipeSolver(object):
 				eqX = fp.DiffusionTerm(coeff = self.thermCond)
 				if (self.radiation['active']):
 					# Compute temperature dependent emissivity
+					emissivityValue
 					self.emissivity.setValue(self.emissivityModel(self.T))
 					# Add radiation term to the equation
 					radMultiplier = sigmaSB * self.emissivity * sideFaceFactor
