@@ -35,8 +35,6 @@ class AreaCalculatorView(View):
 		modelName = None
 		viewName = None
 		recordId = None
-		self.activeModule = None
-		self.loadView = None
 		
 		if ('model' in parameters):
 			modelName = parameters['model']
@@ -45,30 +43,32 @@ class AreaCalculatorView(View):
 		if ('id' in parameters):
 			recordId = parameters['id']
 		
+		self.activeModule = None
+		self.recordIdDict = None
+		
 		if (modelName is not None) and (viewName is not None) and (recordId is not None):
 			for module in self.modules:
-				if (modelName == module.__name__):
+				if (module.__name__ == modelName):
 					self.activeModule = module
 			if (self.activeModule is None):
 				raise ValueError("Unknown model {0}".format(modelName))	
-			
-			for view in self.activeModule.modelBlocks:
-				if (viewName == view.name):
-					self.loadView = view
-			if (self.loadView is None):
-				raise ValueError("Unknown view {0}".format(viewName))
 			
 			id = ObjectId(recordId)
 			db = mongoClient.SmoWeb
 			coll = db.savedInputs
 			conf = coll.find_one({'_id': id})
-			if (conf is not None):
-				self.loadView.id = recordId
-			else: 
-				raise ValueError("Unknown record with id: {0}".format(recordId))	
+			if (conf is None):
+				raise ValueError("Unknown record with id: {0}".format(recordId))
+			
+			for view in self.activeModule.modelBlocks:
+				if (view.name == viewName):
+					self.recordIdDict = {view : recordId}
+			if (self.recordIdDict is None):
+				raise ValueError("Unknown view {0}".format(viewName))	
 		
 		elif (modelName is None) and (viewName is None) and (recordId is None):
 			self.activeModule = self.modules[0]
+			self.recordIdDict = {}
 		else:		
 			raise ValueError("GET parameters should be 'model' and 'view' and 'id'")	
 		

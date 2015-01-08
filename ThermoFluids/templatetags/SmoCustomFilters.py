@@ -20,7 +20,10 @@ def isActive(view, module):
 
 @register.filter
 def getItem(dictionary, key):
-	return dictionary.get(key)
+	if (dictionary.get(key) is not None):
+		return dictionary.get(key)
+	else:
+		return ""
 
 @register.filter
 def toStr(obj):

@@ -352,6 +352,7 @@ smoModule.factory('ModelCommunicator', function($http, $window, $timeout, $locat
 		this.onSuccess = onSuccess;
 		this.onFailure = onFailure;
 		//this.action = action;
+		console.log(this.url);
 		$http({
 	        method  : 'POST',
 	        url     : this.url,
@@ -403,13 +404,11 @@ smoModule.factory('ModelCommunicator', function($http, $window, $timeout, $locat
 	    })
 	    .success(function(response) {
 			if (!response.errStatus) {
-				communicator.savedRecordId = response.data.id;
 				communicator.currentUrl = $location.absUrl();
 				communicator.savedRecordUrl = $location.protocol() + '://' + $location.host() + ':' 
 					+ $location.port() + $location.path() 
-					+ '?model=' + response.data.model + '&view=' + response.data.view + '&id=' + response.data.id; 
-				//$location.path();//communicator.currentUrl.replace(/id=*$/, communicator.savedRecordId);
-				communicator.saveFeedbackMsg = "Input data saved. id=" + communicator.savedRecordId;
+					+ '?model=' + response.data.model + '&view=' + response.data.view + '&id=' + response.data.id;
+				communicator.saveFeedbackMsg = "Input data saved. id=" + response.data.id;
 				//$timeout($window.alert("Input data saved"));
 			} else {
 				//$timeout($window.alert("Failed to save input data"));
