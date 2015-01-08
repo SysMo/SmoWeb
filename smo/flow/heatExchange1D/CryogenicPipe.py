@@ -10,6 +10,7 @@ from collections import OrderedDict
 import fipy as fp
 from fipy.solvers.pysparse import LinearLUSolver
 from scipy.interpolate import interp1d
+import smo.math.util as sm
 
 sigmaSB = 5.67e-8
 
@@ -17,40 +18,6 @@ class DictObject(object):
 	def __init__(self, **kwargs):
 		for key, value in kwargs.iteritems():
 			self.__dict__[key] = value
-
-class Interpolator1D(object):
-	"""
-	1D interpolator 
-	"""
-	def __init__(self, xValues, yValues, outOfRange = 'value'):
-		self.xValues = np.array(xValues);
-		self.yValues = np.array(yValues);
-		#self.minX = self.xValues[0]
-		#self.maxX = self.xValues[-1]
-		
-
-	def __call__(self, inputValues):
-		from numpy import interp
-		#self.belowMin = inputValues < self.minX
-		#self.aboveMax = inputValues > self.maxX
-		#limitedValues = inputValues[:]
-		#limitedValues[self.belowMin] = self.minX
-		#limitedValues[self.aboveMac] = self.maxX
-		return interp(inputValues, self.xValues, self.yValues)
-
-class SectionCalculator(object):
-	"""
-	Perform calculations over a sectioned object, using different
-	callable objects for each section	
-	"""
-	def __init__(self):
-		self.sectionIndices = []
-		self.sectionCalculators = []
-	
-	def __call__(self, inputValues):
-		for section, calc in zip(self.sectionIndices, self.sectionCalculators):
-			sectionInputs = inputValues[section[0], section[1] + 1]
-			sectionResults = self.sectionCalculators
 
 class CryogenicPipeSolver(object):
 	def __init__(self, TAmb):
@@ -67,10 +34,10 @@ class CryogenicPipeSolver(object):
 		}
 		material = Solids['StainlessSteel304']
 		self.thermCondModel = interp1d(material['thermalCond_T']['T'], material['thermalCond_T']['cond'])
-		emissivityData = material['emissivity_T']['unfinishedSurface']
-		self.emissivityModel = interp1d(emissivityData['T'], emissivityData['epsilon'])
+		#emissivityData = material['emissivity_T']['unfinishedSurface']
+		#self.emissivityModel = interp1d(emissivityData['T'], emissivityData['epsilon'])
 		
-	def createLinearMesh(self, sections, Acs, As, n = 100): 
+	def createLinearMesh(self, sections, Acs, As): 
 		""" Define mesh """
 		# Cross sectional area
 		self.AcsMult = Acs
@@ -78,18 +45,17 @@ class CryogenicPipeSolver(object):
 		self.areaMult = Acs
 		# Surface area per unit length
 		self.As = As
-		# Create the meshes for each segment
-		self.sectionIndices = []
-		self.sectionEmissivityCalculators = []
+		# Create the meshes and emissivity calculator for each segment
+		self.emissivityCalculator = sm.SectionCalculator()
 		dx = []		
 		i = 0
 		for sec in sections:
 			numElements = np.ceil(sec['length'] / sec['meshSize'])			
-			self.sectionIndices.append((i, i + numElements - 1))
-			dx += [sec['length'] / numElements] * numElements
-			self.sectionEmissivityCalculators.append(
-					Interpolator1D([sec['temperature1'], sec['temperature2']], [sec['emissivity1'], sec['emissivity2']])
+			self.emissivityCalculator.addSection(
+					(i, i + numElements - 1), 
+					sm.Interpolator1D([sec['temperature1'], sec['temperature2']], [sec['emissivity1'], sec['emissivity2']])
 			)
+			dx += [sec['length'] / numElements] * numElements
 			i += numElements
 		self.radiation['emissivity'] = np.zeros((len(dx)))
 		self.mesh = fp.Grid1D(dx = dx)
@@ -185,8 +151,7 @@ class CryogenicPipeSolver(object):
 				eqX = fp.DiffusionTerm(coeff = self.thermCond)
 				if (self.radiation['active']):
 					# Compute temperature dependent emissivity
-					emissivityValue
-					self.emissivity.setValue(self.emissivityModel(self.T))
+					self.emissivity.setValue(self.emissivityCalculator(self.T()))
 					# Add radiation term to the equation
 					radMultiplier = sigmaSB * self.emissivity * sideFaceFactor
 					eqX = eqX + radMultiplier * (self.TAmb**4 - self.T**4)
@@ -331,7 +296,7 @@ class CryogenicPipe(NumericalModel):
 		model = CryogenicPipeSolver(self.TAmb)
 		#model.thermalCond = self.thermalCond
 		# Create mesh
-		model.createLinearMesh(sections = self.sections, Acs = self.AcsMult, As = self.As, n = self.n)
+		model.createLinearMesh(sections = self.sections, Acs = self.AcsMult, As = self.As)
 		# Set boundary conditions
 		if (self.bcLeft == 'T'):
 			model.setBoundaryConditions(0, 'T', self.TLeftInput)
@@ -361,42 +326,42 @@ class CryogenicPipe(NumericalModel):
 		self.cond_T[:, 0] = TRange
 		self.cond_T[:, 1] = model.thermCondModel(TRange)
 		# Emissivity vs. T
-		self.emiss_T = np.zeros((100, 2))
-		self.emiss_T[:, 0] = TRange
-		self.emiss_T[:, 1] = model.emissivityModel(TRange)
+#		self.emiss_T = np.zeros((100, 2))
+#		self.emiss_T[:, 0] = TRange
+#		self.emiss_T[:, 1] = model.emissivityModel(TRange)
 		
 		# Temperature distribution
-		self.T_x = np.zeros((self.n + 1, 2))
+		self.T_x = np.zeros((len(faceCenters), 2))
 		self.T_x[:, 0] = faceCenters 
 		self.T_x[:, 1] = model.T.arithmeticFaceValue()
 		self.TLeft = self.T_x[0, 1]
 		self.TRight = self.T_x[-1, 1]
 		
 		# Axial heat flow
-		self.QAx_x = np.zeros((self.n + 1, 2))
+		self.QAx_x = np.zeros((len(faceCenters), 2))
 		self.QAx_x[:, 0] = faceCenters
 		self.QAx_x[:, 1] = model.QAx()
 		self.QLeft = self.QAx_x[0, 1]
 		self.QRight = self.QAx_x[-1, 1]
 		
 		# Radiation flux
-		self.QRad_x = np.zeros((self.n, 2))
+		self.QRad_x = np.zeros((len(cellCenters), 2))
 		self.QRad_x[:, 0] = cellCenters
 		self.QRad_x[:, 1] = model.QRad()
 		self.QRadSum = self.QRight - self.QLeft
 			
 		# Conduction vs. x
-		self.cond_x = np.zeros((self.n + 1, 2))
+		self.cond_x = np.zeros((len(faceCenters), 2))
 		self.cond_x[:, 0] = faceCenters
 		self.cond_x[:, 1] = model.thermCond
 		
 		# Emissivity vs. x
-		self.emiss_x = np.zeros((self.n, 2))
+		self.emiss_x = np.zeros((len(cellCenters), 2))
 		self.emiss_x[:, 0] = cellCenters
 		self.emiss_x[:, 1] = model.emissivity
 		
 		# Table with x distributions
-		self.table_x = np.zeros((self.n + 1, 3))
+		self.table_x = np.zeros((len(faceCenters), 3))
 		self.table_x[:, 0] = faceCenters
 		self.table_x[:, 1] = model.T.arithmeticFaceValue()
 		self.table_x[:, 2] = model.QAx
@@ -416,16 +381,3 @@ class CryogenicPipe(NumericalModel):
 	def test():
 		pipe = CryogenicPipe()
 		pipe.compute()
-
-# 		import csv
-# 		import os
-# 		print os.getcwd()
-# 		with open('res.csv', 'w') as fRes:
-# 			writer = csv.writer(fRes)
-# 			for i in range(len(model.T)):
-# 				writer.writerow([cellCenters[i], model.T[i], model.QRad[i]])
-
-		
-
-if __name__ == '__main__':
-	CryogenicPipe.test()

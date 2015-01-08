@@ -172,6 +172,7 @@ class View(object):
 							raise ValueError("Unknown view {0}".format(viewName))
 						print (instance.activeModule == instance.modules[0])
 					elif (modelName is None) and (viewName is None) and (recordId is None):
+						instance.activeModule = instance.modules[0]
 						instance.recordIdDict = {}
 					else:		
 						raise ValueError("GET parameters should be 'model' and 'view' and 'id'")

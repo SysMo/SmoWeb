@@ -4,7 +4,7 @@ from django.core.urlresolvers import reverse
 from  SmoWeb.settings import MEDIA_ROOT, hdfFileFolder
 import json
 import os.path
-from smo.util.django_utils import handle_uploaded_file, TemporaryObjectsHash
+from smo.django.util import handle_uploaded_file, TemporaryObjectsHash
 from smo.data.hdf import CSV2HDFImporter, HDFInterface
 from decimal import Decimal
 from smo.model.quantity import Quantities

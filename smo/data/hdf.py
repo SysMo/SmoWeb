@@ -8,7 +8,7 @@ import h5py
 import numpy as np
 import json
 from decimal import Decimal
-from smo.util.django_utils import DecimalEncoder
+from smo.django.util import DecimalEncoder
 
 class HDFInterface(object):
 	def __init__(self, filePath):
