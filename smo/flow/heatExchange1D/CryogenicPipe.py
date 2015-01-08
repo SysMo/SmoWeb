@@ -36,7 +36,7 @@ class CryogenicPipeSolver(object):
 		emissivityData = material['emissivity_T']['unfinishedSurface']
 		self.emissivityModel = interp1d(emissivityData['T'], emissivityData['epsilon'])
 		
-	def createLinearMesh(self, segments, Acs, As, n = 100): 
+	def createLinearMesh(self, sections, Acs, As, n = 100): 
 		""" Define mesh """
 		# Cross sectional area
 		self.AcsMult = Acs
@@ -45,16 +45,17 @@ class CryogenicPipeSolver(object):
 		# Surface area per unit length
 		self.As = As
 		# Create the meshes for each segment
-		self.segmentIndices = []
+		self.sectionIndices = []
 		dx = []
 		i = 0
-		for seg in segments:
-			numElements = np.ceil(seg['length'] / seg['meshSize'])
-			self.segmentIndices.append((i, i + numElements - 1))
-			dx += [seg['length'] / numElements] * numElements
+		for sec in sections:
+			numElements = np.ceil(sec['length'] / sec['meshSize'])
+			self.sectionIndices.append((i, i + numElements - 1))
+			dx += [sec['length'] / numElements] * numElements
 			i += numElements
-			
-		self.mesh = fp.Grid1D(nx = n, dx = dx)
+		print dx
+		print self.sectionIndices
+		self.mesh = fp.Grid1D(dx = dx)
 		self.meshType = 'Linear'
 		# Define variable
 		self.T = fp.CellVariable(name = "temperature",
@@ -292,7 +293,7 @@ class CryogenicPipe(NumericalModel):
 		model = CryogenicPipeSolver(self.TAmb)
 		#model.thermalCond = self.thermalCond
 		# Create mesh
-		model.createLinearMesh(L = self.L, Acs = self.AcsMult, As = self.As, n = self.n)
+		model.createLinearMesh(sections = self.sections, Acs = self.AcsMult, As = self.As, n = self.n)
 		# Set boundary conditions
 		if (self.bcLeft == 'T'):
 			model.setBoundaryConditions(0, 'T', self.TLeftInput)

@@ -405,7 +405,10 @@ smoModule.factory('ModelCommunicator', function($http, $window, $timeout, $locat
 			if (!response.errStatus) {
 				communicator.savedRecordId = response.data.id;
 				communicator.currentUrl = $location.absUrl();
-				communicator.savedRecordUrl = communicator.currentUrl.replace(/id=*$/, communicator.savedRecordId);
+				communicator.savedRecordUrl = $location.protocol() + '://' + $location.host() + ':' 
+					+ $location.port() + $location.path() 
+					+ '?model=' + response.data.model + '&view=' + response.data.view + '&id=' + response.data.id; 
+				//$location.path();//communicator.currentUrl.replace(/id=*$/, communicator.savedRecordId);
 				communicator.saveFeedbackMsg = "Input data saved. id=" + communicator.savedRecordId;
 				//$timeout($window.alert("Input data saved"));
 			} else {
@@ -1444,7 +1447,7 @@ smoModule.directive('smoModelView', ['$compile', '$location', 'ModelCommunicator
 						<div smo-super-group-set="communicator.data.definitions" model-name="' + scope.modelName + '" view-type="' + scope.viewType + '" smo-data-source="communicator.data.values"></div>\
 						<div smo-view-toolbar model="model" view-name="viewName" actions="communicator.data.actions"></div>\
 						<div ng-if="communicator.saveFeedbackMsg">{{communicator.saveFeedbackMsg}}</div>\
-						<div ng-if="communicator.saveFeedbackMsg">URL: <span>{{communicator.savedRecordUrl}}</span></div>\
+						<div ng-if="communicator.saveFeedbackMsg">URL: <a ng-href={{communicator.savedRecordUrl}}>{{communicator.savedRecordUrl}}</a></div>\
 					</div>\
 				</div>'
 

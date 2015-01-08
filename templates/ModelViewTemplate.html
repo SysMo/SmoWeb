@@ -29,8 +29,19 @@ angular.module('{{view.appName}}', ['ui.bootstrap', 'smo'])
 	    $httpProvider.defaults.xsrfCookieName = 'csrftoken';
 	    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
 	}])
+	.config(['$locationProvider', function($locationProvider) {
+  		$locationProvider.html5Mode(true).hashPrefix('!');
+	}])
 	.controller('{{view.controllerName}}', 
-		[ '$scope', function($scope) {
+		[ '$scope', '$location', function($scope, $location) {
+		$scope.$location = {};
+ 		angular.forEach("protocol host port path search hash absUrl".split(" "), function(method){
+	    	$scope.$location[method] = function(){
+		      	var result = $location[method].call($location);
+		      	return angular.isObject(result) ? angular.toJson(result) : result;
+    		};
+  		});
+  		$scope.Result = $location.protocol() + '://' + $location.host() + ':' + $location.port() + $location.path() + '?model=' + 1 + '&view=' + 2 + '&id=' + 3;
 			{% for module in view.modules %}
 				{% if module|isNumericalModel %}
 			$scope.{{module.name}} = { name: "{{module.name}}", views: {} };
@@ -55,7 +66,17 @@ angular.module('{{view.appName}}', ['ui.bootstrap', 'smo'])
 
 {% block content %}
 <div ng-app="{{view.appName}}" ng-controller="{{view.controllerName}}">
-	<div class="tab-content">
+  <div>
+    $location.protocol() = <span ng-bind="$location.protocol()"></span> <br>
+    $location.host() = <span ng-bind="$location.host()"></span> <br>
+    $location.port() = <span ng-bind="$location.port()"></span> <br>
+    $location.path() = <span ng-bind="$location.path()"></span> <br>
+    $location.search() = <span ng-bind="$location.search()"></span> <br>
+    $location.hash() = <span ng-bind="$location.hash()"></span> <br>
+    $location.absUrl() = <span ng-bind="$location.absUrl()"></span> <br>
+    Result = <span ng-bind="Result"></span> <br>
+  </div>
+  	<div class="tab-content">
 		{% for module in view.modules %}
 			<div class="tab-pane page-container {% if view|isActive:module %}active{% endif %}" id="{{module.name}}Content">
 				{% if module|isNumericalModel %}
