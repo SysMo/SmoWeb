@@ -134,6 +134,48 @@ class View(object):
 			if request.method == 'GET':
 				logger.debug('GET ' + request.path)
 				if ('get' in cls.__dict__):
+					
+					parameters = request.GET
+		
+					modelName = None
+					viewName = None
+					recordId = None
+					
+					if ('model' in parameters):
+						modelName = parameters['model']
+					if ('view' in parameters):
+						viewName = parameters['view']
+					if ('id' in parameters):
+						recordId = parameters['id']
+					
+					instance.activeModule = None
+					instance.recordIdDict = None
+					
+					if (modelName is not None) and (viewName is not None) and (recordId is not None):
+						for module in instance.modules:
+							if (module.__name__ == modelName):
+								instance.activeModule = module
+						if (instance.activeModule is None):
+							raise ValueError("Unknown model {0}".format(modelName))	
+						
+						id = ObjectId(recordId)
+						db = mongoClient.SmoWeb
+						coll = db.savedInputs
+						conf = coll.find_one({'_id': id})
+						if (conf is None):
+							raise ValueError("Unknown record with id: {0}".format(recordId))
+						
+						for view in instance.activeModule.modelBlocks:
+							if (view.name == viewName):
+								instance.recordIdDict = {view : recordId}
+						if (instance.recordIdDict is None):
+							raise ValueError("Unknown view {0}".format(viewName))	
+					
+					elif (modelName is None) and (viewName is None) and (recordId is None):
+						instance.activeModule = instance.modules[0]
+						instance.recordIdDict = {}
+					else:		
+						raise ValueError("GET parameters should be 'model' and 'view' and 'id'")
 					return instance.get(request)
 				else:
 					raise NotImplementedError(
