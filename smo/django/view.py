@@ -125,7 +125,7 @@ class View(object):
 		db = mongoClient.SmoWeb
 		coll = db.savedInputs
 		id = coll.insert(instance.modelView2Json(view))
-		return {'model': model.name, 'view': view.name, 'id' : str(id)}		
+		return {'model': model.name, 'view': view.name, 'id' : str(id)}	
 	
 	@classmethod
 	def asView(cls):

@@ -11,6 +11,10 @@ from smo.media.CoolProp.CoolProp import Fluid, FluidState
 from smo.media.SimpleMaterials import Fluids
 from smo.media.CoolProp.CoolPropReferences import References
 
+from pymongo import MongoClient
+from bson.objectid import ObjectId
+mongoClient = MongoClient()
+
 StateVariableOptions = OrderedDict((
 	('P', 'pressure (P)'),
 	('T', 'temperature (T)'),
@@ -36,6 +40,7 @@ class FluidProperties(NumericalModel):
 	
 	############# Inputs ###############
 	# Fields
+	recordId = String()
 	fluidName = Choices(Fluids, default = 'ParaHydrogen', label = 'fluid')	
 	stateVariable1 = Choices(options = StateVariableOptions, default = 'P', label = 'first state variable')
 	p1 = Quantity('Pressure', default = (1, 'bar'), label = 'pressure', show="self.stateVariable1 == 'P'")
@@ -52,13 +57,14 @@ class FluidProperties(NumericalModel):
 	s2 = Quantity('SpecificEntropy', default = (100, 'kJ/kg-K'), label = 'specific entropy', show="self.stateVariable2 == 'S'")
 	q2 = Quantity('VaporQuality', default = (1, '-'), minValue = 0, maxValue = 1, label = 'vapour quality', show="self.stateVariable2 == 'Q'")
 	####
-	stateGroup1 = FieldGroup([fluidName], label = 'Fluid')
+	stateGroup1 = FieldGroup([recordId, fluidName], label = 'Fluid')
 	stateGroup2 = FieldGroup([stateVariable1, p1, T1, rho1, h1, s1, q1, stateVariable2, p2, T2, rho2, h2, s2, q2], label = 'States')
 	inputs = SuperGroup([stateGroup1, stateGroup2])
 	
 	# Actions
 	computeAction = ServerAction("computeFluidProps", label = "Compute", outputView = 'resultView')
-	inputActionBar = ActionBar([computeAction], save = True)
+	computeSaveAction = ServerAction("computeFluidProps", label = "Compute & Save", outputView = 'resultView')
+	inputActionBar = ActionBar([computeAction, computeSaveAction], save = True)
 	
 	# Model view
 	inputView = ModelView(ioType = "input", superGroups = [inputs], 
@@ -87,7 +93,7 @@ class FluidProperties(NumericalModel):
 	#####
 	stateVariablesResults = FieldGroup([T, p, rho, h, s, q, u], label = 'States')
 	derivativeResults = FieldGroup([cp, cv, gamma, Pr, cond, mu, dpdt_v, dpdv_t], label = 'Derivatives & Transport')
-	props = SuperGroup([stateVariablesResults, derivativeResults], label = "Propeties")
+	props = SuperGroup([stateVariablesResults, derivativeResults], label = "Properties")
 	#####
 	rho_L = Quantity('Density', label = 'density')
 	h_L = Quantity('SpecificEnthalpy', label = 'specific enthalpy')
@@ -97,14 +103,19 @@ class FluidProperties(NumericalModel):
 	h_V = Quantity('SpecificEnthalpy', label = 'specific enthalpy')
 	s_V = Quantity('SpecificEntropy', label = 'specific entropy')
 	#####
+	historyTable = TableView(label = 'Summary', dataLabels = ['T[K]', 'p[bar]', 'h[J/kg]'], 
+			options = {'formats': ['0.0000E0', '0.000', '0.000']})
+	#####
 	isTwoPhase = Boolean(label = 'is two phase')
 	liquidResults = FieldGroup([rho_L, h_L, s_L], label="Liquid")
 	vaporResults = FieldGroup([rho_V, h_V, s_V], label="Vapor")
 	saturationProps = SuperGroup([liquidResults, vaporResults], label="Phases")
 	
+	histViewGroup = ViewGroup([historyTable], label="Calculation History")
+	calcHistory = SuperGroup([histViewGroup], label = "Calc History")
 	# Model view
-	resultView = ModelView(ioType = "output", superGroups = [props])
-	resultViewIsTwoPhase = ModelView(ioType = "output", superGroups = [props, saturationProps])
+	resultView = ModelView(ioType = "output", superGroups = [props, calcHistory])
+	resultViewIsTwoPhase = ModelView(ioType = "output", superGroups = [props, saturationProps, calcHistory])
 	
 	############# Page structure ########
 	modelBlocks = [inputView, resultView, resultViewIsTwoPhase]
@@ -147,7 +158,28 @@ class FluidProperties(NumericalModel):
 			self.rho_V = satV['rho']
 			self.h_V = satV['h']/1e3
 			self.s_V = satV['s']/1e3
-			
+		
+		db = mongoClient.SmoWeb
+		coll = db.fluidPoints	
+		
+		print self.recordId
+		if (self.recordId != '...'):
+			id = ObjectId(self.recordId)			
+			conf = coll.find_one({"_id": id})
+			if (conf is not None):
+				arr = conf['historyTable']
+				numRows = arr.shape[0]
+				self.historyTable = np.zeros((numRows, 3))
+				self.historyTable[0:numRows] = arr
+				self.historyTable[numRows] = np.array([self.T, self.p, self.h])
+				self.recordId = str(coll.insert({'historyTable': self.historyTable.tolist()}))
+			else: 
+				raise ValueError("Unknown record with id: {0}".format(self.recordId))
+		else:
+			self.historyTable = np.zeros((1, 3))
+			self.historyTable[0] = np.array([self.T, self.p, self.h])
+			self.recordId = str(coll.insert({'historyTable': self.historyTable.tolist()}))
+		 	
 	@staticmethod	
 	def test():
 		fc = FluidProperties()

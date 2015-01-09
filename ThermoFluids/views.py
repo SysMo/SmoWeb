@@ -21,8 +21,9 @@ class FluidPropsCalculatorView(View):
 				context_instance=RequestContext(request))
 	
 	@action('post')	
-	def computeFluidProps(self, model, view, parameters):
+	def computeFluidProps(self, model, view, parameters):		
 		fpc = FluidProperties()
+		print parameters
 		fpc.fieldValuesFromJson(parameters)
 		fpc.compute()
 		if (fpc.isTwoPhase == True):
