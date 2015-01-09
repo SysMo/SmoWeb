@@ -36,7 +36,6 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 		}
 		
 		$scope.createNewTab = function() {
-// 			var newInputCommunicator = jQuery.extend(true, {}, $scope.FluidProperties.inputs[$scope.FluidProperties.inputs.length-1].inputCommunicator);			
 			var newInputCommunicator = angular.copy($scope.FluidProperties.inputs[$scope.FluidProperties.inputs.length-1].inputCommunicator);
 			$scope.FluidProperties.inputs.push({inputCommunicator : newInputCommunicator});			
 			$scope.FluidProperties.results.push({resultsCommunicator: new ModelCommunicator()});
@@ -61,21 +60,20 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 		}
 		
 		// Fluids info		
-		$scope.fluidInfo = {
+		$scope.FluidInfo = {
 			inputCommunicator: new ModelCommunicator()
 		};
 		
-		$scope.fluidInfo.inputCommunicator.fetchData(
+		$scope.FluidInfo.inputCommunicator.fetchData(
 			'getFluidInfo', {}, function(comm){
-				$scope.fluidInfo.selectedFluid = comm.data[0];
+				$scope.FluidInfo.selectedFluid = comm.data[0];
 			});
 		
 		// Saturation properties		
 		$scope.SaturationData = {
-			inputCommunicator: new ModelCommunicator(),
-			
+			inputCommunicator: new ModelCommunicator(),		
 		};
-		
+			
 		$scope.SaturationData.inputCommunicator.fetchData(
 			'getFluidList', {}, function(comm){
 				$scope.SaturationData.selectedFluid = comm.data[0][0];
@@ -140,26 +138,26 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 		<div class="tab-pane page-container" id="fluids">
 {% verbatim %}	
 			<h1 class="title">Fluid information</h1>			
-			<div ng-if="fluidInfo.inputCommunicator.loading" class="alert alert-info" role="alert">Loading...</div>
-			<div ng-if="fluidInfo.inputCommunicator.commError" class="alert alert-danger" role="alert">Communication error: <span ng-bind="fluidInfo.inputCommunicator.errorMsg"></span></div>
-			<div ng-if="fluidInfo.inputCommunicator.serverError" class="alert alert-danger" role="alert">Server error: <span ng-bind="fluidInfo.inputCommunicator.errorMsg"></span></div>
-			<div ng-if="fluidInfo.inputCommunicator.dataReceived">
+			<div ng-if="FluidInfo.inputCommunicator.loading" class="alert alert-info" role="alert">Loading...</div>
+			<div ng-if="FluidInfo.inputCommunicator.commError" class="alert alert-danger" role="alert">Communication error: <span ng-bind="FluidInfo.inputCommunicator.errorMsg"></span></div>
+			<div ng-if="FluidInfo.inputCommunicator.serverError" class="alert alert-danger" role="alert">Server error: <span ng-bind="FluidInfo.inputCommunicator.errorMsg"></span></div>
+			<div ng-if="FluidInfo.inputCommunicator.dataReceived">
 				<div class="section">
 					<div class="field-label">Select a fluid:</div>
 					<div class="field-select choice">
-						<select ng-model="fluidInfo.selectedFluid" ng-options="fluid as fluid.label for fluid in fluidInfo.inputCommunicator.data"></select>
+						<select ng-model="FluidInfo.selectedFluid" ng-options="fluid as fluid.label for fluid in FluidInfo.inputCommunicator.data"></select>
 					</div>
 				</div>
 				
 				<div class="section">
-					<div style="display: inline-block;" ng-repeat="constant in fluidInfo.selectedFluid.constants.definitions[0].groups">
-						<div smo-field-group="constant" view-type="'output'" smo-data-source="fluidInfo.selectedFluid.constants.values">
+					<div style="display: inline-block;" ng-repeat="constant in FluidInfo.selectedFluid.constants.definitions[0].groups">
+						<div smo-field-group="constant" view-type="'output'" smo-data-source="FluidInfo.selectedFluid.constants.values">
 						</div>
 					</div>
 				</div>				
 				<div class="section">
 					<h1>Literature References</h1>				
-					<div ng-repeat="pair in fluidInfo.selectedFluid.references" ng-show="pair[1]">
+					<div ng-repeat="pair in FluidInfo.selectedFluid.references" ng-show="pair[1]">
 						<span class="label-text">{{pair[0]}}:</span> {{pair[1].author}}, <span class="italic-text">{{pair[1].title}}</span>
 					</div>			
 				</div>

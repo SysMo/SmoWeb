@@ -244,7 +244,7 @@ class FluidInfo(NumericalModel):
 			fluidData = {
 				'name': fluid,
 				'label': Fluids[fluid],
-				'constants': fi.superGroupList2Json([fi.constants]),
+				'constants': fi.modelView2Json(fi.resultView),
 				'references': fi.getReferences(fluid)
 			}
 			fluidInformation.append(fluidData)		

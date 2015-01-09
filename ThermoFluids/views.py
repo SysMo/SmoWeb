@@ -16,26 +16,9 @@ mongoClient = MongoClient()
 from smo.media.calculators.FluidPropsCalculator import FluidProperties, FluidInfo, SaturationData
 class FluidPropsCalculatorView(View):
 	modules = [FluidProperties, FluidInfo, SaturationData]
-	appName = "FluidProps"
-	controllerName = "FluidPropsController"
 	def get(self, request):
 		return render_to_response('ThermoFluids/FluidProperties.html', locals(), 
 				context_instance=RequestContext(request))
-	
-# 	@action('post')
-# 	def getInputs(self, parameters):	
-# 		fpc = FluidProperties()
-# 		return fpc.superGroupList2Json([fpc.inputs])
-	
-# 	@action('post')
-# 	def compute(self, parameters):
-# 		fpc = FluidProperties()
-# 		fpc.fieldValuesFromJson(parameters)
-# 		fpc.compute()
-# 		if (fpc.isTwoPhase == True):
-# 			return fpc.superGroupList2Json([fpc.props, fpc.saturationProps])
-# 		else:
-# 			return fpc.superGroupList2Json([fpc.props])
 	
 	@action('post')	
 	def computeFluidProps(self, model, view, parameters):
@@ -49,20 +32,11 @@ class FluidPropsCalculatorView(View):
 	
 	@action('post')
 	def getFluidInfo(self, model, view, parameters):
-		return FluidInfo.getFluidInfo()
+		return FluidInfo.getFluidInfo() 
 	
 	@action('post')
 	def getFluidList(self, model, view, parameters):
 		return FluidInfo.getFluidList()
-	
-# 	@action('post')
-# 	def getSaturationData(self, model, view, parameters):
-# 		sd = SaturationData()
-# 		sd.fieldValuesFromJson(parameters)
-# 		sd.compute()
-# 		print ('here')
-# 		return sd.modelView2Json(view)
-# 		return sd.superGroupList2Json([sd.satSuperGroup])
 
 from smo.flow.FlowResistance import PipeFlow, PipeFlowDoc
 class FlowResistanceView(View):
