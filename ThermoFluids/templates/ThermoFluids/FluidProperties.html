@@ -22,29 +22,29 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 // 			  e.relatedTarget // previous tab
 			});
 		
-		$scope.fluidProps = {
+		$scope.FluidProperties = {
 			inputs: [{inputCommunicator: new ModelCommunicator()}],
 			results: [{resultsCommunicator: new ModelCommunicator()}]
 		};
 		
-		$scope.fluidProps.inputs[0].inputCommunicator.fetchData(
+		$scope.FluidProperties.inputs[0].inputCommunicator.fetchData(
 			'getInputs', {});
 		
 		$scope.compute = function(index) {
-			$scope.fluidProps.results[index].resultsCommunicator.fetchData(
-				'compute', $scope.fluidProps.inputs[index].inputCommunicator.data.values);
+			$scope.FluidProperties.results[index].resultsCommunicator.fetchData(
+				'compute', $scope.FluidProperties.inputs[index].inputCommunicator.data.values);
 		}
 		
 		$scope.createNewTab = function() {
-// 			var newInputCommunicator = jQuery.extend(true, {}, $scope.fluidProps.inputs[$scope.fluidProps.inputs.length-1].inputCommunicator);			
-			var newInputCommunicator = angular.copy($scope.fluidProps.inputs[$scope.fluidProps.inputs.length-1].inputCommunicator);
-			$scope.fluidProps.inputs.push({inputCommunicator : newInputCommunicator});			
-			$scope.fluidProps.results.push({resultsCommunicator: new ModelCommunicator()});
-			$('#FP' + String($scope.fluidProps.inputs.length-1) + 'Tab').tab('show');
+// 			var newInputCommunicator = jQuery.extend(true, {}, $scope.FluidProperties.inputs[$scope.FluidProperties.inputs.length-1].inputCommunicator);			
+			var newInputCommunicator = angular.copy($scope.FluidProperties.inputs[$scope.FluidProperties.inputs.length-1].inputCommunicator);
+			$scope.FluidProperties.inputs.push({inputCommunicator : newInputCommunicator});			
+			$scope.FluidProperties.results.push({resultsCommunicator: new ModelCommunicator()});
+			$('#FP' + String($scope.FluidProperties.inputs.length-1) + 'Tab').tab('show');
 		}
 		
 		$scope.getTabClass = function(index) {		
-			if (index == ($scope.fluidProps.inputs.length-1)) {
+			if (index == ($scope.FluidProperties.inputs.length-1)) {
 				return 'ng-scope active';
 			} else {
 				return 'ng-scope';
@@ -52,12 +52,12 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 		}
 	
 		$scope.delLastTab = function() {
-			if ($scope.fluidProps.inputs.length == 1){
+			if ($scope.FluidProperties.inputs.length == 1){
 				return;
 			}
-			$scope.fluidProps.inputs.pop();
-			$scope.fluidProps.results.pop();
-			$('#FP' + String($scope.fluidProps.inputs.length) + 'Tab').tab('show');
+			$scope.FluidProperties.inputs.pop();
+			$scope.FluidProperties.results.pop();
+			$('#FP' + String($scope.FluidProperties.inputs.length) + 'Tab').tab('show');
 		}
 		
 		// Fluids info		
@@ -71,19 +71,19 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 			});
 		
 		// Saturation properties		
-		$scope.saturation = {
+		$scope.SaturationData = {
 			inputCommunicator: new ModelCommunicator(),
-			resultsCommunicator: new ModelCommunicator()
+			
 		};
 		
-		$scope.saturation.inputCommunicator.fetchData(
+		$scope.SaturationData.inputCommunicator.fetchData(
 			'getFluidList', {}, function(comm){
-				$scope.saturation.selectedFluid = comm.data[0][0];
+				$scope.SaturationData.selectedFluid = comm.data[0][0];
 			});
 		
 		$scope.fetchSaturationData = function (){
-			$scope.saturation.resultsCommunicator.fetchData(
-					'getSaturationData', {fluidName : $scope.saturation.selectedFluid});	
+			$scope.SaturationData.resultViewCommunicator.fetchData(
+					'compute', {fluidName : $scope.SaturationData.selectedFluid});	
 		}
 }])
 </script>
@@ -107,24 +107,24 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 			</div>		
 {% verbatim %}	
 			<ul class="nav nav-tabs" role="tablist" id="FluidPointTabs">
-		  		<li ng-repeat="input in fluidProps.inputs track by $index" ng-class="getTabClass($index)">
+		  		<li ng-repeat="input in FluidProperties.inputs track by $index" ng-class="getTabClass($index)">
 			  		<a ng-attr-id="FP{{$index + 1}}Tab" data-target="#FluidPoint{{$index + 1}}" role="tab" data-toggle="tab" >Fluid point {{$index + 1}}</a>			  		
 		  		</li>
 		  		<li><a><smo-button action="createNewTab()" icon="plus"></a></li>
 		  		<li><a><smo-button action="delLastTab()" icon="minus"></smo-button></a></li>
 			</ul>		
 			<div class="tab-content">
-				<div ng-repeat="input in fluidProps.inputs track by $index" ng-class="'tab-pane '+ getTabClass($index)" id="FluidPoint{{$index + 1}}">					
+				<div ng-repeat="input in FluidProperties.inputs track by $index" ng-class="'tab-pane '+ getTabClass($index)" id="FluidPoint{{$index + 1}}">					
 					<div class="section"> 
-						<div smo-model-view="fluidPropsInputs" view-type="input" communicator="fluidProps.inputs[$index].inputCommunicator"></div>
+						<div smo-model-view="inputView" model-name="FluidProperties" view-type="input" auto-fetch="true" record-Id=""></div>
 					</div>
 					<div class="section"> 		
-						<div ng-show="fluidProps.inputs[$index].inputCommunicator.dataReceived"><button ng-disabled="!fluidProps.inputs[$index].inputCommunicator.fieldsValid" 
+						<div ng-show="FluidProperties.inputs[$index].inputCommunicator.dataReceived"><button ng-disabled="!FluidProperties.inputs[$index].inputCommunicator.fieldsValid" 
 							 class="btn btn-primary" ng-click="compute($index)">Compute</button>
 						</div>
 					</div>
 					<div class="section"> 
-						<div smo-model-view="fluidPropsResults" view-type="output" communicator="fluidProps.results[$index].resultsCommunicator"></div>
+						<div smo-model-view="resultView" model-name="FluidProperties" view-type="output" record-Id=""></div>
 					</div>
 					
 										
@@ -134,7 +134,7 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 		</div>
 		<div class="tab-pane" id="doc">
 			<div class="docview">
-				{% include 'documentation/html/FluidPropsCalculator.html' %}
+				{% include 'documentation/html/FluidPropertiesDoc.html' %}
 			</div>
 		</div>
 		<div class="tab-pane page-container" id="fluids">
@@ -169,25 +169,22 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 {% endverbatim %}
 		<div class="tab-pane page-container" id="saturation">
 			<h1 class="title">Saturation</h1>
-			<div ng-if="saturation.inputCommunicator.loading" class="alert alert-info" role="alert">Loading...</div>
-			<div ng-if="saturation.inputCommunicator.commError" class="alert alert-danger" role="alert">Communication error: <span ng-bind="saturation.inputCommunicator.errorMsg"></span></div>
-			<div ng-if="saturation.inputCommunicator.serverError" class="alert alert-danger" role="alert">Server error: <span ng-bind="saturation.inputCommunicator.errorMsg"></span></div>
-			<div ng-if="saturation.inputCommunicator.dataReceived">						
+			<div ng-if="SaturationData.inputCommunicator.loading" class="alert alert-info" role="alert">Loading...</div>
+			<div ng-if="SaturationData.inputCommunicator.commError" class="alert alert-danger" role="alert">Communication error: <span ng-bind="SaturationData.inputCommunicator.errorMsg"></span></div>
+			<div ng-if="SaturationData.inputCommunicator.serverError" class="alert alert-danger" role="alert">Server error: <span ng-bind="SaturationData.inputCommunicator.errorMsg"></span></div>
+			<div ng-if="SaturationData.inputCommunicator.dataReceived">						
 				<div class="section">
 					<div class="field-label">Select a fluid:</div>
 					<div class="field-select choice">
-						<select ng-model="saturation.selectedFluid" ng-options="pair[0] as pair[1] for pair in saturation.inputCommunicator.data"></select>
+						<select ng-model="SaturationData.selectedFluid" ng-options="pair[0] as pair[1] for pair in SaturationData.inputCommunicator.data"></select>
 					</div>
 					<div class="field-select choice" style="margin-left: 5px;">
 						<button class="btn btn-primary" ng-click="fetchSaturationData()">Go!</button>
 					</div>
+					
+					<div smo-model-view="resultView" model-name="SaturationData" view-type="output" record-Id=""></div>
+					
 				</div>
-			</div>
-			<div ng-if="saturation.resultsCommunicator.loading" class="alert alert-info" role="alert">Loading...</div>
-			<div ng-if="saturation.resultsCommunicator.commError" class="alert alert-danger" role="alert">Communication error: <span ng-bind="saturation.resultsCommunicator.errorMsg"></span></div>
-			<div ng-if="saturation.resultsCommunicator.serverError" class="alert alert-danger" role="alert">Server error: <span ng-bind="saturation.resultsCommunicator.errorMsg"></span></div>
-			<div ng-if="saturation.resultsCommunicator.dataReceived">
-				<div smo-model-view="satView" view-type="input" communicator="saturation.resultsCommunicator"></div>
 			</div>
 		</div>
 	</div>
