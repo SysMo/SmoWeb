@@ -2,7 +2,7 @@ import numpy as np
 from smo.model.model import NumericalModel
 from smo.model.fields import *
 from smo.media.CoolProp.CoolProp import Fluid, FluidState
-from smo.media.SimpleMaterials import Fluids
+from smo.media.MaterialData import Fluids
 
 class GasConduction(NumericalModel):
 	fluidName = Choices(Fluids, default = 'Helium', label = 'fluid')

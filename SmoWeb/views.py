@@ -15,7 +15,7 @@ class unitConverterView(View):
 		return render_to_response('UnitConverter.html', locals(), 
 				context_instance=RequestContext(request))
 		
-	@action('post')
+	@action.post()
 	def getQuantities(self, parameters):
 		return Quantities
 

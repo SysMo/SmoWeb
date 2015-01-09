@@ -1,5 +1,6 @@
-import json
 from django.http import JsonResponse
+from django.shortcuts import render_to_response, RequestContext
+import json
 import traceback
 import logging
 logger = logging.getLogger('django.request.smo.view')
@@ -8,26 +9,26 @@ from pymongo import MongoClient
 from bson.objectid import ObjectId
 mongoClient = MongoClient()
 
-class SmoJsonResponse(object):
-	def __enter__(self):
-		self.exceptionThrown = False
-		return self
-	
-	def __exit__(self, type, value, traceback):
-		if (value is not None):
-			self.exceptionThrown = True
-			self.response = {}
-			self.response['errStatus'] = True
-			self.response['error'] = str(value)
-		return True
-	
-	def set(self, response):
-		if (not self.exceptionThrown):
-			self.response = response
-			self.response['errStatus'] = False
-	
-	def json(self):
-		return JsonResponse(self.response)
+# class SmoJsonResponse(object):
+# 	def __enter__(self):
+# 		self.exceptionThrown = False
+# 		return self
+# 	
+# 	def __exit__(self, type, value, traceback):
+# 		if (value is not None):
+# 			self.exceptionThrown = True
+# 			self.response = {}
+# 			self.response['errStatus'] = True
+# 			self.response['error'] = str(value)
+# 		return True
+# 	
+# 	def set(self, response):
+# 		if (not self.exceptionThrown):
+# 			self.response = response
+# 			self.response['errStatus'] = False
+# 	
+# 	def json(self):
+# 		return JsonResponse(self.response)
 
 class Action(object):
 	def __init__(self, func):
@@ -37,23 +38,16 @@ class Action(object):
 		result = self.func(*args, **kwargs)
 		return result
 
-class GetAction(Action):
-	pass
-
 class PostAction(Action):
 	pass
 
-def action(actionType):
-	def getActionDecorator(func):
-		return GetAction(func)
-	def postActionDecorator(func):
-		return PostAction(func)
-	if (actionType == 'get'):
-		return getActionDecorator
-	elif (actionType == 'post'):
+
+class action(object):
+	@staticmethod
+	def post(**kwargs):
+		def postActionDecorator(func):
+			return PostAction(func)
 		return postActionDecorator
-	else:
-		raise TypeError('Unknown action type: {0}'.format(actionType))
 
 class View(object):
 	jsLibraries = {
@@ -61,24 +55,25 @@ class View(object):
 		'dygraphExport': 'http://cavorite.com/labs/js/dygraphs-export/dygraph-extra.js',
 		'GoogleAPI': 'https://www.google.com/jsapi',
 	}
+	template = 'ModelViewTemplate.html'
 	def __new__(cls, *args, **kwargs):
-		instance = object.__new__(cls)
-		instance._getActions = {}
-		instance._postActions = {}
+		self = object.__new__(cls)
+		self._getActions = {}
+		self._postActions = {}
 		
 		for c in reversed(cls.__mro__):
 			for key, value in c.__dict__.iteritems():
-				if (isinstance(value, GetAction)):
-					instance._getActions[key] = value
-				elif (isinstance(value, PostAction)):
-					instance._postActions[key] = value
-		return instance
+# 				if (isinstance(value, GetAction)):
+# 					self._getActions[key] = value
+				if (isinstance(value, PostAction)):
+					self._postActions[key] = value
+		return self
 	
-	def execGetAction(self, actionName, parameters):
-		if (actionName in self._getActions.keys()):
-			return self._getActions[actionName](self, parameters)
-		else:
-			raise NameError('No GET action with name {0}'.format(actionName))
+# 	def execGetAction(self, actionName, parameters):
+# 		if (actionName in self._getActions.keys()):
+# 			return self._getActions[actionName](self, parameters)
+# 		else:
+# 			raise NameError('No GET action with name {0}'.format(actionName))
 	
 	def execPostAction(self, actionName, model, view, parameters):
 		response = {}
@@ -95,9 +90,77 @@ class View(object):
 			response['error'] = 'No POST action with name {0}'.format(actionName)
 		return JsonResponse(response)
 	
-	@action('post')
+	def get(self, request):
+		parameters = request.GET
+		modelView = None
+		self.recordIdDict = {}
+		print ('In get')
+		if ('model' in parameters):
+			modelName = parameters['model']
+			# find the active module 
+			for module in self.modules:
+				if (module.__name__ == modelName):
+					self.activeModule = module
+					break
+			if (self.activeModule is None):
+				raise ValueError("Unknown module {0}".format(modelName))
+			else:
+				if ('view' in parameters):
+					# find the active view
+					viewName = parameters['view']
+					for block in self.activeModule.modelBlocks:
+						if (block.name == viewName):
+							modelView = block
+							break
+						if (modelView is None):
+							raise ValueError("Unknown view {0} in module {1}".format(viewName, modelName))
+					if ('id' in parameters):
+						recordId = parameters['id']
+						self.recordIdDict[modelView] = recordId
+		else:
+			print ('Has modules', hasattr(self, 'modules'))
+			if (hasattr(self, 'modules') and len(self.modules) > 0):
+				self.activeModule = self.modules[0]
+
+		return render_to_response(self.template, {"view": self}, 
+						context_instance=RequestContext(request))
+	
+	def post(self, request):
+		postData = json.loads(request.body)
+		action = postData['action']
+		data = postData['data']
+		# Get the action parameters
+		parameters = {}
+		if ('parameters' in data):
+			parameters = data['parameters']
+		
+		# Get the calling model view  
+		model = None
+		if ("modelName" in data):
+			modelName = data['modelName']
+			for module in self.modules:
+				if (module.name == modelName):
+					model = module
+			if (model is None):
+				raise ValueError("Unknown model {0}".format(modelName))
+
+		modelView = None
+		if (model is not None and "viewName" in data):
+			viewName = data['viewName']
+			for block in model.modelBlocks:
+				if (block.name == viewName):
+					modelView = block
+			if (modelView is None):
+				raise ValueError("Unknown model view {0}.{1}".format(modelName, viewName))
+		
+		logger.debug('Action: ' + action)
+		logger.debug('Parameters: ' + json.dumps(parameters))
+		return self.execPostAction(action, model, modelView, parameters)
+		
+	
+	@action.post()
 	def load(self, model, view, parameters):
-		instance = model()
+		self = model()
 		
 		if 'recordId' in parameters:
 			recordId = parameters['recordId']
@@ -106,114 +169,37 @@ class View(object):
 			coll = db.savedInputs
 			conf = coll.find_one({'_id': id})
 			if (conf is not None):
-				instance.fieldValuesFromJson(conf['values'])
+				self.fieldValuesFromJson(conf['values'])
 			else: 
 				raise ValueError("Unknown record with id: {0}".format(recordId))
-		return instance.modelView2Json(view)
+		return self.modelView2Json(view)
 		
-	@action('post')
+	@action.post()
 	def compute(self, model, view, parameters):
-		instance = model()
-		instance.fieldValuesFromJson(parameters)
-		instance.compute()
-		return instance.modelView2Json(view)
+		self = model()
+		self.fieldValuesFromJson(parameters)
+		self.compute()
+		return self.modelView2Json(view)
 	
-	@action('post')
+	@action.post()
 	def save(self, model, view, parameters):
-		instance = model()
-		instance.fieldValuesFromJson(parameters)
+		self = model()
+		self.fieldValuesFromJson(parameters)
 		db = mongoClient.SmoWeb
 		coll = db.savedInputs
-		id = coll.insert(instance.modelView2Json(view))
+		id = coll.insert(self.modelView2Json(view))
 		return {'model': model.name, 'view': view.name, 'id' : str(id)}		
 	
 	@classmethod
 	def asView(cls):
 		def view(request):
-			instance = cls()
+			self = cls()
 			if request.method == 'GET':
 				logger.debug('GET ' + request.path)
-				if ('get' in cls.__dict__):
-					
-					parameters = request.GET
-		
-					modelName = None
-					viewName = None
-					recordId = None
-					
-					if ('model' in parameters):
-						modelName = parameters['model']
-					if ('view' in parameters):
-						viewName = parameters['view']
-					if ('id' in parameters):
-						recordId = parameters['id']
-					
-					instance.activeModule = None
-					instance.recordIdDict = None
-					
-					if (modelName is not None) and (viewName is not None) and (recordId is not None):
-						for module in instance.modules:
-							if (module.__name__ == modelName):
-								instance.activeModule = module
-						if (instance.activeModule is None):
-							raise ValueError("Unknown model {0}".format(modelName))	
-						
-						id = ObjectId(recordId)
-						db = mongoClient.SmoWeb
-						coll = db.savedInputs
-						conf = coll.find_one({'_id': id})
-						if (conf is None):
-							raise ValueError("Unknown record with id: {0}".format(recordId))
-						
-						for view in instance.activeModule.modelBlocks:
-							if (view.name == viewName):
-								instance.recordIdDict = {view : recordId}
-						if (instance.recordIdDict is None):
-							raise ValueError("Unknown view {0}".format(viewName))
-						print (instance.activeModule == instance.modules[0])
-					elif (modelName is None) and (viewName is None) and (recordId is None):
-						instance.activeModule = instance.modules[0]
-						instance.recordIdDict = {}
-					else:		
-						raise ValueError("GET parameters should be 'model' and 'view' and 'id'")
-					return instance.get(request)
-				else:
-					raise NotImplementedError(
-						'View {0} can not serve GET request'.format(cls.__name__))
+				return self.get(request)
 			elif request.method == 'POST':
 				logger.debug('POST ' + request.path)
-				if ('post' in cls.__dict__):
-					return instance.post(request)
-				else:
-					postData = json.loads(request.body)
-					action = postData['action']
-					data = postData['data']
-					
-					# Get the model and view calling 
-					model = None
-					if ("modelName" in data):
-						modelName = data['modelName']
-						for module in instance.modules:
-							if (module.name == modelName):
-								model = module
-						if (model is None):
-							raise ValueError("Unknown model {0}".format(modelName))
-
-					view = None
-					if (model is not None and "viewName" in data):
-						viewName = data['viewName']
-						for modelView in model.modelBlocks:
-							if (modelView.name == viewName):
-								view = modelView
-						if (view is None):
-							raise ValueError("Unknown model view {0}.{1}".format(modelName, viewName))
-					
-					parameters = {}
-					if ('parameters' in data):
-						parameters = data['parameters']
-					logger.debug('Action: ' + action)
-					logger.debug('Parameters: ' + json.dumps(parameters))
-					return instance.execPostAction(action, model, view, parameters)
+				return self.post(request)
 			else:
 				raise ValueError('Only GET and POST requests can be served')
 				

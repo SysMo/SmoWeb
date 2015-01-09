@@ -25,13 +25,13 @@ class TemporaryObjectsHash:
 		self.klass = klass
 		self.collection = {}
 		
-	def push(self, instance, key = None):
-		if (not isinstance(instance, self.klass)):
-			raise TypeError('Attempt to add instance of type ' + type(instance)
+	def push(self, obj, key = None):
+		if (not isinstance(obj, self.klass)):
+			raise TypeError('Attempt to add self of type ' + type(obj)
 					+ ' to collection of type ' + self.klass)
 		if (key == None):
 			key = uuid.uuid4().hex
-		self.collection[key] = instance
+		self.collection[key] = obj
 		return key
 	
 	def get(self, key):

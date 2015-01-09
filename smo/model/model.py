@@ -71,15 +71,15 @@ class NumericalModel(object):
 	def __new__(cls, *args, **kwargs):
 		"""Constructor for all numerical models. 
 		Sets default values for all model fields"""
-		instance = object.__new__(cls)
-		for name, field in instance.declared_fields.iteritems():
+		self = object.__new__(cls)
+		for name, field in self.declared_fields.iteritems():
 			if (isinstance(object, fields.RecordArray)):
-				instance.__setattr__(name, field.default.copy())
+				self.__setattr__(name, field.default.copy())
 			else:
-				instance.__setattr__(name, field.default)  
+				self.__setattr__(name, field.default)  
 		for name, value in kwargs.iteritems():
-			instance.__setattr__(name, value)
-		return instance
+			self.__setattr__(name, value)
+		return self
 	
 	def __setattr__(self, name, value):
 		"""Sets field value using the :func:`Field.parseValue` method"""

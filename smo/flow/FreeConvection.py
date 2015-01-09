@@ -7,7 +7,7 @@ from smo.model.model import NumericalModel, ModelView, ModelDocumentation
 from smo.model.actions import ServerAction, ActionBar
 from smo.model.fields import *
 import numpy as np
-from smo.media.SimpleMaterials import Fluids
+from smo.media.MaterialData import Fluids
 from smo.media.CoolProp.CoolProp import Fluid, FluidState
 from collections import OrderedDict
 

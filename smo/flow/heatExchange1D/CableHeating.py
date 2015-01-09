@@ -148,7 +148,7 @@ class CableHeatingSolver(object):
 from smo.model.actions import ServerAction, ActionBar
 from smo.model.model import NumericalModel, ModelView, ModelDocumentation
 from smo.model.fields import *
-from smo.media.SimpleMaterials import Solids
+from smo.media.MaterialData import Solids
 
 BoundaryConditionChoice = OrderedDict((
 	('T', 'temperature'),

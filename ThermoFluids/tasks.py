@@ -11,7 +11,7 @@ from celery import shared_task
 
 @shared_task(bind = True)
 def Celery_compute(self, cls, parameters):
-	instance = cls()
-	instance.fieldValuesFromJson(parameters)
-	instance.compute()
-	return instance.superGroupList2Json(instance.results)
+	self = cls()
+	self.fieldValuesFromJson(parameters)
+	self.compute()
+	return self.superGroupList2Json(self.results)

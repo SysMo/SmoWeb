@@ -8,7 +8,7 @@ from smo.media.CoolProp.CoolProp import FluidState
 from smo.model.model import NumericalModel, ModelView, ModelDocumentation
 from smo.model.actions import ServerAction, ActionBar
 from smo.model.fields import *
-from smo.media.SimpleMaterials import Solids, Fluids
+from smo.media.MaterialData import Solids, Fluids
 import json
 
 class PipeFlow(NumericalModel):
@@ -35,7 +35,7 @@ class PipeFlow(NumericalModel):
 	inputs = SuperGroup([geometryInput, flowInput], label = 'Input data')
 	
 	# Actions
-	computeAction = ServerAction("computeFlowResistance", label = "Compute", outputView = 'resultView')
+	computeAction = ServerAction("compute", label = "Compute", outputView = 'resultView')
 	inputActionBar = ActionBar([computeAction], save = True)
 	
 	# Model view
@@ -75,6 +75,10 @@ class PipeFlow(NumericalModel):
 	modelBlocks = [inputView, resultView]
 
 	############# Methods ###############
+	def compute(self):
+		self.computeGeometry()
+		self.computePressureDrop()
+		
 	def computeGeometry(self):
 		if (self.externalDiameter <= self.internalDiameter):
 			raise ValueError('External diameter value must be bigger than internal diameter value.')

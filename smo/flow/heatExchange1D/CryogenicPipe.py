@@ -20,9 +20,12 @@ class DictObject(object):
 			self.__dict__[key] = value
 
 class CryogenicPipeSolver(object):
-	def __init__(self, TAmb):
+	def __init__(self, TAmb, thermalConductivityModel):
 		self.BCs = (None, None)
 		self.TAmb = TAmb
+		self.conduction = {
+			'model': thermalConductivityModel
+		}
 		self.radiation = {
 			'active' : False,
 		}
@@ -32,8 +35,8 @@ class CryogenicPipeSolver(object):
 			'maxIterations': 1000,
 			'relaxationFactor': 1.0
 		}
-		material = Solids['StainlessSteel304']
-		self.thermCondModel = interp1d(material['thermalCond_T']['T'], material['thermalCond_T']['cond'])
+		#material = Solids['StainlessSteel304']
+		#self.thermCondModel = interp1d(material['thermalCond_T']['T'], material['thermalCond_T']['cond'])
 		#emissivityData = material['emissivity_T']['unfinishedSurface']
 		#self.emissivityModel = interp1d(emissivityData['T'], emissivityData['epsilon'])
 		
@@ -146,7 +149,7 @@ class CryogenicPipeSolver(object):
 			self.QRight = []
 			while (res > self.solverSettings['tolerance'] and sweep < self.solverSettings['maxIterations']):
 				# Compute temperature dependent thermal conductivity 
-				self.thermCond.setValue(self.thermCondModel(TFaces))
+				self.thermCond.setValue(self.conduction['model'](TFaces))
 				# Add the conductivity term to the equation					
 				eqX = fp.DiffusionTerm(coeff = self.thermCond)
 				if (self.radiation['active']):
@@ -177,8 +180,8 @@ class CryogenicPipeSolver(object):
 	
 from smo.model.model import NumericalModel, ModelView, ModelDocumentation
 from smo.model.fields import *
-from smo.media.SimpleMaterials import Solids
 from smo.model.actions import ServerAction, ActionBar
+from smo.media.MaterialData import Solids, Fluids
 
 BoundaryConditionChoice = OrderedDict((
 	('T', 'temperature'),
@@ -199,21 +202,19 @@ class CryogenicPipe(NumericalModel):
 	# 1.1 Input values
 	d_int = Quantity('Length', default = (5, 'mm'), label = 'internal diameter')
 	d_ext = Quantity('Length', default = (10, 'mm'), label = 'external diameter')
-	L = Quantity('Length', default = (1, 'm'), label = 'length')
 	sections = RecordArray(OrderedDict((
 			('length', Quantity('Length', default = (1, 'm'), label = 'length')),
 			('emissivity1', Quantity(default = 0.036, label = 'emissivity 1')),
 			('temperature1', Quantity('Temperature', default = (40, 'K'), label = 'temperature 1')),
 			('emissivity2', Quantity(default = 0.1385, label = 'emissivity 2')),
-			('temperature2', Quantity('Temperature', default = (300, 'K'), label = 'temperature 2')),
+			('temperature2', Quantity('Temperature', default = (288, 'K'), label = 'temperature 2')),
 			('meshSize', Quantity('Length', default = (5, 'mm'), label = 'meshSize')),
 		)), label = 'sections')
-	#thermalCond = Quantity('ThermalConductivity', default = 401, label = 'thermal conductivity')
-	#emissivity = Quantity(default = 0.5, minValue = 0, maxValue=1.0, label = 'emissivity', show = 'self.computeRadiation')
-	g1 = FieldGroup([d_int, d_ext, L, sections], label = 'Pipe')
+	pipeMaterial = ObjectReference(Solids, default = 'StainlessSteel304', label = 'pipe material')
+	g1 = FieldGroup([d_int, d_ext, sections, pipeMaterial], label = 'Pipe')
 	
 	bcLeft = Choices(BoundaryConditionChoice, label='boundary condition (left)')
-	TLeftInput = Quantity('Temperature', default = (300, 'K'), label = 'temperature (left)', show = 'self.bcLeft == "T"')
+	TLeftInput = Quantity('Temperature', default = (288, 'K'), label = 'temperature (left)', show = 'self.bcLeft == "T"')
 	QLeftInput = Quantity('HeatFlowRate', default = (0, 'W'), minValue = -1e99, maxValue = 1e99, 
 			label = 'heat flow (left)', show = 'self.bcLeft == "Q"')
 	bcRight = Choices(BoundaryConditionChoice, label='boundary condition (right)')
@@ -221,20 +222,25 @@ class CryogenicPipe(NumericalModel):
 	QRightInput = Quantity('HeatFlowRate', default = (0, 'W'), minValue = -1e99, maxValue = 1e99, 
 			label = 'heat flow (right)', show = 'self.bcRight == "Q"')
 	computeRadiation = Boolean(default = True, label = 'compute radiation')
-	TAmb = Quantity('Temperature', default = (300, 'K'), label = 'ambient temperature', show = 'self.computeRadiation')
+	TAmb = Quantity('Temperature', default = (288, 'K'), label = 'ambient temperature', show = 'self.computeRadiation')
 	g2 = FieldGroup([bcLeft, TLeftInput, QLeftInput, bcRight, TRightInput, QRightInput, computeRadiation, TAmb], label = 'Boundary conditions')
 	
 	inputValues = SuperGroup([g1, g2], label = 'Input values')
 	
 	# 1.2 Settings
-	n = Quantity(default = 50, minValue = 10, maxValue = 1000, label = 'num. mesh elements')
-	s1 = FieldGroup([n], label = 'Mesh')
+	#n = Quantity(default = 50, minValue = 10, maxValue = 1000, label = 'num. mesh elements')
+	#s1 = FieldGroup([n], label = 'Mesh')
 	
 	maxNumIter = Quantity(default = 100, minValue = 20, maxValue=500, label = 'max num. iterations')
 	absTolerance = Quantity(default = 1e-6, label = 'absolute tolerance')
 	relaxationFactor = Quantity(default = 0.99, maxValue = 2.0, label = 'relaxation factor')
-	s2 = FieldGroup([maxNumIter, absTolerance, relaxationFactor], label = 'Solver')
+	s1 = FieldGroup([maxNumIter, absTolerance, relaxationFactor], label = 'Solver')
 	
+	testPoints = RecordArray(OrderedDict((
+			('xPosition',  Quantity('Length', label = 'x position')),
+	)), label = 'test points')
+	s2 = FieldGroup([testPoints], label = 'Post-processing')
+
 	settings = SuperGroup([s1, s2], label = 'Settings')
 
 	# 1.3 Actions
@@ -257,13 +263,7 @@ class CryogenicPipe(NumericalModel):
 	r1 = FieldGroup([AcsMult, As, TLeft, QLeft, TRight, QRight, QRadSum], label = 'Results') 
 	r1g = SuperGroup([r1], label = 'Values')
 
-	# 2.2 Material properties
-	cond_T = PlotView(label = 'Conductivity pipe', dataLabels = ['temperature [K]', 'thermal conductivity [W/m-K]'])
-	emiss_T = PlotView(label = 'Emissivity', dataLabels = ['temperature [K]', 'emissivity [-]'])
-	r2 = ViewGroup([cond_T, emiss_T], label = 'Material properties')
-	r2g = SuperGroup([r2], label = 'Material properties')
-
-	# 2.3 Distributions
+	# 2.2 Distributions
 	T_x = PlotView(label = 'Temperature', dataLabels = ['x position [m]', 'temperature [K]'])
 	QAx_x = PlotView(label = 'Axial heat flow', dataLabels = ['x position [m]', 'heat flow [W]'])
 	QRad_x = PlotView(label = 'Radiation flux', dataLabels = ['x position [m]', 'flux density [W/m]'])
@@ -271,9 +271,17 @@ class CryogenicPipe(NumericalModel):
 	emiss_x = PlotView(label = 'Emissivity', dataLabels = ['x position [m]', 'emissivity [-]'])
 	table_x = TableView(label = 'Distributions (table)', dataLabels = ['x position [m]', 'temperature [K]', 'heat flow [W]'],
 			options = {'formats': ['0.000', '0.00', '0.000E00'] })
-	r3 = ViewGroup([T_x, QAx_x, QRad_x, cond_x, emiss_x, table_x], label =  'Distributions')
-	r3g = SuperGroup([r3], label = 'Distributions')
+	testPointResults = TableView(label = 'Test points', dataLabels = ['x position [m]', 'temperature [K]'],
+			options = {'formats': ['0.000', '0.00']}) 
+	r2 = ViewGroup([T_x, QAx_x, QRad_x, cond_x, emiss_x, table_x, testPointResults], label =  'Distributions')
+	r2g = SuperGroup([r2], label = 'Distributions')
 	
+	# 2.2 Material properties
+	cond_T = PlotView(label = 'Conductivity pipe', dataLabels = ['temperature [K]', 'thermal conductivity [W/m-K]'])
+	#emiss_T = PlotView(label = 'Emissivity', dataLabels = ['temperature [K]', 'emissivity [-]'])
+	r3 = ViewGroup([cond_T], label = 'Material properties')
+	r3g = SuperGroup([r3], label = 'Material properties')
+
 	# 2.4 Residuals 
 	residualPlot = PlotView(label = 'Residual (plot)', dataLabels = ['iteration #', 'residual'], ylog = True)
 	residualTable = TableView(label = 'Residual (table)', dataLabels = ['residual', 'TLeft', 'TRight'], 
@@ -289,12 +297,17 @@ class CryogenicPipe(NumericalModel):
 	
 	############# Methods ###############
 	def compute(self):
+		# Initial checks
+		if ('thermalCond_T' not in Solids[self.pipeMaterial['_key']]):
+			raise ValueError("Material {0} doesn't have a model for temperature-dependent conductivity".format(self.pipeMaterial['label']))
+			
 		self.AcsMult = np.pi/4 * (self.d_ext * self.d_ext - self.d_int * self.d_int)
 		self.As = np.pi * self.d_ext
 		
-		# Create the thermal model object
-		model = CryogenicPipeSolver(self.TAmb)
-		#model.thermalCond = self.thermalCond
+		# Create the thermal solver object and set the object calculating thermal conductivity
+		model = CryogenicPipeSolver(self.TAmb, 
+			thermalConductivityModel = interp1d(self.pipeMaterial['thermalCond_T']['T'], self.pipeMaterial['thermalCond_T']['cond'])
+		)
 		# Create mesh
 		model.createLinearMesh(sections = self.sections, Acs = self.AcsMult, As = self.As)
 		# Set boundary conditions
@@ -324,7 +337,7 @@ class CryogenicPipe(NumericalModel):
 		# Conduction vs. T
 		self.cond_T = np.zeros((100, 2))
 		self.cond_T[:, 0] = TRange
-		self.cond_T[:, 1] = model.thermCondModel(TRange)
+		self.cond_T[:, 1] = model.conduction["model"](TRange)
 		# Emissivity vs. T
 #		self.emiss_T = np.zeros((100, 2))
 #		self.emiss_T[:, 0] = TRange
@@ -365,6 +378,11 @@ class CryogenicPipe(NumericalModel):
 		self.table_x[:, 0] = faceCenters
 		self.table_x[:, 1] = model.T.arithmeticFaceValue()
 		self.table_x[:, 2] = model.QAx
+		
+		# Table with test points
+		self.testPointResults = np.zeros((len(self.testPoints), 2))
+		self.testPointResults[:, 0] = self.testPoints['xPosition']
+		self.testPointResults[:, 1] = model.T((self.testPoints['xPosition'],))
 		
 		# Convergence 
 		numIter = len(model.resVector)

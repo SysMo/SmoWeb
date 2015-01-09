@@ -13,6 +13,6 @@ urlpatterns = patterns('',
     url(r'^FreeConvection/', views.FreeConvectionView.asView(), name='FreeConvection'),
 	url(r'^TestView/', views.TestView.asView(), name='testView'),
 	url(r'^HeatExchange1D/', views.HeatExchange1DView.asView(), name='HeatExchange1D'),
-	url(r'^CryogenicInsulation/', views.CryogenicInsulation.asView(), name='CryogenicInsulation'),
+#	url(r'^CryogenicInsulation/', views.CryogenicInsulation.asView(), name='CryogenicInsulation'),
     url(r'^ExampleView/', views.ExampleView.asView(), name='exampleView'),
 )

@@ -8,7 +8,7 @@ from smo.media.CoolProp.CoolProp import FluidState, Fluid
 from smo.model.model import NumericalModel, ModelView, ModelDocumentation
 from smo.model.actions import ServerAction, ActionBar
 from smo.model.fields import *
-from smo.media.SimpleMaterials import Fluids
+from smo.media.MaterialData import Fluids
 from collections import OrderedDict
 
 # class ThermodynamicTransition(object):

@@ -7,7 +7,7 @@ Created on Jan 5, 2015
 import numpy as np
 from smo.model.model import NumericalModel
 from smo.model.fields import *
-from smo.media.SimpleMaterials import Solids
+from smo.media.MaterialData import Solids
 from collections import OrderedDict
 import fipy as fp
 from fipy.solvers.pysparse import LinearLUSolver

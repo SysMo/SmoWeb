@@ -1,7 +1,7 @@
 from smo.model.model import NumericalModel
 from smo.model.fields import *
 import numpy as np
-from smo.media.SimpleMaterials import Fluids
+from smo.media.MaterialData import Fluids
 from smo.media.CoolProp.CoolProp import Fluid, FluidState
 from collections import OrderedDict
 
