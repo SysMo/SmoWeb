@@ -4,11 +4,16 @@ Created on Nov 05, 2014
 '''
 import numpy as np
 from collections import OrderedDict
-from smo.model.model import NumericalModel 
+from smo.model.model import NumericalModel, ModelView, ModelDocumentation
+from smo.model.actions import ServerAction, ActionBar
 from smo.model.fields import *
 from smo.media.CoolProp.CoolProp import Fluid, FluidState
 from smo.media.MaterialData import Fluids
 from smo.media.CoolProp.CoolPropReferences import References
+
+from pymongo import MongoClient
+from bson.objectid import ObjectId
+mongoClient = MongoClient()
 
 StateVariableOptions = OrderedDict((
 	('P', 'pressure (P)'),
@@ -29,7 +34,13 @@ referenceKeys = OrderedDict((
 	('SURFACE_TENSION', 'Surface Tension')
 	))
 
-class FluidPropsCalculator(NumericalModel):
+class FluidProperties(NumericalModel):
+	name = "FluidProperties"
+	label = "Fluid Properties"
+	
+	############# Inputs ###############
+	# Fields
+	recordId = String()
 	fluidName = Choices(Fluids, default = 'ParaHydrogen', label = 'fluid')	
 	stateVariable1 = Choices(options = StateVariableOptions, default = 'P', label = 'first state variable')
 	p1 = Quantity('Pressure', default = (1, 'bar'), label = 'pressure', show="self.stateVariable1 == 'P'")
@@ -46,10 +57,21 @@ class FluidPropsCalculator(NumericalModel):
 	s2 = Quantity('SpecificEntropy', default = (100, 'kJ/kg-K'), label = 'specific entropy', show="self.stateVariable2 == 'S'")
 	q2 = Quantity('VaporQuality', default = (1, '-'), minValue = 0, maxValue = 1, label = 'vapour quality', show="self.stateVariable2 == 'Q'")
 	####
-	stateGroup1 = FieldGroup([fluidName], label = 'Fluid')
+	stateGroup1 = FieldGroup([recordId, fluidName], label = 'Fluid')
 	stateGroup2 = FieldGroup([stateVariable1, p1, T1, rho1, h1, s1, q1, stateVariable2, p2, T2, rho2, h2, s2, q2], label = 'States')
 	inputs = SuperGroup([stateGroup1, stateGroup2])
-	####
+	
+	# Actions
+	computeAction = ServerAction("computeFluidProps", label = "Compute", outputView = 'resultView')
+	computeSaveAction = ServerAction("computeFluidProps", label = "Compute & Save", outputView = 'resultView')
+	inputActionBar = ActionBar([computeAction, computeSaveAction], save = True)
+	
+	# Model view
+	inputView = ModelView(ioType = "input", superGroups = [inputs], 
+		actionBar = inputActionBar, autoFetch = True)
+	
+	############# Results ###############
+	# Fields
 	T = Quantity('Temperature', label = 'temperature')
 	p = Quantity('Pressure', label = 'pressure')
 	rho = Quantity('Density', label = 'density')
@@ -71,7 +93,7 @@ class FluidPropsCalculator(NumericalModel):
 	#####
 	stateVariablesResults = FieldGroup([T, p, rho, h, s, q, u], label = 'States')
 	derivativeResults = FieldGroup([cp, cv, gamma, Pr, cond, mu, dpdt_v, dpdv_t], label = 'Derivatives & Transport')
-	props = SuperGroup([stateVariablesResults, derivativeResults], label = "Propeties")
+	props = SuperGroup([stateVariablesResults, derivativeResults], label = "Properties")
 	#####
 	rho_L = Quantity('Density', label = 'density')
 	h_L = Quantity('SpecificEnthalpy', label = 'specific enthalpy')
@@ -81,11 +103,24 @@ class FluidPropsCalculator(NumericalModel):
 	h_V = Quantity('SpecificEnthalpy', label = 'specific enthalpy')
 	s_V = Quantity('SpecificEntropy', label = 'specific entropy')
 	#####
+	historyTable = TableView(label = 'Summary', dataLabels = ['T[K]', 'p[bar]', 'h[J/kg]'], 
+			options = {'formats': ['0.0000E0', '0.000', '0.000']})
+	#####
 	isTwoPhase = Boolean(label = 'is two phase')
 	liquidResults = FieldGroup([rho_L, h_L, s_L], label="Liquid")
 	vaporResults = FieldGroup([rho_V, h_V, s_V], label="Vapor")
 	saturationProps = SuperGroup([liquidResults, vaporResults], label="Phases")
 	
+	histViewGroup = ViewGroup([historyTable], label="Calculation History")
+	calcHistory = SuperGroup([histViewGroup], label = "Calc History")
+	# Model view
+	resultView = ModelView(ioType = "output", superGroups = [props, calcHistory])
+	resultViewIsTwoPhase = ModelView(ioType = "output", superGroups = [props, saturationProps, calcHistory])
+	
+	############# Page structure ########
+	modelBlocks = [inputView, resultView, resultViewIsTwoPhase]
+
+	############# Methods ###############	
 	def getStateValue(self, sVar, index):
 		sVarDict = {'P': 'p', 'T': 'T', 'D': 'rho', 'H': 'h', 'S': 's', 'Q': 'q'}
 		return self.__dict__[sVarDict[sVar]+str(index)]
@@ -123,10 +158,31 @@ class FluidPropsCalculator(NumericalModel):
 			self.rho_V = satV['rho']
 			self.h_V = satV['h']/1e3
 			self.s_V = satV['s']/1e3
-			
+		
+		db = mongoClient.SmoWeb
+		coll = db.fluidPoints	
+		
+		print self.recordId
+		if (self.recordId != '...'):
+			id = ObjectId(self.recordId)			
+			conf = coll.find_one({"_id": id})
+			if (conf is not None):
+				arr = conf['historyTable']
+				numRows = arr.shape[0]
+				self.historyTable = np.zeros((numRows, 3))
+				self.historyTable[0:numRows] = arr
+				self.historyTable[numRows] = np.array([self.T, self.p, self.h])
+				self.recordId = str(coll.insert({'historyTable': self.historyTable.tolist()}))
+			else: 
+				raise ValueError("Unknown record with id: {0}".format(self.recordId))
+		else:
+			self.historyTable = np.zeros((1, 3))
+			self.historyTable[0] = np.array([self.T, self.p, self.h])
+			self.recordId = str(coll.insert({'historyTable': self.historyTable.tolist()}))
+		 	
 	@staticmethod	
 	def test():
-		fc = FluidPropsCalculator()
+		fc = FluidProperties()
 		fc.fluidName = 'ParaHydrogen'
 		fc.stateVariable1 = 'P'
 		fc.p1 = 700e5
@@ -138,6 +194,11 @@ class FluidPropsCalculator(NumericalModel):
 		
 
 class FluidInfo(NumericalModel):
+	name = "FluidInfo"
+	label = "Fluid Info"
+	
+	############# Results ###############
+	# Fields
 	crit_p = Quantity('Pressure', default = (1, 'bar'), label = 'pressure')
 	crit_T = Quantity('Temperature', default = (300, 'K'), label = 'temperature')
 	crit_rho = Quantity('Density', default = (1, 'kg/m**3'), label = 'density')
@@ -163,6 +224,13 @@ class FluidInfo(NumericalModel):
 	
 	constants = SuperGroup([critPoint, tripplePoint, fluidLimits, other])
 	
+	# Model view
+	resultView = ModelView(ioType = "output", superGroups = [constants])
+	
+	############# Page structure ########
+	modelBlocks = [resultView]
+	
+	############# Methods ###############	
 	def __init__(self, fluidName):
 		f = Fluid(fluidName)
 		crit = f.critical
@@ -208,7 +276,7 @@ class FluidInfo(NumericalModel):
 			fluidData = {
 				'name': fluid,
 				'label': Fluids[fluid],
-				'constants': fi.superGroupList2Json([fi.constants]),
+				'constants': fi.modelView2Json(fi.resultView),
 				'references': fi.getReferences(fluid)
 			}
 			fluidInformation.append(fluidData)		
@@ -225,7 +293,12 @@ class FluidInfo(NumericalModel):
 	def test():
 		print FluidInfo.getFluidList()
 
-class SaturationData(NumericalModel):	
+class SaturationData(NumericalModel):
+	name = "SaturationData"
+	label = "Saturation Data"
+	
+	############# Results ###############
+	# Fields	
 	fluidName = String(default = 'ParaHydrogen', label = 'fluid')
 	
 	T_p_satPlot = PlotView(label = 'Temperature', dataLabels = ['pressure [bar]', 'saturation temperature [K]'], 
@@ -249,6 +322,13 @@ class SaturationData(NumericalModel):
 								satTableView], label="Saturation Data")
 	satSuperGroup = SuperGroup([satViewGroup])
 	
+	# Model view
+	resultView = ModelView(ioType = "output", superGroups = [satSuperGroup])
+	
+	############# Page structure ########
+	modelBlocks = [resultView]
+	
+	############# Methods ###############	
 	def compute(self):
 		f = Fluid(self.fluidName)
 		fState = FluidState(self.fluidName)
@@ -279,9 +359,14 @@ class SaturationData(NumericalModel):
 		self.delta_h_p_satPlot = data[:, (0, 6)]	
 		self.delta_s_p_satPlot = data[:, (0, 9)]
 		self.satTableView = data
+
+class FluidPropertiesDoc(ModelDocumentation):
+	name = 'FluidPropertiesDoc'
+	label = 'Fluid Properties (Docs)'
+	template = 'documentation/html/FluidPropertiesDoc.html'
 		
 if __name__ == '__main__':
-# 	FluidPropsCalculator.test()
+# 	FluidProperties.test()
 # 	print getFluidConstants()
 # 	print getLiteratureReferences()
 	FluidInfo.test()

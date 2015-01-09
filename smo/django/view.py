@@ -176,19 +176,19 @@ class View(object):
 		
 	@action.post()
 	def compute(self, model, view, parameters):
-		self = model()
-		self.fieldValuesFromJson(parameters)
-		self.compute()
-		return self.modelView2Json(view)
+		instance = model()
+		instance.fieldValuesFromJson(parameters)
+		instance.compute()
+		return instance.modelView2Json(view)
 	
 	@action.post()
 	def save(self, model, view, parameters):
-		self = model()
-		self.fieldValuesFromJson(parameters)
+		instance = model()
+		instance.fieldValuesFromJson(parameters)
 		db = mongoClient.SmoWeb
 		coll = db.savedInputs
-		id = coll.insert(self.modelView2Json(view))
-		return {'model': model.name, 'view': view.name, 'id' : str(id)}		
+		id = coll.insert(instance.modelView2Json(view))
+		return {'model': model.name, 'view': view.name, 'id' : str(id)}	
 	
 	@classmethod
 	def asView(cls):
