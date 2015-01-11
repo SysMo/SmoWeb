@@ -1,16 +1,16 @@
 from django.shortcuts import render_to_response, RequestContext
 from smo.model.quantity import Quantities
-from smo.django.view import action, View, mongoClient
+from smo.django.view import action, ModularPageView, mongoClient
 
 from pymongo import MongoClient
 from bson.objectid import ObjectId
 
-class HomeView(View):
+class HomeView(ModularPageView):
 	def get(self, request):
 		return render_to_response('Base.html', locals(), 
 				context_instance=RequestContext(request))
 		
-class unitConverterView(View):
+class unitConverterView(ModularPageView):
 	def get(self, request):
 		return render_to_response('UnitConverter.html', locals(), 
 				context_instance=RequestContext(request))
@@ -20,7 +20,7 @@ class unitConverterView(View):
 		return Quantities
 
 from SmoWeb.examples.Tutorial_01_model import AreaCalculator, AreaCalculatorDoc
-class AreaCalculatorView(View):
+class AreaCalculatorView(ModularPageView):
 	modules = [AreaCalculator, AreaCalculatorDoc]
 	appName = "AreaCalculator"
 	controllerName = "AreaCalculatorController"

@@ -7,30 +7,13 @@ logger = logging.getLogger('django.request.smo.view')
 
 from pymongo import MongoClient
 from bson.objectid import ObjectId
+
 mongoClient = MongoClient()
 
-# class SmoJsonResponse(object):
-# 	def __enter__(self):
-# 		self.exceptionThrown = False
-# 		return self
-# 	
-# 	def __exit__(self, type, value, traceback):
-# 		if (value is not None):
-# 			self.exceptionThrown = True
-# 			self.response = {}
-# 			self.response['errStatus'] = True
-# 			self.response['error'] = str(value)
-# 		return True
-# 	
-# 	def set(self, response):
-# 		if (not self.exceptionThrown):
-# 			self.response = response
-# 			self.response['errStatus'] = False
-# 	
-# 	def json(self):
-# 		return JsonResponse(self.response)
-
 class Action(object):
+	"""
+	Abstract base class for all action types
+	"""
 	def __init__(self, func):
 		self.func = func
 		
@@ -39,62 +22,121 @@ class Action(object):
 		return result
 
 class PostAction(Action):
-	pass
+	"""
+	General POST action
+	"""
 
 
 class action(object):
 	@staticmethod
 	def post(**kwargs):
 		def postActionDecorator(func):
-			return PostAction(func)
+			action = PostAction(func)
+			action.label = ""
+			if (func.__doc__ is not None):
+				action.label = func.__doc__
+			return action
 		return postActionDecorator
 
-class View(object):
+class ModularPageViewMeta(type):
+	"""
+	Metaclass facilitation the creation of modular page views	
+	"""
+	def __new__(cls, name, bases, attrs):
+		# Name and label
+		if ('name' not in attrs):
+			attrs['name'] = name 
+		if ('label' not in attrs):
+			attrs['label'] = attrs['name']
+		if ('controllerName' not in attrs):
+			attrs['controllerName'] = attrs['name'] + 'Controller'
+		# Containers to collect actions, library and module names
+		postActions = {}
+		requiredJSLibraries = set()
+		requiredGoogleModules = set()
+
+		new_class = (super(ModularPageViewMeta, cls)
+			.__new__(cls, name, bases, attrs))
+
+		for c in reversed(new_class.__mro__):
+			for key, value in c.__dict__.iteritems():
+				if (isinstance(value, PostAction)):
+					postActions[key] = value
+				elif (key == 'requireJS'):
+					requiredJSLibraries.update(c.requireJS)
+				elif (key == 'requireGoogle'):
+					requiredGoogleModules.update(c.requireGoogle)
+		
+		if (len(requiredGoogleModules) > 0):
+			requiredJSLibraries.update(['GoogleAPI'])
+		
+# 		if (new_class.__doc__ is not None):
+# 			new_class.__doc__ = new_class.__doc__.format(postActions = ''.join(
+# 				['		* ``{0}``: {1}\n'.format(name, action.label.strip()) for name, action in postActions.iteritems()]
+# 			))
+		
+		new_class.postActions = postActions
+		new_class.requiredJSLibraries = requiredJSLibraries
+		new_class.requiredGoogleModules = requiredGoogleModules
+		
+		return new_class
+	
+class ModularPageView(object):
+	"""
+	A base class for creating pages consisting of modules. There are different kind of modules:
+		* NumericalModel model-views
+		* Documentation views
+		
+	Class attributes:
+		* :attr:`jsLibraries`: Registry of common Java Script libraries used in the applicaions
+		* :attr:`googleModules`:  Registry of common Google modules used in the applicaions
+		* :attr:`requireJS`: list of JS libraries required by the **current** view
+		* :attr:`requireGoogle`: list of Google modules required by the **current** view
+		* :attr:`template`: HTML template file
+		
+	Default POST actions:
+{postActions}
+	"""
+		
+	__metaclass__ = ModularPageViewMeta
+	
 	jsLibraries = {
 		'dygraph': '/static/dygraph/dygraph-combined.js',
 		'dygraphExport': 'http://cavorite.com/labs/js/dygraphs-export/dygraph-extra.js',
+		'MathJax': "http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML",
 		'GoogleAPI': 'https://www.google.com/jsapi',
 	}
-	template = 'ModelViewTemplate.html'
-	def __new__(cls, *args, **kwargs):
-		self = object.__new__(cls)
-		self._getActions = {}
-		self._postActions = {}
-		
-		for c in reversed(cls.__mro__):
-			for key, value in c.__dict__.iteritems():
-# 				if (isinstance(value, GetAction)):
-# 					self._getActions[key] = value
-				if (isinstance(value, PostAction)):
-					self._postActions[key] = value
-		return self
 	
-# 	def execGetAction(self, actionName, parameters):
-# 		if (actionName in self._getActions.keys()):
-# 			return self._getActions[actionName](self, parameters)
-# 		else:
-# 			raise NameError('No GET action with name {0}'.format(actionName))
+	googleModules = {
+		'visualization':{'version': '1.0', 'packages': ["corechart", "table", "controls"]}
+	}
+
+	requireJS = ['MathJax']
+	requireGoogle = []
+	template = 'ModelViewTemplate.html' 
 	
-	def execPostAction(self, actionName, model, view, parameters):
-		response = {}
-		if (actionName in self._postActions.keys()):
-			try:
-				response['data'] = self._postActions[actionName](self, model, view, parameters)
-				response['errStatus'] = False
-			except Exception, e:
-				response['errStatus'] = True
-				response['error'] = str(e)
-				response['stackTrace'] = traceback.format_exc()
+	def view(self, request):
+		"""
+		Entry function for processing an HTTP request
+		"""
+		if request.method == 'GET':
+			logger.debug('GET ' + request.path)
+			return self.get(request)
+		elif request.method == 'POST':
+			logger.debug('POST ' + request.path)
+			return self.post(request)
 		else:
-			response['errStatus'] = True
-			response['error'] = 'No POST action with name {0}'.format(actionName)
-		return JsonResponse(response)
-	
+			raise ValueError('Only GET and POST requests can be served')
+
 	def get(self, request):
+		"""
+		Function handling HTTP GET request
+		"""
 		parameters = request.GET
 		modelView = None
+		print self.requiredJSLibraries
+		print self.requiredGoogleModules
 		self.recordIdDict = {}
-		print ('In get')
 		if ('model' in parameters):
 			modelName = parameters['model']
 			# find the active module 
@@ -118,14 +160,16 @@ class View(object):
 						recordId = parameters['id']
 						self.recordIdDict[modelView] = recordId
 		else:
-			print ('Has modules', hasattr(self, 'modules'))
 			if (hasattr(self, 'modules') and len(self.modules) > 0):
 				self.activeModule = self.modules[0]
 
-		return render_to_response(self.template, {"view": self}, 
+		return render_to_response(self.template, {"pageView": self}, 
 						context_instance=RequestContext(request))
 	
 	def post(self, request):
+		"""
+		Function handling HTTP POST request
+		"""
 		postData = json.loads(request.body)
 		action = postData['action']
 		data = postData['data']
@@ -156,12 +200,32 @@ class View(object):
 		logger.debug('Action: ' + action)
 		logger.debug('Parameters: ' + json.dumps(parameters))
 		return self.execPostAction(action, model, modelView, parameters)
+	
 		
+	def execPostAction(self, actionName, model, view, parameters):
+		"""
+		Executes a specific POST action registered with this view
+		"""
+		response = {}
+		if (actionName in self.postActions.keys()):
+			try:
+				response['data'] = self.postActions[actionName](self, model, view, parameters)
+				response['errStatus'] = False
+			except Exception, e:
+				response['errStatus'] = True
+				response['error'] = str(e)
+				response['stackTrace'] = traceback.format_exc()
+		else:
+			response['errStatus'] = True
+			response['error'] = 'No POST action with name {0}'.format(actionName)
+		return JsonResponse(response)
 	
 	@action.post()
 	def load(self, model, view, parameters):
-		self = model()
-		
+		"""
+		Action for loading model data from the DB
+		"""
+		instance = model()
 		if 'recordId' in parameters:
 			recordId = parameters['recordId']
 			id = ObjectId(recordId)
@@ -169,56 +233,44 @@ class View(object):
 			coll = db.savedInputs
 			conf = coll.find_one({'_id': id})
 			if (conf is not None):
-				self.fieldValuesFromJson(conf['values'])
+				instance.fieldValuesFromJson(conf['values'])
 			else: 
 				raise ValueError("Unknown record with id: {0}".format(recordId))
-		return self.modelView2Json(view)
+		return instance.modelView2Json(view)
 		
 	@action.post()
-	def compute(self, model, view, parameters):
-		instance = model()
-		instance.fieldValuesFromJson(parameters)
-		instance.compute()
-		return instance.modelView2Json(view)
-	
-	@action.post()
 	def save(self, model, view, parameters):
+		"""
+		Action for loading model data from the DB
+		"""
 		instance = model()
 		instance.fieldValuesFromJson(parameters)
 		db = mongoClient.SmoWeb
 		coll = db.savedInputs
 		id = coll.insert(instance.modelView2Json(view))
 		return {'model': model.name, 'view': view.name, 'id' : str(id)}	
+
+	@action.post()
+	def compute(self, model, view, parameters):
+		"""
+		Predefined compute action
+		"""
+		instance = model()
+		instance.fieldValuesFromJson(parameters)
+		instance.compute()
+		return instance.modelView2Json(view)
 	
+		
 	@classmethod
 	def asView(cls):
+		"""
+		Can be used if a function-like object is needed instead of
+		a class instance.
+		"""
 		def view(request):
-			self = cls()
-			if request.method == 'GET':
-				logger.debug('GET ' + request.path)
-				return self.get(request)
-			elif request.method == 'POST':
-				logger.debug('POST ' + request.path)
-				return self.post(request)
-			else:
-				raise ValueError('Only GET and POST requests can be served')
-				
+			instance = cls()
+			return instance.view(request)
 		return view
-	
-
-def test():
-	class MyView(View):
-		def get(self):
-			return 10 
-		@action('post')
-		def add(self, parameters):
-			return 42
-	class Req(object):
-		pass
-	request = Req()
-	request.method = 'POST'
-	request.body = '{"action": "add", "parameters": {}}'
-	print MyView.asView()(request)
 
 if __name__ == '__main__':
-	test()
+	pass

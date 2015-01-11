@@ -4,27 +4,28 @@
 
 {% block scripts_and_styles %}
 
-{% for lib in jsLibraries %}
-<script type="text/javascript" src="{{view.jsLibraries|getItem:lib}}"></script>
+{% comment %}  Load all necessary JS libraries {% endcomment %}
+{% for lib in pageView.requiredJSLibraries %}
+<script type="text/javascript" src="{{pageView.jsLibraries|getItem:lib}}"></script>
 {% endfor %}
 
-{% if googleModules|length > 0 %}
-<script type="text/javascript" src="https://www.google.com/jsapi"></script>
-{% endif %}
-
+{% comment %}  Load SmoWeb JS libraries {% endcomment %}
 <script src="{% static 'SmoUtil.js' %}"></script>
-<script>
 
-// Load Google modules
+{% comment %}  Angular application and controller for the page {% endcomment %}
+<script>
 {% autoescape off %}
-{% if googleModules|length > 0 %}
-{% for gModuleName, gModuleOptions in googleModules.iteritems %}
-google.load('{{gModuleName}}', '{{gModuleOptions.version}}', {'packages': {{gModuleOptions.packages}}});
+{% if pageView.requiredGoogleModules|length > 0 %}
+// Load Google modules
+{% for gModuleName in pageView.requiredGoogleModules %}
+{% with pageView.googleModules|getItem:gModuleName as gModule %}
+google.load('{{gModuleName}}', '{{gModule.version}}', {'packages': {{gModule.packages}}});
+{% endwith %}
 {% endfor %} 
 {% endif %}
 {% endautoescape %}
 
-angular.module('{{view.appName}}', ['ui.bootstrap', 'smo'])
+angular.module('{{pageView.name}}', ['ui.bootstrap', 'smo'])
 	.config(['$httpProvider', function($httpProvider) {
 	    $httpProvider.defaults.xsrfCookieName = 'csrftoken';
 	    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
@@ -32,7 +33,7 @@ angular.module('{{view.appName}}', ['ui.bootstrap', 'smo'])
 	.config(['$locationProvider', function($locationProvider) {
   		$locationProvider.html5Mode(true).hashPrefix('!');
 	}])
-	.controller('{{view.controllerName}}', 
+	.controller('{{pageView.controllerName}}', 
 		[ '$scope', '$location', function($scope, $location) {
 		$scope.$location = {};
  		angular.forEach("protocol host port path search hash absUrl".split(" "), function(method){
@@ -41,7 +42,7 @@ angular.module('{{view.appName}}', ['ui.bootstrap', 'smo'])
 		      	return angular.isObject(result) ? angular.toJson(result) : result;
     		};
   		});
-			{% for module in view.modules %}
+			{% for module in pageView.modules %}
 				{% if module|isNumericalModel %}
 			$scope.{{module.name}} = { name: "{{module.name}}", views: {} };
 					{% for block in module.modelBlocks %}
@@ -56,24 +57,24 @@ angular.module('{{view.appName}}', ['ui.bootstrap', 'smo'])
 {% endblock %}
 
 {% block pills %}
-	{% for module in view.modules %}
-		<li role="presentation" class="{% if view|isActive:module %}active{% endif %}">
+	{% for module in pageView.modules %}
+		<li role="presentation" class="{% if pageView|isActive:module %}active{% endif %}">
 			<a id="{{module.name}}Pill" data-target="#{{module.name}}Content" role="tab" data-toggle="tab">{{module.label}}</a>
 		</li>	
 	{% endfor %}
 {% endblock %}
 
 {% block content %}
-<div ng-app="{{view.appName}}" ng-controller="{{view.controllerName}}">
+<div ng-app="{{pageView.name}}" ng-controller="{{pageView.controllerName}}">
   	<div class="tab-content">
-		{% for module in view.modules %}
-			<div class="tab-pane page-container {% if view|isActive:module %}active{% endif %}" id="{{module.name}}Content">
+		{% for module in pageView.modules %}
+			<div class="tab-pane page-container {% if pageView|isActive:module %}active{% endif %}" id="{{module.name}}Content">
 				{% if module|isNumericalModel %}
 					<h1 class="title">{{module.title}}</h1>
 					{% for block in module.modelBlocks %}
 						<div class="section">			
 							{% if block|isModelView %}
-								<div smo-model-view="{{block.name}}" model-name="{{module.name}}" view-type="{{block.ioType}}" auto-fetch="{{block.autoFetch|lower}}" record-Id="{{view.recordIdDict|getItem:block}}"></div>
+								<div smo-model-view="{{block.name}}" model-name="{{module.name}}" view-type="{{block.ioType}}" auto-fetch="{{block.autoFetch|lower}}" record-Id="{{pageView.recordIdDict|getItem:block}}"></div>
 							{% endif %}
 						</div>
 					{% endfor %}

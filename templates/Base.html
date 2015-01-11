@@ -13,7 +13,6 @@
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular.min.js"></script> 
 	<script src="{% static "ui-bootstrap-tpls-0.11.0.min.js" %}"></script>
 	
-	<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 	
 	{% block scripts_and_styles %}
 	{% endblock %}	 
@@ -44,20 +43,19 @@
         </div>
       	<div class="navbar-collapse collapse">
 			<ul class="nav navbar-nav" >
-        		{% block navs %}       		
+        		{% block navs %}
+        		{% for routerName, router in pageView.router.registry.iteritems %}
 				    <li class="dropdown">
-				      <a href="#" class="dropdown-toggle" data-toggle="dropdown">ThermoFluids<span class="caret"></span></a>
+				      <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{routerName}}<span class="caret"></span></a>
 				      <ul class="dropdown-menu" role="menu">
- 				        <li><a href="{% url 'ThermoFluids:FluidPropsCalculator' %}">Fluid properties</a></li>
-				        <li><a href="{% url 'ThermoFluids:FlowResistance' %}">Flow resistance</a></li>
-				        <li><a href="{% url 'ThermoFluids:HeatPump' %}">Heat pump / AC / Refrigerator</a></li>
-				        <li><a href="{% url 'ThermoFluids:FreeConvection' %}">Free convection</a></li>
-				        <li><a href="{% url 'ThermoFluids:HeatExchange1D' %}">Heat exchange (1D configurations)</a></li>
+					{% for pageName, pageClass in router.pages.iteritems %}
+						<li><a href="/{{routerName}}/{{pageClass.name}}">{{pageClass.label}}</a></li>						
+					{% endfor %}
 <!-- 				        <li class="divider"></li> -->
 <!-- 				        <li class="dropdown-header">Nav header</li> -->
 				      </ul>
 				    </li>
-				    
+				{% endfor %}
 				    <li class="dropdown">
 				      <a href="#" class="dropdown-toggle" data-toggle="dropdown">Data Management <span class="caret"></span></a>
 				      <ul class="dropdown-menu" role="menu">

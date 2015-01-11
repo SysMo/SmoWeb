@@ -17,6 +17,7 @@ Platform overview
 
    Tutorial
    Architecture
+   Communication
    TODO
 
 -------------------------

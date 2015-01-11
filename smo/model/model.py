@@ -22,7 +22,7 @@ class NumericalModelMeta(type):
 		if ('name' not in attrs):
 			attrs['name'] = name 
 		if ('label' not in attrs):
-			attrs['label'] = name
+			attrs['label'] = attrs['name']
 		if ('title' not in attrs):
 			attrs['title'] = attrs['label']
 		# Collect fields from current class.

@@ -27,6 +27,7 @@ class Field(object):
 	def parseValue(self, value):
 		"""
 		:param value: value to parse
+		
 		Checks if the ``value`` is of valid type for this field type, and, if not, 
 		attempts to convert it into one.
    		For example if the Field is of type :class:`Quantity`\ ('Length') 

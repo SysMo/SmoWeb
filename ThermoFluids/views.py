@@ -4,17 +4,22 @@ from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from smo.model.quantity import Quantities
 from smo.media.MaterialData import Fluids
 from collections import OrderedDict
-from smo.django.view import View
+from smo.django.view import ModularPageView
 from smo.django.view import action
+from smo.django.router import ViewRouter, registerView
 import tasks
 
 from pymongo import MongoClient
 from bson.objectid import ObjectId
 mongoClient = MongoClient()
 
+router = ViewRouter('ThermoFluids')
 
 from smo.media.calculators.FluidPropsCalculator import FluidProperties, FluidInfo, SaturationData
-class FluidPropsCalculatorView(View):
+#@registerView(router)
+class FluidPropsCalculatorView(ModularPageView):
+	name = 'FluidPropsCalculator'
+	label = 'Fluid properties (CoolProp)'
 	modules = [FluidProperties, FluidInfo, SaturationData]
 	def get(self, request):
 		return render_to_response('ThermoFluids/FluidProperties.html', locals(), 
@@ -41,40 +46,39 @@ class FluidPropsCalculatorView(View):
 	
 
 from smo.flow.FlowResistance import PipeFlow, PipeFlowDoc
-class FlowResistanceView(View):
+@registerView(router)
+class FlowResistanceView(ModularPageView):
+	name = "FlowResistance"
+	label = "Flow resistance"
 	modules = [PipeFlow, PipeFlowDoc]
-	appName = "FlowResistance"
-	controllerName = "FlowResistanceController"
 	
 from smo.flow.FreeConvection import FreeConvection_External, FreeConvection_Internal, FreeConvectionDoc
-class FreeConvectionView(View):
+@registerView(router)
+class FreeConvectionView(ModularPageView):
+	name = "FreeConvection"
+	label = "Free convection"
 	modules = [FreeConvection_External, FreeConvection_Internal, FreeConvectionDoc]
-	appName = "FreeConvection"
-	controllerName = "FreeConvectionController"
 
 from smo.media.calculators.CycleCalculator import HeatPump
-class HeatPumpView(View):
+@registerView(router)
+class HeatPumpView(ModularPageView):
+	name = "HeatPump"
+	label = "Heat pump"
 	modules = [HeatPump]	
-	appName = "HeatPump"
-	controllerName = "HeatPumpController"
 	
 from smo.flow.heatExchange1D.CryogenicPipe import CryogenicPipe
 from smo.flow.heatExchange1D.CableHeating import CableHeating1D
-class HeatExchange1DView(View):
+@registerView(router)
+class HeatExchange1DView(ModularPageView):
+	name = "HeatExchange1D"
+	label = "Heat exchange 1D"
 	modules = [CryogenicPipe, CableHeating1D]	
-	appName = "HeatExchange1D"
-	controllerName = "HeatExchange1DController"
-	def get(self, request):
-		jsLibraries = ['dygraph', 'dygraphExport']
-		googleModules = {'visualization':{'version': '1.0', 'packages': ["corechart", "table", "controls"]}}
-		return render_to_response('ModelViewTemplate.html', 
-				{'view': self, 'jsLibraries': jsLibraries, 'googleModules': googleModules},
-				context_instance=RequestContext(request))
-		
+	requireJS = ['dygraph', 'dygraphExport']
+	requireGoogle = ['visualization']
 
 		
 # from smo.flow.CryogenicInsulation import GasConduction
-# class CryogenicInsulation(View):	
+# class CryogenicInsulation(ModularPageView):	
 # 	def get(self, request):
 # 		return render_to_response('ThermoFluids/CryogenicInsulation.html', locals(), 
 # 				context_instance=RequestContext(request))
