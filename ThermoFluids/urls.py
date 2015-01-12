@@ -7,7 +7,7 @@ from django.conf.urls import patterns, url
 from ThermoFluids import views
 
 urlpatterns = patterns('',
-	url(r'^([A-Za-z][A-Za-z0-9_]+)/$', views.router.view)
+	url(r'^([A-Za-z][A-Za-z0-9_]+)?/?$', views.router.view)
 #     url(r'^FluidPropsCalculator/$', views.FluidPropsCalculatorView.asView(), name='FluidPropsCalculator'),
 #     url(r'^FlowResistance/', views.FlowResistanceView.asView(), name='FlowResistance'),
 # 	url(r'^HeatPump/', views.HeatPumpView.asView(), name='HeatPump'),

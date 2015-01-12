@@ -1,8 +1,12 @@
 from django.template import Library
 register = Library()
+from SmoWeb.views import HomeView
 
-from smo.model.model import ModelView, NumericalModel, ModelDocumentation
+@register.filter
+def isBase(routerName):
+	return routerName == 'Base'
 
+from smo.model.model import ModelView, NumericalModel, ModelDocumentation, HtmlPageModule
 @register.filter
 def isModelView(obj):
 	return isinstance(obj, ModelView)
@@ -16,8 +20,24 @@ def isModelDocumentation(obj):
 	return isinstance(obj, ModelDocumentation)
 
 @register.filter
+def isHtmlPage(obj):
+	return isinstance(obj, HtmlPageModule)
+
+@register.filter
 def getModelDocUrl(module):
 	return "documentation/html/" + module.name + ".html"
+
+@register.filter
+def getHtmlPageUrl(module, pageView):
+	return pageView.router.name + "/" + module.name + ".html"
+
+@register.filter
+def isModuleSrcFile(module):
+	return module.srcType == 'file'
+
+@register.filter
+def isModuleSrcString(module):
+	return module.srcType == 'string'
 
 @register.filter
 def isActive(view, module):

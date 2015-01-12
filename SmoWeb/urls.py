@@ -3,10 +3,10 @@ from django.contrib import admin
 from SmoWeb import views
 
 urlpatterns = patterns('',
-    url(r'^$', views.HomeView.asView(), name='Home' ),
+    url(r'^$', views.router.view),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^ThermoFluids/', include('ThermoFluids.urls', namespace='ThermoFluids')),
-    url(r'^DataManagement/', include('DataManagement.urls', namespace='DataManagement')),
-    url(r'^UnitConverter/', views.unitConverterView.asView(), name='UnitConverter'),
-    url(r'^examples/AreaCalculatorView', views.AreaCalculatorView.asView(), name = "Example_AreaCalculatorView")
+#     url(r'^DataManagement/', include('DataManagement.urls', namespace='DataManagement')),
+#     url(r'^UnitConverter/', views.unitConverterView.asView(), name='UnitConverter'),
+#     url(r'^examples/AreaCalculatorView', views.AreaCalculatorView.asView(), name = "Example_AreaCalculatorView")
 )

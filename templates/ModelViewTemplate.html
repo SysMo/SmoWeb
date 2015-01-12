@@ -86,6 +86,16 @@ angular.module('{{pageView.name}}', ['ui.bootstrap', 'smo'])
 						</div>
 					</div>
 				{% endif %}
+				{% if module|isHtmlPage %}
+					<div class="tab-pane" id="{{module.name}}Content">
+					{% if module|isModuleSrcFile %}
+						{% include module|getHtmlPageUrl:pageView %}
+					{% endif %}
+					{% if module|isModuleSrcString %}
+						<div>{{module.src}}</div>
+					{% endif %}
+					</div>
+				{% endif %}
 			</div>
 		{% endfor %}
 	</div>
