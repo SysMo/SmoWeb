@@ -40,7 +40,6 @@ class FluidProperties(NumericalModel):
 	
 	############# Inputs ###############
 	# Fields
-	recordId = String()
 	fluidName = Choices(Fluids, default = 'ParaHydrogen', label = 'fluid')	
 	stateVariable1 = Choices(options = StateVariableOptions, default = 'P', label = 'first state variable')
 	p1 = Quantity('Pressure', default = (1, 'bar'), label = 'pressure', show="self.stateVariable1 == 'P'")
@@ -57,14 +56,13 @@ class FluidProperties(NumericalModel):
 	s2 = Quantity('SpecificEntropy', default = (100, 'kJ/kg-K'), label = 'specific entropy', show="self.stateVariable2 == 'S'")
 	q2 = Quantity('VaporQuality', default = (1, '-'), minValue = 0, maxValue = 1, label = 'vapour quality', show="self.stateVariable2 == 'Q'")
 	####
-	stateGroup1 = FieldGroup([recordId, fluidName], label = 'Fluid')
+	stateGroup1 = FieldGroup([fluidName], label = 'Fluid')
 	stateGroup2 = FieldGroup([stateVariable1, p1, T1, rho1, h1, s1, q1, stateVariable2, p2, T2, rho2, h2, s2, q2], label = 'States')
 	inputs = SuperGroup([stateGroup1, stateGroup2])
 	
 	# Actions
 	computeAction = ServerAction("computeFluidProps", label = "Compute", outputView = 'resultView')
-	computeSaveAction = ServerAction("computeFluidProps", label = "Compute & Save", outputView = 'resultView')
-	inputActionBar = ActionBar([computeAction, computeSaveAction], save = True)
+	inputActionBar = ActionBar([computeAction], save = True)
 	
 	# Model view
 	inputView = ModelView(ioType = "input", superGroups = [inputs], 
@@ -72,6 +70,7 @@ class FluidProperties(NumericalModel):
 	
 	############# Results ###############
 	# Fields
+	recordId = String('', show="false")
 	T = Quantity('Temperature', label = 'temperature')
 	p = Quantity('Pressure', label = 'pressure')
 	rho = Quantity('Density', label = 'density')
@@ -91,7 +90,7 @@ class FluidProperties(NumericalModel):
 	dpdt_v = Quantity('Dimensionless', label = '(dp/dT)<sub>v</sub>')
 	dpdv_t = Quantity('Dimensionless', label = '(dp/dv)<sub>T</sub>')
 	#####
-	stateVariablesResults = FieldGroup([T, p, rho, h, s, q, u], label = 'States')
+	stateVariablesResults = FieldGroup([recordId, T, p, rho, h, s, q, u], label = 'States')
 	derivativeResults = FieldGroup([cp, cv, gamma, Pr, cond, mu, dpdt_v, dpdv_t], label = 'Derivatives & Transport')
 	props = SuperGroup([stateVariablesResults, derivativeResults], label = "Properties")
 	#####
@@ -103,19 +102,18 @@ class FluidProperties(NumericalModel):
 	h_V = Quantity('SpecificEnthalpy', label = 'specific enthalpy')
 	s_V = Quantity('SpecificEntropy', label = 'specific entropy')
 	#####
-	historyTable = TableView(label = 'Summary', dataLabels = ['T[K]', 'p[bar]', 'h[J/kg]'], 
-			options = {'formats': ['0.0000E0', '0.000', '0.000']})
-	#####
 	isTwoPhase = Boolean(label = 'is two phase')
 	liquidResults = FieldGroup([rho_L, h_L, s_L], label="Liquid")
 	vaporResults = FieldGroup([rho_V, h_V, s_V], label="Vapor")
 	saturationProps = SuperGroup([liquidResults, vaporResults], label="Phases")
-	
-	histViewGroup = ViewGroup([historyTable], label="Calculation History")
-	calcHistory = SuperGroup([histViewGroup], label = "Calc History")
+	#####
+	paramVarTable = TableView(label="Variation Table", dataLabels = ['T[K]', 'p[bar]', 'h[J/kg]'], 
+			options = {'formats': ['0.0000E0', '0.000', '0.000']})
+	paramVariation = ViewGroup([paramVarTable], label="Parameter Variation")
+	FluidPoints = SuperGroup([paramVariation], label = "Fluid Points")	
 	# Model view
-	resultView = ModelView(ioType = "output", superGroups = [props, calcHistory])
-	resultViewIsTwoPhase = ModelView(ioType = "output", superGroups = [props, saturationProps, calcHistory])
+	resultView = ModelView(ioType = "output", superGroups = [props, FluidPoints])
+	resultViewIsTwoPhase = ModelView(ioType = "output", superGroups = [props, saturationProps, FluidPoints])
 	
 	############# Page structure ########
 	modelBlocks = [inputView, resultView, resultViewIsTwoPhase]
@@ -160,26 +158,25 @@ class FluidProperties(NumericalModel):
 			self.s_V = satV['s']/1e3
 		
 		db = mongoClient.SmoWeb
-		coll = db.fluidPoints	
+		coll = db.FluidPoints	
 		
-		print self.recordId
-		if (self.recordId != '...'):
-			id = ObjectId(self.recordId)			
-			conf = coll.find_one({"_id": id})
-			if (conf is not None):
-				arr = conf['historyTable']
-				numRows = arr.shape[0]
-				self.historyTable = np.zeros((numRows, 3))
-				self.historyTable[0:numRows] = arr
-				self.historyTable[numRows] = np.array([self.T, self.p, self.h])
-				self.recordId = str(coll.insert({'historyTable': self.historyTable.tolist()}))
+		if (self.recordId != ''):			
+			record = coll.find_one({"_id": ObjectId(self.recordId)})
+			if (record is not None):
+				paramVarList = record['paramVarTable']
+				numRows = len(paramVarList)
+				self.paramVarTable = np.zeros((numRows + 1, 3))
+				self.paramVarTable[0:numRows] = np.array(paramVarList)
+				self.paramVarTable[numRows] = np.array([self.T, self.p, self.h])
+				self.recordId = str(coll.insert({'paramVarTable': self.paramVarTable.tolist()}))
 			else: 
 				raise ValueError("Unknown record with id: {0}".format(self.recordId))
 		else:
-			self.historyTable = np.zeros((1, 3))
-			self.historyTable[0] = np.array([self.T, self.p, self.h])
-			self.recordId = str(coll.insert({'historyTable': self.historyTable.tolist()}))
-		 	
+			self.paramVarTable = np.zeros((1, 3))
+			self.paramVarTable[0] = np.array([self.T, self.p, self.h])
+			self.recordId = str(coll.insert({'paramVarTable': self.paramVarTable.tolist()}))
+	
+	
 	@staticmethod	
 	def test():
 		fc = FluidProperties()

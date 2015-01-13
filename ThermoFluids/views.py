@@ -16,7 +16,7 @@ mongoClient = MongoClient()
 router = ViewRouter('ThermoFluids')
 
 from smo.media.calculators.FluidPropsCalculator import FluidProperties, FluidInfo, SaturationData
-#@registerView(router)
+@registerView(router)
 class FluidPropsCalculatorView(ModularPageView):
 	name = 'FluidPropsCalculator'
 	label = 'Fluid properties (CoolProp)'
@@ -28,7 +28,6 @@ class FluidPropsCalculatorView(ModularPageView):
 	@action.post()	
 	def computeFluidProps(self, model, view, parameters):		
 		fpc = FluidProperties()
-		print parameters
 		fpc.fieldValuesFromJson(parameters)
 		fpc.compute()
 		if (fpc.isTwoPhase == True):

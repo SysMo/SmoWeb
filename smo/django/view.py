@@ -223,32 +223,29 @@ class ModularPageView(object):
 	@action.post()
 	def load(self, model, view, parameters):
 		"""
-		Action for loading model data from the DB
+		Action for loading model data
 		"""
 		instance = model()
-		if 'recordId' in parameters:
-			recordId = parameters['recordId']
-			id = ObjectId(recordId)
+		if 'viewRecordId' in parameters:
+			viewRecordId = parameters['viewRecordId']
 			db = mongoClient.SmoWeb
-			coll = db.savedInputs
-			conf = coll.find_one({'_id': id})
-			if (conf is not None):
-				instance.fieldValuesFromJson(conf['values'])
+			coll = db.savedViewData
+			record = coll.find_one({'_id': ObjectId(viewRecordId)})
+			if (record is not None):
+				instance.fieldValuesFromJson(record['values'])
 			else: 
-				raise ValueError("Unknown record with id: {0}".format(recordId))
+				raise ValueError("Unknown view data record with id: {0}".format(viewRecordId))
 		return instance.modelView2Json(view)
 		
 	@action.post()
 	def save(self, model, view, parameters):
 		"""
-		Action for loading model data from the DB
+		Action for saving data in the DB
 		"""
-		instance = model()
-		instance.fieldValuesFromJson(parameters)
 		db = mongoClient.SmoWeb
-		coll = db.savedInputs
-		id = coll.insert(instance.modelView2Json(view))
-		return {'model': model.name, 'view': view.name, 'id' : str(id)}	
+		coll = db.savedViewData
+		recordId = coll.insert({'values' : parameters})
+		return {'model': model.name, 'view': view.name, 'id' : str(recordId)}	
 
 	@action.post()
 	def compute(self, model, view, parameters):
@@ -259,8 +256,7 @@ class ModularPageView(object):
 		instance.fieldValuesFromJson(parameters)
 		instance.compute()
 		return instance.modelView2Json(view)
-	
-		
+				
 	@classmethod
 	def asView(cls):
 		"""

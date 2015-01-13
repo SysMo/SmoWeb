@@ -16,48 +16,8 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 	    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
 	}])
 	.controller('FluidPropsController', [ '$scope', '$http', 'ModelCommunicator', function($scope, $http, ModelCommunicator) {
-		$scope.activeTabId = "";
-		$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-			  $scope.activeTabId = e.target.id; // activated tab
-// 			  e.relatedTarget // previous tab
-			});
-		
-		$scope.FluidProperties = {
-			inputs: [{inputCommunicator: new ModelCommunicator()}],
-			results: [{resultsCommunicator: new ModelCommunicator()}]
-		};
-		
-		$scope.FluidProperties.inputs[0].inputCommunicator.fetchData(
-			'getInputs', {});
-		
-		$scope.compute = function(index) {
-			$scope.FluidProperties.results[index].resultsCommunicator.fetchData(
-				'compute', $scope.FluidProperties.inputs[index].inputCommunicator.data.values);
-		}
-		
-		$scope.createNewTab = function() {
-			var newInputCommunicator = angular.copy($scope.FluidProperties.inputs[$scope.FluidProperties.inputs.length-1].inputCommunicator);
-			$scope.FluidProperties.inputs.push({inputCommunicator : newInputCommunicator});			
-			$scope.FluidProperties.results.push({resultsCommunicator: new ModelCommunicator()});
-			$('#FP' + String($scope.FluidProperties.inputs.length-1) + 'Tab').tab('show');
-		}
-		
-		$scope.getTabClass = function(index) {		
-			if (index == ($scope.FluidProperties.inputs.length-1)) {
-				return 'ng-scope active';
-			} else {
-				return 'ng-scope';
-			}
-		}
-	
-		$scope.delLastTab = function() {
-			if ($scope.FluidProperties.inputs.length == 1){
-				return;
-			}
-			$scope.FluidProperties.inputs.pop();
-			$scope.FluidProperties.results.pop();
-			$('#FP' + String($scope.FluidProperties.inputs.length) + 'Tab').tab('show');
-		}
+		//Fluid Properties
+		$scope.FluidProperties = {};
 		
 		// Fluids info		
 		$scope.FluidInfo = {
@@ -103,29 +63,13 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 			<div class="title-figure">
 				<img height="150" style="width: 250px" src="{% static 'ThermoFluids/StateDiagram3D.svg' %}"></img>
 			</div>		
-{% verbatim %}	
-			<ul class="nav nav-tabs" role="tablist" id="FluidPointTabs">
-		  		<li ng-repeat="input in FluidProperties.inputs track by $index" ng-class="getTabClass($index)">
-			  		<a ng-attr-id="FP{{$index + 1}}Tab" data-target="#FluidPoint{{$index + 1}}" role="tab" data-toggle="tab" >Fluid point {{$index + 1}}</a>			  		
-		  		</li>
-		  		<li><a><smo-button action="createNewTab()" icon="plus"></a></li>
-		  		<li><a><smo-button action="delLastTab()" icon="minus"></smo-button></a></li>
-			</ul>		
+{% verbatim %}		
 			<div class="tab-content">
-				<div ng-repeat="input in FluidProperties.inputs track by $index" ng-class="'tab-pane '+ getTabClass($index)" id="FluidPoint{{$index + 1}}">					
-					<div class="section"> 
-						<div smo-model-view="inputView" model-name="FluidProperties" view-type="input" auto-fetch="true" record-Id=""></div>
-					</div>
-					<div class="section"> 		
-						<div ng-show="FluidProperties.inputs[$index].inputCommunicator.dataReceived"><button ng-disabled="!FluidProperties.inputs[$index].inputCommunicator.fieldsValid" 
-							 class="btn btn-primary" ng-click="compute($index)">Compute</button>
-						</div>
-					</div>
-					<div class="section"> 
-						<div smo-model-view="resultView" model-name="FluidProperties" view-type="output" record-Id=""></div>
-					</div>
-					
-										
+				<div class="section"> 
+					<div smo-model-view="inputView" model-name="FluidProperties" view-type="input" auto-fetch="true" record-Id=""></div>
+				</div>
+				<div class="section"> 
+					<div smo-model-view="resultView" model-name="FluidProperties" view-type="output" record-Id=""></div>
 				</div>
 			</div>
 {% endverbatim %}
@@ -178,10 +122,8 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 					</div>
 					<div class="field-select choice" style="margin-left: 5px;">
 						<button class="btn btn-primary" ng-click="fetchSaturationData()">Go!</button>
-					</div>
-					
+					</div>				
 					<div smo-model-view="resultView" model-name="SaturationData" view-type="output" record-Id=""></div>
-					
 				</div>
 			</div>
 		</div>

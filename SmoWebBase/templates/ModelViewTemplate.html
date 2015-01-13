@@ -74,7 +74,7 @@ angular.module('{{pageView.name}}', ['ui.bootstrap', 'smo'])
 					{% for block in module.modelBlocks %}
 						<div class="section">			
 							{% if block|isModelView %}
-								<div smo-model-view="{{block.name}}" model-name="{{module.name}}" view-type="{{block.ioType}}" auto-fetch="{{block.autoFetch|lower}}" record-Id="{{pageView.recordIdDict|getItem:block}}"></div>
+								<div smo-model-view="{{block.name}}" model-name="{{module.name}}" view-type="{{block.ioType}}" auto-fetch="{{block.autoFetch|lower}}" view-record-id="{{pageView.recordIdDict|getItem:block}}"></div>
 							{% endif %}
 						</div>
 					{% endfor %}

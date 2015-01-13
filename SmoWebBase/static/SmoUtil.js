@@ -323,7 +323,8 @@ smoModule.factory('smoJson', function () {
 });
 
 smoModule.factory('ModelCommunicator', function($http, $window, $timeout, $location, smoJson) {
-	function ModelCommunicator(modelName, viewName, url){		
+	function ModelCommunicator(model, modelName, viewName, url){		
+		this.model = model;
 		this.modelName = modelName;
 		this.viewName = viewName;
 		// Communication URL. Can be left empty if the same as the current page URL
@@ -1392,15 +1393,26 @@ smoModule.directive('smoViewToolbar', ['$compile', '$rootScope', function($compi
 			actions: "="
 		},
 		controller: function($scope) {
+			var onFetchSuccess = function(comm){
+				if (comm.data.values.recordId){
+					comm.model.recordId = comm.data.values.recordId;
+				} 
+			}
+			
 			$scope.actionHandler = function(action) {
 				var targetView = action.outputView || $scope.viewName;
 				var communicator = $scope.model[targetView + 'Communicator'];
+				
 				if (action.name == 'save') {
 					communicator.saveUserInput('save', 
 						$scope.model[$scope.viewName + 'Communicator'].data.values);
 				} else {
+					if (communicator.model.recordId) {
+						$scope.model[$scope.viewName + 'Communicator'].data.values.recordId =
+							communicator.model.recordId;
+					}
 					communicator.fetchData(action.name,
-						$scope.model[$scope.viewName + 'Communicator'].data.values);
+						$scope.model[$scope.viewName + 'Communicator'].data.values, onFetchSuccess);
 				}
 			}
 		},
@@ -1429,15 +1441,15 @@ smoModule.directive('smoModelView', ['$compile', '$location', 'ModelCommunicator
 			viewName: '@smoModelView',
 			viewType: '@viewType',
 			autoFetch: '=',
-			recordId: '@recordId'
+			viewRecordId: '@viewRecordId'
 		},
 		controller: function($scope) {
 			$scope.formName = $scope.modelName + 'Form';
 			$scope.model = $scope.$parent[$scope.modelName];
-			$scope.communicator = new ModelCommunicator($scope.modelName, $scope.viewName);
+			$scope.communicator = new ModelCommunicator($scope.model, $scope.modelName, $scope.viewName);
 			$scope.model[$scope.viewName + 'Communicator'] = $scope.communicator;
 			if ($scope.autoFetch) {
-				$scope.communicator.fetchData("load", {recordId: $scope.recordId});				
+				$scope.communicator.fetchData("load", {viewRecordId: $scope.viewRecordId});				
 			}
 		},
 		link : function(scope, element, attr) {
