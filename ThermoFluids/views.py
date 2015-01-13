@@ -15,15 +15,18 @@ mongoClient = MongoClient()
 
 router = ViewRouter('ThermoFluids')
 
-from smo.media.calculators.FluidPropsCalculator import FluidProperties, FluidInfo, SaturationData
+from smo.media.calculators.FluidPropsCalculator import FluidProperties, FluidInfo, SaturationData, FluidPropertiesDoc
 @registerView(router)
 class FluidPropsCalculatorView(ModularPageView):
 	name = 'FluidPropsCalculator'
 	label = 'Fluid properties (CoolProp)'
-	modules = [FluidProperties, FluidInfo, SaturationData]
-	def get(self, request):
-		return render_to_response('ThermoFluids/FluidProperties.html', locals(), 
-				context_instance=RequestContext(request))
+	modules = [FluidProperties, FluidInfo, SaturationData, FluidPropertiesDoc]
+	requireJS = ['dygraph', 'dygraphExport']
+	requireGoogle = ['visualization']
+
+# 	def get(self, request):
+# 		return render_to_response('ThermoFluids/FluidProperties.html', locals(), 
+# 				context_instance=RequestContext(request))
 	
 	@action.post()	
 	def computeFluidProps(self, model, view, parameters):		
@@ -35,13 +38,13 @@ class FluidPropsCalculatorView(ModularPageView):
 		else:
 			return fpc.modelView2Json(fpc.resultView)
 	
-	@action.post()
-	def getFluidInfo(self, model, view, parameters):
-		return FluidInfo.getFluidInfo() 
-
-	@action.post()
-	def getFluidList(self, model, view, parameters):
-		return FluidInfo.getFluidList()
+# 	@action.post()
+# 	def getFluidInfo(self, model, view, parameters):
+# 		return FluidInfo.getFluidInfo() 
+# 
+# 	@action.post()
+# 	def getFluidList(self, model, view, parameters):
+# 		return FluidInfo.getFluidList()
 	
 
 from smo.flow.FlowResistance import PipeFlow, PipeFlowDoc

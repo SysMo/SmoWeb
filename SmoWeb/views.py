@@ -6,12 +6,21 @@ from smo.django.router import ViewRouter, registerView
 from pymongo import MongoClient
 from bson.objectid import ObjectId
 
-router = ViewRouter('Base')
+router = ViewRouter('SmoWebBase')
+
+
+from smo.model.model import HtmlPageModule
+class BasePageModule(HtmlPageModule):
+	name = 'BasePageModule'
+	label = 'Home'
+	srcType = 'file'
+	src = 'HomePageContent.html'
 
 @registerView(router)
 class HomeView(ModularPageView):
 	name = "HomeView"
 	label = "Home View"
+	modules = [BasePageModule]
 
 # 	def get(self, request):
 # 		return render_to_response('Base.html', locals(), 

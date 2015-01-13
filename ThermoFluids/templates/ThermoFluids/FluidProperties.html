@@ -21,28 +21,28 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 		
 		// Fluids info		
 		$scope.FluidInfo = {
-			inputCommunicator: new ModelCommunicator()
+//			inputCommunicator: new ModelCommunicator()
 		};
 		
-		$scope.FluidInfo.inputCommunicator.fetchData(
-			'getFluidInfo', {}, function(comm){
-				$scope.FluidInfo.selectedFluid = comm.data[0];
-			});
+//		$scope.FluidInfo.inputCommunicator.fetchData(
+//			'getFluidInfo', {}, function(comm){
+//				$scope.FluidInfo.selectedFluid = comm.data[0];
+//			});
 		
 		// Saturation properties		
 		$scope.SaturationData = {
-			inputCommunicator: new ModelCommunicator(),		
+//			inputCommunicator: new ModelCommunicator(),		
 		};
 			
-		$scope.SaturationData.inputCommunicator.fetchData(
-			'getFluidList', {}, function(comm){
-				$scope.SaturationData.selectedFluid = comm.data[0][0];
-			});
+//		$scope.SaturationData.inputCommunicator.fetchData(
+//			'getFluidList', {}, function(comm){
+//				$scope.SaturationData.selectedFluid = comm.data[0][0];
+//			});
 		
-		$scope.fetchSaturationData = function (){
-			$scope.SaturationData.resultViewCommunicator.fetchData(
-					'compute', {fluidName : $scope.SaturationData.selectedFluid});	
-		}
+//		$scope.fetchSaturationData = function (){
+//			$scope.SaturationData.resultViewCommunicator.fetchData(
+//					'compute', {fluidName : $scope.SaturationData.selectedFluid});	
+//		}
 }])
 </script>
 {% endblock %}
@@ -81,50 +81,28 @@ angular.module('FluidPropsCalculator', ['ui.bootstrap', 'smo'])
 		</div>
 		<div class="tab-pane page-container" id="fluids">
 {% verbatim %}	
-			<h1 class="title">Fluid information</h1>			
-			<div ng-if="FluidInfo.inputCommunicator.loading" class="alert alert-info" role="alert">Loading...</div>
-			<div ng-if="FluidInfo.inputCommunicator.commError" class="alert alert-danger" role="alert">Communication error: <span ng-bind="FluidInfo.inputCommunicator.errorMsg"></span></div>
-			<div ng-if="FluidInfo.inputCommunicator.serverError" class="alert alert-danger" role="alert">Server error: <span ng-bind="FluidInfo.inputCommunicator.errorMsg"></span></div>
-			<div ng-if="FluidInfo.inputCommunicator.dataReceived">
-				<div class="section">
-					<div class="field-label">Select a fluid:</div>
-					<div class="field-select choice">
-						<select ng-model="FluidInfo.selectedFluid" ng-options="fluid as fluid.label for fluid in FluidInfo.inputCommunicator.data"></select>
-					</div>
-				</div>
-				
-				<div class="section">
-					<div style="display: inline-block;" ng-repeat="constant in FluidInfo.selectedFluid.constants.definitions[0].groups">
-						<div smo-field-group="constant" view-type="'output'" smo-data-source="FluidInfo.selectedFluid.constants.values">
-						</div>
-					</div>
-				</div>				
-				<div class="section">
-					<h1>Literature References</h1>				
-					<div ng-repeat="pair in FluidInfo.selectedFluid.references" ng-show="pair[1]">
-						<span class="label-text">{{pair[0]}}:</span> {{pair[1].author}}, <span class="italic-text">{{pair[1].title}}</span>
-					</div>			
-				</div>
+			<h1 class="title">Fluid information</h1>
+			<div class="section"> 
+				<div smo-model-view="inputView" model-name="FluidInfo" view-type="input" auto-fetch="true" record-Id=""></div>
+			</div>					
+			<div class="section">	
+				<div smo-model-view="resultView" model-name="FluidInfo" view-type="output" record-Id=""></div>
+			</div>	
+			<div class="section">
+				<h1>Literature References</h1>				
+<!--				<div ng-repeat="pair in FluidInfo.selectedFluid.references" ng-show="pair[1]"> -->
+<!--					<span class="label-text">{{pair[0]}}:</span> {{pair[1].author}}, <span class="italic-text">{{pair[1].title}}</span> -->
+<!--				</div>	-->		
 			</div>
-			
 		</div>
 {% endverbatim %}
 		<div class="tab-pane page-container" id="saturation">
 			<h1 class="title">Saturation</h1>
-			<div ng-if="SaturationData.inputCommunicator.loading" class="alert alert-info" role="alert">Loading...</div>
-			<div ng-if="SaturationData.inputCommunicator.commError" class="alert alert-danger" role="alert">Communication error: <span ng-bind="SaturationData.inputCommunicator.errorMsg"></span></div>
-			<div ng-if="SaturationData.inputCommunicator.serverError" class="alert alert-danger" role="alert">Server error: <span ng-bind="SaturationData.inputCommunicator.errorMsg"></span></div>
-			<div ng-if="SaturationData.inputCommunicator.dataReceived">						
-				<div class="section">
-					<div class="field-label">Select a fluid:</div>
-					<div class="field-select choice">
-						<select ng-model="SaturationData.selectedFluid" ng-options="pair[0] as pair[1] for pair in SaturationData.inputCommunicator.data"></select>
-					</div>
-					<div class="field-select choice" style="margin-left: 5px;">
-						<button class="btn btn-primary" ng-click="fetchSaturationData()">Go!</button>
-					</div>				
-					<div smo-model-view="resultView" model-name="SaturationData" view-type="output" record-Id=""></div>
-				</div>
+			<div class="section"> 
+				<div smo-model-view="inputView" model-name="SaturationData" view-type="input" auto-fetch="true" record-Id=""></div>
+			</div>					
+			<div class="section">	
+				<div smo-model-view="resultView" model-name="SaturationData" view-type="output" record-Id=""></div>
 			</div>
 		</div>
 	</div>

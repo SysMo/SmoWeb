@@ -194,6 +194,20 @@ class FluidInfo(NumericalModel):
 	name = "FluidInfo"
 	label = "Fluid Info"
 	
+	############# Inputs ###############
+	# Fields
+	fluidName = Choices(Fluids, default = 'ParaHydrogen', label = 'fluid')
+	infoInput = FieldGroup([fluidName], label = 'Fluid')
+	inputs = SuperGroup([infoInput])
+	
+	# Actions
+	computeAction = ServerAction("compute", label = "Go", outputView = 'resultView')
+	inputActionBar = ActionBar([computeAction], save = False)
+	
+	# Model view
+	inputView = ModelView(ioType = "input", superGroups = [inputs], 
+		actionBar = inputActionBar, autoFetch = True)
+	
 	############# Results ###############
 	# Fields
 	crit_p = Quantity('Pressure', default = (1, 'bar'), label = 'pressure')
@@ -217,19 +231,19 @@ class FluidInfo(NumericalModel):
 	accentric_factor = Quantity('Dimensionless', label = 'accentric factor')
 	cas = String('CAS', label = 'CAS')
 	ashrae34 = String('ASHRAE34', label = 'ASHRAE34')
-	other = FieldGroup([molar_mass, accentric_factor, cas, ashrae34], label = 'Other')
 	
-	constants = SuperGroup([critPoint, tripplePoint, fluidLimits, other])
+	other = FieldGroup([molar_mass, accentric_factor, cas, ashrae34], label = 'Other')
+	results = SuperGroup([critPoint, tripplePoint, fluidLimits, other])
 	
 	# Model view
-	resultView = ModelView(ioType = "output", superGroups = [constants])
+	resultView = ModelView(ioType = "output", superGroups = [results])
 	
 	############# Page structure ########
-	modelBlocks = [resultView]
+	modelBlocks = [inputView, resultView]
 	
 	############# Methods ###############	
-	def __init__(self, fluidName):
-		f = Fluid(fluidName)
+	def compute(self):
+		f = Fluid(self.fluidName)
 		crit = f.critical
 		self.crit_p = crit['p']
 		self.crit_T = crit['T']
@@ -252,52 +266,64 @@ class FluidInfo(NumericalModel):
 		self.cas = f.CAS
 		self.ashrae34 = f.ASHRAE34
 		
-	def getReferences(self, fluidName):
-		f = Fluid(fluidName)
-		refList = []
-		for key in referenceKeys:
-			try:
-				reference = References[f.BibTeXKey(key)]
-			except KeyError:
-				reference = None
-			refList.append([referenceKeys[key], reference])
-		return refList
-		
-	@staticmethod
-	def getFluidInfo(fluidList = None):
-		if (fluidList is None):
-			fluidList = Fluids
-		fluidInformation = []
-		for fluid in fluidList:
-			fi = FluidInfo(fluid)
-			fluidData = {
-				'name': fluid,
-				'label': Fluids[fluid],
-				'constants': fi.modelView2Json(fi.resultView),
-				'references': fi.getReferences(fluid)
-			}
-			fluidInformation.append(fluidData)		
-		return fluidInformation
-	
-	@staticmethod
-	def getFluidList():
-		fluidList = []
-		for fluid in Fluids:
-			fluidList.append([fluid, Fluids[fluid]])
-		return fluidList
-			
-	@staticmethod
-	def test():
-		print FluidInfo.getFluidList()
+# 	def getReferences(self, fluidName):
+# 		f = Fluid(fluidName)
+# 		refList = []
+# 		for key in referenceKeys:
+# 			try:
+# 				reference = References[f.BibTeXKey(key)]
+# 			except KeyError:
+# 				reference = None
+# 			refList.append([referenceKeys[key], reference])
+# 		return refList
+# 		
+# 	@staticmethod
+# 	def getFluidInfo(fluidList = None):
+# 		if (fluidList is None):
+# 			fluidList = Fluids
+# 		fluidInformation = []
+# 		for fluid in fluidList:
+# 			fi = FluidInfo(fluid)
+# 			fluidData = {
+# 				'name': fluid,
+# 				'label': Fluids[fluid],
+# 				'constants': fi.modelView2Json(fi.resultView),
+# 				'references': fi.getReferences(fluid)
+# 			}
+# 			fluidInformation.append(fluidData)		
+# 		return fluidInformation
+# 	
+# 	@staticmethod
+# 	def getFluidList():
+# 		fluidList = []
+# 		for fluid in Fluids:
+# 			fluidList.append([fluid, Fluids[fluid]])
+# 		return fluidList
+# 			
+# 	@staticmethod
+# 	def test():
+# 		print FluidInfo.getFluidList()
 
 class SaturationData(NumericalModel):
 	name = "SaturationData"
 	label = "Saturation Data"
 	
-	############# Results ###############
-	# Fields	
-	fluidName = String(default = 'ParaHydrogen', label = 'fluid')
+	############# Inputs ###############
+	# Fields
+	fluidName = Choices(Fluids, default = 'ParaHydrogen', label = 'fluid')
+	satInput = FieldGroup([fluidName], label = 'Fluid')
+	inputs = SuperGroup([satInput])
 	
+	# Actions
+	computeAction = ServerAction("compute", label = "Go", outputView = 'resultView')
+	inputActionBar = ActionBar([computeAction], save = False)
+	
+	# Model view
+	inputView = ModelView(ioType = "input", superGroups = [inputs], 
+		actionBar = inputActionBar, autoFetch = True)
+	
+	############# Results ###############
+	# Fields
 	T_p_satPlot = PlotView(label = 'Temperature', dataLabels = ['pressure [bar]', 'saturation temperature [K]'], 
 							xlog = True, 
 							options = {'ylabel': 'temperature [K]'})
@@ -317,13 +343,13 @@ class SaturationData(NumericalModel):
 	
 	satViewGroup = ViewGroup([T_p_satPlot, rho_p_satPlot, delta_h_p_satPlot, delta_s_p_satPlot,
 								satTableView], label="Saturation Data")
-	satSuperGroup = SuperGroup([satViewGroup])
+	results = SuperGroup([satViewGroup])
 	
 	# Model view
-	resultView = ModelView(ioType = "output", superGroups = [satSuperGroup])
+	resultView = ModelView(ioType = "output", superGroups = [results])
 	
 	############# Page structure ########
-	modelBlocks = [resultView]
+	modelBlocks = [inputView, resultView]
 	
 	############# Methods ###############	
 	def compute(self):

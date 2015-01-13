@@ -4,7 +4,7 @@ from SmoWeb.views import HomeView
 
 @register.filter
 def isBase(routerName):
-	return routerName == 'Base'
+	return routerName == 'SmoWebBase'
 
 from smo.model.model import ModelView, NumericalModel, ModelDocumentation, HtmlPageModule
 @register.filter
@@ -29,15 +29,15 @@ def getModelDocUrl(module):
 
 @register.filter
 def getHtmlPageUrl(module, pageView):
-	return pageView.router.name + "/" + module.name + ".html"
+	return module.__class__.src
 
 @register.filter
-def isModuleSrcFile(module):
-	return module.srcType == 'file'
+def isSrcFile(module):
+	return module.__class__.srcType == 'file'
 
 @register.filter
-def isModuleSrcString(module):
-	return module.srcType == 'string'
+def isSrcString(module):
+	return module.__class__.srcType == 'string'
 
 @register.filter
 def isActive(view, module):
