@@ -6,7 +6,7 @@ Pipe Flow
 =========
 
 .. figure:: /static/ThermoFluids/StraightPipe.svg
-   :width: 100%
+   :width: 500px
    :align: center
    
    Pipe parameters

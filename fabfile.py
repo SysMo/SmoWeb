@@ -13,51 +13,31 @@ env.projectRoot = os.getcwd()
 env.installDir = '/srv/SmoWeb/'
 env.virtualBinDir = os.path.abspath(os.path.join(env.installDir, '../VirtualEnv/SmoWebPlatform/bin/'))
 env.activate = 'source ' + os.path.join(env.virtualBinDir, 'activate')
-env.projectModule = 'SmoWeb'
+env.projectModules = ['SmoWeb', 'SmoWebBase']
 env.applicationModules = [
 	'DataManagement',
 	'ThermoFluids',
 ]
 env.extraFolders = [
 	'smo',
-	'templates'
 ]
 env.folderCopyList = [
 	'manage.py',
-] + [env.projectModule] \
+] + env.projectModules \
   + env.applicationModules \
   + env.extraFolders
 
 env.tempFolder = os.path.abspath(os.path.join(os.path.expanduser('~'), 'tmp'))
-
+#######################################################################
 @_contextmanager
 def virtualenv():
 	with prefix(env.activate):
 		yield
-
-#######################################################################
-# Build the local C extension modules
-#######################################################################
-#@hosts('localhost')
-def buildExtModules():
-	with virtualenv():
-		print ("Building CoolProp extension module.....") 
-		with lcd(os.path.join(env.projectRoot, 'smo', 'smoflow3d', 'CoolProp')):
-			local('python setup.py build_ext --inplace', shell='bash')
-		print ("CoolProp module built successfully!") 
-
-#######################################################################
-# Synchronize the local and remote virtual environments
-#######################################################################
-def syncVirtEnv():
-	local('unison -ignore "Name {*.pyc}" /srv/VirtualEnv/ ssh://' + srvAddress + '//srv/VirtualEnv')
-	sudo('chown -R www-data:www-data /srv/SmoWeb ')
-	sudo('service apache2 restart')
-
-#######################################################################
-# Deploy the new Django version to the server
 #######################################################################
 def deploy():
+	"""
+	Deploy the local site version on the server 
+	"""
 	print("Cleaning up old code and static files")
 	local('rm -rf {0}/*'.format(os.path.join(env.installDir, 'Static')))
 	local('rm -rf {0}/*'.format(os.path.join(env.installDir, 'Platform')))
@@ -70,10 +50,27 @@ def deploy():
 	local('unison -ignore "Name {*.pyc, *.sql*}" -ignore "Path Log/*" /srv/SmoWeb ssh://' + srvAddress + '//srv/SmoWeb')
 	sudo('chown -R www-data:www-data /srv/SmoWeb ')
 	sudo('service apache2 restart')
-		
-	
 #######################################################################
-# Generate HTML files from restructuredText documents
+def buildExtModules():
+	"""
+	Builds external C/C++ Cython modules used in the project
+		* CoolProp interface module
+		
+	"""
+	with virtualenv():
+		print ("Building CoolProp extension module.....") 
+		with lcd(os.path.join(env.projectRoot, 'smo', 'smoflow3d', 'CoolProp')):
+			local('python setup.py build_ext --inplace', shell='bash')
+		print ("CoolProp module built successfully!") 
+
+#######################################################################
+def syncVirtEnv():
+	"""
+	Synchronize local and remote python virtual environments
+	"""
+	local('unison -ignore "Name {*.pyc}" /srv/VirtualEnv/ ssh://' + srvAddress + '//srv/VirtualEnv')
+	sudo('chown -R www-data:www-data /srv/SmoWeb ')
+	sudo('service apache2 restart')
 #######################################################################
 def docs():
 	"""
@@ -104,13 +101,11 @@ def docs():
 				with codecs.open(outputFilePath, 'w', 'utf-8') as fOut:
 					fOut.write(result['html_body'])
 				print ('Wrote output file: ' + outputFilePath)
-	
-
-#######################################################################
-# Installing all the necessary apt packages on the server
 #######################################################################
 def installAptPackages():
-	"Install packages from the ubuntu repository"
+	"""
+	Install the packages from the Ubuntu repository, which are necessary for proper server functioning
+	"""
 	packageList = [
 		# Revision control system
 		'git',
@@ -141,11 +136,11 @@ def installAptPackages():
 	
 	# Installing the packages necessary for building the matplotlib library
 	sudo('apt-get build-dep python-matplotlib')
-
-#######################################################################
-# Installing the necessary python virtualenv packages on the server
 #######################################################################
 def installPipPackages():
+	"""
+	Install the python packages from the Pip repository, which are necessary for proper server functioning. Alternatively use syncVirtEnv
+	"""
 	with virtualenv():
 		packageList = [
 			'argparse',
@@ -184,9 +179,11 @@ def installPipPackages():
 		]
 		for package in packageList:
 			run('pip install {0}'.format(package))
-		
-#@hosts('localhost')
+#######################################################################
 def installPySparse():
+	"""
+	Downloads, builds and installs PySparse (sparse linear solvers)
+	"""
 	with virtualenv(), cd(env.tempFolder):
 		#if (not os.path.isdir(os.path.join(env.tempFolder, 'pysparse'))):
 		if (not files.exists('pysparse')):
@@ -194,13 +191,19 @@ def installPySparse():
 		with cd('pysparse'):
 			run('python setup.py build')
 			run('python setup.py install')
-	
+#######################################################################
 def installHdf():
+	"""
+	Builds and installs HDF5 (Hierarchical Data Format) library
+	"""
 	with virtualenv():
 		with shell_env(CFLAGS="-I/usr/lib/openmpi/include/"):
 			run('pip install h5py')
-
+#######################################################################
 def configureApache():
+	"""
+	Configures Apache (not functional)
+	"""
 	platformConfig="""
 <VirtualHost *:80>
 	ServerAdmin nasko.js@gmail.com
@@ -226,3 +229,4 @@ def configureApache():
 	</Directory>
 </VirtualHost>
 """
+#######################################################################

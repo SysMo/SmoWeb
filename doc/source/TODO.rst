@@ -35,4 +35,6 @@ These tasks are also collected in the list above
    Make Celery work on the server
 
 .. todo::
+
+   If a NumericalModel has a PlotView, automatically add 'dygraphs' to requireJS of the ModularPageView
    
