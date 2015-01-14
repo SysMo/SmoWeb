@@ -1419,9 +1419,9 @@ smoModule.directive('smoViewToolbar', ['$compile', '$rootScope', function($compi
 		link : function(scope, element, attr) {
 			buttons = [];
 			for (var i = 0; i < scope.actions.length; i++) {
-				buttons.push('<button style="margin-right: 10px;" ng-click="actionHandler(actions[' + i + '])">' + scope.actions[i].label + '</button>');
+				buttons.push('<button type="button" class="btn btn-primary" ng-click="actionHandler(actions[' + i + '])">' + scope.actions[i].label + '</button>');
 			}
-			var template = '<div style="display: inline-block;">'+ buttons.join("") + '</div>';
+			var template = '<div style="margin-left: 20px;" class="btn-group" role="group">'+ buttons.join("") + '</div>';
 			var el = angular.element(template);
 	        compiled = $compile(el);
 	        element.append(el);

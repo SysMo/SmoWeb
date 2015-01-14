@@ -16,6 +16,12 @@
 	vertical-align:top;
 }
 
+/* View group */
+[smo-view-group] {
+	margin-left: 20px;
+}
+
+
 /* Variants:
  - original blue color: #0875CA
  - darker orange: #B68700
