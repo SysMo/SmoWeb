@@ -963,7 +963,7 @@ smoModule.directive('smoTable', ['$compile', function($compile) {
 						<tr>\
 							<td style="min-width: 10px;">\
 								<input type="checkbox" ng-model="allChecked" ng-change="setToAll()"></input>\
-								<span>Check/Uncheck all</span>\
+								<span>All</span>\
 							</td>\
 							<td style="min-width: 10px;" ng-repeat="columnName in tableArray[0] track by $index">\
 								<input type="checkbox" ng-model="columnsShow[$index]" ng-change="updateChecked()"></input>\
