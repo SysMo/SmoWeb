@@ -1,12 +1,13 @@
 from django.template import Library
+from SmoWeb.settings import BASE_DIR
+
 register = Library()
-from SmoWeb.views import HomeView
 
 @register.filter
 def isBase(routerName):
 	return routerName == 'SmoWebBase'
 
-from smo.model.model import ModelView, NumericalModel, ModelDocumentation, HtmlPageModule
+from smo.model.model import ModelView, NumericalModel, ModelDocumentation, HtmlModule, HtmlSection
 @register.filter
 def isModelView(obj):
 	return isinstance(obj, ModelView)
@@ -20,24 +21,25 @@ def isModelDocumentation(obj):
 	return isinstance(obj, ModelDocumentation)
 
 @register.filter
-def isHtmlPage(obj):
-	return isinstance(obj, HtmlPageModule)
-
-@register.filter
 def getModelDocUrl(module):
 	return "documentation/html/" + module.name + ".html"
 
 @register.filter
-def getHtmlPageUrl(module, pageView):
-	return module.__class__.src
+def isHtmlModule(obj):
+	return isinstance(obj, HtmlModule)
+
+@register.filter
+def isHtmlSection(obj):
+	return isinstance(obj, HtmlSection)
 
 @register.filter
 def isSrcFile(module):
-	return module.__class__.srcType == 'file'
+	return module.srcType == 'file'
 
 @register.filter
-def isSrcString(module):
-	return module.__class__.srcType == 'string'
+def getHtmlSectionUrl(block, pageView):
+	return BASE_DIR + "/" + pageView.router.name + "/templates/" + pageView.router.name + "/blocks/" + block.src
+
 
 @register.filter
 def isActive(view, module):
@@ -56,3 +58,7 @@ def getItem(dictionary, key):
 @register.filter
 def toStr(obj):
 	return obj.__str__()
+
+@register.filter
+def classDir(obj):
+	return dir(obj)

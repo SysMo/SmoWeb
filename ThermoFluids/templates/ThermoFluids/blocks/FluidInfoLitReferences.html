@@ -1,0 +1,8 @@
+<div ng-if="FluidInfo.resultViewCommunicator.dataReceived">
+<h1>Literature References</h1>				
+{% verbatim %}
+<div ng-repeat="pair in FluidInfo.resultViewCommunicator.data.values.references" ng-show="pair[1]">
+	<span class="label-text">{{pair[0]}}:</span> {{pair[1].author}}, <span class="italic-text">{{pair[1].title}}</span>
+</div>
+{% endverbatim %}
+</div>

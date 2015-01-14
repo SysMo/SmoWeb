@@ -8,23 +8,19 @@ from bson.objectid import ObjectId
 
 router = ViewRouter('SmoWebBase')
 
-
-from smo.model.model import HtmlPageModule
-class BasePageModule(HtmlPageModule):
+from smo.model.model import HtmlSection
+from smo.model.model import HtmlModule
+class BasePageModule(HtmlModule):
 	name = 'BasePageModule'
 	label = 'Home'
-	srcType = 'file'
-	src = 'HomePageContent.html'
+	section = HtmlSection(srcType="file", src="HomeSection.html")
+	modelBlocks = [section]
 
 @registerView(router)
 class HomeView(ModularPageView):
 	name = "HomeView"
 	label = "Home View"
 	modules = [BasePageModule]
-
-# 	def get(self, request):
-# 		return render_to_response('Base.html', locals(), 
-# 				context_instance=RequestContext(request))
 		
 # class unitConverterView(ModularPageView):
 # 	def get(self, request):

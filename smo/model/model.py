@@ -8,6 +8,29 @@ class ModelView(object):
 		self.superGroups = superGroups
 		self.actionBar = actionBar
 		self.autoFetch = autoFetch
+		
+class HtmlSection(object):
+	def __init__(self, srcType = None, src = None):
+		if (srcType == None):
+			self.srcType = 'string'
+			if (src == None):
+				self.src = ''
+			else:
+				self.src = src
+		elif (srcType == 'file'):
+			self.srcType = srcType
+			if (src == None):
+				raise ValueError('File path missing as second argument.')
+			else:
+				self.src = src
+		elif (srcType == 'string'):
+			self.srcType = srcType
+			if (src == None):
+				self.src = ''
+			else:
+				self.src = src
+		else:
+			raise ValueError("Valid source types are 'string' and 'file'.")
 
 #TODO: Currently inheritance not supported
 class NumericalModelMeta(type):
@@ -33,6 +56,8 @@ class NumericalModelMeta(type):
 			elif isinstance(value, fields.Group):
 				value._name = key
 			elif isinstance(value, ModelView):
+				value.name = key
+			elif isinstance(value, HtmlSection):
 				value.name = key
 				
 		current_fields.sort(key=lambda x: x[1].creation_counter)
@@ -151,32 +176,8 @@ class NumericalModel(object):
 			field = self.declared_fields[key]
 			self.__dict__[key] = field.parseValue(value)	
 
-class PlainContent(object):
+class ModelDocumentation(object):
 	pass
 
-class ModelDocumentation(PlainContent):
+class HtmlModule(object):
 	pass
-
-class HtmlPageModule(PlainContent):
-	def __init__(self, srcType = None, src = None):
-		if (srcType == None):
-			self.srcType = 'string'
-			if (src == None):
-				self.src = ''
-			else:
-				self.src = src
-		elif (srcType == 'file'):
-			if (src == None):
-				raise ValueError('File path missing as second argument.')
-			else:
-				self.src = src
-		elif (srcType == 'string'):
-			self.srcType = srcType
-			if (src == None):
-				self.src = ''
-			else:
-				self.src = src
-	 	else:
-	 		raise ValueError("Valid source types are 'string' and 'file'.")
-		
-			

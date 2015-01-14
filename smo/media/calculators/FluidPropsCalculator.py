@@ -4,7 +4,7 @@ Created on Nov 05, 2014
 '''
 import numpy as np
 from collections import OrderedDict
-from smo.model.model import NumericalModel, ModelView, ModelDocumentation
+from smo.model.model import NumericalModel, ModelView, ModelDocumentation, HtmlSection
 from smo.model.actions import ServerAction, ActionBar
 from smo.model.fields import *
 from smo.media.CoolProp.CoolProp import Fluid, FluidState
@@ -115,8 +115,11 @@ class FluidProperties(NumericalModel):
 	resultView = ModelView(ioType = "output", superGroups = [props, FluidPoints])
 	resultViewIsTwoPhase = ModelView(ioType = "output", superGroups = [props, saturationProps, FluidPoints])
 	
+	# Html section
+	imgSection = HtmlSection(srcType="file", src="FluidPropertiesImage.html")
+	
 	############# Page structure ########
-	modelBlocks = [inputView, resultView, resultViewIsTwoPhase]
+	modelBlocks = [imgSection, inputView, resultView, resultViewIsTwoPhase]
 
 	############# Methods ###############	
 	def getStateValue(self, sVar, index):
@@ -231,15 +234,19 @@ class FluidInfo(NumericalModel):
 	accentric_factor = Quantity('Dimensionless', label = 'accentric factor')
 	cas = String('CAS', label = 'CAS')
 	ashrae34 = String('ASHRAE34', label = 'ASHRAE34')
+	references = String(show="false")
 	
-	other = FieldGroup([molar_mass, accentric_factor, cas, ashrae34], label = 'Other')
+	other = FieldGroup([references, molar_mass, accentric_factor, cas, ashrae34], label = 'Other')
 	results = SuperGroup([critPoint, tripplePoint, fluidLimits, other])
 	
 	# Model view
 	resultView = ModelView(ioType = "output", superGroups = [results])
 	
+	# Html section
+	litRefs = HtmlSection(srcType="file", src="FluidInfoLitReferences.html")
+	
 	############# Page structure ########
-	modelBlocks = [inputView, resultView]
+	modelBlocks = [inputView, resultView, litRefs]
 	
 	############# Methods ###############	
 	def compute(self):
@@ -265,44 +272,18 @@ class FluidInfo(NumericalModel):
 		self.accentric_factor = f.accentricFactor
 		self.cas = f.CAS
 		self.ashrae34 = f.ASHRAE34
-		
-# 	def getReferences(self, fluidName):
-# 		f = Fluid(fluidName)
-# 		refList = []
-# 		for key in referenceKeys:
-# 			try:
-# 				reference = References[f.BibTeXKey(key)]
-# 			except KeyError:
-# 				reference = None
-# 			refList.append([referenceKeys[key], reference])
-# 		return refList
-# 		
-# 	@staticmethod
-# 	def getFluidInfo(fluidList = None):
-# 		if (fluidList is None):
-# 			fluidList = Fluids
-# 		fluidInformation = []
-# 		for fluid in fluidList:
-# 			fi = FluidInfo(fluid)
-# 			fluidData = {
-# 				'name': fluid,
-# 				'label': Fluids[fluid],
-# 				'constants': fi.modelView2Json(fi.resultView),
-# 				'references': fi.getReferences(fluid)
-# 			}
-# 			fluidInformation.append(fluidData)		
-# 		return fluidInformation
-# 	
-# 	@staticmethod
-# 	def getFluidList():
-# 		fluidList = []
-# 		for fluid in Fluids:
-# 			fluidList.append([fluid, Fluids[fluid]])
-# 		return fluidList
-# 			
-# 	@staticmethod
-# 	def test():
-# 		print FluidInfo.getFluidList()
+		self.references = self.getReferences()
+
+	def getReferences(self):
+		f = Fluid(self.fluidName)
+		refList = []
+		for key in referenceKeys:
+			try:
+				reference = References[f.BibTeXKey(key)]
+			except KeyError:
+				reference = None
+			refList.append([referenceKeys[key], reference])
+		return refList
 
 class SaturationData(NumericalModel):
 	name = "SaturationData"
