@@ -160,26 +160,46 @@ class FluidProperties(NumericalModel):
 			self.h_V = satV['h']/1e3
 			self.s_V = satV['s']/1e3
 		
+		
+		self.computeParamVarTable('paramVarTable', 'recordId', ['T', 'p', 'h'])
+		
+# 		if (self.recordId != ''):			
+# 			record = coll.find_one({"_id": ObjectId(self.recordId)})
+# 			if (record is not None):
+# 				paramVarList = record['paramVarTable']
+# 				numRows = len(paramVarList)
+# 				self.paramVarTable = np.zeros((numRows + 1, 3))
+# 				self.paramVarTable[0:numRows] = np.array(paramVarList)
+# 				self.paramVarTable[numRows] = np.array([self.T, self.p, self.h])
+# 				self.recordId = str(coll.insert({'paramVarTable': self.paramVarTable.tolist()}))
+# 			else: 
+# 				raise ValueError("Unknown record with id: {0}".format(self.recordId))
+# 		else:
+# 			self.paramVarTable = np.zeros((1, 3))
+# 			self.paramVarTable[0] = np.array([self.T, self.p, self.h])
+# 			self.recordId = str(coll.insert({'paramVarTable': self.paramVarTable.tolist()}))
+		
+		
+	def computeParamVarTable(self, tableName, recordId, paramNames):
 		db = mongoClient.SmoWeb
-		coll = db.FluidPoints	
-		
-		if (self.recordId != ''):			
-			record = coll.find_one({"_id": ObjectId(self.recordId)})
+		coll = db[self.__class__.__name__ + '_' + tableName]
+		numCol = len(paramNames)
+		if (self.__dict__[recordId] != ''):			
+			record = coll.find_one({"_id": ObjectId(self.__dict__[recordId])})
 			if (record is not None):
-				paramVarList = record['paramVarTable']
-				numRows = len(paramVarList)
-				self.paramVarTable = np.zeros((numRows + 1, 3))
-				self.paramVarTable[0:numRows] = np.array(paramVarList)
-				self.paramVarTable[numRows] = np.array([self.T, self.p, self.h])
-				self.recordId = str(coll.insert({'paramVarTable': self.paramVarTable.tolist()}))
+				recordValues = record[tableName]
+				numRows = len(recordValues)
+				self.__dict__[tableName] = np.zeros((numRows + 1, numCol))
+				self.__dict__[tableName][0:numRows] = np.array(recordValues)
+				self.__dict__[tableName][numRows] = np.array([self.__dict__[paramName] for paramName in paramNames])
+				self.__dict__[recordId] = str(coll.insert({tableName: self.__dict__[tableName].tolist()}))
 			else: 
-				raise ValueError("Unknown record with id: {0}".format(self.recordId))
+				raise ValueError("Unknown record with id: {0}".format(self.__dict__[recordId]))
 		else:
-			self.paramVarTable = np.zeros((1, 3))
-			self.paramVarTable[0] = np.array([self.T, self.p, self.h])
-			self.recordId = str(coll.insert({'paramVarTable': self.paramVarTable.tolist()}))
-		
-		
+			self.__dict__[tableName] = np.zeros((1, numCol))
+			print [self.__dict__[paramName] for paramName in paramNames]
+			self.__dict__[tableName][0] = np.array([self.__dict__[paramName] for paramName in paramNames])
+			self.__dict__[recordId] = str(coll.insert({tableName: self.__dict__[tableName].tolist()}))
 	
 	@staticmethod	
 	def test():
