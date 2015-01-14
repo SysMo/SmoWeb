@@ -134,8 +134,6 @@ class ModularPageView(object):
 		"""
 		parameters = request.GET
 		modelView = None
-		print self.requiredJSLibraries
-		print self.requiredGoogleModules
 		self.recordIdDict = {}
 		if ('model' in parameters):
 			modelName = parameters['model']

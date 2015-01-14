@@ -51,7 +51,7 @@ class FlowResistanceView(ModularPageView):
 	name = "FlowResistance"
 	label = "Flow resistance"
 	modules = [PipeFlow, PipeFlowDoc]
-	
+
 from smo.flow.FreeConvection import FreeConvection_External, FreeConvection_Internal, FreeConvectionDoc
 @registerView(router)
 class FreeConvectionView(ModularPageView):
