@@ -8,12 +8,12 @@ from bson.objectid import ObjectId
 
 router = ViewRouter('SmoWebBase')
 
-from smo.model.model import HtmlSection
+from smo.model.model import HtmlBlock
 from smo.model.model import HtmlModule
 class BasePageModule(HtmlModule):
 	name = 'BasePageModule'
 	label = 'Home'
-	section = HtmlSection(srcType="file", src="HomeSection.html")
+	section = HtmlBlock(srcType="file", src="HomeSection.html")
 	modelBlocks = [section]
 
 @registerView(router)

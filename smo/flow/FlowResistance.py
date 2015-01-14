@@ -5,7 +5,7 @@ except Exception:
 	pass
 import scipy.interpolate
 from smo.media.CoolProp.CoolProp import FluidState
-from smo.model.model import NumericalModel, ModelView, ModelDocumentation, HtmlSection
+from smo.model.model import NumericalModel, ModelView, ModelDocumentation, HtmlBlock
 from smo.model.actions import ServerAction, ActionBar
 from smo.model.fields import *
 from smo.media.MaterialData import Solids, Fluids
@@ -72,7 +72,7 @@ class PipeFlow(NumericalModel):
 	resultView = ModelView(ioType = "output", superGroups = [results])
 	
 	# Html section
-	imgSection = HtmlSection(srcType="file", src="FlowResistanceImage.html")
+	imgSection = HtmlBlock(srcType="file", src="FlowResistanceImage.html")
 	
 	############# Page structure ########
 	modelBlocks = [imgSection, inputView, resultView]

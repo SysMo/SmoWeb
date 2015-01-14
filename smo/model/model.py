@@ -9,7 +9,7 @@ class ModelView(object):
 		self.actionBar = actionBar
 		self.autoFetch = autoFetch
 		
-class HtmlSection(object):
+class HtmlBlock(object):
 	def __init__(self, srcType = None, src = None):
 		if (srcType == None):
 			self.srcType = 'string'
@@ -57,7 +57,7 @@ class NumericalModelMeta(type):
 				value._name = key
 			elif isinstance(value, ModelView):
 				value.name = key
-			elif isinstance(value, HtmlSection):
+			elif isinstance(value, HtmlBlock):
 				value.name = key
 				
 		current_fields.sort(key=lambda x: x[1].creation_counter)

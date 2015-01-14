@@ -851,6 +851,9 @@ smoModule.directive('smoTable', ['$compile', function($compile) {
 			$scope.expanded = false;
 			$scope.toggle = function(){
 				$scope.expanded = !$scope.expanded;
+				if ($scope.expanded == false){
+					$scope.drawTable();
+				}
 			}
 			
 			$scope.init = function(){
@@ -897,7 +900,6 @@ smoModule.directive('smoTable', ['$compile', function($compile) {
 					}
 				}
 				$scope.dataView.setColumns($scope.viewCloumns);
-				$scope.drawTable();
 			}	
 			
 			$scope.drawTable = function() {

@@ -76,7 +76,7 @@ angular.module('{{pageView.name}}', ['ui.bootstrap', 'smo'])
 							{% if block|isModelView %}
 								<div smo-model-view="{{block.name}}" model-name="{{module.name}}" view-type="{{block.ioType}}" auto-fetch="{{block.autoFetch|lower}}" view-record-id="{{pageView.recordIdDict|getItem:block}}"></div>
 							{% endif %}
-							{% if block|isHtmlSection %}
+							{% if block|isHtmlBlock %}
 								{% if block|isSrcFile %}
 									{% include block|getHtmlSectionUrl:pageView %}
 								{% else %}
@@ -95,7 +95,7 @@ angular.module('{{pageView.name}}', ['ui.bootstrap', 'smo'])
 				{% endif %}
 				{% if module|isHtmlModule %}
 					{% for block in module.modelBlocks %}
-						{% if block|isHtmlSection %}
+						{% if block|isHtmlBlock %}
 							{% if block|isSrcFile %}
 								{% include block|getHtmlSectionUrl:pageView %}
 							{% else %}

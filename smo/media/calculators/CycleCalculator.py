@@ -5,7 +5,7 @@ Created on Nov 09, 2014
 
 import numpy as np
 from smo.media.CoolProp.CoolProp import FluidState, Fluid
-from smo.model.model import NumericalModel, ModelView, ModelDocumentation, HtmlSection
+from smo.model.model import NumericalModel, ModelView, ModelDocumentation, HtmlBlock
 from smo.model.actions import ServerAction, ActionBar
 from smo.model.fields import *
 from smo.media.MaterialData import Fluids
@@ -122,7 +122,7 @@ class HeatPump(NumericalModel):
 	resultView = ModelView(ioType = "output", superGroups = [results])
 	
 	# Html section
-	imgSection = HtmlSection(srcType="file", src="HeatPumpImage.html")
+	imgSection = HtmlBlock(srcType="file", src="HeatPumpImage.html")
 	
 	############# Page structure ########
 	modelBlocks = [imgSection, inputView, resultView]

@@ -7,7 +7,7 @@ register = Library()
 def isBase(routerName):
 	return routerName == 'SmoWebBase'
 
-from smo.model.model import ModelView, NumericalModel, ModelDocumentation, HtmlModule, HtmlSection
+from smo.model.model import ModelView, NumericalModel, ModelDocumentation, HtmlModule, HtmlBlock
 @register.filter
 def isModelView(obj):
 	return isinstance(obj, ModelView)
@@ -29,8 +29,8 @@ def isHtmlModule(obj):
 	return isinstance(obj, HtmlModule)
 
 @register.filter
-def isHtmlSection(obj):
-	return isinstance(obj, HtmlSection)
+def isHtmlBlock(obj):
+	return isinstance(obj, HtmlBlock)
 
 @register.filter
 def isSrcFile(module):

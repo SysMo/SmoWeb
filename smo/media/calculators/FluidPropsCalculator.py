@@ -4,7 +4,7 @@ Created on Nov 05, 2014
 '''
 import numpy as np
 from collections import OrderedDict
-from smo.model.model import NumericalModel, ModelView, ModelDocumentation, HtmlSection
+from smo.model.model import NumericalModel, ModelView, ModelDocumentation, HtmlBlock
 from smo.model.actions import ServerAction, ActionBar
 from smo.model.fields import *
 from smo.media.CoolProp.CoolProp import Fluid, FluidState
@@ -107,7 +107,7 @@ class FluidProperties(NumericalModel):
 	vaporResults = FieldGroup([rho_V, h_V, s_V], label="Vapor")
 	saturationProps = SuperGroup([liquidResults, vaporResults], label="Phases")
 	#####
-	paramVarTable = TableView(label="Variation Table", dataLabels = ['T[K]', 'p[bar]', 'h[J/kg]'], 
+	paramVarTable = TableView(label="Variation Table", dataLabels = ['T[K]', 'p[Pa]', 'h[J/kg]'], 
 			options = {'formats': ['0.0000E0', '0.000', '0.000']})
 	paramVariation = ViewGroup([paramVarTable], label="Parameter Variation")
 	FluidPoints = SuperGroup([paramVariation], label = "Fluid Points")	
@@ -116,7 +116,7 @@ class FluidProperties(NumericalModel):
 	resultViewIsTwoPhase = ModelView(ioType = "output", superGroups = [props, saturationProps, FluidPoints])
 	
 	# Html section
-	imgSection = HtmlSection(srcType="file", src="FluidPropertiesImage.html")
+	imgSection = HtmlBlock(srcType="file", src="FluidPropertiesImage.html")
 	
 	############# Page structure ########
 	modelBlocks = [imgSection, inputView, resultView, resultViewIsTwoPhase]
@@ -178,7 +178,8 @@ class FluidProperties(NumericalModel):
 			self.paramVarTable = np.zeros((1, 3))
 			self.paramVarTable[0] = np.array([self.T, self.p, self.h])
 			self.recordId = str(coll.insert({'paramVarTable': self.paramVarTable.tolist()}))
-	
+		
+		
 	
 	@staticmethod	
 	def test():
@@ -243,7 +244,7 @@ class FluidInfo(NumericalModel):
 	resultView = ModelView(ioType = "output", superGroups = [results])
 	
 	# Html section
-	litRefs = HtmlSection(srcType="file", src="FluidInfoLitReferences.html")
+	litRefs = HtmlBlock(srcType="file", src="FluidInfoLitReferences.html")
 	
 	############# Page structure ########
 	modelBlocks = [inputView, resultView, litRefs]
