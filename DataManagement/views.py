@@ -10,7 +10,7 @@ from decimal import Decimal
 from smo.model.quantity import Quantities
 from smo.django.view import ModularPageView
 from smo.django.router import ViewRouter, registerView
-from smo.model.model import HtmlPageModule
+from smo.model.model import HtmlModule
 
 # Create your views here.
 router = ViewRouter('DataManagement')
@@ -64,7 +64,7 @@ def hdfInterfaceView(request):
 
 
 
-class DataExplorer(HtmlPageModule):
+class DataExplorer(HtmlModule):
 	name = 'DataExplorer'
 	srcType = 'file'
 
@@ -79,7 +79,7 @@ class DataExplorerView(ModularPageView):
 # 		return render_to_response('DataManagement/DataExplorer.html', 
 # 								  context_instance=RequestContext(request))
 
-class ImportCsv(HtmlPageModule):
+class ImportCsv(HtmlModule):
 	name = 'ImportCsv'
 	srcType = 'file'
 

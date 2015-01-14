@@ -1,9 +1,9 @@
 .. sectnum::
    :suffix: .
 
-===============
-Flow resistance
-===============
+=========
+Pipe Flow
+=========
 
 .. figure:: /static/ThermoFluids/StraightPipe.svg
    :width: 500px

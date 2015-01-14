@@ -1,0 +1,83 @@
+{% extends "Base.html" %}
+{% load bootstrap_toolkit %}
+{% load staticfiles %}
+
+{% block scripts_and_styles %}
+<script src="{% static 'SmoUtil.js' %}"></script>
+<script>
+angular.module('SmoConvert', ['ui.bootstrap', 'smo'])
+	.config(['$httpProvider', function($httpProvider) {
+	    $httpProvider.defaults.xsrfCookieName = 'csrftoken';
+	    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+	}])
+	.controller('SmoConvertController', [ '$scope', 'ModelCommunicator', 'variables', 
+	                                      function($scope, ModelCommunicator, variables) {
+	$scope.inputPattern = /^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$/;
+	//$scope.inputPattern = /^[0-9]$/;
+		
+	$scope.unitConverter = {
+		communicator: new ModelCommunicator()
+	};
+		
+	$scope.unitConverter.communicator.fetchData(
+		'getQuantities', {}, function(comm){
+			$scope.quantityData = comm.data;
+			$scope.renderConverter();
+		}
+	);
+	
+	$scope.renderConverter = function() {
+		$scope.quantities = {};
+		for (name in $scope.quantityData) {
+			var value = $scope.quantityData[name];
+			if (value.SIUnit == '-')
+				continue
+			else {
+				$scope.quantities[value.title] = new variables.Quantity(name, value.title, value.nominalValue, value.SIUnit, value.units);
+			}
+		}
+		$scope.choiceVar = $scope.quantities[Object.keys($scope.quantities)[0]];
+	}
+}])
+</script>
+{% endblock %}
+
+{% block pills %}
+{% endblock %}
+
+{% block content %}
+<div ng-app="SmoConvert" ng-controller="SmoConvertController">
+	<div class="page-container">
+		<h1 class="title">Unit converter</h1>
+		<div class="section" style="text-align: center;">
+			<div ng-if="unitConverter.communicator.loading" class="alert alert-info" role="alert">Loading...</div>
+			<div ng-if="unitConverter.communicator.commError" class="alert alert-danger" role="alert">Communication error: <span ng-bind="unitConverter.communicator.errorMsg"></span></div>
+			<div ng-if="unitConverter.communicator.serverError" class="alert alert-danger" role="alert">Server error: <span ng-bind="unitConverter.communicator.errorMsg"></span>
+				<div>Stack trace:</div><pre><div ng-bind="unitConverter.communicator.stackTrace"></div></pre>
+			</div>
+		
+			<div ng-if="unitConverter.communicator.dataReceived">
+				<div class="converter">
+					<div class="choice-group">
+						<div class="select-text">Select a quantity:</div>
+						<div>
+							<select ng-model="choiceVar" ng-options="value as name for (name, value) in quantities"></select>
+						</div>
+					</div>
+					<div class="results-group">
+						<div class="field" ng-repeat="unit in choiceVar.unitsArr track by $index">
+		{% verbatim %}
+							<div ng-form name="Form{{$index}}" class="field-input">
+								<input name="input" type="text" ng-model="unit[2]" ng-pattern="/^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$/" ng-change="choiceVar.updateValues($index, Form{{$index}}.input.$error.pattern)">
+							</div>
+							<div class="field-label" ng-bind="unit[0]"></div>
+							<div class="input-error" ng-show="Form{{$index}}.input.$error.pattern">Enter a valid number</div>
+		{% endverbatim %}
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}

@@ -113,7 +113,7 @@ class ModularPageView(object):
 
 	requireJS = ['MathJax']
 	requireGoogle = []
-	template = 'ModelViewTemplate.html' 
+	template = 'SmoWebBase/ModelViewTemplate.html' 
 	
 	def view(self, request):
 		"""
@@ -149,11 +149,12 @@ class ModularPageView(object):
 					# find the active view
 					viewName = parameters['view']
 					for block in self.activeModule.modelBlocks:
+						print block.name
 						if (block.name == viewName):
 							modelView = block
 							break
-						if (modelView is None):
-							raise ValueError("Unknown view {0} in module {1}".format(viewName, modelName))
+					if (modelView is None):
+						raise ValueError("Unknown view {0} in module {1}".format(viewName, modelName))
 					if ('id' in parameters):
 						recordId = parameters['id']
 						self.recordIdDict[modelView] = recordId

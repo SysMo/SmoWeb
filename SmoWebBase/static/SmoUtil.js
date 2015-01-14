@@ -848,21 +848,71 @@ smoModule.directive('smoTable', ['$compile', function($compile) {
 			smoDataSource : '='
 		},
 		controller: function($scope) {
-			$scope.drawTable = function() {				
-				var tableArray = $scope.smoDataSource[$scope.fieldVar.name];
-				
+			$scope.expanded = false;
+			$scope.toggle = function(){
+				$scope.expanded = !$scope.expanded;
+				if ($scope.expanded == false){
+					$scope.drawTable();
+				}
+			}
+			
+			$scope.init = function(){
+				$scope.tableArray = $scope.smoDataSource[$scope.fieldVar.name];
 				//Creating the GViz DataTable object
-				$scope.dataTable = google.visualization.arrayToDataTable(tableArray);
+				$scope.dataTable = google.visualization.arrayToDataTable($scope.tableArray);
+				$scope.dataView = new google.visualization.DataView($scope.dataTable);
+				//Setting initial visibility
+				$scope.columnsShow = [];
+				for (i=0; i<$scope.tableArray[0].length; i++){
+					$scope.columnsShow[i] = true;
+				}
+				$scope.allChecked = true;
+				var numEditRows;
+				if ($scope.tableArray[0].length % 5){
+					numEditRows = Math.floor($scope.tableArray[0].length/5) + 1;
+				} else {
+					numEditRows = Math.floor($scope.tableArray[0].length/5);
+				}
+				$scope.editRows = [];
+				for (i=0; i<numEditRows; i++){
+					$scope.editRows.push(i);
+				}
+				$scope.drawTable();
+			}
+						
+			$scope.updateChecked = function(){
+				$scope.allChecked = false;
+				$scope.setDataView();
+			}
+			
+			$scope.setToAll = function(){
+				for (i=0; i<$scope.columnsShow.length; i++){
+					$scope.columnsShow[i] = $scope.allChecked;
+				}
+				$scope.setDataView();
+			}
+			
+			$scope.setDataView = function(){
+				$scope.viewCloumns = [];
+				for (i=0; i<$scope.tableArray[0].length; i++){
+					if ($scope.columnsShow[i] == true){
+						$scope.viewCloumns.push(i);
+					}
+				}
+				$scope.dataView.setColumns($scope.viewCloumns);
+			}	
+			
+			$scope.drawTable = function() {
 				//Drawing the table
 				var tableView = new google.visualization.Table(document.getElementById($scope.fieldVar.name + 'TableDiv'));
 				
 				if(typeof $scope.fieldVar.options.formats === 'string'){
-					for (var i=0; i < tableArray[0].length; i++){
+					for (var i=0; i < $scope.tableArray[0].length; i++){
 						formatter = new google.visualization.NumberFormat({pattern: $scope.fieldVar.options.formats});
 						formatter.format($scope.dataTable, i);
 					}
 				} else {
-					for (var i=0; i < tableArray[0].length; i++){
+					for (var i=0; i < $scope.tableArray[0].length; i++){
 						try {
 							formatter = new google.visualization.NumberFormat({pattern: $scope.fieldVar.options.formats[i]});
 						}
@@ -874,7 +924,7 @@ smoModule.directive('smoTable', ['$compile', function($compile) {
 					}
 				}
 				
-				tableView.draw($scope.dataTable, {showRowNumber: true, sort:'disable', page:'enable', pageSize:14});
+				tableView.draw($scope.dataView, {showRowNumber: true, sort:'disable', page:'enable', pageSize:14});
 			}
 			
 			$scope.csvFileName = $scope.fieldVar.name + '.csv';
@@ -918,6 +968,25 @@ smoModule.directive('smoTable', ['$compile', function($compile) {
 				<input ng-model="csvFileName"></input>\
 				<smo-button icon="save" size="md" action="exportCSV()" tip="Save data"></smo-button>\
 				<a id="' + scope.fieldVar.name + 'CsvElem" hidden></a>\
+				<smo-button action="toggle()" icon="edit" tip="Edit" size="md"></smo-button>\
+				<div class="table-view-edit" ng-show="expanded">\
+					<div style="cursor: pointer; margin-top: 50px; margin-right: 20px;"><smo-button action="toggle()" icon="close" tip="Close editor"></smo-button></div>\
+					<table class="nice-table" style="border: none;">\
+						<tr>\
+							<th style="min-width: 10px;">\
+								<input type="checkbox" ng-model="allChecked" ng-change="setToAll()"></input>\
+								<span>All</span>\
+							</th>\
+						</tr>\
+						</tr>\
+						<tr ng-repeat="row in editRows">\
+							<td style="min-width: 10px;" ng-repeat="columnName in tableArray[0].slice(row*5, row*5+5) track by $index">\
+								<input type="checkbox" ng-model="columnsShow[row*5 + $index]" ng-change="updateChecked()"></input>\
+								<span ng-bind="columnName"></span>\
+							</td>\
+						</tr>\
+					</table>\
+				</div>\
 			</div>';  
 
 			var el = angular.element(template);
@@ -925,7 +994,7 @@ smoModule.directive('smoTable', ['$compile', function($compile) {
 	        element.append(el);
 	        compiled(scope); 
 	        scope.$watch(scope.smoDataSource[scope.fieldVar.name], function(value) {
-				scope.drawTable();
+				scope.init();
 		});
 		}	
 	}
@@ -1419,9 +1488,9 @@ smoModule.directive('smoViewToolbar', ['$compile', '$rootScope', function($compi
 		link : function(scope, element, attr) {
 			buttons = [];
 			for (var i = 0; i < scope.actions.length; i++) {
-				buttons.push('<button style="margin-right: 10px;" ng-click="actionHandler(actions[' + i + '])">' + scope.actions[i].label + '</button>');
+				buttons.push('<button type="button" class="btn btn-primary" ng-click="actionHandler(actions[' + i + '])">' + scope.actions[i].label + '</button>');
 			}
-			var template = '<div style="display: inline-block;">'+ buttons.join("") + '</div>';
+			var template = '<div style="margin-left: 20px;" class="btn-group" role="group">'+ buttons.join("") + '</div>';
 			var el = angular.element(template);
 	        compiled = $compile(el);
 	        element.append(el);

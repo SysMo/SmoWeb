@@ -4,7 +4,7 @@ Created on Nov 05, 2014
 '''
 import numpy as np
 from collections import OrderedDict
-from smo.model.model import NumericalModel, ModelView, ModelDocumentation
+from smo.model.model import NumericalModel, ModelView, ModelDocumentation, HtmlBlock
 from smo.model.actions import ServerAction, ActionBar
 from smo.model.fields import *
 from smo.media.CoolProp.CoolProp import Fluid, FluidState
@@ -107,7 +107,7 @@ class FluidProperties(NumericalModel):
 	vaporResults = FieldGroup([rho_V, h_V, s_V], label="Vapor")
 	saturationProps = SuperGroup([liquidResults, vaporResults], label="Phases")
 	#####
-	paramVarTable = TableView(label="Variation Table", dataLabels = ['T[K]', 'p[bar]', 'h[J/kg]'], 
+	paramVarTable = TableView(label="Variation Table", dataLabels = ['T[K]', 'p[Pa]', 'h[J/kg]'], 
 			options = {'formats': ['0.0000E0', '0.000', '0.000']})
 	paramVariation = ViewGroup([paramVarTable], label="Parameter Variation")
 	FluidPoints = SuperGroup([paramVariation], label = "Fluid Points")	
@@ -115,8 +115,11 @@ class FluidProperties(NumericalModel):
 	resultView = ModelView(ioType = "output", superGroups = [props, FluidPoints])
 	resultViewIsTwoPhase = ModelView(ioType = "output", superGroups = [props, saturationProps, FluidPoints])
 	
+	# Html section
+	imgSection = HtmlBlock(srcType="file", src="FluidPropertiesImage.html")
+	
 	############# Page structure ########
-	modelBlocks = [inputView, resultView, resultViewIsTwoPhase]
+	modelBlocks = [imgSection, inputView, resultView, resultViewIsTwoPhase]
 
 	############# Methods ###############	
 	def getStateValue(self, sVar, index):
@@ -157,25 +160,46 @@ class FluidProperties(NumericalModel):
 			self.h_V = satV['h']/1e3
 			self.s_V = satV['s']/1e3
 		
-		db = mongoClient.SmoWeb
-		coll = db.FluidPoints
 		
-		if (self.recordId != ''):	
-			record = coll.find_one({"_id": ObjectId(self.recordId)})
+		self.computeParamVarTable('paramVarTable', 'recordId', ['T', 'p', 'h'])
+		
+# 		if (self.recordId != ''):			
+# 			record = coll.find_one({"_id": ObjectId(self.recordId)})
+# 			if (record is not None):
+# 				paramVarList = record['paramVarTable']
+# 				numRows = len(paramVarList)
+# 				self.paramVarTable = np.zeros((numRows + 1, 3))
+# 				self.paramVarTable[0:numRows] = np.array(paramVarList)
+# 				self.paramVarTable[numRows] = np.array([self.T, self.p, self.h])
+# 				self.recordId = str(coll.insert({'paramVarTable': self.paramVarTable.tolist()}))
+# 			else: 
+# 				raise ValueError("Unknown record with id: {0}".format(self.recordId))
+# 		else:
+# 			self.paramVarTable = np.zeros((1, 3))
+# 			self.paramVarTable[0] = np.array([self.T, self.p, self.h])
+# 			self.recordId = str(coll.insert({'paramVarTable': self.paramVarTable.tolist()}))
+		
+		
+	def computeParamVarTable(self, tableName, recordId, paramNames):
+		db = mongoClient.SmoWeb
+		coll = db[self.__class__.__name__ + '_' + tableName]
+		numCol = len(paramNames)
+		if (self.__dict__[recordId] != ''):			
+			record = coll.find_one({"_id": ObjectId(self.__dict__[recordId])})
 			if (record is not None):
-				paramVarList = record['paramVarTable']
-				numRows = len(paramVarList)
-				self.paramVarTable = np.zeros((numRows + 1, 3))
-				self.paramVarTable[0:numRows] = np.array(paramVarList)
-				self.paramVarTable[numRows] = np.array([self.T, self.p, self.h])
-				self.recordId = str(coll.insert({'paramVarTable': self.paramVarTable.tolist()}))
+				recordValues = record[tableName]
+				numRows = len(recordValues)
+				self.__dict__[tableName] = np.zeros((numRows + 1, numCol))
+				self.__dict__[tableName][0:numRows] = np.array(recordValues)
+				self.__dict__[tableName][numRows] = np.array([self.__dict__[paramName] for paramName in paramNames])
+				self.__dict__[recordId] = str(coll.insert({tableName: self.__dict__[tableName].tolist()}))
 			else: 
-				raise ValueError("Unknown record with id: {0}".format(self.recordId))
+				raise ValueError("Unknown record with id: {0}".format(self.__dict__[recordId]))
 		else:
-			self.paramVarTable = np.zeros((1, 3))
-			self.paramVarTable[0] = np.array([self.T, self.p, self.h])
-			self.recordId = str(coll.insert({'paramVarTable': self.paramVarTable.tolist()}))
-	
+			self.__dict__[tableName] = np.zeros((1, numCol))
+			print [self.__dict__[paramName] for paramName in paramNames]
+			self.__dict__[tableName][0] = np.array([self.__dict__[paramName] for paramName in paramNames])
+			self.__dict__[recordId] = str(coll.insert({tableName: self.__dict__[tableName].tolist()}))
 	
 	@staticmethod	
 	def test():
@@ -231,15 +255,19 @@ class FluidInfo(NumericalModel):
 	accentric_factor = Quantity('Dimensionless', label = 'accentric factor')
 	cas = String('CAS', label = 'CAS')
 	ashrae34 = String('ASHRAE34', label = 'ASHRAE34')
+	references = String(show="false")
 	
-	other = FieldGroup([molar_mass, accentric_factor, cas, ashrae34], label = 'Other')
+	other = FieldGroup([references, molar_mass, accentric_factor, cas, ashrae34], label = 'Other')
 	results = SuperGroup([critPoint, tripplePoint, fluidLimits, other])
 	
 	# Model view
 	resultView = ModelView(ioType = "output", superGroups = [results])
 	
+	# Html section
+	litRefs = HtmlBlock(srcType="file", src="FluidInfoLitReferences.html")
+	
 	############# Page structure ########
-	modelBlocks = [inputView, resultView]
+	modelBlocks = [inputView, resultView, litRefs]
 	
 	############# Methods ###############	
 	def compute(self):
@@ -265,44 +293,18 @@ class FluidInfo(NumericalModel):
 		self.accentric_factor = f.accentricFactor
 		self.cas = f.CAS
 		self.ashrae34 = f.ASHRAE34
-		
-# 	def getReferences(self, fluidName):
-# 		f = Fluid(fluidName)
-# 		refList = []
-# 		for key in referenceKeys:
-# 			try:
-# 				reference = References[f.BibTeXKey(key)]
-# 			except KeyError:
-# 				reference = None
-# 			refList.append([referenceKeys[key], reference])
-# 		return refList
-# 		
-# 	@staticmethod
-# 	def getFluidInfo(fluidList = None):
-# 		if (fluidList is None):
-# 			fluidList = Fluids
-# 		fluidInformation = []
-# 		for fluid in fluidList:
-# 			fi = FluidInfo(fluid)
-# 			fluidData = {
-# 				'name': fluid,
-# 				'label': Fluids[fluid],
-# 				'constants': fi.modelView2Json(fi.resultView),
-# 				'references': fi.getReferences(fluid)
-# 			}
-# 			fluidInformation.append(fluidData)		
-# 		return fluidInformation
-# 	
-# 	@staticmethod
-# 	def getFluidList():
-# 		fluidList = []
-# 		for fluid in Fluids:
-# 			fluidList.append([fluid, Fluids[fluid]])
-# 		return fluidList
-# 			
-# 	@staticmethod
-# 	def test():
-# 		print FluidInfo.getFluidList()
+		self.references = self.getReferences()
+
+	def getReferences(self):
+		f = Fluid(self.fluidName)
+		refList = []
+		for key in referenceKeys:
+			try:
+				reference = References[f.BibTeXKey(key)]
+			except KeyError:
+				reference = None
+			refList.append([referenceKeys[key], reference])
+		return refList
 
 class SaturationData(NumericalModel):
 	name = "SaturationData"
