@@ -864,6 +864,16 @@ smoModule.directive('smoTable', ['$compile', function($compile) {
 					$scope.columnsShow[i] = true;
 				}
 				$scope.allChecked = true;
+				var numEditRows;
+				if ($scope.tableArray[0].length % 5){
+					numEditRows = Math.floor($scope.tableArray[0].length/5) + 1;
+				} else {
+					numEditRows = Math.floor($scope.tableArray[0].length/5);
+				}
+				$scope.editRows = [];
+				for (i=0; i<numEditRows; i++){
+					$scope.editRows.push(i);
+				}
 				$scope.drawTable();
 			}
 						
@@ -959,14 +969,17 @@ smoModule.directive('smoTable', ['$compile', function($compile) {
 				<smo-button action="toggle()" icon="edit" tip="Edit" size="md"></smo-button>\
 				<div class="table-view-edit" ng-show="expanded">\
 					<div style="cursor: pointer; margin-top: 50px; margin-right: 20px;"><smo-button action="toggle()" icon="close" tip="Close editor"></smo-button></div>\
-					<table class="nice-table">\
+					<table class="nice-table" style="border: none;">\
 						<tr>\
-							<td style="min-width: 10px;">\
+							<th style="min-width: 10px;">\
 								<input type="checkbox" ng-model="allChecked" ng-change="setToAll()"></input>\
 								<span>All</span>\
-							</td>\
-							<td style="min-width: 10px;" ng-repeat="columnName in tableArray[0] track by $index">\
-								<input type="checkbox" ng-model="columnsShow[$index]" ng-change="updateChecked()"></input>\
+							</th>\
+						</tr>\
+						</tr>\
+						<tr ng-repeat="row in editRows">\
+							<td style="min-width: 10px;" ng-repeat="columnName in tableArray[0].slice(row*5, row*5+5) track by $index">\
+								<input type="checkbox" ng-model="columnsShow[row*5 + $index]" ng-change="updateChecked()"></input>\
 								<span ng-bind="columnName"></span>\
 							</td>\
 						</tr>\

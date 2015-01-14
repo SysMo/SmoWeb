@@ -192,8 +192,8 @@
 	font-size: medium;
 	color: black;
 }
-/* Record array table editor */
-.record-array {
+/* Record array and TableView editor */
+.record-array, .table-view-edit {
 	position: absolute;
 	position: fixed;
 	left: 0px;
@@ -216,23 +216,6 @@
 
 .record-array > div > table {
 	border: 5px solid white;
-}
-
-/* TableView editor */
-.table-view-edit {
-	position: absolute;
-	position: fixed;
-	left: 0px;
-	right: 0px;
-	top: 0px;
-	bottom: 0px;
-	white-space: nowrap;
-	z-index: 10000;
-	background: rgba(0, 0, 0, 0.8);
-	padding-left: 200px;
-	padding-right: 20px;
-	padding-top: 100px;
-	overflow: scroll;
 }
 
 /* Unit Converter specific styles */
