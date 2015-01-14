@@ -218,6 +218,22 @@
 	border: 5px solid white;
 }
 
+/* TableView editor */
+.table-view-edit {
+	position: absolute;
+	position: fixed;
+	left: 0px;
+	right: 0px;
+	top: 0px;
+	bottom: 0px;
+	white-space: nowrap;
+	z-index: 10000;
+	background: rgba(0, 0, 0, 0.8);
+	padding-left: 200px;
+	padding-top: 100px;
+	overflow: scroll;
+}
+
 /* Unit Converter specific styles */
 .converter {
 	margin-top: 40px;
