@@ -46,6 +46,12 @@ class FluidPropsCalculatorView(ModularPageView):
 # 	def getFluidList(self, model, view, parameters):
 # 		return FluidInfo.getFluidList()
 	
+from smo.media.calculators.ThermodynamicProcess import ThermodynamicProcess
+@registerView(router)
+class ThermodynamicProcessView(ModularPageView):
+	name = "ThermodynamicProcess"
+	label = "Thermodynamic processes"
+	modules = [ThermodynamicProcess]
 
 from smo.flow.FlowResistance import PipeFlow, PipeFlowDoc
 @registerView(router)

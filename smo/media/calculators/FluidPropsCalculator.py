@@ -158,9 +158,9 @@ class FluidProperties(NumericalModel):
 			self.s_V = satV['s']/1e3
 		
 		db = mongoClient.SmoWeb
-		coll = db.FluidPoints	
+		coll = db.FluidPoints
 		
-		if (self.recordId != ''):			
+		if (self.recordId != ''):	
 			record = coll.find_one({"_id": ObjectId(self.recordId)})
 			if (record is not None):
 				paramVarList = record['paramVarTable']

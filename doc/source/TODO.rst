@@ -14,17 +14,7 @@ Additional tasks
 ----------------
 
 These tasks are also collected in the list above
-
-.. todo::
    
-   Allow for generation of Latex PDFs using SVG images.
-   Check out https://sites.google.com/site/nickfolse/home/sphinx-latexpdf-output-with-svg-images
-   
-
-.. todo::
-
-   Create smo.django.view.htmlView (similar to smo.model.model.ModelDocumentation) for including
-   raw HTML on a page
 
 .. todo::
 
@@ -32,9 +22,14 @@ These tasks are also collected in the list above
    
 .. todo::
 
-   Make Celery work on the server
+   If a NumericalModel has a PlotView, automatically add 'dygraphs' to requireJS of the ModularPageView
 
 .. todo::
 
-   If a NumericalModel has a PlotView, automatically add 'dygraphs' to requireJS of the ModularPageView
+   Make Celery work on the server
+
+.. todo::
+   
+   Allow for generation of Latex PDFs using SVG images.
+   Check out https://sites.google.com/site/nickfolse/home/sphinx-latexpdf-output-with-svg-images
    
