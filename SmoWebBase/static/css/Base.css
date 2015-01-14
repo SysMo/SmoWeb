@@ -193,17 +193,16 @@ h1.title {
 
 /* Documentation */
 div.docview {
-		width: 1000px; 
-		margin-left: auto; 
-		margin-right: auto; 
 		background-color:white; 
-		border: solid black 1px; 
+		border: solid 1px #CCC;
 		padding: 50px;
 		counter-reset: figure;
 }
 
 .align-center {
 	text-align: center;
+	margin-left: auto;
+	margin-right: auto;
 }
 
 .figure > .caption:before {

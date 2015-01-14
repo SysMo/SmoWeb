@@ -1,7 +1,7 @@
 from django.shortcuts import render_to_response, RequestContext
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.core.urlresolvers import reverse
-from  SmoWeb.settings import MEDIA_ROOT, hdfFileFolder
+from  SmoWeb.settings import MEDIA_ROOT, HDF_FOLDER
 import json
 import os.path
 from smo.django.util import handle_uploaded_file, TemporaryObjectsHash
@@ -24,7 +24,7 @@ def hdfInterfaceView(request):
 		hdfNode = postData["currentNode"]
  		
 		hdfFileName = "myData.hdf" # !!! Actually here the name corresponding to the id should be used
-		hdfFilePath = os.path.join(hdfFileFolder, hdfFileName)
+		hdfFilePath = os.path.join(HDF_FOLDER, hdfFileName)
 		hdfIface = HDFInterface(hdfFilePath)
  		
 		if (action == "getHdfFileContent"):			
