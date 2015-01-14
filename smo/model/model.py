@@ -8,9 +8,6 @@ class ModelView(object):
 		self.superGroups = superGroups
 		self.actionBar = actionBar
 		self.autoFetch = autoFetch
- 
-class ModelDocumentation(object):
-	pass
 
 #TODO: Currently inheritance not supported
 class NumericalModelMeta(type):
@@ -153,3 +150,33 @@ class NumericalModel(object):
 		for key, value in jsonDict.iteritems():
 			field = self.declared_fields[key]
 			self.__dict__[key] = field.parseValue(value)	
+
+class PlainContent(object):
+	pass
+
+class ModelDocumentation(PlainContent):
+	pass
+
+class HtmlPageModule(PlainContent):
+	def __init__(self, srcType = None, src = None):
+		if (srcType == None):
+			self.srcType = 'string'
+			if (src == None):
+				self.src = ''
+			else:
+				self.src = src
+		elif (srcType == 'file'):
+			if (src == None):
+				raise ValueError('File path missing as second argument.')
+			else:
+				self.src = src
+		elif (srcType == 'string'):
+			self.srcType = srcType
+			if (src == None):
+				self.src = ''
+			else:
+				self.src = src
+	 	else:
+	 		raise ValueError("Valid source types are 'string' and 'file'.")
+		
+			
