@@ -863,8 +863,8 @@ smoModule.directive('smoTable', ['$compile', function($compile) {
 				$scope.dataView = new google.visualization.DataView($scope.dataTable);
 				//Setting initial visibility
 				$scope.columnsShow = [];
-				for (i=0; i<$scope.tableArray[0].length; i++){
-					$scope.columnsShow[i] = true;
+				for (i=0; i<$scope.fieldVar.visibleColumns.length; i++){
+					$scope.columnsShow[$scope.fieldVar.visibleColumns[i]] = true;
 				}
 				$scope.allChecked = true;
 				var numEditRows;
@@ -877,6 +877,7 @@ smoModule.directive('smoTable', ['$compile', function($compile) {
 				for (i=0; i<numEditRows; i++){
 					$scope.editRows.push(i);
 				}
+				$scope.setDataView();
 				$scope.drawTable();
 			}
 						

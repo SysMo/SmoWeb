@@ -1,5 +1,5 @@
 from django.template import Library
-from SmoWeb.settings import BASE_DIR
+from SmoWeb.settings import BASE_DIR, STATIC_ROOT
 
 register = Library()
 
@@ -33,13 +33,13 @@ def isHtmlBlock(obj):
 	return isinstance(obj, HtmlBlock)
 
 @register.filter
-def isSrcFile(module):
-	return module.srcType == 'file'
+def getHtmlBlockUrl(block, pageView):
+	return BASE_DIR + "/" + pageView.router.name + "/templates/" + pageView.router.name + "/subtemplates/" + block.src
 
 @register.filter
-def getHtmlSectionUrl(block, pageView):
-	return BASE_DIR + "/" + pageView.router.name + "/templates/" + pageView.router.name + "/blocks/" + block.src
-
+def generateHtml(src):
+	context = {"static": "/static"}
+	return src.format(**context)
 
 @register.filter
 def isActive(view, module):

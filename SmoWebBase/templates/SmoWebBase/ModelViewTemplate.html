@@ -75,13 +75,8 @@ angular.module('{{pageView.name}}', ['ui.bootstrap', 'smo'])
 						<div class="section">			
 							{% if block|isModelView %}
 								<div smo-model-view="{{block.name}}" model-name="{{module.name}}" view-type="{{block.ioType}}" auto-fetch="{{block.autoFetch|lower}}" view-record-id="{{pageView.recordIdDict|getItem:block}}"></div>
-							{% endif %}
-							{% if block|isHtmlBlock %}
-								{% if block|isSrcFile %}
-									{% include block|getHtmlSectionUrl:pageView %}
-								{% else %}
-									<div>{{block.src}}</div>
-								{% endif %}
+							{% elif block|isHtmlBlock %}
+								{% include 'SmoWebBase/subtemplates/HtmlBlock.html' %}
 							{% endif %}
 						</div>
 					{% endfor %}
@@ -96,11 +91,7 @@ angular.module('{{pageView.name}}', ['ui.bootstrap', 'smo'])
 				{% if module|isHtmlModule %}
 					{% for block in module.modelBlocks %}
 						{% if block|isHtmlBlock %}
-							{% if block|isSrcFile %}
-								{% include block|getHtmlSectionUrl:pageView %}
-							{% else %}
-								<div>{{block.src}}</div>
-							{% endif %}
+							{% include 'SmoWebBase/subtemplates/HtmlBlock.html' %}
 						{% endif %}	
 					{% endfor %}
 				{% endif %}

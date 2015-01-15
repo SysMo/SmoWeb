@@ -108,7 +108,7 @@ class FluidProperties(NumericalModel):
 	saturationProps = SuperGroup([liquidResults, vaporResults], label="Phases")
 	#####
 	paramVarTable = TableView(label="Variation Table", dataLabels = ['T[K]', 'p[Pa]', 'h[J/kg]'], 
-			options = {'formats': ['0.0000E0', '0.000', '0.000']})
+							visibleColumns = [1,2], options = {'formats': ['0.0000E0', '0.000', '0.000']})
 	paramVariation = ViewGroup([paramVarTable], label="Parameter Variation")
 	FluidPoints = SuperGroup([paramVariation], label = "Fluid Points")	
 	# Model view
@@ -116,7 +116,10 @@ class FluidProperties(NumericalModel):
 	resultViewIsTwoPhase = ModelView(ioType = "output", superGroups = [props, saturationProps, FluidPoints])
 	
 	# Html section
-	imgSection = HtmlBlock(srcType="file", src="FluidPropertiesImage.html")
+	imgSection = HtmlBlock(srcType="string", 
+							src='<div class="title-figure">\
+									<img height="150" style="width: 250px" src="{static}/ThermoFluids/StateDiagram3D.svg/"></img>\
+								</div>')
 	
 	############# Page structure ########
 	modelBlocks = [imgSection, inputView, resultView, resultViewIsTwoPhase]
@@ -159,26 +162,8 @@ class FluidProperties(NumericalModel):
 			self.rho_V = satV['rho']
 			self.h_V = satV['h']/1e3
 			self.s_V = satV['s']/1e3
-		
-		
+				
 		self.computeParamVarTable('paramVarTable', 'recordId', ['T', 'p', 'h'])
-		
-# 		if (self.recordId != ''):			
-# 			record = coll.find_one({"_id": ObjectId(self.recordId)})
-# 			if (record is not None):
-# 				paramVarList = record['paramVarTable']
-# 				numRows = len(paramVarList)
-# 				self.paramVarTable = np.zeros((numRows + 1, 3))
-# 				self.paramVarTable[0:numRows] = np.array(paramVarList)
-# 				self.paramVarTable[numRows] = np.array([self.T, self.p, self.h])
-# 				self.recordId = str(coll.insert({'paramVarTable': self.paramVarTable.tolist()}))
-# 			else: 
-# 				raise ValueError("Unknown record with id: {0}".format(self.recordId))
-# 		else:
-# 			self.paramVarTable = np.zeros((1, 3))
-# 			self.paramVarTable[0] = np.array([self.T, self.p, self.h])
-# 			self.recordId = str(coll.insert({'paramVarTable': self.paramVarTable.tolist()}))
-		
 		
 	def computeParamVarTable(self, tableName, recordId, paramNames):
 		db = mongoClient.SmoWeb

@@ -122,7 +122,10 @@ class HeatPump(NumericalModel):
 	resultView = ModelView(ioType = "output", superGroups = [results])
 	
 	# Html section
-	imgSection = HtmlBlock(srcType="file", src="HeatPumpImage.html")
+	imgSection = HtmlBlock(srcType='string', 
+							src='<div class="title-figure">\
+									<img src="{static}/ThermoFluids/HeatPump.svg/"></img>\
+								</div>')
 	
 	############# Page structure ########
 	modelBlocks = [imgSection, inputView, resultView]

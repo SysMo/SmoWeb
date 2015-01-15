@@ -368,7 +368,7 @@ class TableView(Field):
 	"""
 	Field for visualization of table data
 	"""
-	def __init__(self, default = None, dataLabels = None, options = None, *args, **kwargs):
+	def __init__(self, default = None, dataLabels = None, visibleColumns = None, options = None, *args, **kwargs):
 		"""
 		:param numpy.array default: default array
 		:param list dataLabels: list of column data labels
@@ -383,7 +383,12 @@ class TableView(Field):
 		if (dataLabels is None):
 			self.dataLabels = []
 		else:
-			self.dataLabels = dataLabels		
+			self.dataLabels = dataLabels
+			
+		if (visibleColumns is None):
+			self.visibleColumns = [n for n in range(len(self.dataLabels))]
+		else:
+			self.visibleColumns = 	visibleColumns
 		
 		if (options is None):
 			self.options = {}
@@ -407,7 +412,8 @@ class TableView(Field):
 			'name': self._name, 
 			'label': self.label, 
 			'type': 'TableView',
-			'options': self.options
+			'options': self.options,
+			'visibleColumns' : self.visibleColumns
 			}
 		return fieldDict
 
