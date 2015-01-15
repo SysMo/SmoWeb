@@ -107,8 +107,9 @@ class FluidProperties(NumericalModel):
 	vaporResults = FieldGroup([rho_V, h_V, s_V], label="Vapor")
 	saturationProps = SuperGroup([liquidResults, vaporResults], label="Phases")
 	#####
-	paramVarTable = TableView(label="Variation Table", dataLabels = ['T[K]', 'p[Pa]', 'h[J/kg]'], 
-							visibleColumns = [1,2], options = {'formats': ['0.0000E0', '0.000', '0.000']})
+	paramVarTable = TableView(label="Variation Table", dataLabels = ['T', 'p', 'h'], 
+							visibleColumns = [1,2], quantityNames = ['Temperature', 'Pressure', 'SpecificEnthalpy'],
+							options = {'formats': ['0.0000E0', '0.000', '0.000']})
 	paramVariation = ViewGroup([paramVarTable], label="Parameter Variation")
 	FluidPoints = SuperGroup([paramVariation], label = "Fluid Points")	
 	# Model view

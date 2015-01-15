@@ -856,14 +856,31 @@ smoModule.directive('smoTable', ['$compile', function($compile) {
 				}
 			}
 			
+			
 			$scope.init = function(){
 				$scope.tableArray = $scope.smoDataSource[$scope.fieldVar.name];
+				$scope.displayValuesArray = angular.copy($scope.tableArray.slice(1));
+//				console.log($scope.displayValuesArray);
+				
+				$scope.displayUnits = [];
+				$scope.dispUnitDefs = [];
+				for (var i=0; i < $scope.fieldVar.columnUnitDefs.length; i++){
+					$scope.displayUnits.push($scope.fieldVar.columnUnitDefs[i][0]);
+				}
+				
+				$scope.labelsArray = [];
+				for (var i=0; i<$scope.tableArray[0].length; i++){
+					$scope.labelsArray.push($scope.tableArray[0][i] + ' [' + $scope.displayUnits[i] + ']');
+				}
+				$scope.displayTable = angular.copy($scope.displayValuesArray);
+				$scope.displayTable.unshift($scope.labelsArray);
+				
 				//Creating the GViz DataTable object
-				$scope.dataTable = google.visualization.arrayToDataTable($scope.tableArray);
+				$scope.dataTable = google.visualization.arrayToDataTable($scope.displayTable);
 				$scope.dataView = new google.visualization.DataView($scope.dataTable);
 				//Setting initial visibility
 				$scope.columnsShow = [];
-				for (i=0; i<$scope.fieldVar.visibleColumns.length; i++){
+				for (var i=0; i<$scope.fieldVar.visibleColumns.length; i++){
 					$scope.columnsShow[$scope.fieldVar.visibleColumns[i]] = true;
 				}
 				$scope.allChecked = true;
@@ -874,7 +891,7 @@ smoModule.directive('smoTable', ['$compile', function($compile) {
 					numEditRows = Math.floor($scope.tableArray[0].length/5);
 				}
 				$scope.editRows = [];
-				for (i=0; i<numEditRows; i++){
+				for (var i=0; i<numEditRows; i++){
 					$scope.editRows.push(i);
 				}
 				$scope.setDataView();
@@ -902,6 +919,36 @@ smoModule.directive('smoTable', ['$compile', function($compile) {
 				}
 				$scope.dataView.setColumns($scope.viewCloumns);
 			}	
+			
+			$scope.changeUnit = function(col) {
+				for (var i=0; i < $scope.fieldVar.columnUnitDefs[col][1].length; i++) {
+					if ($scope.displayUnits[col] == $scope.fieldVar.columnUnitDefs[col][1][i][0]){
+						$scope.dispUnitDefs[col] = $scope.fieldVar.columnUnitDefs[col][1][i][1];
+					}
+				}
+				
+				var offset = 0;
+				if ('offset' in $scope.dispUnitDefs[col]) {
+					offset = $scope.dispUnitDefs[col].offset;
+				}
+				
+				
+				for (var row=0; row < $scope.displayValuesArray.length; row ++){
+					$scope.displayValuesArray[row][col] 
+						= ($scope.tableArray[row+1][col] - offset) / $scope.dispUnitDefs[col].mult; 
+				}
+				
+//				console.log($scope.displayValuesArray[0][col]);
+				
+				$scope.labelsArray[col] = $scope.tableArray[0][col] + ' [' + $scope.displayUnits[col] + ']';
+				
+				$scope.displayTable = angular.copy($scope.displayValuesArray);
+				$scope.displayTable.unshift($scope.labelsArray);
+				
+				$scope.dataTable = google.visualization.arrayToDataTable($scope.displayTable);
+				$scope.dataView = new google.visualization.DataView($scope.dataTable);
+				$scope.setDataView();
+			}
 			
 			$scope.drawTable = function() {
 				//Drawing the table
@@ -984,6 +1031,9 @@ smoModule.directive('smoTable', ['$compile', function($compile) {
 							<td style="min-width: 10px;" ng-repeat="columnName in tableArray[0].slice(row*5, row*5+5) track by $index">\
 								<input type="checkbox" ng-model="columnsShow[row*5 + $index]" ng-change="updateChecked()"></input>\
 								<span ng-bind="columnName"></span>\
+								<div class="field-select quantity"> \
+									<select ng-model="displayUnits[row*5 + $index]" ng-options="pair[0] as pair[0] for pair in fieldVar.columnUnitDefs[row*5 + $index][1]" ng-change="changeUnit(row*5 + $index)"></select>\
+								</div>\
 							</td>\
 						</tr>\
 					</table>\
