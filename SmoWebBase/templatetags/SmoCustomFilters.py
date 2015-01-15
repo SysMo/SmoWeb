@@ -1,5 +1,5 @@
 from django.template import Library
-from SmoWeb.settings import BASE_DIR, STATIC_ROOT
+from SmoWeb.settings import BASE_DIR, STATIC_URL
 
 register = Library()
 
@@ -38,7 +38,7 @@ def getHtmlBlockUrl(block, pageView):
 
 @register.filter
 def generateHtml(src):
-	context = {"static": "/static"}
+	context = {"static": STATIC_URL}
 	return src.format(**context)
 
 @register.filter
