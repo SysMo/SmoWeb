@@ -368,7 +368,7 @@ class TableView(Field):
 	"""
 	Field for visualization of table data
 	"""
-	def __init__(self, default = None, dataLabels = None, options = None, *args, **kwargs):
+	def __init__(self, default = None, dataLabels = None, quantities = None, visibleColumns = None, options = None, *args, **kwargs):
 		"""
 		:param numpy.array default: default array
 		:param list dataLabels: list of column data labels
@@ -383,7 +383,23 @@ class TableView(Field):
 		if (dataLabels is None):
 			self.dataLabels = []
 		else:
-			self.dataLabels = dataLabels		
+			self.dataLabels = dataLabels
+			
+		if (visibleColumns is None):
+			self.visibleColumns = [n for n in range(len(self.dataLabels))]
+		else:
+			self.visibleColumns = 	visibleColumns
+		
+		if (quantities is None):
+			raise ValueError('List of quantity names must be passed to TableView constructor.')
+		else:
+			self.columnUnitDefs = []
+			for quantity in quantities:		
+				unitsList = []
+				for key in Quantities[quantity]['units'].keys():			
+					unitsList.append([key, Quantities[quantity]['units'][key]])
+					
+				self.columnUnitDefs.append([Quantities[quantity]['SIUnit'], unitsList])
 		
 		if (options is None):
 			self.options = {}
@@ -407,7 +423,9 @@ class TableView(Field):
 			'name': self._name, 
 			'label': self.label, 
 			'type': 'TableView',
-			'options': self.options
+			'options': self.options,
+			'visibleColumns' : self.visibleColumns,
+			'columnUnitDefs' : self.columnUnitDefs
 			}
 		return fieldDict
 

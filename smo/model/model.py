@@ -110,6 +110,8 @@ class NumericalModel(object):
 		else:
 			raise AttributeError("Class '{0}' has no field '{1}'".format(self.__class__.__name__, name))
 	
+	def __getattr__(self, name):
+		return self.__dict__[name]
 	
 	def modelView2Json(self, modelView):
 		"""Creates JSON representation of the modelView including 

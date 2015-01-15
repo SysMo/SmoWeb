@@ -1,0 +1,11 @@
+{% load SmoCustomFilters %}
+
+{% if block.srcType == 'file' %}
+	{% include block|getHtmlBlockUrl:pageView %}
+{% elif block.srcType == 'string' %}
+	<div>
+	{% autoescape off %}
+		{{block.src|generateHtml}}
+	{% endautoescape %}
+	</div>
+{% endif %}

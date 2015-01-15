@@ -72,7 +72,10 @@ class PipeFlow(NumericalModel):
 	resultView = ModelView(ioType = "output", superGroups = [results])
 	
 	# Html section
-	imgSection = HtmlBlock(srcType="file", src="FlowResistanceImage.html")
+	imgSection = HtmlBlock(srcType="string", 
+						src='<div class="title-figure">\
+									<img src="{static}/ThermoFluids/StraightPipe.svg/"></img>\
+							</div>')
 	
 	############# Page structure ########
 	modelBlocks = [imgSection, inputView, resultView]

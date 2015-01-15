@@ -269,10 +269,14 @@ class CryogenicPipe(NumericalModel):
 	QRad_x = PlotView(label = 'Radiation flux', dataLabels = ['x position [m]', 'flux density [W/m]'])
 	cond_x = PlotView(label = 'Conductivity (pipe)', dataLabels = ['x position [m]', 'thermal conductivity [W/m-K]'])
 	emiss_x = PlotView(label = 'Emissivity', dataLabels = ['x position [m]', 'emissivity [-]'])
-	table_x = TableView(label = 'Distributions (table)', dataLabels = ['x position [m]', 'temperature [K]', 'heat flow [W]'],
-			options = {'formats': ['0.000', '0.00', '0.000E00'] })
-	testPointResults = TableView(label = 'Test points', dataLabels = ['x position [m]', 'temperature [K]'],
-			options = {'formats': ['0.000', '0.00']}) 
+	table_x = TableView(label = 'Distributions (table)', 
+					dataLabels = ['x position', 'temperature', 'heat flow'],
+					quantities = ['Length', 'Temperature', 'HeatFlowRate'],
+					options = {'formats': ['0.000', '0.00', '0.000E00'] })
+	testPointResults = TableView(label = 'Test points', 
+								dataLabels = ['x position', 'temperature'],
+								quantities = ['Length', 'Temperature'],
+								options = {'formats': ['0.000', '0.00']}) 
 	r2 = ViewGroup([T_x, QAx_x, QRad_x, cond_x, emiss_x, table_x, testPointResults], label =  'Distributions')
 	r2g = SuperGroup([r2], label = 'Distributions')
 	
@@ -284,8 +288,10 @@ class CryogenicPipe(NumericalModel):
 
 	# 2.4 Residuals 
 	residualPlot = PlotView(label = 'Residual (plot)', dataLabels = ['iteration #', 'residual'], ylog = True)
-	residualTable = TableView(label = 'Residual (table)', dataLabels = ['residual', 'TLeft', 'TRight'], 
-			options = {'formats': ['0.0000E0', '0.000', '0.000']})
+	residualTable = TableView(label = 'Residual (table)', 
+							dataLabels = ['residual', 'TLeft', 'TRight'],
+							quantities =  ['Dimensionless', 'Temperature', 'Temperature'], 
+							options = {'formats': ['0.0000E0', '0.000', '0.000']})
 	r4 = ViewGroup([residualPlot, residualTable], label = 'Convergence')
 	r4g = SuperGroup([r4], label = 'Convergence')
 	

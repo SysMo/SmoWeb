@@ -1,5 +1,6 @@
 from django.http import JsonResponse
 from django.shortcuts import render_to_response, RequestContext
+from SmoWeb.settings import BASE_DIR
 import json
 import traceback
 import logging
@@ -113,7 +114,7 @@ class ModularPageView(object):
 
 	requireJS = ['MathJax']
 	requireGoogle = []
-	template = 'SmoWebBase/ModelViewTemplate.html' 
+	template = BASE_DIR + '/SmoWebBase/templates/SmoWebBase/ModelViewTemplate.html' 
 	
 	def view(self, request):
 		"""
