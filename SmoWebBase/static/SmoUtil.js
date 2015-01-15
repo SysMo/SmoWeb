@@ -978,12 +978,17 @@ smoModule.directive('smoTable', ['$compile', function($compile) {
 			$scope.csvFileName = $scope.fieldVar.name + '.csv';
 			
 			$scope.exportCSV = function(){
-				var dataLabels = $scope.smoDataSource[$scope.fieldVar.name][0];
-				var dataLabelsString = dataLabels.join(",");
-				var csvString = dataLabelsString + "\n";
+				var exportTable = $scope.dataView.toDataTable();		
+				var labels = [];
+				for (var i=0; i<exportTable.getNumberOfColumns(); i++){
+					labels.push(exportTable.getColumnLabel(i));
+				}
 				
-				var dataTable = google.visualization.arrayToDataTable($scope.smoDataSource[$scope.fieldVar.name]);
-				var dataTableCSV = google.visualization.dataTableToCsv(dataTable);
+				var labelsString = labels.join(",");
+				var csvString = labelsString + "\n";
+				
+//				var dataTable = google.visualization.arrayToDataTable($scope.smoDataSource[$scope.fieldVar.name]);
+				var dataTableCSV = google.visualization.dataTableToCsv(exportTable);
 				
 				csvString += dataTableCSV;
 				
