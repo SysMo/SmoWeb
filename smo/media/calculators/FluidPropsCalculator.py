@@ -153,12 +153,12 @@ class FluidProperties(NumericalModel):
 			satV = fState.getSatV()
 			
 			self.rho_L = satL['rho']
-			self.h_L = satL['h']/1e3
-			self.s_L = satL['s']/1e3
+			self.h_L = satL['h']
+			self.s_L = satL['s']
 			
 			self.rho_V = satV['rho']
-			self.h_V = satV['h']/1e3
-			self.s_V = satV['s']/1e3
+			self.h_V = satV['h']
+			self.s_V = satV['s']
 		
 		
 		self.computeParamVarTable('paramVarTable', 'recordId', ['T', 'p', 'h'])
