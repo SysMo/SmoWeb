@@ -248,15 +248,19 @@ class CableHeating1D(NumericalModel):
 	QAx_x = PlotView(label = 'Axial heat flow', dataLabels = ['x position [m]', 'heat flow [W]'])
 	QConv_x = PlotView(label = 'Convection flux', dataLabels = ['x position [m]', 'flux density [W/m]'])
 	QRad_x = PlotView(label = 'Radiation flux', dataLabels = ['x position [m]', 'flux density [W/m]'])
-	table_x = TableView(label = 'Distributions (table)', dataLabels = ['x position [m]', 'temperature [K]', 'heat flow [W]'],
-			options = {'formats': ['0.000', '0.00', '0.000E00'] })
+	table_x = TableView(label = 'Distributions (table)', 
+					dataLabels = ['x position', 'temperature', 'heat flow'],
+					quantities = ['Length', 'Temperature', 'HeatFlowRate'],
+					options = {'formats': ['0.000', '0.00', '0.000E00'] })
 	r3 = ViewGroup([T_x, QAx_x, QConv_x, QRad_x, table_x], label =  'Distributions')
 	r3g = SuperGroup([r3], label = 'Distributions')
 	
 	# 2.3 Residuals 
 	residualPlot = PlotView(label = 'Residual (plot)', dataLabels = ['iteration #', 'residual'], ylog = True)
-	residualTable = TableView(label = 'Residual (table)', dataLabels = ['residual', 'TLeft', 'TRight'], 
-			options = {'formats': ['0.0000E0', '0.000', '0.000']})
+	residualTable = TableView(label = 'Residual (table)', 
+							dataLabels = ['residual', 'TLeft', 'TRight'],
+							quantities =  ['Dimensionless', 'Temperature', 'Temperature'],
+							options = {'formats': ['0.0000E0', '0.000', '0.000']})
 	r4 = ViewGroup([residualPlot, residualTable], label = 'Convergence')
 	r4g = SuperGroup([r4], label = 'Convergence')
 	

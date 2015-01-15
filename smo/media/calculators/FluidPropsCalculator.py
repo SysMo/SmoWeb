@@ -108,7 +108,7 @@ class FluidProperties(NumericalModel):
 	saturationProps = SuperGroup([liquidResults, vaporResults], label="Phases")
 	#####
 	paramVarTable = TableView(label="Variation Table", dataLabels = ['T', 'p', 'h'], 
-							visibleColumns = [1,2], quantityNames = ['Temperature', 'Pressure', 'SpecificEnthalpy'],
+							visibleColumns = [1,2], quantities = ['Temperature', 'Pressure', 'SpecificEnthalpy'],
 							options = {'formats': ['0.0000E0', '0.000', '0.000']})
 	paramVariation = ViewGroup([paramVarTable], label="Parameter Variation")
 	FluidPoints = SuperGroup([paramVariation], label = "Fluid Points")	
@@ -170,22 +170,21 @@ class FluidProperties(NumericalModel):
 		db = mongoClient.SmoWeb
 		coll = db[self.__class__.__name__ + '_' + tableName]
 		numCol = len(paramNames)
-		if (self.__dict__[recordId] != ''):			
-			record = coll.find_one({"_id": ObjectId(self.__dict__[recordId])})
+		if (self.__getattr__(recordId) != ''):			
+			record = coll.find_one({"_id": ObjectId(self.__getattr__(recordId))})
 			if (record is not None):
 				recordValues = record[tableName]
 				numRows = len(recordValues)
-				self.__dict__[tableName] = np.zeros((numRows + 1, numCol))
-				self.__dict__[tableName][0:numRows] = np.array(recordValues)
-				self.__dict__[tableName][numRows] = np.array([self.__dict__[paramName] for paramName in paramNames])
-				self.__dict__[recordId] = str(coll.insert({tableName: self.__dict__[tableName].tolist()}))
+				self.__setattr__(tableName, np.zeros((numRows + 1, numCol)))
+				self.__getattr__(tableName)[0:numRows] = np.array(recordValues)
+				self.__getattr__(tableName)[numRows] = np.array([self.__getattr__(paramName) for paramName in paramNames])
+				self.__setattr__(recordId, str(coll.insert({tableName: self.__getattr__(tableName).tolist()})))
 			else: 
-				raise ValueError("Unknown record with id: {0}".format(self.__dict__[recordId]))
+				raise ValueError("Unknown record with id: {0}".format(self.__getattr__(recordId)))
 		else:
-			self.__dict__[tableName] = np.zeros((1, numCol))
-			print [self.__dict__[paramName] for paramName in paramNames]
-			self.__dict__[tableName][0] = np.array([self.__dict__[paramName] for paramName in paramNames])
-			self.__dict__[recordId] = str(coll.insert({tableName: self.__dict__[tableName].tolist()}))
+			self.__setattr__(tableName, np.zeros((1, numCol)))
+			self.__getattr__(tableName)[0] = np.array([self.__getattr__(paramName) for paramName in paramNames])
+			self.__setattr__(recordId,  str(coll.insert({tableName: self.__getattr__(tableName).tolist()})))
 	
 	@staticmethod	
 	def test():
@@ -324,9 +323,12 @@ class SaturationData(NumericalModel):
 								xlog = True,  
 								options = {'title': 'Evaporation entropy'})
 	
-	satTableView = TableView(label = 'Sat. table', dataLabels = ['p [bar]', 'T [K]', 'rho_L [kg/m**3]', 'rho_V [kg/m**3]', 'h_L [kJ/kg]', 
-											'h_V [kJ/kg]', 'h_V - h_L [kJ/kg]', 's_L [kJ/kg-K]', 's_V [kJ/kg-K]', 
-											's_V - s_L [kJ/kg-K]'], 
+	satTableView = TableView(label = 'Sat. table', dataLabels = ['p', 'T', 'rho_L', 'rho_V', 'h_L', 
+											'h_V', 'h_V - h_L', 's_L', 's_V', 
+											's_V - s_L'],
+									quantities = ['Pressure', 'Temperature', 'Density', 'Density', 'SpecificEnthalpy',
+												'SpecificEnthalpy', 'SpecificEnthalpy', 'SpecificEntropy', 'SpecificEntropy',
+												'SpecificEntropy'], 
 									options = {'title': 'Saturation data', 'formats': '0.0000E0'})
 	
 	satViewGroup = ViewGroup([T_p_satPlot, rho_p_satPlot, delta_h_p_satPlot, delta_s_p_satPlot,
