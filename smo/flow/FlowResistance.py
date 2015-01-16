@@ -74,7 +74,7 @@ class PipeFlow(NumericalModel):
 	# Html section
 	imgSection = HtmlBlock(srcType="string", 
 						src='<div class="title-figure">\
-									<img src="{static}/ThermoFluids/StraightPipe.svg/"></img>\
+									<img src="{static}/ThermoFluids/StraightPipe.svg"></img>\
 							</div>')
 	
 	############# Page structure ########

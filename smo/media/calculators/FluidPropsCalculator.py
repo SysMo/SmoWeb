@@ -119,7 +119,7 @@ class FluidProperties(NumericalModel):
 	# Html section
 	imgSection = HtmlBlock(srcType="string", 
 							src='<div class="title-figure">\
-									<img height="150" style="width: 250px" src="{static}/ThermoFluids/StateDiagram3D.svg/"></img>\
+									<img height="150" style="width: 250px" src="{static}/ThermoFluids/StateDiagram3D.svg"></img>\
 								</div>')
 	
 	############# Page structure ########
