@@ -1518,6 +1518,8 @@ smoModule.directive('smoViewToolbar', ['$compile', '$rootScope', function($compi
 			actions: "="
 		},
 		controller: function($scope) {
+			var formName = $scope.model.name + $scope.viewName + 'Form';
+			$scope.form = $scope.$parent[formName];
 			var onFetchSuccess = function(comm){
 				if (comm.data.values.recordId){
 					comm.model.recordId = comm.data.values.recordId;
@@ -1544,7 +1546,7 @@ smoModule.directive('smoViewToolbar', ['$compile', '$rootScope', function($compi
 		link : function(scope, element, attr) {
 			buttons = [];
 			for (var i = 0; i < scope.actions.length; i++) {
-				buttons.push('<button type="button" class="btn btn-primary" ng-click="actionHandler(actions[' + i + '])">' + scope.actions[i].label + '</button>');
+				buttons.push('<button type="button" ng-disabled="!form.$valid" class="btn btn-primary" ng-click="actionHandler(actions[' + i + '])">' + scope.actions[i].label + '</button>');
 			}
 			var template = '<div style="margin-left: 20px;" class="btn-group" role="group">'+ buttons.join("") + '</div>';
 			var el = angular.element(template);
@@ -1569,7 +1571,7 @@ smoModule.directive('smoModelView', ['$compile', '$location', 'ModelCommunicator
 			viewRecordId: '@viewRecordId'
 		},
 		controller: function($scope) {
-			$scope.formName = $scope.modelName + 'Form';
+			$scope.formName = $scope.modelName + $scope.viewName + 'Form';
 			$scope.model = $scope.$parent[$scope.modelName];
 			$scope.communicator = new ModelCommunicator($scope.model, $scope.modelName, $scope.viewName);
 			$scope.model[$scope.viewName + 'Communicator'] = $scope.communicator;
