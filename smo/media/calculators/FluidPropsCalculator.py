@@ -274,7 +274,7 @@ class FluidInfo(NumericalModel):
 		self.t_min = fLimits['TMin']
 		self.p_max = fLimits['pMax']
 		
-		self.molar_mass = f.molarMass*10**-3
+		self.molar_mass = f.molarMass*1e-3
 		self.accentric_factor = f.accentricFactor
 		self.cas = f.CAS
 		self.ashrae34 = f.ASHRAE34
@@ -346,22 +346,22 @@ class SaturationData(NumericalModel):
 		f = Fluid(self.fluidName)
 		fState = FluidState(self.fluidName)
 		numPoints = 100
-		pressures = np.logspace(np.log10(f.tripple['p']), np.log10(f.critical['p']), numPoints, endpoint = False)/1e5
+		pressures = np.logspace(np.log10(f.tripple['p']), np.log10(f.critical['p']), numPoints, endpoint = False)
 		data = np.zeros((numPoints, 10))
 		data[:,0] = pressures
 		
 		for i in range(len(pressures)):
-			fState.update_pq(pressures[i]*1e5, 0)			
+			fState.update_pq(pressures[i], 0)			
 			satL = fState.getSatL()			
 			satV = fState.getSatV()
 			
 			data[i,1] = fState.T
 			data[i,2] = satL['rho']
 			data[i,3] = satV['rho']
-			data[i,4] = satL['h']/1e3
-			data[i,5] = satV['h']/1e3
-			data[i,7] = satL['s']/1e3
-			data[i,8] = satV['s']/1e3
+			data[i,4] = satL['h']
+			data[i,5] = satV['h']
+			data[i,7] = satL['s']
+			data[i,8] = satV['s']
 		# Compute evaporation enthalpy
 		data[:,6] = data[:, 5] - data[:, 4]	
 		# Compute evaporation entropy
