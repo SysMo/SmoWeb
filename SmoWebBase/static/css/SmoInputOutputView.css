@@ -93,6 +93,10 @@
 	color: black;
 }
 
+[smo-super-group-set] > .nav-tabs > li > a {
+	border: none;
+}
+
 /* Inactive tabs */
 [smo-super-group-set] > li > a, #FluidPointTabs.nav-tabs > li > a:hover, #FluidPointTabs.nav-tabs > li > a:focus {
 	cursor: pointer;
