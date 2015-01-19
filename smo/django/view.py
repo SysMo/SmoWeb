@@ -96,7 +96,6 @@ class ModularPageView(object):
 		* :attr:`template`: HTML template file
 		
 	Default POST actions:
-{postActions}
 	"""
 		
 	__metaclass__ = ModularPageViewMeta
