@@ -1023,7 +1023,7 @@ smoModule.directive('smoTable', ['$compile', function($compile) {
 				<input ng-model="csvFileName"></input>\
 				<smo-button icon="save" size="md" action="exportCSV()" tip="Save data"></smo-button>\
 				<a id="' + scope.fieldVar.name + 'CsvElem" hidden></a>\
-				<smo-button action="toggle()" icon="edit" tip="Edit" size="md"></smo-button>\
+				<smo-button action="toggle()" icon="settings" tip="Settings" size="md"></smo-button>\
 				<div class="table-view-edit" ng-show="expanded">\
 					<div style="cursor: pointer; margin-top: 50px; margin-right: 20px;"><smo-button action="toggle()" icon="close" tip="Close editor"></smo-button></div>\
 					<table class="nice-table" style="border: none;">\
