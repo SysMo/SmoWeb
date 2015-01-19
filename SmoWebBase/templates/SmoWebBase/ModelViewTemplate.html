@@ -31,7 +31,11 @@ angular.module('{{pageView.name}}', ['ui.bootstrap', 'smo'])
 	    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
 	}])
 	.config(['$locationProvider', function($locationProvider) {
-  		$locationProvider.html5Mode(true).hashPrefix('!');
+	 	if (Modernizr.canvas){
+	 		$locationProvider.html5Mode(true).hashPrefix('!');
+	 	} else {
+	 		$locationProvider.html5Mode(false);
+	 	}
 	}])
 	.controller('{{pageView.controllerName}}', 
 		[ '$scope', '$location', function($scope, $location) {
@@ -42,6 +46,7 @@ angular.module('{{pageView.name}}', ['ui.bootstrap', 'smo'])
 		      	return angular.isObject(result) ? angular.toJson(result) : result;
     		};
   		});
+
 			{% for module in pageView.modules %}
 				{% if module|isNumericalModel %}
 			$scope.{{module.name}} = { name: "{{module.name}}", views: {} };

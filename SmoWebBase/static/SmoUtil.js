@@ -848,8 +848,6 @@ smoModule.directive('smoTable', ['$compile', function($compile) {
 			smoDataSource : '='
 		},
 		controller: function($scope) {
-			console.log($scope.fieldVar);
-			console.log($scope.smoDataSource[$scope.fieldVar.name]);
 			$scope.expanded = false;
 			$scope.toggle = function(){
 				$scope.expanded = !$scope.expanded;
