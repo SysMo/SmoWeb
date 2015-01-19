@@ -20,7 +20,14 @@ body {
 	margin: 0px;
 }
 
+
+
 /* Horizontal navigation bar */ 
+
+.navbar-fixed-top {
+    border: none;
+}
+
 .navbar-default {
     background-color: black; /*#F8F8F8*/
     border-color: #E7E7E7;
