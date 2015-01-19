@@ -1,6 +1,7 @@
 from quantity import Quantities
 import json
 import numpy as np
+from smo.django.exceptions import *
 
 class Field(object):
 	"""
@@ -263,7 +264,7 @@ class ObjectReference(Field):
 		elif (isinstance(value, dict) and '_key' in value):
 				return value
 		else:	
-			raise(TypeError('The value to set a reference must be a string (key), or dictionary (having a _key field)'))
+			raise(ArgumentTypeError('The value to set a reference must be a string (key), or dictionary (having a _key field)'))
 
 	def getValueRepr(self, value):
 		return value['_key']
@@ -341,11 +342,11 @@ class RecordArray(Field):
 				if isinstance(elem, list):
 					array[i] = tuple(elem)
 				else:
-					raise TypeError('Trying to set row of RecordArray from non-list object')
+					raise ArgumentTypeError('Trying to set row of RecordArray from non-list object')
 				i += 1
 			return array
 		else:
-			raise TypeError('The value of RecordArray must be a numpy structured array or a list of lists')
+			raise ArgumentTypeError('The value of RecordArray must be a numpy structured array or a list of lists')
 	
 	def getValueRepr(self, value):
 		return value.tolist()
@@ -407,13 +408,13 @@ class TableView(Field):
 			if (isinstance(options, dict)):
 				self.options = options
 			else:
-				raise TypeError('Options passed to TableView must be a dictionary object')
+				raise ArgumentTypeError('Options passed to TableView must be a dictionary object')
 	
 	def parseValue(self, value):
 		if (isinstance(value, np.ndarray)):
 			return value
 		else:
-			raise TypeError('The value of TableView must be a numpy array')
+			raise ArgumentTypeError('The value of TableView must be a numpy array')
 		
 	def toFormDict(self):
 		if ('title' not in self.options.keys()):
@@ -433,6 +434,60 @@ class TableView(Field):
 		extendedData = value.tolist()
 		extendedData.insert(0, self.dataLabels)
 		return extendedData
+
+# from pymongo import MongoClient
+# from bson.objectid import ObjectId
+# mongoClient = MongoClient()
+
+# class VariationTableValue(object):
+# 	def __init__(self, recordId = '', newRow = None, collection = None, varTableName = None):
+# 		if (varTableName is None):
+# 			raise ValueError('VariationTableValue constructor must be passed the name of a VariationTable object.')
+# 		if (recordId is ''):
+# 			if (newRow is None):
+# 				raise ValueError('Undefined variation table object value.')
+# 			else:
+# 				self.recordId = str(collection.insert({varTableName: newRow})) 
+# 				self.value = np.array(newRow)
+# 		else:
+# 			if (newRow is None):
+# 				self.recordId = recordId
+# 				record = collection.find_one({"_id": ObjectId(self.recordId)})
+# 				self.value = np.array(record[varTableName])
+# 			else:
+# 				self.recordId = recordId
+# 				record = collection.find_one({"_id": ObjectId(self.recordId)})
+# 				self.value = np.array([record[varTableName], newRow])
+# 		
+# 
+# class VariationTable(TableView):
+# 	def __init__(self, default = None, dataLabels = None, quantities = None, 
+# 				visibleColumns = None, options = None, parentCollection = None, fieldName = None, *args, **kwargs):
+# 		if (fieldName is None):
+# 			raise ValueError('VariationTable constructor must be passed the name of the Variation Table field.')
+# 		if (parentCollection is None):
+# 			raise ValueError('VariationTable constructor must be passed a parent MongoDB collection.')
+# 		else:
+# 			self.collection = parentCollection[fieldName]	
+# 			
+# 		if (default is None):
+# 			default = VariationTableValue(recordId = '', newRow = [], collection = self.collection, varTableName = fieldName)
+# 		else:
+# 			default = self.parseValue(default)
+# 			
+# 		super(VariationTable, self).__init__(default, dataLabels, quantities, 
+# 									visibleColumns, options, *args, **kwargs)
+# 		
+# 	def parseValue(self, valueObj):
+# 		if (isinstance(valueObj, VariationTableValue)):
+# 			return valueObj
+# 		else:
+# 			raise ArgumentTypeError('The value of VariationTable must be a VariationTableValue object')
+# 		
+# 	def getValueRepr(self, valueObj):
+# 		extendedData = valueObj.value.tolist()
+# 		extendedData.insert(0, self.dataLabels)
+# 		return extendedData
 
 class PlotView(Field):
 	"""
@@ -473,13 +528,13 @@ class PlotView(Field):
 			if (isinstance(options, dict)):
 				self.options = options
 			else:
-				raise TypeError('Options passed to PlotView must be a dictionary object')
+				raise ArgumentTypeError('Options passed to PlotView must be a dictionary object')
 		
 	def parseValue(self, value):
 		if (isinstance(value, np.ndarray)):
 			return value
 		else:
-			raise TypeError('The value of PlotView must be a numpy array')
+			raise ArgumentTypeError('The value of PlotView must be a numpy array')
 	
 	def getValueRepr(self, value):
 		return value.tolist()

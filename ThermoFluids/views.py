@@ -23,10 +23,6 @@ class FluidPropsCalculatorView(ModularPageView):
 	modules = [FluidProperties, FluidInfo, SaturationData, FluidPropertiesDoc]
 	requireJS = ['dygraph', 'dygraphExport']
 	requireGoogle = ['visualization']
-
-# 	def get(self, request):
-# 		return render_to_response('ThermoFluids/FluidProperties.html', locals(), 
-# 				context_instance=RequestContext(request))
 	
 	@action.post()	
 	def computeFluidProps(self, model, view, parameters):		
@@ -37,14 +33,6 @@ class FluidPropsCalculatorView(ModularPageView):
 			return fpc.modelView2Json(fpc.resultViewIsTwoPhase)
 		else:
 			return fpc.modelView2Json(fpc.resultView)
-	
-# 	@action.post()
-# 	def getFluidInfo(self, model, view, parameters):
-# 		return FluidInfo.getFluidInfo() 
-# 
-# 	@action.post()
-# 	def getFluidList(self, model, view, parameters):
-# 		return FluidInfo.getFluidList()
 	
 from smo.media.calculators.ThermodynamicProcess import ThermodynamicProcess
 @registerView(router)

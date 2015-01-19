@@ -14,6 +14,9 @@ from smo.media.CoolProp.CoolPropReferences import References
 from pymongo import MongoClient
 from bson.objectid import ObjectId
 mongoClient = MongoClient()
+db = mongoClient.SmoWeb
+coll = db["FluidProperties"]
+
 
 StateVariableOptions = OrderedDict((
 	('P', 'pressure (P)'),
@@ -110,6 +113,13 @@ class FluidProperties(NumericalModel):
 	paramVarTable = TableView(label="Variation Table", dataLabels = ['T', 'p', 'h'], 
 							visibleColumns = [1,2], quantities = ['Temperature', 'Pressure', 'SpecificEnthalpy'],
 							options = {'formats': ['0.0000E0', '0.000', '0.000']})
+	
+# 	testVarTable = VariationTable(label="Variation Table", dataLabels = ['T', 'p', 'h'], 
+# 							visibleColumns = [1,2], quantities = ['Temperature', 'Pressure', 'SpecificEnthalpy'],
+# 							options = {'formats': ['0.0000E0', '0.000', '0.000']},
+# 							parentCollection = coll,
+# 							fieldName = "testVarTable")
+	
 	paramVariation = ViewGroup([paramVarTable], label="Parameter Variation")
 	FluidPoints = SuperGroup([paramVariation], label = "Fluid Points")	
 	# Model view
@@ -163,12 +173,20 @@ class FluidProperties(NumericalModel):
 			self.rho_V = satV['rho']
 			self.h_V = satV['h']/1e3
 			self.s_V = satV['s']/1e3
-				
-		self.computeParamVarTable('paramVarTable', 'recordId', ['T', 'p', 'h'])
+		
+		
+# 		self.testVarTable = VariationTableValue(recordId = self.recordId, 
+# 											newRow = [self.T, self.p, self.h],
+# 											collection = coll["testVarTable"],
+# 											varTableName = "testVarTable")
+# 		
+# 		self.recordId = self.testVarTable.recordId
+		
+# 		self.computeParamVarTable('paramVarTable', 'recordId', ['T', 'p', 'h'])
 		
 	def computeParamVarTable(self, tableName, recordId, paramNames):
 		db = mongoClient.SmoWeb
-		coll = db[self.__class__.__name__ + '_' + tableName]
+		coll = db[self.__class__.__name__]
 		numCol = len(paramNames)
 		if (self.__getattr__(recordId) != ''):			
 			record = coll.find_one({"_id": ObjectId(self.__getattr__(recordId))})
