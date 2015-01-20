@@ -366,7 +366,7 @@ smoModule.factory('ModelCommunicator', function($http, $window, $timeout, $locat
 	        url     : this.url,
 	        data    : {action : action, data: postData},
 	        headers : { 'Content-Type': 'application/x-www-form-urlencoded' }, // set the headers so angular passing info as form data (not request payload)
-	        transformResponse: [smoJson.transformResponse],
+	        transformResponse: [smoJson.transformResponse]
 	    })
 	    .success(function(response) {
 			communicator.loading = false;
@@ -416,7 +416,7 @@ smoModule.factory('ModelCommunicator', function($http, $window, $timeout, $locat
 	        url     : this.url,
 	        data    : {action: action, data: postData},
 	        headers : { 'Content-Type': 'application/x-www-form-urlencoded' }, // set the headers so angular passing info as form data (not request payload)
-	        transformResponse: [smoJson.transformResponse],
+	        transformResponse: [smoJson.transformResponse]
 	    })
 	    .success(function(response) {
 			if (!response.errStatus) {

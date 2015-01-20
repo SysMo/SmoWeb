@@ -245,6 +245,11 @@ table.nice-table tr:nth-child(odd) {
 	background: #FFFFFF;
 }
 
+/* Internet Explorer specific styles */
+.no-rgba table.nice-table tr {
+	background: #FFFFFF;
+}
+
 .page-container {
 	max-width: 1000px;
 	margin-left: auto; 

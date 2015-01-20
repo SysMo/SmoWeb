@@ -222,6 +222,13 @@
 	border: 5px solid white;
 }
 
+/* Internet Explorer specific styles */
+.no-rgba .record-array, .no-rgba .table-view-edit {
+	background: black;
+}
+
+
+
 /* Unit Converter specific styles */
 .converter {
 	margin-top: 40px;
