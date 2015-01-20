@@ -122,6 +122,8 @@
 	text-align: left;
 	width: 170px;
 	height: 30px;
+	vertical-align: bottom;
+	line-height: 25px;
 }
 
 .multiline-label {
@@ -138,6 +140,14 @@
 	white-space: nowrap;
 	margin-left: 5px; 
 	margin-right: 5px;
+}
+
+.field-input, .field-output {
+	vertical-align: bottom;
+}
+
+.bool-input {
+	vertical-align: top;
 }
 
 .field-input input {
@@ -164,6 +174,7 @@
 .field-select {
 	display: inline-block;
 	white-space: nowrap;
+	vertical-align: bottom;
 }
 
 .field-select.choice > select {

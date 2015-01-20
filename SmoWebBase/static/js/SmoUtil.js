@@ -614,7 +614,7 @@ smoModule.directive('smoQuantity', ['$compile', 'util', function($compile, util)
 		link : function(scope, element, attr) {
 			scope.util = util;
 			var template = '\
-					<div class="field-label">' + scope.fieldVar.label + '</div>';
+					<div class="field-label"><div>' + scope.fieldVar.label + '</div></div>';
 			if (scope.viewType == 'input'){
 				template += '\
 					<div class="field-input"> \

@@ -111,7 +111,7 @@ class FluidProperties(NumericalModel):
 	saturationProps = SuperGroup([liquidResults, vaporResults], label="Phases")
 	#####
 	paramVarTable = TableView(label="Variation Table", dataLabels = ['T', 'p', 'h'], 
-							visibleColumns = [1,2], quantities = ['Temperature', 'Pressure', 'SpecificEnthalpy'],
+							visibleColumns = [0, 1, 2], quantities = ['Temperature', 'Pressure', 'SpecificEnthalpy'],
 							options = {'formats': ['0.0000E0', '0.000', '0.000']})
 	
 # 	testVarTable = VariationTable(label="Variation Table", dataLabels = ['T', 'p', 'h'], 

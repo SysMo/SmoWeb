@@ -104,7 +104,7 @@ class ModularPageView(object):
 		'dygraph': '/static/dygraph/dygraph-combined.js',
 		'dygraphExport': 'http://cavorite.com/labs/js/dygraphs-export/dygraph-extra.js',
 		'MathJax': "http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML",
-		'GoogleAPI': 'https://www.google.com/jsapi',
+		'GoogleAPI': 'https://www.google.com/jsapi'
 	}
 	
 	googleModules = {
