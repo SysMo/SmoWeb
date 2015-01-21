@@ -110,9 +110,10 @@ class FluidProperties(NumericalModel):
 	vaporResults = FieldGroup([rho_V, h_V, s_V], label="Vapor")
 	saturationProps = SuperGroup([liquidResults, vaporResults], label="Phases")
 	#####
-	paramVarTable = TableView(label="Variation Table", dataLabels = ['T', 'p', 'h'], 
-							visibleColumns = [0, 1, 2], quantities = ['Temperature', 'Pressure', 'SpecificEnthalpy'],
-							options = {'formats': ['0.0000E0', '0.000', '0.000']})
+	paramVarTable = TableView(label="Variation Table", dataLabels = ['T', 'p', 'rho', 'h', 'q', 'u', 'cp', 'cv', 'lambda', 'mu'], 
+							quantities = ['Temperature', 'Pressure', 'Density', 'SpecificEnthalpy', 'VaporQuality', 'SpecificEnergy',
+										 'SpecificHeatCapacity', 'SpecificHeatCapacity', 'ThermalConductivity', 'DynamicViscosity'],
+							options = {'formats': ['0.000', '0.000E0', '0.000', '0.000E0', '0.00', '0.000E0', '0.000E0', '0.000E0', '0.000E0', '0.000E0']})
 	
 # 	testVarTable = VariationTable(label="Variation Table", dataLabels = ['T', 'p', 'h'], 
 # 							visibleColumns = [1,2], quantities = ['Temperature', 'Pressure', 'SpecificEnthalpy'],
@@ -182,7 +183,7 @@ class FluidProperties(NumericalModel):
 			self.h_V = satV['h']
 			self.s_V = satV['s']
 
-		self.computeParamVarTable('paramVarTable', 'recordId', ['T', 'p', 'h'])
+		self.computeParamVarTable('paramVarTable', 'recordId', ['T', 'p', 'rho', 'h', 'q', 'u', 'cp', 'cv', 'cond', 'mu'])
 		
 	def computeParamVarTable(self, tableName, recordId, paramNames):
 		db = mongoClient.SmoWeb
