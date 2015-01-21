@@ -124,7 +124,7 @@ class HeatPump(NumericalModel):
 	# Html section
 	imgSection = HtmlBlock(srcType='string', 
 							src='<div class="title-figure">\
-									<img src="{static}/ThermoFluids/HeatPump.svg"></img>\
+									<img src="{static}/ThermoFluids/img/HeatPump.svg"></img>\
 								</div>')
 	
 	############# Page structure ########

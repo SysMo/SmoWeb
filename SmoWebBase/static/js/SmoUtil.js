@@ -420,9 +420,19 @@ smoModule.factory('ModelCommunicator', function($http, $window, $timeout, $locat
 	    })
 	    .success(function(response) {
 			if (!response.errStatus) {
-				communicator.currentUrl = $location.absUrl();
-				communicator.savedRecordUrl = $location.protocol() + '://' + $location.host() + ':' 
-					+ $location.port() + $location.path() 
+				var addressToParams;
+				if ($location.$$html5){
+					addressToParams = $location.protocol() + '://' + $location.host() + ':' 
+					+ $location.port() + $location.path();
+				} else {
+					addressToParams = window.location;
+				}
+				
+//				communicator.savedRecordUrl = $location.protocol() + '://' + $location.host() + ':' 
+//					+ $location.port() + $location.path() 
+//					+ '?model=' + response.data.model + '&view=' + response.data.view + '&id=' + response.data.id;
+				
+				communicator.savedRecordUrl = addressToParams
 					+ '?model=' + response.data.model + '&view=' + response.data.view + '&id=' + response.data.id;
 				communicator.saveSuccess = true;
 				communicator.saveFeedbackMsg = "Input data saved.";

@@ -5,7 +5,7 @@
 Pipe Flow
 =========
 
-.. figure:: /static/ThermoFluids/StraightPipe.svg
+.. figure:: /static/ThermoFluids/img/StraightPipe.svg
    :width: 500px
    :align: center
    
@@ -88,7 +88,7 @@ The friction factor depends on the Reynolds number :math:`Re={\rho v d}/{\mu}` a
 
 |
 
-.. figure:: /static/ThermoFluids/MoodyDiagram.jpg
+.. figure:: /static/ThermoFluids/img/MoodyDiagram.jpg
    :width: 90%
    :align: center
    

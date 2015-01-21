@@ -102,6 +102,21 @@ def docs():
 					fOut.write(result['html_body'])
 				print ('Wrote output file: ' + outputFilePath)
 #######################################################################
+
+def convertToPng():
+	"""
+	Convert all .svg files for the project and for the individual apps and pages to .png files
+	"""
+	for app in env.applicationModules:
+		srcFolder = os.path.join(env.projectRoot, app, 'static', app, 'img')
+		if (os.path.isdir(srcFolder)):
+			for sourceFilePath in glob.glob(os.path.join(srcFolder, '*.svg')):
+				sDir, sName = os.path.split(sourceFilePath)
+				sNameBase, sNameExt = os.path.splitext(sName)
+				outputFilePath = os.path.abspath(os.path.join(sDir, sNameBase +'.png'))
+				local('convert ' + sourceFilePath + ' ' + outputFilePath)
+
+#######################################################################
 def installAptPackages():
 	"""
 	Install the packages from the Ubuntu repository, which are necessary for proper server functioning

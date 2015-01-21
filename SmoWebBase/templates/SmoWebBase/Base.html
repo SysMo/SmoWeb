@@ -24,14 +24,23 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7; IE=EmulateIE9;">
     <!--[if IE]><script src="{% static 'js/excanvas.js' %}"></script><![endif]-->
 	 
-	<script>		
-		//Checking if browser is IE and displaying a warning message.
-		var isIE = false || !!document.documentMode; // At least IE6
-		$(document).ready(function(){
-	  		if (isIE == true){
-	  			$("#browserAlert").show();
-	  		}
-		});		
+	<script>
+	  	$( document ).ready(function() {
+	  		//Checking if browser is IE and displaying a warning message.
+			var isIE = false || !!document.documentMode; // At least IE6
+			$(document).ready(function(){
+		  		if (isIE == true){
+		  			$("#browserAlert").show();
+		  		}
+			});		
+	  	
+			//Replaces eg. 'logo.svg' with 'logo.png' if there is no html5 compatibility
+		 	if (!Modernizr.svg) {
+			  $('img[src$=".svg"]').each(function() {
+			      $(this).attr('src', $(this).attr('src').replace('.svg', '.png'));
+			  });
+			}
+		});
 	  	
 	  	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
 	  	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
