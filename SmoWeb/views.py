@@ -25,6 +25,7 @@ class UnitConverterModule(HtmlModule):
 class HomeView(ModularPageView):
 	name = "HomeView"
 	label = "Home View"
+	injectVariables = ['ModelCommunicator', 'variables']
 	modules = [BasePageModule, UnitConverterModule]
 	
 	@action.post()

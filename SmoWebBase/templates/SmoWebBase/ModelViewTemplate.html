@@ -39,7 +39,16 @@ angular.module('{{pageView.name}}', ['ui.bootstrap', 'smo'])
 	 	}	 	
 	}])
 	.controller('{{pageView.controllerName}}', 
-		[ '$scope', '$location', 'ModelCommunicator', 'variables', function($scope, $location, ModelCommunicator, variables) {
+		[ '$scope', '$location'
+			{% for injectVar in pageView.injectVariables %}
+				,'{{injectVar}}'
+			{% endfor %},
+		function($scope, $location 
+			{% for injectVar in pageView.injectVariables %}
+				,{{injectVar}}
+			{% endfor %}
+		)
+		{
 		
 		$scope.$location = {};
  		angular.forEach("protocol host port path search hash absUrl".split(" "), function(method){
