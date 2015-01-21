@@ -217,6 +217,18 @@ class FluidProperties(NumericalModel):
 		print
 		print fc.rho
 		
+class FluidProps2(FluidProperties):
+	# Fields
+	fluidName2 = Choices(Fluids, default = 'ParaHydrogen', label = 'fluid2')
+	infoInput = FieldGroup([fluidName2], label = 'Fluid2')
+	inputs2 = SuperGroup([infoInput])
+	
+	# Model view
+	inputView2 = ModelView(ioType = "input", superGroups = [inputs2], 
+		autoFetch = True)
+	
+	############# Page structure ########
+	modelBlocks = [FluidProperties.inputView, inputView2, FluidProperties.resultView]
 
 class FluidInfo(NumericalModel):
 	name = "FluidInfo"

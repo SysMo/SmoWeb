@@ -74,20 +74,20 @@ class NumericalModelMeta(type):
 		new_class = (super(NumericalModelMeta, cls)
 			.__new__(cls, name, bases, attrs))
 		
-# 		# Walk through the MRO.
-# 		declared_fields = OrderedDict()
-# 		for base in reversed(new_class.__mro__):
-# 			# Collect fields from base class.
-# 			if hasattr(base, 'declared_fields'):
-# 				declared_fields.update(base.declared_fields)
-# 
-# 			# Field shadowing.
-# 			for attr, value in base.__dict__.items():
-# 				if value is None and attr in declared_fields:
-# 					declared_fields.pop(attr)
-# 
-# 		new_class.base_fields = declared_fields
-# 		new_class.declared_fields = declared_fields
+		# Walk through the MRO.
+		declared_fields = OrderedDict()
+		for base in reversed(new_class.__mro__):
+			# Collect fields from base class.
+			if hasattr(base, 'declared_fields'):
+				declared_fields.update(base.declared_fields)
+			
+			# Field shadowing.
+			for attr, value in base.__dict__.items():
+				if value is None and attr in declared_fields:
+					declared_fields.pop(attr)
+
+		new_class.base_fields = declared_fields
+		new_class.declared_fields = declared_fields
 
 		return new_class
 
@@ -117,6 +117,7 @@ class NumericalModel(object):
 			raise AttributeError("Class '{0}' has no field '{1}'".format(self.__class__.__name__, name))
 	
 	def __getattr__(self, name):
+# 		return object.__getattribute__(self, name)
 		return self.__dict__[name]
 	
 	def modelView2Json(self, modelView):
@@ -157,7 +158,7 @@ class NumericalModel(object):
 		fieldList = []
 		for field in group.fields:
 			fieldList.append(field.toFormDict())
-			fieldValues[field._name] = field.getValueRepr(self.__dict__[field._name])
+			fieldValues[field._name] = field.getValueRepr(self.__getattr__(field._name))
 		jsonObject['fields'] = fieldList
 		return jsonObject
 				
@@ -167,7 +168,7 @@ class NumericalModel(object):
 		fieldList = []
 		for field in group.fields:
 			fieldList.append(field.toFormDict())
-			fieldValues[field._name] = field.getValueRepr(self.__dict__[field._name])
+			fieldValues[field._name] = field.getValueRepr(self.__getattr__(field._name))
 		jsonObject['fields'] = fieldList
 		return jsonObject
 	
