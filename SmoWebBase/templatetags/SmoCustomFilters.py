@@ -7,7 +7,7 @@ register = Library()
 def isBase(routerName):
 	return routerName == 'SmoWebBase'
 
-from smo.model.model import ModelView, NumericalModel, ModelDocumentation, HtmlModule, HtmlBlock
+from smo.model.model import ModelView, NumericalModel, ModelDocumentation, HtmlModule, HtmlBlock, JsBlock
 @register.filter
 def isModelView(obj):
 	return isinstance(obj, ModelView)
@@ -33,8 +33,16 @@ def isHtmlBlock(obj):
 	return isinstance(obj, HtmlBlock)
 
 @register.filter
+def isJsBlock(obj):
+	return isinstance(obj, JsBlock)
+
+@register.filter
 def getHtmlBlockUrl(block, pageView):
 	return BASE_DIR + "/" + pageView.router.name + "/templates/" + pageView.router.name + "/subtemplates/" + block.src
+
+@register.filter
+def getJsBlockUrl(block, pageView):
+	return BASE_DIR + "/" + pageView.router.name + "/templates/" + pageView.router.name + "/jsblocks/" + block.src
 
 @register.filter
 def generateHtml(src):

@@ -8,8 +8,8 @@ class ModelView(object):
 		self.superGroups = superGroups
 		self.actionBar = actionBar
 		self.autoFetch = autoFetch
-		
-class HtmlBlock(object):
+
+class CodeBlock(object):
 	def __init__(self, srcType = None, src = None):
 		if (srcType == None):
 			self.srcType = 'string'
@@ -31,6 +31,12 @@ class HtmlBlock(object):
 				self.src = src
 		else:
 			raise ValueError("Valid source types are 'string' and 'file'.")
+			
+class HtmlBlock(CodeBlock):
+	pass
+
+class JsBlock(CodeBlock):
+	pass
 
 #TODO: Currently inheritance not supported
 class NumericalModelMeta(type):

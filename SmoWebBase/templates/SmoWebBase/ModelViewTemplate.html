@@ -39,7 +39,7 @@ angular.module('{{pageView.name}}', ['ui.bootstrap', 'smo'])
 	 	}	 	
 	}])
 	.controller('{{pageView.controllerName}}', 
-		[ '$scope', '$location', function($scope, $location) {
+		[ '$scope', '$location', 'ModelCommunicator', 'variables', function($scope, $location, ModelCommunicator, variables) {
 		
 		$scope.$location = {};
  		angular.forEach("protocol host port path search hash absUrl".split(" "), function(method){
@@ -51,10 +51,17 @@ angular.module('{{pageView.name}}', ['ui.bootstrap', 'smo'])
 
 			{% for module in pageView.modules %}
 				{% if module|isNumericalModel %}
-			$scope.{{module.name}} = { name: "{{module.name}}", views: {} };
+					$scope.{{module.name}} = { name: "{{module.name}}", views: {} };
 					{% for block in module.modelBlocks %}
-						{% if block|isModelView%}
+						{% if block|isModelView %}
 							$scope.{{module.name}}.views.{{block.name}} = {name: "{{block.name}}", type: "{{block.ioType}}"};
+						{% endif %}
+					{% endfor %}
+				{% elif module|isHtmlModule %}
+					$scope.{{module.name}} = { name: "{{module.name}}"};
+					{% for block in module.modelBlocks %}
+						{% if block|isJsBlock %}
+							{% include 'SmoWebBase/subtemplates/JsBlock.html' %}
 						{% endif %}
 					{% endfor %}
 				{% endif %}

@@ -243,15 +243,16 @@
 /* Unit Converter specific styles */
 .converter {
 	margin-top: 40px;
-	border-style: solid; 
-	border-top: none; 
-	border-color: #DDD; 
-	border-width: 1px; 
 	background-color: #E6E6FA;
-	padding-right: 20px;
+	padding-right: 30px;
 	display: inline-block;
 	overflow: auto;
-	text-align: left;
+	text-align: center;
+	border: 3px solid #0875CA;
+	border-top-left-radius: 10px;
+	border-top-right-radius: 10px;
+	border-bottom-left-radius: 10px;
+	border-bottom-right-radius: 10px;
 }
 
 .converter .choice-group {

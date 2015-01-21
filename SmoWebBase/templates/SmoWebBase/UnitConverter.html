@@ -15,11 +15,11 @@ angular.module('SmoConvert', ['ui.bootstrap', 'smo'])
 	$scope.inputPattern = /^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$/;
 	//$scope.inputPattern = /^[0-9]$/;
 		
-	$scope.unitConverter = {
+	$scope.UnitConverter = {
 		communicator: new ModelCommunicator()
 	};
 		
-	$scope.unitConverter.communicator.fetchData(
+	$scope.UnitConverter.communicator.fetchData(
 		'getQuantities', {}, function(comm){
 			$scope.quantityData = comm.data;
 			$scope.renderConverter();
@@ -50,13 +50,13 @@ angular.module('SmoConvert', ['ui.bootstrap', 'smo'])
 	<div class="page-container">
 		<h1 class="title">Unit converter</h1>
 		<div class="section" style="text-align: center;">
-			<div ng-if="unitConverter.communicator.loading" class="alert alert-info" role="alert">Loading...</div>
-			<div ng-if="unitConverter.communicator.commError" class="alert alert-danger" role="alert">Communication error: <span ng-bind="unitConverter.communicator.errorMsg"></span></div>
-			<div ng-if="unitConverter.communicator.serverError" class="alert alert-danger" role="alert">Server error: <span ng-bind="unitConverter.communicator.errorMsg"></span>
-				<div>Stack trace:</div><pre><div ng-bind="unitConverter.communicator.stackTrace"></div></pre>
+			<div ng-if="UnitConverter.communicator.loading" class="alert alert-info" role="alert">Loading...</div>
+			<div ng-if="UnitConverter.communicator.commError" class="alert alert-danger" role="alert">Communication error: <span ng-bind="UnitConverter.communicator.errorMsg"></span></div>
+			<div ng-if="UnitConverter.communicator.serverError" class="alert alert-danger" role="alert">Server error: <span ng-bind="UnitConverter.communicator.errorMsg"></span>
+				<div>Stack trace:</div><pre><div ng-bind="UnitConverter.communicator.stackTrace"></div></pre>
 			</div>
 		
-			<div ng-if="unitConverter.communicator.dataReceived">
+			<div ng-if="UnitConverter.communicator.dataReceived">
 				<div class="converter">
 					<div class="choice-group">
 						<div class="select-text">Select a quantity:</div>

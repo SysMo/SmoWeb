@@ -2,34 +2,35 @@ from django.shortcuts import render_to_response, RequestContext
 from smo.model.quantity import Quantities
 from smo.django.view import action, ModularPageView, mongoClient
 from smo.django.router import ViewRouter, registerView
-
+from smo.model.model import NumericalModel, ModelView, HtmlModule, HtmlBlock, JsBlock
 from pymongo import MongoClient
 from bson.objectid import ObjectId
 
 router = ViewRouter('SmoWebBase')
 
-from smo.model.model import HtmlBlock
-from smo.model.model import HtmlModule
 class BasePageModule(HtmlModule):
 	name = 'BasePageModule'
 	label = 'Home'
-	section = HtmlBlock(srcType="file", src="HomeSection.html")
-	modelBlocks = [section]
+	block = HtmlBlock(srcType="file", src="HomeBlock.html")
+	modelBlocks = [block]
 
+class UnitConverterModule(HtmlModule):
+	name = 'UnitConverter'
+	label = 'Unit Converter'
+	converterHtml = HtmlBlock(srcType="file", src="UnitConverterBlock.html")
+	converterJs = JsBlock(srcType="file", src="UnitConverter.js")
+	modelBlocks = [converterHtml, converterJs]
+	
 @registerView(router)
 class HomeView(ModularPageView):
 	name = "HomeView"
 	label = "Home View"
-	modules = [BasePageModule]
-		
-# class unitConverterView(ModularPageView):
-# 	def get(self, request):
-# 		return render_to_response('UnitConverter.html', locals(), 
-# 				context_instance=RequestContext(request))
-# 		
-# 	@action.post()
-# 	def getQuantities(self, parameters):
-# 		return Quantities
+	modules = [BasePageModule, UnitConverterModule]
+	
+	@action.post()
+	def getQuantities(self, parameters, model=None, view= None):
+		return Quantities
+
 
 # from SmoWeb.examples.Tutorial_01_model import AreaCalculator, AreaCalculatorDoc
 # class AreaCalculatorView(ModularPageView):
