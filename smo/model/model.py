@@ -74,21 +74,17 @@ class NumericalModelMeta(type):
 		new_class = (super(NumericalModelMeta, cls)
 			.__new__(cls, name, bases, attrs))
 		
-		# Walk through the MRO.
-		declared_fields = OrderedDict()
-		for base in reversed(new_class.__mro__):
-			# Collect fields from base class.
-			if hasattr(base, 'declared_fields'):
-				declared_fields.update(base.declared_fields)
-			
-			# Field shadowing.
-			for attr, value in base.__dict__.items():
-				if value is None and attr in declared_fields:
-					declared_fields.pop(attr)
-
-		new_class.base_fields = declared_fields
-		new_class.declared_fields = declared_fields
-
+		# Collect fields from base classes
+		base_fields = OrderedDict()
+		for c in reversed(new_class.__mro__[1:]):			
+			if hasattr(c, 'declared_fields'):
+				# Checks for already declared fields in base classes
+				for key in new_class.declared_fields:
+					if key in c.declared_fields:
+						raise AttributeError("Base class {0} already has field '{1}'.".format(c.__name__, key))
+				base_fields.update(c.declared_fields)
+				
+		new_class.declared_fields.update(base_fields)
 		return new_class
 
 class NumericalModel(object):
