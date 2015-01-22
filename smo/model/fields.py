@@ -557,7 +557,7 @@ class PlotView(Field):
 		if ('ylabel' not in self.options.keys()):
 			self.options['ylabel'] = self.dataLabels[1]
 		
-		self.options['labelsDiv'] = self._name + 'LegendDiv'
+# 		self.options['labelsDiv'] = self._name + 'LegendDiv'
 		
 		if ('labelsDivWidth' not in self.options.keys()):
 			self.options['labelsDivWidth'] = 400

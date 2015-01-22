@@ -789,12 +789,16 @@ smoModule.directive('smoPlot', ['$compile', function($compile) {
 		restrict : 'A',
 		scope : {
 			fieldVar: '=',
-			smoDataSource : '='
+			smoDataSource : '=',
+			modelName: '@modelName'
 		},
 		controller: function($scope) {
 			
 			$scope.plotData = function() {
-				$scope.chart = new Dygraph(document.getElementById($scope.fieldVar.name + 'PlotDiv'), 
+				
+				$scope.fieldVar.options.labelsDiv = $scope.modelName + '_' + $scope.fieldVar.name + 'LegendDiv';
+				
+				$scope.chart = new Dygraph(document.getElementById($scope.modelName + '_' + $scope.fieldVar.name + 'PlotDiv'), 
 						$scope.smoDataSource[$scope.fieldVar.name],
 						$scope.fieldVar.options);
 			}
@@ -802,10 +806,10 @@ smoModule.directive('smoPlot', ['$compile', function($compile) {
 			$scope.pngFileName = $scope.fieldVar.name + '.png';
 			
 			$scope.exportPNG = function(){
-				var img = document.getElementById($scope.fieldVar.name + 'Img');
+				var img = document.getElementById($scope.modelName + '_' + $scope.fieldVar.name + 'Img');
 				Dygraph.Export.asPNG($scope.chart, img);
 				
-				var link = document.getElementById($scope.fieldVar.name + 'PngElem');
+				var link = document.getElementById($scope.modelName + '_' + $scope.fieldVar.name + 'PngElem');
 				
 			 	if(link.download !== undefined) { // feature detection
 			 	  // Browsers that support HTML5 download attribute
@@ -826,17 +830,17 @@ smoModule.directive('smoPlot', ['$compile', function($compile) {
 //								<button ng-click="exportPNG()"><span style="color:#428BCA" class="glyphicon glyphicon-download-alt"></span></button>\
 			var template = '\
 							<div style="display: inline-block;">\
-								<div id="' + scope.fieldVar.name + 'PlotDiv"></div>\
+								<div id="' + scope.modelName + '_' + scope.fieldVar.name + 'PlotDiv"></div>\
 							</div>\
 							<div style="margin-left: 55px; margin-top: 10px;">\
-								<div id="' + scope.fieldVar.name + 'LegendDiv"></div>\
+								<div id="' + scope.modelName + '_' + scope.fieldVar.name + 'LegendDiv"></div>\
 							</div>\
 							<div style = "margin-top: 10px; margin-bottom: 10px;">\
 								Export plot&nbsp\
 								<input ng-model="pngFileName"></input>\
 								<smo-button icon="save" size="md" action="exportPNG()" tip="Save plot"></smo-button>\
-								<img id="' + scope.fieldVar.name + 'Img" hidden>\
-								<a id="' + scope.fieldVar.name + 'PngElem" hidden></a>\
+								<img id="' + scope.modelName + '_' + scope.fieldVar.name + 'Img" hidden>\
+								<a id="' + scope.modelName + '_' + scope.fieldVar.name + 'PngElem" hidden></a>\
 							</div>';
 
 			var el = angular.element(template);
@@ -855,7 +859,8 @@ smoModule.directive('smoTable', ['$compile', function($compile) {
 		restrict : 'A',
 		scope : {
 			fieldVar: '=',
-			smoDataSource : '='
+			smoDataSource : '=',
+			modelName: '@modelName'
 		},
 		controller: function($scope) {
 			$scope.expanded = false;
@@ -962,7 +967,8 @@ smoModule.directive('smoTable', ['$compile', function($compile) {
 			
 			$scope.drawTable = function() {
 				//Drawing the table
-				var tableView = new google.visualization.Table(document.getElementById($scope.fieldVar.name + 'TableDiv'));
+				var tableView 
+					= new google.visualization.Table(document.getElementById($scope.modelName + '_' + $scope.fieldVar.name + 'TableDiv'));
 				
 				if(typeof $scope.fieldVar.options.formats === 'string'){
 					for (var i=0; i < $scope.tableArray[0].length; i++){
@@ -1006,7 +1012,7 @@ smoModule.directive('smoTable', ['$compile', function($compile) {
 			 	var blob = new Blob([csvString], {
 			 	  "type": "text/csv;charset=utf8;"			
 			 	});
-			 	var link = document.getElementById($scope.fieldVar.name + 'CsvElem');
+			 	var link = document.getElementById($scope.modelName + '_' + $scope.fieldVar.name + 'CsvElem');
 							
 			 	if(link.download !== undefined) { // feature detection
 			 	  // Browsers that support HTML5 download attribute
@@ -1025,12 +1031,12 @@ smoModule.directive('smoTable', ['$compile', function($compile) {
 		link : function(scope, element, attr) {
 //				<button ng-click="exportCSV()"><span style="color:#428BCA" class="glyphicon glyphicon-download-alt"></span></button>\
 
-			var template = '<div id="' + scope.fieldVar.name + 'TableDiv"></div>\
+			var template = '<div id="' + scope.modelName + '_' + scope.fieldVar.name + 'TableDiv"></div>\
 			<div style = "margin-top: 10px; margin-bottom: 10px;">\
 				Export data&nbsp\
 				<input ng-model="csvFileName"></input>\
 				<smo-button icon="save" size="md" action="exportCSV()" tip="Save data"></smo-button>\
-				<a id="' + scope.fieldVar.name + 'CsvElem" hidden></a>\
+				<a id="' + scope.modelName + '_' + scope.fieldVar.name + 'CsvElem" hidden></a>\
 				<smo-button action="toggle()" icon="settings" tip="Settings" size="md"></smo-button>\
 				<div class="table-view-edit" ng-show="expanded">\
 					<div style="cursor: pointer; margin-top: 50px; margin-right: 20px;"><smo-button action="toggle()" icon="close" tip="Close editor"></smo-button></div>\
@@ -1137,7 +1143,8 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 		restrict : 'A',
 		scope : {
 			smoViewGroup : '=',
-			smoDataSource : '='
+			smoDataSource : '=',
+			modelName: '@modelName'
 		},
 		controller: function($scope) {
 			
@@ -1172,9 +1179,9 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 					}
 					
 					if (field.type == 'PlotView') {
-						navPillPanes.push('<div ' + showFieldCode + ' smo-plot field-var="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
+						navPillPanes.push('<div ' + showFieldCode + ' smo-plot field-var="fields.' + field.name + '" model-name="' + scope.modelName + '" smo-data-source="smoDataSource"></div>');
 					} else if (field.type == 'TableView') {
-						navPillPanes.push('<div ' + showFieldCode + ' smo-table field-var="fields.' + field.name + '" smo-data-source="smoDataSource" style="max-width: 840px; overflow: auto;"></div>');
+						navPillPanes.push('<div ' + showFieldCode + ' smo-table field-var="fields.' + field.name + '" model-name="' + scope.modelName + '" smo-data-source="smoDataSource" style="max-width: 840px; overflow: auto;"></div>');
 					}
 					
 					navPillPanes.push('</div>'); 
@@ -1202,9 +1209,9 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 					<div style="white-space: nowrap; background-color: white; padding :10px; text-align: center;">';
 				
 				if (field.type == 'PlotView') {
-					template += '<div ' + showFieldCode + ' smo-plot field-var="smoViewGroup.fields[0]" smo-data-source="smoDataSource"></div>';
+					template += '<div ' + showFieldCode + ' smo-plot field-var="smoViewGroup.fields[0]" model-name="' + scope.modelName + '" smo-data-source="smoDataSource"></div>';
 				} else if (field.type == 'TableView') {
-					template += '<div ' + showFieldCode + ' smo-table field-var="smoViewGroup.fields[0]" smo-data-source="smoDataSource" style="max-width: 840px; overflow: auto;"></div>';
+					template += '<div ' + showFieldCode + ' smo-table field-var="smoViewGroup.fields[0]" model-name="' + scope.modelName + '" smo-data-source="smoDataSource" style="max-width: 840px; overflow: auto;"></div>';
 				}
 				
 				template += '</div>';					
@@ -1248,7 +1255,7 @@ smoModule.directive('smoSuperGroupSet', ['$compile', function($compile) {
 							// Attach the field value to the quantity so that the original value is updated when the quantity value changes
 							superGroupFields.push('<div smo-field-group="smoSuperGroupSet[' + i + '].groups[' + j + ']" view-type="viewType" smo-data-source="smoDataSource"></div>');
 						} else if (superGroup.groups[j].type == 'ViewGroup') {
-							superGroupFields.push('<div smo-view-group="smoSuperGroupSet[' + i + '].groups[' + j + ']" smo-data-source="smoDataSource"></div>');
+							superGroupFields.push('<div smo-view-group="smoSuperGroupSet[' + i + '].groups[' + j + ']" model-name="' + scope.modelName + '" smo-data-source="smoDataSource"></div>');
 						}						
 					}
 					
@@ -1265,7 +1272,7 @@ smoModule.directive('smoSuperGroupSet', ['$compile', function($compile) {
 						// Attach the field value to the quantity so that the original value is updated when the quantity value changes
 						superGroupFields.push('<div smo-field-group="smoSuperGroupSet[0].groups[' + j + ']" view-type="viewType" smo-data-source="smoDataSource"></div>');
 					} else if (superGroup.groups[j].type == 'ViewGroup') {
-						superGroupFields.push('<div smo-view-group="smoSuperGroupSet[0].groups[' + j + ']" smo-data-source="smoDataSource"></div>');
+						superGroupFields.push('<div smo-view-group="smoSuperGroupSet[0].groups[' + j + ']" model-name="' + scope.modelName + '" smo-data-source="smoDataSource"></div>');
 					}					
 				}
 				var template = '<div class="super-group">' +
