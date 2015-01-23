@@ -1,19 +1,12 @@
-import json
-from django.shortcuts import render_to_response, RequestContext
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
-from smo.model.quantity import Quantities
-from smo.media.MaterialData import Fluids
-from collections import OrderedDict
 from smo.django.view import ModularPageView
 from smo.django.view import action
 from smo.django.router import ViewRouter, registerView
-import tasks
-
 from pymongo import MongoClient
-from bson.objectid import ObjectId
+import ThermoFluids
+
 mongoClient = MongoClient()
 
-router = ViewRouter('ThermoFluids')
+router = ViewRouter('ThermoFluids', ThermoFluids)
 
 from smo.media.calculators.FluidPropsCalculator import FluidProperties, FluidInfo, SaturationData, FluidPropertiesDoc
 @registerView(router)

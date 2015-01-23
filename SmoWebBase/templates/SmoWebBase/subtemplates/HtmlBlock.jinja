@@ -1,0 +1,9 @@
+{% if block.srcType == 'file' %}
+	{% include block|getHtmlBlockUrl(pageView) %}
+{% elif block.srcType == 'string' %}
+	<div>
+	{% autoescape false %}
+		{{block.src|generateHtml}}
+	{% endautoescape %}
+	</div>
+{% endif %}

@@ -267,7 +267,7 @@ class FluidInfo(NumericalModel):
 	resultView = ModelView(ioType = "output", superGroups = [results])
 	
 	# Html section
-	litRefs = HtmlBlock(srcType="file", src="FluidInfoLitReferences.html")
+	litRefs = HtmlBlock(srcType="file", src="FluidInfoLitReferences.jinja")
 	
 	############# Page structure ########
 	modelBlocks = [inputView, resultView, litRefs]

@@ -1,9 +1,10 @@
 from django.http import JsonResponse
 from django.shortcuts import render_to_response, RequestContext
-from SmoWeb.settings import BASE_DIR
+from SmoWeb.settings import BASE_DIR, JINJA_TEMPLATE_IMPORTS
 import json
 import traceback
 import logging
+import os
 logger = logging.getLogger('django.request.smo.view')
 
 from pymongo import MongoClient
@@ -113,8 +114,11 @@ class ModularPageView(object):
 
 	requireJS = ['MathJax']
 	requireGoogle = []
-	template = BASE_DIR + '/SmoWebBase/templates/SmoWebBase/ModelViewTemplate.html' 
+	template = 'SmoWebBase/ModelViewTemplate.jinja'
 	
+	def __init__(self, router):
+		self.router = router
+		
 	def view(self, request):
 		"""
 		Entry function for processing an HTTP request
@@ -161,8 +165,11 @@ class ModularPageView(object):
 		else:
 			if (hasattr(self, 'modules') and len(self.modules) > 0):
 				self.activeModule = self.modules[0]
-
-		return render_to_response(self.template, {"pageView": self}, 
+		
+		context = {"pageView": self}
+		context.update(JINJA_TEMPLATE_IMPORTS)
+		context[self.router.name] = self.router.appNamespace
+		return render_to_response(self.template, context, 
 						context_instance=RequestContext(request))
 	
 	def post(self, request):
