@@ -15,12 +15,12 @@ mongoClient = MongoClient()
 
 router = ViewRouter('ThermoFluids')
 
-from smo.media.calculators.FluidPropsCalculator import FluidProperties, FluidInfo, SaturationData, FluidPropertiesDoc, FluidProps2
+from smo.media.calculators.FluidPropsCalculator import FluidProperties, FluidInfo, SaturationData, FluidPropertiesDoc
 @registerView(router)
 class FluidPropsCalculatorView(ModularPageView):
 	name = 'FluidPropsCalculator'
 	label = 'Fluid properties (CoolProp)'
-	modules = [FluidProperties, FluidInfo, SaturationData, FluidPropertiesDoc, FluidProps2]
+	modules = [FluidProperties, FluidInfo, SaturationData, FluidPropertiesDoc]
 	requireJS = ['dygraph', 'dygraphExport']
 	requireGoogle = ['visualization']
 	

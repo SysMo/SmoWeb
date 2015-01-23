@@ -1,6 +1,7 @@
 import fields
 from collections import OrderedDict
 import copy
+from smo.model.fields import FieldGroup, ViewGroup
 
 class ModelView(object):
 	def __init__(self, ioType, superGroups, actionBar = None, autoFetch = False):
@@ -79,12 +80,20 @@ class NumericalModelMeta(type):
 		for c in reversed(new_class.__mro__[1:]):			
 			if hasattr(c, 'declared_fields'):
 				# Checks for already declared fields in base classes
-				for key in new_class.declared_fields:
-					if key in c.declared_fields:
+				for key in c.declared_fields:
+					if key in new_class.declared_fields:
 						raise AttributeError("Base class {0} already has field '{1}'.".format(c.__name__, key))
-				base_fields.update(c.declared_fields)
+				base_fields.update(c.declared_fields)		
 				
 		new_class.declared_fields.update(base_fields)
+		
+		# Resolving unresolved fields in field- and view-groups
+		for key, value in new_class.__dict__.iteritems():
+			if isinstance(value, FieldGroup) or isinstance(value, ViewGroup):
+				for i in range(len(value.unresolved_fields)):
+					unresolved_field = value.unresolved_fields.pop(i)
+					value.fields.append(new_class.declared_fields[unresolved_field])	
+		
 		return new_class
 
 class NumericalModel(object):

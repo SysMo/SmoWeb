@@ -591,13 +591,28 @@ class Group(object):
 class FieldGroup(Group):
 	def __init__(self, fields = None, *args, **kwargs):
 		super(FieldGroup, self).__init__(*args, **kwargs)
-		self.fields = [] if (fields is None) else fields
+		self.fields = []
+		self.unresolved_fields = []
+		if (fields is not None):
+			for field in fields:
+				if isinstance(field, str):
+					self.unresolved_fields.append(field)
+				else:
+					self.fields.append(field)
 
 class ViewGroup(Group):
 	def __init__(self, fields = None, *args, **kwargs):
 		super(ViewGroup, self).__init__(*args, **kwargs)
-		self.fields = [] if (fields is None) else fields
-
+# 		self.fields = [] if (fields is None) else fields
+		self.fields = []
+		self.unresolved_fields = []
+		if (fields is not None):
+			for field in fields:
+				if isinstance(field, str):
+					self.unresolved_fields.append(field)
+				else:
+					self.fields.append(field)
+		
 class SuperGroup(Group):
 	def __init__(self, groups = None, *args, **kwargs):
 		super(SuperGroup, self).__init__(*args, **kwargs)
