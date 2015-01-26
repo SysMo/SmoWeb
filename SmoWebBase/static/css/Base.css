@@ -177,19 +177,48 @@ h1.title {
 	font-weight: bold; 
 }
 
-.title-figure {
-	margin-top: 10px;
-	margin-bottom: 10px;
+/* Model Presentation */
+.presentation > div {
 	margin-left: auto;
 	margin-right: auto;
-	width: 500px;
 	text-align: center;
 }
 
-.title-figure > img {
-	width: 500px
+.presentation img {
+	margin-top: 10px;
+	margin-bottom: 10px;
+	max-height: 100%;
+	max-width: 100%;	
 }
 
+.presentation > .description {
+	margin-top: 10px;
+	width: 500px;
+}
+
+/* Model Thumbnail */
+.thumb {
+	display: inline-block;
+	width: 180px;
+	height: 180px;
+	vertical-align: bottom;
+	border-radius: 10px;
+	border: solid 1px #CCC;
+}
+
+.thumb img {
+	margin-top: 10px;
+	margin-bottom: 10px;
+	max-height: 100%;
+	max-width: 100%;	
+	text-align: center;
+}
+
+.thumb > .description {
+	margin-bottom: 10px;
+	overflow: hidden;
+	text-align: center;
+}
 
 /* Content */
 #content {
@@ -200,10 +229,10 @@ h1.title {
 
 /* Documentation */
 div.docview {
-		background-color:white; 
-		border: solid 1px #CCC;
-		padding: 50px;
-		counter-reset: figure;
+	background-color:white; 
+	border: solid 1px #CCC;
+	padding: 50px;
+	counter-reset: figure;
 }
 
 .align-center {

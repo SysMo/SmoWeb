@@ -6,17 +6,8 @@ def getModelDocUrl(module):
     return "documentation/html/" + module.name + ".html"
 
 @library.filter
-def getHtmlBlockUrl(block, pageView):
-    return pageView.router.name + "/subtemplates/" + block.src
-
-@library.filter
-def getJsBlockUrl(block, pageView):
-    return pageView.router.name + "/jsblocks/" + block.src
-
-@library.filter
-def generateHtml(src):
-    context = {"static": STATIC_URL}
-    return src.format(**context)
+def getBlockUrl(block, pageView):
+    return pageView.router.name + "/blocks/" + block.src
 
 @library.filter
 def isActive(view, module):

@@ -1,0 +1,40 @@
+<h1 class="title">SmoWeb Computational Platform</h1>
+<div style="white-space: nowrap; margin-top: 30px; margin-bottom: 30px; text-align: center;">
+{% for routerName, router in pageView.router.registry.iteritems() %}
+	{% for pageName, pageClass in router.pages.iteritems() %}
+		{% for module in pageClass.modules %}
+			{% if issubclass(module, smo.model.model.NumericalModel) %}
+				{% if hasattr(module, 'figure') %}		
+					
+						<div class="thumb" style="position: relative;">
+							<div style="position: relative;">
+								<img src="{{ static(module.figure.src) }}" />
+							</div>
+							{% if hasattr(module, 'description') %}
+							<div style="position: relative; bottom: 0%;">
+								<a href='/{{routerName}}/{{pageClass.name}}'>
+								{{module.description.text}}
+								</a>
+							</div>
+							{% endif %}	
+						</div>
+					
+				{% endif %}
+			{% endif %}
+		{% endfor %}
+	{% endfor %}
+{% endfor %}
+</div>
+<div style="background: white; padding: 20px;">		
+	<p>
+		Welcome to <strong>SmoWeb</strong>, the open computational platform from 
+		<a class="reference external" href="http://www.sysmoltd.com">SysMo</a>. Here you will find a
+		number of one-page apps that could be used to tackle various
+		engineering problems. Please select the appropriate page/app from
+		the navigation bar on the top.
+	</p>
+	<p>
+		We highly recommend that you use <span style="font-weight: bold;">Mozilla Firefox</span> or
+		 <span style="font-weight: bold;">Google Chrome</span> to browse this website.
+	</p>
+</div>

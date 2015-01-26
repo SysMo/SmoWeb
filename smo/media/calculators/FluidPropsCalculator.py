@@ -4,7 +4,7 @@ Created on Nov 05, 2014
 '''
 import numpy as np
 from collections import OrderedDict
-from smo.model.model import NumericalModel, ModelView, ModelDocumentation, HtmlBlock
+from smo.model.model import NumericalModel, ModelView, ModelDocumentation, HtmlBlock, ModelFigure, ModelDescription
 from smo.model.actions import ServerAction, ActionBar
 from smo.model.fields import *
 from smo.media.CoolProp.CoolProp import Fluid, FluidState
@@ -43,11 +43,9 @@ class FluidProperties(NumericalModel):
 	
 	############# Inputs ###############
 	# Fields
-	fluidName = Choices(Fluids, default = 'ParaHydrogen', label = 'fluid', description = "Fluid name")	
-	stateVariable1 = Choices(options = StateVariableOptions, default = 'P', label = 'first state variable',
-							description = "First of two state variables")
-	p1 = Quantity('Pressure', default = (1, 'bar'), label = 'pressure',
-				description = "pressure", show="self.stateVariable1 == 'P'")
+	fluidName = Choices(Fluids, default = 'ParaHydrogen', label = 'fluid')	
+	stateVariable1 = Choices(options = StateVariableOptions, default = 'P', label = 'first state variable')
+	p1 = Quantity('Pressure', default = (1, 'bar'), label = 'pressure',show="self.stateVariable1 == 'P'")
 	T1 = Quantity('Temperature', default = (300, 'K'), label = 'temperature', show="self.stateVariable1 == 'T'")
 	rho1 = Quantity('Density', default = (1, 'kg/m**3'), label = 'density', show="self.stateVariable1 == 'D'")
 	h1 = Quantity('SpecificEnthalpy', default = (1000, 'kJ/kg'), label = 'specific enthalpy', show="self.stateVariable1 == 'H'")
@@ -129,14 +127,14 @@ class FluidProperties(NumericalModel):
 	resultView = ModelView(ioType = "output", superGroups = [props, FluidPoints])
 	resultViewIsTwoPhase = ModelView(ioType = "output", superGroups = [props, saturationProps, FluidPoints])
 	
-	# Html section
-	imgSection = HtmlBlock(srcType="string", 
-							src='<div class="title-figure">\
-									<img height="150" style="width: 250px" src="{static}/ThermoFluids/img/StateDiagram3D.svg"></img>\
-								</div>')
+	# Model figure
+	figure = ModelFigure(src="ThermoFluids/img/StateDiagram3D.svg", height=150, width=250)
+	
+	# Model description
+	description = ModelDescription('Fluid properties calculator.', show = False)
 	
 	############# Page structure ########
-	modelBlocks = [imgSection, inputView, resultView, resultViewIsTwoPhase]
+	modelBlocks = [inputView, resultView, resultViewIsTwoPhase]
 
 	############# Methods ###############	
 	def getStateValue(self, sVar, index):
@@ -331,10 +329,10 @@ class SaturationData(NumericalModel):
 	
 	############# Results ###############
 	# Fields
-	T_p_satPlot = PlotView(label = 'Temperature', description='Saturation temperature plot', dataLabels = ['pressure [bar]', 'saturation temperature [K]'], 
+	T_p_satPlot = PlotView(label = 'Temperature', dataLabels = ['pressure [bar]', 'saturation temperature [K]'], 
 							xlog = True, 
 							options = {'ylabel': 'temperature [K]'})
-	rho_p_satPlot = PlotView(label = 'Density', description='Saturation density', dataLabels = ['pressure [bar]', 'liquid density [kg/m**3]', 'vapor density [kg/m**3]'],
+	rho_p_satPlot = PlotView(label = 'Density', dataLabels = ['pressure [bar]', 'liquid density [kg/m**3]', 'vapor density [kg/m**3]'],
 							options = {'ylabel': 'density [kg/m**3]'})
 	delta_h_p_satPlot = PlotView(label = 'Evap. enthalpy', dataLabels = ['pressure [bar]', 'h evap [kJ/kg]'], 
 								xlog = True, 

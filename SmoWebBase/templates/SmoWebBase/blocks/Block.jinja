@@ -1,9 +1,9 @@
 {% if block.srcType == 'file' %}
-	{% include block|getHtmlBlockUrl(pageView) %}
+	{% include block|getBlockUrl(pageView) %}
 {% elif block.srcType == 'string' %}
 	<div>
 	{% autoescape false %}
-		{{block.src|generateHtml}}
+		{{block.src}}
 	{% endautoescape %}
 	</div>
 {% endif %}

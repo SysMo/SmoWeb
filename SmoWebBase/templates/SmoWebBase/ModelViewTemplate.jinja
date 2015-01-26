@@ -67,7 +67,7 @@ angular.module('{{pageView.name}}', ['ui.bootstrap', 'smo'])
 					$scope.{{module.name}} = { name: "{{module.name}}"};
 					{% for block in module.modelBlocks %}
 						{% if isinstance(block, smo.model.model.JsBlock) %}
-							{% include 'SmoWebBase/subtemplates/JsBlock.jinja' %}
+							{% include 'SmoWebBase/blocks/Block.jinja' %}
 						{% endif %}
 					{% endfor %}
 				{% endif %}
@@ -91,12 +91,26 @@ angular.module('{{pageView.name}}', ['ui.bootstrap', 'smo'])
 			<div class="tab-pane page-container {% if pageView|isActive(module) %}active{% endif %}" id="{{module.name}}Content">
 				{% if issubclass(module, smo.model.model.NumericalModel) %}
 					<h1 class="title">{{module.title}}</h1>
+					<div class="presentation">
+						{% if hasattr(module, 'figure') %}
+							<div style="height: {{module.figure.height}}px; width: {{module.figure.width}}px;">
+								<img src="{{ static(module.figure.src) }}" />
+							</div>
+						{% endif %}
+						{% if hasattr(module, 'description') %}
+							{% if module.description.show %}
+								<div class="description">
+									{{module.description.text}}
+								</div>
+							{% endif %}
+						{% endif %}
+					</div>
 					{% for block in module.modelBlocks %}
 						<div class="section">			
 							{% if isinstance(block, smo.model.model.ModelView) %}
 								<div smo-model-view="{{block.name}}" model-name="{{module.name}}" view-type="{{block.ioType}}" auto-fetch="{{block.autoFetch|lower}}" view-record-id="{{pageView.recordIdDict[block]}}"></div>
 							{% elif isinstance(block, smo.model.model.HtmlBlock) %}
-								{% include 'SmoWebBase/subtemplates/HtmlBlock.jinja' %}
+								{% include 'SmoWebBase/blocks/Block.jinja' %}
 							{% endif %}
 						</div>
 					{% endfor %}
@@ -111,7 +125,7 @@ angular.module('{{pageView.name}}', ['ui.bootstrap', 'smo'])
 				{% if issubclass(module, smo.model.model.HtmlModule) %}
 					{% for block in module.modelBlocks %}
 						{% if isinstance(block, smo.model.model.HtmlBlock) %}
-							{% include 'SmoWebBase/subtemplates/HtmlBlock.jinja' %}
+							{% include 'SmoWebBase/blocks/Block.jinja' %}
 						{% endif %}	
 					{% endfor %}
 				{% endif %}

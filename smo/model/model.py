@@ -10,6 +10,26 @@ class ModelView(object):
 		self.actionBar = actionBar
 		self.autoFetch = autoFetch
 
+class ModelFigure(object):
+	def __init__(self, src = None, width = None, height = None):
+		if (src == None):
+			raise ValueError('File path missing as first argument.')
+		else:
+			self.src = src
+		if (width == None):
+			self.width = 'auto'
+		else:
+			self.width= width
+		if (height == None):
+			self.height = 'auto'
+		else:
+			self.height= height
+			
+class ModelDescription(object):
+	def __init__(self, text, show=False):
+		self.text = text
+		self.show = show
+
 class CodeBlock(object):
 	def __init__(self, srcType = None, src = None):
 		if (srcType == None):
