@@ -672,7 +672,6 @@ smoModule.directive('smoChoice', ['$compile', 'util', function($compile, util) {
 			smoDataSource : '='
 		},
 		link : function(scope, element, attr) {
-			console.log(scope.fieldVar);
 			var template = ' \
 				<div class="field-label"><div data-tooltip="' + scope.fieldVar.description + '">' + scope.fieldVar.label + '</div></div>\
 				<div class="field-select choice"> \
