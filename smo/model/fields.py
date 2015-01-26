@@ -10,7 +10,7 @@ class Field(object):
 	# Tracks each time an instance is created. Used to retain order.
 	creation_counter = 0
 	
-	def __init__(self, label = "", description = None, show = None):
+	def __init__(self, label = "", description = "", show = None):
 		"""
 	 	:param str label: the text label used in the user interface usually in front of the field
 		:param str show: expression (as a string), which is evaluated on the client side and is used to 
@@ -50,7 +50,11 @@ class Field(object):
 		"""
 		Converts the definition of the field to a form suitable for JSON serialization
 		"""
-		raise NotImplementedError
+		fieldDict = {'name' : self._name, 'label': self.label}
+		if (self.show is not None):
+			fieldDict['show'] = self.show
+		fieldDict['description'] = self.description		
+		return fieldDict
 
 class Quantity(Field):
 	'''
@@ -102,17 +106,13 @@ class Quantity(Field):
 	def getValueRepr(self, value):
 		return value
 		
-	def toFormDict(self):			
-		fieldDict = {'name' : self._name, 'label': self.label}
+	def toFormDict(self):
+		fieldDict = super(Quantity, self).toFormDict()			
 		fieldDict['type'] = 'Quantity'
 		fieldDict['quantity'] = self.type
 		fieldDict['defaultDispUnit'] = self.defaultDispUnit
 		fieldDict['minValue'] = self.minValue
 		fieldDict['maxValue'] = self.maxValue
-		if (self.show is not None):
-			fieldDict['show'] = self.show
-		if (self.description is not None):
-			fieldDict['description'] = self.description
 		unitsList = []
 		for key in Quantities[self.type]['units'].keys():			
 			unitsList.append([key, Quantities[self.type]['units'][key]])
@@ -166,13 +166,9 @@ class String(Field):
 			return value
 	
 	def toFormDict(self):
-		fieldDict = {'name' : self._name, 'label': self.label}
+		fieldDict = super(String, self).toFormDict()
 		fieldDict['type'] = 'String'
 		fieldDict['multiline'] = self.multiline
-		if (self.show is not None):
-			fieldDict['show'] = self.show
-		if (self.description is not None):
-			fieldDict['description'] = self.description
 		return fieldDict
 
 class Boolean(Field):
@@ -201,12 +197,8 @@ class Boolean(Field):
 		return value
 	
 	def toFormDict(self):
-		fieldDict = {'name' : self._name, 'label': self.label}
-		fieldDict['type'] = 'Boolean'
-		if (self.show is not None):
-			fieldDict['show'] = self.show
-		if (self.description is not None):
-			fieldDict['description'] = self.description			
+		fieldDict = super(Boolean, self).toFormDict()
+		fieldDict['type'] = 'Boolean'		
 		return fieldDict
 
 class Choices(Field):
@@ -243,16 +235,12 @@ class Choices(Field):
 		return value
 	
 	def toFormDict(self):
-		fieldDict = {'name' : self._name, 'label': self.label}
+		fieldDict = super(Choices, self).toFormDict()
 		fieldDict['type'] = 'Choices'
 		optionsList = []
 		for key in self.options.keys():			
 			optionsList.append([key, self.options[key]])
 		fieldDict['options'] = optionsList
-		if (self.show is not None):
-			fieldDict['show'] = self.show
-		if (self.description is not None):
-			fieldDict['description'] = self.description
 		return fieldDict
 
 class ObjectReference(Field):
@@ -280,7 +268,7 @@ class ObjectReference(Field):
 		return value['_key']
 		
 	def toFormDict(self):
-		fieldDict = {'name' : self._name, 'label': self.label}
+		fieldDict = super(ObjectReference, self).toFormDict()
 		fieldDict['type'] = 'Choices'
 		optionsList = []
 		for key in self.targetContainer.keys():			
@@ -362,18 +350,12 @@ class RecordArray(Field):
 		return value.tolist()
 
 	def toFormDict(self):
-		fieldDict = {'type': 'RecordArray', 
-					'name': self._name,
-					'label': self.label
-					}
-		
+		fieldDict = super(RecordArray, self).toFormDict()
+		fieldDict['type'] = 'RecordArray'
 		jsonFieldList = []		
 		for field in self.fieldList:
 			jsonFieldList.append(field.toFormDict())
-		if (self.description is not None):
-			fieldDict['description'] = self.description
 		fieldDict['fields'] = jsonFieldList
-		
 		return fieldDict
 
 class TableView(Field):
@@ -428,19 +410,14 @@ class TableView(Field):
 			raise ArgumentTypeError('The value of TableView must be a numpy array')
 		
 	def toFormDict(self):
+		fieldDict = super(TableView, self).toFormDict()
 		if ('title' not in self.options.keys()):
 			self.options['title'] = self.label
 		
-		fieldDict = {
-			'name': self._name, 
-			'label': self.label, 
-			'type': 'TableView',
-			'options': self.options,
-			'visibleColumns' : self.visibleColumns,
-			'columnUnitDefs' : self.columnUnitDefs
-			}
-		if (self.description is not None):
-			fieldDict['description'] = self.description
+		fieldDict['type'] = 'TableView'
+		fieldDict['options'] = self.options
+		fieldDict['visibleColumns'] = self.visibleColumns
+		fieldDict['columnUnitDefs'] = self.columnUnitDefs
 		return fieldDict
 
 	def getValueRepr(self, value):
@@ -581,15 +558,9 @@ class PlotView(Field):
 		if (self.ylog):
 			self.options['logscale'] = True
 		
-		fieldDict = {
-			'name': self._name, 
-			'label': self.label, 
-			'type': 'PlotView',
-			'options': self.options
-			}
-		
-		if (self.description is not None):
-			fieldDict['description'] = self.description
+		fieldDict = super(PlotView, self).toFormDict()
+		fieldDict['type'] = 'PlotView'
+		fieldDict['options'] = self.options
 		return fieldDict
 
 

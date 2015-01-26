@@ -623,10 +623,6 @@ smoModule.directive('smoQuantity', ['$compile', 'util', function($compile, util)
 		},
 		link : function(scope, element, attr) {
 			scope.util = util;
-			if (typeof scope.fieldVar.description === "undefined"){
-				scope.fieldVar.description = "";
-			}
-			
 			var template = '\
 					<div class="field-label"><div data-tooltip="' + scope.fieldVar.description + '">' + scope.fieldVar.label + '</div></div>';
 			if (scope.viewType == 'input'){
@@ -676,10 +672,7 @@ smoModule.directive('smoChoice', ['$compile', 'util', function($compile, util) {
 			smoDataSource : '='
 		},
 		link : function(scope, element, attr) {
-			if (typeof scope.fieldVar.description === "undefined"){
-				scope.fieldVar.description = "";
-			}
-			
+			console.log(scope.fieldVar);
 			var template = ' \
 				<div class="field-label"><div data-tooltip="' + scope.fieldVar.description + '">' + scope.fieldVar.label + '</div></div>\
 				<div class="field-select choice"> \
@@ -711,9 +704,6 @@ smoModule.directive('smoString', ['$compile', function($compile) {
 			}
 		},
 		link : function(scope, element, attr) {
-			if (typeof scope.fieldVar.description === "undefined"){
-				scope.fieldVar.description = "";
-			}
 			if (scope.fieldVar.multiline==true){
 				var template = '\
 					<div class="multiline-label"><div data-tooltip="' + scope.fieldVar.description + '">' + scope.fieldVar.label + '</div></div>';
@@ -770,10 +760,7 @@ smoModule.directive('smoBool', ['$compile', function($compile) {
 				$scope.smoDataSource[$scope.fieldVar.name] = $scope.fieldVar.value;
 			}
 		},
-		link : function(scope, element, attr) {
-			if (typeof scope.fieldVar.description === "undefined"){
-				scope.fieldVar.description = "";
-			}
+		link : function(scope, element, attr) {			
 			var template = '\
 				<div class="field-label"><div data-tooltip="' + scope.fieldVar.description + '">' + scope.fieldVar.label + '</div></div>';			
 			if (scope.viewType == 'input'){
@@ -1181,10 +1168,6 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 					var showFieldCode = "";
 					if (!(typeof field.show === "undefined")){
 						showFieldCode = 'ng-show="' + field.show.replace(/self/g, 'smoDataSource') + '"';
-					}
-					
-					if (typeof field.description === "undefined"){
-						field.description = "";
 					}
 					
 					if (i==0){
