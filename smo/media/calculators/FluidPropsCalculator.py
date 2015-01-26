@@ -43,9 +43,11 @@ class FluidProperties(NumericalModel):
 	
 	############# Inputs ###############
 	# Fields
-	fluidName = Choices(Fluids, default = 'ParaHydrogen', label = 'fluid')	
-	stateVariable1 = Choices(options = StateVariableOptions, default = 'P', label = 'first state variable')
-	p1 = Quantity('Pressure', default = (1, 'bar'), label = 'pressure', show="self.stateVariable1 == 'P'")
+	fluidName = Choices(Fluids, default = 'ParaHydrogen', label = 'fluid', description = "Fluid name")	
+	stateVariable1 = Choices(options = StateVariableOptions, default = 'P', label = 'first state variable',
+							description = "First of two state variables")
+	p1 = Quantity('Pressure', default = (1, 'bar'), label = 'pressure',
+				description = "pressure", show="self.stateVariable1 == 'P'")
 	T1 = Quantity('Temperature', default = (300, 'K'), label = 'temperature', show="self.stateVariable1 == 'T'")
 	rho1 = Quantity('Density', default = (1, 'kg/m**3'), label = 'density', show="self.stateVariable1 == 'D'")
 	h1 = Quantity('SpecificEnthalpy', default = (1000, 'kJ/kg'), label = 'specific enthalpy', show="self.stateVariable1 == 'H'")
@@ -329,10 +331,10 @@ class SaturationData(NumericalModel):
 	
 	############# Results ###############
 	# Fields
-	T_p_satPlot = PlotView(label = 'Temperature', dataLabels = ['pressure [bar]', 'saturation temperature [K]'], 
+	T_p_satPlot = PlotView(label = 'Temperature', description='Saturation temperature plot', dataLabels = ['pressure [bar]', 'saturation temperature [K]'], 
 							xlog = True, 
 							options = {'ylabel': 'temperature [K]'})
-	rho_p_satPlot = PlotView(label = 'Density', dataLabels = ['pressure [bar]', 'liquid density [kg/m**3]', 'vapor density [kg/m**3]'],
+	rho_p_satPlot = PlotView(label = 'Density', description='Saturation density', dataLabels = ['pressure [bar]', 'liquid density [kg/m**3]', 'vapor density [kg/m**3]'],
 							options = {'ylabel': 'density [kg/m**3]'})
 	delta_h_p_satPlot = PlotView(label = 'Evap. enthalpy', dataLabels = ['pressure [bar]', 'h evap [kJ/kg]'], 
 								xlog = True, 

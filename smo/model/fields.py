@@ -10,7 +10,7 @@ class Field(object):
 	# Tracks each time an instance is created. Used to retain order.
 	creation_counter = 0
 	
-	def __init__(self, label = "", show = None):
+	def __init__(self, label = "", description = None, show = None):
 		"""
 	 	:param str label: the text label used in the user interface usually in front of the field
 		:param str show: expression (as a string), which is evaluated on the client side and is used to 
@@ -18,9 +18,11 @@ class Field(object):
 			other fields in the model are referenced by prefixing them with ``self.``
 		"""
 		self.label = label
+		self.description = description
 		self.show = show
 		if (self.show is not None):
 			self.show = self.show.replace('"', '\'')
+			
 		# Increase the creation counter, and save our local copy.
 		self.creation_counter = Field.creation_counter
 		Field.creation_counter += 1
@@ -109,6 +111,8 @@ class Quantity(Field):
 		fieldDict['maxValue'] = self.maxValue
 		if (self.show is not None):
 			fieldDict['show'] = self.show
+		if (self.description is not None):
+			fieldDict['description'] = self.description
 		unitsList = []
 		for key in Quantities[self.type]['units'].keys():			
 			unitsList.append([key, Quantities[self.type]['units'][key]])
@@ -167,6 +171,8 @@ class String(Field):
 		fieldDict['multiline'] = self.multiline
 		if (self.show is not None):
 			fieldDict['show'] = self.show
+		if (self.description is not None):
+			fieldDict['description'] = self.description
 		return fieldDict
 
 class Boolean(Field):
@@ -199,6 +205,8 @@ class Boolean(Field):
 		fieldDict['type'] = 'Boolean'
 		if (self.show is not None):
 			fieldDict['show'] = self.show
+		if (self.description is not None):
+			fieldDict['description'] = self.description			
 		return fieldDict
 
 class Choices(Field):
@@ -243,6 +251,8 @@ class Choices(Field):
 		fieldDict['options'] = optionsList
 		if (self.show is not None):
 			fieldDict['show'] = self.show
+		if (self.description is not None):
+			fieldDict['description'] = self.description
 		return fieldDict
 
 class ObjectReference(Field):
@@ -360,7 +370,8 @@ class RecordArray(Field):
 		jsonFieldList = []		
 		for field in self.fieldList:
 			jsonFieldList.append(field.toFormDict())
-		
+		if (self.description is not None):
+			fieldDict['description'] = self.description
 		fieldDict['fields'] = jsonFieldList
 		
 		return fieldDict
@@ -428,6 +439,8 @@ class TableView(Field):
 			'visibleColumns' : self.visibleColumns,
 			'columnUnitDefs' : self.columnUnitDefs
 			}
+		if (self.description is not None):
+			fieldDict['description'] = self.description
 		return fieldDict
 
 	def getValueRepr(self, value):
@@ -557,8 +570,6 @@ class PlotView(Field):
 		if ('ylabel' not in self.options.keys()):
 			self.options['ylabel'] = self.dataLabels[1]
 		
-# 		self.options['labelsDiv'] = self._name + 'LegendDiv'
-		
 		if ('labelsDivWidth' not in self.options.keys()):
 			self.options['labelsDivWidth'] = 400
 			
@@ -576,6 +587,9 @@ class PlotView(Field):
 			'type': 'PlotView',
 			'options': self.options
 			}
+		
+		if (self.description is not None):
+			fieldDict['description'] = self.description
 		return fieldDict
 
 

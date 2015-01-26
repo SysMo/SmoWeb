@@ -312,38 +312,53 @@ Tooltip
 	position: relative;
 	z-index: 2;
 	cursor: pointer;
+	display: inline-block;
 }
 
 /* Hide the tooltip content by default */
-[data-tooltip]:before,
 [data-tooltip]:after {
   visibility: hidden;
 	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
 	filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);
 	opacity: 0;
 	pointer-events: none;
+	display: inline-block;
+	position: absolute;
+	left: 0px;
 }
 
-/* Position tooltip above the element */
-[data-tooltip]:before {
+/* Show tooltip content on hover */
+[data-tooltip]:hover:after {
+	visibility: visible;
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
+	filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);
+	opacity: 1;
+	display: inline-block;
 	position: absolute;
-	bottom: 150%;
-	left: 50%;
-	margin-bottom: 5px;
-	margin-left: -80px;
-	padding: 7px;
-	width: 160px;
-	-webkit-border-radius: 3px;
-	-moz-border-radius:    3px;
-	border-radius:         3px;
-	background-color: #000;
-	background-color: hsla(0, 0%, 20%, 0.9);
-	color: #fff;
-	content: attr(data-tooltip);
-	text-align: center;
-	font-size: 14px;
-	line-height: 1.2;
+	left: 0px;
 }
+
+
+/* Position tooltip above the element */
+/* [data-tooltip]:before { */
+/* 	position: absolute; */
+/* 	bottom: 150%; */
+/* 	left: 50%; */
+/* 	margin-bottom: 5px; */
+/* 	margin-left: -80px; */
+/* 	padding: 7px; */
+/* 	width: 160px; */
+/* 	-webkit-border-radius: 3px; */
+/* 	-moz-border-radius:    3px; */
+/* 	border-radius:         3px; */
+/* 	background-color: #000; */
+/* 	background-color: hsla(0, 0%, 20%, 0.9); */
+/* 	color: #fff; */
+/* 	content: attr(data-tooltip); */
+/* 	text-align: center; */
+/* 	font-size: 14px; */
+/* 	line-height: 1.2; */
+/* } */
 
 /* Triangle hack to make tooltip look like a speech bubble */
 /* [data-tooltip]:after { */
@@ -360,12 +375,3 @@ Tooltip
 /* 	font-size: 0; */
 /* 	line-height: 0; */
 /* } */
-
-/* Show tooltip content on hover */
-[data-tooltip]:hover:before,
-[data-tooltip]:hover:after {
-	visibility: visible;
-	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
-	filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=100);
-	opacity: 1;
-}

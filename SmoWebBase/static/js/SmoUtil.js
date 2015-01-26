@@ -623,8 +623,12 @@ smoModule.directive('smoQuantity', ['$compile', 'util', function($compile, util)
 		},
 		link : function(scope, element, attr) {
 			scope.util = util;
+			if (typeof scope.fieldVar.description === "undefined"){
+				scope.fieldVar.description = "";
+			}
+			
 			var template = '\
-					<div class="field-label"><div>' + scope.fieldVar.label + '</div></div>';
+					<div class="field-label"><div data-tooltip="' + scope.fieldVar.description + '">' + scope.fieldVar.label + '</div></div>';
 			if (scope.viewType == 'input'){
 				template += '\
 					<div class="field-input"> \
@@ -672,17 +676,21 @@ smoModule.directive('smoChoice', ['$compile', 'util', function($compile, util) {
 			smoDataSource : '='
 		},
 		link : function(scope, element, attr) {
-		var template = ' \
-			<div class="field-label">' + scope.fieldVar.label + '</div>\
-			<div class="field-select choice"> \
-				<select ng-model="smoDataSource.' + scope.fieldVar.name + '" ng-options="pair[0] as pair[1] for pair in fieldVar.options"></select> \
-			</div>';
-		
-//		element.html('').append($compile(template)(scope));
-		var el = angular.element(template);
-        compiled = $compile(el);
-        element.append(el);
-        compiled(scope);
+			if (typeof scope.fieldVar.description === "undefined"){
+				scope.fieldVar.description = "";
+			}
+			
+			var template = ' \
+				<div class="field-label"><div data-tooltip="' + scope.fieldVar.description + '">' + scope.fieldVar.label + '</div></div>\
+				<div class="field-select choice"> \
+					<select ng-model="smoDataSource.' + scope.fieldVar.name + '" ng-options="pair[0] as pair[1] for pair in fieldVar.options"></select> \
+				</div>';
+			
+	//		element.html('').append($compile(template)(scope));
+			var el = angular.element(template);
+	        compiled = $compile(el);
+	        element.append(el);
+	        compiled(scope);
 
 		}
 	}
@@ -703,12 +711,15 @@ smoModule.directive('smoString', ['$compile', function($compile) {
 			}
 		},
 		link : function(scope, element, attr) {
+			if (typeof scope.fieldVar.description === "undefined"){
+				scope.fieldVar.description = "";
+			}
 			if (scope.fieldVar.multiline==true){
 				var template = '\
-					<div class="multiline-label">' + scope.fieldVar.label + '</div>';
+					<div class="multiline-label"><div data-tooltip="' + scope.fieldVar.description + '">' + scope.fieldVar.label + '</div></div>';
 			} else {
 				var template = '\
-					<div class="field-label">' + scope.fieldVar.label + '</div>';
+					<div class="field-label"><div data-tooltip="' + scope.fieldVar.description + '">' + scope.fieldVar.label + '</div></div>';
 			}			
 			
 			if (scope.viewType == 'input')
@@ -759,9 +770,12 @@ smoModule.directive('smoBool', ['$compile', function($compile) {
 				$scope.smoDataSource[$scope.fieldVar.name] = $scope.fieldVar.value;
 			}
 		},
-		link : function(scope, element, attr) {			
+		link : function(scope, element, attr) {
+			if (typeof scope.fieldVar.description === "undefined"){
+				scope.fieldVar.description = "";
+			}
 			var template = '\
-				<div class="field-label">' + scope.fieldVar.label + '</div>';			
+				<div class="field-label"><div data-tooltip="' + scope.fieldVar.description + '">' + scope.fieldVar.label + '</div></div>';			
 			if (scope.viewType == 'input'){
 				template += '\
 					<div class="bool-input"> \
@@ -827,7 +841,6 @@ smoModule.directive('smoPlot', ['$compile', function($compile) {
 			
 		},
 		link : function(scope, element, attr) {
-//								<button ng-click="exportPNG()"><span style="color:#428BCA" class="glyphicon glyphicon-download-alt"></span></button>\
 			var template = '\
 							<div style="display: inline-block;">\
 								<div id="' + scope.modelName + '_' + scope.fieldVar.name + 'PlotDiv"></div>\
@@ -1170,11 +1183,15 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 						showFieldCode = 'ng-show="' + field.show.replace(/self/g, 'smoDataSource') + '"';
 					}
 					
+					if (typeof field.description === "undefined"){
+						field.description = "";
+					}
+					
 					if (i==0){
-						navPills.push('<li class="active"><a id="' + field.name + 'Tab" data-target="#' + field.name + '" role="tab" data-toggle="tab">' + field.label + '</a></li>');
+						navPills.push('<li class="active"><a id="' + field.name + 'Tab" data-target="#' + field.name + '" role="tab" data-toggle="tab" data-tooltip="' + field.description + '">' + field.label + '</a></li>');
 						navPillPanes.push('<div class="tab-pane active" id="' + field.name + '">');
 					} else {
-						navPills.push('<li><a id="' + field.name + 'Tab" data-target="#' + field.name + '" role="tab" data-toggle="tab">' + field.label + '</a></li>');
+						navPills.push('<li><a id="' + field.name + 'Tab" data-target="#' + field.name + '" role="tab" data-toggle="tab" data-tooltip="' + field.description + '">' + field.label + '</a></li>');
 						navPillPanes.push('<div class="tab-pane" id="' + field.name + '">');
 					}
 					
@@ -1381,6 +1398,10 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 		},
 		link : function(scope, element, attr) {
 			scope.util = util;
+			if (typeof scope.smoRecordArray.description === "undefined"){
+				scope.smoRecordArray.description = "";
+			}
+			
 			scope.arrValue = scope.smoDataSource[scope.smoRecordArray.name];
 			scope.arrDisplayValue = angular.copy(scope.arrValue);
 			
@@ -1489,7 +1510,7 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 			}
 			
 			var template = '\
-			<div class="field-label">' + scope.smoRecordArray.label + '</div>\
+			<div class="field-label"><div data-tooltip="' + scope.smoRecordArray.description + '">' + scope.smoRecordArray.label + '</div></div>\
 			<div class="field-input"><smo-button action="toggle()" icon="edit" tip="Edit" size="md"></smo-button></div>';
 			//			<div class="field-input"><button class="btn btn-primary" style="height: 30px;" ng-click="toggle()">Edit</button></div>';
 			
