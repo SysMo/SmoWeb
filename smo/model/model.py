@@ -26,7 +26,7 @@ class ModelFigure(object):
 			self.height= height
 			
 class ModelDescription(object):
-	def __init__(self, text, show=False):
+	def __init__(self, text, show = False):
 		self.text = text
 		self.show = show
 
@@ -72,6 +72,8 @@ class NumericalModelMeta(type):
 			attrs['label'] = attrs['name']
 		if ('title' not in attrs):
 			attrs['title'] = attrs['label']
+		if ('showOnHome' not in attrs):
+			attrs['showOnHome'] = True
 		# Collect fields from current class.
 		current_fields = []
 # 		current_groups = []

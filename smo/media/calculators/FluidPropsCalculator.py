@@ -131,7 +131,10 @@ class FluidProperties(NumericalModel):
 	figure = ModelFigure(src="ThermoFluids/img/StateDiagram3D.svg", height=150, width=250)
 	
 	# Model description
-	description = ModelDescription('Fluid properties calculator.', show = False)
+	description = ModelDescription('A calculator of fluid properties.', show = False)
+	
+	#Thumbnail show on home page
+	showOnHome = True
 	
 	############# Page structure ########
 	modelBlocks = [inputView, resultView, resultViewIsTwoPhase]
@@ -268,6 +271,10 @@ class FluidInfo(NumericalModel):
 	
 	# Html section
 	litRefs = HtmlBlock(srcType="file", src="FluidInfoLitReferences.jinja")
+	
+	# Model description
+	description = ModelDescription('Critical point, triple point, fluid limits and other fluid constants.', 
+								show = False)
 	
 	############# Page structure ########
 	modelBlocks = [inputView, resultView, litRefs]

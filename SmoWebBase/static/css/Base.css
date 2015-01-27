@@ -204,6 +204,8 @@ h1.title {
 	vertical-align: bottom;
 	border-radius: 10px;
 	border: solid 1px #CCC;
+	text-align: center;
+	margin-bottom: 5px;
 }
 
 .thumb img {
@@ -211,13 +213,6 @@ h1.title {
 	margin-bottom: 10px;
 	max-height: 100%;
 	max-width: 100%;	
-	text-align: center;
-}
-
-.thumb > .description {
-	margin-bottom: 10px;
-	overflow: hidden;
-	text-align: center;
 }
 
 /* Content */

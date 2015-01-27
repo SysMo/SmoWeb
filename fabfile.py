@@ -114,7 +114,21 @@ def convertToPng():
 				sDir, sName = os.path.split(sourceFilePath)
 				sNameBase, sNameExt = os.path.splitext(sName)
 				outputFilePath = os.path.abspath(os.path.join(sDir, sNameBase +'.png'))
-				local('convert ' + sourceFilePath + ' ' + outputFilePath)
+				local('convert ' + sourceFilePath + ' -transparent white ' + outputFilePath)
+				
+def createThumbnails():
+	"""
+	Creates .png thumbnail files from all numerical model images.
+	"""
+	for app in env.applicationModules:
+		srcFolder = os.path.join(env.projectRoot, app, 'static', app, 'img')
+		if (os.path.isdir(srcFolder)):
+			for sourceFilePath in glob.glob(os.path.join(srcFolder, '*.svg')):
+				sDir, sName = os.path.split(sourceFilePath)
+				sNameBase, sNameExt = os.path.splitext(sName)
+				outputFilePath = os.path.abspath(os.path.join(sDir.replace('img', os.path.join('img', 'thumbnails')), 
+												sNameBase + '_thumb.png'))
+				local('convert ' + sourceFilePath + ' -thumbnail 170x160 -transparent white ' + outputFilePath)
 
 #######################################################################
 def installAptPackages():

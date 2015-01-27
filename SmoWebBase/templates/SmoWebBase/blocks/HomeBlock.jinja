@@ -1,25 +1,31 @@
 <h1 class="title">SmoWeb Computational Platform</h1>
-<div style="white-space: nowrap; margin-top: 30px; margin-bottom: 30px; text-align: center;">
+<div style="margin-top: 30px; margin-bottom: 30px; text-align: center;">
 {% for routerName, router in pageView.router.registry.iteritems() %}
 	{% for pageName, pageClass in router.pages.iteritems() %}
 		{% for module in pageClass.modules %}
 			{% if issubclass(module, smo.model.model.NumericalModel) %}
-				{% if hasattr(module, 'figure') %}		
-					
-						<div class="thumb" style="position: relative;">
-							<div style="position: relative;">
-								<img src="{{ static(module.figure.src) }}" />
+				{% if module.showOnHome %}
+					<div class="thumb">
+						<div>
+							<a href="/{{routerName}}/{{pageClass.name}}?model={{module.name}}"
+							 target="_self">
+								<img {% if hasattr(module, 'description') %} 
+										data-tooltip="{{module.description.text}}" 
+									{% endif %} 
+									{% if hasattr(module, 'figure') %}
+										src="{{ static(module.figure.src.replace('img', 'img/thumbnails').replace('.svg', '_thumb.png')) }}"
+									{% else %}
+										style="opacity: 0.5; filter: alpha(opacity=50);"
+										src="{{ static('img/thumbnails/SysMoLogo_thumb.png') }}"
+									{% endif %}
+								/>
+							</a>
+							<div>
+								{{module.label}}
 							</div>
-							{% if hasattr(module, 'description') %}
-							<div style="position: relative; bottom: 0%;">
-								<a href='/{{routerName}}/{{pageClass.name}}'>
-								{{module.description.text}}
-								</a>
-							</div>
-							{% endif %}	
 						</div>
-					
-				{% endif %}
+					</div>
+				{% endif %}	
 			{% endif %}
 		{% endfor %}
 	{% endfor %}
