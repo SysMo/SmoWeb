@@ -208,13 +208,6 @@ h1.title {
 	margin-bottom: 5px;
 }
 
-.thumb img {
-	margin-top: 10px;
-	margin-bottom: 10px;
-	max-height: 100%;
-	max-width: 100%;	
-}
-
 /* Content */
 #content {
 	height: auto; 

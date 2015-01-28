@@ -11,8 +11,8 @@
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    version="1.0"
-   width="500"
-   height="300"
+   width="337.88199"
+   height="267.11029"
    id="svg2"
    inkscape:version="0.48.4 r9939"
    sodipodi:docname="StateDiagram3D.svg">
@@ -36,17 +36,21 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1920"
-     inkscape:window-height="1001"
+     inkscape:window-width="1280"
+     inkscape:window-height="751"
      id="namedview55"
      showgrid="false"
      inkscape:zoom="1.1616801"
-     inkscape:cx="485.41808"
-     inkscape:cy="70.796612"
+     inkscape:cx="395.28633"
+     inkscape:cy="53.035753"
      inkscape:window-x="0"
      inkscape:window-y="25"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg2" />
+     inkscape:current-layer="svg2"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0" />
   <defs
      id="defs4">
     <inkscape:path-effect
@@ -226,7 +230,7 @@
   </defs>
   <g
      id="g3203"
-     transform="translate(58.082214,6.8865775)">
+     transform="translate(-32.04954,-8.242268)">
     <path
        d="m 91.562375,215.48088 97.022105,47.65045 26.12434,-84.78763 C 254.82507,28.044878 176.21917,101.0751 149.40325,125.83708 l 6.18876,26.25447 -64.029635,63.38933 z"
        style="color:#000000;fill:#b9e2ea;fill-opacity:0.7254902;fill-rule:nonzero;stroke:none;stroke-width:1;marker:none;visibility:visible;display:inline;overflow:visible"

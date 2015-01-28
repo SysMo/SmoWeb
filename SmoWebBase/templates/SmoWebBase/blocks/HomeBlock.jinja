@@ -6,7 +6,7 @@
 			{% if issubclass(module, smo.model.model.NumericalModel) %}
 				{% if module.showOnHome %}
 					<div class="thumb">
-						<div>
+						<div style="display: table-cell; vertical-align:middle; height: 150px; width: 180px;">
 							<a href="/{{routerName}}/{{pageClass.name}}?model={{module.name}}"
 							 target="_self">
 								<img {% if hasattr(module, 'description') %} 
@@ -20,9 +20,9 @@
 									{% endif %}
 								/>
 							</a>
-							<div>
-								{{module.label}}
-							</div>
+						</div>
+						<div>
+							{{module.label}}
 						</div>
 					</div>
 				{% endif %}	

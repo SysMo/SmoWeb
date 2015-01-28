@@ -116,7 +116,7 @@ def convertToPng():
 				outputFilePath = os.path.abspath(os.path.join(sDir, sNameBase +'.png'))
 				local('convert ' + sourceFilePath + ' -transparent white ' + outputFilePath)
 				
-def createThumbnails():
+def generateThumbnails():
 	"""
 	Creates .png thumbnail files from all numerical model images.
 	"""
@@ -128,7 +128,7 @@ def createThumbnails():
 				sNameBase, sNameExt = os.path.splitext(sName)
 				outputFilePath = os.path.abspath(os.path.join(sDir.replace('img', os.path.join('img', 'thumbnails')), 
 												sNameBase + '_thumb.png'))
-				local('convert ' + sourceFilePath + ' -thumbnail 170x160 -transparent white ' + outputFilePath)
+				local('convert ' + sourceFilePath + ' -thumbnail 170x150 -transparent white ' + outputFilePath)
 
 #######################################################################
 def installAptPackages():
