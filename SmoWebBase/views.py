@@ -11,10 +11,6 @@ class BasePageModule(HtmlModule):
     label = 'Home'
     block = HtmlBlock(srcType="file", src="HomeBlock.jinja")
     modelBlocks = [block]
-    
-class AboutUs(RestBlock):
-    name = 'AboutUs'
-    label = 'About Us'
 
 class UnitConverterModule(HtmlModule):
     name = 'UnitConverter'
@@ -22,14 +18,40 @@ class UnitConverterModule(HtmlModule):
     converterHtml = HtmlBlock(srcType="file", src="UnitConverterBlock.html")
     converterJs = JsBlock(srcType="file", src="UnitConverter.js")
     modelBlocks = [converterHtml, converterJs]
-    
+ 
+class Company(RestBlock):
+    name = 'Company'
+    label = 'Company'
+
+class People(RestBlock):
+    name = 'People'
+    label = 'People'
+       
 @registerView(router)
 class HomeView(ModularPageView):
     name = "HomeView"
     label = "Home View"
     injectVariables = ['ModelCommunicator', 'variables']
-    modules = [BasePageModule, UnitConverterModule, AboutUs]
+    modules = [BasePageModule, UnitConverterModule, Company, People]
     
     @action.post()
     def getQuantities(self, parameters, model=None, view= None):
         return Quantities
+
+class Industries(RestBlock):
+    name = 'Industries'
+    label = 'Industries'
+    
+class Products(RestBlock):
+    name = 'Products'
+    label = 'Products'
+    
+class Services(RestBlock):
+    name = 'Services'
+    label = 'Services'
+
+@registerView(router)
+class SysmoView(ModularPageView):
+    name = "Sysmo"
+    label = "SysMo Ltd"
+    modules = [Industries, Products, Services]

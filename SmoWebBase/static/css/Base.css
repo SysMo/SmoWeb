@@ -20,8 +20,6 @@ body {
 	margin: 0px;
 }
 
-
-
 /* Horizontal navigation bar */ 
 
 .navbar-fixed-top {
@@ -174,7 +172,6 @@ body {
 
 h1.title {
 	text-align: center;
-	font-weight: bold; 
 }
 
 /* Model Presentation */
@@ -266,6 +263,19 @@ table.nice-table tr:nth-child(even) {
 
 table.nice-table tr:nth-child(odd) {
 	background: #FFFFFF;
+}
+
+table.team-table {
+	background-color: #EFEFEF;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+table.team-table tr td {
+	max-width: 200px;
+	padding: 20px 20px;
+	border: 1px solid #FFF;
+	text-align: center;
 }
 
 /* Internet Explorer specific styles */
