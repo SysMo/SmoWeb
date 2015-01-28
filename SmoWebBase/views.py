@@ -11,6 +11,12 @@ class BasePageModule(HtmlModule):
     label = 'Home'
     block = HtmlBlock(srcType="file", src="HomeBlock.jinja")
     modelBlocks = [block]
+    
+class AboutUs(HtmlModule):
+    name = 'AboutUs'
+    label = 'About us'
+#     block = HtmlBlock(srcType="file", src="HomeBlock.jinja")
+#     modelBlocks = [block]
 
 class UnitConverterModule(HtmlModule):
     name = 'UnitConverter'

@@ -50,6 +50,8 @@ from collections import OrderedDict
 class HeatPump(NumericalModel):
 	name = "HeatPump"
 	label = "Heat Pump"
+	figure = ModelFigure(src="ThermoFluids/img/HeatPump.svg")
+# 	description = ModelDescription('Heat Pump.', show = False)
 	
 	############# Inputs ###############
 	# Fields
@@ -120,12 +122,6 @@ class HeatPump(NumericalModel):
 	
 	# Model view
 	resultView = ModelView(ioType = "output", superGroups = [results])
-	
-	# Model figure
-	figure = ModelFigure(src="ThermoFluids/img/HeatPump.svg")
-	
-	# Model description
-	description = ModelDescription('Heat Pump.', show = False)
 	
 	############# Page structure ########
 	modelBlocks = [inputView, resultView]

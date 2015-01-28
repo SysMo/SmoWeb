@@ -14,6 +14,8 @@ import json
 class PipeFlow(NumericalModel):
 	name = "PipeFlow"
 	label = "Pipe Flow"
+	figure = ModelFigure(src="ThermoFluids/img/StraightPipe.svg")
+# 	description = ModelDescription('Pipe flow.', show = False)
 	
 	############# Inputs ###############
 	# Fields
@@ -70,18 +72,6 @@ class PipeFlow(NumericalModel):
 	
 	# Model view
 	resultView = ModelView(ioType = "output", superGroups = [results])
-	
-# 	# Html section
-# 	imgSection = HtmlBlock(srcType="string", 
-# 						src='<div class="title-figure">\
-# 									<img src="{static}/ThermoFluids/img/StraightPipe.svg"></img>\
-# 							</div>')
-	
-	# Model figure
-	figure = ModelFigure(src="ThermoFluids/img/StraightPipe.svg")
-	
-	# Model description
-	description = ModelDescription('Pipe flow.', show = False)
 	
 	############# Page structure ########
 	modelBlocks = [inputView, resultView]

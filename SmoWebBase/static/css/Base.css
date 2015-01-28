@@ -203,9 +203,10 @@ h1.title {
 	height: 180px;
 	vertical-align: bottom;
 	border-radius: 10px;
-	border: solid 1px #CCC;
+	border: solid 1px grey;
 	text-align: center;
 	margin-bottom: 5px;
+	background-color: white;
 }
 
 /* Content */

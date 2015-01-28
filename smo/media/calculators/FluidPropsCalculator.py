@@ -40,6 +40,9 @@ referenceKeys = OrderedDict((
 class FluidProperties(NumericalModel):
 	name = "FluidProperties"
 	label = "Fluid Properties"
+	figure = ModelFigure(src="ThermoFluids/img/StateDiagram3D.svg", height=150, width=250)
+# 	description = ModelDescription('A calculator of fluid properties.', show = False)
+	showOnHome = True
 	
 	############# Inputs ###############
 	# Fields
@@ -126,15 +129,6 @@ class FluidProperties(NumericalModel):
 	# Model view
 	resultView = ModelView(ioType = "output", superGroups = [props, FluidPoints])
 	resultViewIsTwoPhase = ModelView(ioType = "output", superGroups = [props, saturationProps, FluidPoints])
-	
-	# Model figure
-	figure = ModelFigure(src="ThermoFluids/img/StateDiagram3D.svg", height=150, width=250)
-	
-	# Model description
-	description = ModelDescription('A calculator of fluid properties.', show = False)
-	
-	#Thumbnail show on home page
-	showOnHome = True
 	
 	############# Page structure ########
 	modelBlocks = [inputView, resultView, resultViewIsTwoPhase]
@@ -223,6 +217,8 @@ class FluidProperties(NumericalModel):
 class FluidInfo(NumericalModel):
 	name = "FluidInfo"
 	label = "Fluid Info"
+# 	description = ModelDescription('Critical point, triple point, fluid limits and other fluid constants.', 
+# 								show = False)
 	
 	############# Inputs ###############
 	# Fields
@@ -271,10 +267,6 @@ class FluidInfo(NumericalModel):
 	
 	# Html section
 	litRefs = HtmlBlock(srcType="file", src="FluidInfoLitReferences.jinja")
-	
-	# Model description
-	description = ModelDescription('Critical point, triple point, fluid limits and other fluid constants.', 
-								show = False)
 	
 	############# Page structure ########
 	modelBlocks = [inputView, resultView, litRefs]

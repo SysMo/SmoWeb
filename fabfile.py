@@ -128,7 +128,7 @@ def generateThumbnails():
 				sNameBase, sNameExt = os.path.splitext(sName)
 				outputFilePath = os.path.abspath(os.path.join(sDir.replace('img', os.path.join('img', 'thumbnails')), 
 												sNameBase + '_thumb.png'))
-				local('convert ' + sourceFilePath + ' -thumbnail 170x150 -transparent white ' + outputFilePath)
+				local('convert ' + sourceFilePath + ' -thumbnail 170x150 ' + outputFilePath)
 
 #######################################################################
 def installAptPackages():
