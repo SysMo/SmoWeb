@@ -209,6 +209,10 @@ h1.title {
 	background-color: white;
 }
 
+.thumb:focus, .thumb:hover{
+	border: solid 3px #0875CA;
+}
+
 /* Content */
 #content {
 	height: auto; 
