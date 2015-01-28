@@ -5,7 +5,7 @@ except Exception:
 	pass
 import scipy.interpolate
 from smo.media.CoolProp.CoolProp import FluidState
-from smo.model.model import NumericalModel, ModelView, ModelDocumentation, HtmlBlock, ModelFigure, ModelDescription
+from smo.model.model import NumericalModel, ModelView, RestBlock, HtmlBlock, ModelFigure, ModelDescription
 from smo.model.actions import ServerAction, ActionBar
 from smo.model.fields import *
 from smo.media.MaterialData import Solids, Fluids
@@ -242,7 +242,7 @@ class Elbow(object):
 		upState = b.setUpstreamState(3e7, 288)
 		b.computePressureDrop(upState, 100./3600)
 
-class PipeFlowDoc(ModelDocumentation):
+class PipeFlowDoc(RestBlock):
 	name = 'PipeFlowDoc'
 	label = 'Pipe Flow (Docs)'
 	template = 'documentation/html/PipeFlowDoc.html'

@@ -178,7 +178,7 @@ class CryogenicPipeSolver(object):
 			eqX.solve(var = self.T)
 		
 	
-from smo.model.model import NumericalModel, ModelView, ModelDocumentation
+from smo.model.model import NumericalModel, ModelView, RestBlock
 from smo.model.fields import *
 from smo.model.actions import ServerAction, ActionBar
 from smo.media.MaterialData import Solids, Fluids

@@ -4,7 +4,7 @@ Created on Nov 05, 2014
 '''
 import numpy as np
 from collections import OrderedDict
-from smo.model.model import NumericalModel, ModelView, ModelDocumentation, HtmlBlock, ModelFigure, ModelDescription
+from smo.model.model import NumericalModel, ModelView, RestBlock, HtmlBlock, ModelFigure, ModelDescription
 from smo.model.actions import ServerAction, ActionBar
 from smo.model.fields import *
 from smo.media.CoolProp.CoolProp import Fluid, FluidState
@@ -390,7 +390,7 @@ class SaturationData(NumericalModel):
 		self.delta_s_p_satPlot = data[:, (0, 9)]
 		self.satTableView = data
 
-class FluidPropertiesDoc(ModelDocumentation):
+class FluidPropertiesDoc(RestBlock):
 	name = 'FluidPropertiesDoc'
 	label = 'Fluid Properties (Docs)'
 	template = 'documentation/html/FluidPropertiesDoc.html'

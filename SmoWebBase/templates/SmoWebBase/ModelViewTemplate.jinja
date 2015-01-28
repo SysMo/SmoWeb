@@ -115,10 +115,10 @@ angular.module('{{pageView.name}}', ['ui.bootstrap', 'smo'])
 						</div>
 					{% endfor %}
 				{% endif %}
-				{% if issubclass(module, smo.model.model.ModelDocumentation) %}
+				{% if issubclass(module, smo.model.model.RestBlock) %}
 					<div class="tab-pane" id="{{module.name}}Content">
-						<div class="docview">
-							{% include module|getModelDocUrl %}
+						<div class="restview">
+							{% include module|getRestBlockUrl(pageView) %}
 						</div>
 					</div>
 				{% endif %}

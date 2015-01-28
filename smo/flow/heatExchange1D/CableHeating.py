@@ -146,7 +146,7 @@ class CableHeatingSolver(object):
 
 
 from smo.model.actions import ServerAction, ActionBar
-from smo.model.model import NumericalModel, ModelView, ModelDocumentation
+from smo.model.model import NumericalModel, ModelView, RestBlock
 from smo.model.fields import *
 from smo.media.MaterialData import Solids
 

@@ -14,9 +14,9 @@ class BasePageModule(HtmlModule):
     
 class AboutUs(HtmlModule):
     name = 'AboutUs'
-    label = 'About us'
-#     block = HtmlBlock(srcType="file", src="HomeBlock.jinja")
-#     modelBlocks = [block]
+    label = 'About Us'
+    block = HtmlBlock(srcType="file", src="AboutUs.html")
+    modelBlocks = [block]
 
 class UnitConverterModule(HtmlModule):
     name = 'UnitConverter'
@@ -30,7 +30,7 @@ class HomeView(ModularPageView):
     name = "HomeView"
     label = "Home View"
     injectVariables = ['ModelCommunicator', 'variables']
-    modules = [BasePageModule, UnitConverterModule]
+    modules = [BasePageModule, UnitConverterModule, AboutUs]
     
     @action.post()
     def getQuantities(self, parameters, model=None, view= None):

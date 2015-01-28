@@ -85,7 +85,7 @@ def docs():
 	from docutils import io
 	import codecs
 	for app in env.applicationModules:
-		markupFolder = os.path.join(env.projectRoot, app, 'templates', 'documentation')
+		markupFolder = os.path.join(env.projectRoot, app, 'templates', app, 'restblocks')
 		if (os.path.isdir(markupFolder)):
 			for sourceFilePath in glob.glob(os.path.join(markupFolder, 'reStructuredText', '*.rst')):
 				sourceFile = open(sourceFilePath, 'r')

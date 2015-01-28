@@ -211,7 +211,7 @@ class NumericalModel(object):
 			field = self.declared_fields[key]
 			self.__dict__[key] = field.parseValue(value)	
 
-class ModelDocumentation(object):
+class RestBlock(object):
 	pass
 
 class HtmlModule(object):
