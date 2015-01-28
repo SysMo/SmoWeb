@@ -393,7 +393,6 @@ class SaturationData(NumericalModel):
 class FluidPropertiesDoc(RestBlock):
 	name = 'FluidPropertiesDoc'
 	label = 'Fluid Properties (Docs)'
-	template = 'documentation/html/FluidPropertiesDoc.html'
 		
 if __name__ == '__main__':
 # 	FluidProperties.test()

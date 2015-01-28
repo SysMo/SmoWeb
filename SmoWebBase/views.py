@@ -1,7 +1,7 @@
 from smo.model.quantity import Quantities
 from smo.django.view import action, ModularPageView
 from smo.django.router import ViewRouter, registerView
-from smo.model.model import HtmlModule, HtmlBlock, JsBlock
+from smo.model.model import HtmlModule, HtmlBlock, JsBlock, RestBlock
 import SmoWebBase
 
 router = ViewRouter('SmoWebBase', SmoWebBase)
@@ -12,11 +12,9 @@ class BasePageModule(HtmlModule):
     block = HtmlBlock(srcType="file", src="HomeBlock.jinja")
     modelBlocks = [block]
     
-class AboutUs(HtmlModule):
+class AboutUs(RestBlock):
     name = 'AboutUs'
     label = 'About Us'
-    block = HtmlBlock(srcType="file", src="AboutUs.html")
-    modelBlocks = [block]
 
 class UnitConverterModule(HtmlModule):
     name = 'UnitConverter'

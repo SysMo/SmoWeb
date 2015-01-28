@@ -13,10 +13,11 @@ env.projectRoot = os.getcwd()
 env.installDir = '/srv/SmoWeb/'
 env.virtualBinDir = os.path.abspath(os.path.join(env.installDir, '../VirtualEnv/SmoWebPlatform/bin/'))
 env.activate = 'source ' + os.path.join(env.virtualBinDir, 'activate')
-env.projectModules = ['SmoWeb', 'SmoWebBase']
+env.projectModules = ['SmoWeb']
 env.applicationModules = [
 	'DataManagement',
 	'ThermoFluids',
+	'SmoWebBase'
 ]
 env.extraFolders = [
 	'smo',
@@ -72,7 +73,7 @@ def syncVirtEnv():
 	sudo('chown -R www-data:www-data /srv/SmoWeb ')
 	sudo('service apache2 restart')
 #######################################################################
-def docs():
+def restToHtml():
 	"""
 	Generate documentation for the project and for the individual apps and pages
 	"""
@@ -128,7 +129,7 @@ def generateThumbnails():
 				sNameBase, sNameExt = os.path.splitext(sName)
 				outputFilePath = os.path.abspath(os.path.join(sDir.replace('img', os.path.join('img', 'thumbnails')), 
 												sNameBase + '_thumb.png'))
-				local('convert ' + sourceFilePath + ' -thumbnail 170x150 ' + outputFilePath)
+				local('convert ' + sourceFilePath + ' -thumbnail 150x100 ' + outputFilePath)
 
 #######################################################################
 def installAptPackages():

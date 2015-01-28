@@ -6,7 +6,8 @@
 			{% if issubclass(module, smo.model.model.NumericalModel) %}
 				{% if module.showOnHome %}
 					<div class="thumb">
-						<div style="display: table-cell; vertical-align:middle; height: 150px; width: 180px;">
+						<div style="display: table-cell; vertical-align:middle; 
+								height: 115px; width: 160px; margin-top: 10px;">
 							<a href="/{{routerName}}/{{pageClass.name}}?model={{module.name}}"
 							 target="_self">
 								<img {% if hasattr(module, 'description') %} 
@@ -16,14 +17,14 @@
 										src="{{ static(module.figure.src.replace('img', 'img/thumbnails').replace('.svg', '_thumb.png')) }}"
 									{% else %}
 										style="opacity: 0.5; filter: alpha(opacity=50);"
-										src="{{ static('img/thumbnails/Calculator.png') }}"
+										src="{{ static('img/thumbnails/Calculator_thumb.png') }}"
 									{% endif %}
 								/>
 							</a>
 						</div>
-						<div>
+						<div style="display:inline-block; width: 150px;">
 							{{module.label}}
-						</div>
+						</div>	
 					</div>
 				{% endif %}	
 			{% endif %}

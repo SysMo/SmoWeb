@@ -43,7 +43,7 @@ SurfaceShapes = OrderedDict((
 
 class FreeConvection_External(NumericalModel):
 	name = "FreeConvection_External"
-	label = "Free Convection External"
+	label = "Free Convection External External"
 	
 	############# Inputs ###############
 	# Fields
