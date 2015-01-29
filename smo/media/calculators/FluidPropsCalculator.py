@@ -64,7 +64,7 @@ class FluidProperties(NumericalModel):
 	####
 	stateGroup1 = FieldGroup([fluidName], label = 'Fluid')
 	stateGroup2 = FieldGroup([stateVariable1, p1, T1, rho1, h1, s1, q1, stateVariable2, p2, T2, rho2, h2, s2, q2], label = 'States')
-	inputs = SuperGroup([stateGroup1, stateGroup2])
+	inputs = SuperGroup([stateGroup1, stateGroup2], label = "Inputs")
 	
 	# Actions
 	computeAction = ServerAction("computeFluidProps", label = "Compute", outputView = 'resultView')

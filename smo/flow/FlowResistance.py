@@ -34,7 +34,7 @@ class PipeFlow(NumericalModel):
 	ambientTemperature = Quantity('Temperature', default = (15, 'degC'), label = 'ambient temperature')
 	flowInput = FieldGroup([fluidName, inletPressure, inletTemperature,	inletMassFlowRate], label = 'Flow')
 	#####	
-	inputs = SuperGroup([geometryInput, flowInput], label = 'Input data')
+	inputs = SuperGroup([geometryInput, flowInput])
 	
 	# Actions
 	computeAction = ServerAction("compute", label = "Compute", outputView = 'resultView')
@@ -68,7 +68,7 @@ class PipeFlow(NumericalModel):
 	flowOutput = FieldGroup([inletDensity, fluidMass, massFlowRate, volumetricFlowRate, 
 		flowVelocity, Re, zeta, dragCoefficient, pressureDrop, outletPressure, outletTemperature], label = "Flow")
 	#####
-	results = SuperGroup([geometryOutput, flowOutput], label = "Results")
+	results = SuperGroup([geometryOutput, flowOutput])
 	
 	# Model view
 	resultView = ModelView(ioType = "output", superGroups = [results])

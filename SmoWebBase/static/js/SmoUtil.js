@@ -1275,7 +1275,7 @@ smoModule.directive('smoSuperGroupSet', ['$compile', function($compile) {
 					}					
 				}
 				var template = '<div class="super-group">' +
-									'<h1>' + superGroup.label + '</h1>' +
+//									'<h1>' + superGroup.label + '</h1>' +
 									 superGroupFields.join("") + 
 								'</div>';
 			}
