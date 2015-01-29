@@ -167,7 +167,8 @@ body {
 .nav-sidebar > .active > a:hover,
 .nav-sidebar > .active > a:focus {
   color: #fff;
-  background-color: #0875CA; 
+  background-color: #0875CA;
+  border-radius: 7px; 
 }
 
 h1.title {
@@ -208,7 +209,7 @@ h1.title {
 }
 
 .thumb:focus, .thumb:hover{
-	border: solid 2px #0875CA;
+	border: solid 3px #0875CA;
 }
 
 /* Content */
