@@ -33,6 +33,7 @@ Server side documentation
    server/ApplicationServer
    server/WebServer
    server/TaskScheduler
+   server/MathUtilities
 
 -------------------------
 Client side documentation

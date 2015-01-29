@@ -114,3 +114,55 @@ the field. This attribute is crated in the constructor of :class:`~smo.model.mod
 Class fields vs instance fields
 -------------------------------
 
+A *class* field defines the structure of the field it refers to as part of the hierarchical structure of the model. 
+It is included in the ``definitions`` property of the JSON object representing the model that is sent to the client.
+By contrast, an *instance* field represents the value of the particular field, which is contained in the ``values`` attribute of
+the JSON object.   
+
+------
+Groups
+------
+
+:class:`Group`
+--------------
+
+.. autoclass:: Group
+
+:class:`FieldGroup`
+-------------------
+
+.. autoclass:: FieldGroup
+
+:class:`ViewGroup`
+------------------
+
+.. autoclass:: ViewGroup
+
+:class:`SuperGroup`
+-------------------
+
+.. autoclass:: SuperGroup
+
+------------
+Page modules
+------------
+
+.. module:: smo.model.model
+
+
+:class:`ModelView`
+------------------
+
+.. autoclass:: ModelView
+
+
+:class:`HtmlModule`
+-------------------
+
+.. autoclass:: HtmlModule
+
+
+:class:`RestBlock`
+------------------
+
+.. autoclass:: RestBlock

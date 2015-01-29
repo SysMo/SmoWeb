@@ -34,20 +34,20 @@ What we believe
    
    -- Richard Stallman
 
-We firmly believe in **Free and Open Source Software**. Open source gives you the freedom to use, modify, improve
-and re-distribute your product at your discretion. Time and time again Open Source proves to 
-be viable, and often superior alternative to commercial closed source software. Open
-Source guarantees that the software you use will be independant and provided it has
-a thriving community, will continue to develop and improve.
+We firmly believe in **free and open source software**. Open source gives you the freedom to use, modify, improve
+and re-distribute your product at your discretion. Time and again, open source has proven to 
+be a viable, and often superior, alternative to commercial closed source software. Open
+source guarantees that the software you use will be independent and given that it is backed by
+a thriving community, it is bound to continue to develop and improve.
 
-Science, engineering, technology are all collective achievements and we stand tall 
-because, because we step on the shoulders of the ones before us. Mathematical libraries, 
+Science, engineering and technology are all collective achievements, and we stand tall 
+because we stand on the shoulders of those before us. Mathematical libraries, 
 equation solvers, mesh generators, pre- and post-processing tools, parallelization software,
-network tools, databases, encryption tools, virtually everything is out there,
-already available, very often at no cost. Why not use it? Why not give back our own share?
+network tools, databases and encryption tools - virtually everything is already out there,
+readily available and very often at no cost. Why not use it? Why not contribute our own share?
 
-Of course, we realize Open Source is not always applicable. We don't expect that everyone
-believes in it the way we do, so we are ready and willing to protect the know-how of
+Of course, we realize that open source is not always applicable. We don't expect that everyone
+should believe in it the way we do, so we are ready and willing to protect the know-how of
 our clients by all means possible. 
 
 

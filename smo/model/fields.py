@@ -565,6 +565,7 @@ class PlotView(Field):
 
 
 class Group(object):
+	"""Abstract class for group of fields"""
 	# Tracks each time an instance is created. Used to retain order.
 	creation_counter = 0
 	def __init__(self, label = ""):
@@ -574,6 +575,7 @@ class Group(object):
 		Group.creation_counter += 1
 
 class FieldGroup(Group):
+	"""Represents a group of fields of all basic types except for PlotView and TableView"""
 	def __init__(self, fields = None, *args, **kwargs):
 		super(FieldGroup, self).__init__(*args, **kwargs)
 		self.fields = []
@@ -586,6 +588,7 @@ class FieldGroup(Group):
 					self.fields.append(field)
 
 class ViewGroup(Group):
+	"""Represents a group of fields of type PlotView and/or TableView"""
 	def __init__(self, fields = None, *args, **kwargs):
 		super(ViewGroup, self).__init__(*args, **kwargs)
 # 		self.fields = [] if (fields is None) else fields
@@ -599,6 +602,7 @@ class ViewGroup(Group):
 					self.fields.append(field)
 		
 class SuperGroup(Group):
+	"""Represents a group of FieldGroup and/or ViewGroup groups"""
 	def __init__(self, groups = None, *args, **kwargs):
 		super(SuperGroup, self).__init__(*args, **kwargs)
 		self.groups = [] if (groups is None) else groups

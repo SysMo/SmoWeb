@@ -6,7 +6,7 @@ body {
 	height: 100%;
 	background-color: #DEB03E;
 	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
-	font-size: medium;
+	font-size: 14px;
 	line-height: 1.42857;
 	color: black; /*#333*/
 	margin: 0px;
@@ -75,7 +75,7 @@ h4 {
 }
 
 blockquote {
-	font-size: medium;
+	font-size: 14px;
 	font-style: italic;
 }
 

@@ -4,6 +4,15 @@ import copy
 from smo.model.fields import FieldGroup, ViewGroup
 
 class ModelView(object):
+	"""
+	Represents a view of the numerical model, comprised of super-groups and a bar of buttons for performing actions.
+	
+	:param str ioType: the type of the view. It may be *input*, 
+		requiring the user to enter input data, or *output*, displaying the results of the computation
+	:param list superGroups: a list of ``SuperGroup`` objects
+	:param ActionBar actionBar: an ``ActionBar`` object	
+	:param bool autoFetch: used to specify whether the view should be loaded automatically at the client
+	"""
 	def __init__(self, ioType, superGroups, actionBar = None, autoFetch = False):
 		self.ioType = ioType
 		self.superGroups = superGroups
@@ -11,6 +20,7 @@ class ModelView(object):
 		self.autoFetch = autoFetch
 
 class ModelFigure(object):
+	""" Represents a figure displayed with the numerical model """
 	def __init__(self, src = None, width = None, height = None):
 		if (src == None):
 			raise ValueError('File path missing as first argument.')
@@ -26,11 +36,13 @@ class ModelFigure(object):
 			self.height= height
 			
 class ModelDescription(object):
+	""" Description of the numerical model """
 	def __init__(self, text, show = False):
 		self.text = text
 		self.show = show
 
 class CodeBlock(object):
+	""" A block of code included in the template """
 	def __init__(self, srcType = None, src = None):
 		if (srcType == None):
 			self.srcType = 'string'
@@ -54,9 +66,11 @@ class CodeBlock(object):
 			raise ValueError("Valid source types are 'string' and 'file'.")
 			
 class HtmlBlock(CodeBlock):
+	""" A block of HTML code """
 	pass
 
 class JsBlock(CodeBlock):
+	""" A block of JavaScript code """
 	pass
 
 #TODO: Currently inheritance not supported
@@ -212,7 +226,9 @@ class NumericalModel(object):
 			self.__dict__[key] = field.parseValue(value)	
 
 class RestBlock(object):
+	""" Page module generated from a restructured text document """
 	pass
 
 class HtmlModule(object):
+	""" Page module consisting of blocks of HTML code """
 	pass
