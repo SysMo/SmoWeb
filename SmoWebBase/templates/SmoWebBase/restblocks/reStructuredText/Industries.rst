@@ -10,17 +10,13 @@ Automotive
 ----------
 
 * Conventional and innovative fuel systems (hydrogen, natural gas, LPG) including
- 
   * storage tanks
   * refueling systems
   * fuel conditioning components (pressure regulators, fuel heaters etc)
-
 * Fuel cells
- 
-  * reaction modeling
+  * chemical reaction modeling
   * thermal management
   * pressure management
-   
 * Engine thermal management
 * Fuel injectors
 * Stresses and fatigue calculations

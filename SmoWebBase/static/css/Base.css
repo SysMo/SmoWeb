@@ -4,20 +4,79 @@ html{
 		
 body {	
 	height: 100%;
-	/* Variant 1 */
-	/* background-color: #FFDA80;
-	/* Variant 2 */
-/*     background-color: #CCC; */
-/*     background-image: url("/static/img/background-2-grey.jpg"); */
-/*     background-repeat: repeat; */
-/*     background-position: left top; */
-	/* Variant 3*/
 	background-color: #DEB03E;
 	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
-	font-size: 14px;
+	font-size: medium;
 	line-height: 1.42857;
 	color: black; /*#333*/
 	margin: 0px;
+}
+
+/* Sections and headers */
+.page-container {
+	max-width: 1000px;
+	margin-left: auto; 
+	margin-right: auto;
+	margin-top: 30px;	
+    background-image: url("/static/img/GreyStripes.png");
+    background-repeat: repeat;
+    padding: 30px;
+    border-radius: 10px;
+}
+
+h1.title {
+	text-align: center;
+}
+
+.section {
+	margin-top: 20px; 	
+}
+
+.topic-title {
+	margin-bottom: 10px;
+	font-size: x-large;
+	border-bottom: 1px solid #AAA;
+}
+
+.subtitle {
+	font-style: italic;
+	text-align: center;
+}
+
+h1, h2, h3, h4 {
+	margin-bottom: 10px;
+	margin-top: 30px;
+}
+
+h1 {
+	font-size: x-large;
+	border-bottom: 1px solid #AAA;
+	line-height: 40px;
+}
+
+h1.title {
+	font-size: xx-large;
+	text-align: center;
+	border-bottom: none;
+}
+
+h2 {	
+	font-size: large;	
+}
+
+h3 {
+	font-size: large;
+	font-style: italic;
+}
+
+h4 {
+	font-size: medium;
+	font-weight: bold;	
+}
+
+blockquote {
+	font-size: medium;
+	font-style: italic;
 }
 
 /* Horizontal navigation bar */ 
@@ -170,9 +229,6 @@ body {
   background-color: #0875CA; 
 }
 
-h1.title {
-	text-align: center;
-}
 
 /* Model Presentation */
 .presentation > div {
@@ -272,52 +328,24 @@ table.team-table {
 }
 
 table.team-table tr td {
-	max-width: 200px;
+ 	max-width: 200px;
 	padding: 20px 20px;
 	border: 1px solid #FFF;
 	text-align: center;
 }
+
+table.subfigures tr td {
+	padding: 10px 10px;
+	border: 1px solid #FFF;
+	text-align: center;
+}
+
 
 /* Internet Explorer specific styles */
 .no-rgba table.nice-table tr {
 	background: #FFFFFF;
 }
 
-.page-container {
-	max-width: 1000px;
-	margin-left: auto; 
-	margin-right: auto;
-	margin-top: 30px;	
-    background-image: url("/static/img/GreyStripes.png");
-    background-repeat: repeat;
-    padding: 30px;
-    border-radius: 10px;
-}
-
-.section {
-	margin-top: 20px; 	
-}
-
-.section  h1 {
-	margin-bottom: 10px;
-	font-size: x-large;
-}
-
-.section  h2 {
-	margin-bottom: 10px;
-	font-size: large;	
-}
-
-.section  h3 {
-	margin-bottom: 10px;
-	font-size: large;	
-}
-
-.section  h4 {
-	margin-bottom: 10px;
-	font-size: medium;
-	font-weight: bold;	
-}
 
 .section .select-text {
 	font-size: medium;  
