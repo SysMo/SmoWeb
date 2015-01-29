@@ -226,7 +226,8 @@ body {
 .nav-sidebar > .active > a:hover,
 .nav-sidebar > .active > a:focus {
   color: #fff;
-  background-color: #0875CA; 
+  background-color: #0875CA;
+  border-radius: 7px; 
 }
 
 
@@ -254,6 +255,7 @@ body {
 	display: inline-block;
 	width: 160px;
 	height: 160px;
+	font-size: 14px;
 	vertical-align: bottom;
 	border-radius: 10px;
 	border: solid 1px grey;
@@ -264,7 +266,7 @@ body {
 }
 
 .thumb:focus, .thumb:hover{
-	border: solid 2px #0875CA;
+	border: solid 3px #0875CA;
 }
 
 /* Content */
