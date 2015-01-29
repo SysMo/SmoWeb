@@ -5,6 +5,7 @@ from fabric.api import local, lcd
 from contextlib import contextmanager as _contextmanager
 from fabric.contrib import files
 from fabric.context_managers import shell_env
+from smo.util.writers import SmoHTMLWriter
 
 srvAddress = 'platform.sysmoltd.com' 
 
@@ -96,7 +97,8 @@ def restToHtml():
 				result = publish_parts(
 					source_class=io.FileInput,
 					source = sourceFile,
-					writer_name = 'html',				
+# 					writer_name = 'html',
+					writer = SmoHTMLWriter(),				
 					settings_overrides = {'math_output': 'MathJax'}
 				)				
 				with codecs.open(outputFilePath, 'w', 'utf-8') as fOut:

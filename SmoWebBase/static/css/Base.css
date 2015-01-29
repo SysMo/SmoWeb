@@ -209,7 +209,7 @@ h1.title {
 }
 
 .thumb:focus, .thumb:hover{
-	border: solid 3px #0875CA;
+	border: solid 2px #0875CA;
 }
 
 /* Content */
