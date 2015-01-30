@@ -29,6 +29,7 @@ Server side documentation
    :numbered:
 
    server/NumericalModel
+   server/ModularPageView
    server/DataStorage
    server/ApplicationServer
    server/WebServer

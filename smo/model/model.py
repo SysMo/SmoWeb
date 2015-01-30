@@ -230,5 +230,5 @@ class RestBlock(object):
 	pass
 
 class HtmlModule(object):
-	""" Page module consisting of blocks of HTML code """
+	""" Page module consisting of blocks of HTML and JavaScript code """
 	pass

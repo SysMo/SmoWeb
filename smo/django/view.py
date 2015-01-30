@@ -28,7 +28,6 @@ class PostAction(Action):
 	General POST action
 	"""
 
-
 class action(object):
 	@staticmethod
 	def post(**kwargs):
