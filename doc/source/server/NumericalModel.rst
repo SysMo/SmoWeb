@@ -9,9 +9,6 @@ Creating models
 
 Numerical models are defined by subclassing the :class:`NumericalModel` class::
 
-   from smo.model.model import NumericalModel
-   from smo.model.fields import *
-
    class AreaCalculator(NumericalModel):
     name = "AreaCalculator"
     label = "Area Calculator"
@@ -33,8 +30,7 @@ Numerical models are defined by subclassing the :class:`NumericalModel` class::
     
     # Model view
     inputView = ModelView(ioType = "input", superGroups = [inputs], 
-        actionBar = inputActionBar, autoFetch = True)
-    
+        actionBar = inputActionBar, autoFetch = True)  
     
     ############# Results ###############
     # Fields
@@ -183,6 +179,22 @@ Groups
 -------------------
 
 .. autoclass:: SuperGroup
+
+-------
+Actions
+-------
+
+.. module:: smo.model.actions
+
+:class:`ServerAction`
+---------------------
+
+.. autoclass:: ServerAction
+
+:class:`ActionBar`
+------------------
+
+.. autoclass:: ActionBar
 
 
 ----------

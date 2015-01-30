@@ -3,10 +3,10 @@ class Action(object):
 
 class ServerAction(Action):
 	"""
-	Server action is a command sent from the client to the server at a push of
+	Server action is a command sent from the client to the server at the push of
 	a button.
 	"""
-	def __init__(self, name, label, outputView = ""):
+	def __init__(self, name, label, outputView = ''):
 		self.name = name
 		self.label = label
 		self.outputView = outputView
@@ -24,8 +24,8 @@ class ServerAction(Action):
 
 class ActionBar(object):
 	"""
-	ActionBar is a placeholder (toolbar) for buttons belonging
-	to a ModelView. It also generates function handlers, called
+	`ActionBar` is a placeholder (toolbar) for buttons belonging
+	to a `ModelView`. It also generates function handlers, called
 	when any of the buttons is pushed.
 	"""
 	def __init__(self, actionList = None, save = True):

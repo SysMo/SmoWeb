@@ -36,7 +36,7 @@ class AreaCalculator(NumericalModel):
     label = "Area Calculator"
     figure = ModelFigure(src="img/Calculator.png", height=150, width=250)
     description = ModelDescription("A calculator of a rectangle's area", show = True)
-    showOnHome = True
+    showOnHome = False
     
     ############# Inputs ###############
     # Fields
