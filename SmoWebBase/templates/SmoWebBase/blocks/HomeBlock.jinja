@@ -6,11 +6,11 @@
 		{% for module in pageClass.modules %}
 			{% if issubclass(module, smo.model.model.NumericalModel) %}
 				{% if module.showOnHome %}
-					<div class="thumb">
-						<div style="display: table-cell; vertical-align:middle; 
-								height: 115px; width: 160px; margin-top: 10px;">
-							<a href="/{{routerName}}/{{pageClass.name}}?model={{module.name}}"
+					<a href="/{{routerName}}/{{pageClass.name}}?model={{module.name}}"
 							 target="_self">
+						<div class="thumb">
+							<div style="display: table-cell; vertical-align:middle; 
+									height: 115px; width: 160px; margin-top: 10px;">
 								<img {% if hasattr(module, 'description') %} 
 										data-tooltip="{{module.description.text}}" 
 									{% endif %} 
@@ -21,12 +21,12 @@
 										src="{{ static('img/thumbnails/Calculator_thumb.png') }}"
 									{% endif %}
 								/>
-							</a>
+							</div>
+							<div style="display:inline-block; width: 150px; color: black;">
+								{{module.label}}
+							</div>
 						</div>
-						<div style="display:inline-block; width: 150px;">
-							{{module.label}}
-						</div>	
-					</div>
+					</a>
 				{% endif %}	
 			{% endif %}
 		{% endfor %}
