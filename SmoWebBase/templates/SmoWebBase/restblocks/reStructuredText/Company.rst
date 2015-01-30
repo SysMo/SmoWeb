@@ -10,7 +10,7 @@ Who we are
 ----------
 
 A team of young and motivated engineers, mathematicians and computer scientists,
-providing services in engineering modeling and technical software development.s
+providing services in engineering modeling and technical software development.
 
 What we can do
 --------------
@@ -23,7 +23,7 @@ What we can do
 What is special about us
 ------------------------
 
-* we can develop modeling tools customized to meet you needs
+* we can develop modeling tools customized to meet your needs
 * we can combine, customize and automate existing modeling tools
 
 What we believe
@@ -34,7 +34,7 @@ What we believe
    
    -- Richard Stallman
 
-We firmly believe in **free and open source software**. Open source gives you the freedom to use, modify, improve
+We firmly believe in **free and open-source software**. Open source gives you the freedom to use, modify, improve
 and re-distribute your product at your discretion. Time and again, open source has proven to 
 be a viable, and often superior, alternative to commercial closed source software. Open
 source guarantees that the software you use will be independent and given that it is backed by

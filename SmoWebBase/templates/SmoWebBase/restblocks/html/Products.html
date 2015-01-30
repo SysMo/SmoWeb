@@ -1,31 +1,210 @@
 <div class="document" id="products">
 <h1 class="title">Products</h1>
+<div class="contents topic" id="table-of-contents">
+<p class="topic-title first">Table of Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#software-products" id="id5" target="_self">Software products</a><ul>
+<li><a class="reference internal" href="#smoweb" id="id6" target="_self">SmoWeb</a></li>
+<li><a class="reference internal" href="#smoflow" id="id7" target="_self">SmoFlow</a><ul>
+<li><a class="reference internal" href="#features" id="id8" target="_self">Features</a></li>
+<li><a class="reference internal" href="#implementation" id="id9" target="_self">Implementation</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#fsm-controller-editor" id="id10" target="_self">FSM Controller Editor</a></li>
+<li><a class="reference internal" href="#ferma" id="id11" target="_self">FermA</a><ul>
+<li><a class="reference internal" href="#id1" id="id12" target="_self">Features</a></li>
+<li><a class="reference internal" href="#id2" id="id13" target="_self">Implementation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#hardware-products" id="id14" target="_self">Hardware products</a><ul>
+<li><a class="reference internal" href="#programmable-thermostat" id="id15" target="_self">Programmable thermostat</a><ul>
+<li><a class="reference internal" href="#id3" id="id16" target="_self">Features</a></li>
+<li><a class="reference internal" href="#id4" id="id17" target="_self">Implementation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
 <div class="section" id="software-products">
-<h1>Software products</h1>
+<h1><a class="toc-backref" href="#id5">Software products</a></h1>
 <div class="section" id="smoweb">
-<h2>SmoWeb</h2>
+<h2><a class="toc-backref" href="#id6">SmoWeb</a></h2>
 <p>Online platform for engineering calculations and simulations.
 But if you are already here, you probably know what SmoWeb is.</p>
 </div>
 <div class="section" id="smoflow">
-<h2>SmoFlow</h2>
-<p>A C++ library for simulation of fluid flow with heat exchange</p>
+<h2><a class="toc-backref" href="#id7">SmoFlow</a></h2>
+<div class="figure align-center">
+<img alt="/static/img/sysmo/SmoFlow3d_Icons.png" src="/static/img/sysmo/SmoFlow3d_Icons.png" style="width: 80%;" />
+</div>
+<p>SmoFlow is a software developed to meet the demand for precision modeling of thermal and fluid processes.</p>
+<div class="section" id="features">
+<h3><a class="toc-backref" href="#id8">Features</a></h3>
+<dl class="docutils">
+<dt>Solid and fluid models</dt>
+<dd><ul class="first last simple">
+<li>solid material models<ul>
+<li>constant</li>
+<li>temperature-dependent</li>
+</ul>
+</li>
+<li>fluid material models<ul>
+<li>constant properties</li>
+<li>ideal gas</li>
+<li>table-defined properties</li>
+<li>interface to CoolProp for complex analytical fluid models (including phase transitions)</li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt>1D fluid networks</dt>
+<dd><p class="first">Components to model common fluid networks</p>
+<ul class="last simple">
+<li>chamber volumes</li>
+<li>valves</li>
+<li>pipes with heat exchange</li>
+<li>fluid sources</li>
+<li>property sensors</li>
+</ul>
+</dd>
+<dt>Heat exchange processes</dt>
+<dd>The library includes models for heat (and mass) exchange processes based on semiempiric correlations.
+These include heat exchange in forced and free convection in various geometric configurations:
+flow of fluid inside or outside a pipe, convection over a flat surface, flow in annular channels,
+pipe immersed in a steady fluid, etc. Models are taken mainly from the VDI Heat Atlas (VDI Wärmeatlas).</dd>
+<dt>Thermal solver</dt>
+<dd>Transient and steady state heat exchange processes in real-world 3D geometries can be computed using
+the SmoFlow thermal solver. The geometry is represented by a mixed 1D (e.g. pipes),
+2D (surfaces) and 3D (volumes) mesh. In a preprocessing step, the materials,
+bodies and boundary condition types are defined and much of the heavy-weight calculations are done,
+converting the 3D geometry into a system of material nodes and interactions between them.
+Currently the solver can handle solid conduction, with multiple materials and temperature dependent material properties
+(thermal radiation is next on the list). The thermal calculations are done using our own FEM solver
+(or rather a finite volume node-centered solver).</dd>
+</dl>
+</div>
+<div class="section" id="implementation">
+<h3><a class="toc-backref" href="#id9">Implementation</a></h3>
+<p>Open source, work in progress, prototype available. A completely open-source toolchain is available
+for the thermal solver:</p>
+<ul class="simple">
+<li>Salome for geomety creation (or import from STEP) and meshing</li>
+<li>SmoFlow thermal preprocessor for defining the thermal model on the mesh</li>
+<li>ParaView for postprocessing the results</li>
+</ul>
+</div>
 </div>
 <div class="section" id="fsm-controller-editor">
-<h2>FSM Controller Editor</h2>
-<p>A small application with a graphical user interface used for designing
-state machine controllers</p>
+<h2><a class="toc-backref" href="#id10">FSM Controller Editor</a></h2>
+<p>Finite State Machine controller is a controller which has a discreet predefined set of states.
+Think about a laundry machine - it can be soaking, washing, rinsing, filling water, pumping water out or centrifuging.
+At each moment only one of this modes of operation is activated, and there are criteria for switching to another one.
+For example:</p>
+<pre class="literal-block">
+if filling level &gt; max filling level then start heating water
+
+if water temperature &gt; 50°C then start washing
+
+........
+</pre>
+<p>Putting the control algorithm in some programming language (typically C) can be a very tedious task
+if there are many states and many conditions for transitions between them.
+For that purpose we have developed a GUI (graphical user interface),
+which allows in a systematic way to define the components of the controller:</p>
+<ul class="simple">
+<li>states</li>
+<li>conditions for state transitions</li>
+<li>actions on state entry</li>
+<li>actions on state exit</li>
+<li>output values, for state-dependent outputs</li>
+</ul>
+<p>Once the controller is defined via the GUI,
+C-code can be automatically generated and compiled, resulting in an executable or dynamic library,
+ready to be integrated into the simulation.</p>
+<p>The GUI is based on Eclipse and Eclipse EMF (Eclipse Modeling Framework).</p>
+<div class="figure align-center">
+<img alt="/static/img/sysmo/FSMControler.png" src="/static/img/sysmo/FSMControler.png" style="width: 80%;" />
+</div>
 </div>
 <div class="section" id="ferma">
-<h2>FermA</h2>
-<p>An application for managing small animal farms</p>
+<h2><a class="toc-backref" href="#id11">FermA</a></h2>
+<p>Ferma is a small Python application for managing small to medium-sized animal farms.
+It allows the user to enter and keep track of animal information,
+informs them of upcoming events related to individual animals and helps them keep all the important documentation
+in an electronic format for easy search and access.</p>
+<div class="figure align-center">
+<img alt="/static/img/sysmo/FermA-CowInfo.png" src="/static/img/sysmo/FermA-CowInfo.png" style="width: 80%;" />
+</div>
+<div class="line-block">
+<div class="line"><br /></div>
+<div class="line"><br /></div>
+</div>
+<div class="figure align-center">
+<img alt="/static/img/sysmo/FermA-Report.png" src="/static/img/sysmo/FermA-Report.png" style="width: 80%;" />
+</div>
+<div class="section" id="id1">
+<h3><a class="toc-backref" href="#id12">Features</a></h3>
+<ul class="simple">
+<li>Keeps record of individual animals, as well as parent-children relations</li>
+<li>Keeps a health record of each animal, with any illnesses, treatments and treatment results</li>
+<li>Keeps track of the animal estrous cycles and warns the user when one is expected</li>
+<li>Keeps track of lactation information (the yield from each animal), allowing individual animal observation and selection</li>
+<li>Keeps track of feeding records, allowing the effect on milk yield to be analyzed</li>
+<li>Keeps electronic copies of each animal's passport and other important documents</li>
+</ul>
+</div>
+<div class="section" id="id2">
+<h3><a class="toc-backref" href="#id13">Implementation</a></h3>
+<p>The application is written in Python using Enthought Traits/TraitsUI.
+Traits is a framework for rapid application development, providing an out-of-the-box Model-View-Controller implementation.
+Traits takes care of the communication between the model classes and the user interface,
+so each time the user changes a value in the application window, the model is updated and vice versa.</p>
+<p>The application data is stored in a text file in JSON format.
+This adds flexibility to the program, allowing to easily change the data structure.</p>
+</div>
 </div>
 </div>
 <div class="section" id="hardware-products">
-<h1>Hardware products</h1>
+<h1><a class="toc-backref" href="#id14">Hardware products</a></h1>
 <div class="section" id="programmable-thermostat">
-<h2>Programmable thermostat</h2>
-<p>based on Atmel ATMega microprocessor</p>
+<h2><a class="toc-backref" href="#id15">Programmable thermostat</a></h2>
+<p>The thermostat uses a modular architecture which allows it to be used for a very basic application
+(controling a single temperature within a predefined range) or very advanced applications
+(observing, recording and controling  multiple temperatures with complex time-varying temperature profiles)</p>
+<div class="section" id="id3">
+<h3><a class="toc-backref" href="#id16">Features</a></h3>
+<ul class="simple">
+<li>Controls temperature (and optionally humidity)</li>
+<li>Can be used in a combined heating and cooling mode (activates a heater when temperature falls below a low threshold value, and a cooler when it rises above a high treshold value)</li>
+<li>Has an integrated real time clock (DS1307) and data logger, which can record temperature, humidity, etc. on an SD card</li>
+<li>Supports the Maxim 1-wire interface allowing an arbitrary number of temperature sensors (DS18B20) to be connected. DS18B20 is a high-resolution digital temperature sensor (0.0625°C when operating at 12-bit mode).</li>
+<li>Compatible with analog LM35 temperature sensors and DHT22 digital temperature/humidity sensors</li>
+<li>Can send sensor readings to a computer using a Serial-to-USB cable</li>
+<li>Integrated LCD and keypad for temperature observation and basic user control</li>
+<li>Fully reprogrammable, allowing custom configurations</li>
+<li>Based on the ATMega328 microcontroller unit (16 MHz, 32 kB program memory, 2 kB RAM). Can be upgraded to ATMega64xx or ATMega128xx MCU.</li>
+<li>Can communicate with external devices using the I2C or UART protocols.</li>
+<li>Open source hardware and software design</li>
+</ul>
+</div>
+<div class="section" id="id4">
+<h3><a class="toc-backref" href="#id17">Implementation</a></h3>
+<p>This is what the compact version of the controller looks like.
+You can see the power supply (top right, salvaged Nokia charger), the solid state relay (bottom right),
+the LCD screen &amp; keypad. The microcontroller circuit is behind the keypad.
+Attached are one DS18B20 waterproof temperature sensor and one DHT22 temperature/humidity sensor</p>
+<div class="figure align-center">
+<img alt="/static/img/sysmo/TemperatureController_v7.jpg" src="/static/img/sysmo/TemperatureController_v7.jpg" style="width: 50%;" />
+</div>
+<p>And this is the schematic of the Rev. 7 of the controller. You can download it also as a <a class="reference external" href="/static/img/sysmo/TemperatureController7_schem.pdf" target="_self">pdf</a></p>
+<div class="figure align-center">
+<img src="/static/img/sysmo/TemperatureController7_schem.svg" style="width: 50%;">
+</img>
+</div>
+</div>
 </div>
 </div>
 </div>

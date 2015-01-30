@@ -19,8 +19,8 @@
 <p>We can model complex circuits in the thermal, fluid, mechanical, electrical and other domains.
 These simulations are typically transient, showing the development of various system variables over time.
 The CO2 heat pump shown here, for example, consists of a compressor, condenser, expansion valve, evaportor
-and a recurperator (a counterflow heat exchanger). The different componnent are laid out graphically,
-and interconnected. After the simulation run, some results are shown on the graph. In this case we
+and recurperator (counterflow heat exchanger). The different componnents are laid out graphically
+and are interconnected. After the simulation run, some results are shown on the graph. In this case we
 were interested in the temperatures at the different parts of the system.</p>
 <table border="1" class="align-center subfigures docutils">
 <colgroup>
@@ -37,26 +37,26 @@ were interested in the temperatures at the different parts of the system.</p>
 </tr>
 </tbody>
 </table>
-<p>The component used in system simulations are taken from various libraries of componets. These can include
+<p>The components used in system simulations are taken from various libraries of componets. These can include
 individual software libraries (e.g. AMESim Thermal Library) or standard libraries (Modelica Standard Library).
 Sometimes, however, no component exists for the particular need. In this case we can develop a new component
-model based on analytical physical model, empirical correlations or interpolation. The models canbe developed
+model based on an analytical physical model, empirical correlations or interpolation. The models can be developed
 either in C/C++ or in the Modelica language.</p>
 </div>
 <div class="section" id="finite-element-finite-volume-3d-models">
 <h1><a class="toc-backref" href="#id2">Finite Element / Finite Volume 3D models</a></h1>
 <p>When heat exchange processes, mechanical stresses or fluid flow occur in an object of complex geometry,
-the only way to accurately predict the object behaviour is to use some form of FEM (finite element model).
+the only way to accurately predict the object's behaviour is to use some form of FEM (finite element model).
 The geometrical object (or objects) has to be partitioned into simple elements (e.g. tetrahedrals, prisms or
-hexahedrals, triangles, quadrangles etc). The FEM solver finds approximate solution to the partial differential
-equations at discrete point (the vertices of the elements), and interpolates (linear, bilinear, quadratic etc.)
+hexahedrals, triangles, quadrangles, etc). The FEM solver finds an approximate solution to the partial differential
+equations at discrete points (the vertices of the elements), and interpolates (linearly, bilinearly, quadratically etc.)
 within the elements.</p>
 <div class="figure align-center">
 <img alt="/static/img/sysmo/EngineThermal.png" src="/static/img/sysmo/EngineThermal.png" style="width: 50%;" />
 </div>
 <div class="section" id="thermal-finite-element-volume-modeling">
 <h2><a class="toc-backref" href="#id3">Thermal finite element/volume modeling</a></h2>
-<p>Thermal FEM is used when heat exchange processes and resulting temperatures are of interest.</p>
+<p>Thermal FEM is used when heat exchange processes and the resulting temperatures are of interest.</p>
 <dl class="docutils">
 <dt>Features</dt>
 <dd><ul class="first last simple">
@@ -66,10 +66,10 @@ within the elements.</p>
 </ul>
 </dd>
 </dl>
-<p>Sometimes it is not the temperatures, but rather the integral heat fluxes are of interest. In this case using
+<p>Sometimes not the temperatures, but rather the integral heat fluxes are of interest. In this case using
 the standard FEM method may yield incorrect results, as it is not conservative in general. That is, the net heat
 balance through all the surfaces may turn out to be non-zero (it will approach zero as the mesh gets finer, but
-at the cost if increased computational time). In this case, a low order FEM method called FVM (finite volume method)
+at the cost of increased computational time). In this case, a low-order FEM method called FVM (finite volume method)
 can be used. (e.g. see SmoFlow Thermal Solver). The temperature values resulting from FVM may not be as accurate,
 but the heat fluxes are guaranteed to be conserved.</p>
 <div class="figure align-center">
@@ -79,16 +79,15 @@ but the heat fluxes are guaranteed to be conserved.</p>
 <div class="section" id="mechanical-finite-element-modeling">
 <h2><a class="toc-backref" href="#id4">Mechanical finite element modeling</a></h2>
 <p>Mechanical FEM is typically used to find the critical stresses in a component as a result of mechanical loads.
-Because stresses are high order quantities (depend on the derivative of the displacement), higher order FEM
-method is usually used (e.g. quaratic interpolation in space). Some materials are also anisotropic (that is,
-stronger in one direction, than in others), which complicates additionally the calculation.</p>
-<dl class="docutils">
-<dt>There are two different types of mechanical analysis:</dt>
-<dd><ul class="first last simple">
+Because stresses are high-order quantities (they depend on the derivative of the displacement), a higher-order FEM
+method is usually used (e.g. quadratic interpolation in space). Some materials are also anisotropic (that is,
+stronger in one direction than in others), which complicates additionally the calculation.</p>
+<p>There are two different types of mechanical analysis:</p>
+<ul class="simple">
 <li>Steady state: constant loads/displacements are applied to the component. Results are stresses/strains</li>
-<li>Eingenmode (resonant) : oscillating loads are applied to the component. Results are stresses/strains and resonant frequencies</li>
+<li>Eigenmode (resonant): oscillating loads are applied to the component. Results are stresses/strains and resonant frequencies</li>
 </ul>
-</dd>
+<dl class="docutils">
 <dt>Software</dt>
 <dd><ul class="first last simple">
 <li><a class="reference external" href="http://www.ansys.com/Products/Simulation+Technology/Multiphysics" target="_self">ANSYS Multiphysics</a> (commercial)</li>
@@ -107,7 +106,7 @@ stronger in one direction, than in others), which complicates additionally the c
 <p>Fluid processes modeling is an absolute necessity in many egineering designs. Pressure drop, heat exchange,
 separation and  mixing are complex phenomena, affecting the performance of pumps, valves, turbines, reaction
 chambers and many other systems. A modification of FEM, called Finite Volume Method, is typically used to describe
-the transport of mass, momentum, energy, turbulence etc. occuring in fluids.</p>
+the transport of mass, momentum, energy, turbulence, etc. occuring in fluids.</p>
 <dl class="docutils">
 <dt>Software</dt>
 <dd><ul class="first last simple">
@@ -121,7 +120,7 @@ the transport of mass, momentum, energy, turbulence etc. occuring in fluids.</p>
 <h2><a class="toc-backref" href="#id6">Other Finite Volume Tools</a></h2>
 <p>Although the finite volumes method is primarily used for fluid flow, it is applicable to every problem which
 involves transport of mass and energy. Multiphysics models involving heat exchange, diffusion and advection
-of materials often use finite volume models too.</p>
+of materials often use finite volume models, too.</p>
 <dl class="docutils">
 <dt>Software</dt>
 <dd><ul class="first last simple">
@@ -132,11 +131,11 @@ of materials often use finite volume models too.</p>
 </div>
 <div class="section" id="pre-and-post-processing">
 <h2><a class="toc-backref" href="#id7">Pre- and post-processing</a></h2>
-<p>Whether commercial or open source sofware is used, the steps involved in the solution process are quite the same.
-First a mesh is created in order to partition the component geometry. Then the mesh is used as input to the solver
-together with additional user input (material properties, boudary conditions, initial conditions etc.). Finally
+<p>Whether commercial or open-source sofware is used, the steps involved in the solution process are quite the same.
+First, a mesh is created in order to partition the component geometry. Then the mesh is used as input to the solver
+together with additional user input (material properties, boudary conditions, initial conditions, etc.). Finally,
 the results from the solver are inspected and processed to extract valuable data (e.g. temperature at a given point,
-heat flux at a boundary, position and value of the maximal stress etc.).</p>
+heat flux at a boundary, position and value of the maximal stress, etc.).</p>
 <p>Various software tools can be used in the pre- and post-processing steps. Each commercial software typically has
 its own tools (e.g. CFX Pre and CFX Post). There are some &quot;standard&quot; open-source tools which are used by many solvers.
 For mesh generation the <a class="reference external" href="http://www.salome-platform.org/" target="_self">Salome platform</a> (integrating many different meshing algorithms) or <a class="reference external" href="http://geuz.org/gmsh/" target="_self">GMSH</a> can be used.
