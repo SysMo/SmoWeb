@@ -26,13 +26,59 @@ class Company(RestBlock):
 class People(RestBlock):
     name = 'People'
     label = 'People'
+    
+from smo.model.model import *
+from smo.model.fields import *
+from smo.model.actions import *
+
+class AreaCalculator(NumericalModel):
+    name = "AreaCalculator"
+    label = "Area Calculator"
+    figure = ModelFigure(src="img/Calculator.png", height=150, width=250)
+    description = ModelDescription("A calculator of a rectangle's area", show = True)
+    showOnHome = True
+    
+    ############# Inputs ###############
+    # Fields
+    width = Quantity('Length')
+    length = Quantity('Length')
+    geometryIn = FieldGroup([width, length], label = "Geometry")
+
+    inputs = SuperGroup([geometryIn], label = "Inputs")
+    
+    # Actions
+    computeAction = ServerAction("compute", label = "Compute", outputView = 'resultView')
+    inputActionBar = ActionBar([computeAction], save = True)
+    
+    # Model view
+    inputView = ModelView(ioType = "input", superGroups = [inputs], 
+        actionBar = inputActionBar, autoFetch = True)
+    
+    
+    ############# Results ###############
+    # Fields
+    area = Quantity('Area')
+    geometryOut = FieldGroup([area], label = "Geometry")
+    
+    results = SuperGroup([geometryOut], label = "Results")
+    
+    # Model view
+    resultView = ModelView(ioType = "output", superGroups = [results])
+    
+    ############# Page structure ########
+    modelBlocks = [inputView, resultView]
+    
+    ############# Methods ################
+    def compute(self):
+        self.area = self.width * self.length
+
        
 @registerView(router)
 class HomeView(ModularPageView):
     name = "HomeView"
     label = "Home View"
     injectVariables = ['ModelCommunicator', 'variables']
-    modules = [BasePageModule, UnitConverterModule, Company, People]
+    modules = [BasePageModule, UnitConverterModule, Company, People, AreaCalculator]
     
     @action.post()
     def getQuantities(self, parameters, model=None, view= None):
