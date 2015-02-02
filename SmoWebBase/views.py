@@ -23,9 +23,9 @@ class Company(RestBlock):
     name = 'Company'
     label = 'Company'
 
-class People(RestBlock):
-    name = 'People'
-    label = 'People'
+class Team(RestBlock):
+    name = 'Team'
+    label = 'Our Team'
     
 
 class Platform(RestBlock):
@@ -37,7 +37,7 @@ class HomeView(ModularPageView):
     name = "HomeView"
     label = "Home View"
     injectVariables = ['ModelCommunicator', 'variables']
-    modules = [BasePageModule, UnitConverterModule, Company, People, Platform]
+    modules = [BasePageModule, UnitConverterModule, Company, Team, Platform]
     
     @action.post()
     def getQuantities(self, parameters, model=None, view= None):
