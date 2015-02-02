@@ -4,9 +4,8 @@ Web Server
 
 .. highlight:: apache
 
-The configuration file for Apache::
 
-   <VirtualHost *:80>
+..   <VirtualHost *:80>
       ServerAdmin nasko.js@gmail.com
       ErrorLog ${APACHE_LOG_DIR}/SmowWeb_error.log
       CustomLog ${APACHE_LOG_DIR}/SmoWeb_access.log combined
