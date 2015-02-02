@@ -12,7 +12,7 @@ SmoWeb
 ------
 
 Online platform for engineering calculations and simulations. 
-But if you are already here, you probably know what SmoWeb is.
+Learn more about SmoWeb `here </?model=Platform>`_.
 
 SmoFlow
 -------

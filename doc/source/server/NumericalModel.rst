@@ -4,7 +4,7 @@ Numerical model
 .. module:: smo.model.model
 
 ---------------
-Creating models
+Defining models
 ---------------
 
 Numerical models are defined by subclassing the :class:`NumericalModel` class::

@@ -30,6 +30,7 @@ Server side documentation
 
    server/NumericalModel
    server/ModularPageView
+   server/ObjectCreationAndSerialization.rst
    server/DataStorage
    server/ApplicationServer
    server/WebServer
