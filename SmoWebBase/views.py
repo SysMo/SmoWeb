@@ -54,4 +54,4 @@ class Services(RestBlock):
 class SysmoView(ModularPageView):
     name = "Sysmo"
     label = "SysMo Ltd"
-    modules = [Industries, Products, Services]
+    modules = [Products, Services, Industries]
