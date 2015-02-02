@@ -6,12 +6,14 @@ SysMo
 
 Open software and hardware development
 
+----------
 Who we are
 ----------
 
 A team of young and motivated engineers, mathematicians and computer scientists,
 providing services in engineering modeling and technical software development.
 
+--------------
 What we can do
 --------------
 
@@ -20,12 +22,14 @@ What we can do
 * extend and customize existing simulation products
 * create new software products for modeling and simulation
 
+------------------------
 What is special about us
 ------------------------
 
 * we can develop modeling tools customized to meet your needs
 * we can combine, customize and automate existing modeling tools
 
+---------------
 What we believe
 ---------------
 
@@ -52,6 +56,7 @@ our clients by all means possible.
 
 
 
+------------------------------
 Want to get to know us better?
 ------------------------------
 

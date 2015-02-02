@@ -26,13 +26,18 @@ class Company(RestBlock):
 class People(RestBlock):
     name = 'People'
     label = 'People'
+    
+
+class Platform(RestBlock):
+    name = 'Platform'
+    label = 'The Platform'
        
 @registerView(router)
 class HomeView(ModularPageView):
     name = "HomeView"
     label = "Home View"
     injectVariables = ['ModelCommunicator', 'variables']
-    modules = [BasePageModule, UnitConverterModule, Company, People]
+    modules = [BasePageModule, UnitConverterModule, Company, People, Platform]
     
     @action.post()
     def getQuantities(self, parameters, model=None, view= None):
@@ -54,4 +59,4 @@ class Services(RestBlock):
 class SysmoView(ModularPageView):
     name = "Sysmo"
     label = "SysMo Ltd"
-    modules = [Industries, Products, Services]
+    modules = [Products, Services, Industries]
