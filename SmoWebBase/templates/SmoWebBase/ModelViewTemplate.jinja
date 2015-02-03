@@ -23,7 +23,7 @@ google.load('{{gModuleName}}', '{{gModule.version}}', {'packages': {{gModule.pac
 {% endif %}
 {% endautoescape %}
 
-angular.module('{{pageView.name}}', ['ui.bootstrap', 'smo'])
+angular.module('{{pageView.name}}', ['smo'])
 	.config(['$httpProvider', function($httpProvider) {
 	    $httpProvider.defaults.xsrfCookieName = 'csrftoken';
 	    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';

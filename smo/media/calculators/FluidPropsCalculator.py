@@ -222,7 +222,7 @@ class FluidInfo(NumericalModel):
 	
 	############# Inputs ###############
 	# Fields
-	fluidName = Choices(Fluids, default = 'ParaHydrogen', label = 'fluid')
+	fluidName = Choices(Fluids, default = 'ParaHydrogen', label = 'fluid', description = "The name of a fluid to load information about. The name of a fluid to load information about. The name of a fluid to load information about.")
 	infoInput = FieldGroup([fluidName], label = 'Fluid')
 	inputs = SuperGroup([infoInput])
 	

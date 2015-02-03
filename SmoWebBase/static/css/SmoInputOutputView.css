@@ -124,6 +124,7 @@
 	height: 30px;
 	vertical-align: bottom;
 	line-height: 25px;
+	cursor: pointer;
 }
 
 .multiline-label {
