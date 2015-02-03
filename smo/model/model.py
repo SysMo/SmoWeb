@@ -130,6 +130,11 @@ class NumericalModelMeta(type):
 					unresolved_field = value.unresolved_fields.pop(i)
 					value.fields.append(new_class.declared_fields[unresolved_field])	
 		
+		# Checking for obligatory attribute 'modelBlocks'
+		if (name  != 'NumericalModel'):
+			if ('modelBlocks' not in new_class.__dict__):
+				raise AttributeError("Page structure undefined. Class {0} must have attribute 'modelBlocks'.".format(new_class.__name__))
+		
 		return new_class
 
 class NumericalModel(object):

@@ -38,12 +38,12 @@ numerical models that are displayed as modules on the particular page.
 AJAX requests via communicator object
 -------------------------------------
  
- After the initial page load, a communicator object at the client handles any further communication with the server. It sends 
- AJAX requests specifying the actions that have to be carried out as well as the parameters needed for their execution. If the
- communication is successful, the response data is kept at the communicator object for future use by the client. The communicator
- is also responsible for signalling any communication and server errors to the client as well as delivering error messages. 
+After the initial page load, a communicator object at the client handles any further communication with the server. It sends 
+AJAX requests specifying the actions that have to be carried out as well as the parameters needed for their execution. If the
+communication is successful, the response data is kept at the communicator object for future use by the client. The communicator
+is also responsible for signalling any communication and server errors to the client as well as delivering error messages. 
  
- Types of POST actions:
-   * *load* - used to load numerical model data  
-   * *save* - used to save input data in MongoDB and generate a URL through which they can be loaded
-   * custom actions - *compute*, to pefrom a computation, among others
+Types of POST actions:
+ * *load* - used to load numerical model data  
+ * *save* - used to save input data in MongoDB and generate a URL through which they can be loaded
+ * custom actions - *compute*, to pefrom a computation, among others
