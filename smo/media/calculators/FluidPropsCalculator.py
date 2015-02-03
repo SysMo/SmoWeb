@@ -222,7 +222,7 @@ class FluidInfo(NumericalModel):
 	
 	############# Inputs ###############
 	# Fields
-	fluidName = Choices(Fluids, default = 'ParaHydrogen', label = 'fluid', description = "The name of a fluid to load information about. The name of a fluid to load information about. The name of a fluid to load information about.")
+	fluidName = Choices(Fluids, default = 'ParaHydrogen', label = 'fluid')
 	infoInput = FieldGroup([fluidName], label = 'Fluid')
 	inputs = SuperGroup([infoInput])
 	
@@ -328,15 +328,15 @@ class SaturationData(NumericalModel):
 	
 	############# Results ###############
 	# Fields
-	T_p_satPlot = PlotView(label = 'Temperature', dataLabels = ['pressure [bar]', 'saturation temperature [K]'], 
+	T_p_satPlot = PlotView(label = 'Temperature', dataLabels = ['pressure [Pa]', 'saturation temperature [K]'], 
 							xlog = True, 
 							options = {'ylabel': 'temperature [K]'})
-	rho_p_satPlot = PlotView(label = 'Density', dataLabels = ['pressure [bar]', 'liquid density [kg/m**3]', 'vapor density [kg/m**3]'],
+	rho_p_satPlot = PlotView(label = 'Density', dataLabels = ['pressure [Pa]', 'liquid density [kg/m**3]', 'vapor density [kg/m**3]'],
 							options = {'ylabel': 'density [kg/m**3]'})
-	delta_h_p_satPlot = PlotView(label = 'Evap. enthalpy', dataLabels = ['pressure [bar]', 'h evap [kJ/kg]'], 
+	delta_h_p_satPlot = PlotView(label = 'Evap. enthalpy', dataLabels = ['pressure [Pa]', 'h evap [kJ/kg]'], 
 								xlog = True, 
 								options = {'title': 'Evaporation enthalpy'})
-	delta_s_p_satPlot = PlotView(label = 'Evap. entropy', dataLabels = ['pressure [bar]', 's evap. [kJ/kg-K]'],
+	delta_s_p_satPlot = PlotView(label = 'Evap. entropy', dataLabels = ['pressure [Pa]', 's evap. [kJ/kg-K]'],
 								xlog = True,  
 								options = {'title': 'Evaporation entropy'})
 	

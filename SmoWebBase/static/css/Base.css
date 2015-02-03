@@ -371,7 +371,7 @@ Tooltip
 */
 
 div.tooltip-inner {
-    max-width: 300px;
+    min-width: 500px;
     word-wrap: break-word;
     white-space: normal;
     text-align: left;

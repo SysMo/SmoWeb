@@ -7,18 +7,13 @@
 	color: red;
 }
 
-/* Field group */
-[smo-field-group], .converter {
+/* Field and view groups */
+[smo-field-group], [smo-view-group], .converter {
 	display: inline-block;
 	margin-bottom: 20px;
 	margin-left: 20px;
 	margin-right: 20px;
 	vertical-align:top;
-}
-
-/* View group */
-[smo-view-group] {
-	margin-left: 20px;
 }
 
 
