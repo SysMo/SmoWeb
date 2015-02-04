@@ -17,9 +17,13 @@ of the subclass by including their names as strings, which are resolved by :clas
 class creation. The metaclass also sets *name*, *label* and *title* attributes, as well as *showOnHome* attribute, used to specify 
 if a thumbnail of the model is to be displayed on the home page, if such attributes were not set in the class definition.
 
-Instantiating and serialization of numerical models
----------------------------------------------------
+Instantiating numerical models
+------------------------------
+When an instance of a numerical model class is created, the fields in the *declared_fields* dictionary attribute of the class
+are set as attributes of the instance and assigned defalut values.
 
+Serialization of numerical models
+---------------------------------
 
 ------------
 Modular page

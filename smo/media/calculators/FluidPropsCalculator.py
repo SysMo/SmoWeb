@@ -314,7 +314,7 @@ class SaturationData(NumericalModel):
 	
 	############# Inputs ###############
 	# Fields
-	fluidName = Choices(Fluids, default = 'ParaHydrogen', label = 'fluid', description="Fluid to select to calculate saturation data. Fluid to select to calculate saturation data. Fluid to select to calculate saturation data.")
+	fluidName = Choices(Fluids, default = 'ParaHydrogen', label = 'fluid', description="Fluid to select to calculate saturation data. Fluid to select to calculate saturation data. Fluid to select to calculate saturation data. Fluid to select to calculate saturation data. Fluid to select to calculate saturation data. Fluid to select to calculate saturation data. ")
 	satInput = FieldGroup([fluidName], label = 'Fluid')
 	inputs = SuperGroup([satInput])
 	
