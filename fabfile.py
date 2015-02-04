@@ -173,44 +173,53 @@ def installPipPackages():
 	"""
 	Install the python packages from the Pip repository, which are necessary for proper server functioning. Alternatively use syncVirtEnv
 	"""
+	packageList = [
+		'argparse',
+		'six',
+		'python-dateutil',
+		# Template library
+		'jinja2',
+		# Python wrappers for C/C++ 
+		'cython',
+		# Numerical libraries
+		'numpy',
+		'scipy',
+		# Matplotlib pre-requisites
+		'pytz',
+		'tornado',
+		'pyparsing',
+		# Matplotlib
+		'matplotlib',
+		'mpld3',
+		# Finite volume solver
+		'ez_setup',
+		'fipy',
+		# Application server 
+		'django',
+		'django-bootstrap-toolkit',
+		'django-tastypie',
+		'wsgiref',
+		# System administration/deployment
+		'fabric',
+		# PyMongo non-relational database
+		'pymongo',
+		# Celery distributed task queue
+		'celery',
+		# Documentation utility for python
+		'sphinx',
+		# Utility to read/write Excel files
+		'xlrd',
+		'xlwt',
+		# Data processing utilities
+		'numexpr',
+		'tables', # PyTables
+		'pandas' # Pandas
+		
+	]
 	with virtualenv():
-		packageList = [
-			'argparse',
-			'six',
-			'python-dateutil',
-			# Template library
-			'jinja2',
-			# Python wrappers for C/C++ 
-			'cython',
-			# Numerical libraries
-			'numpy',
-			'scipy',
-			# Matplotlib pre-requisites
-			'pytz',
-			'tornado',
-			'pyparsing',
-			# Matplotlib
-			'matplotlib',
-			'mpld3',
-			# Finite volume solver
-			'ez_setup',
-			'fipy',
-			# Application server 
-			'django',
-			'django-bootstrap-toolkit',
-			'django-tastypie',
-			'wsgiref',
-			# System administration/deployment
-			'fabric',
-			# PyMongo non-relational database
-			'pymongo',
-			# Celery distributed task queue
-			'celery',
-			# Documentation utility for python
-			'sphinx'
-		]
-		for package in packageList:
-			run('pip install {0}'.format(package))
+		with shell_env(CFLAGS="-I/usr/lib/openmpi/include/"): # Necessary for HDF5 based packages
+			for package in packageList:
+				run('pip install {0}'.format(package))
 #######################################################################
 def installPySparse():
 	"""
@@ -223,14 +232,6 @@ def installPySparse():
 		with cd('pysparse'):
 			run('python setup.py build')
 			run('python setup.py install')
-#######################################################################
-def installHdf():
-	"""
-	Builds and installs HDF5 (Hierarchical Data Format) library
-	"""
-	with virtualenv():
-		with shell_env(CFLAGS="-I/usr/lib/openmpi/include/"):
-			run('pip install h5py')
 #######################################################################
 def configureApache():
 	"""
