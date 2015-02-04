@@ -1,6 +1,6 @@
-======
-People
-======
+====
+Team
+====
    
 .. |APavlov| image:: /static/img/people/APavlov.jpg
    :height: 200px

@@ -71,10 +71,12 @@ class ModularPageViewMeta(type):
 		if (len(requiredGoogleModules) > 0):
 			requiredJSLibraries.update(['GoogleAPI'])
 		
-# 		if (new_class.__doc__ is not None):
-# 			new_class.__doc__ = new_class.__doc__.format(postActions = ''.join(
-# 				['		* ``{0}``: {1}\n'.format(name, action.label.strip()) for name, action in postActions.iteritems()]
-# 			))
+		if (new_class.__doc__ is None):
+			new_class.__doc__  = ""
+		
+		new_class.__doc__ += '\n' + ''.join(
+			['		* :attr:`{0}`: {1}\n'.format(name, action.label.strip()) for name, action in postActions.iteritems()]
+		)
 		
 		new_class.postActions = postActions
 		new_class.requiredJSLibraries = requiredJSLibraries
@@ -84,19 +86,24 @@ class ModularPageViewMeta(type):
 	
 class ModularPageView(object):
 	"""
-	A base class for creating pages consisting of modules. There are different kind of modules:
+	Abstract base class for creating pages consisting of modules. There are different kind of modules:
 		* NumericalModel model-views
-		* Documentation views
+		* Restructured text views
+		* HTML module views
 		
 	Class attributes:
-		* :attr:`jsLibraries`: Registry of common Java Script libraries used in the applicaions
-		* :attr:`googleModules`:  Registry of common Google modules used in the applicaions
-		* :attr:`requireJS`: list of JS libraries required by the **current** view
-		* :attr:`requireGoogle`: list of Google modules required by the **current** view
+		* :attr:`name`: name of the page view class (default is the page view class name)
+		* :attr:`label`: label for the page view class (default is the page view class name)
+		* :attr:`controllerName`: name of the AngularJS contoller for the page view (default is the page view class name + 'Controller')
+		* :attr:`modules`: modules making up the page view
+		* :attr:`injectVariables`: list of names of AngularJS dependencies required for the page view
+		* :attr:`jsLibraries`: registry of common Java Script libraries used in the applicaions
+		* :attr:`googleModules`:  registry of common Google modules used in the applicaions
+		* :attr:`requireJS`: list of JS libraries required by the page view
+		* :attr:`requireGoogle`: list of Google modules required by the page view
 		* :attr:`template`: HTML template file
 		
-	Default POST actions:
-	"""
+	Defined POST actions:"""
 		
 	__metaclass__ = ModularPageViewMeta
 	

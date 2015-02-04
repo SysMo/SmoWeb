@@ -78,8 +78,13 @@ def restToHtml():
 	"""
 	Generate documentation for the project and for the individual apps and pages
 	"""
-	# Project documetation
-	with lcd('doc'):
+	# Project documetation - public
+	with lcd(os.path.join('doc', 'public')):
+		local('make html')
+
+	
+	# Project documetation - internal
+	with lcd(os.path.join('doc', 'internal')):
 		local('make html')
 	
 	# Pages documetation
@@ -108,12 +113,13 @@ def restToHtml():
 
 def convertToPng():
 	"""
-	Convert all .svg files for the project and for the individual apps and pages to .png files
+	Convert all .svg files in the static folders within the project to .png files
 	"""
 	for app in env.applicationModules:
-		srcFolder = os.path.join(env.projectRoot, app, 'static', app, 'img')
-		if (os.path.isdir(srcFolder)):
-			for sourceFilePath in glob.glob(os.path.join(srcFolder, '*.svg')):
+		srcFolder = os.path.join(env.projectRoot, app, 'static')
+		for subFolderTuple in os.walk(srcFolder):
+			subFolderPath = subFolderTuple[0]
+			for sourceFilePath in glob.glob(os.path.join(subFolderPath, '*.svg')):
 				sDir, sName = os.path.split(sourceFilePath)
 				sNameBase, sNameExt = os.path.splitext(sName)
 				outputFilePath = os.path.abspath(os.path.join(sDir, sNameBase +'.png'))

@@ -521,6 +521,22 @@ smoModule.factory('variables', ['util', function(util) {
 	return variables;
 }]);
 
+
+smoModule.directive('tooltip', function(){
+    return {
+        restrict: 'A',
+        link: function(scope, element, attrs){
+            $(element).hover(function(){
+                // on mouseenter
+                $(element).tooltip('show');
+            }, function(){
+                // on mouseleave
+                $(element).tooltip('hide');
+            });
+        }
+    };
+});
+
 //<smo-button action="addRow(i)" icon="plus">
 smoModule.directive('smoButton', ['$compile', 'util', function($compile, util) {
 	return {
@@ -536,7 +552,7 @@ smoModule.directive('smoButton', ['$compile', 'util', function($compile, util) {
 			} else if (size == 'md') {
 				width = 24;
 			}
-			var template = '<img class="smo-button" src="/static/icons/' + icon + '.png" ng-click="' + action + '" width="' + width + 'px" data-tooltip="' + tooltip + '">';
+			var template = '<img class="smo-button" src="/static/icons/' + icon + '.png" ng-click="' + action + '" width="' + width + 'px" data-toggle="tooltip" title="' + tooltip + '" tooltip>';
 			var el = angular.element(template);
 	        compiled = $compile(el);
 	        element.replaceWith(el);
@@ -624,7 +640,7 @@ smoModule.directive('smoQuantity', ['$compile', 'util', function($compile, util)
 		link : function(scope, element, attr) {
 			scope.util = util;
 			var template = '\
-					<div class="field-label"><div data-tooltip="' + scope.fieldVar.description + '">' + scope.fieldVar.label + '</div></div>';
+				<div class="field-label"><div style="display: inline-block;" data-toggle="tooltip" title="' + scope.fieldVar.description + '" tooltip>' + scope.fieldVar.label + '</div></div>';
 			if (scope.viewType == 'input'){
 				template += '\
 					<div class="field-input"> \
@@ -664,6 +680,7 @@ smoModule.directive('smoQuantity', ['$compile', 'util', function($compile, util)
 	}
 }]);
 
+
 smoModule.directive('smoChoice', ['$compile', 'util', function($compile, util) {
 	return {
 		restrict : 'A',
@@ -673,7 +690,7 @@ smoModule.directive('smoChoice', ['$compile', 'util', function($compile, util) {
 		},
 		link : function(scope, element, attr) {
 			var template = ' \
-				<div class="field-label"><div data-tooltip="' + scope.fieldVar.description + '">' + scope.fieldVar.label + '</div></div>\
+				<div class="field-label"><div style="display: inline-block;" data-toggle="tooltip" title="' + scope.fieldVar.description + '" tooltip>' + scope.fieldVar.label + '</div></div>\
 				<div class="field-select choice"> \
 					<select ng-model="smoDataSource.' + scope.fieldVar.name + '" ng-options="pair[0] as pair[1] for pair in fieldVar.options"></select> \
 				</div>';
@@ -705,10 +722,10 @@ smoModule.directive('smoString', ['$compile', function($compile) {
 		link : function(scope, element, attr) {
 			if (scope.fieldVar.multiline==true){
 				var template = '\
-					<div class="multiline-label"><div data-tooltip="' + scope.fieldVar.description + '">' + scope.fieldVar.label + '</div></div>';
+					<div class="multiline-label"><div style="display: inline-block;" data-toggle="tooltip" title="' + scope.fieldVar.description + '" tooltip>' + scope.fieldVar.label + '</div></div>';
 			} else {
 				var template = '\
-					<div class="field-label"><div data-tooltip="' + scope.fieldVar.description + '">' + scope.fieldVar.label + '</div></div>';
+					<div class="field-label"><div style="display: inline-block;" data-toggle="tooltip" title="' + scope.fieldVar.description + '" tooltip>' + scope.fieldVar.label + '</div></div>';
 			}			
 			
 			if (scope.viewType == 'input')
@@ -761,7 +778,7 @@ smoModule.directive('smoBool', ['$compile', function($compile) {
 		},
 		link : function(scope, element, attr) {			
 			var template = '\
-				<div class="field-label"><div data-tooltip="' + scope.fieldVar.description + '">' + scope.fieldVar.label + '</div></div>';			
+				<div class="field-label"><div style="display: inline-block;" data-toggle="tooltip" title="' + scope.fieldVar.description + '" tooltip>' + scope.fieldVar.label + '</div></div>';			
 			if (scope.viewType == 'input'){
 				template += '\
 					<div class="bool-input"> \
@@ -1170,10 +1187,10 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 					}
 					
 					if (i==0){
-						navPills.push('<li class="active"><a id="' + field.name + 'Tab" data-target="#' + field.name + '" role="tab" data-toggle="tab" data-tooltip="' + field.description + '">' + field.label + '</a></li>');
+						navPills.push('<li class="active"><a id="' + field.name + 'Tab" data-target="#' + field.name + '" role="tab" data-toggle="tab"><div data-toggle="tooltip" data-viewport="[smo-view-group]" title="' + field.description + '" tooltip>' + field.label + '</div></a></li>');
 						navPillPanes.push('<div class="tab-pane active" id="' + field.name + '">');
 					} else {
-						navPills.push('<li><a id="' + field.name + 'Tab" data-target="#' + field.name + '" role="tab" data-toggle="tab" data-tooltip="' + field.description + '">' + field.label + '</a></li>');
+						navPills.push('<li><a id="' + field.name + 'Tab" data-target="#' + field.name + '" role="tab" data-toggle="tab"><div data-toggle="tooltip" data-viewport="[smo-view-group]" title="' + field.description + '" tooltip>' + field.label + '</div></a></li>');
 						navPillPanes.push('<div class="tab-pane" id="' + field.name + '">');
 					}
 					
@@ -1492,7 +1509,7 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 			}
 			
 			var template = '\
-			<div class="field-label"><div data-tooltip="' + scope.smoRecordArray.description + '">' + scope.smoRecordArray.label + '</div></div>\
+			<div class="field-label"><div style="display: inline-block;" data-toggle="tooltip" title="' + scope.smoRecordArray.description + '" tooltip>' + scope.smoRecordArray.label + '</div></div>\
 			<div class="field-input"><smo-button action="toggle()" icon="edit" tip="Edit" size="md"></smo-button></div>';
 			//			<div class="field-input"><button class="btn btn-primary" style="height: 30px;" ng-click="toggle()">Edit</button></div>';
 			

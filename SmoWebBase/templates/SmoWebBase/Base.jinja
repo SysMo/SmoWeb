@@ -13,7 +13,6 @@
     
     <!-- AngularJS -->   
     <script src="{{ static('js/angular.min.js') }}"></script> 
-	<script src="{{ static('js/ui-bootstrap-tpls-0.11.0.min.js') }}"></script>
 	
 	<!-- HTML5/CSS3 feature detection library -->
 	<script src="{{ static('js/Modernizr.js') }}"></script>
@@ -67,8 +66,8 @@
 				    <li class="dropdown">
 				      <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{router.label}}<span class="caret"></span></a>
 				      <ul class="dropdown-menu" role="menu">
-					{% for pageName, pageClass in router.pages.iteritems() %}
-						<li><a href="/{{routerName}}/{{pageClass.name}}">{{pageClass.label}}</a></li>						
+					{% for pageName, viewClass in router.pages.iteritems() %}
+						<li><a href="/{{routerName}}/{{viewClass.name}}">{{viewClass.label}}</a></li>						
 					{% endfor %}
 <!-- 				        <li class="divider"></li> -->
 <!-- 				        <li class="dropdown-header">Nav header</li> -->

@@ -30,7 +30,7 @@ class Team(RestBlock):
 
 class Platform(RestBlock):
     name = 'Platform'
-    label = 'The Platform'
+    label = 'Platform'
        
 @registerView(router)
 class HomeView(ModularPageView):
