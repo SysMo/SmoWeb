@@ -18,4 +18,4 @@ The result data can be presented to the user as quantity fields, tables and grap
 The models can be of arbitrary complexity, ranging from simple arithmetic to 3D transient simulations, 
 based on finite elements/volumes methods.
 
-If you are curious about the implementation of SmoWeb, check out the project's `documentation </doc/index.html>`_
+If you are curious about the implementation of SmoWeb, check out the project's `documentation </static/doc/html/index.html>`_
