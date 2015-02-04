@@ -78,8 +78,13 @@ def restToHtml():
 	"""
 	Generate documentation for the project and for the individual apps and pages
 	"""
-	# Project documetation
-	with lcd('doc'):
+	# Project documetation - public
+	with lcd(os.path.join('doc', 'public')):
+		local('make html')
+
+	
+	# Project documetation - internal
+	with lcd(os.path.join('doc', 'internal')):
 		local('make html')
 	
 	# Pages documetation

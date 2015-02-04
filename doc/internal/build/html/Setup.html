@@ -1,0 +1,196 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>1. Setup &mdash; SmoWeb 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="SmoWeb 1.0 documentation" href="index.html" />
+    <link rel="prev" title="Welcome to SmoWeb internal documentation!" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to SmoWeb internal documentation!"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">SmoWeb 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="setup">
+<h1>1. Setup<a class="headerlink" href="#setup" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="user-creation-on-server">
+<h2>1.1. User creation on server<a class="headerlink" href="#user-creation-on-server" title="Permalink to this headline">¶</a></h2>
+<p>Create the user with <tt class="docutils literal"><span class="pre">adduser</span></tt></p>
+</div>
+<div class="section" id="synchronizing-virtual-environment-on-local-computer-from-server">
+<h2>1.2. Synchronizing virtual environment on local computer from server<a class="headerlink" href="#synchronizing-virtual-environment-on-local-computer-from-server" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p class="first">Add the two lines below at the end of the .bashrc file (<em>eg. /home/milen/.bashrc file</em>):</p>
+<div class="highlight-python"><div class="highlight"><pre>alias goVirtual=&quot;source /srv/VirtualEnv/SmoWebPlatform/bin/activate&quot;
+alias cdSmoWeb=&quot;cd /data/Workspace/Django/django-example/SmoWeb&quot;
+</pre></div>
+</div>
+</li>
+<li><p class="first">Create folder <em>/srv/VirtualEnv</em> and <em>/srv/SmoWeb/Log</em></p>
+</li>
+<li><p class="first">Run in therminal:</p>
+<div class="highlight-python"><div class="highlight"><pre>unison -ignore &quot;Name {*.pyc}&quot; /srv/VirtualEnv/ ssh://platform.sysmoltd.com//srv/VirtualEnv
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<div class="section" id="setting-up-workspace-in-eclipse">
+<h2>1.3. Setting up workspace in Eclipse<a class="headerlink" href="#setting-up-workspace-in-eclipse" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Create workspace SmoWeb (e.g. <em>/data/Workspace/Projects/SysMo/SmoWeb</em> )</li>
+<li>Clone this git repository: <em>git&#64;codebasehq.com:sysmo/consulting/mmofarm.git</em></li>
+<li>Configure python interpreter to use the virtual enviorement (<em>/srv/VirtualEnv/SmoWebPlragform/bin/python</em>)</li>
+</ul>
+</div>
+<div class="section" id="public-key">
+<h2>1.4. Public key<a class="headerlink" href="#public-key" title="Permalink to this headline">¶</a></h2>
+<p>Login on the server (platform.sysmoltd.com)</p>
+<ul class="simple">
+<li>create .ssh folder (e.g. <em>sftp://platform.sysmoltd.com/home/milen/.ssh</em>)</li>
+<li>copy <em>/home/milen/.ssh/id_rsa.pub</em> to <em>sftp://platform.sysmoltd.com/home/milen/.ssh</em></li>
+<li>rename <em>id_rsa.pub</em> to <em>authorized_keys</em> in <em>sftp://platform.sysmoltd.com/home/milen/.ssh</em></li>
+</ul>
+<p>On the local computer:</p>
+<ul>
+<li><p class="first">In terminal:</p>
+<div class="highlight-python"><div class="highlight"><pre>sudo apt-get install openssh-server
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<div class="section" id="installing-packages-on-local-computer">
+<h2>1.5. Installing packages on local computer<a class="headerlink" href="#installing-packages-on-local-computer" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p class="first">In terminal:</p>
+<div class="highlight-python"><div class="highlight"><pre>goVirtual
+fab installAptPackages
+</pre></div>
+</div>
+</li>
+<li><p class="first">Build external modules</p>
+</li>
+</ul>
+<blockquote>
+<div><ul>
+<li><p class="first">Eclipse: in <em>/SmoWeb/smo/media/CoolProp/setup.py</em> set <tt class="docutils literal"><span class="pre">coolPropSrcFolder</span></tt> to the coolprop source folder and <tt class="docutils literal"><span class="pre">LDFLAGS</span></tt> to the folder with coolprop static library</p>
+</li>
+<li><p class="first">In terminal:</p>
+<div class="highlight-python"><div class="highlight"><pre>fab buildExtModules
+</pre></div>
+</div>
+</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="running-the-develpment-server">
+<h2>1.6. Running the develpment server<a class="headerlink" href="#running-the-develpment-server" title="Permalink to this headline">¶</a></h2>
+<p>In terminal (every time):</p>
+<div class="highlight-python"><div class="highlight"><pre>goVirtual
+cdSmoWeb
+python manage.py runserver
+</pre></div>
+</div>
+<p>(or run <strong>manage.py</strong> from Eclipse with input parameters <em>runserver</em>)</p>
+<p>In firefox (<a class="reference external" href="http://127.0.0.1:8000/ThermoFluids/HeatExchange1D">http://127.0.0.1:8000/ThermoFluids/HeatExchange1D</a>)</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">1. Setup</a><ul>
+<li><a class="reference internal" href="#user-creation-on-server">1.1. User creation on server</a></li>
+<li><a class="reference internal" href="#synchronizing-virtual-environment-on-local-computer-from-server">1.2. Synchronizing virtual environment on local computer from server</a></li>
+<li><a class="reference internal" href="#setting-up-workspace-in-eclipse">1.3. Setting up workspace in Eclipse</a></li>
+<li><a class="reference internal" href="#public-key">1.4. Public key</a></li>
+<li><a class="reference internal" href="#installing-packages-on-local-computer">1.5. Installing packages on local computer</a></li>
+<li><a class="reference internal" href="#running-the-develpment-server">1.6. Running the develpment server</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Welcome to SmoWeb internal documentation!</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/Setup.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to SmoWeb internal documentation!"
+             >previous</a> |</li>
+        <li><a href="index.html">SmoWeb 1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, SysMo Ltd, Bulgaria.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>
