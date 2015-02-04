@@ -1,6 +1,7 @@
 ===============
 Numerical model
 ===============
+
 .. module:: smo.model.model
 
 ---------------

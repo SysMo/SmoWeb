@@ -84,8 +84,6 @@ class NumericalModelMeta(type):
 			attrs['name'] = name 
 		if ('label' not in attrs):
 			attrs['label'] = attrs['name']
-		if ('title' not in attrs):
-			attrs['title'] = attrs['label']
 		if ('showOnHome' not in attrs):
 			attrs['showOnHome'] = True
 		# Collect fields from current class.
@@ -138,7 +136,18 @@ class NumericalModelMeta(type):
 		return new_class
 
 class NumericalModel(object):
-	"""Abstract base class for numerical models."""
+	"""
+	Abstract base class for numerical models.
+	
+	Class attributes:
+		* :attr:`name`: name of the numerical model class (default is the numerical model class name)
+		* :attr:`label`: label for the numerical model class (default is the numerical model class name), shows as title and thumbnail text for the model
+		* :attr:`showOnHome`: used to specify if a thumbnail of the model is to show on the home page (default is True)
+		* :attr:`figure`: ModelFigure object representing a figure, displayed on the page module of the model and on its thumbnail
+		* :attr:`description`: ModelDescription object representing a description for the model, also used as tooltip of the model's thumbnail
+		* :attr:`declared_fields`: OrderedDict containing the class attributes of type Field of the model
+		* :attr:`modelBlocks`: (mandatory) list of blocks making up the model's page module. Block types may be: ModelView, HtmlBlock, JsBlock	
+	"""
 
 	__metaclass__ = NumericalModelMeta
 	
@@ -184,7 +193,9 @@ class NumericalModel(object):
 		return {'definitions': definitions, 'values': fieldValues, 'actions': actions}
 
 	def superGroup2Json(self, group, fieldValues):
-		""""""
+		"""
+		Provides JSON serializaton of super-group 
+		"""
 		jsonObject = {'type': 'SuperGroup', 'name': group._name, 'label': group.label}
 		subgroupList = []
 		for subgroup in group.groups:
@@ -198,7 +209,9 @@ class NumericalModel(object):
 		return jsonObject
 		
 	def fieldGroup2Json(self, group, fieldValues):
-		""""""
+		"""
+		Provides JSON serializaton of field-group 
+		"""
 		jsonObject = {'type': 'FieldGroup', 'name': group._name, 'label': group.label}
 		fieldList = []
 		for field in group.fields:
@@ -208,7 +221,9 @@ class NumericalModel(object):
 		return jsonObject
 				
 	def viewGroup2Json(self, group, fieldValues):
-		""""""
+		"""
+		Provides JSON serializaton of view-group 
+		"""
 		jsonObject = {'type': 'ViewGroup', 'name': group._name, 'label': group.label}
 		fieldList = []
 		for field in group.fields:
@@ -225,7 +240,9 @@ class NumericalModel(object):
 # 		return jsonObject
 	
 	def fieldValuesFromJson(self, jsonDict):
-		""""""
+		"""
+		Sets field values from dictionary representing JSON object
+		"""
 		for key, value in jsonDict.iteritems():
 			field = self.declared_fields[key]
 			self.__dict__[key] = field.parseValue(value)	

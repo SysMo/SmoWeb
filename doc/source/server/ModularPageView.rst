@@ -34,13 +34,11 @@ Page modules may be one of the following types:
 :class:`NumericalModel`
 -----------------------
 
-.. autoclass:: NumericalModel
-
 .. figure:: _static/server/img/modular_page_view.png
    :width: 600px
    :align: center
 
-   An active `NumericalModel` module 
+   An active :class:`NumericalModel` module 
 
 
 :class:`HtmlModule`

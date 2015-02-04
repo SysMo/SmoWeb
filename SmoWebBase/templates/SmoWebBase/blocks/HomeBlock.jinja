@@ -2,11 +2,11 @@
 <div class="subtitle">The open computational platform by <a href="/SmoWebBase/Sysmo" target="_self">SysMo</a></div>
 <div style="margin-top: 30px; margin-bottom: 30px; text-align: center;">
 {% for routerName, router in pageView.router.registry.iteritems() %}
-	{% for pageName, pageClass in router.pages.iteritems() %}
-		{% for module in pageClass.modules %}
+	{% for pageName, viewClass in router.pages.iteritems() %}
+		{% for module in viewClass.modules %}
 			{% if issubclass(module, smo.model.model.NumericalModel) %}
 				{% if module.showOnHome %}
-					<a href="/{{routerName}}/{{pageClass.name}}?model={{module.name}}"
+					<a href="/{{routerName}}/{{viewClass.name}}?model={{module.name}}"
 							 target="_self">
 						<div class="thumb">
 							<div style="display: table-cell; vertical-align:middle; 

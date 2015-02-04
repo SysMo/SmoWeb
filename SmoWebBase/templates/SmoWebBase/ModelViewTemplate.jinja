@@ -90,7 +90,7 @@ angular.module('{{pageView.name}}', ['smo'])
 		{% for module in pageView.modules %}
 			<div class="tab-pane page-container {% if pageView|isActive(module) %}active{% endif %}" id="{{module.name}}Content">
 				{% if issubclass(module, smo.model.model.NumericalModel) %}
-					<h1 class="title">{{module.title}}</h1>
+					<h1 class="title">{{module.label}}</h1>
 					<div class="presentation">
 						{% if hasattr(module, 'figure') %}
 							<div style="height: {{module.figure.height}}px; width: {{module.figure.width}}px;">

@@ -74,7 +74,7 @@ The page view *FluidPropsCalculatorView* is registered with the ViewRouter ``rou
 Metaclass
 ---------
 
-The metaclass, :class:`~smo.django.view.ModularPageViewMeta`, loops over the :class:`~smo.django.view.ModularPageView` class attributes, 
+The metaclass, :class:`~smo.django.view.ModularPageViewMeta`, loops over the modular page view class' attributes, 
 as well as the attributes of all its base classes, collecting the post actions, lists of names of JavaScript libraries and 
 lists of names of Google modules required to render the page respectively in ``postActions``, ``requiredJSLibraries`` and ``requiredGoogleModules`` 
 attributes of the page view class being created. When the static page is rendered by the template engine later, the URLs of the
@@ -88,8 +88,4 @@ Instantiation
 Page view objects are created by the :func:`view` method of the router instance that the 
 page view class is registered with. The router's :func:`view` method then passes the HTTP request for processing to the 
 page view object's own :func:`view` method.
-   
-
-
-
-
+  

@@ -46,4 +46,5 @@ is also responsible for signalling any communication and server errors to the cl
 Types of POST actions:
  * *load* - used to load numerical model data  
  * *save* - used to save input data in MongoDB and generate a URL through which they can be loaded
- * custom actions - *compute*, to pefrom a computation, among others
+ * *compute* - to pefrom a computation
+ * custom actions
