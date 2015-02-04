@@ -95,6 +95,7 @@ class ModularPageView(object):
 		* :attr:`requireJS`: list of JS libraries required by the **current** view
 		* :attr:`requireGoogle`: list of Google modules required by the **current** view
 		* :attr:`template`: HTML template file
+		* :attr:`controllerName`: Name of the AngularJS contoller for this app (default is class name + 'Controller')
 		
 	Default POST actions:
 	"""

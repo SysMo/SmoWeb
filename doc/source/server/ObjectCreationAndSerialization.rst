@@ -79,13 +79,16 @@ as well as the attributes of all its base classes, collecting the post actions, 
 lists of names of Google modules required to render the page respectively in ``postActions``, ``requiredJSLibraries`` and ``requiredGoogleModules`` 
 attributes of the page view class being created. When the static page is rendered by the template engine later, the URLs of the
 JavaScript lbraries and parameters for loading Google modules are obtained from the :class:`~smo.django.view.ModularPageView` class'
-respective registries based on the names contained in the ``requiredJSLibraries`` and ``requiredGoogleModules`` sets.
+respective registries based on the names contained in the ``requiredJSLibraries`` and ``requiredGoogleModules`` sets. The metaclass
+also sets a default ``controllerName`` attribute of the page view if missing, used in the AngularJS app as part of the webpage.
 
+Instantiation
+-------------
 
-
-
-
-
+Page view objects are created by the :func:`view` method of the router instance that the 
+page view class is registered with. The router's :func:`view` method then passes the HTTP request for processing to the 
+page view object's own :func:`view` method.
+   
 
 
 
