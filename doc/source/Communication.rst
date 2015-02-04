@@ -28,9 +28,9 @@ Processing GET requests
 After the view-function/view-class are resolved, the view-function or the :func:`get` method of the view-class are called, 
 respectively, and the request.GET parameters are processed. If the view-class is a subclass of :class:`~smo.django.view.ModularPageView`, 
 the :func:`get` method looks for three paremeters that uniquely define a set of values bound to a particular view of a numerical model:
- * model - used to specify the numerical model or another type of page module
- * view - used to specify the view of a numerical model
- * id - an id of a MongoDB record containing the set of values bound to the view
+ * ``model`` - used to specify the numerical model or another type of page module
+ * ``view`` - used to specify the view of a numerical model
+ * ``id`` - an id of a MongoDB record containing the set of values bound to the view
 Once the static page is loaded, POST requests are automatically sent to the server to fetch the data needed to visualize all 
 numerical models that are displayed as modules on the particular page. 
  
