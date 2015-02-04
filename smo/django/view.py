@@ -86,7 +86,8 @@ class ModularPageView(object):
 	"""
 	A base class for creating pages consisting of modules. There are different kind of modules:
 		* NumericalModel model-views
-		* Documentation views
+		* Restructured text views
+		* HTML module views
 		
 	Class attributes:
 		* :attr:`jsLibraries`: Registry of common Java Script libraries used in the applicaions

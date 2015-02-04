@@ -45,5 +45,48 @@ the fields in it and ``actions`` is a serialization of its actions.
 Modular page
 ------------
 
+Modular page views subclass the :class:`~smo.django.view.ModularPageView` class. A sample definition of a 
+page view is given below::
+   
+   router = ViewRouter('ThermoFluids', ThermoFluids)
+   
+   @registerView(router)
+   class FluidPropsCalculatorView(ModularPageView):
+      name = 'FluidPropsCalculator'
+      label = 'Fluid properties (CoolProp)'
+      modules = [FluidProperties, FluidInfo, SaturationData, FluidPropertiesDoc]
+      requireJS = ['dygraph', 'dygraphExport']
+      requireGoogle = ['visualization']
+      
+      @action.post() 
+      def computeFluidProps(self, model, view, parameters):    
+         fpc = FluidProperties()
+         fpc.fieldValuesFromJson(parameters)
+         fpc.compute()
+         if (fpc.isTwoPhase == True):
+            return fpc.modelView2Json(fpc.resultViewIsTwoPhase)
+         else:
+            return fpc.modelView2Json(fpc.resultView)
+
+The page view *FluidPropsCalculatorView* is registered with the ViewRouter ``router`` and its method :func:`computeFluidProps` is converted to a 
+:class:`~smo.django.view.PostAction` object using the  ``@action.post()`` decorator.
+
 Metaclass
 ---------
+
+The metaclass, :class:`~smo.django.view.ModularPageViewMeta`, loops over the :class:`~smo.django.view.ModularPageView` class attributes, 
+as well as the attributes of all its base classes, collecting the post actions, lists of names of JavaScript libraries and 
+lists of names of Google modules required to render the page respectively in ``postActions``, ``requiredJSLibraries`` and ``requiredGoogleModules`` 
+attributes of the page view class being created. When the static page is rendered by the template engine later, the URLs of the
+JavaScript lbraries and parameters for loading Google modules are obtained from the :class:`~smo.django.view.ModularPageView` class'
+respective registries based on the names contained in the ``requiredJSLibraries`` and ``requiredGoogleModules`` sets.
+
+
+
+
+
+
+
+
+
+

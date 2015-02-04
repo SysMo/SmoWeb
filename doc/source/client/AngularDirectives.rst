@@ -21,9 +21,9 @@ Creates a button::
    * **icon** - The base name of a *.png* file containing the icon of the button
    * **tip** - A tooltip to appear on hover
    * **size** - The width of the button. Valid strings are:
-      * 'sm' - 16px, also the default value
-      * 'md' - 24px
-      * 'lg' - 32px
+      * *sm* - 16px, also the default value
+      * *md* - 24px
+      * *lg* - 32px
 
 -----------
 smoQuantity
@@ -45,8 +45,8 @@ value validation is also performed::
 
 **Parameters:**
    * **view-type** - The display type of the field. Valid strings are:
-      * 'input'
-      * 'output'
+      * *input*
+      * *output*
    * **field-var** - An object defining the field
    * **smo-data-source** - An object containing the value of the field  
 
@@ -85,8 +85,8 @@ Visualizes a field for input or output of single- or multi-line strings::
 
 **Parameters:**
    * **view-type** - The display type of the field. Valid strings are:
-      * 'input'
-      * 'output'
+      * *input*
+      * *output*
    * **field-var** - An object defining the field, including the multi-line option
    * **smo-data-source** - An object containing the value of the field  
 
@@ -95,7 +95,7 @@ smoBool
 -------
 
 Visualizes a field for handling boolean values. The directive creates a checkbox 
-(if ``view-type`` is 'input') or *true*/*false* (if ``view-type`` is 'output')::
+(if ``view-type`` is *input*) or *true*/*false* (if ``view-type`` is *output*)::
    
    <div smo-bool view-type="input" field-var="field" smo-data-source="values"></div>
    
@@ -115,8 +115,8 @@ Visualizes a field for handling boolean values. The directive creates a checkbox
 
 **Parameters:**
    * **view-type** - The display type of the field. Valid strings are:
-      * 'input'
-      * 'output'
+      * *input*
+      * *output*
    * **field-var** - An object defining the field
    * **smo-data-source** - An object containing the value of the field  
 
@@ -211,8 +211,8 @@ a label and stacked fields::
 **Parameters:**
    * **smo-field-group** - An object defining the field-group
    * **view-type** - The display type of the field-group, which applies also to all its fields. Valid strings are:
-      * 'input'
-      * 'output'
+      * *input*
+      * *output*
    * **smo-data-source** - An object containing the values of the fields making up the field-group
    
 **Uses:** *smoQuantity*, *smoChoice*, *smoString*, *smoBool*, *smoRecordArray*
@@ -265,8 +265,8 @@ Multiple super-groups are displayed in tabs::
    * **smo-super-group-set** - An object defining the set of super-groups
    * **model-name** - The name of the model represented by the super-group set
    * **view-type** - The display type of the super-groups in the set, which also applies to all their field-groups and/or view-groups. Valid strings are:
-      * 'input'
-      * 'output'
+      * *input*
+      * *output*
    * **smo-data-source** - An object containing the values of the fields which are part of the super-groups
    
 **Uses:** *smoPlot*, *smoTable*
@@ -290,8 +290,8 @@ by displaying error messages::
 **Parameters:**
    * **smo-model-view** - The name of the model to be visualised.
    * **view-type** - The display type of the model. Valid strings are:
-      * 'input'
-      * 'output'
+      * *input*
+      * *output*
    * **communicator** - A communicator object
     
 .. _dygraphs: http://dygraphs.com/
