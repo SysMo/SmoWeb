@@ -159,7 +159,6 @@ class ModularPageView(object):
 					# find the active view
 					viewName = parameters['view']
 					for block in self.activeModule.modelBlocks:
-						print block.name
 						if (block.name == viewName):
 							modelView = block
 							break

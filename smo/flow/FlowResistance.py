@@ -4,6 +4,7 @@ try:
 except Exception: 
 	pass
 import scipy.interpolate
+import math
 from smo.media.CoolProp.CoolProp import FluidState
 from smo.model.model import NumericalModel, ModelView, RestBlock, HtmlBlock, ModelFigure, ModelDescription
 from smo.model.actions import ServerAction, ActionBar
@@ -23,9 +24,10 @@ class PipeFlow(NumericalModel):
 	externalDiameter = Quantity('Length', default = (6, 'mm'), label = 'external diameter (d<sub>e</sub>)')
 	length = Quantity('Length', default = (1, 'm'),	label = 'pipe length (L)')
 	surfaceRoughness = Quantity('Length', default = (25, 'um'),	label = 'surface roughness')
-	pipeMaterial = ObjectReference(Solids, default = 'StainlessSteel304', label = 'pipe material')	
-	geometryInput = FieldGroup([internalDiameter, externalDiameter, length,	pipeMaterial,
-		surfaceRoughness], label = "Geometry")
+	pipeMaterial = ObjectReference(Solids, default = 'StainlessSteel304', label = 'pipe material')
+	TWall = Quantity('Temperature', default = (50, 'degC'), label = 'pipe temeprature')	
+	pipeInput = FieldGroup([internalDiameter, externalDiameter, length,	pipeMaterial,
+		surfaceRoughness, TWall], label = "Pipe")
 	#####
 	fluidName = Choices(Fluids, default = 'ParaHydrogen', label = 'fluid')
 	inletPressure = Quantity('Pressure', default = (2, 'bar'), label = 'inlet pressure') 
@@ -34,7 +36,7 @@ class PipeFlow(NumericalModel):
 	ambientTemperature = Quantity('Temperature', default = (15, 'degC'), label = 'ambient temperature')
 	flowInput = FieldGroup([fluidName, inletPressure, inletTemperature,	inletMassFlowRate], label = 'Flow')
 	#####	
-	inputs = SuperGroup([geometryInput, flowInput])
+	inputs = SuperGroup([pipeInput, flowInput])
 	
 	# Actions
 	computeAction = ServerAction("compute", label = "Compute", outputView = 'resultView')
@@ -46,15 +48,15 @@ class PipeFlow(NumericalModel):
 	
 	############# Results ###############
 	# Fields
-	fluidVolume = Quantity('Volume', label = 'fluid volume', default = (1, 'L'))
 	internalSurfaceArea = Quantity('Area', label = 'internal surface area')
 	externalSurfaceArea = Quantity('Area', label = 'external surface area')
 	crossSectionalArea = Quantity('Area', label = 'cross sectional area')
 	pipeSolidMass = Quantity('Mass', label = 'pipe solid mass')
-	geometryOutput = FieldGroup([fluidVolume, internalSurfaceArea, externalSurfaceArea,
-		crossSectionalArea, pipeSolidMass], label = "Geometry")
+	pipeOutput = FieldGroup([internalSurfaceArea, externalSurfaceArea,
+		crossSectionalArea, pipeSolidMass], label = "Pipe")
 	#####
 	inletDensity = Quantity('Density', label = 'inlet density')
+	fluidVolume = Quantity('Volume', label = 'fluid volume', default = (1, 'L'))
 	fluidMass = Quantity('Mass', label = 'fluid mass')
 	massFlowRate = Quantity('MassFlowRate', label = 'mass flow rate', default = (1, 'kg/h'))
 	volumetricFlowRate = Quantity('VolumetricFlowRate', label = 'volumetric flow rate', default = (1, 'L/h'))
@@ -65,13 +67,24 @@ class PipeFlow(NumericalModel):
 	pressureDrop = Quantity('Pressure', label = 'pressure drop')
 	outletPressure = Quantity('Pressure', label = 'outlet pressure')
 	outletTemperature  = Quantity('Temperature', label = 'outlet temperature', default = (1, 'degC'))
-	flowOutput = FieldGroup([inletDensity, fluidMass, massFlowRate, volumetricFlowRate, 
-		flowVelocity, Re, zeta, dragCoefficient, pressureDrop, outletPressure, outletTemperature], label = "Flow")
+	flowOutput = FieldGroup([fluidVolume, inletDensity, fluidMass, massFlowRate, volumetricFlowRate, 
+		flowVelocity, Re, zeta, dragCoefficient, pressureDrop, outletPressure], label = "Flow")
 	#####
-	results = SuperGroup([geometryOutput, flowOutput])
+	inletEnthalpy = Quantity('SpecificEnthalpy', label = 'inlet enthalpy')
+	outletEnthalpy = Quantity('SpecificEnthalpy', label = 'outlet enthalpy')
+	outletTemperature = Quantity('Temperature', label = 'outlet temperature')
+	cond = Quantity('ThermalConductivity', label = 'thermal conductivity')
+	Pr = Quantity('Dimensionless', label = 'Prandtl number')	
+	Nu = Quantity('Dimensionless', label = 'Nusselt number')
+	alpha = Quantity('HeatTransferCoefficient', label = 'convection coefficient')
+	QDot = Quantity('HeatFlowRate', label = 'heat flow rate')
+	heatExchangeOutput = FieldGroup([Pr, Nu, alpha, QDot, outletTemperature], label = "Values")	
+	#####
+	flowResistanceResults = SuperGroup([pipeOutput, flowOutput], label="Flow resistance")
+	heatExchangeResults = SuperGroup([heatExchangeOutput], label="Heat exchange")
 	
 	# Model view
-	resultView = ModelView(ioType = "output", superGroups = [results])
+	resultView = ModelView(ioType = "output", superGroups = [flowResistanceResults, heatExchangeResults])
 	
 	############# Page structure ########
 	modelBlocks = [inputView, resultView]
@@ -80,6 +93,7 @@ class PipeFlow(NumericalModel):
 	def compute(self):
 		self.computeGeometry()
 		self.computePressureDrop()
+		self.computeHeatExchange()
 		
 	def computeGeometry(self):
 		if (self.externalDiameter <= self.internalDiameter):
@@ -105,10 +119,45 @@ class PipeFlow(NumericalModel):
 		self.dragCoefficient = self.zeta * self.length / self.internalDiameter
 		self.pressureDrop = self.dragCoefficient * self.inletDensity * self.flowVelocity * self.flowVelocity / 2
 		self.outletPressure = self.inletPressure - self.pressureDrop
-		self.outletTemperature = self.inletTemperature
 		return self.pressureDrop
+	
+	def computeHeatExchange(self):
+		upstreamState = FluidState(self.fluidName)
+		upstreamState.update_Tp(self.inletTemperature, self.inletPressure)
 		
-
+		self.inletEnthalpy = upstreamState.h
+		self.Pr = upstreamState.Pr
+		self.cond = upstreamState.cond
+		
+		# Determining Nusselt number
+		if (self.Re <= 2.3e3):
+			# laminar flow
+			self.Nu = 3.66
+		elif (self.Re > 2.3e3 and self.Re < 1e4):
+			# transition	
+			interpCoeff = (self.Re - 2.3e3) / (1e4 - 2.3e3) 
+			Nu_low = 3.66
+			eps = (1.8 * 4 - 1.5)**(-2)
+			Nu_high = ((eps / 8.) * 1e4 * self.Pr) / (1 + 12.7 * math.sqrt(eps / 8.) * (self.Pr**(2 / 3.) - 1)) * \
+			(1 + (self.internalDiameter / self.length)**(2 / 3.))
+			self.Nu = interpCoeff * Nu_high + (1 - interpCoeff) * Nu_low
+		elif (self.Re >= 1e4 and self.Re <= 1e6):
+			# turbulent flow
+			eps = (1.8 * math.log(self.Re, 10) - 1.5)**(-2)
+			self.Nu = ((eps / 8.) * self.Re * self.Pr) / (1 + 12.7 * math.sqrt(eps / 8.) * (self.Pr**(2 / 3.) - 1)) * \
+			(1 + (self.internalDiameter / self.length)**(2 / 3.))
+		elif (self.Re > 1e6):
+			raise ValueError("Outside range of validity")
+		
+		self.alpha = self.cond * self.Nu / self.internalDiameter
+		self.QDot = self.alpha * self.internalSurfaceArea * (self.inletTemperature - self.TWall)
+		
+		self.outletEnthalpy = self.inletEnthalpy - (self.QDot / self.massFlowRate)
+		
+		downstreamState = FluidState(self.fluidName)
+		downstreamState.update_ph(self.outletPressure, self.outletEnthalpy)
+		self.outletTemperature = downstreamState.T
+		
 	@staticmethod
 	def ChurchilCorrelation(Re, d, epsilon):
 		theta1 = np.power(2.457 * np.log(np.power(7.0 / Re, 0.9) + 0.27 * epsilon / d), 16)
