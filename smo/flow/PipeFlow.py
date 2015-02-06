@@ -8,27 +8,27 @@ import math
 import json
 from smo.media.CoolProp.CoolProp import FluidState
 
+class ComputationModel(object):
+	@classmethod
+	def setResValues(cls, func, model, fState = None):
+		resDict = func(fStateFilm = fState, **model.__dict__)
+		for key, value in resDict.iteritems():
+			if hasattr(model, key):
+				model.__setattr__(key, value)
+			else:
+				raise KeyError("Model {0} has no field '{1}'.".format(model.name, key))
 
-def setResValues(func, model, fState = None):
-	print fState
-	resDict = func(fStateFilm = fState, **model.__dict__)
-	for key, value in resDict.iteritems():
-		if hasattr(model, key):
-			model.__setattr__(key, value)
-		else:
-			raise KeyError("Model {0} has no field '{1}'.".format(model.name, key))
 
-
-class PipeFlow(object):
+class PipeFlow(ComputationModel):
 	@staticmethod
 	def compute(model):
-		setResValues(PipeFlow.computeGeometry, model)
-		setResValues(PipeFlow.computePressureDrop, model)
-		setResValues(PipeFlow.computeHeatExchange, model)
+		PipeFlow.setResValues(PipeFlow.computeGeometry, model)
+		PipeFlow.setResValues(PipeFlow.computePressureDrop, model)
+		PipeFlow.setResValues(PipeFlow.computeHeatExchange, model)
 	
 	@staticmethod
 	def computeWithIteration(model):
-		setResValues(PipeFlow.computeGeometry, model)
+		PipeFlow.setResValues(PipeFlow.computeGeometry, model)
 		
 		#In state
 		fStateIn = FluidState(model.fluidName)
@@ -43,102 +43,10 @@ class PipeFlow(object):
 		for i in range(10):
 			meanTemperature = (model.inletTemperature + outletTemperature_guess) / 2.
 			fStateMean.update_Tp(meanTemperature, model.inletPressure)
-			setResValues(PipeFlow.computePressureDrop, model, fState = fStateMean)
-			setResValues(PipeFlow.computeHeatExchange, model, fState = fStateMean)
+			PipeFlow.setResValues(PipeFlow.computePressureDrop, model, fState = fStateMean)
+			PipeFlow.setResValues(PipeFlow.computeHeatExchange, model, fState = fStateMean)
 			outletTemperature_guess = model.outletTemperature
-	
-	@staticmethod
-	def computeWithIteration1(model):
-		### Geometry
-		if (model.externalDiameter <= model.internalDiameter):
-			raise ValueError('External diameter value must be bigger than internal diameter value.')
-		model.crossSectionalArea = np.pi / 4 * model.internalDiameter ** 2
-		model.fluidVolume = model.crossSectionalArea * model.length
-		model.internalSurfaceArea = np.pi * model.internalDiameter * model.length
-		model.externalSurfaceArea = np.pi * model.externalDiameter * model.length
-		model.pipeSolidMass = model.pipeMaterial['refValues']['density'] \
-			* np.pi / 4 * (model.externalDiameter**2 - model.internalDiameter**2) * model.length
-		
-		### Flow
-		model.massFlowRate = model.inletMassFlowRate
-		outletTemperature_guess = (model.inletTemperature + model.TWall) / 2.
-		fStateIn = FluidState(model.fluidName)
-		fStateMean = FluidState(model.fluidName)
-		fStateOut = FluidState(model.fluidName)
-		fStateIn.update_Tp(model.inletTemperature, model.inletPressure)
-		model.inletEnthalpy = fStateIn.h
-		
-		for i in range(10):
-			meanTemperature = (model.inletTemperature + outletTemperature_guess) / 2.		
-			### Flow
-			fStateMean.update_Tp(meanTemperature, model.inletPressure)
-			model.inletDensity = fStateMean.rho
-			model.fluidMass = model.fluidVolume * model.inletDensity
-			model.volumetricFlowRate = model.massFlowRate / model.inletDensity	
-			model.flowVelocity = model.massFlowRate / (model.inletDensity * model.crossSectionalArea )
-			model.Re = model.inletDensity * model.flowVelocity * model.internalDiameter / fStateMean.mu
-			
-			### Pressure drop
-			model.zeta = PipeFlow.ChurchilCorrelation(model.Re, model.internalDiameter, model.surfaceRoughness)
-			model.dragCoefficient = model.zeta * model.length / model.internalDiameter
-			model.pressureDrop = model.dragCoefficient * model.inletDensity * model.flowVelocity * model.flowVelocity / 2
-			model.outletPressure = model.inletPressure - model.pressureDrop
-			
-			### Heat exchange
-			model.Pr = fStateMean.Pr
-			model.cond = fStateMean.cond
-			
-			# Determining Nusselt number
-			if (model.Re <= 2.3e3):
-				# laminar flow
-				model.Nu = 3.66
-			elif (model.Re > 2.3e3 and model.Re < 1e4):
-				# transition	
-				interpCoeff = (model.Re - 2.3e3) / (1e4 - 2.3e3) 
-				Nu_low = 3.66
-				eps = (1.8 * 4 - 1.5)**(-2)
-				Nu_high = ((eps / 8.) * 1e4 * model.Pr) / (1 + 12.7 * math.sqrt(eps / 8.) * (model.Pr**(2 / 3.) - 1)) * \
-				(1 + (model.internalDiameter / model.length)**(2 / 3.))
-				model.Nu = interpCoeff * Nu_high + (1 - interpCoeff) * Nu_low
-			elif (model.Re >= 1e4 and model.Re <= 1e6):
-				# turbulent flow
-				eps = (1.8 * math.log10(model.Re) - 1.5)**(-2)
-				model.Nu = ((eps / 8.) * model.Re * model.Pr) / (1 + 12.7 * math.sqrt(eps / 8.) * (model.Pr**(2 / 3.) - 1)) * \
-				(1 + (model.internalDiameter / model.length)**(2 / 3.))
-			elif (model.Re > 1e6):
-				raise ValueError("Outside range of validity")
-			
-			model.alpha = model.cond * model.Nu / model.internalDiameter
-			LMTD = - (outletTemperature_guess - model.inletTemperature) / \
-					math.log((model.TWall - model.inletTemperature) / \
-						(model.TWall - outletTemperature_guess))
-			#model.QDot = model.alpha * model.internalSurfaceArea * (meanTemperature - model.TWall)
-			model.QDot = model.alpha * model.internalSurfaceArea * LMTD
-			model.outletEnthalpy = model.inletEnthalpy - (model.QDot / model.massFlowRate)
-			fStateOut.update_ph(model.outletPressure, model.outletEnthalpy)
-			outletTemperature_guess = fStateOut.T
 
-# 			print ('Pr: ' +  str(model.Pr))
-# 			print ('cond: ' +  str(model.cond))
-			
-# 			print ('--------------')
-# 			print ('Re: ' +  str(model.Re))
-# 			print ('Pr: ' +  str(model.Pr))
-# 			print ('Nu: ' +  str(model.Nu))
-# 			print ('alpha: %e'%model.alpha)
-# 			print ('LMTD: %e'%LMTD)
-# 			print ('QDot: %e'%model.QDot)
-# 			print ('cpIn: %e'%fStateMean.cp)
-# 			print ('cpOut: %e'%fStateOut.cp)
-# 			print ('hOut: %e'%model.outletEnthalpy)
-# 			print ('hIn: %e'%model.inletEnthalpy)
-# 			
-# 			print ('T_mean: ' + str(meanTemperature - 273.15))
-# 			print ('T_out: ' + str(outletTemperature_guess - 273.15))
-# 			print ('P_out: ' + str(model.outletPressure))
-		
-		model.outletTemperature = outletTemperature_guess
-	
 	@staticmethod
 	def computeGeometry(internalDiameter, externalDiameter, length, pipeMaterial, **extras):
 		if (externalDiameter <= internalDiameter):
@@ -163,7 +71,6 @@ class PipeFlow(object):
 						fluidName, inletPressure, inletTemperature, inletMassFlowRate, 
 						fStateFilm = None, **extras):
 		
-		print fStateFilm
 		if (fStateFilm is None):
 			fStateFilm = FluidState(fluidName)
 			fStateFilm.update_Tp(inletTemperature, inletPressure)
@@ -263,7 +170,7 @@ class PipeFlow(object):
 		theta2 = np.power(37530.0 / Re, 16)
 		zeta = 8 * np.power(np.power((8.0 / Re), 12) + 1 / np.power((theta1 + theta2), 1.5) , 1./12)
 		return zeta
-
+	
 	@staticmethod
 	def testChurchilCorrelation():
 		Re = np.logspace(2, 6, 1000, base = 10.0)
@@ -274,6 +181,80 @@ class PipeFlow(object):
 			zeta[i] = PipeFlow.ChurchilCorrelation(Re[i], d, epsilon)
 		plt.loglog(Re, zeta)
 		plt.show()	
+
+
+# Left for testing purposes !!!	
+# 	@staticmethod
+# 	def computeWithIteration1(model):
+# 		### Geometry
+# 		if (model.externalDiameter <= model.internalDiameter):
+# 			raise ValueError('External diameter value must be bigger than internal diameter value.')
+# 		model.crossSectionalArea = np.pi / 4 * model.internalDiameter ** 2
+# 		model.fluidVolume = model.crossSectionalArea * model.length
+# 		model.internalSurfaceArea = np.pi * model.internalDiameter * model.length
+# 		model.externalSurfaceArea = np.pi * model.externalDiameter * model.length
+# 		model.pipeSolidMass = model.pipeMaterial['refValues']['density'] \
+# 			* np.pi / 4 * (model.externalDiameter**2 - model.internalDiameter**2) * model.length
+# 		
+# 		### Flow
+# 		model.massFlowRate = model.inletMassFlowRate
+# 		outletTemperature_guess = (model.inletTemperature + model.TWall) / 2.
+# 		fStateIn = FluidState(model.fluidName)
+# 		fStateMean = FluidState(model.fluidName)
+# 		fStateOut = FluidState(model.fluidName)
+# 		fStateIn.update_Tp(model.inletTemperature, model.inletPressure)
+# 		model.inletEnthalpy = fStateIn.h
+# 		
+# 		for i in range(10):
+# 			meanTemperature = (model.inletTemperature + outletTemperature_guess) / 2.		
+# 			### Flow
+# 			fStateMean.update_Tp(meanTemperature, model.inletPressure)
+# 			model.inletDensity = fStateMean.rho
+# 			model.fluidMass = model.fluidVolume * model.inletDensity
+# 			model.volumetricFlowRate = model.massFlowRate / model.inletDensity	
+# 			model.flowVelocity = model.massFlowRate / (model.inletDensity * model.crossSectionalArea )
+# 			model.Re = model.inletDensity * model.flowVelocity * model.internalDiameter / fStateMean.mu
+# 			
+# 			### Pressure drop
+# 			model.zeta = PipeFlow.ChurchilCorrelation(model.Re, model.internalDiameter, model.surfaceRoughness)
+# 			model.dragCoefficient = model.zeta * model.length / model.internalDiameter
+# 			model.pressureDrop = model.dragCoefficient * model.inletDensity * model.flowVelocity * model.flowVelocity / 2
+# 			model.outletPressure = model.inletPressure - model.pressureDrop
+# 			
+# 			### Heat exchange
+# 			model.Pr = fStateMean.Pr
+# 			model.cond = fStateMean.cond
+# 			
+# 			# Determining Nusselt number
+# 			if (model.Re <= 2.3e3):
+# 				# laminar flow
+# 				model.Nu = 3.66
+# 			elif (model.Re > 2.3e3 and model.Re < 1e4):
+# 				# transition	
+# 				interpCoeff = (model.Re - 2.3e3) / (1e4 - 2.3e3) 
+# 				Nu_low = 3.66
+# 				eps = (1.8 * 4 - 1.5)**(-2)
+# 				Nu_high = ((eps / 8.) * 1e4 * model.Pr) / (1 + 12.7 * math.sqrt(eps / 8.) * (model.Pr**(2 / 3.) - 1)) * \
+# 				(1 + (model.internalDiameter / model.length)**(2 / 3.))
+# 				model.Nu = interpCoeff * Nu_high + (1 - interpCoeff) * Nu_low
+# 			elif (model.Re >= 1e4 and model.Re <= 1e6):
+# 				# turbulent flow
+# 				eps = (1.8 * math.log10(model.Re) - 1.5)**(-2)
+# 				model.Nu = ((eps / 8.) * model.Re * model.Pr) / (1 + 12.7 * math.sqrt(eps / 8.) * (model.Pr**(2 / 3.) - 1)) * \
+# 				(1 + (model.internalDiameter / model.length)**(2 / 3.))
+# 			elif (model.Re > 1e6):
+# 				raise ValueError("Outside range of validity")
+# 			
+# 			model.alpha = model.cond * model.Nu / model.internalDiameter
+# 			LMTD = - (outletTemperature_guess - model.inletTemperature) / \
+# 					math.log((model.TWall - model.inletTemperature) / \
+# 						(model.TWall - outletTemperature_guess))
+# 			#model.QDot = model.alpha * model.internalSurfaceArea * (meanTemperature - model.TWall)
+# 			model.QDot = model.alpha * model.internalSurfaceArea * LMTD
+# 			model.outletEnthalpy = model.inletEnthalpy - (model.QDot / model.massFlowRate)
+# 			fStateOut.update_ph(model.outletPressure, model.outletEnthalpy)
+# 			outletTemperature_guess = fStateOut.T	
+# 		model.outletTemperature = outletTemperature_guess
 
 class Orifice(object):
 	def __init__(self, diameter, cq):

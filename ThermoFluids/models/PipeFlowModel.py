@@ -15,7 +15,7 @@ class PipeFlowModel(NumericalModel):
     length = Quantity('Length', default = (1, 'm'),    label = 'pipe length (L)')
     surfaceRoughness = Quantity('Length', default = (25, 'um'),    label = 'surface roughness')
     pipeMaterial = ObjectReference(Solids, default = 'StainlessSteel304', label = 'pipe material')
-    TWall = Quantity('Temperature', default = (50, 'degC'), label = 'pipe temeprature')    
+    TWall = Quantity('Temperature', default = (50, 'degC'), label = 'pipe temeprature')
     pipeInput = FieldGroup([internalDiameter, externalDiameter, length,    pipeMaterial,
         surfaceRoughness, TWall], label = "Pipe")
     #####
