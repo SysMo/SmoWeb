@@ -8,8 +8,10 @@ import math
 import json
 from smo.media.CoolProp.CoolProp import FluidState
 
-def setResValues(func, model, fstate = None):
-	resDict = func(fstate = fstate, **model.__dict__)
+
+def setResValues(func, model, fState = None):
+	print fState
+	resDict = func(fStateFilm = fState, **model.__dict__)
 	for key, value in resDict.iteritems():
 		if hasattr(model, key):
 			model.__setattr__(key, value)
@@ -25,7 +27,7 @@ class PipeFlow(object):
 		setResValues(PipeFlow.computeHeatExchange, model)
 	
 	@staticmethod
-	def computeWithIteration1(model):
+	def computeWithIteration(model):
 		setResValues(PipeFlow.computeGeometry, model)
 		
 		#In state
@@ -41,12 +43,12 @@ class PipeFlow(object):
 		for i in range(10):
 			meanTemperature = (model.inletTemperature + outletTemperature_guess) / 2.
 			fStateMean.update_Tp(meanTemperature, model.inletPressure)
-			setResValues(PipeFlow.computePressureDrop, model, fstate = fStateMean)
-			setResValues(PipeFlow.computeHeatExchange, model, fstate = fStateMean)
+			setResValues(PipeFlow.computePressureDrop, model, fState = fStateMean)
+			setResValues(PipeFlow.computeHeatExchange, model, fState = fStateMean)
 			outletTemperature_guess = model.outletTemperature
 	
 	@staticmethod
-	def computeWithIteration(model):
+	def computeWithIteration1(model):
 		### Geometry
 		if (model.externalDiameter <= model.internalDiameter):
 			raise ValueError('External diameter value must be bigger than internal diameter value.')
@@ -75,10 +77,6 @@ class PipeFlow(object):
 			model.volumetricFlowRate = model.massFlowRate / model.inletDensity	
 			model.flowVelocity = model.massFlowRate / (model.inletDensity * model.crossSectionalArea )
 			model.Re = model.inletDensity * model.flowVelocity * model.internalDiameter / fStateMean.mu
-			
-			print ('--------------')
-			print ('rho: ' +  str(fStateMean.rho))
-			print ('mu: ' +  str(fStateMean.mu))
 			
 			### Pressure drop
 			model.zeta = PipeFlow.ChurchilCorrelation(model.Re, model.internalDiameter, model.surfaceRoughness)
@@ -163,22 +161,21 @@ class PipeFlow(object):
 	@staticmethod		
 	def computePressureDrop(internalDiameter, externalDiameter, length, surfaceRoughness, 
 						fluidName, inletPressure, inletTemperature, inletMassFlowRate, 
-						fState = None, **extras):
+						fStateFilm = None, **extras):
 		
-		if (fState is None):
-			fStateIn = FluidState(fluidName)
-			fStateIn.update_Tp(inletTemperature, inletPressure)
-		else:
-			fStateIn = fState
+		print fStateFilm
+		if (fStateFilm is None):
+			fStateFilm = FluidState(fluidName)
+			fStateFilm.update_Tp(inletTemperature, inletPressure)
 		
-		inletDensity = fStateIn.rho
+		inletDensity = fStateFilm.rho
 		massFlowRate = inletMassFlowRate
 		crossSectionalArea = np.pi / 4 * internalDiameter ** 2
 		fluidVolume = crossSectionalArea * length
 		fluidMass = fluidVolume * inletDensity
 		volumetricFlowRate = massFlowRate / inletDensity	
 		flowVelocity = massFlowRate / (inletDensity * crossSectionalArea)
-		Re = inletDensity * flowVelocity * internalDiameter / fStateIn.mu
+		Re = inletDensity * flowVelocity * internalDiameter / fStateFilm.mu
 		zeta = PipeFlow.ChurchilCorrelation(Re, internalDiameter, surfaceRoughness)
 		dragCoefficient = zeta * length / internalDiameter
 		pressureDrop = dragCoefficient * inletDensity * flowVelocity * flowVelocity / 2
@@ -199,32 +196,24 @@ class PipeFlow(object):
 	@staticmethod	
 	def computeHeatExchange(internalDiameter, length, TWall, 
 						fluidName, inletPressure, inletTemperature, inletMassFlowRate, outletPressure, 
-						outletTemperature = None, fState = None, **extras):
+						inletEnthalpy, outletTemperature = None, fStateFilm = None, **extras):
 		
-		if (fState is None):
-			fStateIn = FluidState(fluidName)
-			fStateIn.update_Tp(inletTemperature, inletPressure)
-			inletEnthalpy = fStateIn.h
-		else:
-			fStateIn = fState
+		if (fStateFilm is None):
+			fStateFilm = FluidState(fluidName)
+			fStateFilm.update_Tp(inletTemperature, inletPressure)
+			inletEnthalpy = fStateFilm.h
 		
 		####
-		inletDensity = fStateIn.rho
+		inletDensity = fStateFilm.rho
 		massFlowRate = inletMassFlowRate
 		crossSectionalArea = np.pi / 4 * internalDiameter ** 2
 		internalSurfaceArea = np.pi * internalDiameter * length
 		flowVelocity = massFlowRate / (inletDensity * crossSectionalArea)
-		Re = inletDensity * flowVelocity * internalDiameter / fStateIn.mu
+		Re = inletDensity * flowVelocity * internalDiameter / fStateFilm.mu
 		###
 		
-		Pr = fStateIn.Pr
-		cond = fStateIn.cond
-		
-		print ('--------------')
-		print ('rho: ' +  str(fStateIn.rho))
-		print ('mu: ' +  str(fStateIn.mu))
-		print ('Pr: ' +  str(Pr))
-		print ('cond: ' +  str(cond))
+		Pr = fStateFilm.Pr
+		cond = fStateFilm.cond
 		
 		# Determining Nusselt number
 		if (Re <= 2.3e3):
