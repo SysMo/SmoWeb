@@ -7,7 +7,6 @@ from smo.flow.PipeFlow import PipeFlow
 class PipeFlowModel(NumericalModel):
     label = "Pipe Flow"
     figure = ModelFigure(src="ThermoFluids/img/StraightPipe.svg")
-#     description = ModelDescription('Pipe flow.', show = False)
     
     ############# Inputs ###############
     # Fields
@@ -88,9 +87,3 @@ class PipeFlowDoc(RestBlock):
     name = 'PipeFlowDoc'
     label = 'Pipe Flow (Docs)'
     template = 'documentation/html/PipeFlowDoc.html'
-        
-# if __name__ == '__main__':
-    #PipeFlow.testChurchilCorrelation()
-    #Orifice.test()
-    #Elbow.test()
-    #PipeFlow.testComputePressureDrop()  
