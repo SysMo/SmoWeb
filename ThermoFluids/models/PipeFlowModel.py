@@ -16,8 +16,9 @@ class PipeFlowModel(NumericalModel):
     surfaceRoughness = Quantity('Length', default = (25, 'um'),    label = 'surface roughness')
     pipeMaterial = ObjectReference(Solids, default = 'StainlessSteel304', label = 'pipe material')
     TWall = Quantity('Temperature', default = (50, 'degC'), label = 'pipe temeprature')
+    computeAtLMTD = Boolean(default = False, label = 'compute at LMTD')    
     pipeInput = FieldGroup([internalDiameter, externalDiameter, length,    pipeMaterial,
-        surfaceRoughness, TWall], label = "Pipe")
+        surfaceRoughness, TWall, computeAtLMTD], label = "Pipe")
     #####
     fluidName = Choices(Fluids, default = 'ParaHydrogen', label = 'fluid')
     inletPressure = Quantity('Pressure', default = (2, 'bar'), label = 'inlet pressure') 

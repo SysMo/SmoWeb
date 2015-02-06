@@ -9,6 +9,8 @@ import json
 from smo.media.CoolProp.CoolProp import FluidState
 
 class ComputationModel(object):
+	# Method for passing the model values to a computation method 
+	# and setting the result values back to the model attributes
 	@classmethod
 	def setResValues(cls, func, model, fState = None):
 		resDict = func(fStateFilm = fState, **model.__dict__)
@@ -103,7 +105,7 @@ class PipeFlow(ComputationModel):
 	@staticmethod	
 	def computeHeatExchange(internalDiameter, length, TWall, 
 						fluidName, inletPressure, inletTemperature, inletMassFlowRate, outletPressure, 
-						inletEnthalpy, outletTemperature = None, fStateFilm = None, **extras):
+						computeAtLMTD, inletEnthalpy = None, outletTemperature = None, fStateFilm = None, **extras):
 		
 		if (fStateFilm is None):
 			fStateFilm = FluidState(fluidName)
@@ -144,12 +146,13 @@ class PipeFlow(ComputationModel):
 		
 		alpha = cond * Nu / internalDiameter
 		
-		LMTD = - (outletTemperature - inletTemperature) / \
+		if (computeAtLMTD):
+			LMTD = - (outletTemperature - inletTemperature) / \
 					math.log((TWall - inletTemperature) / \
 						(TWall - outletTemperature))
-		
-		#QDot = alpha * internalSurfaceArea * (inletTemperature - TWall)
-		QDot = alpha * internalSurfaceArea * LMTD
+			QDot = alpha * internalSurfaceArea * LMTD
+		else:
+			QDot = alpha * internalSurfaceArea * (inletTemperature - TWall)
 		
 		outletEnthalpy = inletEnthalpy - (QDot / massFlowRate)
 		
