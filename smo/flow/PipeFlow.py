@@ -151,7 +151,6 @@ class PipeFlow(ComputationModel):
 		
 		alpha = cond * Nu / internalDiameter
 		
-		print computeWithIteration
 		if (computeWithIteration == True):
 			LMTD = - (outletTemperature - inletTemperature) / \
 					math.log((TWall - inletTemperature) / \
