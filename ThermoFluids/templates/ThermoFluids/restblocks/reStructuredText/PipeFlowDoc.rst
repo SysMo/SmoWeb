@@ -129,24 +129,42 @@ Heat exchange can be computed with or without iteration. The steps of the algori
 * if we have :math:`Re`, we can find :math:`Nu=f\left(Re,Pr\right)` as follows:
 
   * if :math:`Re<=2300`, the flow is laminar and :math:`Nu=3.66`
-  * for :math:`1e4<=Re<=1e6`, the flow is turbulent and the Nusselt number is calculated as
+  * for :math:`1e4<=Re<=1e6`, the flow is turbulent and the Nusselt number is calculated as [VDI]_
   
   .. math::
-    Nu=\frac{\left(\xi/8\right)Re\cdot Pr}{1+12.7\sqrt{\xi/8}\left(Pr^{\frac{2}{3}}-1\right)}\left[1+\left(\frac{d_{i}}{L}\right)^{\frac{2}{3}}\right]
+    Nu=\frac{\left(\xi/8\right)Re\cdot Pr}{1+12.7\sqrt{\xi/8}\left(Pr^{\frac{2}{3}}-1\right)}
    
     \xi=\left(1.8\cdot\log_{10}Re-1.5\right)^{-2}  
   
   * the transition range is for :math:`2300<Re<1e4`, in which the value of :math:`Nu` is obtained through linear interpolation
   * :math:`Re>1e6` are values outside the range of validity
-* from :math:`Nu` the convection coefficient :math:`\alpha` is found as :math:`\alpha=\frac{\lambda\cdot Nu}{d_{i}}`, 
+* from :math:`Nu` the convection coefficient :math:`\alpha` is found as 
+  
+  .. math::
+    \alpha=\frac{\lambda\cdot Nu}{d_{i}}
+       
   where :math:`\lambda` is the thermal conductivity of the fluid
-* the heat flow rate is thus :math:`\dot{Q}_{w}=\alpha A \Delta T`, where :math:`\Delta T` is the temperature difference
-* from :math:`\dot{Q}_{w}=\dot{m}\cdot h_i-\dot{m}\cdot h_o`, we find the outlet enthalpy :math:`h_o` and obtain
+* the heat flow rate is thus 
+  
+  .. math::
+   \dot{Q}_{w}=\alpha A \Delta T
+    
+  where :math:`\Delta T` is the temperature difference
+* from 
+
+  .. math::
+   \dot{Q}_{w}=\dot{m}\cdot h_i-\dot{m}\cdot h_o
+    
+  we find the outlet enthalpy :math:`h_o` and obtain
   the value of the outlet temperature :math:`T_o` from the fluid state determined by the outlet pressure :math:`p_o` and :math:`h_o`
    
 
 In the case of computation *with iteration*, we guess :math:`T_o`, compute the fluid properties at mean temperature
-:math:`T_{m}=\frac{T_{i}+T_{o}}{2}` and use logarithmic mean temperature difference (LMTD) to caculate the heat exchange:
+
+.. math::
+   T_{m}=\frac{T_{i}+T_{o}}{2} 
+   
+and use logarithmic mean temperature difference (LMTD) to caculate the heat exchange:
 
 ..  math::
    \Delta T=\frac{T_{o}-T_{i}}{ln\frac{\left(T_{w}-T_{i}\right)}{\left(T_{w}-T_{o}\right)}}
@@ -167,3 +185,5 @@ References
    
 .. [Colebrook39] Colebrook, C.F. (February 1939). "Turbulent flow in pipes, with particular reference to the 
    transition region between smooth and rough pipe laws". Journal of the Institution of Civil Engineers (London).
+   
+.. [VDI] VDI (Verein Deutscher Ingenieure), Heat Atlas, Springer-Verlag, 2010, Part G1: Heat Transfer in Pipe Flow, p.697, eq(26) and (27)

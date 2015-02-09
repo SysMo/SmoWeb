@@ -8,6 +8,8 @@ import math
 import json
 from smo.media.CoolProp.CoolProp import FluidState
 
+TOutRec = []
+
 class ComputationModel(object):
 	# Method for passing the model values to a computation method 
 	# and setting the result values back to the model attributes
@@ -44,14 +46,24 @@ class PipeFlow(ComputationModel):
 		fStateMean = FluidState(model.fluidName)
 		outletTemperature_guess = (model.inletTemperature + model.TWall) / 2.
 		model.outletTemperature = outletTemperature_guess
+		prevOutletTemperature = model.outletTemperature
 		
-		for i in range(10):
+		for i in range(int(model.maxIterations)):
 			meanTemperature = (model.inletTemperature + outletTemperature_guess) / 2.
 			fStateMean.update_Tp(meanTemperature, model.inletPressure)
 			PipeFlow.setResValues(PipeFlow.computePressureDrop, model, fState = fStateMean)
 			PipeFlow.setResValues(PipeFlow.computeHeatExchange, model, fState = fStateMean)
+			if (abs(prevOutletTemperature - model.outletTemperature) / prevOutletTemperature < model.relativeTolerance):
+				break
+			if (abs(model.outletTemperature - model.TWall) < 0.01):
+				break
 			outletTemperature_guess = model.outletTemperature
-
+		
+# 		T = np.array(TOutRec)
+# 		plt.plot(T)
+# 		plt.plot(np.arange(len(T)), model.TWall * np.ones(len(T)))
+# 		plt.show()
+		
 	@staticmethod
 	def computeGeometry(internalDiameter, externalDiameter, length, pipeMaterial, **extras):
 		if (externalDiameter <= internalDiameter):
@@ -137,21 +149,20 @@ class PipeFlow(ComputationModel):
 			# transition	
 			interpCoeff = (Re - 2.3e3) / (1e4 - 2.3e3) 
 			Nu_low = 3.66
-			eps = (1.8 * 4 - 1.5)**(-2)
-			Nu_high = ((eps / 8.) * 1e4 * Pr) / (1 + 12.7 * math.sqrt(eps / 8.) * (Pr**(2 / 3.) - 1)) * \
+			xi = (1.8 * 4 - 1.5)**(-2)
+			Nu_high = ((xi / 8.) * 1e4 * Pr) / (1 + 12.7 * math.sqrt(xi / 8.) * (Pr**(2 / 3.) - 1)) * \
 			(1 + (internalDiameter / length)**(2 / 3.))
 			Nu = interpCoeff * Nu_high + (1 - interpCoeff) * Nu_low
 		elif (Re >= 1e4 and Re <= 1e6):
 			# turbulent flow
-			eps = (1.8 * math.log(Re, 10) - 1.5)**(-2)
-			Nu = ((eps / 8.) * Re * Pr) / (1 + 12.7 * math.sqrt(eps / 8.) * (Pr**(2 / 3.) - 1)) * \
-			(1 + (internalDiameter / length)**(2 / 3.))
+			xi = (1.8 * math.log(Re, 10) - 1.5)**(-2)
+			Nu = ((xi / 8.) * Re * Pr) / (1 + 12.7 * math.sqrt(xi / 8.) * (Pr**(2 / 3.) - 1))
 		elif (Re > 1e6):
 			raise ValueError("Outside range of validity")
 		
 		alpha = cond * Nu / internalDiameter
 		
-		if (computeWithIteration == True):
+		if (computeWithIteration == True):			
 			LMTD = - (outletTemperature - inletTemperature) / \
 					math.log((TWall - inletTemperature) / \
 						(TWall - outletTemperature))
@@ -163,7 +174,24 @@ class PipeFlow(ComputationModel):
 		
 		fStateOut = FluidState(fluidName)
 		fStateOut.update_ph(outletPressure, outletEnthalpy)
+		prevOutletTemperature = outletTemperature 
 		outletTemperature = fStateOut.T
+		
+		if ((outletTemperature - TWall)*(inletTemperature - TWall) < 0):
+			if (computeWithIteration == True):
+				outletTemperature = 0.5 * prevOutletTemperature + 0.5 * TWall
+			else:
+				outletTemperature = TWall
+		else:
+			outletTemperature = 0.9 * prevOutletTemperature + 0.1 * outletTemperature	
+			
+# 		TOutRec.append(outletTemperature)
+		print ('-------')
+		print ('inletTemperature: %e'%inletTemperature)
+		print ('outletTemperature: %e'%outletTemperature)
+		print ('TWall: %e'%TWall)
+		print ('dTOut = %e'%(outletTemperature - TWall))
+		print ('')
 		
 		return {'Pr': Pr,
 				'Nu': Nu,

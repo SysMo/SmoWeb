@@ -19,9 +19,13 @@ class PipeFlowModel(NumericalModel):
     computeWithIteration = Boolean(default = False, label = 'compute with iteration', 
         description = 'Compute heat flow rate using iteration and logarithmic mean temperature difference (LMTD).\
          If set to False, compuation is performed without iteration, using the difference between the inlet and wall \
-         temperatures.')    
+         temperatures.')
+    maxIterations = Quantity('Dimensionless', default = 100, label = 'max number iterations',
+                              show='self.computeWithIteration')
+    relativeTolerance = Quantity('Dimensionless', default = 0.01, label = 'relative tolerance',
+                              show='self.computeWithIteration')        
     pipeInput = FieldGroup([internalDiameter, externalDiameter, length,    pipeMaterial,
-        surfaceRoughness, TWall, computeWithIteration], label = "Pipe")
+        surfaceRoughness, TWall, computeWithIteration, maxIterations, relativeTolerance], label = "Pipe")
     #####
     fluidName = Choices(Fluids, default = 'ParaHydrogen', label = 'fluid')
     inletPressure = Quantity('Pressure', default = (2, 'bar'), label = 'inlet pressure') 
@@ -66,7 +70,6 @@ class PipeFlowModel(NumericalModel):
     #####
     inletEnthalpy = Quantity('SpecificEnthalpy', label = 'inlet enthalpy')
     outletEnthalpy = Quantity('SpecificEnthalpy', label = 'outlet enthalpy')
-    outletTemperature = Quantity('Temperature', label = 'outlet temperature')
     cond = Quantity('ThermalConductivity', label = 'thermal conductivity')
     Pr = Quantity('Dimensionless', label = 'Prandtl number')    
     Nu = Quantity('Dimensionless', label = 'Nusselt number')
