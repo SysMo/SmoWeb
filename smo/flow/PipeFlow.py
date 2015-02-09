@@ -15,15 +15,18 @@ class ComputationModel(object):
 	def setResValues(cls, func, model, fState = None):
 		resDict = func(fStateFilm = fState, **model.__dict__)
 		for key, value in resDict.iteritems():
-			if hasattr(model, key):
-				model.__setattr__(key, value)
-			else:
-				raise KeyError("Model {0} has no field '{1}'.".format(model.name, key))
-
+			model.__setattr__(key, value)
 
 class PipeFlow(ComputationModel):
 	@staticmethod
 	def compute(model):
+		if (model.computeWithIteration == True):
+			PipeFlow.computeWithIteration(model)
+		else: 
+			PipeFlow.computeWithoutIteration(model)	
+	
+	@staticmethod
+	def computeWithoutIteration(model):
 		PipeFlow.setResValues(PipeFlow.computeGeometry, model)
 		PipeFlow.setResValues(PipeFlow.computePressureDrop, model)
 		PipeFlow.setResValues(PipeFlow.computeHeatExchange, model)
@@ -102,10 +105,12 @@ class PipeFlow(ComputationModel):
 				'outletPressure': outletPressure
 				}
 	
+	
+	# Heat Atlas, p.697, eq. 26, 27
 	@staticmethod	
 	def computeHeatExchange(internalDiameter, length, TWall, 
 						fluidName, inletPressure, inletTemperature, inletMassFlowRate, outletPressure, 
-						computeAtLMTD, inletEnthalpy = None, outletTemperature = None, fStateFilm = None, **extras):
+						computeWithIteration, inletEnthalpy = None, outletTemperature = None, fStateFilm = None, **extras):
 		
 		if (fStateFilm is None):
 			fStateFilm = FluidState(fluidName)
@@ -146,7 +151,8 @@ class PipeFlow(ComputationModel):
 		
 		alpha = cond * Nu / internalDiameter
 		
-		if (computeAtLMTD):
+		print computeWithIteration
+		if (computeWithIteration == True):
 			LMTD = - (outletTemperature - inletTemperature) / \
 					math.log((TWall - inletTemperature) / \
 						(TWall - outletTemperature))

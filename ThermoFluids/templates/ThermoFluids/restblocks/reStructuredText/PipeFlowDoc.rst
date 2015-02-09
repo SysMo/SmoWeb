@@ -118,6 +118,10 @@ all flow regimes: laminar, transitional and turbulent:
    
    \Theta_{2}  =  \left(\frac{37530}{Re}\right)^{16}
  
+
+-------------
+Heat Exchange
+-------------
  
 ----------
 References
