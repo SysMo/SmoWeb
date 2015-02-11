@@ -227,7 +227,7 @@ cdef class FluidState:
 		cdef long p1Index = CP.get_param_index(state1)
 		cdef long p2Index = CP.get_param_index(state2)
 		self.ptr.update(p1Index, state1Value, p2Index, state2Value, -1, -1)
-
+# To add update for pairs H,S T,S
 	def update_Tp(self, double T, double p):
 		self.ptr.update(iT, T, iP, p, -1, -1)
 	def update_Trho(self, double T, double rho):
