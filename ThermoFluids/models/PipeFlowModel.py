@@ -7,6 +7,7 @@ from smo.flow.PipeFlow import PipeFlow
 class PipeFlowModel(NumericalModel):
     label = "Pipe Flow"
     figure = ModelFigure(src="ThermoFluids/img/StraightPipe.svg")
+    description = ModelDescription("Blah blahhh blaaaaah")
     
     ############# Inputs ###############
     # Fields
@@ -20,8 +21,8 @@ class PipeFlowModel(NumericalModel):
         description = 'Compute heat flow rate using iteration and logarithmic mean temperature difference (LMTD).\
          If set to False, compuation is performed without iteration, using the difference between the inlet and wall \
          temperatures.')
-    maxIterations = Quantity('Dimensionless', default = 100, label = 'max number iterations',
-                              show='self.computeWithIteration')
+    maxIterations = Quantity('Dimensionless', default = 20, label = 'max number iterations',
+                              maxValue = 100, show='self.computeWithIteration')
     relativeTolerance = Quantity('Dimensionless', default = 0.01, label = 'relative tolerance',
                               show='self.computeWithIteration')        
     pipeInput = FieldGroup([internalDiameter, externalDiameter, length,    pipeMaterial,
