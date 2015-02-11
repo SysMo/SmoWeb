@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from smo.media.CoolProp.CoolProp import FluidState, Fluid
 
-fluidName = "CarbonDioxide" 
+fluidName = "Water" 
 fState = FluidState(fluidName)
 
 trippCoeff = 1.2
@@ -20,28 +20,36 @@ y_start = f.tripple['T'] * trippCoeff - 273.15
 y_mid = f.critical['T'] - 273.15
 y_end = y_start + 2 * (y_mid - y_start)
 
-
-s_Arr = np.arange(x_start, x_end, (x_end - x_start)/ 200)
-p_Arr = np.arange(f.tripple['p'] * trippCoeff, 2 * f.critical['p'], 
-                  (2 * f.critical['p'] - f.tripple['p'] * trippCoeff)/20)
-
-# s_Arr = np.arange(900, 2200, 10)
-# p_Arr = np.arange(20 * 1e5, 150 * 1e5, 10 * 1e5)
 q_Arr = np.arange(0, 1.1, 0.1)
+s_Arr = np.arange(x_start, x_end, (x_end - x_start)/ 200)
+p_levels = np.logspace(np.log(f.tripple['p'] * trippCoeff), np.log(2 * f.critical['p']), 
+                  num = 60)
+T_Arr = np.arange(y_start + 273.15, y_end + 273.15, (y_end - y_start)/ 250) 
 
+S, T = np.meshgrid(s_Arr, T_Arr)
+p_Arr = np.zeros((len(T_Arr), len(s_Arr)))
 
+for i in range(len(s_Arr)):
+    for j in range(len(T_Arr)):
+        fState.update('S', s_Arr[i], 'T', T_Arr[j])
+        p_Arr[j][i] = fState.p
 
 fig = plt.figure()
 ax1 = plt.gca()
 
+contPlot = ax1.contour(S, T - 273.15, p_Arr, levels = p_levels, colors='blue')
+# ax1.clabel(contPlot, inline_spacing=0, use_clabeltext=True, fontsize=10, fmt="%1.1e")
+
 # Isobars
-for p in p_Arr:
-    T_Arr = np.zeros((len(s_Arr),))
-    for i in range(len(s_Arr)):
-        fState.update_ps(p, s_Arr[i])
-        T_Arr[i] = fState.T
-    ax1.plot(s_Arr, T_Arr - 273.15, label = "p=" + str(p/1e5) + " bar", color = 'b')
+# for p in p_Arr:
+#     T_Arr = np.zeros((len(s_Arr),))
+#     for i in range(len(s_Arr)):
+#         fState.update_ps(p, s_Arr[i])
+#         T_Arr[i] = fState.T
+#     ax1.plot(s_Arr, T_Arr - 273.15, label = "p=" + str(p/1e5) + " bar", color = 'b')
     
+
+
 
 # Vapor quality iso-lines
 for q in q_Arr:
