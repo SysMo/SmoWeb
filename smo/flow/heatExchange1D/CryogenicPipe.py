@@ -196,7 +196,7 @@ class CryogenicPipe(NumericalModel):
 		* conduction along the pipe
 		* ambient radiation to the pipe surface
 	"""
-	label = "Cryogenic pipe"
+	label = "Cryogenic Pipe"
 	
 	# 1. ############ Inputs ###############
 	# 1.1 Input values

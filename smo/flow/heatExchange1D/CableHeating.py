@@ -169,7 +169,7 @@ class CableHeating1D(NumericalModel):
 		* free convection to air at the surface of the wire
 		* conduction along the wire
 	"""
-	label = "Cable heating"
+	label = "Cable Heating"
 
 	# 1. ############ Inputs ###############
 	# 1.1 Input values

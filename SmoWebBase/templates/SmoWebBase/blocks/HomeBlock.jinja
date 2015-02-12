@@ -8,13 +8,13 @@
 				{% if module.showOnHome %}
 					<a href="/{{routerName}}/{{viewClass.name}}?model={{module.name}}"
 							 target="_self">
-						<div class="thumb">
+						<div class="thumb" 
+							{% if hasattr(module, 'description') %} 
+								data-toggle="tooltip" title="{{module.description.text}}" tooltip
+							{% endif %}>
 							<div style="display: table-cell; vertical-align:middle; 
 									height: 115px; width: 160px; margin-top: 10px;">
-								<img {% if hasattr(module, 'description') %} 
-										data-tooltip="{{module.description.text}}" 
-									{% endif %} 
-									{% if hasattr(module, 'figure') %}
+								<img {% if hasattr(module, 'figure') %}
 										src="{{ static(module.figure.src.replace('img', 'img/thumbnails').replace('.svg', '_thumb.png')) }}"
 									{% else %}
 										style="opacity: 0.5; filter: alpha(opacity=50);"

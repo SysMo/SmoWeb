@@ -34,12 +34,12 @@ class ThermodynamicProcessView(ModularPageView):
 	label = "Thermodynamic processes"
 	modules = [ThermodynamicProcess]
 
-from smo.flow.FlowResistance import PipeFlow, PipeFlowDoc
+from .models.PipeFlowModel import PipeFlowModel, PipeFlowDoc
 @registerView(router)
-class FlowResistanceView(ModularPageView):
-	name = "FlowResistance"
-	label = "Flow resistance"
-	modules = [PipeFlow, PipeFlowDoc]
+class PipeFlowView(ModularPageView):
+	name = "PipeFlow"
+	label = "Pipe flow"
+	modules = [PipeFlowModel, PipeFlowDoc]
 
 from smo.flow.FreeConvection import FreeConvection_External, FreeConvection_Internal, FreeConvectionDoc
 @registerView(router)

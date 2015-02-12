@@ -26,7 +26,7 @@ TransitionType = OrderedDict((
 
 class ThermodynamicProcess(NumericalModel):
 	name = "ThermodynamicProcess"
-	label = "Thermodynamic processes"
+	label = "Thermodynamic Processes"
 	
 	# 1. ############ Inputs ###############
 	# 1.1 Input values

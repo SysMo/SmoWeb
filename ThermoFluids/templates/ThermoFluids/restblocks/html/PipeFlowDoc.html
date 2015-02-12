@@ -48,6 +48,10 @@
 <td>inlet mass flow rate</td>
 <td>kg/h</td>
 </tr>
+<tr><td><span class="math">\(T_w\)</span></td>
+<td>pipe temperature</td>
+<td>K</td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -145,8 +149,72 @@ all flow regimes: laminar, transitional and turbulent:</p>
 \end{equation*}
 </div>
 </div>
+<div class="section" id="heat-exchange">
+<h1>4.&nbsp;&nbsp;&nbsp;Heat Exchange</h1>
+<p>Heat exchange can be computed with or without iteration. The steps of the algorithm are:</p>
+<ul>
+<li><p class="first">if we have <span class="math">\(Re\)</span>, we can find <span class="math">\(Nu=f\left(Re,Pr\right)\)</span> as follows:</p>
+<ul class="simple">
+<li>if <span class="math">\(Re&lt;=2300\)</span>, the flow is laminar and <span class="math">\(Nu=3.66\)</span></li>
+<li>for <span class="math">\(1e4&lt;=Re&lt;=1e6\)</span>, the flow is turbulent and the Nusselt number is calculated as <a class="citation-reference" href="#vdi" id="id4">[VDI]</a></li>
+</ul>
+<div class="math">
+\begin{equation*}
+Nu=\frac{\left(\xi/8\right)Re\cdot Pr}{1+12.7\sqrt{\xi/8}\left(Pr^{\frac{2}{3}}-1\right)}
+\end{equation*}
+</div>
+<div class="math">
+\begin{equation*}
+\xi=\left(1.8\cdot\log_{10}Re-1.5\right)^{-2}
+\end{equation*}
+</div>
+<ul class="simple">
+<li>the transition range is for <span class="math">\(2300&lt;Re&lt;1e4\)</span>, in which the value of <span class="math">\(Nu\)</span> is obtained through linear interpolation</li>
+<li><span class="math">\(Re&gt;1e6\)</span> are values outside the range of validity</li>
+</ul>
+</li>
+<li><p class="first">from <span class="math">\(Nu\)</span> the convection coefficient <span class="math">\(\alpha\)</span> is found as</p>
+<div class="math">
+\begin{equation*}
+\alpha=\frac{\lambda\cdot Nu}{d_{i}}
+\end{equation*}
+</div>
+<p>where <span class="math">\(\lambda\)</span> is the thermal conductivity of the fluid</p>
+</li>
+<li><p class="first">the heat flow rate is thus</p>
+<div class="math">
+\begin{equation*}
+\dot{Q}_{w}=\alpha A \Delta T
+\end{equation*}
+</div>
+<p>where <span class="math">\(\Delta T\)</span> is the temperature difference</p>
+</li>
+<li><p class="first">from</p>
+<div class="math">
+\begin{equation*}
+\dot{Q}_{w}=\dot{m}\cdot h_i-\dot{m}\cdot h_o
+\end{equation*}
+</div>
+<p>we find the outlet enthalpy <span class="math">\(h_o\)</span> and obtain
+the value of the outlet temperature <span class="math">\(T_o\)</span> from the fluid state determined by the outlet pressure <span class="math">\(p_o\)</span> and <span class="math">\(h_o\)</span></p>
+</li>
+</ul>
+<p>In the case of computation <em>with iteration</em>, we guess <span class="math">\(T_o\)</span>, compute the fluid properties at mean temperature</p>
+<div class="math">
+\begin{equation*}
+T_{m}=\frac{T_{i}+T_{o}}{2}
+\end{equation*}
+</div>
+<p>and use logarithmic mean temperature difference (LMTD) to caculate the heat exchange:</p>
+<div class="math">
+\begin{equation*}
+\Delta T=\frac{T_{o}-T_{i}}{ln\frac{\left(T_{w}-T_{i}\right)}{\left(T_{w}-T_{o}\right)}}
+\end{equation*}
+</div>
+<p>For computation <em>without iteration</em>, <span class="math">\(\Delta T=T_i-T_w\)</span></p>
+</div>
 <div class="section" id="references">
-<h1>4.&nbsp;&nbsp;&nbsp;References</h1>
+<h1>5.&nbsp;&nbsp;&nbsp;References</h1>
 <table class="docutils citation" frame="void" id="wikip-dff" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
@@ -165,6 +233,12 @@ Chemical Engineering: 91–92.</td></tr>
 <tbody valign="top">
 <tr><td class="label"><a class="fn-backref" href="#id2">[Colebrook39]</a></td><td>Colebrook, C.F. (February 1939). &quot;Turbulent flow in pipes, with particular reference to the
 transition region between smooth and rough pipe laws&quot;. Journal of the Institution of Civil Engineers (London).</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="vdi" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id4">[VDI]</a></td><td>VDI (Verein Deutscher Ingenieure), Heat Atlas, Springer-Verlag, 2010, Part G1: Heat Transfer in Pipe Flow, p.697, eq(26) and (27)</td></tr>
 </tbody>
 </table>
 </div>
