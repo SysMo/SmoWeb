@@ -39,9 +39,9 @@ referenceKeys = OrderedDict((
 
 class FluidProperties(NumericalModel):
 	name = "FluidProperties"
-	label = "Fluid Properties"
+	label = "Fluid Properties (CoolProp)"
 	figure = ModelFigure(src="ThermoFluids/img/StateDiagram3D.svg", height=150, width=250)
-# 	description = ModelDescription('A calculator of fluid properties.', show = False)
+	description = ModelDescription('A fluid properties calculator for liquid, vapor and super-critical states, based on the open source thermodynamic package <a href="http://www.coolprop.org/" >CoolProp</a>', show = True)
 	showOnHome = True
 	
 	############# Inputs ###############

@@ -61,7 +61,7 @@ def buildExtModules():
 	"""
 	with virtualenv():
 		print ("Building CoolProp extension module.....") 
-		with lcd(os.path.join(env.projectRoot, 'smo', 'smoflow3d', 'CoolProp')):
+		with lcd(os.path.join(env.projectRoot, 'smo', 'media', 'CoolProp')):
 			local('python setup.py build_ext --inplace', shell='bash')
 		print ("CoolProp module built successfully!") 
 
