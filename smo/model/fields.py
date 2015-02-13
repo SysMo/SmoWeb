@@ -13,6 +13,7 @@ class Field(object):
 	def __init__(self, label = "", description = "", show = None):
 		"""
 	 	:param str label: the text label used in the user interface usually in front of the field
+	 	:param str description: description to show as tooltip when hovering over the field label
 		:param str show: expression (as a string), which is evaluated on the client side and is used to 
 			dynamically show and hide a field, based on the values of other fields. The
 			other fields in the model are referenced by prefixing them with ``self.``
