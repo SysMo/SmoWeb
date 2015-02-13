@@ -2,6 +2,7 @@ import fields
 from collections import OrderedDict
 import copy
 from smo.model.fields import FieldGroup, ViewGroup
+import os
 
 class ModelView(object):
 	"""
@@ -26,6 +27,9 @@ class ModelFigure(object):
 			raise ValueError('File path missing as first argument.')
 		else:
 			self.src = src
+		srcFolder, fileName = os.path.split(self.src)
+		baseName, ext = os.path.splitext(fileName)
+		self.thumbSrc = os.path.join(srcFolder, 'thumbnails', baseName + '_thumb.png')
 		if (width == None):
 			self.width = 'auto'
 		else:
@@ -37,9 +41,13 @@ class ModelFigure(object):
 			
 class ModelDescription(object):
 	""" Description of the numerical model """
-	def __init__(self, text, show = False):
+	def __init__(self, text, asTooltip = None, show = False):
 		self.text = text
 		self.show = show
+		if (asTooltip is None):
+			self.asTooltip = text
+		else:
+			self.asTooltip = asTooltip
 
 class CodeBlock(object):
 	""" A block of code included in the template """
@@ -73,7 +81,6 @@ class JsBlock(CodeBlock):
 	""" A block of JavaScript code """
 	pass
 
-#TODO: Currently inheritance not supported
 class NumericalModelMeta(type):
 	"""Metaclass facilitating the creation of a numerical
 	model class. Collects all the declared fields in a 

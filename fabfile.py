@@ -132,7 +132,7 @@ def generateThumbnails():
 	for app in env.applicationModules:
 		srcFolder = os.path.join(env.projectRoot, app, 'static', app, 'img')
 		if (os.path.isdir(srcFolder)):
-			for sourceFilePath in glob.glob(os.path.join(srcFolder, '*.svg')):
+			for sourceFilePath in glob.glob(os.path.join(srcFolder, '*.png')):
 				sDir, sName = os.path.split(sourceFilePath)
 				sNameBase, sNameExt = os.path.splitext(sName)
 				outputFilePath = os.path.abspath(os.path.join(sDir.replace('img', os.path.join('img', 'thumbnails')), 

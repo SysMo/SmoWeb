@@ -61,4 +61,47 @@ implemented in CoolProp can be found <a class="reference external" href="http://
 for properties under ceratain conditions (e.g. at a low temperature). Thus, better use pure fluids
 (e.g. Nitrogen) whenever possible.</p>
 </div>
+<div class="section" id="state-diagrams">
+<h1>3.&nbsp;&nbsp;&nbsp;State diagrams</h1>
+<div class="section" id="drawing-isolines">
+<h2>3.1.&nbsp;&nbsp;&nbsp;Drawing isolines</h2>
+<p>The following algorithm is used to trace an isentrop on <em>p-h</em> diagram:</p>
+<ol class="arabic simple">
+<li>Start from a seed poing <span class="math">\(f_0\)</span></li>
+<li>Compute the fluid state based on <em>p</em> and <em>h</em> variables</li>
+<li>Find the direction of the isoline at point <span class="math">\(f_0\)</span></li>
+</ol>
+<div class="math">
+\begin{equation*}
+\frac{\mathrm{d}h}{\mathrm{d}p}=\left(\frac{\partial h}{\partial p}\right)_{s}
+\end{equation*}
+</div>
+<ol class="arabic simple" start="4">
+<li>Select a step <span class="math">\(\Delta p\)</span></li>
+<li>Find the <span class="math">\(\Delta h\)</span>:</li>
+</ol>
+<div class="math">
+\begin{equation*}
+\Delta h=\left(\frac{\partial h}{\partial p}\right)_{s}\Delta p
+\end{equation*}
+</div>
+<ol class="arabic simple" start="6">
+<li>Find the changes  <span class="math">\(\Delta T\)</span> and <span class="math">\(\Delta\rho\)</span>:</li>
+</ol>
+<div class="math">
+\begin{equation*}
+\Delta\rho  =  \left(\frac{\partial\rho}{\partial h}\right)_{p}\Delta h+\left(\frac{\partial\rho}{\partial p}\right)_h\Delta p
+\end{equation*}
+</div>
+<div class="math">
+\begin{equation*}
+\Delta T = \left(\frac{\partial T}{\partial h}\right)_{p}\Delta h+\left(\frac{\partial T}{\partial p}\right)_h\Delta p
+\end{equation*}
+</div>
+<ol class="arabic simple" start="7">
+<li>Compute the fluid state at <span class="math">\(f_1\)</span> by <span class="math">\(T_0 + \Delta T\)</span> and <span class="math">\(\rho_0 + \Delta\rho\)</span></li>
+<li>Go back to 3. using <span class="math">\(f_1\)</span></li>
+</ol>
+</div>
+</div>
 </div>

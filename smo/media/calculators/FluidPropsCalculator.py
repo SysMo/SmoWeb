@@ -15,7 +15,7 @@ from pymongo import MongoClient
 from bson.objectid import ObjectId
 mongoClient = MongoClient()
 db = mongoClient.SmoWeb
-coll = db["FluidProperties"]
+coll = db["PropertyCalculatorCoolprop"]
 
 
 StateVariableOptions = OrderedDict((
@@ -37,11 +37,14 @@ referenceKeys = OrderedDict((
 	('SURFACE_TENSION', 'Surface Tension')
 	))
 
-class FluidProperties(NumericalModel):
-	name = "FluidProperties"
-	label = "Fluid Properties (CoolProp)"
-	figure = ModelFigure(src="ThermoFluids/img/StateDiagram3D.svg", height=150, width=250)
-	description = ModelDescription('A fluid properties calculator for liquid, vapor and super-critical states, based on the open source thermodynamic package <a href="http://www.coolprop.org/" >CoolProp</a>', show = True)
+class PropertyCalculatorCoolprop(NumericalModel):
+	label = "Property calculator"
+	figure = ModelFigure(src="ThermoFluids/img/CoolPropLogo.png", width=150)
+	description = ModelDescription(
+		'A fluid properties calculator for liquid, vapor and super-critical states, \
+		based on the open source thermodynamic package <a href="http://www.coolprop.org/" >CoolProp</a>', 
+		asTooltip ='A fluid properties calculator for liquid, vapor and super-critical states, \
+		based on the open source thermodynamic package CoolProp', show = True)
 	showOnHome = True
 	
 	############# Inputs ###############
@@ -51,15 +54,15 @@ class FluidProperties(NumericalModel):
 	p1 = Quantity('Pressure', default = (1, 'bar'), label = 'pressure',show="self.stateVariable1 == 'P'")
 	T1 = Quantity('Temperature', default = (300, 'K'), label = 'temperature', show="self.stateVariable1 == 'T'")
 	rho1 = Quantity('Density', default = (1, 'kg/m**3'), label = 'density', show="self.stateVariable1 == 'D'")
-	h1 = Quantity('SpecificEnthalpy', default = (1000, 'kJ/kg'), label = 'specific enthalpy', show="self.stateVariable1 == 'H'")
-	s1 = Quantity('SpecificEntropy', default = (100, 'kJ/kg-K'), label = 'specific entropy', show="self.stateVariable1 == 'S'")
+	h1 = Quantity('SpecificEnthalpy', default = (1000, 'kJ/kg'), minValue = -1e99, label = 'specific enthalpy', show="self.stateVariable1 == 'H'")
+	s1 = Quantity('SpecificEntropy', default = (100, 'kJ/kg-K'), minValue = -1e99, label = 'specific entropy', show="self.stateVariable1 == 'S'")
 	q1 = Quantity('VaporQuality', default = (1, '-'), minValue = 0, maxValue = 1, label = 'vapour quality', show="self.stateVariable1 == 'Q'")
 	stateVariable2 = Choices(options = StateVariableOptions, default = 'T', label = 'second state variable')
 	p2 = Quantity('Pressure', default = (1, 'bar'), label = 'pressure', show="self.stateVariable2 == 'P'")
 	T2 = Quantity('Temperature', default = (300, 'K'), label = 'temperature', show="self.stateVariable2 == 'T'")
 	rho2 = Quantity('Density', default = (1, 'kg/m**3'), label = 'density', show="self.stateVariable2 == 'D'")
-	h2 = Quantity('SpecificEnthalpy', default = (1000, 'kJ/kg'), label = 'specific enthalpy', show="self.stateVariable2 == 'H'")
-	s2 = Quantity('SpecificEntropy', default = (100, 'kJ/kg-K'), label = 'specific entropy', show="self.stateVariable2 == 'S'")
+	h2 = Quantity('SpecificEnthalpy', default = (1000, 'kJ/kg'), minValue = -1e99, label = 'specific enthalpy', show="self.stateVariable2 == 'H'")
+	s2 = Quantity('SpecificEntropy', default = (100, 'kJ/kg-K'), minValue = -1e99, label = 'specific entropy', show="self.stateVariable2 == 'S'")
 	q2 = Quantity('VaporQuality', default = (1, '-'), minValue = 0, maxValue = 1, label = 'vapour quality', show="self.stateVariable2 == 'Q'")
 	####
 	stateGroup1 = FieldGroup([fluidName], label = 'Fluid')
@@ -204,7 +207,7 @@ class FluidProperties(NumericalModel):
 	
 	@staticmethod	
 	def test():
-		fc = FluidProperties()
+		fc = PropertyCalculatorCoolprop()
 		fc.fluidName = 'ParaHydrogen'
 		fc.stateVariable1 = 'P'
 		fc.p1 = 700e5
@@ -215,10 +218,10 @@ class FluidProperties(NumericalModel):
 		print fc.rho
 
 class FluidInfo(NumericalModel):
-	name = "FluidInfo"
 	label = "Fluid Info"
-# 	description = ModelDescription('Critical point, triple point, fluid limits and other fluid constants.', 
-# 								show = False)
+#	figure = ModelFigure(src="ThermoFluids/img/StateDiagram3D.svg", height=150, width=250)
+	description = ModelDescription('Critical point, triple point, fluid limits, other fluid constants, data sources.')
+	figure = ModelFigure(src="ThermoFluids/img/CoolPropLogo.png", width=150)
 	
 	############# Inputs ###############
 	# Fields
@@ -309,8 +312,9 @@ class FluidInfo(NumericalModel):
 		return refList
 
 class SaturationData(NumericalModel):
-	name = "SaturationData"
 	label = "Saturation Data"
+	figure = ModelFigure(src="ThermoFluids/img/CoolPropLogo.png", width=150)
+	description = ModelDescription('Evaporation and condensation data')
 	
 	############# Inputs ###############
 	# Fields
@@ -395,7 +399,7 @@ class FluidPropertiesDoc(RestBlock):
 	label = 'Fluid Properties (Docs)'
 		
 if __name__ == '__main__':
-# 	FluidProperties.test()
+# 	PropertyCalculatorCoolprop.test()
 # 	print getFluidConstants()
 # 	print getLiteratureReferences()
 	FluidInfo.test()
