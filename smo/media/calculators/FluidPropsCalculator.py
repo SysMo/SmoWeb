@@ -39,7 +39,7 @@ referenceKeys = OrderedDict((
 
 class PropertyCalculatorCoolprop(NumericalModel):
 	label = "Property calculator"
-	figure = ModelFigure(src="ThermoFluids/img/CoolPropLogo.png", width=150)
+	figure = ModelFigure(src="ThermoFluids/img/ModuleImages/CoolPropLogo.png", width=150)
 	description = ModelDescription(
 		'A fluid properties calculator for liquid, vapor and super-critical states, \
 		based on the open source thermodynamic package <a href="http://www.coolprop.org/" >CoolProp</a>', 
@@ -221,7 +221,7 @@ class FluidInfo(NumericalModel):
 	label = "Fluid Info"
 #	figure = ModelFigure(src="ThermoFluids/img/StateDiagram3D.svg", height=150, width=250)
 	description = ModelDescription('Critical point, triple point, fluid limits, other fluid constants, data sources.')
-	figure = ModelFigure(src="ThermoFluids/img/CoolPropLogo.png", width=150)
+	figure = ModelFigure(src="ThermoFluids/img/ModuleImages/CoolPropLogo.png", width=150)
 	
 	############# Inputs ###############
 	# Fields
@@ -313,7 +313,7 @@ class FluidInfo(NumericalModel):
 
 class SaturationData(NumericalModel):
 	label = "Saturation Data"
-	figure = ModelFigure(src="ThermoFluids/img/CoolPropLogo.png", width=150)
+	figure = ModelFigure(src="ThermoFluids/img/ModuleImages/CoolPropLogo.png", width=150)
 	description = ModelDescription('Evaporation and condensation data')
 	
 	############# Inputs ###############

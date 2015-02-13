@@ -6,7 +6,7 @@ from smo.flow.PipeFlow import PipeFlow
 
 class PipeFlowModel(NumericalModel):
     label = "Pipe Flow"
-    figure = ModelFigure(src="ThermoFluids/img/StraightPipe.svg")
+    figure = ModelFigure(src="ThermoFluids/img/ModuleImages/StraightPipe.svg")
     
     ############# Inputs ###############
     # Fields

@@ -2,7 +2,7 @@
 SmoWeb architecture overview
 ============================
 
-.. figure :: _static/img/smoweb_components.svg
+.. figure :: _static/img/smoweb_components.*
    :width: 1000px
    :align: center
 

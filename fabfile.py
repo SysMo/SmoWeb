@@ -125,17 +125,27 @@ def convertToPng():
 				outputFilePath = os.path.abspath(os.path.join(sDir, sNameBase +'.png'))
 				local('convert ' + sourceFilePath + ' -transparent white ' + outputFilePath)
 				
+	srcFolder = os.path.join(env.projectRoot, 'doc', 'public', 'source', '_static')
+	for subFolderTuple in os.walk(srcFolder):
+		subFolderPath = subFolderTuple[0]
+		for sourceFilePath in glob.glob(os.path.join(subFolderPath, '*.svg')):
+			sDir, sName = os.path.split(sourceFilePath)
+			sNameBase, sNameExt = os.path.splitext(sName)
+			outputFilePath = os.path.abspath(os.path.join(sDir, sNameBase +'.png'))
+			local('convert ' + sourceFilePath + ' -transparent white ' + outputFilePath)
+				
 def generateThumbnails():
 	"""
-	Creates .png thumbnail files from all numerical model images.
+	Creates .png thumbnail files from all .png module images.
 	"""
 	for app in env.applicationModules:
-		srcFolder = os.path.join(env.projectRoot, app, 'static', app, 'img')
+		srcFolder = os.path.join(env.projectRoot, app, 'static', app, 'img', 'ModuleImages')
 		if (os.path.isdir(srcFolder)):
 			for sourceFilePath in glob.glob(os.path.join(srcFolder, '*.png')):
 				sDir, sName = os.path.split(sourceFilePath)
 				sNameBase, sNameExt = os.path.splitext(sName)
-				outputFilePath = os.path.abspath(os.path.join(sDir.replace('img', os.path.join('img', 'thumbnails')), 
+				outputFilePath = os.path.abspath(os.path.join(sDir.replace(
+												'ModuleImages', os.path.join('ModuleImages', 'thumbnails')), 
 												sNameBase + '_thumb.png'))
 				local('convert ' + sourceFilePath + ' -thumbnail 150x100 ' + outputFilePath)
 

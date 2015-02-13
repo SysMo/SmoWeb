@@ -50,7 +50,7 @@ from collections import OrderedDict
 class HeatPump(NumericalModel):
 	name = "HeatPump"
 	label = "Heat Pump"
-	figure = ModelFigure(src="ThermoFluids/img/HeatPump.svg")
+	figure = ModelFigure(src="ThermoFluids/img/ModuleImages/HeatPump.svg")
 # 	description = ModelDescription('Heat Pump.', show = False)
 	
 	############# Inputs ###############
