@@ -65,12 +65,10 @@ def hdfInterfaceView(request):
 
 
 class DataExplorer(HtmlModule):
-	name = 'DataExplorer'
 	srcType = 'file'
 
 @registerView(router)
 class DataExplorerView(ModularPageView):
-	name = 'DataExplorer'
 	label = 'Data Explorer'
 	modules = [DataExplorer]
 	
@@ -80,12 +78,10 @@ class DataExplorerView(ModularPageView):
 # 								  context_instance=RequestContext(request))
 
 class ImportCsv(HtmlModule):
-	name = 'ImportCsv'
 	srcType = 'file'
 
 @registerView(router)
 class ImportCsvView(ModularPageView):
-	name = 'ImportCsv'
 	label = 'Import CSV'
 	modules = [ImportCsv]
 	

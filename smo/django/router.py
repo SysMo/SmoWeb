@@ -52,7 +52,7 @@ def registerView(router, **kwargs):
 		if ('path' in kwargs):
 			path = kwargs['path']
 		else:
-			path = klass.name
+			path = klass.__name__
 		router.pages[path] = klass
 		return klass
 	return registerViewDecorator

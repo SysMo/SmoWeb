@@ -52,13 +52,13 @@ Page modules may be one of the following types:
 
    An active `HtmlModule` module 
 
-:class:`RestBlock`
-------------------
+:class:`RestModule`
+-------------------
 
-.. autoclass:: RestBlock
+.. autoclass:: RestModule
 
 .. figure:: _static/server/img/company_module.png
    :width: 600px
    :align: center
 
-   An active `RestBlock` module 
+   An active `RestModule` module 

@@ -1,4 +1,4 @@
-from smo.model.model import NumericalModel, ModelView, RestBlock, HtmlBlock, ModelFigure, ModelDescription
+from smo.model.model import NumericalModel, ModelView, RestModule, HtmlBlock, ModelFigure, ModelDescription
 from smo.model.actions import ServerAction, ActionBar
 from smo.model.fields import *
 from smo.media.MaterialData import Solids, Fluids
@@ -90,7 +90,7 @@ class PipeFlowModel(NumericalModel):
     def compute(self):
         PipeFlow.compute(self)
 
-class PipeFlowDoc(RestBlock):
+class PipeFlowDoc(RestModule):
     name = 'PipeFlowDoc'
     label = 'Pipe Flow (Docs)'
     template = 'documentation/html/PipeFlowDoc.html'

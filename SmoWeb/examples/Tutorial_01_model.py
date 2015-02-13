@@ -1,4 +1,4 @@
-from smo.model.model import NumericalModel, ModelView, RestBlock
+from smo.model.model import NumericalModel, ModelView, RestModule
 from smo.model.actions import ServerAction, ActionBar
 from smo.model.fields import *
 import numpy as np
@@ -49,7 +49,7 @@ class AreaCalculator(NumericalModel):
 	def compute(self):
 		self.area = self.width * self.length
 
-class AreaCalculatorDoc(RestBlock):
+class AreaCalculatorDoc(RestModule):
 	name = 'AreaCalculatorDoc'
 	label = 'Area Calculator (Docs)'
 	template = 'documentation/html/AreaCalculatorDoc.html'

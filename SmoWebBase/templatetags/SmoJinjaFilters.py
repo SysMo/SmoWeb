@@ -2,8 +2,8 @@ from django_jinja import library
 from SmoWeb.settings import BASE_DIR, STATIC_URL
 
 @library.filter
-def getRestBlockUrl(module, pageView):
-    return pageView.router.name + "/restblocks/html/" + module.name + ".html"
+def getRestModuleUrl(module, pageView):
+    return pageView.router.name + "/restblocks/html/" + module.__name__ + ".html"
 
 @library.filter
 def getBlockUrl(block, pageView):

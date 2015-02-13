@@ -3,7 +3,7 @@ Created on Nov 27, 2014
 
 @author: Atanas Pavlov
 '''
-from smo.model.model import NumericalModel, ModelView, RestBlock
+from smo.model.model import NumericalModel, ModelView, RestModule
 from smo.model.actions import ServerAction, ActionBar
 from smo.model.fields import *
 import numpy as np
@@ -390,7 +390,7 @@ class FreeConvection_Internal(NumericalModel):
 		self.alpha = self.Nu * self.cond / s
 		self.QDot = self.area * self.alpha * self.deltaT
 
-class FreeConvectionDoc(RestBlock):
+class FreeConvectionDoc(RestModule):
 	name = 'FreeConvectionDoc'
 	label = 'Free Convection (Docs)'
 	template = 'documentation/html/FreeConvectionDoc.html'	

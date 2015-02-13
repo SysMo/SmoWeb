@@ -86,11 +86,9 @@ class NumericalModelMeta(type):
 	model class. Collects all the declared fields in a 
 	dictionary ``self.declared_fields``"""
 	def __new__(cls, name, bases, attrs):
-		# Name and label
-		if ('name' not in attrs):
-			attrs['name'] = name 
+		# Label
 		if ('label' not in attrs):
-			attrs['label'] = attrs['name']
+			attrs['label'] = name
 		if ('showOnHome' not in attrs):
 			attrs['showOnHome'] = True
 		# Collect fields from current class.
@@ -138,7 +136,7 @@ class NumericalModelMeta(type):
 		# Checking for obligatory attribute 'modelBlocks'
 		if (name  != 'NumericalModel'):
 			if ('modelBlocks' not in new_class.__dict__):
-				raise AttributeError("Page structure undefined. Class {0} must have attribute 'modelBlocks'.".format(new_class.__name__))
+				raise AttributeError("Page structure undefined. Class {0} must have attribute 'modelBlocks'.".format(name))
 		
 		return new_class
 
@@ -147,7 +145,6 @@ class NumericalModel(object):
 	Abstract base class for numerical models.
 	
 	Class attributes:
-		* :attr:`name`: name of the numerical model class (default is the numerical model class name)
 		* :attr:`label`: label for the numerical model class (default is the numerical model class name), shows as title and thumbnail text for the model
 		* :attr:`showOnHome`: used to specify if a thumbnail of the model is to show on the home page (default is True)
 		* :attr:`figure`: ModelFigure object representing a figure, displayed on the page module of the model and on its thumbnail
@@ -254,7 +251,7 @@ class NumericalModel(object):
 			field = self.declared_fields[key]
 			self.__dict__[key] = field.parseValue(value)	
 
-class RestBlock(object):
+class RestModule(object):
 	""" Page module generated from a restructured text document """
 	pass
 
