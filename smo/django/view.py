@@ -145,6 +145,11 @@ class ModularPageView(object):
 		parameters = request.GET
 		modelView = None
 		self.recordIdDict = {}
+		if (hasattr(self, 'modules') and len(self.modules) > 0):
+			self.activeModule = None
+		else:
+			raise ValueError('This page defines no modules')
+		
 		if ('model' in parameters):
 			modelName = parameters['model']
 			# find the active module 
@@ -168,8 +173,7 @@ class ModularPageView(object):
 						recordId = parameters['id']
 						self.recordIdDict[modelView] = recordId
 		else:
-			if (hasattr(self, 'modules') and len(self.modules) > 0):
-				self.activeModule = self.modules[0]
+			self.activeModule = self.modules[0]
 		
 		context = {"pageView": self}
 		context.update(JINJA_TEMPLATE_IMPORTS)

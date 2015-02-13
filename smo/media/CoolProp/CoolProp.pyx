@@ -1,5 +1,6 @@
 from libcpp.string cimport string
 from libcpp cimport bool
+from numpy.math cimport INFINITY
 cimport CoolProp_Imports as CP
 
 cdef class Fluid:
@@ -172,6 +173,26 @@ cdef class FluidState:
 		def __get__(self):
 			return self.ptr.cv()
 
+####################################################################
+# Functions safe to use in 2-phase
+	property dvdp_T:
+		def __get__(self):		
+			cdef double _dvdp_constT
+			if (self.ptr.TwoPhase):
+				_dvdp_constT = INFINITY
+			else:
+				_dvdp_constT = self.ptr.dvdp_constT()
+			return _dvdp_constT
+
+	property dvdT_p:
+		def __get__(self):		
+			cdef double _dvdT_constp
+			if (self.ptr.TwoPhase):
+				_dvdT_constp = INFINITY
+			else:
+				_dvdT_constp = self.ptr.dvdT_constp()
+			return _dvdT_constp
+####################################################################
 	property dpdt_v:	
 		def __get__(self):		
 			cdef double _dpdt_v
@@ -198,6 +219,10 @@ cdef class FluidState:
 			else:
 				_dpdrho_t = self.ptr.dpdrho_constT();
 			return _dpdrho_t
+####################################################################
+####################################################################
+####################################################################
+####################################################################
 			
 	property dpdt_sat:	
 		def __get__(self):

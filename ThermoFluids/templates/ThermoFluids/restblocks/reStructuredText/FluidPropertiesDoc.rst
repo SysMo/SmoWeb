@@ -70,3 +70,34 @@ implemented in CoolProp can be found `here <http://www.coolprop.org/FluidInforma
 for properties under ceratain conditions (e.g. at a low temperature). Thus, better use pure fluids 
 (e.g. Nitrogen) whenever possible.
 
+--------------
+State diagrams
+--------------
+
+Drawing isolines
+----------------
+
+The following algorithm is used to trace an isentrop on *p-h* diagram:
+
+1. Start from a seed poing :math:`f_0`
+2. Compute the fluid state based on *p* and *h* variables
+3. Find the direction of the isoline at point :math:`f_0`
+
+.. math::
+   \frac{\mathrm{d}h}{\mathrm{d}p}=\left(\frac{\partial h}{\partial p}\right)_{s}
+
+4. Select a step :math:`\Delta p`
+5. Find the :math:`\Delta h`:
+
+.. math::
+   \Delta h=\left(\frac{\partial h}{\partial p}\right)_{s}\Delta p
+   
+6. Find the changes  :math:`\Delta T` and :math:`\Delta\rho`:
+
+.. math::
+   \Delta\rho  =  \left(\frac{\partial\rho}{\partial h}\right)_{p}\Delta h+\left(\frac{\partial\rho}{\partial p}\right)_h\Delta p
+   
+   \Delta T = \left(\frac{\partial T}{\partial h}\right)_{p}\Delta h+\left(\frac{\partial T}{\partial p}\right)_h\Delta p
+   
+7. Compute the fluid state at :math:`f_1` by :math:`T_0 + \Delta T` and :math:`\rho_0 + \Delta\rho`
+8. Go back to 3. using :math:`f_1`

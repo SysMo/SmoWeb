@@ -90,6 +90,7 @@ angular.module('{{pageView.name}}', ['smo'])
 		{% for module in pageView.modules %}
 			<div class="tab-pane page-container {% if pageView|isActive(module) %}active{% endif %}" id="{{module.name}}Content">
 				{% if issubclass(module, smo.model.model.NumericalModel) %}
+					{% autoescape false %}
 					<h1 class="title">{{module.label}}</h1>
 					<div class="presentation">
 						{% if hasattr(module, 'figure') %}
@@ -105,6 +106,7 @@ angular.module('{{pageView.name}}', ['smo'])
 							{% endif %}
 						{% endif %}
 					</div>
+					{% endautoescape %}
 					{% for block in module.modelBlocks %}
 						<div class="section">			
 							{% if isinstance(block, smo.model.model.ModelView) %}

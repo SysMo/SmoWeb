@@ -66,6 +66,7 @@ cdef extern from "SmoFlowMediaExt.h":
 		void update(long iInput1, double Value1, 
 				long iInput2, double Value2, 
 				double T0, double rho0) except +
+
 		double T()
 		double rho()
 		double p()
@@ -77,11 +78,53 @@ cdef extern from "SmoFlowMediaExt.h":
 		double speed_sound()
 		double isothermal_compressibility()
 		double isobaric_expansion_coefficient()
-		double dpdT_constrho()
-		double dpdrho_constT()
 		double dTdp_along_sat()
+
+		double dvdp_constT()
 		double dvdT_constp()
 	
+		double drhodT_constp()
+		double drhodp_constT()
+# 		double d2rhodp2_constT()
+# 		double d2rhodTdp()
+# 		double d2rhodT2_constp()
+# 		double d2rhodhdQ()
+# 		double d2rhodpdQ()
+# 		double d2rhodhdp()
+# 		double d2rhodh2_constp()
+		
+		double dpdrho_constT()
+		double dpdrho_consth()
+		double dpdT_constrho()
+		double dpdT_consth()
+# 		double d2pdrho2_constT()
+# 		double d2pdrhodT()
+# 		double d2pdT2_constrho()
+	
+		double dhdrho_constT()
+		double dhdrho_constp()
+		double dhdT_constrho()
+		double dhdT_constp()
+		double dhdp_constT()
+# 		double d2hdrho2_constT()
+# 		double d2hdrhodT()
+# 		double d2hdT2_constrho()
+# 		double d2hdT2_constp()
+# 		double d2hdp2_constT()
+# 		double d2hdTdp()
+	
+		double dsdrho_constT()
+		double dsdT_constrho()
+		double dsdrho_constp()
+		double dsdT_constp()
+		double dsdp_constT()
+# 		double d2sdrho2_constT()
+# 		double d2sdrhodT()
+# 		double d2sdT2_constrho()
+# 		double d2sdT2_constp()
+# 		double d2sdp2_constT()
+# 		double d2sdTdp()
+
 		double viscosity()
 		double conductivity()
 		double Prandtl()

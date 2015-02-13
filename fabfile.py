@@ -61,7 +61,7 @@ def buildExtModules():
 	"""
 	with virtualenv():
 		print ("Building CoolProp extension module.....") 
-		with lcd(os.path.join(env.projectRoot, 'smo', 'smoflow3d', 'CoolProp')):
+		with lcd(os.path.join(env.projectRoot, 'smo', 'media', 'CoolProp')):
 			local('python setup.py build_ext --inplace', shell='bash')
 		print ("CoolProp module built successfully!") 
 
@@ -132,7 +132,7 @@ def generateThumbnails():
 	for app in env.applicationModules:
 		srcFolder = os.path.join(env.projectRoot, app, 'static', app, 'img')
 		if (os.path.isdir(srcFolder)):
-			for sourceFilePath in glob.glob(os.path.join(srcFolder, '*.svg')):
+			for sourceFilePath in glob.glob(os.path.join(srcFolder, '*.png')):
 				sDir, sName = os.path.split(sourceFilePath)
 				sNameBase, sNameExt = os.path.splitext(sName)
 				outputFilePath = os.path.abspath(os.path.join(sDir.replace('img', os.path.join('img', 'thumbnails')), 
