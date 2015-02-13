@@ -3,6 +3,13 @@ Modular page view
 =================
 .. module:: smo.django.view
 
+-----------------------
+Page structure overview
+-----------------------
+
+.. figure:: _static/server/img/pageorganizationalstructure.*
+   :width: 600px
+
 --------------
 Creating pages
 --------------

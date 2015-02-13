@@ -125,7 +125,7 @@ def convertToPng():
 				outputFilePath = os.path.abspath(os.path.join(sDir, sNameBase +'.png'))
 				local('convert ' + sourceFilePath + ' -transparent white ' + outputFilePath)
 				
-	srcFolder = os.path.join(env.projectRoot, 'doc', 'public', 'source', '_static')
+	srcFolder = os.path.join(env.projectRoot, 'doc', 'public', 'source')
 	for subFolderTuple in os.walk(srcFolder):
 		subFolderPath = subFolderTuple[0]
 		for sourceFilePath in glob.glob(os.path.join(subFolderPath, '*.svg')):
