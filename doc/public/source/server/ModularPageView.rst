@@ -1,7 +1,7 @@
 =================
 Modular page view
 =================
-.. module:: smo.django.view
+.. module:: smo.web.view
 
 -----------------------
 Page structure overview
@@ -47,6 +47,7 @@ Page modules may be one of the following types:
 
    An active :class:`NumericalModel` module 
 
+.. module:: smo.web.modules
 
 :class:`HtmlModule`
 -------------------

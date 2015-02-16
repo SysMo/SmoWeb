@@ -1,7 +1,8 @@
 from smo.model.quantity import Quantities
-from smo.django.view import action, ModularPageView
-from smo.django.router import ViewRouter, registerView
-from smo.model.model import HtmlModule, HtmlBlock, JsBlock, RestModule
+from smo.web.view import action, ModularPageView
+from smo.web.router import ViewRouter, registerView
+from smo.web.modules import HtmlModule, RestModule
+from smo.web.blocks import HtmlBlock, JsBlock
 import SmoWebBase
 
 router = ViewRouter('SmoWebBase', SmoWebBase)

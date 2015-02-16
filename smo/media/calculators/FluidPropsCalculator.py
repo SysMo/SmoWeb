@@ -2,11 +2,12 @@
 Created on Nov 05, 2014
 @author: Atanas Pavlov
 '''
-import numpy as np
 from collections import OrderedDict
-from smo.model.model import NumericalModel, ModelView, RestModule, HtmlBlock, ModelFigure, ModelDescription
+from smo.model.model import NumericalModel
 from smo.model.actions import ServerAction, ActionBar
 from smo.model.fields import *
+from smo.web.blocks import HtmlBlock
+from smo.web.modules import RestModule
 from smo.media.CoolProp.CoolProp import Fluid, FluidState
 from smo.media.MaterialData import Fluids
 from smo.media.CoolProp.CoolPropReferences import References

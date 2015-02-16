@@ -1,7 +1,7 @@
 from quantity import Quantities
-import json
+import os
 import numpy as np
-from smo.django.exceptions import *
+from smo.web.exceptions import *
 
 class Field(object):
 	"""
@@ -426,6 +426,7 @@ class TableView(Field):
 		extendedData.insert(0, self.dataLabels)
 		return extendedData
 
+# Left for reference for future implementation!!!
 # from pymongo import MongoClient
 # from bson.objectid import ObjectId
 # mongoClient = MongoClient()
@@ -607,7 +608,48 @@ class SuperGroup(Group):
 	def __init__(self, groups = None, *args, **kwargs):
 		super(SuperGroup, self).__init__(*args, **kwargs)
 		self.groups = [] if (groups is None) else groups
-		
 
+class ModelView(object):
+	"""
+	Represents a view of the numerical model, comprised of super-groups and a bar of buttons for performing actions.
+	
+	:param str ioType: the type of the view. It may be *input*, 
+		requiring the user to enter input data, or *output*, displaying the results of the computation
+	:param list superGroups: a list of ``SuperGroup`` objects
+	:param ActionBar actionBar: an ``ActionBar`` object	
+	:param bool autoFetch: used to specify whether the view should be loaded automatically at the client
+	"""
+	def __init__(self, ioType, superGroups, actionBar = None, autoFetch = False):
+		self.ioType = ioType
+		self.superGroups = superGroups
+		self.actionBar = actionBar
+		self.autoFetch = autoFetch
 		
-		
+class ModelFigure(object):
+	""" Represents a figure displayed with the numerical model """
+	def __init__(self, src = None, width = None, height = None):
+		if (src == None):
+			raise ValueError('File path missing as first argument.')
+		else:
+			self.src = src
+		srcFolder, fileName = os.path.split(self.src)
+		baseName, ext = os.path.splitext(fileName)
+		self.thumbSrc = os.path.join(srcFolder, 'thumbnails', baseName + '_thumb.png')
+		if (width == None):
+			self.width = 'auto'
+		else:
+			self.width= width
+		if (height == None):
+			self.height = 'auto'
+		else:
+			self.height= height
+			
+class ModelDescription(object):
+	""" Description of the numerical model """
+	def __init__(self, text, asTooltip = None, show = False):
+		self.text = text
+		self.show = show
+		if (asTooltip is None):
+			self.asTooltip = text
+		else:
+			self.asTooltip = asTooltip

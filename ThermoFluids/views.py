@@ -1,6 +1,6 @@
-from smo.django.view import ModularPageView
-from smo.django.view import action
-from smo.django.router import ViewRouter, registerView
+from smo.web.view import ModularPageView
+from smo.web.view import action
+from smo.web.router import ViewRouter, registerView
 from pymongo import MongoClient
 import ThermoFluids
 
@@ -8,7 +8,8 @@ mongoClient = MongoClient()
 
 router = ViewRouter('ThermoFluids', ThermoFluids)
 
-from smo.media.calculators.FluidPropsCalculator import PropertyCalculatorCoolprop, FluidInfo, SaturationData, FluidPropertiesDoc
+from smo.media.calculators.FluidPropsCalculator import PropertyCalculatorCoolprop, FluidInfo, SaturationData,\
+FluidPropertiesDoc
 @registerView(router)
 class FluidPropsCalculatorView(ModularPageView):
 	label = 'Fluid properties (CoolProp)'

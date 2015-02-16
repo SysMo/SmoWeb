@@ -5,7 +5,6 @@ except Exception:
 	pass
 import scipy.interpolate
 import math
-import json
 from smo.media.CoolProp.CoolProp import FluidState
 
 TOutRec = []

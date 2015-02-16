@@ -3,10 +3,10 @@ Created on Nov 27, 2014
 
 @author: Atanas Pavlov
 '''
-from smo.model.model import NumericalModel, ModelView, RestModule
+from smo.model.model import NumericalModel
 from smo.model.actions import ServerAction, ActionBar
 from smo.model.fields import *
-import numpy as np
+from smo.web.modules import RestModule
 from smo.media.MaterialData import Fluids
 from smo.media.CoolProp.CoolProp import Fluid, FluidState
 from collections import OrderedDict

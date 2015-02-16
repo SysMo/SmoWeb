@@ -1,85 +1,7 @@
 import fields
 from collections import OrderedDict
-import copy
-from smo.model.fields import FieldGroup, ViewGroup
-import os
-
-class ModelView(object):
-	"""
-	Represents a view of the numerical model, comprised of super-groups and a bar of buttons for performing actions.
-	
-	:param str ioType: the type of the view. It may be *input*, 
-		requiring the user to enter input data, or *output*, displaying the results of the computation
-	:param list superGroups: a list of ``SuperGroup`` objects
-	:param ActionBar actionBar: an ``ActionBar`` object	
-	:param bool autoFetch: used to specify whether the view should be loaded automatically at the client
-	"""
-	def __init__(self, ioType, superGroups, actionBar = None, autoFetch = False):
-		self.ioType = ioType
-		self.superGroups = superGroups
-		self.actionBar = actionBar
-		self.autoFetch = autoFetch
-
-class ModelFigure(object):
-	""" Represents a figure displayed with the numerical model """
-	def __init__(self, src = None, width = None, height = None):
-		if (src == None):
-			raise ValueError('File path missing as first argument.')
-		else:
-			self.src = src
-		srcFolder, fileName = os.path.split(self.src)
-		baseName, ext = os.path.splitext(fileName)
-		self.thumbSrc = os.path.join(srcFolder, 'thumbnails', baseName + '_thumb.png')
-		if (width == None):
-			self.width = 'auto'
-		else:
-			self.width= width
-		if (height == None):
-			self.height = 'auto'
-		else:
-			self.height= height
-			
-class ModelDescription(object):
-	""" Description of the numerical model """
-	def __init__(self, text, asTooltip = None, show = False):
-		self.text = text
-		self.show = show
-		if (asTooltip is None):
-			self.asTooltip = text
-		else:
-			self.asTooltip = asTooltip
-
-class CodeBlock(object):
-	""" A block of code included in the template """
-	def __init__(self, srcType = None, src = None):
-		if (srcType == None):
-			self.srcType = 'string'
-			if (src == None):
-				self.src = ''
-			else:
-				self.src = src
-		elif (srcType == 'file'):
-			self.srcType = srcType
-			if (src == None):
-				raise ValueError('File path missing as second argument.')
-			else:
-				self.src = src
-		elif (srcType == 'string'):
-			self.srcType = srcType
-			if (src == None):
-				self.src = ''
-			else:
-				self.src = src
-		else:
-			raise ValueError("Valid source types are 'string' and 'file'.")
-			
-class HtmlBlock(CodeBlock):
-	""" A block of HTML code """
-	pass
-
-class JsBlock(CodeBlock):
-	""" A block of JavaScript code """
-	pass
+from smo.model.fields import FieldGroup, ViewGroup, ModelView 
+from smo.web.blocks import HtmlBlock, JsBlock
 
 class NumericalModelMeta(type):
 	"""Metaclass facilitating the creation of a numerical
@@ -103,7 +25,7 @@ class NumericalModelMeta(type):
 				value._name = key
 			elif isinstance(value, ModelView):
 				value.name = key
-			elif isinstance(value, HtmlBlock):
+			elif isinstance(value, HtmlBlock) or isinstance(value, JsBlock):
 				value.name = key
 				
 		current_fields.sort(key=lambda x: x[1].creation_counter)
@@ -236,7 +158,7 @@ class NumericalModel(object):
 		jsonObject['fields'] = fieldList
 		return jsonObject
 	
-	
+# Left if needed in the future	
 # 	def fieldValues2Json(self):
 # 		jsonObject = {}
 # 		for name, field in self.declared_fields.iteritems():
@@ -249,12 +171,4 @@ class NumericalModel(object):
 		"""
 		for key, value in jsonDict.iteritems():
 			field = self.declared_fields[key]
-			self.__dict__[key] = field.parseValue(value)	
-
-class RestModule(object):
-	""" Page module generated from a restructured text document """
-	pass
-
-class HtmlModule(object):
-	""" Page module consisting of blocks of HTML and JavaScript code """
-	pass
+			self.__dict__[key] = field.parseValue(value)

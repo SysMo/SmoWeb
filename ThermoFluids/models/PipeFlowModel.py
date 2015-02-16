@@ -1,6 +1,7 @@
-from smo.model.model import NumericalModel, ModelView, RestModule, HtmlBlock, ModelFigure, ModelDescription
+from smo.model.model import NumericalModel
 from smo.model.actions import ServerAction, ActionBar
 from smo.model.fields import *
+from smo.web.modules import RestModule
 from smo.media.MaterialData import Solids, Fluids
 from smo.flow.PipeFlow import PipeFlow
 
