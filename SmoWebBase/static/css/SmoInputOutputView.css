@@ -56,11 +56,6 @@
 .nav-tabs.super-group {
 }
 .super-group {
-/* 	border-style: solid;  */
-/* 	border-color: #777;  */
-/* 	border-width: 1px;  */
-/* 	padding-left: 20px; */
-/* 	padding-bottom: 20px; */
 	overflow: auto;
 }
 
@@ -79,6 +74,7 @@
 }
 
 
+/* Tabs */
 [smo-super-group-set] > .nav-tabs > li > a, 
 [smo-super-group-set] > .nav-tabs > li.active > a, 
 [smo-super-group-set] > .nav-tabs > li.active > a:hover, 
@@ -88,16 +84,21 @@
 	color: black;
 }
 
+/* Inactive tabs */
 [smo-super-group-set] > .nav-tabs > li > a {
 	border: none;
 }
 
-/* Inactive tabs */
 [smo-super-group-set] > li > a, #FluidPointTabs.nav-tabs > li > a:hover, #FluidPointTabs.nav-tabs > li > a:focus {
 	cursor: pointer;
 }
 
 /* Active tab */
+/* Overriding bootstrap border-style */
+.nav-tabs > li.active > a:hover {
+	border-style: none;
+}
+
 [smo-super-group-set] > .nav-tabs > li.active > a, #FluidPointTabs.nav-tabs > li.active > a {
 	border-left: 2px solid #0875CA;
 	border-top: 2px solid #0875CA;
