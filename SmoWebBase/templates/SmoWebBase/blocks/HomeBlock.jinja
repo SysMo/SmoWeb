@@ -6,7 +6,7 @@
 		{% for module in viewClass.modules %}
 			{% if issubclass(module, smo.model.model.NumericalModel) %}
 				{% if module.showOnHome %}
-					<a href="/{{routerName}}/{{viewClass.name}}?model={{module.name}}"
+					<a href="/{{routerName}}/{{viewClass.__name__}}?model={{module.__name__}}"
 							 target="_self">
 						<div class="thumb" 
 							{% if hasattr(module, 'description') %}
@@ -18,7 +18,7 @@
 										src="{{ static(module.figure.thumbSrc) }}"
 									{% else %}
 										style="opacity: 0.5; filter: alpha(opacity=50);"
-										src="{{ static('img/thumbnails/Calculator_thumb.png') }}"
+										src="{{ static('img/ModuleImages/thumbnails/Calculator_thumb.png') }}"
 									{% endif %}
 								/>
 							</div>

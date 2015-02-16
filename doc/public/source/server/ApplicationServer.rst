@@ -11,7 +11,7 @@ URLs, views and routers
 Available classes
 -----------------
 
-.. module:: smo.django.view
+.. module:: smo.web.view
 
 .. autoclass:: Action
 
@@ -21,7 +21,7 @@ Available classes
 
 .. autoclass:: ModularPageView
 
-.. module:: smo.django.router
+.. module:: smo.web.router
 
 .. autoclass:: ViewRouter
 

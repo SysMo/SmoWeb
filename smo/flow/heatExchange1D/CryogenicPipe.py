@@ -178,9 +178,10 @@ class CryogenicPipeSolver(object):
 			eqX.solve(var = self.T)
 		
 	
-from smo.model.model import NumericalModel, ModelView, RestBlock
+from smo.model.model import NumericalModel
 from smo.model.fields import *
 from smo.model.actions import ServerAction, ActionBar
+from smo.web.modules import RestModule
 from smo.media.MaterialData import Solids, Fluids
 
 BoundaryConditionChoice = OrderedDict((

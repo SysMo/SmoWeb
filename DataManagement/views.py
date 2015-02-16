@@ -4,12 +4,12 @@ from django.core.urlresolvers import reverse
 from  SmoWeb.settings import MEDIA_ROOT, HDF_FOLDER
 import json
 import os.path
-from smo.django.util import handle_uploaded_file, TemporaryObjectsHash
+from smo.web.util import handle_uploaded_file, TemporaryObjectsHash
 from smo.data.hdf import CSV2HDFImporter, HDFInterface
 from decimal import Decimal
 from smo.model.quantity import Quantities
-from smo.django.view import ModularPageView
-from smo.django.router import ViewRouter, registerView
+from smo.web.view import ModularPageView
+from smo.web.router import ViewRouter, registerView
 from smo.model.model import HtmlModule
 
 # Create your views here.
@@ -65,12 +65,10 @@ def hdfInterfaceView(request):
 
 
 class DataExplorer(HtmlModule):
-	name = 'DataExplorer'
 	srcType = 'file'
 
 @registerView(router)
 class DataExplorerView(ModularPageView):
-	name = 'DataExplorer'
 	label = 'Data Explorer'
 	modules = [DataExplorer]
 	
@@ -80,12 +78,10 @@ class DataExplorerView(ModularPageView):
 # 								  context_instance=RequestContext(request))
 
 class ImportCsv(HtmlModule):
-	name = 'ImportCsv'
 	srcType = 'file'
 
 @registerView(router)
 class ImportCsvView(ModularPageView):
-	name = 'ImportCsv'
 	label = 'Import CSV'
 	modules = [ImportCsv]
 	

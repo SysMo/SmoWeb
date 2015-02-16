@@ -1,12 +1,13 @@
-from smo.model.model import NumericalModel, ModelView, RestBlock, HtmlBlock, ModelFigure, ModelDescription
+from smo.model.model import NumericalModel
 from smo.model.actions import ServerAction, ActionBar
 from smo.model.fields import *
+from smo.web.modules import RestModule
 from smo.media.MaterialData import Solids, Fluids
 from smo.flow.PipeFlow import PipeFlow
 
 class PipeFlowModel(NumericalModel):
     label = "Pipe Flow"
-    figure = ModelFigure(src="ThermoFluids/img/StraightPipe.svg")
+    figure = ModelFigure(src="ThermoFluids/img/ModuleImages/StraightPipe.svg")
     
     ############# Inputs ###############
     # Fields
@@ -90,7 +91,6 @@ class PipeFlowModel(NumericalModel):
     def compute(self):
         PipeFlow.compute(self)
 
-class PipeFlowDoc(RestBlock):
+class PipeFlowDoc(RestModule):
     name = 'PipeFlowDoc'
     label = 'Pipe Flow (Docs)'
-    template = 'documentation/html/PipeFlowDoc.html'

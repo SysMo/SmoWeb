@@ -139,17 +139,26 @@ def generatePng():
 				else:
 					print('{} is up to date'.format(outputFilePath))
 				
+	srcFolder = os.path.join(env.projectRoot, 'doc', 'public', 'source')
+	for subFolderTuple in os.walk(srcFolder):
+		subFolderPath = subFolderTuple[0]
+		for sourceFilePath in glob.glob(os.path.join(subFolderPath, '*.svg')):
+			sDir, sName = os.path.split(sourceFilePath)
+			sNameBase, sNameExt = os.path.splitext(sName)
+			outputFilePath = os.path.abspath(os.path.join(sDir, sNameBase +'.png'))
+			local('convert ' + sourceFilePath + ' -transparent white ' + outputFilePath)
+				
 def generateThumbnails():
 	"""
-	Creates .png thumbnail files from all numerical model images.
+	Creates .png thumbnail files from all .png module images.
 	"""
 	for app in env.applicationModules:
-		srcFolder = os.path.join(env.projectRoot, app, 'static', app, 'img')
+		srcFolder = os.path.join(env.projectRoot, app, 'static', app, 'img', 'ModuleImages')
 		if (os.path.isdir(srcFolder)):
 			for sourceFilePath in glob.glob(os.path.join(srcFolder, '*.png')):
 				sDir, sName = os.path.split(sourceFilePath)
 				sNameBase, sNameExt = os.path.splitext(sName)
-				outputFilePath = os.path.abspath(os.path.join(sDir, 'thumbnails', 
+				outputFilePath = os.path.abspath(os.path.join(sDir, 'thumbnails',
 												sNameBase + '_thumb.png'))
 				if needsUpdate(sourceFilePath, outputFilePath):
 					local('convert ' + sourceFilePath + ' -thumbnail 150x100 ' + outputFilePath)

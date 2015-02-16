@@ -14,7 +14,7 @@
     <!-- AngularJS -->   
     <script src="{{ static('js/angular.min.js') }}"></script> 
 	
-	<!-- HTML5/CSS3 feature detection library -->
+	<!-- Modernizr - HTML5/CSS3 feature detection library -->
 	<script src="{{ static('js/Modernizr.js') }}"></script>
 	
 	<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7; IE=EmulateIE9;">
@@ -67,7 +67,7 @@
 				      <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{router.label}}<span class="caret"></span></a>
 				      <ul class="dropdown-menu" role="menu">
 					{% for pageName, viewClass in router.pages.iteritems() %}
-						<li><a href="/{{routerName}}/{{viewClass.name}}">{{viewClass.label}}</a></li>						
+						<li><a href="/{{routerName}}/{{viewClass.__name__}}">{{viewClass.label}}</a></li>						
 					{% endfor %}
 <!-- 				        <li class="divider"></li> -->
 <!-- 				        <li class="dropdown-header">Nav header</li> -->

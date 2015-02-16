@@ -5,9 +5,11 @@ Created on Nov 09, 2014
 
 import numpy as np
 from smo.media.CoolProp.CoolProp import FluidState, Fluid
-from smo.model.model import NumericalModel, ModelView, RestBlock, HtmlBlock, ModelFigure, ModelDescription
+from smo.model.model import NumericalModel
 from smo.model.actions import ServerAction, ActionBar
 from smo.model.fields import *
+from smo.web.modules import RestModule
+from smo.web.blocks import HtmlBlock
 from smo.media.MaterialData import Fluids
 from collections import OrderedDict
 
@@ -48,9 +50,8 @@ from collections import OrderedDict
 #		self.WCompr = self.mDotRefrigerant * wReal
 
 class HeatPump(NumericalModel):
-	name = "HeatPump"
 	label = "Heat Pump"
-	figure = ModelFigure(src="ThermoFluids/img/HeatPump.svg")
+	figure = ModelFigure(src="ThermoFluids/img/ModuleImages/HeatPump.svg")
 # 	description = ModelDescription('Heat Pump.', show = False)
 	
 	############# Inputs ###############
@@ -192,7 +193,7 @@ class HeatPump(NumericalModel):
 		self.COPCooling = self.QEvap / self.WCompr
 		self.COPHeating = self.QCondens / self.WCompr
 
-class HeatPumpDoc(RestBlock):
+class HeatPumpDoc(RestModule):
 	name = 'HeatPumpDoc'
 	label = 'Heat Pump (Docs)'
 	template = 'documentation/html/HeatPumpDoc.html'

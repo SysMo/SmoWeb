@@ -1,7 +1,14 @@
 =================
 Modular page view
 =================
-.. module:: smo.django.view
+.. module:: smo.web.view
+
+-----------------------
+Page structure overview
+-----------------------
+
+.. figure:: _static/server/img/pageorganizationalstructure.*
+   :width: 600px
 
 --------------
 Creating pages
@@ -40,6 +47,7 @@ Page modules may be one of the following types:
 
    An active :class:`NumericalModel` module 
 
+.. module:: smo.web.modules
 
 :class:`HtmlModule`
 -------------------
@@ -52,13 +60,13 @@ Page modules may be one of the following types:
 
    An active `HtmlModule` module 
 
-:class:`RestBlock`
-------------------
+:class:`RestModule`
+-------------------
 
-.. autoclass:: RestBlock
+.. autoclass:: RestModule
 
 .. figure:: _static/server/img/company_module.png
    :width: 600px
    :align: center
 
-   An active `RestBlock` module 
+   An active `RestModule` module 

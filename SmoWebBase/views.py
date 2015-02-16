@@ -1,62 +1,55 @@
 from smo.model.quantity import Quantities
-from smo.django.view import action, ModularPageView
-from smo.django.router import ViewRouter, registerView
-from smo.model.model import HtmlModule, HtmlBlock, JsBlock, RestBlock
+from smo.web.view import action, ModularPageView
+from smo.web.router import ViewRouter, registerView
+from smo.web.modules import HtmlModule, RestModule
+from smo.web.blocks import HtmlBlock, JsBlock
 import SmoWebBase
 
 router = ViewRouter('SmoWebBase', SmoWebBase)
 
-class BasePageModule(HtmlModule):
-    name = 'BasePageModule'
+### Home-page view
+class HomeModule(HtmlModule):
     label = 'Home'
     block = HtmlBlock(srcType="file", src="HomeBlock.jinja")
     modelBlocks = [block]
 
-class UnitConverterModule(HtmlModule):
-    name = 'UnitConverter'
+class UnitConverter(HtmlModule):
     label = 'Unit Converter'
     converterHtml = HtmlBlock(srcType="file", src="UnitConverterBlock.html")
     converterJs = JsBlock(srcType="file", src="UnitConverter.js")
     modelBlocks = [converterHtml, converterJs]
  
-class Company(RestBlock):
-    name = 'Company'
-    label = 'Company'
+class Company(RestModule):
+    label = "Company"
 
-class Team(RestBlock):
-    name = 'Team'
+class Team(RestModule):
     label = 'Our Team'
     
 
-class Platform(RestBlock):
-    name = 'Platform'
-    label = 'Platform'
+class Platform(RestModule):
+    label = "Platform"
        
 @registerView(router)
 class HomeView(ModularPageView):
-    name = "HomeView"
     label = "Home View"
     injectVariables = ['ModelCommunicator', 'variables']
-    modules = [BasePageModule, UnitConverterModule, Company, Team, Platform]
+    modules = [HomeModule, UnitConverter, Company, Team, Platform]
     
     @action.post()
     def getQuantities(self, parameters, model=None, view= None):
         return Quantities
 
-class Industries(RestBlock):
-    name = 'Industries'
-    label = 'Industries'
+### Sysmo page view
+class Industries(RestModule):
+    label = "Industries"
     
-class Products(RestBlock):
-    name = 'Products'
-    label = 'Products'
+class Products(RestModule):
+    label = "Products"
     
-class Services(RestBlock):
-    name = 'Services'
-    label = 'Services'
+class Services(RestModule):
+    label = "Services"
 
 @registerView(router)
 class SysmoView(ModularPageView):
-    name = "Sysmo"
     label = "SysMo Ltd"
     modules = [Products, Services, Industries]

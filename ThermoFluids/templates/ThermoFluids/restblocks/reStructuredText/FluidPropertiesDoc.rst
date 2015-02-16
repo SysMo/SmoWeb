@@ -74,10 +74,11 @@ for properties under ceratain conditions (e.g. at a low temperature). Thus, bett
 State diagrams
 --------------
 
-Drawing isolines
-----------------
+P-H diagram
+-----------
 
-The following algorithm is used to trace an isentrop on *p-h* diagram:
+Isentrops
+~~~~~~~~~
 
 1. Start from a seed poing :math:`f_0`
 2. Compute the fluid state based on *p* and *h* variables
@@ -90,14 +91,47 @@ The following algorithm is used to trace an isentrop on *p-h* diagram:
 5. Find the :math:`\Delta h`:
 
 .. math::
-   \Delta h=\left(\frac{\partial h}{\partial p}\right)_{s}\Delta p
+
+   \Delta h=v\Delta p+T\Delta s=v\Delta p
+   
    
 6. Find the changes  :math:`\Delta T` and :math:`\Delta\rho`:
 
 .. math::
-   \Delta\rho  =  \left(\frac{\partial\rho}{\partial h}\right)_{p}\Delta h+\left(\frac{\partial\rho}{\partial p}\right)_h\Delta p
+   \Delta\rho  =  \left(\frac{\partial\rho}{\partial h}\right)_{p}\Delta h+\left(\frac{\partial\rho}{\partial p}\right)_h\Delta p = 
+   \left(\frac{\partial\rho}{\partial h}\right)_{p}v\Delta p+\left(\frac{\partial\rho}{\partial p}\right)_h\Delta p
    
-   \Delta T = \left(\frac{\partial T}{\partial h}\right)_{p}\Delta h+\left(\frac{\partial T}{\partial p}\right)_h\Delta p
+   \Delta T = \left(\frac{\partial T}{\partial h}\right)_{p}\Delta h+\left(\frac{\partial T}{\partial p}\right)_h\Delta p =
+   \frac{v\Delta p}{\left(\frac{\partial h}{\partial T}\right)_{p}}+\frac{\Delta p}{\left(\frac{\partial p}{\partial T}\right)_{h}}
+ 
    
 7. Compute the fluid state at :math:`f_1` by :math:`T_0 + \Delta T` and :math:`\rho_0 + \Delta\rho`
 8. Go back to 3. using :math:`f_1`
+
+Isotherms
+~~~~~~~~~
+
+Steps 1 to 4 are as above
+
+5. Find the :math:`\Delta h`:
+
+.. math::
+   \Delta h=\left(\frac{\partial h}{\partial p}\right)_{T}\Delta p
+   
+   \Delta h=v\Delta p+T\Delta s
+   
+   \left(\frac{\partial h}{\partial p}\right)_{T}=v\left(\frac{\partial p}{\partial p}\right)_{T}+T\left(\frac{\partial s}{\partial p}\right)_{T}
+   =v+T\left(\frac{\partial s}{\partial p}\right)_{T}
+   
+   \Delta h=\left(v+T\left(\frac{\partial s}{\partial p}\right)_{T}\right)\Delta p
+  
+6. Find the change :math:`\Delta\rho`:
+
+.. math::
+   \Delta\rho=\left(\frac{\partial\rho}{\partial h}\right)_{p}\Delta h+\left(\frac{\partial\rho}{\partial p}\right)_{h}\Delta p
+   =\left(\left(\frac{\partial\rho}{\partial h}\right)_{p}\left(v+T\left(\frac{\partial s}{\partial p}\right)_{T}\right)+\left(\frac{\partial\rho}{\partial p}\right)_{h}\right)\Delta p
+ 
+ 
+   
+   
+ 

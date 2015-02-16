@@ -2,11 +2,12 @@
 Created on Nov 05, 2014
 @author: Atanas Pavlov
 '''
-import numpy as np
 from collections import OrderedDict
-from smo.model.model import NumericalModel, ModelView, RestBlock, HtmlBlock, ModelFigure, ModelDescription
+from smo.model.model import NumericalModel
 from smo.model.actions import ServerAction, ActionBar
 from smo.model.fields import *
+from smo.web.blocks import HtmlBlock
+from smo.web.modules import RestModule
 from smo.media.CoolProp.CoolProp import Fluid, FluidState
 from smo.media.MaterialData import Fluids
 from smo.media.CoolProp.CoolPropReferences import References
@@ -39,7 +40,7 @@ referenceKeys = OrderedDict((
 
 class PropertyCalculatorCoolprop(NumericalModel):
 	label = "Property calculator"
-	figure = ModelFigure(src="ThermoFluids/img/CoolPropLogo.png", width=150)
+	figure = ModelFigure(src="ThermoFluids/img/ModuleImages/CoolPropLogo.png", width=150)
 	description = ModelDescription(
 		'A fluid properties calculator for liquid, vapor and super-critical states, \
 		based on the open source thermodynamic package <a href="http://www.coolprop.org/" >CoolProp</a>', 
@@ -221,7 +222,7 @@ class FluidInfo(NumericalModel):
 	label = "Fluid Info"
 #	figure = ModelFigure(src="ThermoFluids/img/StateDiagram3D.svg", height=150, width=250)
 	description = ModelDescription('Critical point, triple point, fluid limits, other fluid constants, data sources.')
-	figure = ModelFigure(src="ThermoFluids/img/CoolPropLogo.png", width=150)
+	figure = ModelFigure(src="ThermoFluids/img/ModuleImages/CoolPropLogo.png", width=150)
 	
 	############# Inputs ###############
 	# Fields
@@ -313,7 +314,7 @@ class FluidInfo(NumericalModel):
 
 class SaturationData(NumericalModel):
 	label = "Saturation Data"
-	figure = ModelFigure(src="ThermoFluids/img/CoolPropLogo.png", width=150)
+	figure = ModelFigure(src="ThermoFluids/img/ModuleImages/CoolPropLogo.png", width=150)
 	description = ModelDescription('Evaporation and condensation data')
 	
 	############# Inputs ###############
@@ -394,7 +395,7 @@ class SaturationData(NumericalModel):
 		self.delta_s_p_satPlot = data[:, (0, 9)]
 		self.satTableView = data
 
-class FluidPropertiesDoc(RestBlock):
+class FluidPropertiesDoc(RestModule):
 	name = 'FluidPropertiesDoc'
 	label = 'Fluid Properties (Docs)'
 		

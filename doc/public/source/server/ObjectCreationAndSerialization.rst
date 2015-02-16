@@ -26,7 +26,7 @@ Serialization of numerical models
 ---------------------------------
 
 The :func:`modelView2Json` method of a :class:`~smo.model.model.NumericalModel` instance
-is used for serialization of its views - the values of its :class:`~smo.model.model.ModelView` attributes - 
+is used for serialization of its views - the values of its :class:`~smo.model.fields.ModelView` attributes - 
 by creating a JSON representation of the view it is applied to, including its definition, the values of the fields it contains 
 and the actions associated with it. This is done by calling the :func:`superGroup2Json` method of the instance, 
 which in turn calls :func:`fieldGroup2Json` and :func:`viewGroup2Json`, each responsible for the serialization of the segment 
@@ -45,7 +45,7 @@ the fields in it and ``actions`` is a serialization of its actions.
 Modular page
 ------------
 
-Modular page views subclass the :class:`~smo.django.view.ModularPageView` class. A sample definition of a 
+Modular page views subclass the :class:`~smo.web.view.ModularPageView` class. A sample definition of a 
 page view is given below::
    
    router = ViewRouter('ThermoFluids', ThermoFluids)
@@ -69,16 +69,16 @@ page view is given below::
             return fpc.modelView2Json(fpc.resultView)
 
 The page view *FluidPropsCalculatorView* is registered with the ViewRouter ``router`` and its method :func:`computeFluidProps` is converted to a 
-:class:`~smo.django.view.PostAction` object using the  ``@action.post()`` decorator.
+:class:`~smo.web.view.PostAction` object using the  ``@action.post()`` decorator.
 
 Metaclass
 ---------
 
-The metaclass, :class:`~smo.django.view.ModularPageViewMeta`, loops over the modular page view class' attributes, 
+The metaclass, :class:`~smo.web.view.ModularPageViewMeta`, loops over the modular page view class' attributes, 
 as well as the attributes of all its base classes, collecting the post actions, lists of names of JavaScript libraries and 
 lists of names of Google modules required to render the page respectively in ``postActions``, ``requiredJSLibraries`` and ``requiredGoogleModules`` 
 attributes of the page view class being created. When the static page is rendered by the template engine later, the URLs of the
-JavaScript lbraries and parameters for loading Google modules are obtained from the :class:`~smo.django.view.ModularPageView` class'
+JavaScript lbraries and parameters for loading Google modules are obtained from the :class:`~smo.web.view.ModularPageView` class'
 respective registries based on the names contained in the ``requiredJSLibraries`` and ``requiredGoogleModules`` sets. The metaclass
 also sets a default ``controllerName`` attribute of the page view if missing, used in the AngularJS app as part of the webpage.
 

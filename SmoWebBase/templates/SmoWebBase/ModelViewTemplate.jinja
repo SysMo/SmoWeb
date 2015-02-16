@@ -23,7 +23,7 @@ google.load('{{gModuleName}}', '{{gModule.version}}', {'packages': {{gModule.pac
 {% endif %}
 {% endautoescape %}
 
-angular.module('{{pageView.name}}', ['smo'])
+angular.module('{{pageView.__class__.__name__}}', ['smo'])
 	.config(['$httpProvider', function($httpProvider) {
 	    $httpProvider.defaults.xsrfCookieName = 'csrftoken';
 	    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
@@ -57,16 +57,16 @@ angular.module('{{pageView.name}}', ['smo'])
   		});
 			{% for module in pageView.modules %}
 				{% if issubclass(module, smo.model.model.NumericalModel) %}
-					$scope.{{module.name}} = { name: "{{module.name}}", views: {} };
+					$scope.{{module.__name__}} = { name: "{{module.__name__}}", views: {} };
 					{% for block in module.modelBlocks %}
-						{% if isinstance(block, smo.model.model.ModelView) %}
-							$scope.{{module.name}}.views.{{block.name}} = {name: "{{block.name}}", type: "{{block.ioType}}"};
+						{% if isinstance(block, smo.model.fields.ModelView) %}
+							$scope.{{module.__name__}}.views.{{block.name}} = {name: "{{block.name}}", type: "{{block.ioType}}"};
 						{% endif %}
 					{% endfor %}
-				{% elif issubclass(module, smo.model.model.HtmlModule) %}
-					$scope.{{module.name}} = { name: "{{module.name}}"};
+				{% elif issubclass(module, smo.web.modules.HtmlModule) %}
+					$scope.{{module.__name__}} = { name: "{{module.__name__}}"};
 					{% for block in module.modelBlocks %}
-						{% if isinstance(block, smo.model.model.JsBlock) %}
+						{% if isinstance(block, smo.web.blocks.JsBlock) %}
 							{% include 'SmoWebBase/blocks/Block.jinja' %}
 						{% endif %}
 					{% endfor %}
@@ -79,16 +79,16 @@ angular.module('{{pageView.name}}', ['smo'])
 {% block pills %}
 	{% for module in pageView.modules %}
 		<li role="presentation" class="{% if pageView|isActive(module) %}active{% endif %}">
-			<a id="{{module.name}}Pill" data-target="#{{module.name}}Content" role="tab" data-toggle="tab">{{module.label}}</a>
+			<a id="{{module.__name__}}Pill" data-target="#{{module.__name__}}Content" role="tab" data-toggle="tab">{{module.label}}</a>
 		</li>	
 	{% endfor %}
 {% endblock %}
 
 {% block content %}
-<div ng-app="{{pageView.name}}" ng-controller="{{pageView.controllerName}}">
+<div ng-app="{{pageView.__class__.__name__}}" ng-controller="{{pageView.controllerName}}">
   	<div class="tab-content">
 		{% for module in pageView.modules %}
-			<div class="tab-pane page-container {% if pageView|isActive(module) %}active{% endif %}" id="{{module.name}}Content">
+			<div class="tab-pane page-container {% if pageView|isActive(module) %}active{% endif %}" id="{{module.__name__}}Content">
 				{% if issubclass(module, smo.model.model.NumericalModel) %}
 					{% autoescape false %}
 					<h1 class="title">{{module.label}}</h1>
@@ -109,24 +109,24 @@ angular.module('{{pageView.name}}', ['smo'])
 					{% endautoescape %}
 					{% for block in module.modelBlocks %}
 						<div class="section">			
-							{% if isinstance(block, smo.model.model.ModelView) %}
-								<div smo-model-view="{{block.name}}" model-name="{{module.name}}" view-type="{{block.ioType}}" auto-fetch="{{block.autoFetch|lower}}" view-record-id="{{pageView.recordIdDict[block]}}"></div>
-							{% elif isinstance(block, smo.model.model.HtmlBlock) %}
+							{% if isinstance(block, smo.model.fields.ModelView) %}
+								<div smo-model-view="{{block.name}}" model-name="{{module.__name__}}" view-type="{{block.ioType}}" auto-fetch="{{block.autoFetch|lower}}" view-record-id="{{pageView.recordIdDict[block]}}"></div>
+							{% elif isinstance(block, smo.web.blocks.HtmlBlock) %}
 								{% include 'SmoWebBase/blocks/Block.jinja' %}
 							{% endif %}
 						</div>
 					{% endfor %}
 				{% endif %}
-				{% if issubclass(module, smo.model.model.RestBlock) %}
-					<div class="tab-pane" id="{{module.name}}Content">
+				{% if issubclass(module, smo.web.modules.RestModule) %}
+					<div class="tab-pane" id="{{module.__name__}}Content">
 						<div class="restview">
-							{% include module|getRestBlockUrl(pageView) %}
+							{% include module|getRestModuleUrl(pageView) %}
 						</div>
 					</div>
 				{% endif %}
-				{% if issubclass(module, smo.model.model.HtmlModule) %}
+				{% if issubclass(module, smo.web.modules.HtmlModule) %}
 					{% for block in module.modelBlocks %}
-						{% if isinstance(block, smo.model.model.HtmlBlock) %}
+						{% if isinstance(block, smo.web.blocks.HtmlBlock) %}
 							{% include 'SmoWebBase/blocks/Block.jinja' %}
 						{% endif %}	
 					{% endfor %}

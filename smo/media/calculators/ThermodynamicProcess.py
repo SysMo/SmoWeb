@@ -1,6 +1,6 @@
 import numpy as np
 from smo.media.CoolProp.CoolProp import FluidState, Fluid
-from smo.model.model import NumericalModel, ModelView, RestBlock
+from smo.model.model import NumericalModel
 from smo.model.actions import ServerAction, ActionBar
 from smo.model.fields import *
 from smo.media.MaterialData import Fluids

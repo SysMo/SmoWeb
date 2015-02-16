@@ -60,4 +60,4 @@ our clients by all means possible.
 Want to get to know us better?
 ------------------------------
 
-Learn more about SysMo `here </SmoWebBase/Sysmo>`_
+Learn more about SysMo `here </SmoWebBase/SysmoView>`_

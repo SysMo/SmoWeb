@@ -44,13 +44,11 @@ class ModularPageViewMeta(type):
 	Metaclass facilitation the creation of modular page views	
 	"""
 	def __new__(cls, name, bases, attrs):
-		# Name and label
-		if ('name' not in attrs):
-			attrs['name'] = name 
+		# Label
 		if ('label' not in attrs):
-			attrs['label'] = attrs['name']
+			attrs['label'] = name
 		if ('controllerName' not in attrs):
-			attrs['controllerName'] = attrs['name'] + 'Controller'
+			attrs['controllerName'] = name + 'Controller'
 		# Containers to collect actions, library and module names
 		postActions = {}
 		requiredJSLibraries = set()
@@ -92,7 +90,6 @@ class ModularPageView(object):
 		* HTML module views
 		
 	Class attributes:
-		* :attr:`name`: name of the page view class (default is the page view class name)
 		* :attr:`label`: label for the page view class (default is the page view class name)
 		* :attr:`controllerName`: name of the AngularJS contoller for the page view (default is the page view class name + 'Controller')
 		* :attr:`modules`: modules making up the page view
@@ -198,7 +195,7 @@ class ModularPageView(object):
 		if ("modelName" in data):
 			modelName = data['modelName']
 			for module in self.modules:
-				if (module.name == modelName):
+				if (module.__name__ == modelName):
 					model = module
 			if (model is None):
 				raise ValueError("Unknown model {0}".format(modelName))
@@ -260,7 +257,7 @@ class ModularPageView(object):
 		db = mongoClient.SmoWeb
 		coll = db.savedViewData
 		recordId = coll.insert({'values' : parameters})
-		return {'model': model.name, 'view': view.name, 'id' : str(recordId)}	
+		return {'model': model.__name__, 'view': view.name, 'id' : str(recordId)}	
 
 	@action.post()
 	def compute(self, model, view, parameters):

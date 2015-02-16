@@ -58,9 +58,9 @@ super-group ``Results``. The model is visualized with an input view, comprised o
 a bar of buttons for carrying out actions (*Compute* to perform the calculation via the :func:`compute` method 
 and *Save* to save the inputs), and a result view, consisting of the ``Results`` super-group. 
 
-The numerical model may have a field named *figure*, an instance of :class:`ModelFigure`, 
+The numerical model may have a field named *figure*, an instance of :class:`~smo.model.fields.ModelFigure`, 
 which represents the figure displayed with the model, as well as a field named *description*, 
-an instance of :class:`ModelDescription`,
+an instance of :class:`~smo.model.fields.ModelDescription`,
 providing a description that can be displayed at the model page and as a tooltip of the model's thumbnal on the home page. 
 The resulting user interface in the browser can be seen in the following figure:
 
@@ -137,8 +137,6 @@ the field. This attribute is crated in the constructor of :class:`~smo.model.mod
 :class:`ModelFigure`
 --------------------
 
-.. module:: smo.model.model
-
 .. autoclass:: ModelFigure
 
 :class:`ModelDescription`
@@ -153,9 +151,7 @@ Class fields vs instance fields
 A *class* field defines the structure of the field it refers to as part of the hierarchical structure of the model. 
 It is included in the ``definitions`` property of the JSON object representing the model that is sent to the client.
 By contrast, an *instance* field represents the value of the particular field, which is contained in the ``values`` attribute of
-the JSON object.   
-
-.. module:: smo.model.fields
+the JSON object.
 
 ------
 Groups
@@ -202,7 +198,7 @@ Actions
 Model view
 ----------
 
-.. module:: smo.model.model
+.. module:: smo.model.fields
 
 
 :class:`ModelView`

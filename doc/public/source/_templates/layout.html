@@ -1,0 +1,16 @@
+{% extends "!layout.html" %}
+{% block extrahead %}
+	<!-- Modernizr - HTML5/CSS3 feature detection library -->
+	<script src="_static/js/Modernizr.js"></script>
+	 
+	<script>
+	  	$( document ).ready(function() {
+			//Replaces eg. 'logo.svg' with 'logo.png' if there is no html5 compatibility
+		 	if (!Modernizr.svg) {
+			  $('img[src$=".svg"]').each(function() {
+			      $(this).attr('src', $(this).attr('src').replace('.svg', '.png'));
+			  });
+			}
+		});
+	</script>
+{% endblock %}
