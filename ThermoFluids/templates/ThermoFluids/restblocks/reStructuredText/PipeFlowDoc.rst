@@ -5,7 +5,7 @@
 Pipe Flow
 =========
 
-.. figure:: /static/ThermoFluids/img/StraightPipe.svg
+.. figure:: /static/ThermoFluids/img/ModuleImages/StraightPipe.svg
    :width: 500px
    :align: center
    
