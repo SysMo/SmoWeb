@@ -63,9 +63,10 @@ for properties under ceratain conditions (e.g. at a low temperature). Thus, bett
 </div>
 <div class="section" id="state-diagrams">
 <h1>3.&nbsp;&nbsp;&nbsp;State diagrams</h1>
-<div class="section" id="drawing-isolines">
-<h2>3.1.&nbsp;&nbsp;&nbsp;Drawing isolines</h2>
-<p>The following algorithm is used to trace an isentrop on <em>p-h</em> diagram:</p>
+<div class="section" id="p-h-diagram">
+<h2>3.1.&nbsp;&nbsp;&nbsp;P-H diagram</h2>
+<div class="section" id="isentrops">
+<h3>3.1.1.&nbsp;&nbsp;&nbsp;Isentrops</h3>
 <ol class="arabic simple">
 <li>Start from a seed poing <span class="math">\(f_0\)</span></li>
 <li>Compute the fluid state based on <em>p</em> and <em>h</em> variables</li>
@@ -82,7 +83,7 @@ for properties under ceratain conditions (e.g. at a low temperature). Thus, bett
 </ol>
 <div class="math">
 \begin{equation*}
-\Delta h=\left(\frac{\partial h}{\partial p}\right)_{s}\Delta p
+\Delta h=v\Delta p+T\Delta s=v\Delta p
 \end{equation*}
 </div>
 <ol class="arabic simple" start="6">
@@ -90,18 +91,58 @@ for properties under ceratain conditions (e.g. at a low temperature). Thus, bett
 </ol>
 <div class="math">
 \begin{equation*}
-\Delta\rho  =  \left(\frac{\partial\rho}{\partial h}\right)_{p}\Delta h+\left(\frac{\partial\rho}{\partial p}\right)_h\Delta p
+\Delta\rho  =  \left(\frac{\partial\rho}{\partial h}\right)_{p}\Delta h+\left(\frac{\partial\rho}{\partial p}\right)_h\Delta p =
+\left(\frac{\partial\rho}{\partial h}\right)_{p}v\Delta p+\left(\frac{\partial\rho}{\partial p}\right)_h\Delta p
 \end{equation*}
 </div>
 <div class="math">
 \begin{equation*}
-\Delta T = \left(\frac{\partial T}{\partial h}\right)_{p}\Delta h+\left(\frac{\partial T}{\partial p}\right)_h\Delta p
+\Delta T = \left(\frac{\partial T}{\partial h}\right)_{p}\Delta h+\left(\frac{\partial T}{\partial p}\right)_h\Delta p =
+\frac{v\Delta p}{\left(\frac{\partial h}{\partial T}\right)_{p}}+\frac{\Delta p}{\left(\frac{\partial p}{\partial T}\right)_{h}}
 \end{equation*}
 </div>
 <ol class="arabic simple" start="7">
 <li>Compute the fluid state at <span class="math">\(f_1\)</span> by <span class="math">\(T_0 + \Delta T\)</span> and <span class="math">\(\rho_0 + \Delta\rho\)</span></li>
 <li>Go back to 3. using <span class="math">\(f_1\)</span></li>
 </ol>
+</div>
+<div class="section" id="isotherms">
+<h3>3.1.2.&nbsp;&nbsp;&nbsp;Isotherms</h3>
+<p>Steps 1 to 4 are as above</p>
+<ol class="arabic simple" start="5">
+<li>Find the <span class="math">\(\Delta h\)</span>:</li>
+</ol>
+<div class="math">
+\begin{equation*}
+\Delta h=\left(\frac{\partial h}{\partial p}\right)_{T}\Delta p
+\end{equation*}
+</div>
+<div class="math">
+\begin{equation*}
+\Delta h=v\Delta p+T\Delta s
+\end{equation*}
+</div>
+<div class="math">
+\begin{equation*}
+\left(\frac{\partial h}{\partial p}\right)_{T}=v\left(\frac{\partial p}{\partial p}\right)_{T}+T\left(\frac{\partial s}{\partial p}\right)_{T}
+=v+T\left(\frac{\partial s}{\partial p}\right)_{T}
+\end{equation*}
+</div>
+<div class="math">
+\begin{equation*}
+\Delta h=\left(v+T\left(\frac{\partial s}{\partial p}\right)_{T}\right)\Delta p
+\end{equation*}
+</div>
+<ol class="arabic simple" start="6">
+<li>Find the change <span class="math">\(\Delta\rho\)</span>:</li>
+</ol>
+<div class="math">
+\begin{equation*}
+\Delta\rho=\left(\frac{\partial\rho}{\partial h}\right)_{p}\Delta h+\left(\frac{\partial\rho}{\partial p}\right)_{h}\Delta p
+=\left(\left(\frac{\partial\rho}{\partial h}\right)_{p}\left(v+T\left(\frac{\partial s}{\partial p}\right)_{T}\right)+\left(\frac{\partial\rho}{\partial p}\right)_{h}\right)\Delta p
+\end{equation*}
+</div>
+</div>
 </div>
 </div>
 </div>

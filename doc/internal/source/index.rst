@@ -11,4 +11,6 @@ Welcome to SmoWeb internal documentation!
    :maxdepth: 3
    :numbered:
    
-   Setup 
+   Setup
+   CoolProp
+   Diagrams 
