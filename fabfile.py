@@ -35,6 +35,17 @@ env.tempFolder = os.path.abspath(os.path.join(os.path.expanduser('~'), 'tmp'))
 def virtualenv():
 	with prefix(env.activate):
 		yield
+		
+def needsUpdate(source, destination):
+	# does destination exist?
+	if (not os.path.isfile(destination)):
+		return True
+	if (not isinstance(source, (list, tuple))):
+		source = [source]
+	for f in source:
+		if (os.stat(f).st_mtime > os.stat(destination).st_mtime):
+			return True
+	return False
 #######################################################################
 def deploy():
 	"""
@@ -111,7 +122,7 @@ def restToHtml():
 				print ('Wrote output file: ' + outputFilePath)
 #######################################################################
 
-def convertToPng():
+def generatePng():
 	"""
 	Convert all .svg files in the static folders within the project to .png files
 	"""
@@ -123,7 +134,10 @@ def convertToPng():
 				sDir, sName = os.path.split(sourceFilePath)
 				sNameBase, sNameExt = os.path.splitext(sName)
 				outputFilePath = os.path.abspath(os.path.join(sDir, sNameBase +'.png'))
-				local('convert ' + sourceFilePath + ' -transparent white ' + outputFilePath)
+				if needsUpdate(sourceFilePath, outputFilePath):
+					local('convert ' + sourceFilePath + ' -transparent white ' + outputFilePath)
+				else:
+					print('{} is up to date'.format(outputFilePath))
 				
 def generateThumbnails():
 	"""
@@ -135,9 +149,12 @@ def generateThumbnails():
 			for sourceFilePath in glob.glob(os.path.join(srcFolder, '*.png')):
 				sDir, sName = os.path.split(sourceFilePath)
 				sNameBase, sNameExt = os.path.splitext(sName)
-				outputFilePath = os.path.abspath(os.path.join(sDir.replace('img', os.path.join('img', 'thumbnails')), 
+				outputFilePath = os.path.abspath(os.path.join(sDir, 'thumbnails', 
 												sNameBase + '_thumb.png'))
-				local('convert ' + sourceFilePath + ' -thumbnail 150x100 ' + outputFilePath)
+				if needsUpdate(sourceFilePath, outputFilePath):
+					local('convert ' + sourceFilePath + ' -thumbnail 150x100 ' + outputFilePath)
+				else:
+					print('{} is up to date'.format(outputFilePath))
 
 #######################################################################
 def installAptPackages():
