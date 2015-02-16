@@ -22,6 +22,7 @@ sys.path.insert(0, os.path.abspath('../../../'))
 autodoc_default_flags = ['members']
 autodoc_member_order = 'bysource'
 autoclass_content = 'both'
+autodoc_docstring_signature = True
 todo_include_todos = True
 
 # -- General configuration ------------------------------------------------

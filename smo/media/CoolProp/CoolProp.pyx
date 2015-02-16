@@ -4,10 +4,19 @@ from numpy.math cimport INFINITY
 cimport CoolProp_Imports as CP
 
 cdef class Fluid:
+	""" 
+	A class representing a CoolProp fluid
+	"""
 	cdef string fluidName
 	cdef long fluidIndex
 	cdef CP.Fluid* ptr
 	
+	def __init__(self, fluidName):
+		"""__init__(fluidName)
+		:param fluidName: The name of the fluid
+		"""
+		pass
+		
 	def __cinit__(self, string fluidName):
 		self.fluidName = fluidName
 		self.fluidIndex = CP.get_Fluid_index(fluidName)
@@ -16,6 +25,8 @@ cdef class Fluid:
 		self.ptr = CP.get_fluid(self.fluidIndex)
 
 	def	BibTeXKey(self, item):
+		""" BibTeXKey(item)
+		Bibliographic info """
 		validKeys = ["EOS", "CP0", "VISCOSITY", "CONDUCTIVITY",
 					 "ECS_LENNARD_JONES", "ECS_FITS", "SURFACE_TENSION"]
 		if (item not in validKeys):
@@ -23,14 +34,17 @@ cdef class Fluid:
 		return CP.get_BibTeXKey(self.fluidName, item)
 
 	property EOSReference:
+		""" Equation of state source """
 		def __get__(self):
 			return self.ptr.get_EOSReference()
 			
 	property TransportReference:
+		""" Transport properties source """
 		def __get__(self):
 			return self.ptr.get_TransportReference()
 		
 	property CAS:
+		""""""
 		def __get__(self):
 			return self.ptr.params.CAS
 		
@@ -83,6 +97,9 @@ cdef class Fluid:
 				}
 	
 	def saturation_p(self, double p):
+		"""saturation_p(p)
+		Computes saturation temperature at a given pressure
+		"""
 		cdef double TsatLout = 0
 		cdef double TsatVout = 0
 		cdef double rhoLout = 0
@@ -252,11 +269,12 @@ cdef class FluidState:
 		cdef long p1Index = CP.get_param_index(state1)
 		cdef long p2Index = CP.get_param_index(state2)
 		self.ptr.update(p1Index, state1Value, p2Index, state2Value, -1, -1)
-# To add update for pairs H,S T,S
 	def update_Tp(self, double T, double p):
 		self.ptr.update(iT, T, iP, p, -1, -1)
 	def update_Trho(self, double T, double rho):
 		self.ptr.update(iT, T, iD, rho, -1, -1)	
+	def update_Ts(self, double T, double s):
+		self.ptr.update(iT, T, iS, s, -1, -1)	
 	def update_prho(self, double p, double rho):
 		self.ptr.update(iP, p, iD, rho, -1, -1)	
 	def update_ph(self, double p, double h):

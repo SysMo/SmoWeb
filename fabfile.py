@@ -146,7 +146,10 @@ def generatePng():
 			sDir, sName = os.path.split(sourceFilePath)
 			sNameBase, sNameExt = os.path.splitext(sName)
 			outputFilePath = os.path.abspath(os.path.join(sDir, sNameBase +'.png'))
-			local('convert ' + sourceFilePath + ' -transparent white ' + outputFilePath)
+			if needsUpdate(sourceFilePath, outputFilePath):
+				local('convert ' + sourceFilePath + ' -transparent white ' + outputFilePath)
+			else:
+				print('{} is up to date'.format(outputFilePath))
 				
 def generateThumbnails():
 	"""
