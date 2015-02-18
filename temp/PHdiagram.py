@@ -31,42 +31,112 @@ y_end = y_start + 2 * (y_mid - y_start)
 q_Arr = np.arange(0, 1.1, 0.1)
 # Pressure range
 p_Arr = np.logspace(np.log10(y_start), np.log10(y_end), num = 200)
-print p_Arr
+
 # Isotherm levels
-T_levels = np.linspace(f.tripple['T'] * trippCoeff, 3 * f.critical['T'], 
-                  num = 20)
+# T_levels = np.linspace(f.tripple['T'] * trippCoeff, 3 * f.critical['T'], 
+#                   num = 30)
 
 # Isentrop levels
 # fState.update_Trho(f.tripple['T'], f.tripple['rhoL']) 
-fState.update_ph(y_start, x_start)
-s_min = fState.s
-s_max = fState.update_ph(y_start, x_end)
-s_max = fState.s
+# fState.update_ph(y_start, x_start)
+# s_min = fState.s
+# s_max = fState.update_ph(y_start, x_end)
+# s_max = fState.s
 # s_levels = np.linspace(f.critical['s'] / 50., 4 * f.critical['s'], 
 #                   num = 20)
-s_levels = np.linspace(s_min, s_max, 
-                  num = 20)
+# s_levels = np.linspace(s_min, s_max, 
+#                   num = 20)
 
 fig = plt.figure()
 ax1 = plt.gca()
 
 # Drawing isotherms
-for T in T_levels:
+# for T in T_levels:
     # Enthalpy
-    H_Arr = np.zeros((len(p_Arr),))
-    for i in range(len(p_Arr)):
-        fState.update_Tp(T, p_Arr[i])
-        H_Arr[i] = fState.h
-    ax1.plot(H_Arr, p_Arr, label = "T=" + str(T - 273.15) + " C", color = 'r')
+#     H_Arr = np.zeros((len(p_Arr),))
+#     for i in range(len(p_Arr)):
+#         fState.update_Tp(T, p_Arr[i])
+#         H_Arr[i] = fState.h
+#     ax1.plot(H_Arr, p_Arr, label = "T=" + str(T - 273.15) + " C", color = 'r')
+    
+#     h_List = []
+#     p_List = []
+#     while (h <= x_end):
+#         h = fState.h
+#         p = fState.p
+#         print p,h
+#         h_List.append(fState.h)
+#         p_List.append(fState.p)
+#         rho = fState.rho
+#         rho += 1
+#         fState.update_Trho(T, rho)
+#     ax1.plot(np.array(h_List), np.array(p_List), label = "T=" + str(T - 273.15) + " C", color = 'r')
 
+
+# Isotherms
+p = y_end
+for h in np.linspace(x_start, x_end, 20):
+    p_var = p
+    h_var = h
+    h_List = []
+    p_List = []
+    try:
+        fState.update_ph(p, h)
+    except:
+        continue
+    T = fState.T
+    if (T < f.fluidLimits['TMin']):
+        continue
+    while (p_var >= y_start):
+        h_List.append(h_var)
+        p_List.append(p_var)
+        rho = fState.rho
+        rho *= 0.999
+        if (rho <= f.fluidLimits['rhoMax']):
+            fState.update_Trho(T, rho)
+            p_var = fState.p
+            h_var = fState.h
+        else:
+            break
+    ax1.plot(np.array(h_List), np.array(p_List), 'r', label = "T=" + str(T - 273.15) + " C")
+
+# Isohores
+fState.update_Tp(f.tripple['T'] * trippCoeff, f.tripple['p'] * trippCoeff)
+h_start = fState.h
+for h in np.linspace(h_start, 10 * x_end, 20):
+    p_var = p
+    h_var = h
+    h_List = []
+    p_List = []
+    try:
+        fState.update_ph(p, h)
+    except:
+        continue 
+    rho = fState.rho
+    if (rho > f.fluidLimits['rhoMax']):
+        continue
+    while (p_var >= y_start):
+        h_List.append(h_var)
+        p_List.append(p_var)
+        T = fState.T
+        T *= 0.999
+        if (f.fluidLimits['TMin'] <= T):
+            fState.update_Trho(T, rho)
+            p_var = fState.p
+            h_var = fState.h
+        else:
+            print h
+            break
+    ax1.plot(np.array(h_List), np.array(p_List), 'g', label = "T=" + str(T - 273.15) + " C")
+    
 # Drawing isentrops
-for s in s_levels:
-    # Enthalpy
-    H_Arr = np.zeros((len(p_Arr),))
-    for i in range(len(p_Arr)):
-        fState.update_ps(p_Arr[i], s)
-        H_Arr[i] = fState.h
-    ax1.semilogy(H_Arr, p_Arr, label = "s=" + str(s) + " J/kgK", color = 'm')
+# for s in s_levels:
+#     # Enthalpy
+#     H_Arr = np.zeros((len(p_Arr),))
+#     for i in range(len(p_Arr)):
+#         fState.update_ps(p_Arr[i], s)
+#         H_Arr[i] = fState.h
+#     ax1.semilogy(H_Arr, p_Arr, label = "s=" + str(s) + " J/kgK", color = 'm')
 
 # Vapor quality iso-lines
 for q in q_Arr:
@@ -84,7 +154,7 @@ for q in q_Arr:
 
 ax1.set_xlim([x_start, x_end])
 ax1.set_ylim([y_start, y_end])
-# ax1.set_xscale('log')
+ax1.set_xscale('log')
 plt.title(fluidName)
 plt.xlabel('H [J/kgK]')
 plt.ylabel('P [Pa]')
