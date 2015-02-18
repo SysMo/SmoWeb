@@ -64,7 +64,7 @@ an instance of :class:`~smo.model.fields.ModelDescription`,
 providing a description that can be displayed at the model page and as a tooltip of the model's thumbnal on the home page. 
 The resulting user interface in the browser can be seen in the following figure:
 
-.. figure:: _static/server/img/area_calculator_ui.png
+.. figure:: img/area_calculator_ui.png
    :width: 600px
    :align: center
 
@@ -198,10 +198,7 @@ Actions
 Model view
 ----------
 
-.. module:: smo.model.fields
+:class:`smo.model.fields.ModelView`
+-----------------------------------
 
-
-:class:`ModelView`
-------------------
-
-.. autoclass:: ModelView
+.. autoclass:: smo.model.fields.ModelView

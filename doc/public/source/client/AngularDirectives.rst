@@ -34,7 +34,7 @@ value validation is also performed::
    
    <div smo-quantity view-type="input" field-var="field" smo-data-source="values"></div>
 
-.. figure:: _static/img/quantity_field.png
+.. figure:: img/quantity_field.png
    :align: center
 
    Quantity field 
@@ -58,7 +58,7 @@ Visualizes a field for selecting a value from a dropdown list of options::
    
    <div smo-choice field-var="field" smo-data-source="values"></div>
 
-.. figure:: _static/img/choice_field.png
+.. figure:: img/choice_field.png
    :align: center
 
    Choice field 
@@ -99,12 +99,12 @@ Visualizes a field for handling boolean values. The directive creates a checkbox
    
    <div smo-bool view-type="input" field-var="field" smo-data-source="values"></div>
    
-.. figure:: _static/img/bool_field_input.png
+.. figure:: img/bool_field_input.png
    :align: center
 
    Input boolean field 
 
-.. figure:: _static/img/bool_field_output.png
+.. figure:: img/bool_field_output.png
    :align: center
 
    Output boolean field
@@ -129,12 +129,12 @@ The array pops up in edit mode when an icon is clicked by the user::
    
    <div smo-record-array="field" smo-data-source="values"></div>
 
-.. figure:: _static/img/recordarray_collapsed.png
+.. figure:: img/recordarray_collapsed.png
    :align: center
 
    Record array field in collapsed mode 
    
-.. figure:: _static/img/recordarray_edit.png
+.. figure:: img/recordarray_edit.png
    :align: center
 
    Record array field in edit mode 
@@ -155,7 +155,7 @@ and allows for its export in a *png* format::
 
    <div smo-plot field-var="field" smo-data-source="values"></div>
 
-.. figure:: _static/img/plot.png
+.. figure:: img/plot.png
    :align: center
 
    Plot field
@@ -177,7 +177,7 @@ and allows for its export in a *csv* file::
 
    <div smo-table field-var="field" smo-data-source="values"></div>
 
-.. figure:: _static/img/table.png
+.. figure:: img/table.png
    :align: center
 
    Table field
@@ -199,7 +199,7 @@ a label and stacked fields::
 
    <div smo-field-group="fieldGroup" view-type="input" smo-data-source="smoDataSource"></div>
 
-.. figure:: _static/img/fieldgroup.png
+.. figure:: img/fieldgroup.png
    :align: center
    
    Field-group
@@ -226,7 +226,7 @@ on the left for switching among the plots and/or tables::
 
    <div smo-view-group="viewGroup" smo-data-source="smoDataSource"></div>
 
-.. figure:: _static/img/viewgroup.png
+.. figure:: img/viewgroup.png
    :align: center
   
 
@@ -252,7 +252,7 @@ Multiple super-groups are displayed in tabs::
 
    <div smo-super-group-set="superGroupSet" model-name="flowResistanceInputs" view-type="input" smo-data-source="values"></div>
 
-.. figure:: _static/img/supergroupset.png
+.. figure:: img/supergroupset.png
    :align: center
    
    Super-group set

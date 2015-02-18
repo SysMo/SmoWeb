@@ -7,7 +7,7 @@ Modular page view
 Page structure overview
 -----------------------
 
-.. figure:: _static/server/img/pageorganizationalstructure.*
+.. figure:: img/pageorganizationalstructure.*
    :width: 600px
 
 --------------
@@ -24,7 +24,7 @@ Modular page views are created by subclassing the :class:`ModularPageView` class
 A modular page consists of modules, which can be activated by the user by clicking on the corresponding pill
 in the sidebar in the left of the page. 
 
-.. figure:: _static/server/img/modular_page_view.png
+.. figure:: img/modular_page_view.png
    :width: 600px
    :align: center
 
@@ -41,7 +41,7 @@ Page modules may be one of the following types:
 :class:`NumericalModel`
 -----------------------
 
-.. figure:: _static/server/img/modular_page_view.png
+.. figure:: img/modular_page_view.png
    :width: 600px
    :align: center
 
@@ -54,7 +54,7 @@ Page modules may be one of the following types:
 
 .. autoclass:: HtmlModule
 
-.. figure:: _static/server/img/unit_converter_module.png
+.. figure:: img/unit_converter_module.png
    :width: 600px
    :align: center
 
@@ -65,7 +65,7 @@ Page modules may be one of the following types:
 
 .. autoclass:: RestModule
 
-.. figure:: _static/server/img/company_module.png
+.. figure:: img/company_module.png
    :width: 600px
    :align: center
 

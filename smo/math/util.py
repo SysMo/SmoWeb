@@ -40,7 +40,7 @@ class SectionCalculator(object):
 		:param sectionIndices: a tuple (x1, x2) where x1 is the first 
 			index of the section and x2 is the last index
 		:param calculator: a callable fn(x) accepting  a single argument
-		that will be use used to calculate z = fn(y) over this section 
+			that will be use used to calculate z = fn(y) over this section
 		"""
 		self.sectionIndices.append(sectionIndices)
 		self.calculators.append(calculator)
