@@ -125,6 +125,10 @@ cdef extern from "SmoFlowMediaExt.h":
 # 		double d2sdp2_constT()
 # 		double d2sdTdp()
 
+		# Derivatives at saturation
+		double drhodT_along_sat_vapor()
+		double drhodT_along_sat_liquid()
+
 		double viscosity()
 		double conductivity()
 		double Prandtl()

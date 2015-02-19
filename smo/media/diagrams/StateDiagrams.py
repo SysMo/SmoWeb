@@ -56,6 +56,11 @@ class PHDiagram(StateDiagram):
 		self.TMin = 1.01 * self.trippleLiquid.T
 		fState.update_ph(self.pMin, self.hMax)
 		self.TMax = fState.T
+		
+		# Entropy range
+		self.sMin = 1.01 * self.trippleLiquid.s
+		fState.update_ph(self.pMin, self.hMax)
+		self.sMax = fState.s
 	
 	def plotDome(self):
 		fState = FluidState(self.fluid)
@@ -110,6 +115,26 @@ class PHDiagram(StateDiagram):
 				pArr[i] = fState.p
 			self.ax.semilogy(hArr/1e3, pArr/1e5, 'r')
 	
+	def plotIsentrops(self):
+		fState = FluidState(self.fluid)
+		sArr = np.logspace(np.log10(self.sMin), np.log10(self.sMax), num = 20)
+		f1 = FluidState(self.fluidName)
+		TArr = np.logspace(np.log10(self.TMin), np.log10(self.TMax), num = 10)
+		for s in sArr:
+			hArr = np.zeros(len(TArr))
+			pArr = np.zeros(len(TArr))
+			rhoArr = np.zeros(len(TArr))
+			fState.update_Ts(TArr[0], s)
+			rhoArr[0] = fState.T
+			hArr[0] = fState.h
+			pArr[0] = fState.p
+			for i in range(1, len(TArr)):
+				rhoArr[i] = rhoArr[i-1] + (TArr[i] - TArr[i-1]) * fState.dsdt_v / (rhoArr[i-1]**2 * fState.dpdt_v) 
+				fState.update_Trho(TArr[i], rhoArr[i])
+				hArr[i] = fState.h
+				pArr[i] = fState.p
+			self.ax.semilogy(hArr/1e3, pArr/1e5, 'yellow')
+	
 	def draw(self):
 		import matplotlib.pyplot as plt
 		fig = plt.figure()
@@ -123,6 +148,7 @@ class PHDiagram(StateDiagram):
 		self.plotDome()
 		self.plotIsochores()
 		self.plotIsotherms()
+		self.plotIsentrops()
 		plt.show()
 
 
