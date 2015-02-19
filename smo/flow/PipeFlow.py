@@ -177,6 +177,7 @@ class PipeFlow(ComputationModel):
 		fStateOut.update_ph(outletPressure, outletEnthalpy)
 		prevOutletTemperature = outletTemperature 
 		outletTemperature = fStateOut.T
+		print outletTemperature
 		
 		if ((outletTemperature - TWall)*(inletTemperature - TWall) < 0):
 			if (computeWithIteration == True):

@@ -94,12 +94,14 @@ class PHDiagram(StateDiagram):
 			if (T > self.critical.T):
 				rhoArr1 = np.logspace(np.log10(self.rhoMin), np.log10(self.critical.rho), num = 100)
 				rhoArr2 = np.logspace(np.log10(self.critical.rho), np.log10(self.rhoMax), num = 100)
+				rhoArr = np.hstack((rhoArr1, rhoArr2))
 			else:
 				fSatL.update_Tq(T, 0)
 				fSatV.update_Tq(T, 1)
-				rhoArr1 = np.logspace(np.log10(self.rhoMin), np.log10(fSatL.rho), num = 100)
-				rhoArr2 = np.logspace(np.log10(fSatL.rho), np.log10(self.rhoMax), num = 100)
-			rhoArr = np.hstack((rhoArr1, rhoArr2))
+				rhoArr1 = np.logspace(np.log10(self.rhoMin), np.log10(fSatV.rho), num = 100)
+				rhoArr2 = np.logspace(np.log10(fSatV.rho), np.log10(fSatL.rho), num = 100)
+				rhoArr3 = np.logspace(np.log10(fSatL.rho), np.log10(self.rhoMax), num = 100)
+				rhoArr = np.hstack((rhoArr1, rhoArr2, rhoArr3))
 
 			hArr = np.zeros(len(rhoArr))
 			pArr = np.zeros(len(rhoArr))
