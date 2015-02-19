@@ -737,8 +737,8 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_5Fluid_7tripple___get_
 static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_5Fluid_11fluidLimits___get__(struct __pyx_obj_3smo_5media_8CoolProp_8CoolProp_Fluid *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_5Fluid_6saturation_p(struct __pyx_obj_3smo_5media_8CoolProp_8CoolProp_Fluid *__pyx_v_self, double __pyx_v_p); /* proto */
 static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_5Fluid_8saturation_T(struct __pyx_obj_3smo_5media_8CoolProp_8CoolProp_Fluid *__pyx_v_self, double __pyx_v_T); /* proto */
-static int __pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState___init__(CYTHON_UNUSED struct __pyx_obj_3smo_5media_8CoolProp_8CoolProp_FluidState *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v_fluid, CYTHON_UNUSED PyObject *__pyx_v_opt); /* proto */
-static int __pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_2__cinit__(struct __pyx_obj_3smo_5media_8CoolProp_8CoolProp_FluidState *__pyx_v_self, PyObject *__pyx_v_fluid, CYTHON_UNUSED PyObject *__pyx_v_opt); /* proto */
+static int __pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState___init__(CYTHON_UNUSED struct __pyx_obj_3smo_5media_8CoolProp_8CoolProp_FluidState *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v_fluid); /* proto */
+static int __pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_2__cinit__(struct __pyx_obj_3smo_5media_8CoolProp_8CoolProp_FluidState *__pyx_v_self, PyObject *__pyx_v_fluid); /* proto */
 static void __pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_4__dealloc__(struct __pyx_obj_3smo_5media_8CoolProp_8CoolProp_FluidState *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_1T___get__(struct __pyx_obj_3smo_5media_8CoolProp_8CoolProp_FluidState *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_1p___get__(struct __pyx_obj_3smo_5media_8CoolProp_8CoolProp_FluidState *__pyx_v_self); /* proto */
@@ -755,6 +755,9 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_6dvdT_p__
 static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_6dpdt_v___get__(struct __pyx_obj_3smo_5media_8CoolProp_8CoolProp_FluidState *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_6dpdv_t___get__(struct __pyx_obj_3smo_5media_8CoolProp_8CoolProp_FluidState *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_8dpdrho_t___get__(struct __pyx_obj_3smo_5media_8CoolProp_8CoolProp_FluidState *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_6dsdp_t___get__(struct __pyx_obj_3smo_5media_8CoolProp_8CoolProp_FluidState *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_6dhdt_p___get__(struct __pyx_obj_3smo_5media_8CoolProp_8CoolProp_FluidState *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_6dpdt_h___get__(struct __pyx_obj_3smo_5media_8CoolProp_8CoolProp_FluidState *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_8dpdt_sat___get__(struct __pyx_obj_3smo_5media_8CoolProp_8CoolProp_FluidState *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_4beta___get__(struct __pyx_obj_3smo_5media_8CoolProp_8CoolProp_FluidState *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_2mu___get__(struct __pyx_obj_3smo_5media_8CoolProp_8CoolProp_FluidState *__pyx_v_self); /* proto */
@@ -787,7 +790,6 @@ static char __pyx_k_q[] = "q";
 static char __pyx_k_s[] = "s";
 static char __pyx_k_CP0[] = "CP0";
 static char __pyx_k_EOS[] = "EOS";
-static char __pyx_k_opt[] = "opt";
 static char __pyx_k_rho[] = "rho";
 static char __pyx_k_TMax[] = "TMax";
 static char __pyx_k_TMin[] = "TMin";
@@ -876,7 +878,6 @@ static PyObject *__pyx_n_s_h;
 static PyObject *__pyx_n_s_isTwoPhase;
 static PyObject *__pyx_n_s_join;
 static PyObject *__pyx_n_s_main;
-static PyObject *__pyx_n_s_opt;
 static PyObject *__pyx_n_s_p;
 static PyObject *__pyx_n_s_pMax;
 static PyObject *__pyx_n_s_psatL;
@@ -2560,20 +2561,19 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_5Fluid_8saturation_T(s
 /* "smo/media/CoolProp/CoolProp.pyx":156
  * 	cdef CP.SmoFlow_CoolPropState* ptr
  * 
- * 	def __init__(self, fluid, opt = None):             # <<<<<<<<<<<<<<
- * 		"""__init__(fluid, opt = None)
+ * 	def __init__(self, fluid):             # <<<<<<<<<<<<<<
+ * 		"""__init__(fluid)
  * 		:param fluid: name of fluid or :class:`Fluid` object
  */
 
 /* Python wrapper */
 static int __pyx_pw_3smo_5media_8CoolProp_8CoolProp_10FluidState_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_3smo_5media_8CoolProp_8CoolProp_10FluidState___init__[] = "__init__(fluid, opt = None)\n\t\t:param fluid: name of fluid or :class:`Fluid` object\n\t\t";
+static char __pyx_doc_3smo_5media_8CoolProp_8CoolProp_10FluidState___init__[] = "__init__(fluid)\n\t\t:param fluid: name of fluid or :class:`Fluid` object\n\t\t";
 #if CYTHON_COMPILING_IN_CPYTHON
 struct wrapperbase __pyx_wrapperbase_3smo_5media_8CoolProp_8CoolProp_10FluidState___init__;
 #endif
 static int __pyx_pw_3smo_5media_8CoolProp_8CoolProp_10FluidState_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   CYTHON_UNUSED PyObject *__pyx_v_fluid = 0;
-  CYTHON_UNUSED PyObject *__pyx_v_opt = 0;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
@@ -2581,14 +2581,12 @@ static int __pyx_pw_3smo_5media_8CoolProp_8CoolProp_10FluidState_1__init__(PyObj
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__init__ (wrapper)", 0);
   {
-    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_fluid,&__pyx_n_s_opt,0};
-    PyObject* values[2] = {0,0};
-    values[1] = ((PyObject *)Py_None);
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_fluid,0};
+    PyObject* values[1] = {0};
     if (unlikely(__pyx_kwds)) {
       Py_ssize_t kw_args;
       const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
       switch (pos_args) {
-        case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
         case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
@@ -2598,42 +2596,33 @@ static int __pyx_pw_3smo_5media_8CoolProp_8CoolProp_10FluidState_1__init__(PyObj
         case  0:
         if (likely((values[0] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_fluid)) != 0)) kw_args--;
         else goto __pyx_L5_argtuple_error;
-        case  1:
-        if (kw_args > 0) {
-          PyObject* value = PyDict_GetItem(__pyx_kwds, __pyx_n_s_opt);
-          if (value) { values[1] = value; kw_args--; }
-        }
       }
       if (unlikely(kw_args > 0)) {
         if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 156; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
       }
+    } else if (PyTuple_GET_SIZE(__pyx_args) != 1) {
+      goto __pyx_L5_argtuple_error;
     } else {
-      switch (PyTuple_GET_SIZE(__pyx_args)) {
-        case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
-        case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
-        break;
-        default: goto __pyx_L5_argtuple_error;
-      }
+      values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
     }
     __pyx_v_fluid = values[0];
-    __pyx_v_opt = values[1];
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__init__", 0, 1, 2, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 156; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+  __Pyx_RaiseArgtupleInvalid("__init__", 1, 1, 1, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 156; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
   __pyx_L3_error:;
   __Pyx_AddTraceback("smo.media.CoolProp.CoolProp.FluidState.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return -1;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState___init__(((struct __pyx_obj_3smo_5media_8CoolProp_8CoolProp_FluidState *)__pyx_v_self), __pyx_v_fluid, __pyx_v_opt);
+  __pyx_r = __pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState___init__(((struct __pyx_obj_3smo_5media_8CoolProp_8CoolProp_FluidState *)__pyx_v_self), __pyx_v_fluid);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState___init__(CYTHON_UNUSED struct __pyx_obj_3smo_5media_8CoolProp_8CoolProp_FluidState *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v_fluid, CYTHON_UNUSED PyObject *__pyx_v_opt) {
+static int __pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState___init__(CYTHON_UNUSED struct __pyx_obj_3smo_5media_8CoolProp_8CoolProp_FluidState *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v_fluid) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__init__", 0);
@@ -2647,7 +2636,7 @@ static int __pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState___init__(CYTHON
 /* "smo/media/CoolProp/CoolProp.pyx":162
  * 		pass
  * 
- * 	def __cinit__(self, fluid, opt = None):             # <<<<<<<<<<<<<<
+ * 	def __cinit__(self, fluid):             # <<<<<<<<<<<<<<
  * 		cdef string fluidName
  * 		# From fluid name
  */
@@ -2656,7 +2645,6 @@ static int __pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState___init__(CYTHON
 static int __pyx_pw_3smo_5media_8CoolProp_8CoolProp_10FluidState_3__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static int __pyx_pw_3smo_5media_8CoolProp_8CoolProp_10FluidState_3__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_fluid = 0;
-  CYTHON_UNUSED PyObject *__pyx_v_opt = 0;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
@@ -2664,14 +2652,12 @@ static int __pyx_pw_3smo_5media_8CoolProp_8CoolProp_10FluidState_3__cinit__(PyOb
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__cinit__ (wrapper)", 0);
   {
-    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_fluid,&__pyx_n_s_opt,0};
-    PyObject* values[2] = {0,0};
-    values[1] = ((PyObject *)Py_None);
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_fluid,0};
+    PyObject* values[1] = {0};
     if (unlikely(__pyx_kwds)) {
       Py_ssize_t kw_args;
       const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
       switch (pos_args) {
-        case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
         case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
@@ -2681,42 +2667,33 @@ static int __pyx_pw_3smo_5media_8CoolProp_8CoolProp_10FluidState_3__cinit__(PyOb
         case  0:
         if (likely((values[0] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_fluid)) != 0)) kw_args--;
         else goto __pyx_L5_argtuple_error;
-        case  1:
-        if (kw_args > 0) {
-          PyObject* value = PyDict_GetItem(__pyx_kwds, __pyx_n_s_opt);
-          if (value) { values[1] = value; kw_args--; }
-        }
       }
       if (unlikely(kw_args > 0)) {
         if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__cinit__") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 162; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
       }
+    } else if (PyTuple_GET_SIZE(__pyx_args) != 1) {
+      goto __pyx_L5_argtuple_error;
     } else {
-      switch (PyTuple_GET_SIZE(__pyx_args)) {
-        case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
-        case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
-        break;
-        default: goto __pyx_L5_argtuple_error;
-      }
+      values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
     }
     __pyx_v_fluid = values[0];
-    __pyx_v_opt = values[1];
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__cinit__", 0, 1, 2, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 162; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+  __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 1, 1, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 162; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
   __pyx_L3_error:;
   __Pyx_AddTraceback("smo.media.CoolProp.CoolProp.FluidState.__cinit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return -1;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_2__cinit__(((struct __pyx_obj_3smo_5media_8CoolProp_8CoolProp_FluidState *)__pyx_v_self), __pyx_v_fluid, __pyx_v_opt);
+  __pyx_r = __pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_2__cinit__(((struct __pyx_obj_3smo_5media_8CoolProp_8CoolProp_FluidState *)__pyx_v_self), __pyx_v_fluid);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_2__cinit__(struct __pyx_obj_3smo_5media_8CoolProp_8CoolProp_FluidState *__pyx_v_self, PyObject *__pyx_v_fluid, CYTHON_UNUSED PyObject *__pyx_v_opt) {
+static int __pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_2__cinit__(struct __pyx_obj_3smo_5media_8CoolProp_8CoolProp_FluidState *__pyx_v_self, PyObject *__pyx_v_fluid) {
   std::string __pyx_v_fluidName;
   int __pyx_r;
   __Pyx_RefNannyDeclarations
@@ -2825,7 +2802,7 @@ static int __pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_2__cinit__(stru
   /* "smo/media/CoolProp/CoolProp.pyx":162
  * 		pass
  * 
- * 	def __cinit__(self, fluid, opt = None):             # <<<<<<<<<<<<<<
+ * 	def __cinit__(self, fluid):             # <<<<<<<<<<<<<<
  * 		cdef string fluidName
  * 		# From fluid name
  */
@@ -4024,7 +4001,7 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_8dpdrho_t
  * 				_dpdrho_t = self.ptr.dpdrho_constT();
  * 			return _dpdrho_t             # <<<<<<<<<<<<<<
  * ####################################################################
- * ####################################################################
+ * ##### New derivatives #####
  */
   __Pyx_XDECREF(__pyx_r);
   __pyx_t_2 = PyFloat_FromDouble(__pyx_v__dpdrho_t); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 273; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
@@ -4052,7 +4029,306 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_8dpdrho_t
   return __pyx_r;
 }
 
-/* "smo/media/CoolProp/CoolProp.pyx":281
+/* "smo/media/CoolProp/CoolProp.pyx":278
+ * 	property dsdp_t:
+ * 			""""""
+ * 			def __get__(self):             # <<<<<<<<<<<<<<
+ * 				cdef double _dsdp_constT
+ * 				if (self.ptr.TwoPhase):
+ */
+
+/* Python wrapper */
+static PyObject *__pyx_pw_3smo_5media_8CoolProp_8CoolProp_10FluidState_6dsdp_t_1__get__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_3smo_5media_8CoolProp_8CoolProp_10FluidState_6dsdp_t_1__get__(PyObject *__pyx_v_self) {
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("__get__ (wrapper)", 0);
+  __pyx_r = __pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_6dsdp_t___get__(((struct __pyx_obj_3smo_5media_8CoolProp_8CoolProp_FluidState *)__pyx_v_self));
+
+  /* function exit code */
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_6dsdp_t___get__(struct __pyx_obj_3smo_5media_8CoolProp_8CoolProp_FluidState *__pyx_v_self) {
+  double __pyx_v__dsdp_constT;
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  int __pyx_t_1;
+  PyObject *__pyx_t_2 = NULL;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  __Pyx_RefNannySetupContext("__get__", 0);
+
+  /* "smo/media/CoolProp/CoolProp.pyx":280
+ * 			def __get__(self):
+ * 				cdef double _dsdp_constT
+ * 				if (self.ptr.TwoPhase):             # <<<<<<<<<<<<<<
+ * 					_dsdp_constT = INFINITY
+ * 				else:
+ */
+  __pyx_t_1 = (__pyx_v_self->ptr->TwoPhase != 0);
+  if (__pyx_t_1) {
+
+    /* "smo/media/CoolProp/CoolProp.pyx":281
+ * 				cdef double _dsdp_constT
+ * 				if (self.ptr.TwoPhase):
+ * 					_dsdp_constT = INFINITY             # <<<<<<<<<<<<<<
+ * 				else:
+ * 					_dsdp_constT = self.ptr.dsdp_constT()
+ */
+    __pyx_v__dsdp_constT = NPY_INFINITY;
+    goto __pyx_L3;
+  }
+  /*else*/ {
+
+    /* "smo/media/CoolProp/CoolProp.pyx":283
+ * 					_dsdp_constT = INFINITY
+ * 				else:
+ * 					_dsdp_constT = self.ptr.dsdp_constT()             # <<<<<<<<<<<<<<
+ * 				return _dsdp_constT
+ * 
+ */
+    __pyx_v__dsdp_constT = __pyx_v_self->ptr->dsdp_constT();
+  }
+  __pyx_L3:;
+
+  /* "smo/media/CoolProp/CoolProp.pyx":284
+ * 				else:
+ * 					_dsdp_constT = self.ptr.dsdp_constT()
+ * 				return _dsdp_constT             # <<<<<<<<<<<<<<
+ * 
+ * 	property dhdt_p:
+ */
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_2 = PyFloat_FromDouble(__pyx_v__dsdp_constT); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 284; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_r = __pyx_t_2;
+  __pyx_t_2 = 0;
+  goto __pyx_L0;
+
+  /* "smo/media/CoolProp/CoolProp.pyx":278
+ * 	property dsdp_t:
+ * 			""""""
+ * 			def __get__(self):             # <<<<<<<<<<<<<<
+ * 				cdef double _dsdp_constT
+ * 				if (self.ptr.TwoPhase):
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_AddTraceback("smo.media.CoolProp.CoolProp.FluidState.dsdp_t.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "smo/media/CoolProp/CoolProp.pyx":288
+ * 	property dhdt_p:
+ * 			""""""
+ * 			def __get__(self):             # <<<<<<<<<<<<<<
+ * 				cdef double _dhdT_constp
+ * 				if (self.ptr.TwoPhase):
+ */
+
+/* Python wrapper */
+static PyObject *__pyx_pw_3smo_5media_8CoolProp_8CoolProp_10FluidState_6dhdt_p_1__get__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_3smo_5media_8CoolProp_8CoolProp_10FluidState_6dhdt_p_1__get__(PyObject *__pyx_v_self) {
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("__get__ (wrapper)", 0);
+  __pyx_r = __pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_6dhdt_p___get__(((struct __pyx_obj_3smo_5media_8CoolProp_8CoolProp_FluidState *)__pyx_v_self));
+
+  /* function exit code */
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_6dhdt_p___get__(struct __pyx_obj_3smo_5media_8CoolProp_8CoolProp_FluidState *__pyx_v_self) {
+  double __pyx_v__dhdT_constp;
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  int __pyx_t_1;
+  PyObject *__pyx_t_2 = NULL;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  __Pyx_RefNannySetupContext("__get__", 0);
+
+  /* "smo/media/CoolProp/CoolProp.pyx":290
+ * 			def __get__(self):
+ * 				cdef double _dhdT_constp
+ * 				if (self.ptr.TwoPhase):             # <<<<<<<<<<<<<<
+ * 					_dhdT_constp = INFINITY
+ * 				else:
+ */
+  __pyx_t_1 = (__pyx_v_self->ptr->TwoPhase != 0);
+  if (__pyx_t_1) {
+
+    /* "smo/media/CoolProp/CoolProp.pyx":291
+ * 				cdef double _dhdT_constp
+ * 				if (self.ptr.TwoPhase):
+ * 					_dhdT_constp = INFINITY             # <<<<<<<<<<<<<<
+ * 				else:
+ * 					_dhdT_constp = self.ptr.dhdT_constp()
+ */
+    __pyx_v__dhdT_constp = NPY_INFINITY;
+    goto __pyx_L3;
+  }
+  /*else*/ {
+
+    /* "smo/media/CoolProp/CoolProp.pyx":293
+ * 					_dhdT_constp = INFINITY
+ * 				else:
+ * 					_dhdT_constp = self.ptr.dhdT_constp()             # <<<<<<<<<<<<<<
+ * 				return _dhdT_constp
+ * 
+ */
+    __pyx_v__dhdT_constp = __pyx_v_self->ptr->dhdT_constp();
+  }
+  __pyx_L3:;
+
+  /* "smo/media/CoolProp/CoolProp.pyx":294
+ * 				else:
+ * 					_dhdT_constp = self.ptr.dhdT_constp()
+ * 				return _dhdT_constp             # <<<<<<<<<<<<<<
+ * 
+ * 	property dpdt_h:
+ */
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_2 = PyFloat_FromDouble(__pyx_v__dhdT_constp); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 294; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_r = __pyx_t_2;
+  __pyx_t_2 = 0;
+  goto __pyx_L0;
+
+  /* "smo/media/CoolProp/CoolProp.pyx":288
+ * 	property dhdt_p:
+ * 			""""""
+ * 			def __get__(self):             # <<<<<<<<<<<<<<
+ * 				cdef double _dhdT_constp
+ * 				if (self.ptr.TwoPhase):
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_AddTraceback("smo.media.CoolProp.CoolProp.FluidState.dhdt_p.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "smo/media/CoolProp/CoolProp.pyx":298
+ * 	property dpdt_h:
+ * 			""""""
+ * 			def __get__(self):             # <<<<<<<<<<<<<<
+ * 				cdef double _dpdT_consth
+ * 				if (self.ptr.TwoPhase):
+ */
+
+/* Python wrapper */
+static PyObject *__pyx_pw_3smo_5media_8CoolProp_8CoolProp_10FluidState_6dpdt_h_1__get__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_3smo_5media_8CoolProp_8CoolProp_10FluidState_6dpdt_h_1__get__(PyObject *__pyx_v_self) {
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("__get__ (wrapper)", 0);
+  __pyx_r = __pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_6dpdt_h___get__(((struct __pyx_obj_3smo_5media_8CoolProp_8CoolProp_FluidState *)__pyx_v_self));
+
+  /* function exit code */
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_6dpdt_h___get__(struct __pyx_obj_3smo_5media_8CoolProp_8CoolProp_FluidState *__pyx_v_self) {
+  double __pyx_v__dpdT_consth;
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  int __pyx_t_1;
+  PyObject *__pyx_t_2 = NULL;
+  double __pyx_t_3;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  __Pyx_RefNannySetupContext("__get__", 0);
+
+  /* "smo/media/CoolProp/CoolProp.pyx":300
+ * 			def __get__(self):
+ * 				cdef double _dpdT_consth
+ * 				if (self.ptr.TwoPhase):             # <<<<<<<<<<<<<<
+ * 					_dpdT_consth = self.dpdt_sat
+ * 				else:
+ */
+  __pyx_t_1 = (__pyx_v_self->ptr->TwoPhase != 0);
+  if (__pyx_t_1) {
+
+    /* "smo/media/CoolProp/CoolProp.pyx":301
+ * 				cdef double _dpdT_consth
+ * 				if (self.ptr.TwoPhase):
+ * 					_dpdT_consth = self.dpdt_sat             # <<<<<<<<<<<<<<
+ * 				else:
+ * 					_dpdT_consth = self.ptr.dpdT_consth()
+ */
+    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_dpdt_sat); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 301; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __Pyx_GOTREF(__pyx_t_2);
+    __pyx_t_3 = __pyx_PyFloat_AsDouble(__pyx_t_2); if (unlikely((__pyx_t_3 == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 301; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+    __pyx_v__dpdT_consth = __pyx_t_3;
+    goto __pyx_L3;
+  }
+  /*else*/ {
+
+    /* "smo/media/CoolProp/CoolProp.pyx":303
+ * 					_dpdT_consth = self.dpdt_sat
+ * 				else:
+ * 					_dpdT_consth = self.ptr.dpdT_consth()             # <<<<<<<<<<<<<<
+ * 				return _dpdT_consth
+ * 
+ */
+    __pyx_v__dpdT_consth = __pyx_v_self->ptr->dpdT_consth();
+  }
+  __pyx_L3:;
+
+  /* "smo/media/CoolProp/CoolProp.pyx":304
+ * 				else:
+ * 					_dpdT_consth = self.ptr.dpdT_consth()
+ * 				return _dpdT_consth             # <<<<<<<<<<<<<<
+ * 
+ * # 	property drhodp_h:
+ */
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_2 = PyFloat_FromDouble(__pyx_v__dpdT_consth); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 304; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_r = __pyx_t_2;
+  __pyx_t_2 = 0;
+  goto __pyx_L0;
+
+  /* "smo/media/CoolProp/CoolProp.pyx":298
+ * 	property dpdt_h:
+ * 			""""""
+ * 			def __get__(self):             # <<<<<<<<<<<<<<
+ * 				cdef double _dpdT_consth
+ * 				if (self.ptr.TwoPhase):
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_AddTraceback("smo.media.CoolProp.CoolProp.FluidState.dpdt_h.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "smo/media/CoolProp/CoolProp.pyx":331
  * 	property dpdt_sat:
  * 		""""""
  * 		def __get__(self):             # <<<<<<<<<<<<<<
@@ -4083,7 +4359,7 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_8dpdt_sat
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "smo/media/CoolProp/CoolProp.pyx":282
+  /* "smo/media/CoolProp/CoolProp.pyx":332
  * 		""""""
  * 		def __get__(self):
  * 			return 1./self.ptr.dTdp_along_sat();             # <<<<<<<<<<<<<<
@@ -4100,15 +4376,15 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_8dpdt_sat
     #ifdef WITH_THREAD
     PyGILState_Release(__pyx_gilstate_save);
     #endif
-    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 282; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 332; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
-  __pyx_t_2 = PyFloat_FromDouble((1. / __pyx_t_1)); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 282; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = PyFloat_FromDouble((1. / __pyx_t_1)); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 332; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "smo/media/CoolProp/CoolProp.pyx":281
+  /* "smo/media/CoolProp/CoolProp.pyx":331
  * 	property dpdt_sat:
  * 		""""""
  * 		def __get__(self):             # <<<<<<<<<<<<<<
@@ -4127,7 +4403,7 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_8dpdt_sat
   return __pyx_r;
 }
 
-/* "smo/media/CoolProp/CoolProp.pyx":285
+/* "smo/media/CoolProp/CoolProp.pyx":335
  * 	property beta:
  * 		"""isobaric thermal expansivity"""
  * 		def __get__(self):             # <<<<<<<<<<<<<<
@@ -4158,7 +4434,7 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_4beta___g
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "smo/media/CoolProp/CoolProp.pyx":286
+  /* "smo/media/CoolProp/CoolProp.pyx":336
  * 		"""isobaric thermal expansivity"""
  * 		def __get__(self):
  * 			if (not self.ptr.TwoPhase):             # <<<<<<<<<<<<<<
@@ -4168,7 +4444,7 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_4beta___g
   __pyx_t_1 = ((!(__pyx_v_self->ptr->TwoPhase != 0)) != 0);
   if (__pyx_t_1) {
 
-    /* "smo/media/CoolProp/CoolProp.pyx":287
+    /* "smo/media/CoolProp/CoolProp.pyx":337
  * 		def __get__(self):
  * 			if (not self.ptr.TwoPhase):
  * 				return self.ptr.rho() * self.ptr.dvdT_constp()             # <<<<<<<<<<<<<<
@@ -4176,7 +4452,7 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_4beta___g
  * 				return 0
  */
     __Pyx_XDECREF(__pyx_r);
-    __pyx_t_2 = PyFloat_FromDouble((__pyx_v_self->ptr->rho() * __pyx_v_self->ptr->dvdT_constp())); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 287; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_2 = PyFloat_FromDouble((__pyx_v_self->ptr->rho() * __pyx_v_self->ptr->dvdT_constp())); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 337; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_2);
     __pyx_r = __pyx_t_2;
     __pyx_t_2 = 0;
@@ -4184,7 +4460,7 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_4beta___g
   }
   /*else*/ {
 
-    /* "smo/media/CoolProp/CoolProp.pyx":289
+    /* "smo/media/CoolProp/CoolProp.pyx":339
  * 				return self.ptr.rho() * self.ptr.dvdT_constp()
  * 			else:
  * 				return 0             # <<<<<<<<<<<<<<
@@ -4197,7 +4473,7 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_4beta___g
     goto __pyx_L0;
   }
 
-  /* "smo/media/CoolProp/CoolProp.pyx":285
+  /* "smo/media/CoolProp/CoolProp.pyx":335
  * 	property beta:
  * 		"""isobaric thermal expansivity"""
  * 		def __get__(self):             # <<<<<<<<<<<<<<
@@ -4216,7 +4492,7 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_4beta___g
   return __pyx_r;
 }
 
-/* "smo/media/CoolProp/CoolProp.pyx":292
+/* "smo/media/CoolProp/CoolProp.pyx":342
  * 	property mu:
  * 		"""dynamic viscosity"""
  * 		def __get__(self):             # <<<<<<<<<<<<<<
@@ -4246,7 +4522,7 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_2mu___get
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "smo/media/CoolProp/CoolProp.pyx":293
+  /* "smo/media/CoolProp/CoolProp.pyx":343
  * 		"""dynamic viscosity"""
  * 		def __get__(self):
  * 			return self.ptr.viscosity()             # <<<<<<<<<<<<<<
@@ -4254,13 +4530,13 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_2mu___get
  * 		"""thermal conductivity"""
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->ptr->viscosity()); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 293; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->ptr->viscosity()); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 343; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "smo/media/CoolProp/CoolProp.pyx":292
+  /* "smo/media/CoolProp/CoolProp.pyx":342
  * 	property mu:
  * 		"""dynamic viscosity"""
  * 		def __get__(self):             # <<<<<<<<<<<<<<
@@ -4279,7 +4555,7 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_2mu___get
   return __pyx_r;
 }
 
-/* "smo/media/CoolProp/CoolProp.pyx":296
+/* "smo/media/CoolProp/CoolProp.pyx":346
  * 	property cond:
  * 		"""thermal conductivity"""
  * 		def __get__(self):             # <<<<<<<<<<<<<<
@@ -4309,7 +4585,7 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_4cond___g
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "smo/media/CoolProp/CoolProp.pyx":297
+  /* "smo/media/CoolProp/CoolProp.pyx":347
  * 		"""thermal conductivity"""
  * 		def __get__(self):
  * 			return self.ptr.conductivity()             # <<<<<<<<<<<<<<
@@ -4317,13 +4593,13 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_4cond___g
  * 		"""Prandtl number"""
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->ptr->conductivity()); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 297; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->ptr->conductivity()); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 347; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "smo/media/CoolProp/CoolProp.pyx":296
+  /* "smo/media/CoolProp/CoolProp.pyx":346
  * 	property cond:
  * 		"""thermal conductivity"""
  * 		def __get__(self):             # <<<<<<<<<<<<<<
@@ -4342,7 +4618,7 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_4cond___g
   return __pyx_r;
 }
 
-/* "smo/media/CoolProp/CoolProp.pyx":300
+/* "smo/media/CoolProp/CoolProp.pyx":350
  * 	property Pr:
  * 		"""Prandtl number"""
  * 		def __get__(self):             # <<<<<<<<<<<<<<
@@ -4372,7 +4648,7 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_2Pr___get
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "smo/media/CoolProp/CoolProp.pyx":301
+  /* "smo/media/CoolProp/CoolProp.pyx":351
  * 		"""Prandtl number"""
  * 		def __get__(self):
  * 			return self.ptr.Prandtl()             # <<<<<<<<<<<<<<
@@ -4380,13 +4656,13 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_2Pr___get
  * 		"""cp / cv"""
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->ptr->Prandtl()); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 301; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_self->ptr->Prandtl()); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 351; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "smo/media/CoolProp/CoolProp.pyx":300
+  /* "smo/media/CoolProp/CoolProp.pyx":350
  * 	property Pr:
  * 		"""Prandtl number"""
  * 		def __get__(self):             # <<<<<<<<<<<<<<
@@ -4405,7 +4681,7 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_2Pr___get
   return __pyx_r;
 }
 
-/* "smo/media/CoolProp/CoolProp.pyx":304
+/* "smo/media/CoolProp/CoolProp.pyx":354
  * 	property gamma:
  * 		"""cp / cv"""
  * 		def __get__(self):             # <<<<<<<<<<<<<<
@@ -4437,7 +4713,7 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_5gamma___
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
 
-  /* "smo/media/CoolProp/CoolProp.pyx":305
+  /* "smo/media/CoolProp/CoolProp.pyx":355
  * 		"""cp / cv"""
  * 		def __get__(self):
  * 			return self.ptr.cp() / self.ptr.cv();             # <<<<<<<<<<<<<<
@@ -4455,15 +4731,15 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_5gamma___
     #ifdef WITH_THREAD
     PyGILState_Release(__pyx_gilstate_save);
     #endif
-    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 305; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 355; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
-  __pyx_t_3 = PyFloat_FromDouble((__pyx_t_1 / __pyx_t_2)); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 305; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_3 = PyFloat_FromDouble((__pyx_t_1 / __pyx_t_2)); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 355; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_r = __pyx_t_3;
   __pyx_t_3 = 0;
   goto __pyx_L0;
 
-  /* "smo/media/CoolProp/CoolProp.pyx":304
+  /* "smo/media/CoolProp/CoolProp.pyx":354
  * 	property gamma:
  * 		"""cp / cv"""
  * 		def __get__(self):             # <<<<<<<<<<<<<<
@@ -4482,7 +4758,7 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_5gamma___
   return __pyx_r;
 }
 
-/* "smo/media/CoolProp/CoolProp.pyx":307
+/* "smo/media/CoolProp/CoolProp.pyx":357
  * 			return self.ptr.cp() / self.ptr.cv();
  * 
  * 	def update(self,             # <<<<<<<<<<<<<<
@@ -4526,21 +4802,21 @@ static PyObject *__pyx_pw_3smo_5media_8CoolProp_8CoolProp_10FluidState_9update(P
         case  1:
         if (likely((values[1] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_state1Value)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("update", 1, 4, 4, 1); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 307; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+          __Pyx_RaiseArgtupleInvalid("update", 1, 4, 4, 1); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 357; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
         }
         case  2:
         if (likely((values[2] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_state2)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("update", 1, 4, 4, 2); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 307; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+          __Pyx_RaiseArgtupleInvalid("update", 1, 4, 4, 2); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 357; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
         }
         case  3:
         if (likely((values[3] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_state2Value)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("update", 1, 4, 4, 3); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 307; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+          __Pyx_RaiseArgtupleInvalid("update", 1, 4, 4, 3); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 357; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "update") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 307; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "update") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 357; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 4) {
       goto __pyx_L5_argtuple_error;
@@ -4550,14 +4826,14 @@ static PyObject *__pyx_pw_3smo_5media_8CoolProp_8CoolProp_10FluidState_9update(P
       values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
       values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
     }
-    __pyx_v_state1 = __pyx_convert_string_from_py_std__string(values[0]); if (unlikely(PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 308; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
-    __pyx_v_state1Value = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_state1Value == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 308; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
-    __pyx_v_state2 = __pyx_convert_string_from_py_std__string(values[2]); if (unlikely(PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 309; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
-    __pyx_v_state2Value = __pyx_PyFloat_AsDouble(values[3]); if (unlikely((__pyx_v_state2Value == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 309; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+    __pyx_v_state1 = __pyx_convert_string_from_py_std__string(values[0]); if (unlikely(PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 358; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+    __pyx_v_state1Value = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_state1Value == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 358; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+    __pyx_v_state2 = __pyx_convert_string_from_py_std__string(values[2]); if (unlikely(PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 359; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+    __pyx_v_state2Value = __pyx_PyFloat_AsDouble(values[3]); if (unlikely((__pyx_v_state2Value == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 359; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("update", 1, 4, 4, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 307; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+  __Pyx_RaiseArgtupleInvalid("update", 1, 4, 4, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 357; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
   __pyx_L3_error:;
   __Pyx_AddTraceback("smo.media.CoolProp.CoolProp.FluidState.update", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -4581,7 +4857,7 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_8update(s
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("update", 0);
 
-  /* "smo/media/CoolProp/CoolProp.pyx":317
+  /* "smo/media/CoolProp/CoolProp.pyx":367
  * 		Updates fluid state by two state variables.
  * 		"""
  * 		cdef long p1Index = CP.get_param_index(state1)             # <<<<<<<<<<<<<<
@@ -4592,11 +4868,11 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_8update(s
     __pyx_t_1 = get_param_index(__pyx_v_state1);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 317; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 367; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
   __pyx_v_p1Index = __pyx_t_1;
 
-  /* "smo/media/CoolProp/CoolProp.pyx":318
+  /* "smo/media/CoolProp/CoolProp.pyx":368
  * 		"""
  * 		cdef long p1Index = CP.get_param_index(state1)
  * 		cdef long p2Index = CP.get_param_index(state2)             # <<<<<<<<<<<<<<
@@ -4607,11 +4883,11 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_8update(s
     __pyx_t_1 = get_param_index(__pyx_v_state2);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 318; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 368; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
   __pyx_v_p2Index = __pyx_t_1;
 
-  /* "smo/media/CoolProp/CoolProp.pyx":319
+  /* "smo/media/CoolProp/CoolProp.pyx":369
  * 		cdef long p1Index = CP.get_param_index(state1)
  * 		cdef long p2Index = CP.get_param_index(state2)
  * 		self.ptr.update(p1Index, state1Value, p2Index, state2Value, -1, -1)             # <<<<<<<<<<<<<<
@@ -4622,10 +4898,10 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_8update(s
     __pyx_v_self->ptr->update(__pyx_v_p1Index, __pyx_v_state1Value, __pyx_v_p2Index, __pyx_v_state2Value, -1.0, -1.0);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 319; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 369; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
 
-  /* "smo/media/CoolProp/CoolProp.pyx":307
+  /* "smo/media/CoolProp/CoolProp.pyx":357
  * 			return self.ptr.cp() / self.ptr.cv();
  * 
  * 	def update(self,             # <<<<<<<<<<<<<<
@@ -4645,7 +4921,7 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_8update(s
   return __pyx_r;
 }
 
-/* "smo/media/CoolProp/CoolProp.pyx":320
+/* "smo/media/CoolProp/CoolProp.pyx":370
  * 		cdef long p2Index = CP.get_param_index(state2)
  * 		self.ptr.update(p1Index, state1Value, p2Index, state2Value, -1, -1)
  * 	def update_Tp(self, double T, double p):             # <<<<<<<<<<<<<<
@@ -4685,11 +4961,11 @@ static PyObject *__pyx_pw_3smo_5media_8CoolProp_8CoolProp_10FluidState_11update_
         case  1:
         if (likely((values[1] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_p)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("update_Tp", 1, 2, 2, 1); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 320; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+          __Pyx_RaiseArgtupleInvalid("update_Tp", 1, 2, 2, 1); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 370; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "update_Tp") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 320; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "update_Tp") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 370; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -4697,12 +4973,12 @@ static PyObject *__pyx_pw_3smo_5media_8CoolProp_8CoolProp_10FluidState_11update_
       values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
       values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
     }
-    __pyx_v_T = __pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_T == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 320; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
-    __pyx_v_p = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_p == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 320; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+    __pyx_v_T = __pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_T == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 370; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+    __pyx_v_p = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_p == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 370; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("update_Tp", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 320; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+  __Pyx_RaiseArgtupleInvalid("update_Tp", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 370; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
   __pyx_L3_error:;
   __Pyx_AddTraceback("smo.media.CoolProp.CoolProp.FluidState.update_Tp", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -4723,7 +4999,7 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_10update_
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("update_Tp", 0);
 
-  /* "smo/media/CoolProp/CoolProp.pyx":326
+  /* "smo/media/CoolProp/CoolProp.pyx":376
  * 		Updates fluid state by temperature and presure
  * 		"""
  * 		self.ptr.update(iT, T, iP, p, -1, -1)             # <<<<<<<<<<<<<<
@@ -4734,10 +5010,10 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_10update_
     __pyx_v_self->ptr->update(__pyx_v_3smo_5media_8CoolProp_8CoolProp_iT, __pyx_v_T, __pyx_v_3smo_5media_8CoolProp_8CoolProp_iP, __pyx_v_p, -1.0, -1.0);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 326; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 376; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
 
-  /* "smo/media/CoolProp/CoolProp.pyx":320
+  /* "smo/media/CoolProp/CoolProp.pyx":370
  * 		cdef long p2Index = CP.get_param_index(state2)
  * 		self.ptr.update(p1Index, state1Value, p2Index, state2Value, -1, -1)
  * 	def update_Tp(self, double T, double p):             # <<<<<<<<<<<<<<
@@ -4757,7 +5033,7 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_10update_
   return __pyx_r;
 }
 
-/* "smo/media/CoolProp/CoolProp.pyx":327
+/* "smo/media/CoolProp/CoolProp.pyx":377
  * 		"""
  * 		self.ptr.update(iT, T, iP, p, -1, -1)
  * 	def update_Trho(self, double T, double rho):             # <<<<<<<<<<<<<<
@@ -4797,11 +5073,11 @@ static PyObject *__pyx_pw_3smo_5media_8CoolProp_8CoolProp_10FluidState_13update_
         case  1:
         if (likely((values[1] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_rho)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("update_Trho", 1, 2, 2, 1); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 327; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+          __Pyx_RaiseArgtupleInvalid("update_Trho", 1, 2, 2, 1); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 377; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "update_Trho") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 327; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "update_Trho") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 377; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -4809,12 +5085,12 @@ static PyObject *__pyx_pw_3smo_5media_8CoolProp_8CoolProp_10FluidState_13update_
       values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
       values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
     }
-    __pyx_v_T = __pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_T == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 327; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
-    __pyx_v_rho = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_rho == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 327; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+    __pyx_v_T = __pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_T == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 377; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+    __pyx_v_rho = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_rho == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 377; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("update_Trho", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 327; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+  __Pyx_RaiseArgtupleInvalid("update_Trho", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 377; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
   __pyx_L3_error:;
   __Pyx_AddTraceback("smo.media.CoolProp.CoolProp.FluidState.update_Trho", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -4835,7 +5111,7 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_12update_
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("update_Trho", 0);
 
-  /* "smo/media/CoolProp/CoolProp.pyx":333
+  /* "smo/media/CoolProp/CoolProp.pyx":383
  * 		Updates fluid state by temperature and density
  * 		"""
  * 		self.ptr.update(iT, T, iD, rho, -1, -1)             # <<<<<<<<<<<<<<
@@ -4846,10 +5122,10 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_12update_
     __pyx_v_self->ptr->update(__pyx_v_3smo_5media_8CoolProp_8CoolProp_iT, __pyx_v_T, __pyx_v_3smo_5media_8CoolProp_8CoolProp_iD, __pyx_v_rho, -1.0, -1.0);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 333; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 383; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
 
-  /* "smo/media/CoolProp/CoolProp.pyx":327
+  /* "smo/media/CoolProp/CoolProp.pyx":377
  * 		"""
  * 		self.ptr.update(iT, T, iP, p, -1, -1)
  * 	def update_Trho(self, double T, double rho):             # <<<<<<<<<<<<<<
@@ -4869,7 +5145,7 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_12update_
   return __pyx_r;
 }
 
-/* "smo/media/CoolProp/CoolProp.pyx":334
+/* "smo/media/CoolProp/CoolProp.pyx":384
  * 		"""
  * 		self.ptr.update(iT, T, iD, rho, -1, -1)
  * 	def update_Ts(self, double T, double s):             # <<<<<<<<<<<<<<
@@ -4909,11 +5185,11 @@ static PyObject *__pyx_pw_3smo_5media_8CoolProp_8CoolProp_10FluidState_15update_
         case  1:
         if (likely((values[1] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_s)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("update_Ts", 1, 2, 2, 1); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 334; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+          __Pyx_RaiseArgtupleInvalid("update_Ts", 1, 2, 2, 1); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 384; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "update_Ts") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 334; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "update_Ts") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 384; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -4921,12 +5197,12 @@ static PyObject *__pyx_pw_3smo_5media_8CoolProp_8CoolProp_10FluidState_15update_
       values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
       values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
     }
-    __pyx_v_T = __pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_T == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 334; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
-    __pyx_v_s = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_s == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 334; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+    __pyx_v_T = __pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_T == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 384; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+    __pyx_v_s = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_s == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 384; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("update_Ts", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 334; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+  __Pyx_RaiseArgtupleInvalid("update_Ts", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 384; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
   __pyx_L3_error:;
   __Pyx_AddTraceback("smo.media.CoolProp.CoolProp.FluidState.update_Ts", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -4947,7 +5223,7 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_14update_
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("update_Ts", 0);
 
-  /* "smo/media/CoolProp/CoolProp.pyx":340
+  /* "smo/media/CoolProp/CoolProp.pyx":390
  * 		Updates fluid state by temperature and specific entropy
  * 		"""
  * 		self.ptr.update(iT, T, iS, s, -1, -1)             # <<<<<<<<<<<<<<
@@ -4958,10 +5234,10 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_14update_
     __pyx_v_self->ptr->update(__pyx_v_3smo_5media_8CoolProp_8CoolProp_iT, __pyx_v_T, __pyx_v_3smo_5media_8CoolProp_8CoolProp_iS, __pyx_v_s, -1.0, -1.0);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 340; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 390; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
 
-  /* "smo/media/CoolProp/CoolProp.pyx":334
+  /* "smo/media/CoolProp/CoolProp.pyx":384
  * 		"""
  * 		self.ptr.update(iT, T, iD, rho, -1, -1)
  * 	def update_Ts(self, double T, double s):             # <<<<<<<<<<<<<<
@@ -4981,7 +5257,7 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_14update_
   return __pyx_r;
 }
 
-/* "smo/media/CoolProp/CoolProp.pyx":341
+/* "smo/media/CoolProp/CoolProp.pyx":391
  * 		"""
  * 		self.ptr.update(iT, T, iS, s, -1, -1)
  * 	def update_prho(self, double p, double rho):             # <<<<<<<<<<<<<<
@@ -5021,11 +5297,11 @@ static PyObject *__pyx_pw_3smo_5media_8CoolProp_8CoolProp_10FluidState_17update_
         case  1:
         if (likely((values[1] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_rho)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("update_prho", 1, 2, 2, 1); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 341; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+          __Pyx_RaiseArgtupleInvalid("update_prho", 1, 2, 2, 1); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 391; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "update_prho") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 341; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "update_prho") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 391; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -5033,12 +5309,12 @@ static PyObject *__pyx_pw_3smo_5media_8CoolProp_8CoolProp_10FluidState_17update_
       values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
       values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
     }
-    __pyx_v_p = __pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_p == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 341; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
-    __pyx_v_rho = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_rho == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 341; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+    __pyx_v_p = __pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_p == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 391; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+    __pyx_v_rho = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_rho == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 391; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("update_prho", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 341; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+  __Pyx_RaiseArgtupleInvalid("update_prho", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 391; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
   __pyx_L3_error:;
   __Pyx_AddTraceback("smo.media.CoolProp.CoolProp.FluidState.update_prho", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -5059,7 +5335,7 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_16update_
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("update_prho", 0);
 
-  /* "smo/media/CoolProp/CoolProp.pyx":347
+  /* "smo/media/CoolProp/CoolProp.pyx":397
  * 		Updates fluid state by pressure and density
  * 		"""
  * 		self.ptr.update(iP, p, iD, rho, -1, -1)             # <<<<<<<<<<<<<<
@@ -5070,10 +5346,10 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_16update_
     __pyx_v_self->ptr->update(__pyx_v_3smo_5media_8CoolProp_8CoolProp_iP, __pyx_v_p, __pyx_v_3smo_5media_8CoolProp_8CoolProp_iD, __pyx_v_rho, -1.0, -1.0);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 347; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 397; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
 
-  /* "smo/media/CoolProp/CoolProp.pyx":341
+  /* "smo/media/CoolProp/CoolProp.pyx":391
  * 		"""
  * 		self.ptr.update(iT, T, iS, s, -1, -1)
  * 	def update_prho(self, double p, double rho):             # <<<<<<<<<<<<<<
@@ -5093,7 +5369,7 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_16update_
   return __pyx_r;
 }
 
-/* "smo/media/CoolProp/CoolProp.pyx":348
+/* "smo/media/CoolProp/CoolProp.pyx":398
  * 		"""
  * 		self.ptr.update(iP, p, iD, rho, -1, -1)
  * 	def update_ph(self, double p, double h):             # <<<<<<<<<<<<<<
@@ -5133,11 +5409,11 @@ static PyObject *__pyx_pw_3smo_5media_8CoolProp_8CoolProp_10FluidState_19update_
         case  1:
         if (likely((values[1] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_h)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("update_ph", 1, 2, 2, 1); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 348; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+          __Pyx_RaiseArgtupleInvalid("update_ph", 1, 2, 2, 1); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 398; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "update_ph") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 348; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "update_ph") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 398; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -5145,12 +5421,12 @@ static PyObject *__pyx_pw_3smo_5media_8CoolProp_8CoolProp_10FluidState_19update_
       values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
       values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
     }
-    __pyx_v_p = __pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_p == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 348; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
-    __pyx_v_h = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_h == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 348; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+    __pyx_v_p = __pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_p == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 398; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+    __pyx_v_h = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_h == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 398; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("update_ph", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 348; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+  __Pyx_RaiseArgtupleInvalid("update_ph", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 398; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
   __pyx_L3_error:;
   __Pyx_AddTraceback("smo.media.CoolProp.CoolProp.FluidState.update_ph", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -5171,7 +5447,7 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_18update_
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("update_ph", 0);
 
-  /* "smo/media/CoolProp/CoolProp.pyx":354
+  /* "smo/media/CoolProp/CoolProp.pyx":404
  * 		Updates fluid state by pressure and specific enthalpy
  * 		"""
  * 		self.ptr.update(iP, p, iH, h, -1, -1)             # <<<<<<<<<<<<<<
@@ -5182,10 +5458,10 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_18update_
     __pyx_v_self->ptr->update(__pyx_v_3smo_5media_8CoolProp_8CoolProp_iP, __pyx_v_p, __pyx_v_3smo_5media_8CoolProp_8CoolProp_iH, __pyx_v_h, -1.0, -1.0);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 354; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 404; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
 
-  /* "smo/media/CoolProp/CoolProp.pyx":348
+  /* "smo/media/CoolProp/CoolProp.pyx":398
  * 		"""
  * 		self.ptr.update(iP, p, iD, rho, -1, -1)
  * 	def update_ph(self, double p, double h):             # <<<<<<<<<<<<<<
@@ -5205,7 +5481,7 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_18update_
   return __pyx_r;
 }
 
-/* "smo/media/CoolProp/CoolProp.pyx":355
+/* "smo/media/CoolProp/CoolProp.pyx":405
  * 		"""
  * 		self.ptr.update(iP, p, iH, h, -1, -1)
  * 	def update_ps(self, double p, double s):             # <<<<<<<<<<<<<<
@@ -5245,11 +5521,11 @@ static PyObject *__pyx_pw_3smo_5media_8CoolProp_8CoolProp_10FluidState_21update_
         case  1:
         if (likely((values[1] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_s)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("update_ps", 1, 2, 2, 1); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 355; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+          __Pyx_RaiseArgtupleInvalid("update_ps", 1, 2, 2, 1); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 405; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "update_ps") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 355; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "update_ps") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 405; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -5257,12 +5533,12 @@ static PyObject *__pyx_pw_3smo_5media_8CoolProp_8CoolProp_10FluidState_21update_
       values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
       values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
     }
-    __pyx_v_p = __pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_p == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 355; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
-    __pyx_v_s = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_s == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 355; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+    __pyx_v_p = __pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_p == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 405; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+    __pyx_v_s = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_s == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 405; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("update_ps", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 355; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+  __Pyx_RaiseArgtupleInvalid("update_ps", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 405; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
   __pyx_L3_error:;
   __Pyx_AddTraceback("smo.media.CoolProp.CoolProp.FluidState.update_ps", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -5283,7 +5559,7 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_20update_
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("update_ps", 0);
 
-  /* "smo/media/CoolProp/CoolProp.pyx":361
+  /* "smo/media/CoolProp/CoolProp.pyx":411
  * 		Updates fluid state by pressure and specific entropy
  * 		"""
  * 		self.ptr.update(iP, p, iS, s, -1, -1)             # <<<<<<<<<<<<<<
@@ -5294,10 +5570,10 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_20update_
     __pyx_v_self->ptr->update(__pyx_v_3smo_5media_8CoolProp_8CoolProp_iP, __pyx_v_p, __pyx_v_3smo_5media_8CoolProp_8CoolProp_iS, __pyx_v_s, -1.0, -1.0);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 361; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 411; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
 
-  /* "smo/media/CoolProp/CoolProp.pyx":355
+  /* "smo/media/CoolProp/CoolProp.pyx":405
  * 		"""
  * 		self.ptr.update(iP, p, iH, h, -1, -1)
  * 	def update_ps(self, double p, double s):             # <<<<<<<<<<<<<<
@@ -5317,7 +5593,7 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_20update_
   return __pyx_r;
 }
 
-/* "smo/media/CoolProp/CoolProp.pyx":362
+/* "smo/media/CoolProp/CoolProp.pyx":412
  * 		"""
  * 		self.ptr.update(iP, p, iS, s, -1, -1)
  * 	def update_pq(self, double p, double q):             # <<<<<<<<<<<<<<
@@ -5357,11 +5633,11 @@ static PyObject *__pyx_pw_3smo_5media_8CoolProp_8CoolProp_10FluidState_23update_
         case  1:
         if (likely((values[1] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_q)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("update_pq", 1, 2, 2, 1); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 362; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+          __Pyx_RaiseArgtupleInvalid("update_pq", 1, 2, 2, 1); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 412; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "update_pq") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 362; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "update_pq") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 412; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -5369,12 +5645,12 @@ static PyObject *__pyx_pw_3smo_5media_8CoolProp_8CoolProp_10FluidState_23update_
       values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
       values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
     }
-    __pyx_v_p = __pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_p == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 362; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
-    __pyx_v_q = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_q == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 362; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+    __pyx_v_p = __pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_p == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 412; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+    __pyx_v_q = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_q == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 412; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("update_pq", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 362; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+  __Pyx_RaiseArgtupleInvalid("update_pq", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 412; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
   __pyx_L3_error:;
   __Pyx_AddTraceback("smo.media.CoolProp.CoolProp.FluidState.update_pq", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -5395,7 +5671,7 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_22update_
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("update_pq", 0);
 
-  /* "smo/media/CoolProp/CoolProp.pyx":368
+  /* "smo/media/CoolProp/CoolProp.pyx":418
  * 		Updates fluid state by pressure and vapor quality
  * 		"""
  * 		self.ptr.update(iP, p, iQ, q, -1, -1)             # <<<<<<<<<<<<<<
@@ -5406,10 +5682,10 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_22update_
     __pyx_v_self->ptr->update(__pyx_v_3smo_5media_8CoolProp_8CoolProp_iP, __pyx_v_p, __pyx_v_3smo_5media_8CoolProp_8CoolProp_iQ, __pyx_v_q, -1.0, -1.0);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 368; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 418; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
 
-  /* "smo/media/CoolProp/CoolProp.pyx":362
+  /* "smo/media/CoolProp/CoolProp.pyx":412
  * 		"""
  * 		self.ptr.update(iP, p, iS, s, -1, -1)
  * 	def update_pq(self, double p, double q):             # <<<<<<<<<<<<<<
@@ -5429,7 +5705,7 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_22update_
   return __pyx_r;
 }
 
-/* "smo/media/CoolProp/CoolProp.pyx":369
+/* "smo/media/CoolProp/CoolProp.pyx":419
  * 		"""
  * 		self.ptr.update(iP, p, iQ, q, -1, -1)
  * 	def update_Tq(self, double T, double q):             # <<<<<<<<<<<<<<
@@ -5469,11 +5745,11 @@ static PyObject *__pyx_pw_3smo_5media_8CoolProp_8CoolProp_10FluidState_25update_
         case  1:
         if (likely((values[1] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_q)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("update_Tq", 1, 2, 2, 1); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 369; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+          __Pyx_RaiseArgtupleInvalid("update_Tq", 1, 2, 2, 1); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 419; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "update_Tq") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 369; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "update_Tq") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 419; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -5481,12 +5757,12 @@ static PyObject *__pyx_pw_3smo_5media_8CoolProp_8CoolProp_10FluidState_25update_
       values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
       values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
     }
-    __pyx_v_T = __pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_T == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 369; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
-    __pyx_v_q = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_q == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 369; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+    __pyx_v_T = __pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_T == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 419; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+    __pyx_v_q = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_q == (double)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 419; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("update_Tq", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 369; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+  __Pyx_RaiseArgtupleInvalid("update_Tq", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 419; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
   __pyx_L3_error:;
   __Pyx_AddTraceback("smo.media.CoolProp.CoolProp.FluidState.update_Tq", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -5507,7 +5783,7 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_24update_
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("update_Tq", 0);
 
-  /* "smo/media/CoolProp/CoolProp.pyx":375
+  /* "smo/media/CoolProp/CoolProp.pyx":425
  * 		Updates fluid state by temperature and vapor quality
  * 		"""
  * 		self.ptr.update(iT, T, iQ, q, -1, -1)             # <<<<<<<<<<<<<<
@@ -5518,10 +5794,10 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_24update_
     __pyx_v_self->ptr->update(__pyx_v_3smo_5media_8CoolProp_8CoolProp_iT, __pyx_v_T, __pyx_v_3smo_5media_8CoolProp_8CoolProp_iQ, __pyx_v_q, -1.0, -1.0);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 375; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 425; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
 
-  /* "smo/media/CoolProp/CoolProp.pyx":369
+  /* "smo/media/CoolProp/CoolProp.pyx":419
  * 		"""
  * 		self.ptr.update(iP, p, iQ, q, -1, -1)
  * 	def update_Tq(self, double T, double q):             # <<<<<<<<<<<<<<
@@ -5541,7 +5817,7 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_24update_
   return __pyx_r;
 }
 
-/* "smo/media/CoolProp/CoolProp.pyx":377
+/* "smo/media/CoolProp/CoolProp.pyx":427
  * 		self.ptr.update(iT, T, iQ, q, -1, -1)
  * 
  * 	def getSatL(self):             # <<<<<<<<<<<<<<
@@ -5576,14 +5852,14 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_26getSatL
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("getSatL", 0);
 
-  /* "smo/media/CoolProp/CoolProp.pyx":380
+  /* "smo/media/CoolProp/CoolProp.pyx":430
  * 		"""Returns dictionary of saturation properties in the liquid phase - rho, s, h"""
  * 		cdef CP.CoolPropStateClassSI* satL
  * 		if (self.isTwoPhase()):             # <<<<<<<<<<<<<<
  * 			satL = self.ptr.getSatL()
  * 			return {
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_isTwoPhase); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 380; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_isTwoPhase); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 430; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_COMPILING_IN_CPYTHON && likely(PyMethod_Check(__pyx_t_2))) {
@@ -5596,18 +5872,18 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_26getSatL
     }
   }
   if (__pyx_t_3) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 380; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 430; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   } else {
-    __pyx_t_1 = __Pyx_PyObject_CallNoArg(__pyx_t_2); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 380; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_CallNoArg(__pyx_t_2); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 430; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_4 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_4 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 380; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_4 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_4 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 430; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   if (__pyx_t_4) {
 
-    /* "smo/media/CoolProp/CoolProp.pyx":381
+    /* "smo/media/CoolProp/CoolProp.pyx":431
  * 		cdef CP.CoolPropStateClassSI* satL
  * 		if (self.isTwoPhase()):
  * 			satL = self.ptr.getSatL()             # <<<<<<<<<<<<<<
@@ -5616,7 +5892,7 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_26getSatL
  */
     __pyx_v_satL = __pyx_v_self->ptr->getSatL();
 
-    /* "smo/media/CoolProp/CoolProp.pyx":382
+    /* "smo/media/CoolProp/CoolProp.pyx":432
  * 		if (self.isTwoPhase()):
  * 			satL = self.ptr.getSatL()
  * 			return {             # <<<<<<<<<<<<<<
@@ -5624,43 +5900,43 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_26getSatL
  * 				's':	satL.s(),
  */
     __Pyx_XDECREF(__pyx_r);
-    __pyx_t_1 = PyDict_New(); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 382; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = PyDict_New(); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 432; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
 
-    /* "smo/media/CoolProp/CoolProp.pyx":383
+    /* "smo/media/CoolProp/CoolProp.pyx":433
  * 			satL = self.ptr.getSatL()
  * 			return {
  * 				'rho': 	satL.rho(),             # <<<<<<<<<<<<<<
  * 				's':	satL.s(),
  * 				'h':	satL.h()
  */
-    __pyx_t_2 = PyFloat_FromDouble(__pyx_v_satL->rho()); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 383; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_2 = PyFloat_FromDouble(__pyx_v_satL->rho()); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 433; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_2);
-    if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_rho, __pyx_t_2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 382; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_rho, __pyx_t_2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 432; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-    /* "smo/media/CoolProp/CoolProp.pyx":384
+    /* "smo/media/CoolProp/CoolProp.pyx":434
  * 			return {
  * 				'rho': 	satL.rho(),
  * 				's':	satL.s(),             # <<<<<<<<<<<<<<
  * 				'h':	satL.h()
  * 			}
  */
-    __pyx_t_2 = PyFloat_FromDouble(__pyx_v_satL->s()); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 384; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_2 = PyFloat_FromDouble(__pyx_v_satL->s()); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 434; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_2);
-    if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_s, __pyx_t_2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 382; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_s, __pyx_t_2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 432; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-    /* "smo/media/CoolProp/CoolProp.pyx":385
+    /* "smo/media/CoolProp/CoolProp.pyx":435
  * 				'rho': 	satL.rho(),
  * 				's':	satL.s(),
  * 				'h':	satL.h()             # <<<<<<<<<<<<<<
  * 			}
  * 		else:
  */
-    __pyx_t_2 = PyFloat_FromDouble(__pyx_v_satL->h()); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 385; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_2 = PyFloat_FromDouble(__pyx_v_satL->h()); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 435; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_2);
-    if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_h, __pyx_t_2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 382; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_h, __pyx_t_2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 432; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __pyx_r = __pyx_t_1;
     __pyx_t_1 = 0;
@@ -5668,7 +5944,7 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_26getSatL
   }
   /*else*/ {
 
-    /* "smo/media/CoolProp/CoolProp.pyx":388
+    /* "smo/media/CoolProp/CoolProp.pyx":438
  * 			}
  * 		else:
  * 			return None             # <<<<<<<<<<<<<<
@@ -5681,7 +5957,7 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_26getSatL
     goto __pyx_L0;
   }
 
-  /* "smo/media/CoolProp/CoolProp.pyx":377
+  /* "smo/media/CoolProp/CoolProp.pyx":427
  * 		self.ptr.update(iT, T, iQ, q, -1, -1)
  * 
  * 	def getSatL(self):             # <<<<<<<<<<<<<<
@@ -5702,7 +5978,7 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_26getSatL
   return __pyx_r;
 }
 
-/* "smo/media/CoolProp/CoolProp.pyx":390
+/* "smo/media/CoolProp/CoolProp.pyx":440
  * 			return None
  * 
  * 	def getSatV(self):             # <<<<<<<<<<<<<<
@@ -5737,14 +6013,14 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_28getSatV
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("getSatV", 0);
 
-  /* "smo/media/CoolProp/CoolProp.pyx":393
+  /* "smo/media/CoolProp/CoolProp.pyx":443
  * 		"""Returns dictionary of saturation properties in the vapor phase - rho, s, h"""
  * 		cdef CP.CoolPropStateClassSI* satV
  * 		if (self.isTwoPhase()):             # <<<<<<<<<<<<<<
  * 			satV = self.ptr.getSatV()
  * 			return {
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_isTwoPhase); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 393; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_isTwoPhase); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 443; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_COMPILING_IN_CPYTHON && likely(PyMethod_Check(__pyx_t_2))) {
@@ -5757,18 +6033,18 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_28getSatV
     }
   }
   if (__pyx_t_3) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 393; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 443; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   } else {
-    __pyx_t_1 = __Pyx_PyObject_CallNoArg(__pyx_t_2); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 393; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_CallNoArg(__pyx_t_2); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 443; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_4 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_4 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 393; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_4 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_4 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 443; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   if (__pyx_t_4) {
 
-    /* "smo/media/CoolProp/CoolProp.pyx":394
+    /* "smo/media/CoolProp/CoolProp.pyx":444
  * 		cdef CP.CoolPropStateClassSI* satV
  * 		if (self.isTwoPhase()):
  * 			satV = self.ptr.getSatV()             # <<<<<<<<<<<<<<
@@ -5777,7 +6053,7 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_28getSatV
  */
     __pyx_v_satV = __pyx_v_self->ptr->getSatV();
 
-    /* "smo/media/CoolProp/CoolProp.pyx":395
+    /* "smo/media/CoolProp/CoolProp.pyx":445
  * 		if (self.isTwoPhase()):
  * 			satV = self.ptr.getSatV()
  * 			return {             # <<<<<<<<<<<<<<
@@ -5785,43 +6061,43 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_28getSatV
  * 				's':	satV.s(),
  */
     __Pyx_XDECREF(__pyx_r);
-    __pyx_t_1 = PyDict_New(); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 395; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = PyDict_New(); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 445; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
 
-    /* "smo/media/CoolProp/CoolProp.pyx":396
+    /* "smo/media/CoolProp/CoolProp.pyx":446
  * 			satV = self.ptr.getSatV()
  * 			return {
  * 				'rho': 	satV.rho(),             # <<<<<<<<<<<<<<
  * 				's':	satV.s(),
  * 				'h':	satV.h()
  */
-    __pyx_t_2 = PyFloat_FromDouble(__pyx_v_satV->rho()); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 396; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_2 = PyFloat_FromDouble(__pyx_v_satV->rho()); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 446; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_2);
-    if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_rho, __pyx_t_2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 395; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_rho, __pyx_t_2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 445; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-    /* "smo/media/CoolProp/CoolProp.pyx":397
+    /* "smo/media/CoolProp/CoolProp.pyx":447
  * 			return {
  * 				'rho': 	satV.rho(),
  * 				's':	satV.s(),             # <<<<<<<<<<<<<<
  * 				'h':	satV.h()
  * 
  */
-    __pyx_t_2 = PyFloat_FromDouble(__pyx_v_satV->s()); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 397; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_2 = PyFloat_FromDouble(__pyx_v_satV->s()); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 447; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_2);
-    if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_s, __pyx_t_2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 395; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_s, __pyx_t_2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 445; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-    /* "smo/media/CoolProp/CoolProp.pyx":398
+    /* "smo/media/CoolProp/CoolProp.pyx":448
  * 				'rho': 	satV.rho(),
  * 				's':	satV.s(),
  * 				'h':	satV.h()             # <<<<<<<<<<<<<<
  * 
  * 			}
  */
-    __pyx_t_2 = PyFloat_FromDouble(__pyx_v_satV->h()); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 398; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_2 = PyFloat_FromDouble(__pyx_v_satV->h()); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 448; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_2);
-    if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_h, __pyx_t_2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 395; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_h, __pyx_t_2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 445; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __pyx_r = __pyx_t_1;
     __pyx_t_1 = 0;
@@ -5829,7 +6105,7 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_28getSatV
   }
   /*else*/ {
 
-    /* "smo/media/CoolProp/CoolProp.pyx":402
+    /* "smo/media/CoolProp/CoolProp.pyx":452
  * 			}
  * 		else:
  * 			return None             # <<<<<<<<<<<<<<
@@ -5840,7 +6116,7 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_28getSatV
     goto __pyx_L0;
   }
 
-  /* "smo/media/CoolProp/CoolProp.pyx":390
+  /* "smo/media/CoolProp/CoolProp.pyx":440
  * 			return None
  * 
  * 	def getSatV(self):             # <<<<<<<<<<<<<<
@@ -6417,6 +6693,18 @@ static PyObject *__pyx_getprop_3smo_5media_8CoolProp_8CoolProp_10FluidState_dpdr
   return __pyx_pw_3smo_5media_8CoolProp_8CoolProp_10FluidState_8dpdrho_t_1__get__(o);
 }
 
+static PyObject *__pyx_getprop_3smo_5media_8CoolProp_8CoolProp_10FluidState_dsdp_t(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_3smo_5media_8CoolProp_8CoolProp_10FluidState_6dsdp_t_1__get__(o);
+}
+
+static PyObject *__pyx_getprop_3smo_5media_8CoolProp_8CoolProp_10FluidState_dhdt_p(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_3smo_5media_8CoolProp_8CoolProp_10FluidState_6dhdt_p_1__get__(o);
+}
+
+static PyObject *__pyx_getprop_3smo_5media_8CoolProp_8CoolProp_10FluidState_dpdt_h(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_3smo_5media_8CoolProp_8CoolProp_10FluidState_6dpdt_h_1__get__(o);
+}
+
 static PyObject *__pyx_getprop_3smo_5media_8CoolProp_8CoolProp_10FluidState_dpdt_sat(PyObject *o, CYTHON_UNUSED void *x) {
   return __pyx_pw_3smo_5media_8CoolProp_8CoolProp_10FluidState_8dpdt_sat_1__get__(o);
 }
@@ -6472,6 +6760,9 @@ static struct PyGetSetDef __pyx_getsets_3smo_5media_8CoolProp_8CoolProp_FluidSta
   {(char *)"dpdt_v", __pyx_getprop_3smo_5media_8CoolProp_8CoolProp_10FluidState_dpdt_v, 0, 0, 0},
   {(char *)"dpdv_t", __pyx_getprop_3smo_5media_8CoolProp_8CoolProp_10FluidState_dpdv_t, 0, 0, 0},
   {(char *)"dpdrho_t", __pyx_getprop_3smo_5media_8CoolProp_8CoolProp_10FluidState_dpdrho_t, 0, 0, 0},
+  {(char *)"dsdp_t", __pyx_getprop_3smo_5media_8CoolProp_8CoolProp_10FluidState_dsdp_t, 0, 0, 0},
+  {(char *)"dhdt_p", __pyx_getprop_3smo_5media_8CoolProp_8CoolProp_10FluidState_dhdt_p, 0, 0, 0},
+  {(char *)"dpdt_h", __pyx_getprop_3smo_5media_8CoolProp_8CoolProp_10FluidState_dpdt_h, 0, 0, 0},
   {(char *)"dpdt_sat", __pyx_getprop_3smo_5media_8CoolProp_8CoolProp_10FluidState_dpdt_sat, 0, 0, 0},
   {(char *)"beta", __pyx_getprop_3smo_5media_8CoolProp_8CoolProp_10FluidState_beta, 0, __pyx_k_isobaric_thermal_expansivity, 0},
   {(char *)"mu", __pyx_getprop_3smo_5media_8CoolProp_8CoolProp_10FluidState_mu, 0, __pyx_k_dynamic_viscosity, 0},
@@ -6594,7 +6885,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_isTwoPhase, __pyx_k_isTwoPhase, sizeof(__pyx_k_isTwoPhase), 0, 0, 1, 1},
   {&__pyx_n_s_join, __pyx_k_join, sizeof(__pyx_k_join), 0, 0, 1, 1},
   {&__pyx_n_s_main, __pyx_k_main, sizeof(__pyx_k_main), 0, 0, 1, 1},
-  {&__pyx_n_s_opt, __pyx_k_opt, sizeof(__pyx_k_opt), 0, 0, 1, 1},
   {&__pyx_n_s_p, __pyx_k_p, sizeof(__pyx_k_p), 0, 0, 1, 1},
   {&__pyx_n_s_pMax, __pyx_k_pMax, sizeof(__pyx_k_pMax), 0, 0, 1, 1},
   {&__pyx_n_s_psatL, __pyx_k_psatL, sizeof(__pyx_k_psatL), 0, 0, 1, 1},

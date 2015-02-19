@@ -303,25 +303,25 @@ cdef class FluidState:
 					_dpdT_consth = self.ptr.dpdT_consth()
 				return _dpdT_consth
 			
-	property drhodp_h:
-			""""""
-			def __get__(self):		
-				cdef double _drhodp_consth
-				if (self.ptr.TwoPhase):
-					_drhodp_consth = INFINITY
-				else:
-					_drhodp_consth = self.ptr.drhodp_consth()
-				return _drhodp_consth
-	
-	property drhodh_p:
-			""""""
-			def __get__(self):		
-				cdef double _drhodh_constp
-				if (self.ptr.TwoPhase):
-					pass
-				else:
-					_drhodh_constp = self.ptr.drhodh_constp()
-				return _drhodh_constp
+# 	property drhodp_h:
+# 			""""""
+# 			def __get__(self):		
+# 				cdef double _drhodp_consth
+# 				if (self.ptr.TwoPhase):
+# 					_drhodp_consth = INFINITY
+# 				else:
+# 					_drhodp_consth = self.ptr.drhodp_consth()
+# 				return _drhodp_consth
+# 	
+# 	property drhodh_p:
+# 			""""""
+# 			def __get__(self):		
+# 				cdef double _drhodh_constp
+# 				if (self.ptr.TwoPhase):
+# 					pass
+# 				else:
+# 					_drhodh_constp = self.ptr.drhodh_constp()
+# 				return _drhodh_constp
 ####################################################################
 ####################################################################
 ####################################################################
@@ -362,6 +362,7 @@ cdef class FluidState:
 		:param state1Value: value of first state variable
 		:param state2: name of second state variable
 		:param state2Value: value of second state variable
+		
 		Updates fluid state by two state variables.
 		"""
 		cdef long p1Index = CP.get_param_index(state1)
@@ -371,13 +372,16 @@ cdef class FluidState:
 		"""update_Tp(T, p)
 		:param T: temperature
 		:param p: pressure
+		
 		Updates fluid state by temperature and presure
+		
 		"""
 		self.ptr.update(iT, T, iP, p, -1, -1)
 	def update_Trho(self, double T, double rho):
 		"""update_Trho(T, rho)
 		:param T: temperature
 		:param rho: density
+		
 		Updates fluid state by temperature and density
 		"""
 		self.ptr.update(iT, T, iD, rho, -1, -1)	
@@ -385,6 +389,7 @@ cdef class FluidState:
 		"""update_Ts(T, s)
 		:param T: temperature
 		:param s: specific entropy
+		
 		Updates fluid state by temperature and specific entropy
 		"""
 		self.ptr.update(iT, T, iS, s, -1, -1)	
@@ -392,6 +397,7 @@ cdef class FluidState:
 		"""update_prho(p, rho)
 		:param p: pressure
 		:param rho: density
+		
 		Updates fluid state by pressure and density
 		"""
 		self.ptr.update(iP, p, iD, rho, -1, -1)	
@@ -399,6 +405,7 @@ cdef class FluidState:
 		"""update_ph(p, h)
 		:param p: pressure
 		:param h: specific enthalpy
+		
 		Updates fluid state by pressure and specific enthalpy
 		"""
 		self.ptr.update(iP, p, iH, h, -1, -1)	
@@ -406,6 +413,7 @@ cdef class FluidState:
 		"""update_ps(p, s)
 		:param p: pressure
 		:param s: specific entropy
+		
 		Updates fluid state by pressure and specific entropy
 		"""
 		self.ptr.update(iP, p, iS, s, -1, -1)	
@@ -413,6 +421,7 @@ cdef class FluidState:
 		"""update_pq(p, q)
 		:param p: pressure
 		:param q: vapor quality
+		
 		Updates fluid state by pressure and vapor quality
 		"""
 		self.ptr.update(iP, p, iQ, q, -1, -1)	
@@ -420,6 +429,7 @@ cdef class FluidState:
 		"""update_Tq(T, q)
 		:param T: temperature
 		:param q: vapor quality
+		
 		Updates fluid state by temperature and vapor quality
 		"""
 		self.ptr.update(iT, T, iQ, q, -1, -1)
