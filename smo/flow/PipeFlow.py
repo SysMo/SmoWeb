@@ -103,6 +103,8 @@ class PipeFlow(ComputationModel):
 		dragCoefficient = zeta * length / internalDiameter
 		pressureDrop = dragCoefficient * inletDensity * flowVelocity * flowVelocity / 2
 		outletPressure = inletPressure - pressureDrop
+		if (outletPressure <= 0):
+			raise ValueError("This mass flow rate cannot be achieved.")	
 		
 		return {'inletDensity': inletDensity,
 				'fluidMass': fluidMass,
@@ -182,15 +184,16 @@ class PipeFlow(ComputationModel):
 			else:
 				outletTemperature = TWall
 		else:
-			outletTemperature = 0.9 * prevOutletTemperature + 0.1 * outletTemperature	
+			if (computeWithIteration == True):
+				outletTemperature = 0.9 * prevOutletTemperature + 0.1 * outletTemperature	
 			
 # 		TOutRec.append(outletTemperature)
-		print ('-------')
-		print ('inletTemperature: %e'%inletTemperature)
-		print ('outletTemperature: %e'%outletTemperature)
-		print ('TWall: %e'%TWall)
-		print ('dTOut = %e'%(outletTemperature - TWall))
-		print ('')
+# 		print ('-------')
+# 		print ('inletTemperature: %e'%inletTemperature)
+# 		print ('outletTemperature: %e'%outletTemperature)
+# 		print ('TWall: %e'%TWall)
+# 		print ('dTOut = %e'%(outletTemperature - TWall))
+# 		print ('')
 		
 		return {'Pr': Pr,
 				'Nu': Nu,
