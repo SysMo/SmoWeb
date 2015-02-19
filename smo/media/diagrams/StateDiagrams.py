@@ -90,19 +90,18 @@ class PHDiagram(StateDiagram):
 		TArr = np.logspace(np.log10(self.TMin), np.log10(self.TMax), num = 20)
 		fSatL = FluidState(self.fluidName)
 		fSatV = FluidState(self.fluidName)
+		f1 = FluidState(self.fluidName)
 		for T in TArr:
+			f1.update_Tp(T, self.pMax)
 			if (T > self.critical.T):
 				rhoArr1 = np.logspace(np.log10(self.rhoMin), np.log10(self.critical.rho), num = 100)
-				rhoArr2 = np.logspace(np.log10(self.critical.rho), np.log10(self.rhoMax), num = 100)
-				rhoArr = np.hstack((rhoArr1, rhoArr2))
+				rhoArr2 = np.logspace(np.log10(self.critical.rho), np.log10(f1.rho), num = 100)
 			else:
 				fSatL.update_Tq(T, 0)
 				fSatV.update_Tq(T, 1)
 				rhoArr1 = np.logspace(np.log10(self.rhoMin), np.log10(fSatV.rho), num = 100)
-				rhoArr2 = np.logspace(np.log10(fSatV.rho), np.log10(fSatL.rho), num = 100)
-				rhoArr3 = np.logspace(np.log10(fSatL.rho), np.log10(self.rhoMax), num = 100)
-				rhoArr = np.hstack((rhoArr1, rhoArr2, rhoArr3))
-
+				rhoArr2 = np.logspace(np.log10(fSatL.rho), np.log10(f1.rho), num = 100)
+			rhoArr = np.hstack((rhoArr1, rhoArr2))
 			hArr = np.zeros(len(rhoArr))
 			pArr = np.zeros(len(rhoArr))
 			for i in range(len(rhoArr)):
@@ -128,7 +127,7 @@ class PHDiagram(StateDiagram):
 
 
 def main():
-	fluidList = ['Water', 'Oxygen', 'Nitrogen', 'CarbonDioxide', 'ParaHydrogen']
+	fluidList = ['R134a', 'IsoButane', 'Water', 'Oxygen', 'Nitrogen', 'CarbonDioxide', 'ParaHydrogen']
 	#fluidList = ['Water']	
 	for fluid in fluidList:
 		print("Calculating with fluid '{}'".format(fluid))
