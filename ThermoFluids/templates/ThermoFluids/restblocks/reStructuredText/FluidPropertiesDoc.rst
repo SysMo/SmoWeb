@@ -81,7 +81,7 @@ Isentrops
 ~~~~~~~~~
 
 1. Start from a seed poing :math:`f_0`
-2. Compute the fluid state based on *s* and *T* variables
+2. Compute the fluid state based on :math:`s` and :math:`T` variables
 3. Find :math:`\left(\frac{\partial\rho}{\partial T}\right)_{s}`
 
 .. class:: align-center
@@ -136,3 +136,14 @@ Isentrops
    
 5. Compute the fluid state at :math:`f_1` by :math:`T_0 + \Delta T` and :math:`\rho_0 + \Delta\rho`
 6. Go back to 3. using :math:`f_1`
+
+Isochores
+~~~~~~~~~
+
+Determine the appropriate ranges for :math:`T` and :math:`\rho` and 
+compute the fluid state based on those variables
+
+Isotherms
+~~~~~~~~~
+
+Same as in the case of isochores
