@@ -310,11 +310,15 @@ cdef class FluidState:
 				if (self.ptr.TwoPhase):
 					_dsdT_constv = (self.getSatL()["s"] - self.getSatV()["s"]) * \
 									(1. / self.getSatV()["rho"] - 1. / self.getSatL()["rho"]) / \
-									( - self.q * (1. / (self.rho**2)) * self.ptr.drhodT_along_sat_vapor() +
-										(self.q - 1) * (1. / (self.rho**2)) * self.ptr.drhodT_along_sat_liquid()
+									(- self.q * (self.rho**2) * self.ptr.drhodT_along_sat_vapor() +
+										(self.q - 1) * (self.rho**2) * self.ptr.drhodT_along_sat_liquid()
+									) + \
+									(self.q * self.ptr.dsdT_along_sat_vapor() + 
+										(1 - self.q) * self.ptr.dsdT_along_sat_liquid()
 									)
 				else:
 					_dsdT_constv = self.ptr.dsdT_constrho()
+				print _dsdT_constv
 				return _dsdT_constv
 			
 # 	property drhodp_h:

@@ -117,23 +117,25 @@ class PHDiagram(StateDiagram):
 	
 	def plotIsentrops(self):
 		fState = FluidState(self.fluid)
-		sArr = np.logspace(np.log10(self.sMin), np.log10(self.sMax), num = 20)
-		f1 = FluidState(self.fluidName)
-		TArr = np.logspace(np.log10(self.TMin), np.log10(self.TMax), num = 10)
+		sArr = np.linspace(self.sMin, self.sMax, num = 20)
+		TArr = np.logspace(np.log10(self.TMin), np.log10(self.TMax), num = 100)
 		for s in sArr:
 			hArr = np.zeros(len(TArr))
 			pArr = np.zeros(len(TArr))
 			rhoArr = np.zeros(len(TArr))
 			fState.update_Ts(TArr[0], s)
-			rhoArr[0] = fState.T
+			rhoArr[0] = fState.rho
 			hArr[0] = fState.h
 			pArr[0] = fState.p
 			for i in range(1, len(TArr)):
-				rhoArr[i] = rhoArr[i-1] + (TArr[i] - TArr[i-1]) * fState.dsdt_v / (rhoArr[i-1]**2 * fState.dpdt_v) 
+				rhoArr[i] = rhoArr[i-1] + (TArr[i] - TArr[i-1]) * (rhoArr[i-1]**2) * fState.dsdt_v / fState.dpdt_v 
+# 				print ('S: %e'%s)
+				if (rhoArr[i] <= 0):
+					continue
 				fState.update_Trho(TArr[i], rhoArr[i])
 				hArr[i] = fState.h
 				pArr[i] = fState.p
-			self.ax.semilogy(hArr/1e3, pArr/1e5, 'yellow')
+			self.ax.semilogy(hArr/1e3, pArr/1e5, 'purple')
 	
 	def draw(self):
 		import matplotlib.pyplot as plt
@@ -153,8 +155,8 @@ class PHDiagram(StateDiagram):
 
 
 def main():
-	fluidList = ['R134a', 'IsoButane', 'Water', 'Oxygen', 'Nitrogen', 'CarbonDioxide', 'ParaHydrogen']
-	#fluidList = ['Water']	
+	#fluidList = ['R134a', 'IsoButane', 'Water', 'Oxygen', 'Nitrogen', 'CarbonDioxide', 'ParaHydrogen']
+	fluidList = ['CarbonDioxide']	
 	for fluid in fluidList:
 		print("Calculating with fluid '{}'".format(fluid))
 		diagram = PHDiagram(fluid)

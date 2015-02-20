@@ -128,6 +128,9 @@ cdef extern from "SmoFlowMediaExt.h":
 		# Derivatives at saturation
 		double drhodT_along_sat_vapor()
 		double drhodT_along_sat_liquid()
+		
+		double dsdT_along_sat_vapor()
+		double dsdT_along_sat_liquid()
 
 		double viscosity()
 		double conductivity()

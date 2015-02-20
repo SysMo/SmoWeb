@@ -69,79 +69,93 @@ for properties under ceratain conditions (e.g. at a low temperature). Thus, bett
 <h3>3.1.1.&nbsp;&nbsp;&nbsp;Isentrops</h3>
 <ol class="arabic simple">
 <li>Start from a seed poing <span class="math">\(f_0\)</span></li>
-<li>Compute the fluid state based on <em>p</em> and <em>h</em> variables</li>
-<li>Find the direction of the isoline at point <span class="math">\(f_0\)</span></li>
+<li>Compute the fluid state based on <em>s</em> and <em>T</em> variables</li>
+<li>Find</li>
 </ol>
 <div class="math">
 \begin{equation*}
-\frac{\mathrm{d}h}{\mathrm{d}p}=\left(\frac{\partial h}{\partial p}\right)_{s}
+\frac{\mathrm{d}\rho}{\mathrm{d}T}=\left(\frac{\partial \rho}{\partial T}\right)_{s}
+\end{equation*}
+</div>
+<p>From Maxwell's relation:</p>
+<div class="math">
+\begin{equation*}
+\left(\frac{\partial v}{\partial T}\right)_{s}=-\left(\frac{\partial s}{\partial p}\right)_{v}
+\end{equation*}
+</div>
+<div class="math">
+\begin{equation*}
+ds=\left(\frac{\partial s}{\partial v}\right)_{T}\cdot dv+\left(\frac{\partial s}{\partial T}\right)_{v}\cdot dT
+\end{equation*}
+</div>
+<div class="math">
+\begin{equation*}
+\left(\frac{\partial s}{\partial p}\right)_{v}=\left(\frac{\partial s}{\partial v}\right)_{T}\cdot\left(\frac{\partial v}{\partial p}\right)_{v}+\left(\frac{\partial s}{\partial T}\right)_{v}\cdot\left(\frac{\partial T}{\partial p}\right)_{v}
+\end{equation*}
+</div>
+<div class="math">
+\begin{equation*}
+\left(\frac{\partial v}{\partial T}\right)_{s}=-\left(\frac{\partial s}{\partial T}\right)_{v}\cdot\left(\frac{\partial T}{\partial p}\right)_{v}
+\end{equation*}
+</div>
+<p>Hence:</p>
+<div class="math">
+\begin{equation*}
+\left(\frac{\partial\rho}{\partial T}\right)_{s}=\frac{1}{v^{2}}\cdot\left(\frac{\partial s}{\partial T}\right)_{v}\cdot\left(\frac{\partial T}{\partial p}\right)_{v}
+\end{equation*}
+</div>
+<p>For the two-phase region:</p>
+<div class="math">
+\begin{equation*}
+\Delta s=\left(\frac{\partial s}{\partial q}\right)_{T}\Delta q+\left(\frac{\partial s}{\partial T}\right)_{q}\Delta T
+\end{equation*}
+</div>
+<div class="math">
+\begin{equation*}
+\left(\frac{\partial s}{\partial T}\right)_{v}=\left(\frac{\partial s}{\partial q}\right)_{T}\cdot\left(\frac{\partial q}{\partial T}\right)_{v}+\left(\frac{\partial s}{\partial T}\right)_{q}\cdot\left(\frac{\partial T}{\partial T}\right)_{v}=\left(\frac{\partial s}{\partial q}\right)_{T}\cdot\left(\frac{\partial q}{\partial T}\right)_{v}+\left(\frac{\partial s}{\partial T}\right)_{q}
+\end{equation*}
+</div>
+<p>Let's find the components of this formula:</p>
+<div class="math">
+\begin{equation*}
+s=q\cdot s_{v}+(1-q)\cdot s_{L}
+\end{equation*}
+</div>
+<div class="math">
+\begin{equation*}
+\left(\frac{\partial s}{\partial q}\right)_{T}=s_{v}-s_{L} (1)
+\end{equation*}
+</div>
+<div class="math">
+\begin{equation*}
+\left(\frac{\partial q}{\partial T}\right)_{v}=-\left(\frac{\partial T}{\partial v}\right)_{q}\cdot\left(\frac{\partial v}{\partial q}\right)_{T}=\frac{\left(\frac{\partial v}{\partial q}\right)_{T}}{\left(\frac{\partial v}{\partial T}\right)_{q}}
+\end{equation*}
+</div>
+<div class="math">
+\begin{equation*}
+\left(\frac{\partial v}{\partial q}\right)_{T}=v_{v}-v_{L}
+\end{equation*}
+</div>
+<div class="math">
+\begin{equation*}
+\left(\frac{\partial V}{\partial T}\right)_{q}=q\cdot\left(\frac{\partial v}{\partial T}\right)_{sat\, V}+\left(1-q\right)\cdot\left(\frac{\partial v}{\partial T}\right)_{sat\, L}
+\end{equation*}
+</div>
+<div class="math">
+\begin{equation*}
+\left(\frac{\partial q}{\partial T}\right)_{v}=\frac{v_{v}-v_{L}}{q\cdot\left(\frac{\partial v}{\partial T}\right)_{sat\, V}+\left(1-q\right)\cdot\left(\frac{\partial v}{\partial T}\right)_{sat\, L}}=\frac{\frac{1}{\rho_{v}}-\frac{1}{\rho_{L}}}{-q\cdot\rho^{2}\left(\frac{\partial\rho}{\partial T}\right)_{sat\, V}+\left(q-1\right)\cdot\rho^{2}\left(\frac{\partial\rho}{\partial T}\right)_{sat\, L}} (2)
+\end{equation*}
+</div>
+<div class="math">
+\begin{equation*}
+\left(\frac{\partial s}{\partial T}\right)_{q}=q\cdot\left(\frac{\partial s}{\partial T}\right)_{sat\, V}+\left(1-q\right)\cdot\left(\frac{\partial s}{\partial T}\right)_{sat\, L} (3)
 \end{equation*}
 </div>
 <ol class="arabic simple" start="4">
-<li>Select a step <span class="math">\(\Delta p\)</span></li>
-<li>Find the <span class="math">\(\Delta h\)</span>:</li>
-</ol>
-<div class="math">
-\begin{equation*}
-\Delta h=v\Delta p+T\Delta s=v\Delta p
-\end{equation*}
-</div>
-<ol class="arabic simple" start="6">
-<li>Find the changes  <span class="math">\(\Delta T\)</span> and <span class="math">\(\Delta\rho\)</span>:</li>
-</ol>
-<div class="math">
-\begin{equation*}
-\Delta\rho  =  \left(\frac{\partial\rho}{\partial h}\right)_{p}\Delta h+\left(\frac{\partial\rho}{\partial p}\right)_h\Delta p =
-\left(\frac{\partial\rho}{\partial h}\right)_{p}v\Delta p+\left(\frac{\partial\rho}{\partial p}\right)_h\Delta p
-\end{equation*}
-</div>
-<div class="math">
-\begin{equation*}
-\Delta T = \left(\frac{\partial T}{\partial h}\right)_{p}\Delta h+\left(\frac{\partial T}{\partial p}\right)_h\Delta p =
-\frac{v\Delta p}{\left(\frac{\partial h}{\partial T}\right)_{p}}+\frac{\Delta p}{\left(\frac{\partial p}{\partial T}\right)_{h}}
-\end{equation*}
-</div>
-<ol class="arabic simple" start="7">
+<li>Select a step <span class="math">\(\Delta T\)</span> and find <span class="math">\(\Delta \rho\)</span></li>
 <li>Compute the fluid state at <span class="math">\(f_1\)</span> by <span class="math">\(T_0 + \Delta T\)</span> and <span class="math">\(\rho_0 + \Delta\rho\)</span></li>
 <li>Go back to 3. using <span class="math">\(f_1\)</span></li>
 </ol>
-</div>
-<div class="section" id="isotherms">
-<h3>3.1.2.&nbsp;&nbsp;&nbsp;Isotherms</h3>
-<p>Steps 1 to 4 are as above</p>
-<ol class="arabic simple" start="5">
-<li>Find the <span class="math">\(\Delta h\)</span>:</li>
-</ol>
-<div class="math">
-\begin{equation*}
-\Delta h=\left(\frac{\partial h}{\partial p}\right)_{T}\Delta p
-\end{equation*}
-</div>
-<div class="math">
-\begin{equation*}
-\Delta h=v\Delta p+T\Delta s
-\end{equation*}
-</div>
-<div class="math">
-\begin{equation*}
-\left(\frac{\partial h}{\partial p}\right)_{T}=v\left(\frac{\partial p}{\partial p}\right)_{T}+T\left(\frac{\partial s}{\partial p}\right)_{T}
-=v+T\left(\frac{\partial s}{\partial p}\right)_{T}
-\end{equation*}
-</div>
-<div class="math">
-\begin{equation*}
-\Delta h=\left(v+T\left(\frac{\partial s}{\partial p}\right)_{T}\right)\Delta p
-\end{equation*}
-</div>
-<ol class="arabic simple" start="6">
-<li>Find the change <span class="math">\(\Delta\rho\)</span>:</li>
-</ol>
-<div class="math">
-\begin{equation*}
-\Delta\rho=\left(\frac{\partial\rho}{\partial h}\right)_{p}\Delta h+\left(\frac{\partial\rho}{\partial p}\right)_{h}\Delta p
-=\left(\left(\frac{\partial\rho}{\partial h}\right)_{p}\left(v+T\left(\frac{\partial s}{\partial p}\right)_{T}\right)+\left(\frac{\partial\rho}{\partial p}\right)_{h}\right)\Delta p
-\end{equation*}
-</div>
 </div>
 </div>
 </div>

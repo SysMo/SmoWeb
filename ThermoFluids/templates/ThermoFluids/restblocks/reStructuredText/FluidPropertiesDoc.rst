@@ -81,57 +81,57 @@ Isentrops
 ~~~~~~~~~
 
 1. Start from a seed poing :math:`f_0`
-2. Compute the fluid state based on *p* and *h* variables
-3. Find the direction of the isoline at point :math:`f_0`
+2. Compute the fluid state based on *s* and *T* variables
+3. Find
 
 .. math::
-   \frac{\mathrm{d}h}{\mathrm{d}p}=\left(\frac{\partial h}{\partial p}\right)_{s}
+   \frac{\mathrm{d}\rho}{\mathrm{d}T}=\left(\frac{\partial \rho}{\partial T}\right)_{s}
 
-4. Select a step :math:`\Delta p`
-5. Find the :math:`\Delta h`:
-
-.. math::
-
-   \Delta h=v\Delta p+T\Delta s=v\Delta p
-   
-   
-6. Find the changes  :math:`\Delta T` and :math:`\Delta\rho`:
+From Maxwell's relation:
 
 .. math::
-   \Delta\rho  =  \left(\frac{\partial\rho}{\partial h}\right)_{p}\Delta h+\left(\frac{\partial\rho}{\partial p}\right)_h\Delta p = 
-   \left(\frac{\partial\rho}{\partial h}\right)_{p}v\Delta p+\left(\frac{\partial\rho}{\partial p}\right)_h\Delta p
+   \left(\frac{\partial v}{\partial T}\right)_{s}=-\left(\frac{\partial s}{\partial p}\right)_{v}
    
-   \Delta T = \left(\frac{\partial T}{\partial h}\right)_{p}\Delta h+\left(\frac{\partial T}{\partial p}\right)_h\Delta p =
-   \frac{v\Delta p}{\left(\frac{\partial h}{\partial T}\right)_{p}}+\frac{\Delta p}{\left(\frac{\partial p}{\partial T}\right)_{h}}
+   ds=\left(\frac{\partial s}{\partial v}\right)_{T}\cdot dv+\left(\frac{\partial s}{\partial T}\right)_{v}\cdot dT
+   
+   \left(\frac{\partial s}{\partial p}\right)_{v}=\left(\frac{\partial s}{\partial v}\right)_{T}\cdot\left(\frac{\partial v}{\partial p}\right)_{v}+\left(\frac{\partial s}{\partial T}\right)_{v}\cdot\left(\frac{\partial T}{\partial p}\right)_{v}
  
-   
-7. Compute the fluid state at :math:`f_1` by :math:`T_0 + \Delta T` and :math:`\rho_0 + \Delta\rho`
-8. Go back to 3. using :math:`f_1`
+   \left(\frac{\partial v}{\partial T}\right)_{s}=-\left(\frac{\partial s}{\partial T}\right)_{v}\cdot\left(\frac{\partial T}{\partial p}\right)_{v}
 
-Isotherms
-~~~~~~~~~
-
-Steps 1 to 4 are as above
-
-5. Find the :math:`\Delta h`:
+Hence:
 
 .. math::
-   \Delta h=\left(\frac{\partial h}{\partial p}\right)_{T}\Delta p
-   
-   \Delta h=v\Delta p+T\Delta s
-   
-   \left(\frac{\partial h}{\partial p}\right)_{T}=v\left(\frac{\partial p}{\partial p}\right)_{T}+T\left(\frac{\partial s}{\partial p}\right)_{T}
-   =v+T\left(\frac{\partial s}{\partial p}\right)_{T}
-   
-   \Delta h=\left(v+T\left(\frac{\partial s}{\partial p}\right)_{T}\right)\Delta p
-  
-6. Find the change :math:`\Delta\rho`:
+   \left(\frac{\partial\rho}{\partial T}\right)_{s}=\frac{1}{v^{2}}\cdot\left(\frac{\partial s}{\partial T}\right)_{v}\cdot\left(\frac{\partial T}{\partial p}\right)_{v}
+ 
+For the two-phase region:
 
 .. math::
-   \Delta\rho=\left(\frac{\partial\rho}{\partial h}\right)_{p}\Delta h+\left(\frac{\partial\rho}{\partial p}\right)_{h}\Delta p
-   =\left(\left(\frac{\partial\rho}{\partial h}\right)_{p}\left(v+T\left(\frac{\partial s}{\partial p}\right)_{T}\right)+\left(\frac{\partial\rho}{\partial p}\right)_{h}\right)\Delta p
- 
- 
+   \Delta s=\left(\frac{\partial s}{\partial q}\right)_{T}\Delta q+\left(\frac{\partial s}{\partial T}\right)_{q}\Delta T
    
-   
+   \left(\frac{\partial s}{\partial T}\right)_{v}=\left(\frac{\partial s}{\partial q}\right)_{T}\cdot\left(\frac{\partial q}{\partial T}\right)_{v}+\left(\frac{\partial s}{\partial T}\right)_{q}\cdot\left(\frac{\partial T}{\partial T}\right)_{v}=\left(\frac{\partial s}{\partial q}\right)_{T}\cdot\left(\frac{\partial q}{\partial T}\right)_{v}+\left(\frac{\partial s}{\partial T}\right)_{q}
  
+Let's find the components of this formula:
+
+.. math::
+   s=q\cdot s_{v}+(1-q)\cdot s_{L}
+   
+   \left(\frac{\partial s}{\partial q}\right)_{T}=s_{v}-s_{L} (1)
+   
+   \left(\frac{\partial q}{\partial T}\right)_{v}=-\left(\frac{\partial T}{\partial v}\right)_{q}\cdot\left(\frac{\partial v}{\partial q}\right)_{T}=\frac{\left(\frac{\partial v}{\partial q}\right)_{T}}{\left(\frac{\partial v}{\partial T}\right)_{q}}
+   
+   \left(\frac{\partial v}{\partial q}\right)_{T}=v_{v}-v_{L}
+ 
+   \left(\frac{\partial V}{\partial T}\right)_{q}=q\cdot\left(\frac{\partial v}{\partial T}\right)_{sat\, V}+\left(1-q\right)\cdot\left(\frac{\partial v}{\partial T}\right)_{sat\, L}
+ 
+   \left(\frac{\partial q}{\partial T}\right)_{v}=\frac{v_{v}-v_{L}}{q\cdot\left(\frac{\partial v}{\partial T}\right)_{sat\, V}+\left(1-q\right)\cdot\left(\frac{\partial v}{\partial T}\right)_{sat\, L}}=\frac{\frac{1}{\rho_{v}}-\frac{1}{\rho_{L}}}{-q\cdot\rho^{2}\left(\frac{\partial\rho}{\partial T}\right)_{sat\, V}+\left(q-1\right)\cdot\rho^{2}\left(\frac{\partial\rho}{\partial T}\right)_{sat\, L}} (2)
+ 
+   \left(\frac{\partial s}{\partial T}\right)_{q}=q\cdot\left(\frac{\partial s}{\partial T}\right)_{sat\, V}+\left(1-q\right)\cdot\left(\frac{\partial s}{\partial T}\right)_{sat\, L} (3)
+ 
+      
+ 
+
+
+
+4. Select a step :math:`\Delta T` and find :math:`\Delta \rho`   
+5. Compute the fluid state at :math:`f_1` by :math:`T_0 + \Delta T` and :math:`\rho_0 + \Delta\rho`
+6. Go back to 3. using :math:`f_1`
