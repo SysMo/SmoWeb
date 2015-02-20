@@ -70,14 +70,9 @@ for properties under ceratain conditions (e.g. at a low temperature). Thus, bett
 <ol class="arabic simple">
 <li>Start from a seed poing <span class="math">\(f_0\)</span></li>
 <li>Compute the fluid state based on <em>s</em> and <em>T</em> variables</li>
-<li>Find</li>
+<li>Find <span class="math">\(\left(\frac{\partial\rho}{\partial T}\right)_{s}\)</span></li>
 </ol>
-<div class="math">
-\begin{equation*}
-\frac{\mathrm{d}\rho}{\mathrm{d}T}=\left(\frac{\partial \rho}{\partial T}\right)_{s}
-\end{equation*}
-</div>
-<p>From Maxwell's relation:</p>
+<p class="align-center">From Maxwell's relation, we have</p>
 <div class="math">
 \begin{equation*}
 \left(\frac{\partial v}{\partial T}\right)_{s}=-\left(\frac{\partial s}{\partial p}\right)_{v}
@@ -98,13 +93,12 @@ ds=\left(\frac{\partial s}{\partial v}\right)_{T}\cdot dv+\left(\frac{\partial s
 \left(\frac{\partial v}{\partial T}\right)_{s}=-\left(\frac{\partial s}{\partial T}\right)_{v}\cdot\left(\frac{\partial T}{\partial p}\right)_{v}
 \end{equation*}
 </div>
-<p>Hence:</p>
 <div class="math">
 \begin{equation*}
 \left(\frac{\partial\rho}{\partial T}\right)_{s}=\frac{1}{v^{2}}\cdot\left(\frac{\partial s}{\partial T}\right)_{v}\cdot\left(\frac{\partial T}{\partial p}\right)_{v}
 \end{equation*}
 </div>
-<p>For the two-phase region:</p>
+<p class="align-center">For the two-phase region,</p>
 <div class="math">
 \begin{equation*}
 \Delta s=\left(\frac{\partial s}{\partial q}\right)_{T}\Delta q+\left(\frac{\partial s}{\partial T}\right)_{q}\Delta T
@@ -115,7 +109,7 @@ ds=\left(\frac{\partial s}{\partial v}\right)_{T}\cdot dv+\left(\frac{\partial s
 \left(\frac{\partial s}{\partial T}\right)_{v}=\left(\frac{\partial s}{\partial q}\right)_{T}\cdot\left(\frac{\partial q}{\partial T}\right)_{v}+\left(\frac{\partial s}{\partial T}\right)_{q}\cdot\left(\frac{\partial T}{\partial T}\right)_{v}=\left(\frac{\partial s}{\partial q}\right)_{T}\cdot\left(\frac{\partial q}{\partial T}\right)_{v}+\left(\frac{\partial s}{\partial T}\right)_{q}
 \end{equation*}
 </div>
-<p>Let's find the components of this formula:</p>
+<p class="align-center">Let's find the components of this formula:</p>
 <div class="math">
 \begin{equation*}
 s=q\cdot s_{v}+(1-q)\cdot s_{L}
@@ -152,7 +146,14 @@ s=q\cdot s_{v}+(1-q)\cdot s_{L}
 \end{equation*}
 </div>
 <ol class="arabic simple" start="4">
-<li>Select a step <span class="math">\(\Delta T\)</span> and find <span class="math">\(\Delta \rho\)</span></li>
+<li>Select a step <span class="math">\(\Delta T\)</span> and find <span class="math">\(\Delta \rho\)</span> from</li>
+</ol>
+<div class="math">
+\begin{equation*}
+\frac{\mathrm{d}\rho}{\mathrm{d}T}=\left(\frac{\partial \rho}{\partial T}\right)_{s}
+\end{equation*}
+</div>
+<ol class="arabic simple" start="5">
 <li>Compute the fluid state at <span class="math">\(f_1\)</span> by <span class="math">\(T_0 + \Delta T\)</span> and <span class="math">\(\rho_0 + \Delta\rho\)</span></li>
 <li>Go back to 3. using <span class="math">\(f_1\)</span></li>
 </ol>

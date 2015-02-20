@@ -317,7 +317,6 @@ cdef class FluidState:
 									)
 				else:
 					_dsdT_constv = self.ptr.dsdT_constrho()
-				print _dsdT_constv
 				return _dsdT_constv
 			
 # 	property drhodp_h:

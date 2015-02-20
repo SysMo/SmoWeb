@@ -155,8 +155,8 @@ class PHDiagram(StateDiagram):
 
 
 def main():
-	#fluidList = ['R134a', 'IsoButane', 'Water', 'Oxygen', 'Nitrogen', 'CarbonDioxide', 'ParaHydrogen']
-	fluidList = ['CarbonDioxide']	
+	fluidList = ['R134a', 'IsoButane', 'Water', 'Oxygen', 'Nitrogen', 'CarbonDioxide', 'ParaHydrogen']
+	#fluidList = ['CarbonDioxide']	
 	for fluid in fluidList:
 		print("Calculating with fluid '{}'".format(fluid))
 		diagram = PHDiagram(fluid)

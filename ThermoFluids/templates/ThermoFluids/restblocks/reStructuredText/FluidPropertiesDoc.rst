@@ -82,12 +82,11 @@ Isentrops
 
 1. Start from a seed poing :math:`f_0`
 2. Compute the fluid state based on *s* and *T* variables
-3. Find
+3. Find :math:`\left(\frac{\partial\rho}{\partial T}\right)_{s}`
 
-.. math::
-   \frac{\mathrm{d}\rho}{\mathrm{d}T}=\left(\frac{\partial \rho}{\partial T}\right)_{s}
+.. class:: align-center
 
-From Maxwell's relation:
+   From Maxwell's relation, we have
 
 .. math::
    \left(\frac{\partial v}{\partial T}\right)_{s}=-\left(\frac{\partial s}{\partial p}\right)_{v}
@@ -98,19 +97,21 @@ From Maxwell's relation:
  
    \left(\frac{\partial v}{\partial T}\right)_{s}=-\left(\frac{\partial s}{\partial T}\right)_{v}\cdot\left(\frac{\partial T}{\partial p}\right)_{v}
 
-Hence:
-
 .. math::
    \left(\frac{\partial\rho}{\partial T}\right)_{s}=\frac{1}{v^{2}}\cdot\left(\frac{\partial s}{\partial T}\right)_{v}\cdot\left(\frac{\partial T}{\partial p}\right)_{v}
  
-For the two-phase region:
+.. class:: align-center
+
+   For the two-phase region,
 
 .. math::
    \Delta s=\left(\frac{\partial s}{\partial q}\right)_{T}\Delta q+\left(\frac{\partial s}{\partial T}\right)_{q}\Delta T
    
    \left(\frac{\partial s}{\partial T}\right)_{v}=\left(\frac{\partial s}{\partial q}\right)_{T}\cdot\left(\frac{\partial q}{\partial T}\right)_{v}+\left(\frac{\partial s}{\partial T}\right)_{q}\cdot\left(\frac{\partial T}{\partial T}\right)_{v}=\left(\frac{\partial s}{\partial q}\right)_{T}\cdot\left(\frac{\partial q}{\partial T}\right)_{v}+\left(\frac{\partial s}{\partial T}\right)_{q}
  
-Let's find the components of this formula:
+.. class:: align-center
+
+   Let's find the components of this formula:
 
 .. math::
    s=q\cdot s_{v}+(1-q)\cdot s_{L}
@@ -127,11 +128,11 @@ Let's find the components of this formula:
  
    \left(\frac{\partial s}{\partial T}\right)_{q}=q\cdot\left(\frac{\partial s}{\partial T}\right)_{sat\, V}+\left(1-q\right)\cdot\left(\frac{\partial s}{\partial T}\right)_{sat\, L} (3)
  
-      
- 
 
+4. Select a step :math:`\Delta T` and find :math:`\Delta \rho` from
 
-
-4. Select a step :math:`\Delta T` and find :math:`\Delta \rho`   
+.. math::
+   \frac{\mathrm{d}\rho}{\mathrm{d}T}=\left(\frac{\partial \rho}{\partial T}\right)_{s}
+   
 5. Compute the fluid state at :math:`f_1` by :math:`T_0 + \Delta T` and :math:`\rho_0 + \Delta\rho`
 6. Go back to 3. using :math:`f_1`
