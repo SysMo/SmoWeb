@@ -117,13 +117,13 @@ Let's find the components of this formula:
    
    \left(\frac{\partial s}{\partial q}\right)_{T}=s_{v}-s_{L} (1)
    
-   \left(\frac{\partial q}{\partial T}\right)_{v}=-\left(\frac{\partial T}{\partial v}\right)_{q}\cdot\left(\frac{\partial v}{\partial q}\right)_{T}=\frac{\left(\frac{\partial v}{\partial q}\right)_{T}}{\left(\frac{\partial v}{\partial T}\right)_{q}}
+   \left(\frac{\partial q}{\partial T}\right)_{v}=-\frac{1}{\left(\frac{\partial T}{\partial v}\right)_{q}\cdot\left(\frac{\partial v}{\partial q}\right)_{T}}=-\frac{\left(\frac{\partial v}{\partial T}\right)_{q}}{\left(\frac{\partial v}{\partial q}\right)_{T}}
    
    \left(\frac{\partial v}{\partial q}\right)_{T}=v_{v}-v_{L}
  
    \left(\frac{\partial V}{\partial T}\right)_{q}=q\cdot\left(\frac{\partial v}{\partial T}\right)_{sat\, V}+\left(1-q\right)\cdot\left(\frac{\partial v}{\partial T}\right)_{sat\, L}
  
-   \left(\frac{\partial q}{\partial T}\right)_{v}=\frac{v_{v}-v_{L}}{q\cdot\left(\frac{\partial v}{\partial T}\right)_{sat\, V}+\left(1-q\right)\cdot\left(\frac{\partial v}{\partial T}\right)_{sat\, L}}=\frac{\frac{1}{\rho_{v}}-\frac{1}{\rho_{L}}}{-q\cdot\rho^{2}\left(\frac{\partial\rho}{\partial T}\right)_{sat\, V}+\left(q-1\right)\cdot\rho^{2}\left(\frac{\partial\rho}{\partial T}\right)_{sat\, L}} (2)
+   \left(\frac{\partial q}{\partial T}\right)_{v}=-\frac{q\cdot\left(\frac{\partial v}{\partial T}\right)_{sat\, V}+\left(1-q\right)\cdot\left(\frac{\partial v}{\partial T}\right)_{sat\, L}}{v_{v}-v_{L}}=\frac{q\cdot\rho^{2}\left(\frac{\partial\rho}{\partial T}\right)_{sat\, V}+\left(1-q\right)\cdot\rho^{2}\left(\frac{\partial\rho}{\partial T}\right)_{sat\, L}}{\frac{1}{\rho_{v}}-\frac{1}{\rho_{L}}} (2)
  
    \left(\frac{\partial s}{\partial T}\right)_{q}=q\cdot\left(\frac{\partial s}{\partial T}\right)_{sat\, V}+\left(1-q\right)\cdot\left(\frac{\partial s}{\partial T}\right)_{sat\, L} (3)
  
