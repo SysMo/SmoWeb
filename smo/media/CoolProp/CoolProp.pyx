@@ -138,6 +138,53 @@ cdef class Fluid:
 			'rhoV': rhoVout
 			}
 
+#============================================================================
+
+cdef class SaturationState:
+	cdef CP.CoolPropStateClassSI* ptr
+
+	property T:
+		"""temperature"""	
+		def __get__(self):
+			return self.ptr.T()
+	
+	property p:
+		"""pressure"""	
+		def __get__(self):
+			return self.ptr.p()
+	
+	property rho:
+		"""density"""	
+		def __get__(self):
+			return self.ptr.rho()
+	
+	property v:
+		"""specific volume"""	
+		def __get__(self):
+			return 1./self.ptr.rho()
+
+	property h:
+		"""specific enthalpy"""	
+		def __get__(self):
+			return self.ptr.h()
+	
+	property q:
+		"""vapor quality"""	
+		def __get__(self):
+			return self.ptr.Q()
+
+cdef class SaturationStateLiquid(SaturationState):
+	property drhodT:
+		def __get__(self):
+			return self.ptr.drhodT_along_sat_liquid()
+
+cdef class SaturationStateVapor(SaturationState):
+	property drhodT:
+		def __get__(self):
+			return self.ptr.drhodT_along_sat_vapor()
+
+#============================================================================
+
 cdef long iP = CP.get_param_index('P')
 cdef long iT = CP.get_param_index('T')
 cdef long iD = CP.get_param_index('D')
@@ -145,13 +192,10 @@ cdef long iH = CP.get_param_index('H')
 cdef long iS = CP.get_param_index('S')
 cdef long iQ = CP.get_param_index('Q')
 
-# cdef class LiquidSaturationState:
-# 	cdef FluidState state
-# 	def __cinit__(self, FluidState state):		
-# 		self.state = state
-
 cdef class FluidState:
 	cdef CP.SmoFlow_CoolPropState* ptr
+	cdef public SaturationStateLiquid _SatL
+	cdef public SaturationStateVapor _SatV
 
 	def __init__(self, fluid):
 		"""__init__(fluid)
@@ -170,6 +214,11 @@ cdef class FluidState:
 			self.ptr = new CP.SmoFlow_CoolPropState((<Fluid>fluid).ptr)
 		else:
 			raise TypeError('The argument of FluidState constructor must be either str or Fluid')
+		
+		self._SatL = SaturationStateLiquid()
+		self._SatL.ptr = self.ptr.getSatL()
+		self._SatV = SaturationStateVapor()
+		self._SatV.ptr = self.ptr.getSatV()
 			
 	def __dealloc__(self):
 		del self.ptr
@@ -189,6 +238,11 @@ cdef class FluidState:
 		def __get__(self):
 			return self.ptr.rho()
 	
+	property v:
+		"""specific volume"""	
+		def __get__(self):
+			return 1./self.ptr.rho()
+
 	property h:
 		"""specific enthalpy"""	
 		def __get__(self):
@@ -225,7 +279,7 @@ cdef class FluidState:
 			return self.ptr.cv()
 
 ####################################################################
-# Two-phase specific derivatives
+# Two-phase-safe derivatives
 	property dvdp_T:
 		""""""
 		def __get__(self):		
@@ -235,12 +289,7 @@ cdef class FluidState:
 		""""""
 		def __get__(self):		
 			return self.ptr.dvdT_constp()
-		
-	property dsdq_T:
-		""""""	
-		def __get__(self):
-			return self.ptr.dsdq_constT()
-		
+				
 	property dpdrho_T:
 		""""""	
 		def __get__(self):
@@ -256,7 +305,6 @@ cdef class FluidState:
 		def __get__(self):		
 			return self.ptr.dpdv_constT()
 			
-# New two-phase specific derivatives
 	property dsdp_T:
 			""""""
 			def __get__(self):		
@@ -278,14 +326,39 @@ cdef class FluidState:
 				return self.ptr.dsdT_constv()
 
 ####################################################################
-####################################################################
-####################################################################
-			
+# Two-phase specific derivatives
 	property dpdT_sat:
 		""""""	
 		def __get__(self):
 			return self.ptr.dpdT_sat()
-	
+
+	property dsdq_T: 
+		""""""
+		def __get__(self):
+			return self.ptr. dsdq_constT()
+
+	property dsdT_q: 
+		""""""
+		def __get__(self):
+			return self.ptr.dsdT_constq()
+
+	property dvdT_q: 
+		""""""
+		def __get__(self):
+			return self.ptr.dvdT_constq()
+
+	property dvdq_T: 
+		""""""
+		def __get__(self):
+			return self.ptr.dvdq_constT()
+
+	property dqdT_v:
+		""""""
+		def __get__(self):
+			return self.ptr.dqdT_constv()
+####################################################################
+####################################################################
+				
 	property beta:
 		"""isobaric thermal expansivity"""	
 		def __get__(self):
@@ -307,7 +380,7 @@ cdef class FluidState:
 			return self.ptr.Prandtl()
 	
 	property gamma:
-		"""cp / cv"""
+		"""heat capacity ratio"""
 		def __get__(self):
 			return self.ptr.gamma()
 
@@ -398,7 +471,17 @@ cdef class FluidState:
 		Updates fluid state by temperature and vapor quality
 		"""
 		self.ptr.update(iT, T, iQ, q, -1, -1)
-		
+
+	property SatL:
+		"""Saturated liquid object"""
+		def __get__(self):
+			return self._SatL
+	
+	property SatV:
+		"""Saturated vapor object"""
+		def __get__(self):
+			return self._SatV
+	
 	def getSatL(self):
 		"""Returns dictionary of saturation properties in the liquid phase - rho, s, h"""
 		#cdef CP.CoolPropStateClassSI* satL

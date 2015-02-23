@@ -59,6 +59,22 @@ cdef extern from "SmoFlowMediaExt.h":
 		double s()
 		double cp()
 		double cv()
+		
+		# Derivatives at saturation
+		double drhodT_along_sat_vapor()
+		double drhodT_along_sat_liquid()
+		double drhodp_along_sat_vapor()
+		double drhodp_along_sat_liquid()
+		
+		double dsdT_along_sat_vapor()
+		double dsdT_along_sat_liquid()
+		double dsdp_along_sat_vapor()
+		double dsdp_along_sat_liquid()
+
+		double dhdp_along_sat_vapor()
+		double dhdp_along_sat_liquid()
+		double dhdT_along_sat_vapor()
+		double dhdT_along_sat_liquid()
 
 	cdef cppclass SmoFlow_CoolPropState:
 		SmoFlow_CoolPropState(string FluidName) except +
@@ -125,7 +141,7 @@ cdef extern from "SmoFlowMediaExt.h":
 		double dsdT_constp()
 		double dsdp_constT()
 		double dsdT_constv()
-		double dsdq_constT()
+#		double dsdq_constT()
 # 		double d2sdrho2_constT()
 # 		double d2sdrhodT()
 # 		double d2sdT2_constrho()
@@ -133,13 +149,16 @@ cdef extern from "SmoFlowMediaExt.h":
 # 		double d2sdp2_constT()
 # 		double d2sdTdp()
 
-		# Derivatives at saturation
-		double drhodT_along_sat_vapor()
-		double drhodT_along_sat_liquid()
-		
-		double dsdT_along_sat_vapor()
-		double dsdT_along_sat_liquid()
 
+		# Two-phase specific derivatives
+		double dsdq_constT();
+		double dsdT_constq();
+		double dvdT_constq();
+		double dvdq_constT();
+	
+		double dqdT_constv();
+
+		#Transport properties
 		double viscosity()
 		double conductivity()
 		double Prandtl()

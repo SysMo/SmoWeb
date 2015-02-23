@@ -81,8 +81,10 @@ double SmoFlow_CoolPropState::dsdT_constq() {
 double SmoFlow_CoolPropState::dvdT_constq() {
 	double _dvdT_constq;
 	if (TwoPhase) {
-		_dvdT_constq = ( Q() / (- rho() * rho ())) * drhodT_along_sat_vapor() +
-						((1 - Q()) / (- rho() * rho ())) * drhodT_along_sat_liquid();
+		double rhoL2 = SatL->rho() * SatL->rho();
+		double rhoV2 = SatV->rho() * SatV->rho();
+		_dvdT_constq = - Q() / rhoV2 * drhodT_along_sat_vapor() +
+						(Q() - 1) / rhoL2 * drhodT_along_sat_liquid();
 	} else {
 		_dvdT_constq = NAN;
 	}
