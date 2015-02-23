@@ -85,7 +85,7 @@ def syncVirtEnv():
 	sudo('chown -R www-data:www-data /srv/SmoWeb ')
 	sudo('service apache2 restart')
 #######################################################################
-def restToHtml():
+def rest2Html():
 	"""
 	Generate documentation for the project and for the individual apps and pages
 	"""

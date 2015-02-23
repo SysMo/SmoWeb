@@ -197,10 +197,7 @@ cdef class FluidState:
 	property q:
 		"""vapor quality"""	
 		def __get__(self):
-			if (self.ptr.TwoPhase):
-				return self.ptr.Q()
-			else:
-				return -1.0
+			return self.ptr.q()
 
 	def isTwoPhase(self):
 		"""Checks if state is in the two-phase region\n
@@ -215,7 +212,7 @@ cdef class FluidState:
 	property u:
 		"""specific internal energy"""	
 		def __get__(self):
-			return self.ptr.h() - self.ptr.p() / self.ptr.rho()
+			return self.ptr.u()
 	
 	property cp:
 		"""specific heat capacity at constant pressure"""	
@@ -265,41 +262,20 @@ cdef class FluidState:
 			def __get__(self):		
 				return self.ptr.dsdp_constT()
 	
-	property dhdt_p:
+	property dhdT_p:
 			""""""
 			def __get__(self):		
-				cdef double _dhdT_constp
-				if (self.ptr.TwoPhase):
-					_dhdT_constp = INFINITY
-				else:
-					_dhdT_constp = self.ptr.dhdT_constp()
-				return _dhdT_constp
+				return self.ptr.dhdT_constp()
 	
-	property dpdt_h:
+	property dpdT_h:
 			""""""
 			def __get__(self):		
-				cdef double _dpdT_consth
-				if (self.ptr.TwoPhase):
-					_dpdT_consth = self.dpdt_sat
-				else:
-					_dpdT_consth = self.ptr.dpdT_consth()
-				return _dpdT_consth
+				return self.ptr.dpdT_consth()
 	
-	property dsdt_v:
+	property dsdT_v:
 			""""""
 			def __get__(self):		
-				cdef double _dsdT_constv
-				if (self.ptr.TwoPhase):
-					_dsdT_constv = (self.getSatV()["s"] - self.getSatL()["s"]) * \
-									(self.q * (self.rho**2) * self.ptr.drhodT_along_sat_vapor() +
-										(1 - self.q) * (self.rho**2) * self.ptr.drhodT_along_sat_liquid()
-									) / (1. / self.getSatV()["rho"] - 1. / self.getSatL()["rho"]) + \
-									(self.q * self.ptr.dsdT_along_sat_vapor() + 
-										(1 - self.q) * self.ptr.dsdT_along_sat_liquid()
-									)
-				else:
-					_dsdT_constv = self.ptr.dsdT_constrho()
-				return _dsdT_constv
+				return self.ptr.dsdT_constv()
 
 ####################################################################
 ####################################################################
@@ -313,7 +289,7 @@ cdef class FluidState:
 	property beta:
 		"""isobaric thermal expansivity"""	
 		def __get__(self):
-			return return self.ptr.beta()
+			return self.ptr.beta()
 	
 	property mu:
 		"""dynamic viscosity"""					

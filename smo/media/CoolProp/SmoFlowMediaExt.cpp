@@ -1,5 +1,19 @@
 #include "SmoFlowMediaExt.h"
 
+double SmoFlow_CoolPropState::q() {
+	double _q;
+	if (TwoPhase) {
+		_q = Q();
+	} else {
+		_q = -1.0;
+	}
+	return _q;
+}
+
+double SmoFlow_CoolPropState::u() {
+	return h() - p() / rho();
+}
+
 double SmoFlow_CoolPropState::Pr() {
 	double _Pr;
 	if (!TwoPhase) {
@@ -52,6 +66,47 @@ double SmoFlow_CoolPropState::dsdq_constT() {
 		_dsdq_constT = NAN;
 	}
 	return _dsdq_constT;
+}
+
+double SmoFlow_CoolPropState::dsdT_constq() {
+	double _dsdT_constq;
+	if (TwoPhase) {
+		_dsdT_constq = Q() * dsdT_along_sat_vapor() + (1 - Q()) * dsdT_along_sat_liquid();
+	} else {
+		_dsdT_constq = NAN;
+	}
+	return _dsdT_constq;
+}
+
+double SmoFlow_CoolPropState::dvdT_constq() {
+	double _dvdT_constq;
+	if (TwoPhase) {
+		_dvdT_constq = ( Q() / (- rho() * rho ())) * drhodT_along_sat_vapor() +
+						((1 - Q()) / (- rho() * rho ())) * drhodT_along_sat_liquid();
+	} else {
+		_dvdT_constq = NAN;
+	}
+	return _dvdT_constq;
+}
+
+double SmoFlow_CoolPropState::dvdq_constT() {
+	double _dvdq_constT;
+	if (TwoPhase) {
+		_dvdq_constT = 1. / SatV->rho() - 1. / SatL->rho();
+	} else {
+		_dvdq_constT = NAN;
+	}
+	return _dvdq_constT;
+}
+
+double SmoFlow_CoolPropState::dqdT_constv() {
+	double _dqdT_constv;
+	if (TwoPhase) {
+		_dqdT_constv = - dvdT_constq() / dvdq_constT();
+	} else {
+		_dqdT_constv = NAN;
+	}
+	return _dqdT_constv;
 }
 
 double SmoFlow_CoolPropState::dpdT_sat() {
@@ -108,18 +163,33 @@ double SmoFlow_CoolPropState::dsdp_constT() {
 	return _dsdp_constT;
 }
 
+double SmoFlow_CoolPropState::dhdT_constp() {
+	double _dhdT_constp;
+	if (TwoPhase) {
+		_dhdT_constp = INFINITY;
+	} else {
+		_dhdT_constp = CoolPropStateClassSI::dhdT_constp();
+	}
+	return _dhdT_constp;
+}
 
+double SmoFlow_CoolPropState::dpdT_consth() {
+	double _dpdT_consth;
+	if (TwoPhase) {
+		_dpdT_consth = dpdT_sat();
+	} else {
+		_dpdT_consth = CoolPropStateClassSI::dpdT_consth();
+	}
+	return _dpdT_consth;
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
+double SmoFlow_CoolPropState::dsdT_constv() {
+	double _dsdT_constv;
+	if (TwoPhase) {
+		_dsdT_constv = dsdq_constT() * dqdT_constv() + dsdT_constq();
+	} else {
+		_dsdT_constv = CoolPropStateClassSI::dsdT_constrho();
+	}
+	return _dsdT_constv;
+}
 
