@@ -79,6 +79,7 @@ cdef extern from "SmoFlowMediaExt.h":
 		double isothermal_compressibility()
 		double isobaric_expansion_coefficient()
 		double dTdp_along_sat()
+		double gamma();
 
 		double dvdp_constT()
 		double dvdT_constp()

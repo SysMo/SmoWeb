@@ -26,3 +26,24 @@ double SmoFlow_CoolPropState::beta() {
 		return _rho * interp_linear(_Q, SatL->dvdT_constp(), SatV->dvdT_constp());
 	}
 }
+
+double SmoFlow_CoolPropState::dpdrho_constT() {
+	double _dpdrho_T;
+	if (TwoPhase) {
+		_dpdrho_T = 0;
+	} else {
+		_dpdrho_T = CoolPropStateClassSI::dpdrho_constT();
+	}
+	return _dpdrho_T;
+
+}
+
+double SmoFlow_CoolPropState::dsdq_T() {
+	double _dsdq_T;
+	if (TwoPhase) {
+		_dsdq_T = SatV->s() - SatL->s();
+	} else {
+		_dsdq_T = NAN;
+	}
+	return _dsdq_T;
+}

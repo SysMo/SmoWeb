@@ -21,6 +21,12 @@ public:
 	CoolPropStateClassSI* getSatV() {
 		return SatV;
 	}
+
+	// Derivatives
+	double dpdrho_constT();
+
+	double dsdq_T();
+
 };
 
 #endif // SMOFLOWMEDIAEXT_H

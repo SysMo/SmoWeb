@@ -265,12 +265,7 @@ cdef class FluidState:
 	property dpdrho_t:
 		""""""	
 		def __get__(self):
-			cdef double _dpdrho_t
-			if (self.ptr.TwoPhase):
-				_dpdrho_t = 0
-			else:
-				_dpdrho_t = self.ptr.dpdrho_constT();
-			return _dpdrho_t
+			return self.ptr.dpdrho_constT()
 ####################################################################
 ##### New derivatives #####
 	property dsdp_t:
@@ -368,7 +363,7 @@ cdef class FluidState:
 	property gamma:
 		"""cp / cv"""
 		def __get__(self):
-			return self.ptr.cp() / self.ptr.cv();
+			return self.ptr.gamma();
 
 	def update(self, 
 			string state1, double state1Value,
@@ -452,7 +447,7 @@ cdef class FluidState:
 		
 	def getSatL(self):
 		"""Returns dictionary of saturation properties in the liquid phase - rho, s, h"""
-		cdef CP.CoolPropStateClassSI* satL
+		#cdef CP.CoolPropStateClassSI* satL
 		if (self.isTwoPhase()):
 			satL = self.ptr.getSatL()
 			return {
@@ -465,7 +460,7 @@ cdef class FluidState:
 
 	def getSatV(self):
 		"""Returns dictionary of saturation properties in the vapor phase - rho, s, h"""
-		cdef CP.CoolPropStateClassSI* satV
+		#cdef CP.CoolPropStateClassSI* satV
 		if (self.isTwoPhase()):
 			satV = self.ptr.getSatV()
 			return {
