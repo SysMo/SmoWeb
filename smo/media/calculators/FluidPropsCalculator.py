@@ -97,11 +97,11 @@ class PropertyCalculatorCoolprop(NumericalModel):
 	Pr = Quantity('Dimensionless', label = 'Prandtl number')
 	cond = Quantity('ThermalConductivity', label = 'thermal conductivity')
 	mu = Quantity('DynamicViscosity', label = 'dynamic viscosity')
-	dpdt_v = Quantity('Dimensionless', label = '(dp/dT)<sub>v</sub>')
-	dpdv_t = Quantity('Dimensionless', label = '(dp/dv)<sub>T</sub>')
+	dpdT_v = Quantity('Dimensionless', label = '(dp/dT)<sub>v</sub>')
+	dpdv_T = Quantity('Dimensionless', label = '(dp/dv)<sub>T</sub>')
 	#####
 	stateVariablesResults = FieldGroup([recordId, T, p, rho, h, s, q, u], label = 'States')
-	derivativeResults = FieldGroup([cp, cv, gamma, Pr, cond, mu, dpdt_v, dpdv_t], label = 'Derivatives & Transport')
+	derivativeResults = FieldGroup([cp, cv, gamma, Pr, cond, mu, dpdT_v, dpdv_T], label = 'Derivatives & Transport')
 	props = SuperGroup([stateVariablesResults, derivativeResults], label = "Properties")
 	#####
 	rho_L = Quantity('Density', label = 'density')
@@ -160,19 +160,21 @@ class PropertyCalculatorCoolprop(NumericalModel):
 		self.Pr = fState.Pr
 		self.cond = fState.cond
 		self.mu = fState.mu
-		self.dpdt_v = fState.dpdt_v
-		self.dpdv_t = fState.dpdv_t
+		self.dpdT_v = fState.dpdT_v
+		self.dpdv_T = fState.dpdv_T
 		
 		self.isTwoPhase = fState.isTwoPhase()
 		if (self.isTwoPhase == True):
-			satL = fState.getSatL()			
-			satV = fState.getSatV()
+			satL = fState.SatL
+			satV = fState.SatV
+
+			self.rho_L = satL.rho
+			self.h_L = satL.h
+			self.s_L = satL.s
 			
-			self.rho_L = satL['rho']
-			self.h_L = satL['h']
-			self.s_L = satL['s']
-			
-			self.rho_V = satV['rho']
+			self.rho_V = satV.rho
+			self.h_V = satV.h
+			self.s_V = satV.s
 		
 # 		self.testVarTable = VariationTableValue(recordId = self.recordId, 
 # 											newRow = [self.T, self.p, self.h],
@@ -181,8 +183,6 @@ class PropertyCalculatorCoolprop(NumericalModel):
 # 		
 # 		self.recordId = self.testVarTable.recordId
 		
-			self.h_V = satV['h']
-			self.s_V = satV['s']
 
 		self.computeParamVarTable('paramVarTable', 'recordId', ['T', 'p', 'rho', 'h', 'q', 'u', 'cp', 'cv', 'cond', 'mu'])
 		
@@ -374,16 +374,16 @@ class SaturationData(NumericalModel):
 		
 		for i in range(len(pressures)):
 			fState.update_pq(pressures[i], 0)			
-			satL = fState.getSatL()			
-			satV = fState.getSatV()
+			satL = fState.SatL
+			satV = fState.SatV
 			
 			data[i,1] = fState.T
-			data[i,2] = satL['rho']
-			data[i,3] = satV['rho']
-			data[i,4] = satL['h']
-			data[i,5] = satV['h']
-			data[i,7] = satL['s']
-			data[i,8] = satV['s']
+			data[i,2] = satL.rho
+			data[i,3] = satV.rho
+			data[i,4] = satL.h
+			data[i,5] = satV.h
+			data[i,7] = satL.s
+			data[i,8] = satV.s
 		# Compute evaporation enthalpy
 		data[:,6] = data[:, 5] - data[:, 4]	
 		# Compute evaporation entropy

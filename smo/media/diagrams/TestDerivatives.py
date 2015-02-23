@@ -25,8 +25,8 @@ print ("dqdT_v() numerical: {:e}, analytical: {:e}".format(dqdT_v, f1.dqdT_v))
 # dvdT_q
 f2.update_Tq(f1.T + dT, f1.q)
 dvdT_q = (f2.v - f1.v) / (f2.T - f1.T)
-#dvdT_q_1 = f1.q * f1.SatV.drhodT / 
-print ("dvdT_q() numerical: {:e}, analytical: {:e}".format(dvdT_q, f1.dvdT_q))
+dvdT_q_1 = -(f1.q * f1.SatV.drhodT /f1.SatV.rho**2 + (1 - f1.q) * f1.SatL.drhodT /f1.SatL.rho**2) 
+print ("dvdT_q() numerical: {:e}, analytical: {:e}, analytical2: {:e}".format(dvdT_q, f1.dvdT_q, dvdT_q_1))
 
 # dvdq_T
 f2.update_Tq(f1.T, f1.q + dq) 
@@ -37,3 +37,8 @@ print ("dvdq_T() numerical: {:e}, analytical: {:e}".format(dvdq_T, f1.dvdq_T))
 f2.update_Tq(f1.T + dT, f1.q)
 dsdT_q = (f2.s - f1.s) / (f2.T - f1.T)
 print ("dsdT_q() numerical: {:e}, analytical: {:e}".format(dsdT_q, f1.dsdT_q))
+
+
+h2 = FluidState("Water")
+h2.update_pq(1e5, 0.5)
+print h2.SatV.h

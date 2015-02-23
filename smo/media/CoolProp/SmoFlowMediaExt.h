@@ -9,19 +9,13 @@
 class SmoFlow_CoolPropState : public CoolPropStateClassSI {
 public:
 	SmoFlow_CoolPropState(Fluid* pFluid) : CoolPropStateClassSI(pFluid) {
-		// Only build the Saturation classes if this is a top-level CPState for which no_SatLSatV() has not been called
-		if (!_noSatLSatV){
-			if (SatL == NULL){
-				SatL = new CoolPropStateClassSI(pFluid);
-				SatL->no_SatLSatV(); // Kill the recursive building of the saturation classes
-			}
-			if (SatV == NULL){
-				SatV = new CoolPropStateClassSI(pFluid);
-				SatV->no_SatLSatV(); // Kill the recursive building of the saturation classes
-			}
-		}
+		createTwoPhaseStates();
 	}
-	SmoFlow_CoolPropState(std::string FluidName) : CoolPropStateClassSI(FluidName) {}
+	SmoFlow_CoolPropState(std::string FluidName) : CoolPropStateClassSI(FluidName) {
+		createTwoPhaseStates();
+	}
+
+	void createTwoPhaseStates();
 
 	double q();
 	double u();

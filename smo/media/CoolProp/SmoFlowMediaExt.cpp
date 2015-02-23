@@ -1,5 +1,21 @@
 #include "SmoFlowMediaExt.h"
 
+void SmoFlow_CoolPropState::createTwoPhaseStates() {
+	// Only build the Saturation classes if this is a top-level CPState for which no_SatLSatV() has not been called
+	if (!_noSatLSatV){
+		if (SatL == NULL){
+			SatL = new CoolPropStateClassSI(pFluid);
+			SatL->no_SatLSatV(); // Kill the recursive building of the saturation classes
+		}
+		if (SatV == NULL){
+			SatV = new CoolPropStateClassSI(pFluid);
+			SatV->no_SatLSatV(); // Kill the recursive building of the saturation classes
+		}
+	}
+
+}
+
+
 double SmoFlow_CoolPropState::q() {
 	double _q;
 	if (TwoPhase) {

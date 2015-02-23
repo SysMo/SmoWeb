@@ -142,6 +142,7 @@ cdef class Fluid:
 
 cdef class SaturationState:
 	cdef CP.CoolPropStateClassSI* ptr
+	cdef CP.SmoFlow_CoolPropState* parent
 
 	property T:
 		"""temperature"""	
@@ -168,20 +169,89 @@ cdef class SaturationState:
 		def __get__(self):
 			return self.ptr.h()
 	
+	property s:
+		"""specific enthalpy"""	
+		def __get__(self):
+			return self.ptr.s()
+
 	property q:
 		"""vapor quality"""	
 		def __get__(self):
 			return self.ptr.Q()
 
 cdef class SaturationStateLiquid(SaturationState):
+	def __cinit__(self, FluidState fs):
+		self.parent = fs.ptr
+		self.ptr = fs.ptr.getSatL()
+		
 	property drhodT:
 		def __get__(self):
-			return self.ptr.drhodT_along_sat_liquid()
+			return self.parent.drhodT_along_sat_liquid()
+
+	property drhodp:
+		def __get__(self):
+			return self.parent.drhodp_along_sat_liquid()
+
+	property dvdT:
+		def __get__(self):
+			return -1./(self.rho * self.rho) * self.parent.drhodT_along_sat_liquid()
+
+	property dvdp:
+		def __get__(self):
+			return -1./(self.rho * self.rho) * self.parent.drhodp_along_sat_liquid()
+
+	property dsdT:
+		def __get__(self):
+			return self.parent.dsdT_along_sat_liquid()
+
+	property dsdp:
+		def __get__(self):
+			return self.parent.dsdp_along_sat_liquid()
+
+	property dhdT:
+		def __get__(self):
+			return self.parent.dhdT_along_sat_liquid()
+
+	property dhdp:
+		def __get__(self):
+			return self.parent.dhdp_along_sat_liquid()
 
 cdef class SaturationStateVapor(SaturationState):
+	def __cinit__(self, FluidState fs):
+		self.parent = fs.ptr
+		self.ptr = fs.ptr.getSatV()
+
 	property drhodT:
 		def __get__(self):
-			return self.ptr.drhodT_along_sat_vapor()
+			return self.parent.drhodT_along_sat_vapor()
+
+	property drhodp:
+		def __get__(self):
+			return self.parent.drhodp_along_sat_vapor()
+
+	property dvdT:
+		def __get__(self):
+			return -1./(self.rho * self.rho) * self.parent.drhodT_along_sat_vapor()
+
+	property dvdp:
+		def __get__(self):
+			return -1./(self.rho * self.rho) * self.parent.drhodp_along_sat_vapor()
+
+	property dsdT:
+		def __get__(self):
+			return self.parent.dsdT_along_sat_vapor()
+
+	property dsdp:
+		def __get__(self):
+			return self.parent.dsdp_along_sat_vapor()
+
+	property dhdT:
+		def __get__(self):
+			return self.parent.dhdT_along_sat_vapor()
+
+	property dhdp:
+		def __get__(self):
+			return self.parent.dhdp_along_sat_vapor()
 
 #============================================================================
 
@@ -215,10 +285,8 @@ cdef class FluidState:
 		else:
 			raise TypeError('The argument of FluidState constructor must be either str or Fluid')
 		
-		self._SatL = SaturationStateLiquid()
-		self._SatL.ptr = self.ptr.getSatL()
-		self._SatV = SaturationStateVapor()
-		self._SatV.ptr = self.ptr.getSatV()
+		self._SatL = SaturationStateLiquid(self)
+		self._SatV = SaturationStateVapor(self)
 			
 	def __dealloc__(self):
 		del self.ptr
@@ -482,29 +550,29 @@ cdef class FluidState:
 		def __get__(self):
 			return self._SatV
 	
-	def getSatL(self):
-		"""Returns dictionary of saturation properties in the liquid phase - rho, s, h"""
-		#cdef CP.CoolPropStateClassSI* satL
-		if (self.isTwoPhase()):
-			satL = self.ptr.getSatL()
-			return {
-				'rho': 	satL.rho(),
-				's':	satL.s(),
-				'h':	satL.h()
-			}
-		else:
-			return None
-
-	def getSatV(self):
-		"""Returns dictionary of saturation properties in the vapor phase - rho, s, h"""
-		#cdef CP.CoolPropStateClassSI* satV
-		if (self.isTwoPhase()):
-			satV = self.ptr.getSatV()
-			return {
-				'rho': 	satV.rho(),
-				's':	satV.s(),
-				'h':	satV.h()
-
-			}
-		else:
-			return None
+# 	def getSatL(self):
+# 		"""Returns dictionary of saturation properties in the liquid phase - rho, s, h"""
+# 		#cdef CP.CoolPropStateClassSI* satL
+# 		if (self.isTwoPhase()):
+# 			satL = self.ptr.getSatL()
+# 			return {
+# 				'rho': 	satL.rho(),
+# 				's':	satL.s(),
+# 				'h':	satL.h()
+# 			}
+# 		else:
+# 			return None
+# 
+# 	def getSatV(self):
+# 		"""Returns dictionary of saturation properties in the vapor phase - rho, s, h"""
+# 		#cdef CP.CoolPropStateClassSI* satV
+# 		if (self.isTwoPhase()):
+# 			satV = self.ptr.getSatV()
+# 			return {
+# 				'rho': 	satV.rho(),
+# 				's':	satV.s(),
+# 				'h':	satV.h()
+# 
+# 			}
+# 		else:
+# 			return None
