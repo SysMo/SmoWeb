@@ -66,7 +66,7 @@ cdef class Fluid:
 	property molarMass:
 		""""""
 		def __get__(self):
-			return self.ptr.params.molemass;
+			return self.ptr.params.molemass
 			
 	property accentricFactor:
 		""""""
@@ -178,25 +178,29 @@ cdef class FluidState:
 		"""temperature"""	
 		def __get__(self):
 			return self.ptr.T()
+	
 	property p:
 		"""pressure"""	
 		def __get__(self):
 			return self.ptr.p()
+	
 	property rho:
 		"""density"""	
 		def __get__(self):
 			return self.ptr.rho()
+	
 	property h:
 		"""specific enthalpy"""	
 		def __get__(self):
 			return self.ptr.h()
+	
 	property q:
 		"""vapor quality"""	
 		def __get__(self):
 			if (self.ptr.TwoPhase):
 				return self.ptr.Q()
 			else:
-				return -1.0;
+				return -1.0
 
 	def isTwoPhase(self):
 		"""Checks if state is in the two-phase region\n
@@ -207,76 +211,59 @@ cdef class FluidState:
 		"""specific entropy"""	
 		def __get__(self):
 			return self.ptr.s()
+	
 	property u:
 		"""specific internal energy"""	
 		def __get__(self):
 			return self.ptr.h() - self.ptr.p() / self.ptr.rho()
+	
 	property cp:
 		"""specific heat capacity at constant pressure"""	
 		def __get__(self):
 			return self.ptr.cp()
+	
 	property cv:
 		"""specific heat capacity at constant volume"""	
 		def __get__(self):
 			return self.ptr.cv()
 
 ####################################################################
-# Functions safe to use in 2-phase
+# Two-phase specific derivatives
 	property dvdp_T:
 		""""""
 		def __get__(self):		
-			cdef double _dvdp_constT
-			if (self.ptr.TwoPhase):
-				_dvdp_constT = INFINITY
-			else:
-				_dvdp_constT = self.ptr.dvdp_constT()
-			return _dvdp_constT
+			return self.ptr.dvdp_constT()
 
 	property dvdT_p:
 		""""""
 		def __get__(self):		
-			cdef double _dvdT_constp
-			if (self.ptr.TwoPhase):
-				_dvdT_constp = INFINITY
-			else:
-				_dvdT_constp = self.ptr.dvdT_constp()
-			return _dvdT_constp
-####################################################################
-	property dpdt_v:
-		""""""	
-		def __get__(self):		
-			cdef double _dpdt_v
-			if (self.ptr.TwoPhase):
-				_dpdt_v = self.dpdt_sat
-			else:
-				_dpdt_v = self.ptr.dpdT_constrho()
-			return _dpdt_v
+			return self.ptr.dvdT_constp()
 		
-	property dpdv_t:
+	property dsdq_T:
 		""""""	
-		def __get__(self):		
-			cdef double _dpdv_t
-			if (self.ptr.TwoPhase):
-				_dpdv_t = 0
-			else:
-				_dpdv_t = - self.ptr.rho() * self.ptr.rho() * self.ptr.dpdrho_constT();
-			return _dpdv_t
-			
-	property dpdrho_t:
+		def __get__(self):
+			return self.ptr.dsdq_constT()
+		
+	property dpdrho_T:
 		""""""	
 		def __get__(self):
 			return self.ptr.dpdrho_constT()
-####################################################################
-##### New derivatives #####
-	property dsdp_t:
+		
+	property dpdT_v:
+		""""""	
+		def __get__(self):		
+			return self.ptr.dpdT_constv()
+		
+	property dpdv_T:
+		""""""	
+		def __get__(self):		
+			return self.ptr.dpdv_constT()
+			
+# New two-phase specific derivatives
+	property dsdp_T:
 			""""""
 			def __get__(self):		
-				cdef double _dsdp_constT
-				if (self.ptr.TwoPhase):
-					_dsdp_constT = INFINITY
-				else:
-					_dsdp_constT = self.ptr.dsdp_constT()
-				return _dsdp_constT
+				return self.ptr.dsdp_constT()
 	
 	property dhdt_p:
 			""""""
@@ -313,57 +300,40 @@ cdef class FluidState:
 				else:
 					_dsdT_constv = self.ptr.dsdT_constrho()
 				return _dsdT_constv
-			
-# 	property drhodp_h:
-# 			""""""
-# 			def __get__(self):		
-# 				cdef double _drhodp_consth
-# 				if (self.ptr.TwoPhase):
-# 					_drhodp_consth = INFINITY
-# 				else:
-# 					_drhodp_consth = self.ptr.drhodp_consth()
-# 				return _drhodp_consth
-# 	
-# 	property drhodh_p:
-# 			""""""
-# 			def __get__(self):		
-# 				cdef double _drhodh_constp
-# 				if (self.ptr.TwoPhase):
-# 					pass
-# 				else:
-# 					_drhodh_constp = self.ptr.drhodh_constp()
-# 				return _drhodh_constp
+
 ####################################################################
 ####################################################################
 ####################################################################
 			
-	property dpdt_sat:
+	property dpdT_sat:
 		""""""	
 		def __get__(self):
-			return 1./self.ptr.dTdp_along_sat();
+			return self.ptr.dpdT_sat()
+	
 	property beta:
 		"""isobaric thermal expansivity"""	
 		def __get__(self):
-			if (not self.ptr.TwoPhase):
-				return self.ptr.rho() * self.ptr.dvdT_constp()
-			else:
-				return 0
+			return return self.ptr.beta()
+	
 	property mu:
 		"""dynamic viscosity"""					
 		def __get__(self):
 			return self.ptr.viscosity()
+	
 	property cond:
 		"""thermal conductivity"""
 		def __get__(self):
 			return self.ptr.conductivity()
+	
 	property Pr:
 		"""Prandtl number"""
 		def __get__(self):
 			return self.ptr.Prandtl()
+	
 	property gamma:
 		"""cp / cv"""
 		def __get__(self):
-			return self.ptr.gamma();
+			return self.ptr.gamma()
 
 	def update(self, 
 			string state1, double state1Value,
@@ -379,6 +349,7 @@ cdef class FluidState:
 		cdef long p1Index = CP.get_param_index(state1)
 		cdef long p2Index = CP.get_param_index(state2)
 		self.ptr.update(p1Index, state1Value, p2Index, state2Value, -1, -1)
+	
 	def update_Tp(self, double T, double p):
 		"""update_Tp(T, p)
 		:param T: temperature
@@ -388,6 +359,7 @@ cdef class FluidState:
 		
 		"""
 		self.ptr.update(iT, T, iP, p, -1, -1)
+	
 	def update_Trho(self, double T, double rho):
 		"""update_Trho(T, rho)
 		:param T: temperature
@@ -396,6 +368,7 @@ cdef class FluidState:
 		Updates fluid state by temperature and density
 		"""
 		self.ptr.update(iT, T, iD, rho, -1, -1)	
+	
 	def update_Ts(self, double T, double s):
 		"""update_Ts(T, s)
 		:param T: temperature
@@ -404,6 +377,7 @@ cdef class FluidState:
 		Updates fluid state by temperature and specific entropy
 		"""
 		self.ptr.update(iT, T, iS, s, -1, -1)	
+	
 	def update_prho(self, double p, double rho):
 		"""update_prho(p, rho)
 		:param p: pressure
@@ -412,6 +386,7 @@ cdef class FluidState:
 		Updates fluid state by pressure and density
 		"""
 		self.ptr.update(iP, p, iD, rho, -1, -1)	
+	
 	def update_ph(self, double p, double h):
 		"""update_ph(p, h)
 		:param p: pressure
@@ -420,6 +395,7 @@ cdef class FluidState:
 		Updates fluid state by pressure and specific enthalpy
 		"""
 		self.ptr.update(iP, p, iH, h, -1, -1)	
+	
 	def update_ps(self, double p, double s):
 		"""update_ps(p, s)
 		:param p: pressure
@@ -428,6 +404,7 @@ cdef class FluidState:
 		Updates fluid state by pressure and specific entropy
 		"""
 		self.ptr.update(iP, p, iS, s, -1, -1)	
+	
 	def update_pq(self, double p, double q):
 		"""update_pq(p, q)
 		:param p: pressure
@@ -436,6 +413,7 @@ cdef class FluidState:
 		Updates fluid state by pressure and vapor quality
 		"""
 		self.ptr.update(iP, p, iQ, q, -1, -1)	
+	
 	def update_Tq(self, double T, double q):
 		"""update_Tq(T, q)
 		:param T: temperature

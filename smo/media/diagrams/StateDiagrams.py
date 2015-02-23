@@ -117,8 +117,10 @@ class PHDiagram(StateDiagram):
 	
 	def plotIsentrops(self):
 		fState = FluidState(self.fluid)
-		sArr = np.linspace(self.sMin, self.sMax, num = 20)
+		#sArr = np.linspace(self.sMin, self.sMax, num = 20)
+		sArr = np.array([4000])
 		TArr = np.logspace(np.log10(self.TMin), np.log10(self.TMax), num = 100)
+		#TArr = np.logspace(np.log10(self.TMax), np.log10(self.TMin), num = 100)
 		for s in sArr:
 			hArr = np.zeros(len(TArr))
 			pArr = np.zeros(len(TArr))
@@ -131,13 +133,22 @@ class PHDiagram(StateDiagram):
 			print ('s=%e'%s)
 			for i in range(1, len(TArr)):
 				rhoArr[i] = rhoArr[i-1] + (TArr[i] - TArr[i-1]) * (rhoArr[i-1]**2) * fState.dsdt_v / fState.dpdt_v 
-				if (rhoArr[i] <= 0):
-					continue
+# 				if (rhoArr[i] <= 0):
+# 					continue
 				fState.update_Trho(TArr[i], rhoArr[i])
  				print ('rho: %e, T: %e, q: %e, s: %e'%(fState.rho, fState.T, fState.q, fState.s))
 				hArr[i] = fState.h
 				pArr[i] = fState.p
-			self.ax.semilogy(hArr/1e3, pArr/1e5, 'purple')
+			self.ax.semilogy(hArr/1e3, pArr/1e5, 'bo')
+			# Drawing (almost) middle line [s = 4000] by Ts
+			hArr = np.zeros(len(TArr))
+			pArr = np.zeros(len(TArr))
+			for i in range(len(TArr)):
+				fState.update_Ts(TArr[i], sArr[0])
+				hArr[i] = fState.h
+				pArr[i] = fState.p
+				print ('rho by Ts: %e'%fState.rho)
+			self.ax.semilogy(hArr/1e3, pArr/1e5, 'rx')
 	
 	def draw(self):
 		import matplotlib.pyplot as plt
@@ -150,15 +161,15 @@ class PHDiagram(StateDiagram):
 		self.ax.set_title(self.fluidName)
 		self.ax.grid(True)
 		self.plotDome()
-		self.plotIsochores()
-		self.plotIsotherms()
+		#self.plotIsochores()
+		#self.plotIsotherms()
 		self.plotIsentrops()
 		plt.show()
 
 
 def main():
-	fluidList = ['R134a', 'IsoButane', 'Water', 'Oxygen', 'Nitrogen', 'CarbonDioxide', 'ParaHydrogen']
-	#fluidList = ['CarbonDioxide']	
+	#fluidList = ['R134a', 'IsoButane', 'Water', 'Oxygen', 'Nitrogen', 'CarbonDioxide', 'ParaHydrogen']
+	fluidList = ['Water']	
 	for fluid in fluidList:
 		print("Calculating with fluid '{}'".format(fluid))
 		diagram = PHDiagram(fluid)

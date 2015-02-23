@@ -24,8 +24,13 @@ public:
 
 	// Derivatives
 	double dpdrho_constT();
-
-	double dsdq_T();
+	double dsdq_constT();
+	double dpdT_sat();
+	double dpdT_constv();
+	double dpdv_constT();
+	double dvdp_constT();
+	double dvdT_constp();
+	double dsdp_constT();
 
 };
 
