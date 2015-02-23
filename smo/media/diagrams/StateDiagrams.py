@@ -127,12 +127,14 @@ class PHDiagram(StateDiagram):
 			rhoArr[0] = fState.rho
 			hArr[0] = fState.h
 			pArr[0] = fState.p
+			print ('----------------------------------------')
+			print ('s=%e'%s)
 			for i in range(1, len(TArr)):
 				rhoArr[i] = rhoArr[i-1] + (TArr[i] - TArr[i-1]) * (rhoArr[i-1]**2) * fState.dsdt_v / fState.dpdt_v 
-# 				print ('S: %e'%s)
 				if (rhoArr[i] <= 0):
 					continue
 				fState.update_Trho(TArr[i], rhoArr[i])
+ 				print ('rho: %e, T: %e, q: %e, s: %e'%(fState.rho, fState.T, fState.q, fState.s))
 				hArr[i] = fState.h
 				pArr[i] = fState.p
 			self.ax.semilogy(hArr/1e3, pArr/1e5, 'purple')

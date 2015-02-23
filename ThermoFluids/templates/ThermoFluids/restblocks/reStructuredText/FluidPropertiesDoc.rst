@@ -82,11 +82,7 @@ Isentrops
 
 1. Start from a seed poing :math:`f_0`
 2. Compute the fluid state based on :math:`s` and :math:`T` variables
-3. Find :math:`\left(\frac{\partial\rho}{\partial T}\right)_{s}`
-
-.. class:: align-center
-
-   From Maxwell's relation, we have
+3. Find :math:`\left(\frac{\partial\rho}{\partial T}\right)_{s}`. From Maxwell's relation, we have
 
 .. math::
    \left(\frac{\partial v}{\partial T}\right)_{s}=-\left(\frac{\partial s}{\partial p}\right)_{v}
@@ -100,7 +96,6 @@ Isentrops
 .. math::
    \left(\frac{\partial\rho}{\partial T}\right)_{s}=\frac{1}{v^{2}}\cdot\left(\frac{\partial s}{\partial T}\right)_{v}\cdot\left(\frac{\partial T}{\partial p}\right)_{v}
  
-.. class:: align-center
 
    For the two-phase region,
 
@@ -109,14 +104,13 @@ Isentrops
    
    \left(\frac{\partial s}{\partial T}\right)_{v}=\left(\frac{\partial s}{\partial q}\right)_{T}\cdot\left(\frac{\partial q}{\partial T}\right)_{v}+\left(\frac{\partial s}{\partial T}\right)_{q}\cdot\left(\frac{\partial T}{\partial T}\right)_{v}=\left(\frac{\partial s}{\partial q}\right)_{T}\cdot\left(\frac{\partial q}{\partial T}\right)_{v}+\left(\frac{\partial s}{\partial T}\right)_{q}
  
-.. class:: align-center
 
-   Let's find the components of this formula:
+Let's express the :math:`q` and :math:`T` derivatives in the two phase eegion:
 
 .. math::
    s=q\cdot s_{v}+(1-q)\cdot s_{L}
    
-   \left(\frac{\partial s}{\partial q}\right)_{T}=s_{v}-s_{L} (1)
+   \left(\frac{\partial s}{\partial q}\right)_{T}=s_{v}-s_{L}
    
    \left(\frac{\partial q}{\partial T}\right)_{v}=-\frac{1}{\left(\frac{\partial T}{\partial v}\right)_{q}\cdot\left(\frac{\partial v}{\partial q}\right)_{T}}=-\frac{\left(\frac{\partial v}{\partial T}\right)_{q}}{\left(\frac{\partial v}{\partial q}\right)_{T}}
    
@@ -124,9 +118,9 @@ Isentrops
  
    \left(\frac{\partial V}{\partial T}\right)_{q}=q\cdot\left(\frac{\partial v}{\partial T}\right)_{sat\, V}+\left(1-q\right)\cdot\left(\frac{\partial v}{\partial T}\right)_{sat\, L}
  
-   \left(\frac{\partial q}{\partial T}\right)_{v}=-\frac{q\cdot\left(\frac{\partial v}{\partial T}\right)_{sat\, V}+\left(1-q\right)\cdot\left(\frac{\partial v}{\partial T}\right)_{sat\, L}}{v_{v}-v_{L}}=\frac{q\cdot\rho^{2}\left(\frac{\partial\rho}{\partial T}\right)_{sat\, V}+\left(1-q\right)\cdot\rho^{2}\left(\frac{\partial\rho}{\partial T}\right)_{sat\, L}}{\frac{1}{\rho_{v}}-\frac{1}{\rho_{L}}} (2)
+   \left(\frac{\partial q}{\partial T}\right)_{v}=-\frac{q\cdot\left(\frac{\partial v}{\partial T}\right)_{sat\, V}+\left(1-q\right)\cdot\left(\frac{\partial v}{\partial T}\right)_{sat\, L}}{v_{v}-v_{L}}=\frac{q\cdot\rho^{2}\left(\frac{\partial\rho}{\partial T}\right)_{sat\, V}+\left(1-q\right)\cdot\rho^{2}\left(\frac{\partial\rho}{\partial T}\right)_{sat\, L}}{\frac{1}{\rho_{v}}-\frac{1}{\rho_{L}}}
  
-   \left(\frac{\partial s}{\partial T}\right)_{q}=q\cdot\left(\frac{\partial s}{\partial T}\right)_{sat\, V}+\left(1-q\right)\cdot\left(\frac{\partial s}{\partial T}\right)_{sat\, L} (3)
+   \left(\frac{\partial s}{\partial T}\right)_{q}=q\cdot\left(\frac{\partial s}{\partial T}\right)_{sat\, V}+\left(1-q\right)\cdot\left(\frac{\partial s}{\partial T}\right)_{sat\, L}
  
 
 4. Select a step :math:`\Delta T` and find :math:`\Delta \rho` from
