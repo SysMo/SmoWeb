@@ -6,6 +6,7 @@ Created on Feb 18, 2015
 '''
 import numpy as np
 from smo.media.CoolProp.CoolProp import FluidState, Fluid
+import matplotlib.pyplot as plt
 
 class StateDiagram(object):
 	def __init__(self, fluidName):
@@ -27,12 +28,14 @@ class PHDiagram(StateDiagram):
 
 		# Pressure range
 		if (pMin is None):
-			pMin = self.fluid.tripple['p']
+			pMin = self.fluid.tripple['p'] * 1.05
+			if (pMin < 1e3):
+				pMin = 1e3
 		self.pMin = pMin
 		
+		
 		if (pMax is None):
-			
-			pMax =  10**(np.floor(np.log10(self.fluid.critical['p'])) + 2)
+			pMax =  10**(np.floor(np.log10(self.critical.p)) + 1.0)
 		self.pMax = pMax
 		
 		
@@ -53,7 +56,7 @@ class PHDiagram(StateDiagram):
 		print ("rho [{}: {}]".format(self.rhoMin, self.rhoMax))
 		
 		# Temperature range
-		self.TMin = 1.01 * self.trippleLiquid.T
+		self.TMin = self.fluid.saturation_p(self.pMin)["TsatL"]
 		fState.update_ph(self.pMin, self.hMax)
 		self.TMax = fState.T
 		
@@ -61,6 +64,7 @@ class PHDiagram(StateDiagram):
 		self.sMin = 1.01 * self.trippleLiquid.s
 		fState.update_ph(self.pMin, self.hMax)
 		self.sMax = fState.s
+		print ('sMin={}, sMax={}'.format(self.sMin, self.sMax))
 	
 	def plotDome(self):
 		fState = FluidState(self.fluid)
@@ -117,50 +121,62 @@ class PHDiagram(StateDiagram):
 	
 	def plotIsentrops(self):
 		fState = FluidState(self.fluid)
-		#sArr = np.linspace(self.sMin, self.sMax, num = 20)
-		sArr = np.array([4000])
-		#TArr = np.logspace(np.log10(self.TMin), np.log10(self.TMax), num = 100)
-		#TArr = np.logspace(np.log10(self.TMax), np.log10(self.TMin), num = 100)
-		#TArr = np.linspace(self.TMax, self.TMin, num = 1000)
-		#print np.diff(TArr)
-		T = self.TMin
+		sArr = np.linspace(self.sMin, self.sMax, num = 20)
 		for s in sArr:
 			hArr = []
 			pArr = []
-# 			rhoArr = np.zeros(len(TArr))
-			fState.update_Ts(T, s)
+			fState.update_ps(self.pMax, s)
+			if (fState.T > self.TMax):
+				fState.update_Ts(self.TMax, s)
+			T = fState.T
 			hArr.append(fState.h)
 			pArr.append(fState.p)
-			rho = fState.rho
+			# Calculated v
+			v_res = fState.v
 			print ('----------------------------------------')
 			print ('s=%e'%s)
-			while (T < self.TMax):
-				dlogrho_dT = rho * (fState.dsdT_v / fState.dpdT_v)
-				TStep = 1e-3 / (np.abs(dlogrho_dT) + 1e-4) 
+			while (T > self.TMin):
+				_dvdT_s = - fState.dsdT_v / fState.dpdT_v
+				TStep = - (self.critical.T / 200.) / (np.abs(_dvdT_s) + 1) 
 				T = T + TStep
-				rho *= np.exp(dlogrho_dT * TStep)
-				fState.update_Trho(T, rho)
+				if T < self.TMin:
+					break
+				v_res += _dvdT_s * TStep
+				fState.update_Trho(T, 1. / v_res)
+				p = fState.p
+				# If it goes out of the screen through the bottom
+				if (p < self.pMin):
+					break
+				# Calculated s
+				s_res = fState.s
+				# Correcting v
+				ds = s - s_res
+				sigma = ds * fState.dvds_T
+				v = v_res + sigma
+				fState.update_Trho(T, 1. / v)
+				#print(T, p/1e5, s_res, fState.s)
  				#print ('rho: %e, T: %e, q: %e, s: %e'%(fState.rho, fState.T, fState.q, fState.s))
 				hArr.append(fState.h)
 				pArr.append(fState.p)
-			hArr = np.asanyarray(hArr)
-			pArr = np.asanyarray(pArr)
+			hArr = np.array(hArr)
+			pArr = np.array(pArr)
 			print("Num points: {}".format(len(pArr)))
 			print("Final s: {}".format(fState.s))
-			self.ax.semilogy(hArr/1e3, pArr/1e5, 'b')
-		# Drawing (almost) middle line [s = 4000] by Ts
-		TArr = np.linspace(self.TMax, self.TMin, num = 1000)
-		hArr = np.zeros(len(TArr))
-		pArr = np.zeros(len(TArr))
-		for i in range(len(TArr)):
-			fState.update_Ts(TArr[i], sArr[0])
-			hArr[i] = fState.h
-			pArr[i] = fState.p
-			#print ('rho by Ts: %em T: %e'%(fState.rho, TArr[i]))
-			self.ax.semilogy(hArr/1e3, pArr/1e5, 'r')
+			print - fState.dsdT_v / fState.dpdT_v
+			self.ax.semilogy(hArr/1e3, pArr/1e5, 'm')
+# 		# Drawing (almost) middle line [s = 4000] by Ts
+# 		for s in sArr:
+# 			TArr = np.linspace(self.TMax, self.TMin, num = 100)
+# 			hArr = np.zeros(len(TArr))
+# 			pArr = np.zeros(len(TArr))
+# 			for i in range(len(TArr)):
+# 				fState.update_Ts(TArr[i], s)
+# 				hArr[i] = fState.h
+# 				pArr[i] = fState.p
+# 				#print ('rho by Ts: %em T: %e'%(fState.rho, TArr[i]))
+# 				self.ax.semilogy(hArr/1e3, pArr/1e5, 'r')
 	
 	def draw(self):
-		import matplotlib.pyplot as plt
 		fig = plt.figure()
 		self.ax = fig.add_subplot(1,1,1)
 		self.ax.set_xlim(self.hMin / 1e3, self.hMax / 1e3)
@@ -170,15 +186,15 @@ class PHDiagram(StateDiagram):
 		self.ax.set_title(self.fluidName)
 		self.ax.grid(True)
 		self.plotDome()
-		#self.plotIsochores()
-		#self.plotIsotherms()
+		self.plotIsochores()
+		self.plotIsotherms()
 		self.plotIsentrops()
 		plt.show()
 
 
 def main():
-	#fluidList = ['R134a', 'IsoButane', 'Water', 'Oxygen', 'Nitrogen', 'CarbonDioxide', 'ParaHydrogen']
-	fluidList = ['Water']	
+	fluidList = ['R134a',  'Water', 'Oxygen', 'Nitrogen', 'CarbonDioxide', 'ParaHydrogen']
+	#fluidList = ['IsoButane']	
 	for fluid in fluidList:
 		print("Calculating with fluid '{}'".format(fluid))
 		diagram = PHDiagram(fluid)

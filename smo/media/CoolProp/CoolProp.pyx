@@ -368,6 +368,11 @@ cdef class FluidState:
 		def __get__(self):		
 			return self.ptr.dpdT_constv()
 		
+	property dvds_T:
+		""""""	
+		def __get__(self):		
+			return 1. / self.ptr.dpdT_constv()
+		
 	property dpdv_T:
 		""""""	
 		def __get__(self):		
