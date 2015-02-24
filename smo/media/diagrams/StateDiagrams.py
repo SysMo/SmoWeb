@@ -120,35 +120,44 @@ class PHDiagram(StateDiagram):
 		#sArr = np.linspace(self.sMin, self.sMax, num = 20)
 		sArr = np.array([4000])
 		#TArr = np.logspace(np.log10(self.TMin), np.log10(self.TMax), num = 100)
-		TArr = np.logspace(np.log10(self.TMax), np.log10(self.TMin), num = 100)
+		#TArr = np.logspace(np.log10(self.TMax), np.log10(self.TMin), num = 100)
+		#TArr = np.linspace(self.TMax, self.TMin, num = 1000)
+		#print np.diff(TArr)
+		T = self.TMin
 		for s in sArr:
-			hArr = np.zeros(len(TArr))
-			pArr = np.zeros(len(TArr))
-			rhoArr = np.zeros(len(TArr))
-			fState.update_Ts(TArr[0], s)
-			rhoArr[0] = fState.rho
-			hArr[0] = fState.h
-			pArr[0] = fState.p
+			hArr = []
+			pArr = []
+# 			rhoArr = np.zeros(len(TArr))
+			fState.update_Ts(T, s)
+			hArr.append(fState.h)
+			pArr.append(fState.p)
+			rho = fState.rho
 			print ('----------------------------------------')
 			print ('s=%e'%s)
-			for i in range(1, len(TArr)):
-				rhoArr[i] = rhoArr[i-1] + (TArr[i] - TArr[i-1]) * (rhoArr[i-1]**2) * (fState.dsdT_v / fState.dpdT_v) 
-				if (rhoArr[i] <= 0):
-					continue
-				fState.update_Trho(TArr[i], rhoArr[i])
- 				print ('rho: %e, T: %e, q: %e, s: %e'%(fState.rho, fState.T, fState.q, fState.s))
-				hArr[i] = fState.h
-				pArr[i] = fState.p
-			self.ax.semilogy(hArr/1e3, pArr/1e5, 'bo')
-			# Drawing (almost) middle line [s = 4000] by Ts
-			hArr = np.zeros(len(TArr))
-			pArr = np.zeros(len(TArr))
-			for i in range(len(TArr)):
-				fState.update_Ts(TArr[i], sArr[0])
-				hArr[i] = fState.h
-				pArr[i] = fState.p
-				print ('rho by Ts: %em T: %e'%(fState.rho, TArr[i]))
-			self.ax.semilogy(hArr/1e3, pArr/1e5, 'rx')
+			while (T < self.TMax):
+				dlogrho_dT = rho * (fState.dsdT_v / fState.dpdT_v)
+				TStep = 1e-3 / (np.abs(dlogrho_dT) + 1e-4) 
+				T = T + TStep
+				rho *= np.exp(dlogrho_dT * TStep)
+				fState.update_Trho(T, rho)
+ 				#print ('rho: %e, T: %e, q: %e, s: %e'%(fState.rho, fState.T, fState.q, fState.s))
+				hArr.append(fState.h)
+				pArr.append(fState.p)
+			hArr = np.asanyarray(hArr)
+			pArr = np.asanyarray(pArr)
+			print("Num points: {}".format(len(pArr)))
+			print("Final s: {}".format(fState.s))
+			self.ax.semilogy(hArr/1e3, pArr/1e5, 'b')
+		# Drawing (almost) middle line [s = 4000] by Ts
+		TArr = np.linspace(self.TMax, self.TMin, num = 1000)
+		hArr = np.zeros(len(TArr))
+		pArr = np.zeros(len(TArr))
+		for i in range(len(TArr)):
+			fState.update_Ts(TArr[i], sArr[0])
+			hArr[i] = fState.h
+			pArr[i] = fState.p
+			#print ('rho by Ts: %em T: %e'%(fState.rho, TArr[i]))
+			self.ax.semilogy(hArr/1e3, pArr/1e5, 'r')
 	
 	def draw(self):
 		import matplotlib.pyplot as plt
