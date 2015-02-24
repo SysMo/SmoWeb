@@ -5,6 +5,7 @@ Created on Feb 18, 2015
 @copyright: SysMo Ltd., Bulgaria
 '''
 import numpy as np
+import math
 from smo.media.CoolProp.CoolProp import FluidState, Fluid
 import matplotlib.pyplot as plt
 
@@ -65,6 +66,12 @@ class PHDiagram(StateDiagram):
 		fState.update_ph(self.pMin, self.hMax)
 		self.sMax = fState.s
 		print ('sMin={}, sMax={}'.format(self.sMin, self.sMax))
+		
+		# Minor diagonal coeff
+		self.minDiagonalSlope = np.log10(self.pMax/self.pMin) / (self.hMax - self.hMin) * 1e3
+		
+		# Major diagonal coeff
+		self.majDiagonalSlope = - self.minDiagonalSlope
 	
 	def plotDome(self):
 		fState = FluidState(self.fluid)
@@ -117,6 +124,23 @@ class PHDiagram(StateDiagram):
 				fState.update_Trho(T, rhoArr[i])
 				hArr[i] = fState.h
 				pArr[i] = fState.p
+				# Determining label location
+				if (T < self.critical.T):
+					if (i == len(rhoArr1)):
+						self.ax.annotate("{:3.1f}".format(T), 
+										xy = ((fSatL.h + fSatV.h) / 2. / 1e3, 1.05 * pArr[i] / 1e5),
+										color='r', size="small")
+				else:
+					b = np.log10(self.pMin / 1e5) - self.minDiagonalSlope * self.hMin / 1e3
+					if (np.log10(pArr[i-1] / 1e5) - self.minDiagonalSlope * hArr[i-1] / 1e3 - b) * \
+						(np.log10(pArr[i] / 1e5) - self.minDiagonalSlope * hArr[i] / 1e3 - b) < 0:
+						# Determining label rotation angle
+						frac_range_p = np.log10(pArr[i]/pArr[i-1]) / np.log10(self.pMax/self.pMin)
+						frac_range_h = (hArr[i] - hArr[i-1]) / (self.hMax - self.hMin)
+						angle = math.atan(0.7 * frac_range_p / frac_range_h)
+						self.ax.annotate("{:3.1f}".format(T), 
+										xy = (hArr[i]/1e3, pArr[i]/1e5),
+										color='r', size="small", rotation = math.degrees(angle))
 			self.ax.semilogy(hArr/1e3, pArr/1e5, 'r')
 	
 	def plotIsentrops(self):
@@ -184,7 +208,7 @@ class PHDiagram(StateDiagram):
 		self.ax.set_xlabel('Enthalpy [kJ/kg]')
 		self.ax.set_ylabel('Pressure [bar]')
 		self.ax.set_title(self.fluidName)
-		self.ax.grid(True)
+		self.ax.grid(True, which = 'both')
 		self.plotDome()
 		self.plotIsochores()
 		self.plotIsotherms()
