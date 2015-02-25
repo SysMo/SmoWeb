@@ -54,7 +54,7 @@ class PHDiagram(StateDiagram):
 		fState.update_ph(self.pMin, self.hMax)
 		self.rhoMin = fState.rho
 		self.rhoMax = self.trippleLiquid.rho
-		print ("rho [{}: {}]".format(self.rhoMin, self.rhoMax))
+		#print ("rho [{}: {}]".format(self.rhoMin, self.rhoMax))
 		
 		# Temperature range
 		self.TMin = self.fluid.saturation_p(self.pMin)["TsatL"]
@@ -104,6 +104,9 @@ class PHDiagram(StateDiagram):
 	def plotIsotherms(self):
 		fState = FluidState(self.fluid)
 		TArr = np.logspace(np.log10(self.TMin), np.log10(self.TMax), num = 20)
+		TOrders = np.floor(np.log10(TArr))
+		TArr = np.ceil(TArr / 10**(TOrders - 2)) * 10**(TOrders - 2)
+		
 		fSatL = FluidState(self.fluidName)
 		fSatV = FluidState(self.fluidName)
 		f1 = FluidState(self.fluidName)
