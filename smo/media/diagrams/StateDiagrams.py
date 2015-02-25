@@ -13,6 +13,18 @@ class StateDiagram(object):
 	def __init__(self, fluidName):
 		self.fluidName = fluidName
 		self.fluid = Fluid(fluidName)
+	
+	def getLabelAngle(self, x1, x2, xmin, xmax, y1, y2, ymin, ymax, xlog = False, ylog = True):
+		if (xlog == True):
+			frac_range_x = np.log10(x2/x1) / np.log10(xmax/xmin)
+		else:	
+			frac_range_x = (x2 - x1) / (xmax - xmin)
+		if (ylog == True):
+			frac_range_y = np.log10(y2/y1) / np.log10(ymax/ymin)
+		else:
+			frac_range_y = (y2 - y1) / (ymax - ymin)
+		
+		return math.degrees(math.atan(0.7 * frac_range_y / frac_range_x))
 
 class PHDiagram(StateDiagram):
 	def setLimits(self, pMin = None, pMax = None,  hMin = None, hMax = None):
@@ -130,20 +142,21 @@ class PHDiagram(StateDiagram):
 				# Determining label location
 				if (T < self.critical.T):
 					if (i == len(rhoArr1)):
-						self.ax.annotate("{:3.1f}".format(T), 
+						self.ax.annotate("{:3.0f}".format(T), 
 										xy = ((fSatL.h + fSatV.h) / 2. / 1e3, 1.05 * pArr[i] / 1e5),
 										color='r', size="small")
 				else:
 					b = np.log10(self.pMin / 1e5) - self.minDiagonalSlope * self.hMin / 1e3
 					if (np.log10(pArr[i-1] / 1e5) - self.minDiagonalSlope * hArr[i-1] / 1e3 - b) * \
 						(np.log10(pArr[i] / 1e5) - self.minDiagonalSlope * hArr[i] / 1e3 - b) < 0:
-						# Determining label rotation angle
-						frac_range_p = np.log10(pArr[i]/pArr[i-1]) / np.log10(self.pMax/self.pMin)
-						frac_range_h = (hArr[i] - hArr[i-1]) / (self.hMax - self.hMin)
-						angle = math.atan(0.7 * frac_range_p / frac_range_h)
-						self.ax.annotate("{:3.1f}".format(T), 
+						# Getting label rotation angle
+						angle = self.getLabelAngle(x1 = hArr[i-1], x2 = hArr[i],
+													xmin = self.hMin, xmax = self.hMax,
+													y1 = pArr[i-1], y2 = pArr[i],
+													ymin = self.pMin, ymax = self.pMax)
+						self.ax.annotate("{:3.0f}".format(T), 
 										xy = (hArr[i]/1e3, pArr[i]/1e5),
-										color='r', size="small", rotation = math.degrees(angle))
+										color='r', size="small", rotation = angle)
 			self.ax.semilogy(hArr/1e3, pArr/1e5, 'r')
 	
 	def plotIsentrops(self):
