@@ -88,12 +88,25 @@ class PHDiagram(StateDiagram):
 	def plotDome(self):
 		fState = FluidState(self.fluid)
 		p = np.logspace(np.log10(self.pMin), np.log10(self.critical.p), num = 200)
+		qLabels = ['0.2', '0.4', '0.6', '0.8']
 		for q in np.arange(0, 1.1, 0.1):
 			h = np.zeros(len(p))
 			for i in range(len(p) - 1):
 				fState.update_pq(p[i], q)
 				h[i] = fState.h
-			h[-1] = self.critical.h
+			# Putting labels
+			angle = self.getLabelAngle(x1 = h[9], x2 = h[10],
+										xmin = self.hMin, xmax = self.hMax,
+										y1 = p[9], y2 = p[10],
+										ymin = self.pMin, ymax = self.pMax)
+			
+			if '{:1.1f}'.format(q) in qLabels:
+				self.ax.annotate("{:1.1f}".format(q), 
+								xy = (h[10]/ 1e3, p[10] / 1e5),
+								xytext=(-12, 0),
+								textcoords='offset points',
+								color='b', size="small", rotation = angle)
+			h[-1] = self.critical.h			
 			self.ax.semilogy(h/1e3, p/1e5, 'b')
 			
 	def plotIsochores(self):
@@ -143,7 +156,9 @@ class PHDiagram(StateDiagram):
 				if (T < self.critical.T):
 					if (i == len(rhoArr1)):
 						self.ax.annotate("{:3.0f}".format(T), 
-										xy = ((fSatL.h + fSatV.h) / 2. / 1e3, 1.05 * pArr[i] / 1e5),
+										xy = ((fSatL.h + fSatV.h) / 2. / 1e3, pArr[i] / 1e5),
+										xytext=(0, 3),
+										textcoords='offset points',
 										color='r', size="small")
 				else:
 					b = np.log10(self.pMin / 1e5) - self.minDiagonalSlope * self.hMin / 1e3
@@ -156,6 +171,8 @@ class PHDiagram(StateDiagram):
 													ymin = self.pMin, ymax = self.pMax)
 						self.ax.annotate("{:3.0f}".format(T), 
 										xy = (hArr[i]/1e3, pArr[i]/1e5),
+										xytext=(0, 3),
+										textcoords='offset points',
 										color='r', size="small", rotation = angle)
 			self.ax.semilogy(hArr/1e3, pArr/1e5, 'r')
 	
