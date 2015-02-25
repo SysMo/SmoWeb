@@ -125,39 +125,33 @@ class PHDiagram(StateDiagram):
 				hArr[i] = fState.h
 				pArr[i] = fState.p
 				# Putting labels
-				h_level_low = self.hMin + (self.critical.h - self.hMin) * 3 / 4.
-				h_level_high = self.hMin + (self.hMax - self.hMin) * 7 / 8.
+				h_level_low = self.hMin + (self.critical.h - self.hMin) * 1 / 4.
+				h_level_high = self.critical.h + (self.hMax - self.critical.h) * 1 / 2. 
 				angle = self.getLabelAngle(x1 = hArr[i-1], x2 = hArr[i],
 											xmin = self.hMin, xmax = self.hMax,
 											y1 = pArr[i-1], y2 = pArr[i],
 											ymin = self.pMin, ymax = self.pMax)
 				
-				if (pArr[i-1] < self.critical.p and pArr[i] > self.critical.p 
+				# Determining label offset off annotated point based on the point's location on the figure
+				if (pArr[i-1] < self.critical.p and pArr[i] > self.critical.p
 					and hArr[i] < h_level_low):
 					self.ax.annotate("{:2.1f}".format(rho), 
 									xy = (hArr[i] / 1e3, pArr[i] / 1e5),
-									xytext=(-17, 0),
+									xytext=(-20, -5),
 									textcoords='offset points',
 									color='g', size="small", rotation = angle)
-				elif (pArr[i-1] < self.critical.p and pArr[i] > self.critical.p 
-					and hArr[i] > h_level_low and hArr[i] < self.critical.h):
+				elif (pArr[i-1] < self.critical.p and pArr[i] > self.critical.p
+					and hArr[i] > h_level_low and hArr[i] < h_level_high):
 					self.ax.annotate("{:2.1f}".format(rho), 
 									xy = (hArr[i] / 1e3, pArr[i] / 1e5),
 									xytext=(-15, 10),
-									textcoords='offset points',
-									color='g', size="small", rotation = angle)
-				elif (pArr[i-1] < self.critical.p and pArr[i] > self.critical.p 
-					and hArr[i] >= self.critical.h and hArr[i] < h_level_high):
-					self.ax.annotate("{:2.1f}".format(rho), 
-									xy = (hArr[i] / 1e3, pArr[i] / 1e5),
-									xytext=(0, 15),
 									textcoords='offset points',
 									color='g', size="small", rotation = angle)
 				elif (hArr[i-1] < h_level_high and hArr[i] > h_level_high 
 					and pArr[i] < self.critical.p):
 					self.ax.annotate("{:2.1f}".format(rho), 
 									xy = (hArr[i] / 1e3, pArr[i] / 1e5),
-									xytext=(0, 5),
+									xytext=(-3, 7),
 									textcoords='offset points',
 									color='g', size="small", rotation = angle)
 			self.ax.semilogy(hArr/1e3, pArr/1e5, 'g')
@@ -286,8 +280,8 @@ class PHDiagram(StateDiagram):
 
 
 def main():
-	fluidList = ['R134a',  'Water', 'Oxygen', 'Nitrogen', 'CarbonDioxide', 'ParaHydrogen']
-	#fluidList = ['IsoButane']	
+	fluidList = ['R134a',  'Water', 'Oxygen', 'Nitrogen', 'CarbonDioxide', 'ParaHydrogen', 'IsoButane']
+	#fluidList = ['Oxygen', 'ParaHydrogen', 'IsoButane']	
 	for fluid in fluidList:
 		print("Calculating with fluid '{}'".format(fluid))
 		diagram = PHDiagram(fluid)
