@@ -99,7 +99,7 @@ class PHDiagram(StateDiagram):
 				fState.update_Trho(TArr[i], rho)
 				hArr[i] = fState.h
 				pArr[i] = fState.p
-			self.ax.semilogy(hArr/1e3, pArr/1e5, 'g')
+			self.ax.semilogy(hArr/1e3, pArr/1e5, 'g--')
 		
 	def plotIsotherms(self):
 		fState = FluidState(self.fluid)
@@ -190,7 +190,7 @@ class PHDiagram(StateDiagram):
 			print("Num points: {}".format(len(pArr)))
 			print("Final s: {}".format(fState.s))
 			print - fState.dsdT_v / fState.dpdT_v
-			self.ax.semilogy(hArr/1e3, pArr/1e5, 'm')
+			self.ax.semilogy(hArr/1e3, pArr/1e5, 'b-.', linewidth = 2.0)
 # 		# Drawing (almost) middle line [s = 4000] by Ts
 # 		for s in sArr:
 # 			TArr = np.linspace(self.TMax, self.TMin, num = 100)
@@ -220,12 +220,12 @@ class PHDiagram(StateDiagram):
 
 
 def main():
-	fluidList = ['R134a',  'Water', 'Oxygen', 'Nitrogen', 'CarbonDioxide', 'ParaHydrogen']
-	#fluidList = ['IsoButane']	
+	#fluidList = ['R134a',  'Water', 'Oxygen', 'Nitrogen', 'CarbonDioxide', 'ParaHydrogen']
+	fluidList = ['R134a']	
 	for fluid in fluidList:
 		print("Calculating with fluid '{}'".format(fluid))
 		diagram = PHDiagram(fluid)
-		diagram.setLimits()
+		diagram.setLimits(pMax = 300e5)
 		diagram.draw()
 
 if __name__ == '__main__':
