@@ -111,7 +111,7 @@ class PHDiagram(StateDiagram):
 			
 	def plotIsochores(self):
 		fState = FluidState(self.fluid)
-		rhoArr1 = np.logspace(np.log10(self.rhoMin), np.log10(self.critical.rho), num = 20)
+		rhoArr1 = np.logspace(np.log10(self.rhoMin), np.log10(self.critical.rho), num = 20, endpoint = False)
 		rhoArr2 = np.logspace(np.log10(self.critical.rho), np.log10(self.rhoMax), num = 5)
 		rhoArr = np.zeros(len(rhoArr1) + len(rhoArr2))
 		rhoArr[:len(rhoArr1)] = rhoArr1[:]
@@ -124,6 +124,42 @@ class PHDiagram(StateDiagram):
 				fState.update_Trho(TArr[i], rho)
 				hArr[i] = fState.h
 				pArr[i] = fState.p
+				# Putting labels
+				h_level_low = self.hMin + (self.critical.h - self.hMin) * 3 / 4.
+				h_level_high = self.hMin + (self.hMax - self.hMin) * 7 / 8.
+				angle = self.getLabelAngle(x1 = hArr[i-1], x2 = hArr[i],
+											xmin = self.hMin, xmax = self.hMax,
+											y1 = pArr[i-1], y2 = pArr[i],
+											ymin = self.pMin, ymax = self.pMax)
+				
+				if (pArr[i-1] < self.critical.p and pArr[i] > self.critical.p 
+					and hArr[i] < h_level_low):
+					self.ax.annotate("{:2.1f}".format(rho), 
+									xy = (hArr[i] / 1e3, pArr[i] / 1e5),
+									xytext=(-17, 0),
+									textcoords='offset points',
+									color='g', size="small", rotation = angle)
+				elif (pArr[i-1] < self.critical.p and pArr[i] > self.critical.p 
+					and hArr[i] > h_level_low and hArr[i] < self.critical.h):
+					self.ax.annotate("{:2.1f}".format(rho), 
+									xy = (hArr[i] / 1e3, pArr[i] / 1e5),
+									xytext=(-15, 10),
+									textcoords='offset points',
+									color='g', size="small", rotation = angle)
+				elif (pArr[i-1] < self.critical.p and pArr[i] > self.critical.p 
+					and hArr[i] >= self.critical.h and hArr[i] < h_level_high):
+					self.ax.annotate("{:2.1f}".format(rho), 
+									xy = (hArr[i] / 1e3, pArr[i] / 1e5),
+									xytext=(0, 15),
+									textcoords='offset points',
+									color='g', size="small", rotation = angle)
+				elif (hArr[i-1] < h_level_high and hArr[i] > h_level_high 
+					and pArr[i] < self.critical.p):
+					self.ax.annotate("{:2.1f}".format(rho), 
+									xy = (hArr[i] / 1e3, pArr[i] / 1e5),
+									xytext=(0, 5),
+									textcoords='offset points',
+									color='g', size="small", rotation = angle)
 			self.ax.semilogy(hArr/1e3, pArr/1e5, 'g')
 		
 	def plotIsotherms(self):
