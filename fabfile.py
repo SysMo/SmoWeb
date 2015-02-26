@@ -197,12 +197,16 @@ def installAptPackages():
 		'mongodb',
 		# RabbitMQ message broker
 		'rabbitmq-server',
+		# Sundials solvers
+		'libsundials-serial-dev',
+		'libsuperlu3-dev',		
 	]
 	packageString = (" ").join(packageList)
 	sudo('apt-get install {0}'.format(packageString))
 	
 	# Installing the packages necessary for building the matplotlib library
 	sudo('apt-get build-dep python-matplotlib')
+	sudo('apt-get install libqhull-dev')
 #######################################################################
 def installPipPackages():
 	"""
@@ -267,6 +271,12 @@ def installPySparse():
 		with cd('pysparse'):
 			run('python setup.py build')
 			run('python setup.py install')
+			
+def installAssimulo():
+	"""
+	Downloads, builds and installs Assimulo
+	"""	
+	
 #######################################################################
 def configureApache():
 	"""

@@ -77,9 +77,9 @@ class SolidConductiveBody(object):
 			a = 0
 
 		if (self.side2Type == 'R'):
-			self.cond[-1] = self.thermCondModel((self.T[-1] - self.T2Ext)/2)
+			self.cond[-1] = self.thermCondModel((self.T[-1] + self.T2Ext)/2)
 			self.QDot[-1] = self.cond[-1] * self.conductionArea / self.segmentThickness * (self.T[-1] -  self.T2Ext)
-			self.TDot[-1] += self.QDot[-1] / (self.segmentMass * self.cp[-1])
+			self.TDot[-1] -= self.QDot[-1] / (self.segmentMass * self.cp[-1])
 			b = 1
 		else:
 			self.TDot[-1] += self.QDot2Ext / (self.segmentMass * self.cp[-1])
@@ -93,17 +93,17 @@ class SolidConductiveBody(object):
 
 def main():
 	import pylab as plt
-	sm = SolidConductiveBody(material = 'Aluminium6061', mass = 40., thickness = 1.0, 
-			conductionArea = 1e-4, side1Type = 'C', side2Type = 'R', numMassSegments = 5)
-	sm.QDot1Ext = 10
+	n = 5
+	sm = SolidConductiveBody(material = 'CarbonFiberComposite', mass = 40., thickness = 0.01,
+			conductionArea = 2.0, side1Type = 'C', side2Type = 'R', numMassSegments = n, TInit = 288.15)
+	sm.QDot1Ext = 5e3
 	sm.T2Ext = 288.15
 	dt = 1.0
-	T1 = np.zeros((100000, 2))
-	for i in range(100000):
+	T1 = np.zeros((1000, n))
+	for i in range(1000):
 		sm.compute()
 		sm.T += sm.TDot * dt
-		T1[i, 0] = sm.T[0]
-		T1[i, 1] = sm.T[1]
+		T1[i, :] = sm.T[:]
 	plt.plot(T1)
 	plt.show()
 if __name__ == '__main__':
