@@ -118,6 +118,9 @@ class PHDiagram(StateDiagram):
 		rhoArr[:len(rhoArr1)] = rhoArr1[:]
 		rhoArr[len(rhoArr1):] = rhoArr2[:]
 		TArr = np.logspace(np.log10(self.TMin), np.log10(self.TMax), num = 100)
+		# For label location purposes
+		h_level_low = self.hMin + (self.critical.h - self.hMin) * 3 / 4.
+		h_level_high = self.critical.h + (self.hMax - self.critical.h) * 1 / 2. 
 		for rho in rhoArr:
 			hArr = np.zeros(len(TArr))
 			pArr = np.zeros(len(TArr))
@@ -126,52 +129,48 @@ class PHDiagram(StateDiagram):
 				hArr[i] = fState.h
 				pArr[i] = fState.p
 				# Putting labels
-				coeff = (self.hMax - self.critical.h) / (self.hMax - self.hMin)
-				h_level_low = self.hMin + (self.critical.h - self.hMin) * 1 / 4.
-				if coeff < 0.2:
-					h_level_high = self.critical.h + (self.hMax - self.critical.h) * 1 / 2.
-				else: 
-					h_level_high = self.critical.h + (self.hMax - self.critical.h) * 7 / 8. 
-				angle = self.getLabelAngle(x1 = hArr[i-1], x2 = hArr[i],
+				# Determining annotated point and label text offest
+				if (pArr[i-1] < self.pMax and pArr[i] > self.pMax):
+					if (hArr[i] < h_level_low):
+						angle = self.getLabelAngle(x1 = hArr[i-1], x2 = hArr[i],
 											xmin = self.hMin, xmax = self.hMax,
 											y1 = pArr[i-1], y2 = pArr[i],
 											ymin = self.pMin, ymax = self.pMax)
-				
-				# Determining label offset off annotated point based on the point's location on the figure
-				if (pArr[i-1] < self.critical.p and pArr[i] > self.critical.p
-					and hArr[i] < h_level_low):
-					self.ax.annotate("{:2.1f}".format(rho), 
-									xy = (hArr[i] / 1e3, pArr[i] / 1e5),
-									#xytext=(-20, -5),
-									xytext=(0, 0),
-									textcoords='offset points',
-									color='g', size="small", rotation = angle)
-				elif (pArr[i-1] < self.critical.p and pArr[i] > self.critical.p
-					and hArr[i] > h_level_low and hArr[i] < h_level_high):
-					self.ax.annotate("{:2.1f}".format(rho), 
-									xy = (hArr[i] / 1e3, pArr[i] / 1e5),
-									#xytext=(-15, 10),
-									xytext=(0, 0),
-									textcoords='offset points',
-									color='g', size="small", rotation = angle)
-				elif (pArr[i-1] < self.critical.p and pArr[i] > self.critical.p
-					and hArr[i] > h_level_high):
-					self.ax.annotate("{:2.1f}".format(rho), 
-									xy = (hArr[i] / 1e3, pArr[i] / 1e5),
-									#xytext=(-15, 10),
-									xytext=(0, 0),
-									textcoords='offset points',
-									color='g', size="small", rotation = angle)
-# 				elif (hArr[i-1] < h_level_high and hArr[i] > h_level_high 
-# 					and pArr[i] < self.critical.p):
-				else: 
-					if (i == len(TArr) - 1):
 						self.ax.annotate("{:2.1f}".format(rho), 
-										xy = (hArr[i] / 1e3, pArr[i] / 1e5),
-										#xytext=(-3, 7),
-										xytext=(-20, -10),
+										xy = (hArr[i-1] / 1e3, pArr[i-1] / 1e5),
+										xytext=(0, -10),
 										textcoords='offset points',
 										color='g', size="small", rotation = angle)
+					elif (hArr[i] > h_level_low and hArr[i] < h_level_high):
+						angle = self.getLabelAngle(x1 = hArr[i-3], x2 = hArr[i-2],
+											xmin = self.hMin, xmax = self.hMax,
+											y1 = pArr[i-3], y2 = pArr[i-2],
+											ymin = self.pMin, ymax = self.pMax)
+						self.ax.annotate("{:2.1f}".format(rho), 
+										xy = (hArr[i-3] / 1e3, pArr[i-3] / 1e5),
+										xytext=(0, -5),
+										textcoords='offset points',
+										color='g', size="small", rotation = angle)
+					elif (hArr[i] > h_level_high):
+						angle = self.getLabelAngle(x1 = hArr[i-10], x2 = hArr[i-9],
+											xmin = self.hMin, xmax = self.hMax,
+											y1 = pArr[i-10], y2 = pArr[i-9],
+											ymin = self.pMin, ymax = self.pMax)
+						self.ax.annotate("{:2.1f}".format(rho), 
+										xy = (hArr[i-10] / 1e3, pArr[i-10] / 1e5),
+										xytext=(0, -5),
+										textcoords='offset points',
+										color='g', size="small", rotation = angle)
+				elif (i == len(TArr) - 1 and pArr[i] < self.pMax):
+					angle = self.getLabelAngle(x1 = hArr[i-1], x2 = hArr[i],
+											xmin = self.hMin, xmax = self.hMax,
+											y1 = pArr[i-1], y2 = pArr[i],
+											ymin = self.pMin, ymax = self.pMax)
+					self.ax.annotate("{:2.1f}".format(rho), 
+									xy = (hArr[i] / 1e3, pArr[i] / 1e5),
+									xytext=(-20, -10),
+									textcoords='offset points',
+									color='g', size="small", rotation = angle)
 			self.ax.semilogy(hArr/1e3, pArr/1e5, 'g')
 		
 	def plotIsotherms(self):
@@ -309,23 +308,23 @@ class PHDiagram(StateDiagram):
 
 
 def main():
-	#FluidsSample = ['R134a',  'Water', 'Oxygen', 'Nitrogen', 'CarbonDioxide', 'ParaHydrogen', 'IsoButane']
+	FluidsSample = ['R134a',  'Water', 'Oxygen', 'Nitrogen', 'CarbonDioxide', 'ParaHydrogen', 'IsoButane']
 	# Critical point exits the plot to the right
 	problemPlots = ['n-Decane', 'n-Dodecane', 'D4', 'D5', 'D6', 'EthylBenzene', 'Isohexane','n-Hexane', 'MethylLinoleate','MethylLinolenate', 'MethylOleate', 'MethylPalmitate', 'MethylStearate', 'MD2M', 'MD3M', 'MD4M', 'MDM', 'MM', 'n-Nonane', 'n-Octane', 'n-Undecane', 'm-Xylene', 'o-Xylene', 'p-Xylene']
-	# Issues with labels
-	problemLabels = ['CarbonylSulfide', 'CarbonDioxide', 'Ethanol', 'CycloHexane', 'HydrogenSulfide', 'Methanol', 'Isopentane', 'R218'] 
 	# Fluids throwing RuntimeError
 	RuntimeErrorFluids = ['Air', 'Fluorine', 'n-Heptane', 'n-Pentane', 'Neopentane', 'Propyne', 'R113', 'R1234ze(E)', 'R152A', 'R236EA']
 	
 	#fluidList = Fluids.keys()
-	fluidList = problemLabels
+	fluidList = FluidsSample
 	for i in range(len(fluidList)):
 		fluid = fluidList[i]
 		print("{}. Calculating with fluid '{}'".format(i, fluid))
-		if (fluid not in RuntimeErrorFluids):
-			diagram = PHDiagram(fluid)
-			diagram.setLimits()
-			diagram.draw()
+		#try:
+		diagram = PHDiagram(fluid)
+		diagram.setLimits()
+		diagram.draw()
+		#except RuntimeError, e:
+		#	print e
 
 if __name__ == '__main__':
 	main()	
