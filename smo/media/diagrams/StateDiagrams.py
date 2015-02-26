@@ -126,8 +126,12 @@ class PHDiagram(StateDiagram):
 				hArr[i] = fState.h
 				pArr[i] = fState.p
 				# Putting labels
+				coeff = (self.hMax - self.critical.h) / (self.hMax - self.hMin)
 				h_level_low = self.hMin + (self.critical.h - self.hMin) * 1 / 4.
-				h_level_high = self.critical.h + (self.hMax - self.critical.h) * 1 / 2. 
+				if coeff < 0.2:
+					h_level_high = self.critical.h + (self.hMax - self.critical.h) * 1 / 2.
+				else: 
+					h_level_high = self.critical.h + (self.hMax - self.critical.h) * 7 / 8. 
 				angle = self.getLabelAngle(x1 = hArr[i-1], x2 = hArr[i],
 											xmin = self.hMin, xmax = self.hMax,
 											y1 = pArr[i-1], y2 = pArr[i],
@@ -138,23 +142,36 @@ class PHDiagram(StateDiagram):
 					and hArr[i] < h_level_low):
 					self.ax.annotate("{:2.1f}".format(rho), 
 									xy = (hArr[i] / 1e3, pArr[i] / 1e5),
-									xytext=(-20, -5),
+									#xytext=(-20, -5),
+									xytext=(0, 0),
 									textcoords='offset points',
 									color='g', size="small", rotation = angle)
 				elif (pArr[i-1] < self.critical.p and pArr[i] > self.critical.p
 					and hArr[i] > h_level_low and hArr[i] < h_level_high):
 					self.ax.annotate("{:2.1f}".format(rho), 
 									xy = (hArr[i] / 1e3, pArr[i] / 1e5),
-									xytext=(-15, 10),
+									#xytext=(-15, 10),
+									xytext=(0, 0),
 									textcoords='offset points',
 									color='g', size="small", rotation = angle)
-				elif (hArr[i-1] < h_level_high and hArr[i] > h_level_high 
-					and pArr[i] < self.critical.p):
+				elif (pArr[i-1] < self.critical.p and pArr[i] > self.critical.p
+					and hArr[i] > h_level_high):
 					self.ax.annotate("{:2.1f}".format(rho), 
 									xy = (hArr[i] / 1e3, pArr[i] / 1e5),
-									xytext=(-3, 7),
+									#xytext=(-15, 10),
+									xytext=(0, 0),
 									textcoords='offset points',
 									color='g', size="small", rotation = angle)
+# 				elif (hArr[i-1] < h_level_high and hArr[i] > h_level_high 
+# 					and pArr[i] < self.critical.p):
+				else: 
+					if (i == len(TArr) - 1):
+						self.ax.annotate("{:2.1f}".format(rho), 
+										xy = (hArr[i] / 1e3, pArr[i] / 1e5),
+										#xytext=(-3, 7),
+										xytext=(-20, -10),
+										textcoords='offset points',
+										color='g', size="small", rotation = angle)
 			self.ax.semilogy(hArr/1e3, pArr/1e5, 'g')
 		
 	def plotIsotherms(self):
@@ -294,14 +311,14 @@ class PHDiagram(StateDiagram):
 def main():
 	#FluidsSample = ['R134a',  'Water', 'Oxygen', 'Nitrogen', 'CarbonDioxide', 'ParaHydrogen', 'IsoButane']
 	# Critical point exits the plot to the right
-	problemPlots = ['n-Decane', 'n-Dodecane', 'D4', 'D5', 'D6', 'EthylBenzene', 'Isohexane','n-Hexane', 'MethylLinoleate','MethylLinolenate', 'MethylOleate', 'MethylPalmitate', 'MethylStearate', 'MD2M', 'MD3M', 'MD4M', 'MDM', 'n-Nonane', 'n-Octane', 'n-Undecane', 'm-Xylene', 'o-Xylene', 'p-Xylene']
+	problemPlots = ['n-Decane', 'n-Dodecane', 'D4', 'D5', 'D6', 'EthylBenzene', 'Isohexane','n-Hexane', 'MethylLinoleate','MethylLinolenate', 'MethylOleate', 'MethylPalmitate', 'MethylStearate', 'MD2M', 'MD3M', 'MD4M', 'MDM', 'MM', 'n-Nonane', 'n-Octane', 'n-Undecane', 'm-Xylene', 'o-Xylene', 'p-Xylene']
 	# Issues with labels
-	problemLabelsSample = ['CarbonylSulfide', 'CarbonDioxide', 'Ethanol', 'CycloHexane', 'HydrogenSulfide', 'Methanol', 'MM', 'Isopentane', 'R218'] 
+	problemLabels = ['CarbonylSulfide', 'CarbonDioxide', 'Ethanol', 'CycloHexane', 'HydrogenSulfide', 'Methanol', 'Isopentane', 'R218'] 
 	# Fluids throwing RuntimeError
 	RuntimeErrorFluids = ['Air', 'Fluorine', 'n-Heptane', 'n-Pentane', 'Neopentane', 'Propyne', 'R113', 'R1234ze(E)', 'R152A', 'R236EA']
 	
 	#fluidList = Fluids.keys()
-	fluidList = problemLabelsSample
+	fluidList = problemLabels
 	for i in range(len(fluidList)):
 		fluid = fluidList[i]
 		print("{}. Calculating with fluid '{}'".format(i, fluid))
