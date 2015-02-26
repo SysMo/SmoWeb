@@ -314,15 +314,16 @@ def main():
 	# Fluids throwing RuntimeError
 	RuntimeErrorFluids = ['Air', 'Fluorine', 'n-Heptane', 'n-Pentane', 'Neopentane', 'Propyne', 'R113', 'R1234ze(E)', 'R152A', 'R236EA']
 	
-	#fluidList = Fluids.keys()
-	fluidList = FluidsSample
+	fluidList = Fluids.keys()
+	#fluidList = FluidsSample
 	for i in range(len(fluidList)):
 		fluid = fluidList[i]
 		print("{}. Calculating with fluid '{}'".format(i, fluid))
+		if (fluid not in RuntimeErrorFluids and fluid not in problemPlots):
 		#try:
-		diagram = PHDiagram(fluid)
-		diagram.setLimits()
-		diagram.draw()
+			diagram = PHDiagram(fluid)
+			diagram.setLimits()
+			diagram.draw()
 		#except RuntimeError, e:
 		#	print e
 
