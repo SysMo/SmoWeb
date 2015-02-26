@@ -8,6 +8,7 @@ import numpy as np
 import math
 from smo.media.CoolProp.CoolProp import FluidState, Fluid
 import matplotlib.pyplot as plt
+from smo.media.MaterialData import Fluids
 
 class StateDiagram(object):
 	def __init__(self, fluidName):
@@ -77,7 +78,7 @@ class PHDiagram(StateDiagram):
 		self.sMin = 1.01 * self.trippleLiquid.s
 		fState.update_ph(self.pMin, self.hMax)
 		self.sMax = fState.s
-		print ('sMin={}, sMax={}'.format(self.sMin, self.sMax))
+		#print ('sMin={}, sMax={}'.format(self.sMin, self.sMax))
 		
 		# Minor diagonal coeff
 		self.minDiagonalSlope = np.log10(self.pMax/self.pMin) / (self.hMax - self.hMin) * 1e3
@@ -220,8 +221,8 @@ class PHDiagram(StateDiagram):
 			pArr.append(fState.p)
 			# Calculated v
 			v_res = fState.v
-			print ('----------------------------------------')
-			print ('s=%e'%s)
+# 			print ('----------------------------------------')
+# 			print ('s=%e'%s)
 			while (T > self.TMin):
 				_dvdT_s = - fState.dsdT_v / fState.dpdT_v
 				TStep = - (self.critical.T / 200.) / (np.abs(_dvdT_s) + 1) 
@@ -269,9 +270,9 @@ class PHDiagram(StateDiagram):
 				#######################
 			hArr = np.array(hArr)
 			pArr = np.array(pArr)
-			print("Num points: {}".format(len(pArr)))
-			print("Final s: {}".format(fState.s))
-			print - fState.dsdT_v / fState.dpdT_v
+			#print("Num points: {}".format(len(pArr)))
+			#print("Final s: {}".format(fState.s))
+			#print - fState.dsdT_v / fState.dpdT_v
 			self.ax.semilogy(hArr/1e3, pArr/1e5, 'm')
 	
 	def draw(self):
@@ -291,13 +292,23 @@ class PHDiagram(StateDiagram):
 
 
 def main():
-	fluidList = ['R134a',  'Water', 'Oxygen', 'Nitrogen', 'CarbonDioxide', 'ParaHydrogen', 'IsoButane']
-	#fluidList = ['Oxygen', 'ParaHydrogen', 'IsoButane']	
-	for fluid in fluidList:
-		print("Calculating with fluid '{}'".format(fluid))
-		diagram = PHDiagram(fluid)
-		diagram.setLimits()
-		diagram.draw()
+	#FluidsSample = ['R134a',  'Water', 'Oxygen', 'Nitrogen', 'CarbonDioxide', 'ParaHydrogen', 'IsoButane']
+	# Critical point exits the plot to the right
+	problemPlots = ['n-Decane', 'n-Dodecane', 'D4', 'D5', 'D6', 'EthylBenzene', 'Isohexane','n-Hexane', 'MethylLinoleate','MethylLinolenate', 'MethylOleate', 'MethylPalmitate', 'MethylStearate', 'MD2M', 'MD3M', 'MD4M', 'MDM', 'n-Nonane', 'n-Octane', 'n-Undecane', 'm-Xylene', 'o-Xylene', 'p-Xylene']
+	# Issues with labels
+	problemLabelsSample = ['CarbonylSulfide', 'CarbonDioxide', 'Ethanol', 'CycloHexane', 'HydrogenSulfide', 'Methanol', 'MM', 'Isopentane', 'R218'] 
+	# Fluids throwing RuntimeError
+	RuntimeErrorFluids = ['Air', 'Fluorine', 'n-Heptane', 'n-Pentane', 'Neopentane', 'Propyne', 'R113', 'R1234ze(E)', 'R152A', 'R236EA']
+	
+	#fluidList = Fluids.keys()
+	fluidList = problemLabelsSample
+	for i in range(len(fluidList)):
+		fluid = fluidList[i]
+		print("{}. Calculating with fluid '{}'".format(i, fluid))
+		if (fluid not in RuntimeErrorFluids):
+			diagram = PHDiagram(fluid)
+			diagram.setLimits()
+			diagram.draw()
 
 if __name__ == '__main__':
 	main()	
