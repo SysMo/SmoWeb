@@ -9,7 +9,7 @@ from smo.util.writers import SmoHTMLWriter
 
 srvAddress = 'platform.sysmoltd.com' 
 
-env.hosts = srvAddress
+#env.hosts = srvAddress
 env.projectRoot = os.getcwd()
 env.installDir = '/srv/SmoWeb/'
 env.virtualBinDir = os.path.abspath(os.path.join(env.installDir, '../VirtualEnv/SmoWebPlatform/bin/'))
@@ -276,6 +276,23 @@ def installAssimulo():
 	"""
 	Downloads, builds and installs Assimulo
 	"""	
+	import urllib2
+	import shutil
+	tmpDir = '/tmp/assimulo'
+	sourceUrl = 'https://pypi.python.org/packages/source/A/Assimulo/Assimulo-2.7b1.tar.gz'
+	if (os.path.isdir(tmpDir)):
+		shutil.rmtree(tmpDir)
+	os.mkdir(tmpDir)
+
+	with virtualenv(), lcd(tmpDir):
+		webArchive = urllib2.urlopen(sourceUrl)
+		archiveFile = open(os.path.join(tmpDir, 'assimulo.tar.gz'),'wb')
+		archiveFile.write(webArchive.read())
+		archiveFile.close()
+		local('tar -xzf assimulo.tar.gz', shell='bash')
+		with lcd('Assimulo-2.7b1'):
+			local('python setup.py install --sundials-home=/usr', shell='bash')
+	
 	
 #######################################################################
 def configureApache():
