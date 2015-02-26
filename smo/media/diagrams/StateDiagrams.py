@@ -245,23 +245,34 @@ class PHDiagram(StateDiagram):
  				#print ('rho: %e, T: %e, q: %e, s: %e'%(fState.rho, fState.T, fState.q, fState.s))
 				hArr.append(fState.h)
 				pArr.append(fState.p)
+				##################
+				# Putting labels
+				i = len(hArr) - 1
+				b = np.log10(self.pMax / 1e5) - self.majDiagonalSlope * self.hMin / 1e3
+				if (np.log10(pArr[i-1] / 1e5) - self.majDiagonalSlope * hArr[i-1] / 1e3 - b) * \
+					(np.log10(pArr[i] / 1e5) - self.majDiagonalSlope * hArr[i] / 1e3 - b) < 0:
+					angle = self.getLabelAngle(x1 = hArr[i-1], x2 = hArr[i],
+												xmin = self.hMin, xmax = self.hMax,
+												y1 = pArr[i-1], y2 = pArr[i],
+												ymin = self.pMin, ymax = self.pMax)
+					# Determining vertical offset off major diagonal
+					fig = self.ax.get_figure()
+					y_in = fig.get_size_inches()[1] 
+					y_pts = y_in * fig.get_dpi()
+					log_p_diag = self.majDiagonalSlope * hArr[i-1] / 1e3 + b
+					offest_y = - (np.log10(pArr[i-1] / 1e5) - log_p_diag) / np.log10(self.pMax/self.pMin) * y_pts
+					self.ax.annotate("{:3.0f}".format(s), 
+										xy = (hArr[i-1]/1e3, pArr[i-1]/1e5),
+										xytext=(2, offest_y),
+										textcoords='offset points',
+										color='m', size="small", rotation = angle)
+				#######################
 			hArr = np.array(hArr)
 			pArr = np.array(pArr)
 			print("Num points: {}".format(len(pArr)))
 			print("Final s: {}".format(fState.s))
 			print - fState.dsdT_v / fState.dpdT_v
 			self.ax.semilogy(hArr/1e3, pArr/1e5, 'm')
-# 		# Drawing (almost) middle line [s = 4000] by Ts
-# 		for s in sArr:
-# 			TArr = np.linspace(self.TMax, self.TMin, num = 100)
-# 			hArr = np.zeros(len(TArr))
-# 			pArr = np.zeros(len(TArr))
-# 			for i in range(len(TArr)):
-# 				fState.update_Ts(TArr[i], s)
-# 				hArr[i] = fState.h
-# 				pArr[i] = fState.p
-# 				#print ('rho by Ts: %em T: %e'%(fState.rho, TArr[i]))
-# 				self.ax.semilogy(hArr/1e3, pArr/1e5, 'r')
 	
 	def draw(self):
 		fig = plt.figure()
