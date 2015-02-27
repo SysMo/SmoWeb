@@ -28,6 +28,7 @@ class FluidChamber(dm.DynamicalModel):
 		self.fState.update_Trho(self.T, self.rho)
 		self.p = self.fState.p
 		self.m = self.fState.rho * self.V
+		
 		c1 = mDot / self.m - VDot / self.V;
 		UDot = HDot + QDot - self.fState.p * VDot;
 		self.rhoDot = self.fState.rho * c1;
@@ -36,37 +37,65 @@ class FluidChamber(dm.DynamicalModel):
 		k2 = (self.fState.T * self.fState.dpdT_v - self.fState.p) * vDot;
 		self.TDot = (uDot - k2) / self.fState.cv;
 			
-def main():
-	fluid = Fluid('ParaHydrogen')
-	fIn = FluidState(fluid)
-	ch = FluidChamber(fluid)
-	ch.V = 0.1155
 
-	mDot = 75./3600
+def testFluidChamber():
+	print "=== START: Test FluidChamber ==="
+	
+	# Open csv file
+	import csv
+	csvfile = open('./test/FluidChamber_Results.csv', 'wb')
+	csv_writer = csv.writer(csvfile, delimiter=',')
+	csv_writer.writerow(["Time[s]", "Tank pressure [bar]", "Tank temperature [K]", "Tank density [kg/m**3]", "Inlet enthalpy flow rate [W]"])
+	
+	# Create FluidStates
+	fluid = Fluid('ParaHydrogen')
+	fStateIn = FluidState(fluid)
+	tank = FluidChamber(fluid)
+	
+	# Parameters
+	mDot = 75/3600. #[kg/s]
 	t = 0.0
 	dt = 0.01
+	tPrintInterval = dt*100
+	tNextPrint = 0
 	
-	TTank = 300.0
-	pTank = 20e5
-	Tin = 63.0
+	tank.V = 0.1155 #[m**3]
+	TTank_init = 300 #[K]
+	pTank_init = 20e5 #[Pa]
+	Tin = 63.0 #[K]
+	
 	# Initial tank state
-	ch.fState.update_Tp(TTank, pTank)
-	rhoTank = ch.fState.rho
+	tank.fState.update_Tp(TTank_init, pTank_init)
+	rhoTank = tank.fState.rho
+	TTank = tank.fState.T
 	
+	# Run simulation
 	while True:
 		# Set inlet state
-		fIn.update_Tp(Tin, pTank)
-		HDotIn = mDot * fIn.h
+		fStateIn.update_Tp(Tin, tank.fState.p)
+		HDotIn = mDot * fStateIn.h
+		
+		# Write to csv file
+		if t >= tNextPrint:
+			csv_writer.writerow([t, tank.fState.p / 1.e5, tank.fState.T, tank.fState.rho, HDotIn])
+			tNextPrint = t + tPrintInterval - dt/10
+		t += dt
+				
 		# Set tank state
-		ch.T = TTank
-		ch.rho = rhoTank
+		tank.T = TTank
+		tank.rho = rhoTank
+		
 		# Compute tank
-		ch.compute(mDot = mDot, HDot = HDotIn)
-		if (ch.fState.p > 300e5):
+		tank.compute(mDot = mDot, HDot = HDotIn)
+		if (tank.fState.p > 300e5):
 			break
-		TTank += ch.TDot * dt
-		rhoTank += ch.rhoDot *dt
-	print (ch.fState.p, ch.fState.T)
+		TTank += tank.TDot * dt
+		rhoTank += tank.rhoDot *dt
+		
+	# Close csv
+	csvfile.close()	
+	print "=== END: Test FluidChamber ==="
+
 
 if __name__ == '__main__':
-	main()
+	testFluidChamber()
