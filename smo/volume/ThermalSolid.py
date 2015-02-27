@@ -97,6 +97,19 @@ def testSolidConductiveBody():
 	# Initial the conduction body
 	import pylab as plt
 	numbMassSegments = 4
+	
+	# Tank (Liner)
+	scBody_Liner = SolidConductiveBody(
+			material = 'Aluminium6061', 
+			mass = 24., #[kg]
+			thickness = 0.004, #[m]
+			conductionArea = 1.8, #[m**2]
+			side1Type = 'R', side2Type = 'C', 
+			numMassSegments = 1, 
+			TInit = 300 #[K]
+			)
+	
+	# Tank (composite)
 	scBody = SolidConductiveBody(
 			material = 'CarbonFiberComposite', 
 			mass = 34., #[kg]

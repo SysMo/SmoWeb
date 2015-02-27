@@ -59,7 +59,7 @@ def testFluidChamber():
 	tPrintInterval = dt*100
 	tNextPrint = 0
 	
-	tank.V = 0.1155 #[m**3]
+	tank.V = 0.1155 #[m**3] 115.5 L
 	TTank_init = 300 #[K]
 	pTank_init = 20e5 #[Pa]
 	Tin = 63.0 #[K]
