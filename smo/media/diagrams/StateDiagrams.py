@@ -6,6 +6,7 @@ Created on Feb 18, 2015
 '''
 import numpy as np
 import math
+from smo.math.util import formatNumber
 from smo.media.CoolProp.CoolProp import FluidState, Fluid
 import matplotlib.pyplot as plt
 from smo.media.MaterialData import Fluids
@@ -30,10 +31,8 @@ class StateDiagram(object):
 class PHDiagram(StateDiagram):
 	def setLimits(self, pMin = None, pMax = None,  hMin = None, hMax = None):
 		# Reference points
-		self.trippleLiquid = FluidState(self.fluid)
-		self.trippleLiquid.update_pq(self.fluid.tripple['p'], 0)		
-		self.trippleVapor = FluidState(self.fluid)
-		self.trippleVapor.update_pq(self.fluid.tripple['p'], 1)
+		self.minLiquid = FluidState(self.fluid)
+		self.minVapor = FluidState(self.fluid)
 		self.critical = FluidState(self.fluid)
 		self.critical.update_Trho(self.fluid.critical['T'], self.fluid.critical['rho'])
 
@@ -47,6 +46,8 @@ class PHDiagram(StateDiagram):
 				pMin = 1e3
 		self.pMin = pMin
 		
+		self.minLiquid.update_pq(self.pMin, 0)		
+		self.minVapor.update_pq(self.pMin, 1)
 		
 		if (pMax is None):
 			pMax =  10**(np.floor(np.log10(self.critical.p)) + 1.0)
@@ -54,19 +55,22 @@ class PHDiagram(StateDiagram):
 		
 		
 		# Enthalpy range
-		domeWidth = self.trippleVapor.h - self.trippleLiquid.h		
+		domeWidth = self.minVapor.h - self.minLiquid.h		
 		if (hMin is None):
-			hMin = self.trippleLiquid.h
+			hMin = self.minLiquid.h
 		self.hMin = hMin
 		
 		if (hMax is None):
-			hMax = self.trippleVapor.h + domeWidth
+			if (self.critical.h > self.minVapor.h):
+				hMax = self.critical.h + domeWidth
+			else:
+				hMax = self.minVapor.h + domeWidth
 		self.hMax = hMax
 		
 		# Density range
 		fState.update_ph(self.pMin, self.hMax)
 		self.rhoMin = fState.rho
-		self.rhoMax = self.trippleLiquid.rho
+		self.rhoMax = self.minLiquid.rho
 		#print ("rho [{}: {}]".format(self.rhoMin, self.rhoMax))
 		
 		# Temperature range
@@ -75,7 +79,8 @@ class PHDiagram(StateDiagram):
 		self.TMax = fState.T
 		
 		# Entropy range
-		self.sMin = 1.01 * self.trippleLiquid.s
+		self.sMin = 1.01 * self.minLiquid.s
+		
 		fState.update_ph(self.pMin, self.hMax)
 		self.sMax = fState.s
 		#print ('sMin={}, sMax={}'.format(self.sMin, self.sMax))
@@ -136,19 +141,19 @@ class PHDiagram(StateDiagram):
 											xmin = self.hMin, xmax = self.hMax,
 											y1 = pArr[i-1], y2 = pArr[i],
 											ymin = self.pMin, ymax = self.pMax)
-						self.ax.annotate("{:2.1f}".format(rho), 
+						self.ax.annotate(formatNumber(rho, sig = 2), 
 										xy = (hArr[i-1] / 1e3, pArr[i-1] / 1e5),
 										xytext=(0, -10),
 										textcoords='offset points',
 										color='g', size="small", rotation = angle)
 					elif (hArr[i] > h_level_low and hArr[i] < h_level_high):
-						angle = self.getLabelAngle(x1 = hArr[i-3], x2 = hArr[i-2],
+						angle = self.getLabelAngle(x1 = hArr[i-2], x2 = hArr[i-1],
 											xmin = self.hMin, xmax = self.hMax,
-											y1 = pArr[i-3], y2 = pArr[i-2],
+											y1 = pArr[i-2], y2 = pArr[i-1],
 											ymin = self.pMin, ymax = self.pMax)
-						self.ax.annotate("{:2.1f}".format(rho), 
-										xy = (hArr[i-3] / 1e3, pArr[i-3] / 1e5),
-										xytext=(0, -5),
+						self.ax.annotate(formatNumber(rho, sig = 2), 
+										xy = (hArr[i-2] / 1e3, pArr[i-2] / 1e5),
+										xytext=(-5, -5),
 										textcoords='offset points',
 										color='g', size="small", rotation = angle)
 					elif (hArr[i] > h_level_high):
@@ -156,19 +161,19 @@ class PHDiagram(StateDiagram):
 											xmin = self.hMin, xmax = self.hMax,
 											y1 = pArr[i-10], y2 = pArr[i-9],
 											ymin = self.pMin, ymax = self.pMax)
-						self.ax.annotate("{:2.1f}".format(rho), 
+						self.ax.annotate(formatNumber(rho, sig = 2), 
 										xy = (hArr[i-10] / 1e3, pArr[i-10] / 1e5),
 										xytext=(0, -5),
 										textcoords='offset points',
 										color='g', size="small", rotation = angle)
-				elif (i == len(TArr) - 1 and pArr[i] < self.pMax):
+				elif (i == len(TArr) - 1 and pArr[i] < self.pMax and pArr[i-1] > self.pMin):
 					angle = self.getLabelAngle(x1 = hArr[i-1], x2 = hArr[i],
 											xmin = self.hMin, xmax = self.hMax,
 											y1 = pArr[i-1], y2 = pArr[i],
 											ymin = self.pMin, ymax = self.pMax)
-					self.ax.annotate("{:2.1f}".format(rho), 
+					self.ax.annotate(formatNumber(rho, sig = 2), 
 									xy = (hArr[i] / 1e3, pArr[i] / 1e5),
-									xytext=(-20, -10),
+									xytext=(-30, -10),
 									textcoords='offset points',
 									color='g', size="small", rotation = angle)
 			self.ax.semilogy(hArr/1e3, pArr/1e5, 'g')
@@ -312,18 +317,17 @@ def main():
 	# Critical point exits the plot to the right
 	problemPlots = ['n-Decane', 'n-Dodecane', 'D4', 'D5', 'D6', 'EthylBenzene', 'Isohexane','n-Hexane', 'MethylLinoleate','MethylLinolenate', 'MethylOleate', 'MethylPalmitate', 'MethylStearate', 'MD2M', 'MD3M', 'MD4M', 'MDM', 'MM', 'n-Nonane', 'n-Octane', 'n-Undecane', 'm-Xylene', 'o-Xylene', 'p-Xylene']
 	# Fluids throwing RuntimeError
-	RuntimeErrorFluids = ['Air', 'Fluorine', 'n-Heptane', 'n-Pentane', 'Neopentane', 'Propyne', 'R113', 'R1234ze(E)', 'R152A', 'R236EA']
+	# RuntimeErrorFluids = ['Air', 'Fluorine', 'n-Heptane', 'n-Pentane', 'Neopentane', 'Propyne', 'R113', 'R1234ze(E)', 'R152A', 'R236EA']
 	
-	fluidList = Fluids.keys()
-	#fluidList = FluidsSample
+	#fluidList = Fluids.keys()
+	fluidList = FluidsSample
 	for i in range(len(fluidList)):
 		fluid = fluidList[i]
 		print("{}. Calculating with fluid '{}'".format(i, fluid))
-		if (fluid not in RuntimeErrorFluids and fluid not in problemPlots):
 		#try:
-			diagram = PHDiagram(fluid)
-			diagram.setLimits()
-			diagram.draw()
+		diagram = PHDiagram(fluid)
+		diagram.setLimits()
+		diagram.draw()
 		#except RuntimeError, e:
 		#	print e
 
