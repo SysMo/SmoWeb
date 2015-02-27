@@ -112,8 +112,11 @@ class PHDiagram(StateDiagram):
 								xytext=(-12, 0),
 								textcoords='offset points',
 								color='b', size="small", rotation = angle)
-			h[-1] = self.critical.h			
-			self.ax.semilogy(h/1e3, p/1e5, 'b')
+			h[-1] = self.critical.h
+			if (q == 0):			
+				self.ax.semilogy(h/1e3, p/1e5, 'b', label = 'vapor quality')
+			else:
+				self.ax.semilogy(h/1e3, p/1e5, 'b')
 			
 	def plotIsochores(self):
 		fState = FluidState(self.fluid)
@@ -176,7 +179,11 @@ class PHDiagram(StateDiagram):
 									xytext=(-30, -10),
 									textcoords='offset points',
 									color='g', size="small", rotation = angle)
-			self.ax.semilogy(hArr/1e3, pArr/1e5, 'g')
+			
+			if (rho == rhoArr[0]):
+				self.ax.semilogy(hArr/1e3, pArr/1e5, 'g', label = 'density [kg/m3]')
+			else:
+				self.ax.semilogy(hArr/1e3, pArr/1e5, 'g')
 		
 	def plotIsotherms(self):
 		fState = FluidState(self.fluid)
@@ -226,7 +233,11 @@ class PHDiagram(StateDiagram):
 										xytext=(0, 3),
 										textcoords='offset points',
 										color='r', size="small", rotation = angle)
-			self.ax.semilogy(hArr/1e3, pArr/1e5, 'r')
+			
+			if (T == TArr[0]):
+				self.ax.semilogy(hArr/1e3, pArr/1e5, 'r', label = 'temperature [K]')
+			else:
+				self.ax.semilogy(hArr/1e3, pArr/1e5, 'r')
 	
 	def plotIsentrops(self):
 		fState = FluidState(self.fluid)
@@ -294,7 +305,10 @@ class PHDiagram(StateDiagram):
 			#print("Num points: {}".format(len(pArr)))
 			#print("Final s: {}".format(fState.s))
 			#print - fState.dsdT_v / fState.dpdT_v
-			self.ax.semilogy(hArr/1e3, pArr/1e5, 'm')
+			if (s == sArr[0]):
+				self.ax.semilogy(hArr/1e3, pArr/1e5, 'm', label = "entropy [J/kg]")
+			else:
+				self.ax.semilogy(hArr/1e3, pArr/1e5, 'm')
 	
 	def draw(self):
 		fig = plt.figure()
@@ -303,12 +317,13 @@ class PHDiagram(StateDiagram):
 		self.ax.set_ylim(self.pMin / 1e5, self.pMax / 1e5)
 		self.ax.set_xlabel('Enthalpy [kJ/kg]')
 		self.ax.set_ylabel('Pressure [bar]')
-		self.ax.set_title(self.fluidName)
+		self.ax.set_title(self.fluidName, y=1.04)
 		self.ax.grid(True, which = 'both')
 		self.plotDome()
 		self.plotIsochores()
 		self.plotIsotherms()
 		self.plotIsentrops()
+		self.ax.legend(loc='upper center',  bbox_to_anchor=(0.5, 1.05),  fontsize="small", ncol=4)
 		plt.show()
 
 
