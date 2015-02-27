@@ -91,20 +91,71 @@ class SolidConductiveBody(object):
 			self.TDot[i - a] -= self.QDot[i] / (self.segmentMass * self.cp[i - a])
 			self.TDot[i + 1 - a] += self.QDot[i] / (self.segmentMass * self.cp[i + 1 - a])
 
-def main():
+def testSolidConductiveBody():
+	print "=== START: Test SolidConductiveBody ==="
+	
+	# Initial the conduction body
 	import pylab as plt
-	n = 5
-	sm = SolidConductiveBody(material = 'CarbonFiberComposite', mass = 40., thickness = 0.01,
-			conductionArea = 2.0, side1Type = 'C', side2Type = 'R', numMassSegments = n, TInit = 288.15)
-	sm.QDot1Ext = 5e3
-	sm.T2Ext = 288.15
-	dt = 1.0
-	T1 = np.zeros((1000, n))
-	for i in range(1000):
-		sm.compute()
-		sm.T += sm.TDot * dt
-		T1[i, :] = sm.T[:]
-	plt.plot(T1)
+	numbMassSegments = 4
+	
+	# Tank (Liner)
+	scBody_Liner = SolidConductiveBody(
+			material = 'Aluminium6061', 
+			mass = 24., #[kg]
+			thickness = 0.004, #[m]
+			conductionArea = 1.8, #[m**2]
+			side1Type = 'R', side2Type = 'C', 
+			numMassSegments = 1, 
+			TInit = 300 #[K]
+			)
+	
+	# Tank (composite)
+	scBody = SolidConductiveBody(
+			material = 'CarbonFiberComposite', 
+			mass = 34., #[kg]
+			thickness = 0.0105, #[m]
+			conductionArea = 1.8, #[m**2]
+			side1Type = 'R', side2Type = 'C', 
+			numMassSegments = numbMassSegments, 
+			TInit = 300 #[K]
+			)
+	
+	# Simulation parameters
+	scBody.T1Ext = 300 #[K]
+	scBody.QDot2Ext = 5e3 #[W]
+	
+	t = 0.0
+	dt = 1.
+	tFinal = 1000
+	
+	tPrintInterval = dt*10
+	tFinal += tPrintInterval
+	tNextPrint = 0
+	iPrint = 0
+	numIterStep = int(tFinal/dt)
+	
+	# Run Simulation
+	TSegments = np.zeros((int(tFinal/tPrintInterval), numbMassSegments + 1))
+	for i in range(numIterStep):
+		scBody.compute()
+		scBody.T += scBody.TDot * dt
+		
+		# Print results
+		if t >= tNextPrint:
+			TSegments[iPrint, :] = np.append(t, scBody.T[:])
+			tNextPrint = t + tPrintInterval - dt/10
+			iPrint += 1
+		t += dt
+	
+	# Write the result to csv file
+	np.savetxt("./test/SolidConductiveBody_Results.csv", TSegments, delimiter=",")
+	
+	# Plot the result
+	plt.plot(TSegments[:,0], TSegments[:,1:])
 	plt.show()
+	
+	print "=== END: Test SolidConductiveBody ==="
+	
+	
 if __name__ == '__main__':
-	main()
+	testSolidConductiveBody()
