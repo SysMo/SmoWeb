@@ -15,6 +15,7 @@ Solids = OrderedDict((
 			'cp': [8.85 , 148.84 , 334.15 , 492.2 , 616.63 , 713.03 , 784.783 , 835.24 , 869.61 , 895.04 , 920.01 , 953.86],
 		},
 	}),
+					
 	('StainlessSteel304', {'label' : 'stainless steel 304', 
 		'refValues' : {
 			'density' : 7800.
@@ -34,9 +35,10 @@ Solids = OrderedDict((
 			},
 		},
 	}),
+					
 	('CarbonFiberComposite', {
 		'refValues' : {
-			'density' : 2700.
+			'density' : 1810.
 		},
 		'thermalCond_T': {
 			'T': [20.0 , 50.0 , 75.0 , 100.0 , 125.0 , 150.0 , 175.0 , 200.0 , 225.0 , 250.0 , 275.0 , 300.0],
@@ -47,6 +49,21 @@ Solids = OrderedDict((
 			'cp': [0.05, 75.53, 197.91, 309.65, 410.77, 501.26, 581.13, 650.38, 709.0, 757.0, 794.36, 821.11],
 		},
 	}),
+					
+	('GlassFiberComposite', {
+		'refValues' : {
+			'density' : 1800.
+		},
+		'thermalCond_T': {
+			'T': [20.0 , 50.0 , 75.0 , 100.0 , 125.0 , 150.0 , 175.0 , 200.0 , 225.0 , 250.0 , 275.0 , 300.0],
+			'cond': [0.15, 0.24, 0.31, 0.38, 0.43, 0.48, 0.51, 0.55, 0.59, 0.63, 0.67, 0.71],
+		},
+		'heatCapacity_T': {
+			'T': [20.0 , 50.0 , 75.0 , 100.0 , 125.0 , 150.0 , 175.0 , 200.0 , 225.0 , 250.0 , 275.0 , 300.0],
+			'cp': [47.0, 149.0, 233.0, 317.0, 401.0, 500.0, 577.0, 665.0, 750.0, 836.0, 920.0, 1000.0],
+		},
+	}),
+					
 	('Copper', {'label': 'copper (pure)',
 		'refValues': {
 			'density': 8960.,
@@ -56,6 +73,7 @@ Solids = OrderedDict((
 			'tConductivity': 401.
 		}
 	}),
+					
 	('Polyoxymethylene', {'label': 'polyoxymethylene (POM)', 
 		'refValues': {
 			'density': 1420,
@@ -63,6 +81,7 @@ Solids = OrderedDict((
 			'cp': 1500.
 		}	
 	}),
+					
 	('Polyvinylchloride', {'label': 'polyvinylchloride (PVC)',
 		'refValues': {
 			'tConductivity': 0.19
