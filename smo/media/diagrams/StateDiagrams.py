@@ -8,8 +8,116 @@ import numpy as np
 import math
 from smo.math.util import formatNumber
 from smo.media.CoolProp.CoolProp import FluidState, Fluid
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from smo.media.MaterialData import Fluids
+import os, tempfile
+from SmoWeb.settings import BASE_DIR
+
+from collections import OrderedDict
+
+PHDiagramFluids = OrderedDict((
+	("Acetone", "Acetone"),
+	("Ammonia", "Ammonia"),
+	("Argon", "Argon"),
+	("Benzene", "Benzene"),
+	("IsoButane", "iso-Butane"),
+	("n-Butane", "n-Butane"),
+	("cis-2-Butene", "cis-2-Butene"),
+	("trans-2-Butene", "trans-2-Butene"),
+	("IsoButene", "iso-Butene"),
+	("1-Butene", "1-Butene"),
+	("CarbonDioxide", "Carbon dioxide"),
+	("CarbonMonoxide", "Carbon monoxide"),
+	("CarbonylSulfide", "Carbonyl sulfide"),
+	("n-Decane", "n-Decane"),
+	("Deuterium", "Deuterium"),
+	("OrthoDeuterium", "ortho-Deuterium"),
+	("ParaDeuterium", "para-Deuterium"),
+	("DimethylCarbonate", "Dimethyl carbonate"),
+	("DimethylEther", "Dimethyl ether"),
+	("n-Dodecane", "n-Dodecane"),
+	("D4", "D4"),
+	("D5", "D5"),
+	("D6", "D6"),
+	("Ethane", "Ethane"),
+	("Ethanol", "Ethanol"),
+	("Ethylene", "Ethylene"),
+	("EthylBenzene", "Ethyl benzene"),
+	("Helium", "Helium"),
+	("CycloHexane", "cyclo-Hexane"),
+	("Isohexane", "iso-Hexane"),
+	("n-Hexane", "n-Hexane"),
+	("HFE143m", "HFE143m"),
+	("Hydrogen", "normal-Hydrogen"),
+	("OrthoHydrogen", "ortho-Hydrogen"),
+	("ParaHydrogen", "para-Hydrogen"),
+	("HydrogenSulfide", "Hydrogen sulfide"),
+	("Krypton", "Krypton"),
+	("Methane", "Methane"),
+	("Methanol", "Methanol"),
+	("MethylLinoleate", "Methyl linoleate"),
+	("MethylLinolenate", "Methyl linolenate"),
+	("MethylOleate", "Methyl oleate"),
+	("MethylPalmitate", "Methyl palmitate"),
+	("MethylStearate", "Methyl stearate"),
+	("MD2M", "MD2M"),
+	("MD3M", "MD3M"),
+	("MD4M", "MD4M"),
+	("MDM", "MDM"),
+	("MM", "MM"),
+	("Neon", "Neon"),
+	("Nitrogen", "Nitrogen"),
+	("NitrousOxide", "Nitrous oxide"),
+	("n-Nonane", "n-Nonane"),
+	("n-Octane", "n-Octane"),
+	("Oxygen", "Oxygen"),
+	("Cyclopentane", "cyclo-Pentane"),
+	("Isopentane", "iso-Pentane"),
+	("CycloPropane", "cyclo-Propane"),
+	("n-Propane", "n-Propane"),
+	("Propylene", "Propylene"),
+	("R11", "R11"),
+	("R114", "R114"),
+	("R116", "R116"),
+	("R12", "R12"),
+	("R123", "R123"),
+	("R1233zd(E)", "R1233zd(E)"),
+	("R1234yf", "R1234yf"),
+	("R1234ze(Z)", "R1234ze(Z)"),
+	("R124", "R124"),
+	("R125", "R125"),
+	("R13", "R13"),
+	("R134a", "R134a"),
+	("R14", "R14"),
+	("R141b", "R141b"),
+	("R142b", "R142b"),
+	("R143a", "R143a"),
+	("R161", "R161"),
+	("R161", "R161"),
+	("R21", "R21"),
+	("R218", "R218"),
+	("R22", "R22"),
+	("R227EA", "R227EA"),
+	("R23", "R23"),
+	("R236FA", "R236FA"),
+	("R245fa", "R245fa"),
+	("R32", "R32"),
+	("R365MFC", "R365MFC"),
+	("R41", "R41"),
+	("RC318", "RC318"),
+	("SulfurDioxide", "SulfurDioxide"),
+	("SulfurHexafluoride", "SulfurHexafluoride"),
+	("Toluene", "Toluene"),
+	("n-Undecane", "n-Undecane"),
+	("Water", "Water"),
+	("Xenon", "Xenon"),
+	("m-Xylene", "m-Xylene"),
+	("o-Xylene", "o-Xylene"),
+	("p-Xylene", "p-Xylene"),
+))
+
 
 class StateDiagram(object):
 	def __init__(self, fluidName):
@@ -311,7 +419,7 @@ class PHDiagram(StateDiagram):
 				self.ax.semilogy(hArr/1e3, pArr/1e5, 'm')
 	
 	def draw(self):
-		fig = plt.figure()
+		fig = Figure(figsize=(16.0, 10.0))
 		self.ax = fig.add_subplot(1,1,1)
 		self.ax.set_xlim(self.hMin / 1e3, self.hMax / 1e3)
 		self.ax.set_ylim(self.pMin / 1e5, self.pMax / 1e5)
@@ -324,22 +432,27 @@ class PHDiagram(StateDiagram):
 		self.plotIsotherms()
 		self.plotIsentrops()
 		self.ax.legend(loc='upper center',  bbox_to_anchor=(0.5, 1.05),  fontsize="small", ncol=4)
-		plt.show()
-
-
+		#plt.show()
+		fig.set_dpi(55)
+		fileHandler, absFilePath = tempfile.mkstemp('.png', dir = 'media')
+		filePath = os.path.relpath(absFilePath, BASE_DIR)
+		canvas = FigureCanvas(fig)
+		canvas.print_png(absFilePath)
+		return (fileHandler, filePath)
+	
+	
 def main():
 	FluidsSample = ['R134a',  'Water', 'Oxygen', 'Nitrogen', 'CarbonDioxide', 'ParaHydrogen', 'IsoButane']
 	# Critical point exits the plot to the right
 	problemPlots = ['n-Decane', 'n-Dodecane', 'D4', 'D5', 'D6', 'EthylBenzene', 'Isohexane','n-Hexane', 'MethylLinoleate','MethylLinolenate', 'MethylOleate', 'MethylPalmitate', 'MethylStearate', 'MD2M', 'MD3M', 'MD4M', 'MDM', 'MM', 'n-Nonane', 'n-Octane', 'n-Undecane', 'm-Xylene', 'o-Xylene', 'p-Xylene']
 	# Fluids throwing RuntimeError
-	# RuntimeErrorFluids = ['Air', 'Fluorine', 'n-Heptane', 'n-Pentane', 'Neopentane', 'Propyne', 'R113', 'R1234ze(E)', 'R152A', 'R236EA']
+	RuntimeErrorFluids = ['Air', 'Fluorine', 'n-Heptane', 'n-Pentane', 'Neopentane', 'Propyne', 'R113', 'R1234ze(E)', 'R152A', 'R236EA']
 	
-	#fluidList = Fluids.keys()
 	fluidList = FluidsSample
 	for i in range(len(fluidList)):
 		fluid = fluidList[i]
 		print("{}. Calculating with fluid '{}'".format(i, fluid))
-		#try:
+# 		#try:
 		diagram = PHDiagram(fluid)
 		diagram.setLimits()
 		diagram.draw()

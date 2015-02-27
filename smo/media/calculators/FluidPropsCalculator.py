@@ -11,7 +11,9 @@ from smo.web.modules import RestModule
 from smo.media.CoolProp.CoolProp import Fluid, FluidState
 from smo.media.MaterialData import Fluids
 from smo.media.CoolProp.CoolPropReferences import References
+from smo.media.diagrams.StateDiagrams import PHDiagram, PHDiagramFluids
 
+import os
 from pymongo import MongoClient
 from bson.objectid import ObjectId
 mongoClient = MongoClient()
@@ -395,6 +397,43 @@ class SaturationData(NumericalModel):
 		self.delta_s_p_satPlot = data[:, (0, 9)]
 		self.satTableView = data
 
+class PHDiagramModel(NumericalModel):
+	label = 'PH Diagram'
+	
+	############# Inputs ###############
+	# Fields
+	fluidName = Choices(Fluids, default = 'ParaHydrogen', label = 'fluid')
+	infoInput = FieldGroup([fluidName], label = 'Fluid')
+	inputs = SuperGroup([infoInput])
+	
+	# Actions
+	computeAction = ServerAction("compute", label = "Go", outputView = 'resultView')
+	inputActionBar = ActionBar([computeAction], save = False)
+	
+	# Model view
+	inputView = ModelView(ioType = "input", superGroups = [inputs], 
+		actionBar = inputActionBar, autoFetch = True)
+	
+	imgSrc = String(show="false")
+	other = FieldGroup([imgSrc])
+	results = SuperGroup([other])
+	
+	# Model view
+	resultView = ModelView(ioType = "output", superGroups = [results])
+	
+	# Html section
+	phDiagram = HtmlBlock(srcType="file", src="PHDiagram.jinja")
+	
+	############# Page structure ########
+	modelBlocks = [inputView, resultView, phDiagram]
+	
+	def compute(self):
+		diagram = PHDiagram(self.fluidName)
+		diagram.setLimits()
+		fileTuple = diagram.draw()
+		self.imgSrc = fileTuple[1]
+		os.close(fileTuple[0])
+		
 class FluidPropertiesDoc(RestModule):
 	name = 'FluidPropertiesDoc'
 	label = 'Fluid Properties (Docs)'
