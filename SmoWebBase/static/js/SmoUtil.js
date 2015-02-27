@@ -1142,15 +1142,19 @@ smoModule.directive('smoFieldGroup', ['$compile', 'util', function($compile, uti
 			
 			var template;
 			
-			if (scope.smoFieldGroup.label) {
-				template = '<div class="field-group-label" style="margin-top: 25px;">' + scope.smoFieldGroup.label + '</div>' + 
-					'<div class="field-group-container">' +
+			if (scope.smoFieldGroup.show == true) {
+				if (scope.smoFieldGroup.label) {
+					template = '<div class="field-group-label" style="margin-top: 25px;">' + scope.smoFieldGroup.label + '</div>' + 
+						'<div class="field-group-container">' +
+							groupFields.join("") +
+						'</div>';
+				} else {
+					template = '<div class="field-group-container">' +
 						groupFields.join("") +
 					'</div>';
+				}
 			} else {
-				template = '<div class="field-group-container">' +
-					groupFields.join("") +
-				'</div>';
+				template = '';
 			}
 
 			var el = angular.element(template);

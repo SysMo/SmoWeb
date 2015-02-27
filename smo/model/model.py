@@ -122,7 +122,7 @@ class NumericalModel(object):
 		"""
 		Provides JSON serializaton of super-group 
 		"""
-		jsonObject = {'type': 'SuperGroup', 'name': group._name, 'label': group.label}
+		jsonObject = {'type': 'SuperGroup', 'name': group._name, 'label': group.label, 'show': group.show}
 		subgroupList = []
 		for subgroup in group.groups:
 			if (isinstance(subgroup, fields.FieldGroup)):
@@ -138,7 +138,7 @@ class NumericalModel(object):
 		"""
 		Provides JSON serializaton of field-group 
 		"""
-		jsonObject = {'type': 'FieldGroup', 'name': group._name, 'label': group.label}
+		jsonObject = {'type': 'FieldGroup', 'name': group._name, 'label': group.label, 'show': group.show}
 		fieldList = []
 		for field in group.fields:
 			fieldList.append(field.toFormDict())
@@ -150,7 +150,7 @@ class NumericalModel(object):
 		"""
 		Provides JSON serializaton of view-group 
 		"""
-		jsonObject = {'type': 'ViewGroup', 'name': group._name, 'label': group.label}
+		jsonObject = {'type': 'ViewGroup', 'name': group._name, 'label': group.label, 'show': group.show}
 		fieldList = []
 		for field in group.fields:
 			fieldList.append(field.toFormDict())

@@ -415,7 +415,7 @@ class PHDiagramModel(NumericalModel):
 		actionBar = inputActionBar, autoFetch = True)
 	
 	imgSrc = String(show="false")
-	other = FieldGroup([imgSrc])
+	other = FieldGroup([imgSrc], show = False)
 	results = SuperGroup([other])
 	
 	# Model view
