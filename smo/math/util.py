@@ -60,5 +60,46 @@ class SectionCalculator(object):
 		calc.addSection((5, 9), Interpolator1D(xValues = np.arange(20), yValues = np.arange(20)**2))
 		print calc(np.arange(15) + 1)
 
+class NamedStateVector(object):
+	def __init__(self, stateList):
+		from collections import OrderedDict
+		self.__dict__['stateMap'] = OrderedDict((zip(stateList, range(len(stateList)))))
+		self.__dict__['_values'] = np.zeros((len(stateList)))
+
+	def set(self, values, copy = False):
+		if (copy):
+			self.__dict__['_values'] = values[:]
+		else:  
+			self.__dict__['_values'] = values
+	
+	def get(self, copy = False):
+		if (copy):
+			values = self._values[:]
+		else:  
+			values = self._values
+		return values
+	
+	def getColIndex(self, colName):
+		colIndex = self.stateMap.get(colName, None)
+		return colIndex
+	
+	def __setattr__(self, attr, value):
+		self._values[self.stateMap[attr]] = value
+
+	def __getattr__(self, attr):
+		return self._values[self.stateMap[attr]]
+		
+	@staticmethod
+	def test():
+		a = NamedStateVector(['T', 'p', 'h'])
+		n1 = np.array([3, 7, 4], copy = True)
+		a.set(n1)
+		print('T = {}, p = {}, h = {}'.format(a.T, a.p, a.h))
+		a.T = 56
+		a.h = -20
+		print('T = {}, p = {}, h = {}'.format(a.T, a.p, a.h))
+		print (a.get())
+
 if __name__ == '__main__':
 	SectionCalculator.test()
+	NamedStateVector.test()

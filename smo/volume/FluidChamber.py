@@ -23,11 +23,15 @@ class FluidChamber(dm.DynamicalModel):
 		else:
 			self.fluid = Fluid(fluid)
 		self.fState = FluidState(self.fluid)
-		
-	def compute(self, mDot = 0, HDot = 0, QDot = 0, VDot = 0):
-		self.fState.update_Trho(self.T, self.rho)
+	
+	def setState(self, T, rho):
+		self.fState.update_Trho(T, rho)
+		self.T = T
+		self.rho = rho
 		self.p = self.fState.p
 		self.m = self.fState.rho * self.V
+		
+	def compute(self, mDot = 0, HDot = 0, QDot = 0, VDot = 0):
 		c1 = mDot / self.m - VDot / self.V;
 		UDot = HDot + QDot - self.fState.p * VDot;
 		self.rhoDot = self.fState.rho * c1;
@@ -54,12 +58,11 @@ def main():
 	rhoTank = ch.fState.rho
 	
 	while True:
-		# Set inlet state
-		fIn.update_Tp(Tin, pTank)
-		HDotIn = mDot * fIn.h
 		# Set tank state
-		ch.T = TTank
-		ch.rho = rhoTank
+		ch.setState(TTank, rhoTank)
+		# Set inlet state
+		fIn.update_Tp(Tin, ch.p)
+		HDotIn = mDot * fIn.h
 		# Compute tank
 		ch.compute(mDot = mDot, HDot = HDotIn)
 		if (ch.fState.p > 300e5):
