@@ -23,6 +23,13 @@ class FluidChamber(dm.DynamicalModel):
 		else:
 			self.fluid = Fluid(fluid)
 		self.fState = FluidState(self.fluid)
+	
+	def initialize(self, T, p):
+		self.T = T
+		self.p = p
+		self.fState.update_Tp(T, p)
+		self.rho = self.fState.rho
+		self.m = self.fState.rho * self.V
 		
 	def setState(self, T, rho):
 		self.T = T
