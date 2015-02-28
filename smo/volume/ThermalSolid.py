@@ -56,10 +56,11 @@ class SolidConductiveBody(object):
 		else:
 			raise ValueError("side2Type must be 'R' or 'C', value given is '{}'".format(side2Type))
 		
-		self.segmentThickness =  self.thickness / self.numConductiveSegments
-		self.conductionArea = conductionArea
-		self.cond = np.zeros(self.numConductiveSegments)
-		self.QDot = np.zeros(self.numConductiveSegments)
+		if (self.numConductiveSegments > 0):
+			self.segmentThickness =  self.thickness / self.numConductiveSegments
+			self.conductionArea = conductionArea
+			self.cond = np.zeros(self.numConductiveSegments)
+			self.QDot = np.zeros(self.numConductiveSegments)
 		
 	def compute(self):
 		self.TDot *= 0.0
