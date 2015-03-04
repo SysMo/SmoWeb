@@ -433,7 +433,7 @@ class PHDiagram(StateDiagram):
 		self.plotIsentrops()
 		self.ax.legend(loc='upper center',  bbox_to_anchor=(0.5, 1.05),  fontsize="small", ncol=4)
 		#plt.show()
-		fig.set_dpi(55)
+		#fig.set_dpi(55)
 		fileHandler, absFilePath = tempfile.mkstemp('.png', dir = 'media')
 		filePath = os.path.relpath(absFilePath, BASE_DIR)
 		canvas = FigureCanvas(fig)

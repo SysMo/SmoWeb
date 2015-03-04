@@ -562,6 +562,30 @@ smoModule.directive('smoButton', ['$compile', 'util', function($compile, util) {
 	};
 }]);
 
+smoModule.directive('smoImg', ['$compile', function($compile) {
+	return {
+		restrict : 'A',
+		scope : {
+			fieldVar: '=',
+			smoDataSource : '=',
+			modelName: '@modelName'
+		},
+		link : function(scope, element, attr) {
+			var el_id = scope.modelName + '_' + scope.fieldVar.name;
+			var template = '<img id="' + el_id + '" width=' + scope.fieldVar.width + ' height=' + scope.fieldVar.height +
+							' style="cursor: pointer;" src="/' + scope.smoDataSource[scope.fieldVar.name] + '">';
+			var el = angular.element(template);
+			compiled = $compile(el);
+			element.replaceWith(el);
+			compiled(scope);
+			$("#" + el_id).click(function(){
+				var URL = $(this).attr("src");
+				window.open(URL, '_blank');
+			});
+		}
+	}
+}]);
+
 smoModule.directive('smoQuantity', ['$compile', 'util', function($compile, util) {
 	return {
 		restrict : 'A',
@@ -898,7 +922,6 @@ smoModule.directive('smoTable', ['$compile', function($compile) {
 			$scope.init = function(){
 				$scope.tableArray = $scope.smoDataSource[$scope.fieldVar.name];
 				$scope.displayValuesArray = angular.copy($scope.tableArray.slice(1));
-//				console.log($scope.displayValuesArray);
 				
 				$scope.displayUnits = [];
 				$scope.dispUnitDefs = [];
@@ -975,8 +998,6 @@ smoModule.directive('smoTable', ['$compile', function($compile) {
 					$scope.displayValuesArray[row][col] 
 						= ($scope.tableArray[row+1][col] - offset) / $scope.dispUnitDefs[col].mult; 
 				}
-				
-//				console.log($scope.displayValuesArray[0][col]);
 				
 				$scope.labelsArray[col] = $scope.tableArray[0][col] + ' [' + $scope.displayUnits[col] + ']';
 				
@@ -1209,6 +1230,8 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 						navPillPanes.push('<div ' + showFieldCode + ' smo-plot field-var="fields.' + field.name + '" model-name="' + scope.modelName + '" smo-data-source="smoDataSource"></div>');
 					} else if (field.type == 'TableView') {
 						navPillPanes.push('<div ' + showFieldCode + ' smo-table field-var="fields.' + field.name + '" model-name="' + scope.modelName + '" smo-data-source="smoDataSource" style="max-width: 840px; overflow: auto;"></div>');
+					} else if (field.type == 'Image') {
+						navPillPanes.push('<div ' + showFieldCode + ' smo-img field-var="fields.' + field.name + '" model-name="' + scope.modelName + '" smo-data-source="smoDataSource" style="max-width: 840px; overflow: auto;"></div>');
 					}
 					
 					navPillPanes.push('</div>'); 
@@ -1239,6 +1262,8 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 					template += '<div ' + showFieldCode + ' smo-plot field-var="smoViewGroup.fields[0]" model-name="' + scope.modelName + '" smo-data-source="smoDataSource"></div>';
 				} else if (field.type == 'TableView') {
 					template += '<div ' + showFieldCode + ' smo-table field-var="smoViewGroup.fields[0]" model-name="' + scope.modelName + '" smo-data-source="smoDataSource" style="max-width: 840px; overflow: auto;"></div>';
+				} else if (field.type == 'Image') {
+					template += '<div ' + showFieldCode + ' smo-img field-var="smoViewGroup.fields[0]" model-name="' + scope.modelName + '" smo-data-source="smoDataSource" style="max-width: 840px; overflow: auto;"></div>';
 				}
 				
 				template += '</div>';					

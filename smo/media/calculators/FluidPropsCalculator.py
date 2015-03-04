@@ -414,24 +414,21 @@ class PHDiagramModel(NumericalModel):
 	inputView = ModelView(ioType = "input", superGroups = [inputs], 
 		actionBar = inputActionBar, autoFetch = True)
 	
-	imgSrc = String(show="false")
-	other = FieldGroup([imgSrc], show = False)
-	results = SuperGroup([other])
+	diagram = Image(default='', width=880, height=550)
+	diagramViewGroup = ViewGroup([diagram], label = "PH Diagram")
+	results = SuperGroup([diagramViewGroup])
 	
 	# Model view
 	resultView = ModelView(ioType = "output", superGroups = [results])
 	
-	# Html section
-	phDiagram = HtmlBlock(srcType="file", src="PHDiagram.jinja")
-	
 	############# Page structure ########
-	modelBlocks = [inputView, resultView, phDiagram]
+	modelBlocks = [inputView, resultView]
 	
 	def compute(self):
 		diagram = PHDiagram(self.fluidName)
 		diagram.setLimits()
 		fileTuple = diagram.draw()
-		self.imgSrc = fileTuple[1]
+		self.diagram = fileTuple[1]
 		os.close(fileTuple[0])
 		
 class FluidPropertiesDoc(RestModule):

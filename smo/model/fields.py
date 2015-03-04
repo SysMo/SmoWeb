@@ -565,7 +565,45 @@ class PlotView(Field):
 		fieldDict['options'] = self.options
 		return fieldDict
 
+class Image(Field):
+	"""
+	Field for displaying an image 
+	"""
+	def __init__(self, default = None, width = None, height = None, *args, **kwargs):
+		"""
+		:param str src: path to image source
+		:param int width: image width
+		:param int height: image height
+		"""
+		super(Image, self).__init__(*args, **kwargs)
+		if default is None:
+			raise ArgumentError("Image field constructor must be passed string argument 'default' specifying image source path.")
+		else:
+			self.default = default
+		
+		if width is None:
+			self.width = 700
+		else:
+			self.width = width
+			
+		if height is None:
+			self.height = 400
+		else:
+			self.height = height
+	
+	def parseValue(self, value):
+		return value
 
+	def getValueRepr(self, value):
+		return value
+	
+	def toFormDict(self):
+		fieldDict = super(Image, self).toFormDict()
+		fieldDict['type'] = 'Image'
+		fieldDict['width'] = self.width	
+		fieldDict['height'] = self.height			
+		return fieldDict
+	
 class Group(object):
 	"""Abstract class for group of fields"""
 	# Tracks each time an instance is created. Used to retain order.
