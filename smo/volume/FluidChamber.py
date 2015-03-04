@@ -23,6 +23,8 @@ class FluidChamber(dm.DynamicalModel):
 		else:
 			self.fluid = Fluid(fluid)
 		self.fState = FluidState(self.fluid)
+		self.fluidFlows = []
+		self.heatFlows = []
 	
 	def initialize(self, T, p):
 		self.T = T
@@ -37,8 +39,20 @@ class FluidChamber(dm.DynamicalModel):
 		self.fState.update_Trho(T, rho)
 		self.p = self.fState.p
 		self.m = self.fState.rho * self.V
+		
+	def compute(self):
+		mDot = 0
+		HDot = 0
+		QDot = 0
+		for flow in self.fluidFlows:
+			mDot += flow.mDot
+			HDot += flow.HDot
+		for flow in self.heatFlows:
+			QDot += flow.qDot
+		
+		self.computeDerivatives(mDot, HDot, QDot)
 
-	def compute(self, mDot = 0, HDot = 0, QDot = 0, VDot = 0):
+	def computeDerivatives(self, mDot = 0, HDot = 0, QDot = 0, VDot = 0):
 		c1 = mDot / self.m - VDot / self.V;
 		UDot = HDot + QDot - self.fState.p * VDot;
 		self.rhoDot = self.fState.rho * c1;
@@ -49,6 +63,8 @@ class FluidChamber(dm.DynamicalModel):
 			
 
 def testFluidChamber():
+	from SourcesSinks import FlowSource
+
 	print "=== START: Test FluidChamber ==="
 	
 	# Open csv file
@@ -57,45 +73,50 @@ def testFluidChamber():
 	csv_writer = csv.writer(csvfile, delimiter=',')
 	csv_writer.writerow(["Time[s]", "Tank pressure [bar]", "Tank temperature [K]", "Tank density [kg/m**3]", "Inlet enthalpy flow rate [W]"])
 	
-	# Create FluidStates
-	fluid = Fluid('ParaHydrogen')
-	fStateIn = FluidState(fluid)
-	tank = FluidChamber(fluid)
-	
 	# Parameters
-	mDot = 75/3600. #[kg/s]
-	t = 0.0
-	dt = 0.01
-	tPrintInterval = dt*100
-	tNextPrint = 0
-	
-	tank.V = 0.1155 #[m**3] 115.5 L
-	TTank_init = 300 #[K]
-	pTank_init = 20e5 #[Pa]
+	mDot = 75./3600 #[kg/s]
 	Tin = 63.0 #[K]
+
+	# Create Fluid
+	fluid = Fluid('ParaHydrogen')
+	# Create fluid source
+	fluidSource = FlowSource(fluid, mDot = mDot, TOut = Tin)
+	# Create tank
+	tank = FluidChamber(fluid)
+	tank.V = 0.1155 #[m**3] 115.5 L
+	# Connect tank and flow source
+	tank.fluidFlows.append(fluidSource.flow)
+	fluidSource.connState = tank.fState
+	
 	
 	# Initial tank state
-	tank.fState.update_Tp(TTank_init, pTank_init)
+	TTank_init = 300 #[K]
+	pTank_init = 20e5 #[Pa]
+	tank.initialize(TTank_init, pTank_init)
 	rhoTank = tank.fState.rho
 	TTank = tank.fState.T
+
+	t = 0.0
+	dt = 0.01
+	tPrintInterval = dt * 100
+	tNextPrint = 0
 	
 	# Run simulation
 	while True:
 		# Set tank state
 		tank.setState(TTank, rhoTank)
 		
-		# Set inlet state
-		fStateIn.update_Tp(Tin, tank.p)
-		HDotIn = mDot * fStateIn.h
+		# Set source state
+		fluidSource.compute()
 		
 		# Write to csv file
 		if t >= tNextPrint:
-			csv_writer.writerow([t, tank.p / 1.e5, tank.T, tank.rho, HDotIn])
+			csv_writer.writerow([t, tank.p / 1.e5, tank.T, tank.rho, fluidSource.flow.HDot, fluidSource.fState.h])
 			tNextPrint = t + tPrintInterval - dt/10
 		t += dt
 				
 		# Compute tank
-		tank.compute(mDot = mDot, HDot = HDotIn)
+		tank.compute()
 		if (tank.p > 300e5):
 			break
 		TTank += tank.TDot * dt

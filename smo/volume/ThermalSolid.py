@@ -5,9 +5,10 @@ Created on Feb 25, 2015
 @copyright: SysMo Ltd, Bulgaria
 '''
 
+import numpy as np
 from smo.math.util import Interpolator1D
 from smo.media.MaterialData import Solids
-import numpy as np
+from Structures import HeatFlow, ThermalState, ThermalPort
 
 class SolidConductiveBody(object):
 	def __init__(self, material, mass, thickness = None, conductionArea = None, 
@@ -62,7 +63,28 @@ class SolidConductiveBody(object):
 			self.cond = np.zeros(self.numConductiveSegments)
 			self.QDot = np.zeros(self.numConductiveSegments)
 		
+		# Set up the port valriables
+		self.port1 = ThermalPort()
+		self.port2 = ThermalPort()
+	
+	def setState(self, TVect):
+		self.T = TVect[:]
+		if (self.side1Type == 'C'):
+			self.port1.state.T = self.T[0]
+		if (self.side2Type == 'C'):
+			self.port2.state.T = self.T[-1]
+
 	def compute(self):
+		# Read port variables
+		if (self.side1Type == 'R'):
+			self.T1Ext = self.port1.state.T
+		else:
+			self.Q1DotExt = self.port1.flow.qDot
+		if (self.side2Type == 'R'):
+			self.T2Ext = self.port2.state.T
+		else:
+			self.Q2DotExt = self.port2.flow.qDot
+		
 		self.TDot *= 0.0
 		# Compute heat capacities
 		for i in range(self.numMassSegments):
@@ -74,16 +96,16 @@ class SolidConductiveBody(object):
 			self.TDot[0] += self.QDot[0] / (self.segmentMass * self.cp[0])
 			a = 1
 		else:
-			self.TDot[0] += self.QDot1Ext / (self.segmentMass * self.cp[0])
+			self.TDot[0] += self.Q1DotExt / (self.segmentMass * self.cp[0])
 			a = 0
 
 		if (self.side2Type == 'R'):
-			self.cond[-1] = self.thermCondModel((self.T[-1] + self.T2Ext)/2)
-			self.QDot[-1] = self.cond[-1] * self.conductionArea / self.segmentThickness * (self.T[-1] -  self.T2Ext)
+			self.cond[-1] = self.thermCondModel((self.T[-1] + self.port2.state.T)/2)
+			self.QDot[-1] = self.cond[-1] * self.conductionArea / self.segmentThickness * (self.T[-1] -  self.port2.state.T)
 			self.TDot[-1] -= self.QDot[-1] / (self.segmentMass * self.cp[-1])
 			b = 1
 		else:
-			self.TDot[-1] += self.QDot2Ext / (self.segmentMass * self.cp[-1])
+			self.TDot[-1] += self.Q2DotExt / (self.segmentMass * self.cp[-1])
 			b = 0
 			
 		for i in range(a, self.numConductiveSegments - b):
@@ -91,6 +113,17 @@ class SolidConductiveBody(object):
 			self.QDot[i] = self.cond[i] * self.conductionArea / self.segmentThickness * (self.T[i - a] -  self.T[i + 1 - a])
 			self.TDot[i - a] -= self.QDot[i] / (self.segmentMass * self.cp[i - a])
 			self.TDot[i + 1 - a] += self.QDot[i] / (self.segmentMass * self.cp[i + 1 - a])
+			
+		# Write port variables
+		if (self.side1Type == 'R'):
+			self.Q1DotExt = self.QDot[0]
+		else:			
+			pass # Already done in setState 
+		if (self.side2Type == 'R'):
+			self.Q2DotExt = self.QDot[-1]
+		else:			
+			pass # Already done in setState 
+
 
 def testSolidConductiveBody():
 	print "=== START: Test SolidConductiveBody ==="
@@ -122,8 +155,8 @@ def testSolidConductiveBody():
 			)
 	
 	# Simulation parameters
-	scBody.T1Ext = 300 #[K]
-	scBody.QDot2Ext = 5e3 #[W]
+	scBody.port1.state.T = 300 #[K]
+	scBody.port2.flow.qDot = 5e3 #[W]
 	
 	t = 0.0
 	dt = 1.
@@ -139,7 +172,7 @@ def testSolidConductiveBody():
 	TSegments = np.zeros((int(tFinal/tPrintInterval), numbMassSegments + 1))
 	for i in range(numIterStep):
 		scBody.compute()
-		scBody.T += scBody.TDot * dt
+		scBody.setState(scBody.T + scBody.TDot * dt)
 		
 		# Print results
 		if t >= tNextPrint:
