@@ -36,7 +36,7 @@ Solids = OrderedDict((
 		},
 	}),
 					
-	('CarbonFiberComposite', {
+	('CarbonFiberComposite', {'label' : 'carbon fiber composite', 
 		'refValues' : {
 			'density' : 1810.
 		},
@@ -50,7 +50,7 @@ Solids = OrderedDict((
 		},
 	}),
 					
-	('GlassFiberComposite', {
+	('GlassFiberComposite', {'label' : 'glass fiber composite', 
 		'refValues' : {
 			'density' : 1800.
 		},

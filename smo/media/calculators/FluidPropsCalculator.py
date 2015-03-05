@@ -399,6 +399,7 @@ class SaturationData(NumericalModel):
 
 class PHDiagramModel(NumericalModel):
 	label = 'P-H Diagram'
+	figure = ModelFigure(src="ThermoFluids/img/ModuleImages/water_PHDiagram.png", width=200, show = True)
 	
 	############# Inputs ###############
 	# Fields
@@ -415,7 +416,7 @@ class PHDiagramModel(NumericalModel):
 		actionBar = inputActionBar, autoFetch = True)
 	
 	diagram = Image(default='', width=880, height=550)
-	diagramViewGroup = ViewGroup([diagram], label = "PH Diagram")
+	diagramViewGroup = ViewGroup([diagram], label = "P-H Diagram")
 	results = SuperGroup([diagramViewGroup])
 	
 	# Model view

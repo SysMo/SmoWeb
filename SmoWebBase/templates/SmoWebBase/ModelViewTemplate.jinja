@@ -94,9 +94,11 @@ angular.module('{{pageView.__class__.__name__}}', ['smo'])
 					<h1 class="title">{{module.label}}</h1>
 					<div class="presentation">
 						{% if hasattr(module, 'figure') %}
-							<div style="height: {{module.figure.height}}px; width: {{module.figure.width}}px;">
-								<img src="{{ static(module.figure.src) }}" />
-							</div>
+							{% if module.figure.show %}
+								<div style="height: {{module.figure.height}}px; width: {{module.figure.width}}px;">
+									<img src="{{ static(module.figure.src) }}" />
+								</div>
+							{% endif %}
 						{% endif %}
 						{% if hasattr(module, 'description') %}
 							{% if module.description.show %}

@@ -9,6 +9,6 @@ class ArgumentError(CustomException):
 
 class ArgumentTypeError(CustomException):
     pass
-    
+
 class FieldError(CustomException):
     pass

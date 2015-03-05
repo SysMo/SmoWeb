@@ -51,3 +51,18 @@ class DecimalEncoder(json.JSONEncoder):
 	# Usage:
 	# d = Decimal("42.5")
 	# json.dumps(d, cls=DecimalEncoder)
+
+import time
+from datetime import timedelta	
+def clearOldFiles(dir, timePeriod = timedelta(days = 1)):
+	"""
+	Deletes files older than ...
+	"""
+	timePeriod_inSec = timePeriod.total_seconds()
+	for file in glob.glob(os.path.join(dir, '*.*')):
+		currentTime = time.time()
+		fileCreationTime = os.path.getctime(file)
+		if currentTime - fileCreationTime > timePeriod_inSec:
+			os.remove(file)
+		
+	
