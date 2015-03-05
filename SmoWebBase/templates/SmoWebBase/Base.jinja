@@ -24,12 +24,9 @@
 	  	$( document ).ready(function() {
 	  		//Checking if browser is IE and displaying a warning message.
 			var isIE = false || !!document.documentMode; // At least IE6
-			$(document).ready(function(){
-		  		if (isIE == true){
-		  			$("#browserAlert").show();
-		  		}
-			});		
-	  	
+	  		if (isIE == true){
+	  			$("#browserAlert").show();
+	  		}
 			//Replaces eg. 'logo.svg' with 'logo.png' if there is no html5 compatibility
 		 	if (!Modernizr.svg) {
 			  $('img[src$=".svg"]').each(function() {

@@ -26,3 +26,10 @@ class ThermalPort(object):
 			flow = HeatFlow()
 		self.state = state
 		self.flow = flow
+		
+class FluidPort(object):
+	def __init__(self, state = None, flow = None):
+		if (flow is None):
+			flow = FluidFlow()
+		self.state = state
+		self.flow = flow

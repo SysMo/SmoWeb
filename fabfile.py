@@ -9,7 +9,7 @@ from smo.util.writers import SmoHTMLWriter
 
 srvAddress = 'platform.sysmoltd.com' 
 
-#env.hosts = srvAddress
+env.hosts = srvAddress
 env.projectRoot = os.getcwd()
 env.installDir = '/srv/SmoWeb/'
 env.virtualBinDir = os.path.abspath(os.path.join(env.installDir, '../VirtualEnv/SmoWebPlatform/bin/'))
@@ -60,7 +60,7 @@ def deploy():
 		print("Collected static files")
 		for module in env.folderCopyList:
 			local('cp -r ./{0} {1}'.format(module, os.path.join(env.installDir, 'Platform')), shell='bash')
-	local('unison -ignore "Name {*.pyc, *.sql*}" -ignore "Path Log/*" /srv/SmoWeb ssh://' + srvAddress + '//srv/SmoWeb')
+	local('unison -ignore "Name {*.pyc, *.sql*}" -ignore "Path Log/*" -ignore "Path Media/*" /srv/SmoWeb ssh://' + srvAddress + '//srv/SmoWeb')
 	sudo('chown -R www-data:www-data /srv/SmoWeb ')
 	sudo('service apache2 restart')
 #######################################################################

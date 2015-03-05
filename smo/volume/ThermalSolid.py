@@ -67,8 +67,8 @@ class SolidConductiveBody(object):
 		self.port1 = ThermalPort()
 		self.port2 = ThermalPort()
 	
-	def setState(self, TVect):
-		self.T = TVect[:]
+	def setState(self, T):
+		self.T[:] = T
 		if (self.side1Type == 'C'):
 			self.port1.state.T = self.T[0]
 		if (self.side2Type == 'C'):

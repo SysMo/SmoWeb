@@ -20,6 +20,8 @@ class FlowSource(object):
 		
 	def compute(self):
 		if (self.flow.mDot > 0):
+			print self.TOutModel(self)
+			print self.connState.p
 			self.fState.update_Tp(self.TOutModel(self), self.connState.p)
 			self.flow.HDot = self.flow.mDot * self.fState.h
 		else:
