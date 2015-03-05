@@ -19,4 +19,6 @@ class FluidPistonPump(DynamicalModel):
 		self.VDot = self.n * self.V
 		self.mDot = self.VDot * self.portIn.state.rho
 		self.fStateOut.update_ps(self.portOut.state.p, self.portIn.state.s)
-		self.flow.HDot = self.flow.mDot * self.fStateOut.h
+		self.HDot = self.flow.mDot * self.fStateOut.h
+		self.flow.mDot = self.mDot
+		self.flow.HDot = self.HDot

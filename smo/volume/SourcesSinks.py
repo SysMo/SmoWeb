@@ -21,12 +21,14 @@ class FlowSource(object):
 		
 	def compute(self):
 		self.extState = self.port1.state
-		if (self.flow.mDot > 0):
+		if (self.mDot > 0):
 			self.fState.update_Tp(self.TOutModel(self), self.extState.p)
-			self.flow.HDot = self.flow.mDot * self.fState.h
+			self.HDot = self.mDot * self.fState.h
 		else:
-			self.flow.HDot = self.flow.mDot * self.extState.h
-
+			self.HDot = self.mDot * self.extState.h
+		self.flow.mDot = self.mDot
+		self.flow.HDot = self.HDot
+		
 class FluidStateSource(object):
 	TP = 1
 	PQ = 2
