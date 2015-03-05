@@ -415,7 +415,7 @@ class PHDiagramModel(NumericalModel):
 		actionBar = inputActionBar, autoFetch = True)
 	
 	diagram = Image(default='', width=880, height=550)
-	diagramViewGroup = ViewGroup([diagram], label = "PH Diagram")
+	diagramViewGroup = ViewGroup([diagram], label = "P-H Diagram")
 	results = SuperGroup([diagramViewGroup])
 	
 	# Model view
