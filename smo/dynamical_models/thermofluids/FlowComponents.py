@@ -6,7 +6,7 @@ Created on Mar 5, 2015
 '''
 from smo.media.CoolProp.CoolProp import Fluid, FluidState
 from DynamicalModel import DynamicalModel
-from smo.volume.Structures import FluidPort, FluidFlow
+from smo.dynamical_models.Structures import FluidPort, FluidFlow
 
 class FluidPistonPump(DynamicalModel):
 	def __init__(self, fluid):

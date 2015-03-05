@@ -6,7 +6,7 @@ Created on Mar 4, 2015
 '''
 from smo.media.CoolProp.CoolProp import Fluid, FluidState
 from Structures import FluidFlow
-from smo.volume.Structures import FluidPort
+from smo.dynamical_models.Structures import FluidPort
 
 class FlowSource(object):
 	'''
