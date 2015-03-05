@@ -63,11 +63,11 @@ class SolidConductiveBody(object):
 		
 		# Set up the port valriables
 		if (port1Type == 'C'):
-			self.port1 = ThermalPort(port1Type, state = ThermalState())
+			self.port1 = ThermalPort(port1Type, ThermalState())
 		else:
 			self.port1 = ThermalPort(port1Type)
 		if (port2Type == 'C'):
-			self.port2 = ThermalPort(port2Type, state = ThermalState())
+			self.port2 = ThermalPort(port2Type, ThermalState())
 		else:
 			self.port2 = ThermalPort(port2Type)
 	
@@ -159,8 +159,12 @@ def testSolidConductiveBody():
 			)
 	
 	# Simulation parameters
-	scBody.port1.state.T = 300 #[K]
-	scBody.port2.flow.qDot = 5e3 #[W]
+	T1 = 300 #[K]
+	qDot2 = 5e3 #[W]
+	extPort1 = ThermalPort('C', ThermalState(T = T1))
+	extPort2 = ThermalPort('R', HeatFlow(qDot = qDot2))
+	scBody.port1.connect(extPort1) 
+	scBody.port2.connect(extPort2)
 	
 	t = 0.0
 	dt = 1.

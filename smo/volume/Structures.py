@@ -75,17 +75,22 @@ class Port(object):
 class RCPort(Port):
 	stateType = None
 	flowType = None
-	def __init__(self, portType, state = None, flow = None):
+	def __init__(self, portType, outVar = None):
 		if (portType in 'C', 'R'):
 			self.portType = portType
 		else:
 			raise ValueError("portType for {} port must be 'C' or 'R', {} given instead".format(self.portDomain, portType))
-		if (state is None and portType == 'C'):
-			raise ValueError("A 'C' type port must be given a state instance")
-		if (flow is None and portType == 'R'):
-			flow = self.flowType()
-		self.state = state
-		self.flow = flow
+		if (portType == 'C'):
+			if (outVar is None):
+				raise ValueError("A 'C' type port must be given a state instance")
+			else:
+				self.state = outVar
+				self.flow = None
+		else: # (portType == 'R')
+			if (outVar is None):
+				outVar = self.flowType()
+			self.state = None
+			self.flow = outVar
 		
 	def connect(self, otherPort):
 		if (isinstance(otherPort, DynamicCPort)):
@@ -115,7 +120,7 @@ class DynamicCPort(object):
 		self.portType = 'C'
 	
 	def connect(self, other):
-		port = self.portClass('C', state = self.state)
+		port = self.portClass('C', self.state)
 		port.connect(other)
 		self.ports.append(port)
 	
@@ -141,11 +146,11 @@ class TestRCPort(unittest.TestCase):
 	def setUp(self):
 		fState = FluidState('Oxygen')
 		tState = ThermalState()
-		self.fp1 = FluidPort('C', state = fState)
+		self.fp1 = FluidPort('C', fState)
 		self.fp2 = FluidPort('R')
-		self.fp3 = DynamicCPort(FluidPort, state = FluidState('Oxygen'))
+		self.fp3 = DynamicCPort(FluidPort, FluidState('Oxygen'))
 		self.fp4 = FluidPort('R')
-		self.tp1 = ThermalPort('C', state = tState)
+		self.tp1 = ThermalPort('C', tState)
 		self.tp2 = ThermalPort('R')
 		self.tp3 = ThermalPort('R')
 
