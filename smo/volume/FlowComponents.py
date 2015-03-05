@@ -13,8 +13,8 @@ class FluidPistonPump(DynamicalModel):
 		self.fluid = fluid
 		self.fStateOut = FluidState(fluid)
 		self.flow = FluidFlow()
-		self.portOut = FluidPort('R', flow = self.flow)
-		self.portIn = FluidPort('R', flow = -self.flow)
+		self.portOut = FluidPort('R', self.flow)
+		self.portIn = FluidPort('R', -self.flow)
 	def compute(self):
 		self.VDot = self.n * self.V
 		self.mDot = self.VDot * self.portIn.state.rho

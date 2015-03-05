@@ -16,17 +16,16 @@ class FlowSource(object):
 		self.fluid = fluid
 		self.fState = FluidState(fluid)
 		self.TOutModel = lambda obj: TOut
-		self.connState = None
 		self.flow = FluidFlow(mDot = mDot)
 		self.port1 = FluidPort('R', self.flow) 
 		
 	def compute(self):
-		self.fState = self.port1.state
+		self.extState = self.port1.state
 		if (self.flow.mDot > 0):
-			self.fState.update_Tp(self.TOutModel(self), self.fState.p)
+			self.fState.update_Tp(self.TOutModel(self), self.extState.p)
 			self.flow.HDot = self.flow.mDot * self.fState.h
 		else:
-			self.flow.HDot = self.flow.mDot * self.connState.h
+			self.flow.HDot = self.flow.mDot * self.extState.h
 
 class FluidStateSource(object):
 	TP = 1
@@ -35,7 +34,7 @@ class FluidStateSource(object):
 	def __init__(self, fluid, sourceType):
 		self.fluid = fluid
 		self.fState = FluidState(fluid)
-		self.port1 = FluidPort('C', state = self.fState)
+		self.port1 = FluidPort('C', self.fState)
 		self.sourceType = sourceType 
 	
 	def computeState(self):
