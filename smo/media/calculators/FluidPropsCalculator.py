@@ -399,7 +399,7 @@ class SaturationData(NumericalModel):
 
 class PHDiagramModel(NumericalModel):
 	label = 'P-H Diagram'
-	figure = ModelFigure(src="ThermoFluids/img/ModuleImages/water_PHDiagram.png", width=200, show = True)
+	figure = ModelFigure(src="ThermoFluids/img/ModuleImages/water_PHDiagram.png", width=200, show = False)
 	
 	############# Inputs ###############
 	# Fields

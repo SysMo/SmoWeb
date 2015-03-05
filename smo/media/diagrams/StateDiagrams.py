@@ -321,7 +321,7 @@ class PHDiagram(StateDiagram):
 				# Determining label location
 				if (T < self.critical.T):
 					if (i == len(rhoArr1)):
-						self.ax.annotate("{:3.0f}".format(T), 
+						self.ax.annotate(formatNumber(T, sig = 2), 
 										xy = ((fSatL.h + fSatV.h) / 2. / 1e3, pArr[i] / 1e5),
 										xytext=(0, 3),
 										textcoords='offset points',
@@ -335,7 +335,7 @@ class PHDiagram(StateDiagram):
 													xmin = self.hMin, xmax = self.hMax,
 													y1 = pArr[i-1], y2 = pArr[i],
 													ymin = self.pMin, ymax = self.pMax)
-						self.ax.annotate("{:3.0f}".format(T), 
+						self.ax.annotate(formatNumber(T, sig = 2), 
 										xy = (hArr[i]/1e3, pArr[i]/1e5),
 										xytext=(0, 3),
 										textcoords='offset points',
@@ -360,10 +360,12 @@ class PHDiagram(StateDiagram):
 			pArr.append(fState.p)
 			# Calculated v
 			v_res = fState.v
-# 			print ('----------------------------------------')
-# 			print ('s=%e'%s)
+			#print ('----------------------------------------')
+			#print ('s=%e'%s)
 			while (T > self.TMin):
 				_dvdT_s = - fState.dsdT_v / fState.dpdT_v
+				if math.isnan(_dvdT_s ):
+					break
 				TStep = - (self.critical.T / 200.) / (np.abs(_dvdT_s) + 1) 
 				T = T + TStep
 				if T < self.TMin:
@@ -411,7 +413,6 @@ class PHDiagram(StateDiagram):
 			pArr = np.array(pArr)
 			#print("Num points: {}".format(len(pArr)))
 			#print("Final s: {}".format(fState.s))
-			#print - fState.dsdT_v / fState.dpdT_v
 			if (s == sArr[0]):
 				self.ax.semilogy(hArr/1e3, pArr/1e5, 'm', label = "entropy [J/kg]")
 			else:
@@ -447,7 +448,7 @@ def main():
 	# Fluids throwing RuntimeError
 	RuntimeErrorFluids = ['Air', 'Fluorine', 'n-Heptane', 'n-Pentane', 'Neopentane', 'Propyne', 'R113', 'R1234ze(E)', 'R152A', 'R236EA']
 	
-	fluidList = FluidsSample
+	fluidList = ['ParaHydrogen']
 	for i in range(len(fluidList)):
 		fluid = fluidList[i]
 		print("{}. Calculating with fluid '{}'".format(i, fluid))

@@ -1,4 +1,5 @@
 #include "SmoFlowMediaExt.h"
+#include <iostream>
 
 void SmoFlow_CoolPropState::createTwoPhaseStates() {
 	// Only build the Saturation classes if this is a top-level CPState for which no_SatLSatV() has not been called
