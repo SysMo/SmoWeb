@@ -16,7 +16,8 @@ class FlowSource(object):
 		self.fluid = fluid
 		self.fState = FluidState(fluid)
 		self.TOutModel = lambda obj: TOut
-		self.flow = FluidFlow(mDot = mDot)
+		self.mDot = mDot
+		self.flow = FluidFlow(mDot = self.mDot)
 		self.port1 = FluidPort('R', self.flow) 
 		
 	def compute(self):
