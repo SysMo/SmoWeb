@@ -327,19 +327,20 @@ class PHDiagram(StateDiagram):
 										textcoords='offset points',
 										color='r', size="small")
 				else:
-					b = np.log10(self.pMin / 1e5) - self.minDiagonalSlope * self.hMin / 1e3
-					if (np.log10(pArr[i-1] / 1e5) - self.minDiagonalSlope * hArr[i-1] / 1e3 - b) * \
-						(np.log10(pArr[i] / 1e5) - self.minDiagonalSlope * hArr[i] / 1e3 - b) < 0:
-						# Getting label rotation angle
-						angle = self.getLabelAngle(x1 = hArr[i-1], x2 = hArr[i],
-													xmin = self.hMin, xmax = self.hMax,
-													y1 = pArr[i-1], y2 = pArr[i],
-													ymin = self.pMin, ymax = self.pMax)
-						self.ax.annotate(formatNumber(T, sig = 2), 
-										xy = (hArr[i]/1e3, pArr[i]/1e5),
-										xytext=(0, 3),
-										textcoords='offset points',
-										color='r', size="small", rotation = angle)
+					if (i>0):
+						b = np.log10(self.pMin / 1e5) - self.minDiagonalSlope * self.hMin / 1e3
+						if (np.log10(pArr[i-1] / 1e5) - self.minDiagonalSlope * hArr[i-1] / 1e3 - b) * \
+							(np.log10(pArr[i] / 1e5) - self.minDiagonalSlope * hArr[i] / 1e3 - b) <= 0:
+							# Getting label rotation angle
+							angle = self.getLabelAngle(x1 = hArr[i-1], x2 = hArr[i],
+														xmin = self.hMin, xmax = self.hMax,
+														y1 = pArr[i-1], y2 = pArr[i],
+														ymin = self.pMin, ymax = self.pMax)
+							self.ax.annotate(formatNumber(T, sig = 2), 
+											xy = (hArr[i]/1e3, pArr[i]/1e5),
+											xytext=(0, 3),
+											textcoords='offset points',
+											color='r', size="small", rotation = angle)
 			
 			if (T == TArr[0]):
 				self.ax.semilogy(hArr/1e3, pArr/1e5, 'r', label = 'temperature [K]')
@@ -392,7 +393,7 @@ class PHDiagram(StateDiagram):
 				i = len(hArr) - 1
 				b = np.log10(self.pMax / 1e5) - self.majDiagonalSlope * self.hMin / 1e3
 				if (np.log10(pArr[i-1] / 1e5) - self.majDiagonalSlope * hArr[i-1] / 1e3 - b) * \
-					(np.log10(pArr[i] / 1e5) - self.majDiagonalSlope * hArr[i] / 1e3 - b) < 0:
+					(np.log10(pArr[i] / 1e5) - self.majDiagonalSlope * hArr[i] / 1e3 - b) <= 0:
 					angle = self.getLabelAngle(x1 = hArr[i-1], x2 = hArr[i],
 												xmin = self.hMin, xmax = self.hMax,
 												y1 = pArr[i-1], y2 = pArr[i],
