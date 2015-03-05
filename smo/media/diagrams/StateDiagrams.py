@@ -403,7 +403,7 @@ class PHDiagram(StateDiagram):
 					y_pts = y_in * fig.get_dpi()
 					log_p_diag = self.majDiagonalSlope * hArr[i-1] / 1e3 + b
 					offest_y = - (np.log10(pArr[i-1] / 1e5) - log_p_diag) / np.log10(self.pMax/self.pMin) * y_pts
-					self.ax.annotate("{:3.0f}".format(s), 
+					self.ax.annotate(formatNumber(s/1e3, sig = 3), 
 										xy = (hArr[i-1]/1e3, pArr[i-1]/1e5),
 										xytext=(2, offest_y),
 										textcoords='offset points',
@@ -414,7 +414,7 @@ class PHDiagram(StateDiagram):
 			#print("Num points: {}".format(len(pArr)))
 			#print("Final s: {}".format(fState.s))
 			if (s == sArr[0]):
-				self.ax.semilogy(hArr/1e3, pArr/1e5, 'm', label = "entropy [J/kg]")
+				self.ax.semilogy(hArr/1e3, pArr/1e5, 'm', label = "entropy [kJ/kg]")
 			else:
 				self.ax.semilogy(hArr/1e3, pArr/1e5, 'm')
 	
