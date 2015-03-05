@@ -666,7 +666,7 @@ class ModelView(object):
 		
 class ModelFigure(object):
 	""" Represents a figure displayed with the numerical model """
-	def __init__(self, src = None, width = None, height = None):
+	def __init__(self, src = None, width = None, height = None, show = True):
 		if (src == None):
 			raise ValueError('File path missing as first argument.')
 		else:
@@ -682,6 +682,8 @@ class ModelFigure(object):
 			self.height = 'auto'
 		else:
 			self.height= height
+		
+		self.show = show
 			
 class ModelDescription(object):
 	""" Description of the numerical model """
