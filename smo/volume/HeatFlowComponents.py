@@ -13,8 +13,8 @@ class ConvectionHeatTransfer(object):
 		self.hConv = kwargs.get('hConv', 100)
 		self.A = kwargs.get('A', 1.0)
 
-		self.fluidPort = FluidPort()
-		self.wallPort = ThermalPort()
+		self.fluidPort = FluidPort('R')
+		self.wallPort = ThermalPort('R')
 		
 	def compute(self):
 		# Read port variables
