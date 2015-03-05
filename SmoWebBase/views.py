@@ -28,12 +28,17 @@ class Team(RestModule):
 
 class Platform(RestModule):
     label = "Platform"
+
+class Disclaimer(HtmlModule):
+    label = "Disclaimer"
+    block = HtmlBlock(srcType="file", src="Disclaimer.html")
+    modelBlocks = [block]
        
 @registerView(router)
 class HomeView(ModularPageView):
     label = "Home View"
     injectVariables = ['ModelCommunicator', 'variables']
-    modules = [HomeModule, UnitConverter, Company, Team, Platform]
+    modules = [HomeModule, UnitConverter, Company, Team, Platform, Disclaimer]
     
     @action.post()
     def getQuantities(self, parameters, model=None, view= None):
