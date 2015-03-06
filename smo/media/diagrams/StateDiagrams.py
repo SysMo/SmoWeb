@@ -168,18 +168,24 @@ class PHDiagram(StateDiagram):
 			hMin = self.minLiquid.h
 		self.hMin = hMin
 		
-		if (hMax is None):
-			if (self.critical.h > self.minVapor.h):
-				hMax = self.critical.h + domeWidth
-			else:
-				hMax = self.minVapor.h + domeWidth
+		# Determining max enthalpy
+		if (TMax is None):
+			if (hMax is None):
+				# default max enthalpy	
+				if (self.critical.h > self.minVapor.h):
+					hMax = self.critical.h + domeWidth
+				else:
+					hMax = self.minVapor.h + domeWidth
+		else:
+			fState.update_Tp(TMax, self.pMin)
+			hMax = fState.h
+			
 		self.hMax = hMax
 		
 		# Density range
 		fState.update_ph(self.pMin, self.hMax)
 		self.rhoMin = fState.rho
 		self.rhoMax = self.minLiquid.rho
-		#print ("rho [{}: {}]".format(self.rhoMin, self.rhoMax))
 		
 		# Temperature range
 		self.TMin = self.fluid.saturation_p(self.pMin)["TsatL"]
