@@ -6,13 +6,14 @@ Created on Feb 25, 2015
 '''
 
 import numpy as np
+import smo.dynamical_models.DynamicalModel as dm
 from smo.math.util import Interpolator1D
 from smo.media.MaterialData import Solids
 from Structures import HeatFlow, ThermalState, ThermalPort
 
-class SolidConductiveBody(object):
+class SolidConductiveBody(dm.DynamicalModel):
 	def __init__(self, material, mass, thickness = None, conductionArea = None, 
-				side1Type = 'C', side2Type = 'C', numMassSegments = 1, TInit = 288.15):
+				port1Type = 'C', port2Type = 'C', numMassSegments = 1, TInit = 288.15):
 		
 		# Set the material
 		if (isinstance(material, basestring)):
@@ -44,18 +45,16 @@ class SolidConductiveBody(object):
 		# Conductions and end handling
 		self.thickness = thickness
 		self.numConductiveSegments = self.numMassSegments - 1
-		if (side1Type in ['C', 'R']):
-			self.side1Type = side1Type
-			if (side1Type == 'R'):
+		if (port1Type in ['C', 'R']):
+			if (port1Type == 'R'):
 				self.numConductiveSegments += 1
 		else:
-			raise ValueError("side1Type must be 'R' or 'C', value given is '{}'".format(side1Type))
-		if (side2Type in ['C', 'R']):
-			self.side2Type = side2Type
-			if (side2Type == 'R'):
+			raise ValueError("port1Type must be 'R' or 'C', value given is '{}'".format(port1Type))
+		if (port2Type in ['C', 'R']):
+			if (port2Type == 'R'):
 				self.numConductiveSegments += 1
 		else:
-			raise ValueError("side2Type must be 'R' or 'C', value given is '{}'".format(side2Type))
+			raise ValueError("port2Type must be 'R' or 'C', value given is '{}'".format(port2Type))
 		
 		if (self.numConductiveSegments > 0):
 			self.segmentThickness =  self.thickness / self.numConductiveSegments
@@ -64,33 +63,39 @@ class SolidConductiveBody(object):
 			self.QDot = np.zeros(self.numConductiveSegments)
 		
 		# Set up the port valriables
-		self.port1 = ThermalPort()
-		self.port2 = ThermalPort()
+		if (port1Type == 'C'):
+			self.port1 = ThermalPort(port1Type, ThermalState())
+		else:
+			self.port1 = ThermalPort(port1Type)
+		if (port2Type == 'C'):
+			self.port2 = ThermalPort(port2Type, ThermalState())
+		else:
+			self.port2 = ThermalPort(port2Type)
 	
 	def setState(self, T):
 		self.T[:] = T
-		if (self.side1Type == 'C'):
+		if (self.port1.portType == 'C'):
 			self.port1.state.T = self.T[0]
-		if (self.side2Type == 'C'):
+		if (self.port2.portType == 'C'):
 			self.port2.state.T = self.T[-1]
 
 	def compute(self):
 		# Read port variables
-		if (self.side1Type == 'R'):
+		if (self.port1.portType == 'R'):
 			self.T1Ext = self.port1.state.T
 		else:
-			self.Q1DotExt = self.port1.flow.qDot
-		if (self.side2Type == 'R'):
+			self.Q1DotExt = self.port1.flow.QDot
+		if (self.port2.portType == 'R'):
 			self.T2Ext = self.port2.state.T
 		else:
-			self.Q2DotExt = self.port2.flow.qDot
+			self.Q2DotExt = self.port2.flow.QDot
 		
 		self.TDot *= 0.0
 		# Compute heat capacities
 		for i in range(self.numMassSegments):
 			self.cp[i] = self.cpModel(self.T[i])
 		# Compute conductivities, heat flow rates and temperature derivatives
-		if (self.side1Type == 'R'):
+		if (self.port1.portType == 'R'):
 			self.cond[0] = self.thermCondModel((self.T1Ext +  self.T[0])/2)
 			self.QDot[0] = self.cond[0] * self.conductionArea / self.segmentThickness * (self.T1Ext -  self.T[0])
 			self.TDot[0] += self.QDot[0] / (self.segmentMass * self.cp[0])
@@ -99,7 +104,7 @@ class SolidConductiveBody(object):
 			self.TDot[0] += self.Q1DotExt / (self.segmentMass * self.cp[0])
 			a = 0
 
-		if (self.side2Type == 'R'):
+		if (self.port2.portType == 'R'):
 			self.cond[-1] = self.thermCondModel((self.T[-1] + self.port2.state.T)/2)
 			self.QDot[-1] = self.cond[-1] * self.conductionArea / self.segmentThickness * (self.T[-1] -  self.port2.state.T)
 			self.TDot[-1] -= self.QDot[-1] / (self.segmentMass * self.cp[-1])
@@ -115,11 +120,11 @@ class SolidConductiveBody(object):
 			self.TDot[i + 1 - a] += self.QDot[i] / (self.segmentMass * self.cp[i + 1 - a])
 			
 		# Write port variables
-		if (self.side1Type == 'R'):
+		if (self.port1.portType == 'R'):
 			self.Q1DotExt = self.QDot[0]
 		else:			
 			pass # Already done in setState 
-		if (self.side2Type == 'R'):
+		if (self.port2.portType == 'R'):
 			self.Q2DotExt = self.QDot[-1]
 		else:			
 			pass # Already done in setState 
@@ -138,7 +143,7 @@ def testSolidConductiveBody():
 			mass = 24., #[kg]
 			thickness = 0.004, #[m]
 			conductionArea = 1.8, #[m**2]
-			side1Type = 'R', side2Type = 'C', 
+			port1Type = 'R', port2Type = 'C', 
 			numMassSegments = 1, 
 			TInit = 300 #[K]
 			)
@@ -149,14 +154,18 @@ def testSolidConductiveBody():
 			mass = 34., #[kg]
 			thickness = 0.0105, #[m]
 			conductionArea = 1.8, #[m**2]
-			side1Type = 'R', side2Type = 'C', 
+			port1Type = 'R', port2Type = 'C', 
 			numMassSegments = numbMassSegments, 
 			TInit = 300 #[K]
 			)
 	
 	# Simulation parameters
-	scBody.port1.state.T = 300 #[K]
-	scBody.port2.flow.qDot = 5e3 #[W]
+	T1 = 300 #[K]
+	qDot2 = 5e3 #[W]
+	extPort1 = ThermalPort('C', ThermalState(T = T1))
+	extPort2 = ThermalPort('R', HeatFlow(qDot = qDot2))
+	scBody.port1.connect(extPort1) 
+	scBody.port2.connect(extPort2)
 	
 	t = 0.0
 	dt = 1.

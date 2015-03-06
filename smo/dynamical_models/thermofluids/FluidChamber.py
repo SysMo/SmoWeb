@@ -5,8 +5,9 @@ Created on Feb 25, 2015
 @copyright: SysMo Ltd, Bulgaria
 '''
 
-import DynamicalModel as dm
+import smo.dynamical_models.DynamicalModel as dm
 from smo.media.CoolProp.CoolProp import Fluid, FluidState
+from Structures import FluidPort, DynamicCPort
 
 class FluidChamber(dm.DynamicalModel):
 	V = dm.RealVariable(causality = dm.Causality.parameter, variability = dm.Variability.constant)
@@ -23,8 +24,7 @@ class FluidChamber(dm.DynamicalModel):
 		else:
 			self.fluid = Fluid(fluid)
 		self.fState = FluidState(self.fluid)
-		self.fluidFlows = []
-		self.heatFlows = []
+		self.fluidPort = DynamicCPort(FluidPort, state = self.fState)
 	
 	def initialize(self, T, p):
 		self.T = T
@@ -41,16 +41,8 @@ class FluidChamber(dm.DynamicalModel):
 		self.m = self.fState.rho * self.V
 		
 	def compute(self):
-		mDot = 0
-		HDot = 0
 		QDot = 0
-		for flow in self.fluidFlows:
-			mDot += flow.mDot
-			HDot += flow.HDot
-		for flow in self.heatFlows:
-			QDot += flow.qDot
-		
-		self.computeDerivatives(mDot, HDot, QDot)
+		self.computeDerivatives(self.fluidPort.flow.mDot, self.fluidPort.flow.HDot, QDot)
 
 	def computeDerivatives(self, mDot = 0, HDot = 0, QDot = 0, VDot = 0):
 		c1 = mDot / self.m - VDot / self.V;
@@ -85,9 +77,7 @@ def testFluidChamber():
 	tank = FluidChamber(fluid)
 	tank.V = 0.1155 #[m**3] 115.5 L
 	# Connect tank and flow source
-	tank.fluidFlows.append(fluidSource.flow)
-	fluidSource.connState = tank.fState
-	
+	tank.fluidPort.connect(fluidSource.port1)
 	
 	# Initial tank state
 	TTank_init = 300 #[K]
