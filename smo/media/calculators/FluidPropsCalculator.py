@@ -435,8 +435,11 @@ class PHDiagramModel(NumericalModel):
 	# Model view
 	resultView = ModelView(ioType = "output", superGroups = [results])
 	
+	warning = HtmlBlock(src ='<div class="align-center">The diagram is best displayed \
+								using the default ranges.</div>')
+	
 	############# Page structure ########
-	modelBlocks = [inputView, resultView]
+	modelBlocks = [warning, inputView, resultView]
 	
 	def compute(self):
 		diagram = PHDiagram(self.fluidName)

@@ -34,7 +34,7 @@
 	border-top-right-radius: 10px;
 }
 
-/* Field group content */
+/* Field and view group content */
 .field-group-container, .view-group-container {
 	border: 2px solid #0875CA;
 	padding: 10px;
@@ -43,12 +43,20 @@
 }
 
 .field-group-container {
-	background-color: #ABBFCF;	
+	background-color: #ABBFCF;
+	width: 412px;
 }
 
 /* View group content */
 .view-group-container {
-	background-color: #FFFFFF;	
+	background-color: #FFFFFF;
+	width: 900px;
+	overflow: hidden;	
+}
+
+/* View group TableView */
+.google-visualization-table.content > .top-level {
+	margin-right: 100px;
 }
 
 
