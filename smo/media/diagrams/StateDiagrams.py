@@ -137,7 +137,7 @@ class StateDiagram(object):
 		return math.degrees(math.atan(0.7 * frac_range_y / frac_range_x))
 
 class PHDiagram(StateDiagram):
-	def setLimits(self, pMin = None, pMax = None,  hMin = None, hMax = None):
+	def setLimits(self, pMin = None, pMax = None,  hMin = None, hMax = None, TMax = None):
 		# Reference points
 		self.minLiquid = FluidState(self.fluid)
 		self.minVapor = FluidState(self.fluid)
@@ -183,8 +183,11 @@ class PHDiagram(StateDiagram):
 		
 		# Temperature range
 		self.TMin = self.fluid.saturation_p(self.pMin)["TsatL"]
-		fState.update_ph(self.pMin, self.hMax)
-		self.TMax = fState.T
+		
+		if (TMax is None):
+			fState.update_ph(self.pMin, self.hMax)
+			TMax = fState.T
+		self.TMax = TMax
 		
 		# Entropy range
 		self.sMin = 1.01 * self.minLiquid.s

@@ -408,8 +408,13 @@ class PHDiagramModel(NumericalModel):
 	isochores = Boolean(label = 'isochores')
 	isentrops = Boolean(label = 'isentrops')
 	qIsolines = Boolean(label = 'vapor quality isolines')
+	defaultMaxP = Boolean(label = 'default max pressure')
+	defaultMaxT = Boolean(label = 'default max temperature')
+	maxPressure = Quantity('Pressure', default = (1, 'bar'), label = 'max pressure', show="self.defaultMaxP == false")
+	maxTemperature = Quantity('Temperature', default = (50, 'K'), label = 'max temperature', show="self.defaultMaxT == false")
 	
-	infoInput = FieldGroup([fluidName, isotherms, isochores, isentrops, qIsolines], 
+	infoInput = FieldGroup([fluidName, isotherms, isochores, isentrops, qIsolines,
+							defaultMaxP, defaultMaxT, maxPressure, maxTemperature], 
 							label = 'Diagram Inputs')
 	inputs = SuperGroup([infoInput])
 	
@@ -433,7 +438,12 @@ class PHDiagramModel(NumericalModel):
 	
 	def compute(self):
 		diagram = PHDiagram(self.fluidName)
-		diagram.setLimits()
+		pMax, TMax = None, None
+		if not self.defaultMaxP:
+			pMax = self.maxPressure
+		if not self.defaultMaxT:
+			TMax = self.maxTemperature
+		diagram.setLimits(pMax = pMax, TMax = TMax)
 		fHandle, resourcePath  = diagram.draw(isotherms=self.isotherms, 
 												isochores=self.isochores, 
 												isentrops=self.isentrops, 
