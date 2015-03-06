@@ -8,9 +8,9 @@ Created on Mar 4, 2015
 from smo.media.CoolProp.CoolProp import FluidState
 	
 class FluidFlow(object):
-	def __init__(self, mDot = 0, HDot = 0):
-		self.mDot = mDot
-		self.HDot = HDot
+	def __init__(self, mDot = 0., HDot = 0.):
+		self.mDot = float(mDot)
+		self.HDot = float(HDot)
 	
 	def __add__(self, other):
 		return FluidFlow(
@@ -26,8 +26,8 @@ class FluidFlow(object):
 		return ReverseFluidFlow(self)
 	
 	def clear(self):
-		self.mDot = 0
-		self.HDot = 0
+		self.mDot = 0.
+		self.HDot = 0.
 
 class ReverseFluidFlow(object):
 	def __init__(self, flow):
@@ -40,32 +40,32 @@ class ReverseFluidFlow(object):
 		return -self.flow.HDot
 
 class HeatFlow(object):
-	def __init__(self, qDot = 0):
-		self.qDot = qDot
+	def __init__(self, qDot = 0.):
+		self.QDot = float(qDot)
 		
 	def __add__(self, other):
-		return HeatFlow(qDot = self.qDot + other.qDot)
+		return HeatFlow(qDot = self.QDot + other.QDot)
 	
 	def __iadd__(self, other):
-		self.qDot += other.qDot
+		self.QDot += other.QDot
 		return self
 
 	def __neg__(self):
 		return ReverseHeatFlow(self)
 
 	def clear(self):
-		self.qDot = 0
+		self.QDot = 0.
 
 class ReverseHeatFlow(object):
 	def __init__(self, flow):
 		self.flow = flow
 	@property
-	def qDot(self):
-		return -self.flow.qDot
+	def QDot(self):
+		return -self.flow.QDot
 
 class ThermalState(object):
 	def __init__(self, T = 288.15):
-		self.T = T
+		self.T = float(T)
 
 class Port(object):
 	def connect(self, otherPort):

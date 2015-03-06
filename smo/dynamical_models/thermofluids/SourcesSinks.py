@@ -4,11 +4,19 @@ Created on Mar 4, 2015
 @author: Atanas Pavlov
 @copyright: SysMo Ltd., Bulgaria
 '''
+import smo.dynamical_models.DynamicalModel as dm
 from smo.media.CoolProp.CoolProp import Fluid, FluidState
-from Structures import FluidFlow
-from smo.dynamical_models.Structures import FluidPort
+from Structures import FluidFlow, FluidPort
+from Structures import ThermalPort,	ThermalState
 
-class FlowSource(object):
+class TemperatureSource(dm.DynamicalModel):
+	def __init__(self, T):
+		self.T = T
+		self.port1 = ThermalPort('C', ThermalState())
+	def computeState(self):
+		self.port1.state.T = self.T
+
+class FlowSource(dm.DynamicalModel):
 	'''
 	Flow source or sink
 	'''
@@ -30,7 +38,7 @@ class FlowSource(object):
 		self.flow.mDot = self.mDot
 		self.flow.HDot = self.HDot
 		
-class FluidStateSource(object):
+class FluidStateSource(dm.DynamicalModel):
 	TP = 1
 	PQ = 2
 	TQ = 3

@@ -6,11 +6,12 @@ Created on Feb 25, 2015
 '''
 
 import numpy as np
+import smo.dynamical_models.DynamicalModel as dm
 from smo.math.util import Interpolator1D
 from smo.media.MaterialData import Solids
 from Structures import HeatFlow, ThermalState, ThermalPort
 
-class SolidConductiveBody(object):
+class SolidConductiveBody(dm.DynamicalModel):
 	def __init__(self, material, mass, thickness = None, conductionArea = None, 
 				port1Type = 'C', port2Type = 'C', numMassSegments = 1, TInit = 288.15):
 		
@@ -83,11 +84,11 @@ class SolidConductiveBody(object):
 		if (self.port1.portType == 'R'):
 			self.T1Ext = self.port1.state.T
 		else:
-			self.Q1DotExt = self.port1.flow.qDot
+			self.Q1DotExt = self.port1.flow.QDot
 		if (self.port2.portType == 'R'):
 			self.T2Ext = self.port2.state.T
 		else:
-			self.Q2DotExt = self.port2.flow.qDot
+			self.Q2DotExt = self.port2.flow.QDot
 		
 		self.TDot *= 0.0
 		# Compute heat capacities
