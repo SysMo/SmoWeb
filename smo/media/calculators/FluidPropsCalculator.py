@@ -404,7 +404,13 @@ class PHDiagramModel(NumericalModel):
 	############# Inputs ###############
 	# Fields
 	fluidName = Choices(PHDiagramFluids, default = 'ParaHydrogen', label = 'fluid')
-	infoInput = FieldGroup([fluidName], label = 'Fluid')
+	isotherms = Boolean(label = 'isotherms')
+	isochores = Boolean(label = 'isochores')
+	isentrops = Boolean(label = 'isentrops')
+	qIsolines = Boolean(label = 'vapor quality isolines')
+	
+	infoInput = FieldGroup([fluidName, isotherms, isochores, isentrops, qIsolines], 
+							label = 'Diagram Inputs')
 	inputs = SuperGroup([infoInput])
 	
 	# Actions
@@ -428,7 +434,10 @@ class PHDiagramModel(NumericalModel):
 	def compute(self):
 		diagram = PHDiagram(self.fluidName)
 		diagram.setLimits()
-		fHandle, resourcePath  = diagram.draw()
+		fHandle, resourcePath  = diagram.draw(isotherms=self.isotherms, 
+												isochores=self.isochores, 
+												isentrops=self.isentrops, 
+												qIsolines=self.qIsolines)
 		self.diagram = resourcePath
 		os.close(fHandle)
 		

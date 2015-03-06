@@ -419,7 +419,7 @@ class PHDiagram(StateDiagram):
 			else:
 				self.ax.semilogy(hArr/1e3, pArr/1e5, 'm')
 	
-	def draw(self):
+	def draw(self, isotherms=True, isochores=True, isentrops=True, qIsolines=True):
 		fig = Figure(figsize=(16.0, 10.0))
 		self.ax = fig.add_subplot(1,1,1)
 		self.ax.set_xlim(self.hMin / 1e3, self.hMax / 1e3)
@@ -428,10 +428,14 @@ class PHDiagram(StateDiagram):
 		self.ax.set_ylabel('Pressure [bar]')
 		self.ax.set_title(self.fluidName, y=1.04)
 		self.ax.grid(True, which = 'both')
-		self.plotDome()
-		self.plotIsochores()
-		self.plotIsotherms()
-		self.plotIsentrops()
+		if qIsolines:
+			self.plotDome()
+		if isochores:
+			self.plotIsochores()
+		if isotherms:
+			self.plotIsotherms()
+		if isentrops:
+			self.plotIsentrops()
 		self.ax.legend(loc='upper center',  bbox_to_anchor=(0.5, 1.05),  fontsize="small", ncol=4)
 		#plt.show()
 		#fig.set_dpi(55)
