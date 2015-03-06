@@ -13,7 +13,7 @@ def formatNumber(n, sig = 6):
 	if (abs(n) < 1e-80):
 		return '0'
 	if (abs(n) > 1e5 or abs(n) < 1e-3):
-		return '{:.3e}.format(n)'
+		return '{:.3e}'.format(n)
 	mult = math.pow(10, sig - math.floor(math.log10(abs(n))) - 1)
 	return str(round(n * mult) / mult)
 

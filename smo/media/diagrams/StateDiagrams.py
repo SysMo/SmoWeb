@@ -45,10 +45,12 @@ PHDiagramFluids = OrderedDict((
 	("Ethanol", "Ethanol"),
 	("Ethylene", "Ethylene"),
 	("EthylBenzene", "Ethyl benzene"),
+	("Fluorine", "Fluorine"),
 	("Helium", "Helium"),
 	("CycloHexane", "cyclo-Hexane"),
 	("Isohexane", "iso-Hexane"),
 	("n-Hexane", "n-Hexane"),
+	("n-Heptane", "n-Heptane"),
 	("HFE143m", "HFE143m"),
 	("Hydrogen", "normal-Hydrogen"),
 	("OrthoHydrogen", "ortho-Hydrogen"),
@@ -75,10 +77,13 @@ PHDiagramFluids = OrderedDict((
 	("Oxygen", "Oxygen"),
 	("Cyclopentane", "cyclo-Pentane"),
 	("Isopentane", "iso-Pentane"),
+	("n-Pentane", "n-Pentane"),
+	("Neopentane", "neo-Pentane"),
 	("CycloPropane", "cyclo-Propane"),
 	("n-Propane", "n-Propane"),
 	("Propylene", "Propylene"),
 	("R11", "R11"),
+	("R113", "R113"),
 	("R114", "R114"),
 	("R116", "R116"),
 	("R12", "R12"),
@@ -94,6 +99,7 @@ PHDiagramFluids = OrderedDict((
 	("R141b", "R141b"),
 	("R142b", "R142b"),
 	("R143a", "R143a"),
+	("R152A", "R152A"),
 	("R161", "R161"),
 	("R161", "R161"),
 	("R21", "R21"),
@@ -101,6 +107,7 @@ PHDiagramFluids = OrderedDict((
 	("R22", "R22"),
 	("R227EA", "R227EA"),
 	("R23", "R23"),
+	("R236EA", "R236EA"),
 	("R236FA", "R236FA"),
 	("R245fa", "R245fa"),
 	("R32", "R32"),
@@ -213,27 +220,32 @@ class PHDiagram(StateDiagram):
 		p = np.logspace(np.log10(self.pMin), np.log10(self.critical.p), num = 200)
 		qLabels = ['0.2', '0.4', '0.6', '0.8']
 		for q in np.arange(0, 1.1, 0.1):
-			h = np.zeros(len(p))
-			for i in range(len(p) - 1):
-				fState.update_pq(p[i], q)
-				h[i] = fState.h
-			# Putting labels
-			angle = self.getLabelAngle(x1 = h[9], x2 = h[10],
-										xmin = self.hMin, xmax = self.hMax,
-										y1 = p[9], y2 = p[10],
-										ymin = self.pMin, ymax = self.pMax)
-			
-			if '{:1.1f}'.format(q) in qLabels:
-				self.ax.annotate("{:1.1f}".format(q), 
-								xy = (h[10]/ 1e3, p[10] / 1e5),
-								xytext=(-12, 0),
-								textcoords='offset points',
-								color='b', size="small", rotation = angle)
-			h[-1] = self.critical.h
-			if (q == 0):			
-				self.ax.semilogy(h/1e3, p/1e5, 'b', label = 'vapor quality')
-			else:
-				self.ax.semilogy(h/1e3, p/1e5, 'b')
+			try:
+				h = np.zeros(len(p))
+				for i in range(len(p) - 1):
+					fState.update_pq(p[i], q)
+					h[i] = fState.h
+				# Putting labels
+				angle = self.getLabelAngle(x1 = h[9], x2 = h[10],
+											xmin = self.hMin, xmax = self.hMax,
+											y1 = p[9], y2 = p[10],
+											ymin = self.pMin, ymax = self.pMax)
+				
+				if '{:1.1f}'.format(q) in qLabels:
+					self.ax.annotate("{:1.1f}".format(q), 
+									xy = (h[10]/ 1e3, p[10] / 1e5),
+									xytext=(-12, 0),
+									textcoords='offset points',
+									color='b', size="small", rotation = angle)
+				h[-1] = self.critical.h
+				if (q == 0):			
+					self.ax.semilogy(h/1e3, p/1e5, 'b', label = 'vapor quality')
+				else:
+					self.ax.semilogy(h/1e3, p/1e5, 'b')
+			except RuntimeError, e:
+				print '------------------'
+				print 'Runtime Warning for q=%e'%q 
+				print(e)
 			
 	def plotIsochores(self):
 		fState = FluidState(self.fluid)
@@ -247,55 +259,60 @@ class PHDiagram(StateDiagram):
 		h_level_low = self.hMin + (self.critical.h - self.hMin) * 3 / 4.
 		h_level_high = self.critical.h + (self.hMax - self.critical.h) * 1 / 2. 
 		for rho in rhoArr:
-			hArr = np.zeros(len(TArr))
-			pArr = np.zeros(len(TArr))
-			for i in range(len(TArr)):
-				fState.update_Trho(TArr[i], rho)
-				hArr[i] = fState.h
-				pArr[i] = fState.p
-				# Putting labels
-				# Determining annotated point and label text offest
-				if (pArr[i-1] < self.pMax and pArr[i] > self.pMax):
-					if (hArr[i] < h_level_low):
+			try:
+				hArr = np.zeros(len(TArr))
+				pArr = np.zeros(len(TArr))
+				for i in range(len(TArr)):
+					fState.update_Trho(TArr[i], rho)
+					hArr[i] = fState.h
+					pArr[i] = fState.p
+					# Putting labels
+					# Determining annotated point and label text offest
+					if (pArr[i-1] < self.pMax and pArr[i] > self.pMax):
+						if (hArr[i] < h_level_low):
+							angle = self.getLabelAngle(x1 = hArr[i-1], x2 = hArr[i],
+												xmin = self.hMin, xmax = self.hMax,
+												y1 = pArr[i-1], y2 = pArr[i],
+												ymin = self.pMin, ymax = self.pMax)
+							self.ax.annotate(formatNumber(rho, sig = 2), 
+											xy = (hArr[i-1] / 1e3, pArr[i-1] / 1e5),
+											xytext=(0, -10),
+											textcoords='offset points',
+											color='g', size="small", rotation = angle)
+						elif (hArr[i] > h_level_low and hArr[i] < h_level_high):
+							angle = self.getLabelAngle(x1 = hArr[i-2], x2 = hArr[i-1],
+												xmin = self.hMin, xmax = self.hMax,
+												y1 = pArr[i-2], y2 = pArr[i-1],
+												ymin = self.pMin, ymax = self.pMax)
+							self.ax.annotate(formatNumber(rho, sig = 2), 
+											xy = (hArr[i-2] / 1e3, pArr[i-2] / 1e5),
+											xytext=(-5, -5),
+											textcoords='offset points',
+											color='g', size="small", rotation = angle)
+						elif (hArr[i] > h_level_high):
+							angle = self.getLabelAngle(x1 = hArr[i-10], x2 = hArr[i-9],
+												xmin = self.hMin, xmax = self.hMax,
+												y1 = pArr[i-10], y2 = pArr[i-9],
+												ymin = self.pMin, ymax = self.pMax)
+							self.ax.annotate(formatNumber(rho, sig = 2), 
+											xy = (hArr[i-10] / 1e3, pArr[i-10] / 1e5),
+											xytext=(0, -5),
+											textcoords='offset points',
+											color='g', size="small", rotation = angle)
+					elif (i == len(TArr) - 1 and pArr[i] < self.pMax and pArr[i-1] > self.pMin):
 						angle = self.getLabelAngle(x1 = hArr[i-1], x2 = hArr[i],
-											xmin = self.hMin, xmax = self.hMax,
-											y1 = pArr[i-1], y2 = pArr[i],
-											ymin = self.pMin, ymax = self.pMax)
+												xmin = self.hMin, xmax = self.hMax,
+												y1 = pArr[i-1], y2 = pArr[i],
+												ymin = self.pMin, ymax = self.pMax)
 						self.ax.annotate(formatNumber(rho, sig = 2), 
-										xy = (hArr[i-1] / 1e3, pArr[i-1] / 1e5),
-										xytext=(0, -10),
+										xy = (hArr[i] / 1e3, pArr[i] / 1e5),
+										xytext=(-30, -10),
 										textcoords='offset points',
 										color='g', size="small", rotation = angle)
-					elif (hArr[i] > h_level_low and hArr[i] < h_level_high):
-						angle = self.getLabelAngle(x1 = hArr[i-2], x2 = hArr[i-1],
-											xmin = self.hMin, xmax = self.hMax,
-											y1 = pArr[i-2], y2 = pArr[i-1],
-											ymin = self.pMin, ymax = self.pMax)
-						self.ax.annotate(formatNumber(rho, sig = 2), 
-										xy = (hArr[i-2] / 1e3, pArr[i-2] / 1e5),
-										xytext=(-5, -5),
-										textcoords='offset points',
-										color='g', size="small", rotation = angle)
-					elif (hArr[i] > h_level_high):
-						angle = self.getLabelAngle(x1 = hArr[i-10], x2 = hArr[i-9],
-											xmin = self.hMin, xmax = self.hMax,
-											y1 = pArr[i-10], y2 = pArr[i-9],
-											ymin = self.pMin, ymax = self.pMax)
-						self.ax.annotate(formatNumber(rho, sig = 2), 
-										xy = (hArr[i-10] / 1e3, pArr[i-10] / 1e5),
-										xytext=(0, -5),
-										textcoords='offset points',
-										color='g', size="small", rotation = angle)
-				elif (i == len(TArr) - 1 and pArr[i] < self.pMax and pArr[i-1] > self.pMin):
-					angle = self.getLabelAngle(x1 = hArr[i-1], x2 = hArr[i],
-											xmin = self.hMin, xmax = self.hMax,
-											y1 = pArr[i-1], y2 = pArr[i],
-											ymin = self.pMin, ymax = self.pMax)
-					self.ax.annotate(formatNumber(rho, sig = 2), 
-									xy = (hArr[i] / 1e3, pArr[i] / 1e5),
-									xytext=(-30, -10),
-									textcoords='offset points',
-									color='g', size="small", rotation = angle)
+			except RuntimeError, e:
+				print '------------------'
+				print 'Runtime Warning for rho=%e'%rho 
+				print(e)
 			if (rho == rhoArr[0]):
 				self.ax.semilogy(hArr/1e3, pArr/1e5, 'g', label = 'density [kg/m3]')
 			else:
@@ -311,122 +328,132 @@ class PHDiagram(StateDiagram):
 		fSatV = FluidState(self.fluidName)
 		f1 = FluidState(self.fluidName)
 		for T in TArr:
-			f1.update_Tp(T, self.pMax)
-			if (T > self.critical.T):
-				rhoArr1 = np.logspace(np.log10(self.rhoMin), np.log10(self.critical.rho), num = 100)
-				rhoArr2 = np.logspace(np.log10(self.critical.rho), np.log10(f1.rho), num = 100)
-			else:
-				fSatL.update_Tq(T, 0)
-				fSatV.update_Tq(T, 1)
-				rhoArr1 = np.logspace(np.log10(self.rhoMin), np.log10(fSatV.rho), num = 100)
-				rhoArr2 = np.logspace(np.log10(fSatL.rho), np.log10(f1.rho), num = 100)
-			rhoArr = np.hstack((rhoArr1, rhoArr2))
-			hArr = np.zeros(len(rhoArr))
-			pArr = np.zeros(len(rhoArr))
-			for i in range(len(rhoArr)):
-				fState.update_Trho(T, rhoArr[i])
-				hArr[i] = fState.h
-				pArr[i] = fState.p
-				# Determining label location
-				if (T < self.critical.T):
-					if (i == len(rhoArr1)):
-						self.ax.annotate(formatNumber(T, sig = 2), 
-										xy = ((fSatL.h + fSatV.h) / 2. / 1e3, pArr[i] / 1e5),
-										xytext=(0, 3),
-										textcoords='offset points',
-										color='r', size="small")
+			try:
+				f1.update_Tp(T, self.pMax)
+				if (T > self.critical.T):
+					rhoArr1 = np.logspace(np.log10(self.rhoMin), np.log10(self.critical.rho), num = 100)
+					rhoArr2 = np.logspace(np.log10(self.critical.rho), np.log10(f1.rho), num = 100)
 				else:
-					if (i>0):
-						b = np.log10(self.pMin / 1e5) - self.minDiagonalSlope * self.hMin / 1e3
-						if (np.log10(pArr[i-1] / 1e5) - self.minDiagonalSlope * hArr[i-1] / 1e3 - b) * \
-							(np.log10(pArr[i] / 1e5) - self.minDiagonalSlope * hArr[i] / 1e3 - b) <= 0:
-							# Getting label rotation angle
-							angle = self.getLabelAngle(x1 = hArr[i-1], x2 = hArr[i],
-														xmin = self.hMin, xmax = self.hMax,
-														y1 = pArr[i-1], y2 = pArr[i],
-														ymin = self.pMin, ymax = self.pMax)
+					fSatL.update_Tq(T, 0)
+					fSatV.update_Tq(T, 1)
+					rhoArr1 = np.logspace(np.log10(self.rhoMin), np.log10(fSatV.rho), num = 100)
+					rhoArr2 = np.logspace(np.log10(fSatL.rho), np.log10(f1.rho), num = 100)
+				rhoArr = np.hstack((rhoArr1, rhoArr2))
+				hArr = np.zeros(len(rhoArr))
+				pArr = np.zeros(len(rhoArr))
+				for i in range(len(rhoArr)):
+					fState.update_Trho(T, rhoArr[i])
+					hArr[i] = fState.h
+					pArr[i] = fState.p
+					# Determining label location
+					if (T < self.critical.T):
+						if (i == len(rhoArr1)):
 							self.ax.annotate(formatNumber(T, sig = 2), 
-											xy = (hArr[i]/1e3, pArr[i]/1e5),
+											xy = ((fSatL.h + fSatV.h) / 2. / 1e3, pArr[i] / 1e5),
 											xytext=(0, 3),
 											textcoords='offset points',
-											color='r', size="small", rotation = angle)
-			
-			if (T == TArr[0]):
-				self.ax.semilogy(hArr/1e3, pArr/1e5, 'r', label = 'temperature [K]')
-			else:
-				self.ax.semilogy(hArr/1e3, pArr/1e5, 'r')
+											color='r', size="small")
+					else:
+						if (i>0):
+							b = np.log10(self.pMin / 1e5) - self.minDiagonalSlope * self.hMin / 1e3
+							if (np.log10(pArr[i-1] / 1e5) - self.minDiagonalSlope * hArr[i-1] / 1e3 - b) * \
+								(np.log10(pArr[i] / 1e5) - self.minDiagonalSlope * hArr[i] / 1e3 - b) <= 0:
+								# Getting label rotation angle
+								angle = self.getLabelAngle(x1 = hArr[i-1], x2 = hArr[i],
+															xmin = self.hMin, xmax = self.hMax,
+															y1 = pArr[i-1], y2 = pArr[i],
+															ymin = self.pMin, ymax = self.pMax)
+								self.ax.annotate(formatNumber(T, sig = 2), 
+												xy = (hArr[i]/1e3, pArr[i]/1e5),
+												xytext=(0, 3),
+												textcoords='offset points',
+												color='r', size="small", rotation = angle)
+				
+				if (T == TArr[0]):
+					self.ax.semilogy(hArr/1e3, pArr/1e5, 'r', label = 'temperature [K]')
+				else:
+					self.ax.semilogy(hArr/1e3, pArr/1e5, 'r')
+			except RuntimeError, e:
+				print '------------------'
+				print 'Runtime Warning for T=%e'%T 
+				print(e)
 	
 	def plotIsentrops(self):
 		fState = FluidState(self.fluid)
 		sArr = np.linspace(self.sMin, self.sMax, num = 20)
 		for s in sArr:
-			hArr = []
-			pArr = []
-			fState.update_ps(self.pMax, s)
-			if (fState.T > self.TMax):
-				fState.update_Ts(self.TMax, s)
-			T = fState.T
-			hArr.append(fState.h)
-			pArr.append(fState.p)
-			# Calculated v
-			v_res = fState.v
-			#print ('----------------------------------------')
-			#print ('s=%e'%s)
-			while (T > self.TMin):
-				_dvdT_s = - fState.dsdT_v / fState.dpdT_v
-				if math.isnan(_dvdT_s ):
-					break
-				TStep = - (self.critical.T / 200.) / (np.abs(_dvdT_s) + 1) 
-				T = T + TStep
-				if T < self.TMin:
-					break
-				v_res += _dvdT_s * TStep
-				fState.update_Trho(T, 1. / v_res)
-				p = fState.p
-				# If it goes out of the screen through the bottom
-				if (p < self.pMin):
-					break
-				# Calculated s
-				s_res = fState.s
-				# Correcting v
-				ds = s - s_res
-				sigma = ds * fState.dvds_T
-				v = v_res + sigma
-				fState.update_Trho(T, 1. / v)
-				#print(T, p/1e5, s_res, fState.s)
- 				#print ('rho: %e, T: %e, q: %e, s: %e'%(fState.rho, fState.T, fState.q, fState.s))
+			try:
+				hArr = []
+				pArr = []
+				fState.update_ps(self.pMax, s)
+				if (fState.T > self.TMax):
+					fState.update_Ts(self.TMax, s)
+				T = fState.T
 				hArr.append(fState.h)
 				pArr.append(fState.p)
-				##################
-				# Putting labels
-				i = len(hArr) - 1
-				b = np.log10(self.pMax / 1e5) - self.majDiagonalSlope * self.hMin / 1e3
-				if (np.log10(pArr[i-1] / 1e5) - self.majDiagonalSlope * hArr[i-1] / 1e3 - b) * \
-					(np.log10(pArr[i] / 1e5) - self.majDiagonalSlope * hArr[i] / 1e3 - b) <= 0:
-					angle = self.getLabelAngle(x1 = hArr[i-1], x2 = hArr[i],
-												xmin = self.hMin, xmax = self.hMax,
-												y1 = pArr[i-1], y2 = pArr[i],
-												ymin = self.pMin, ymax = self.pMax)
-					# Determining vertical offset off major diagonal
-					fig = self.ax.get_figure()
-					y_in = fig.get_size_inches()[1] 
-					y_pts = y_in * fig.get_dpi()
-					log_p_diag = self.majDiagonalSlope * hArr[i-1] / 1e3 + b
-					offest_y = - (np.log10(pArr[i-1] / 1e5) - log_p_diag) / np.log10(self.pMax/self.pMin) * y_pts
-					self.ax.annotate(formatNumber(s/1e3, sig = 3), 
-										xy = (hArr[i-1]/1e3, pArr[i-1]/1e5),
-										xytext=(2, offest_y),
-										textcoords='offset points',
-										color='m', size="small", rotation = angle)
-				#######################
-			hArr = np.array(hArr)
-			pArr = np.array(pArr)
-			#print("Num points: {}".format(len(pArr)))
-			#print("Final s: {}".format(fState.s))
-			if (s == sArr[0]):
-				self.ax.semilogy(hArr/1e3, pArr/1e5, 'm', label = "entropy [kJ/kg]")
-			else:
-				self.ax.semilogy(hArr/1e3, pArr/1e5, 'm')
+				# Calculated v
+				v_res = fState.v
+				#print ('----------------------------------------')
+				#print ('s=%e'%s)
+				while (T > self.TMin):
+					_dvdT_s = - fState.dsdT_v / fState.dpdT_v
+					if math.isnan(_dvdT_s ):
+						break
+					TStep = - (self.critical.T / 200.) / (np.abs(_dvdT_s) + 1) 
+					T = T + TStep
+					if T < self.TMin:
+						break
+					v_res += _dvdT_s * TStep
+					fState.update_Trho(T, 1. / v_res)
+					p = fState.p
+					# If it goes out of the screen through the bottom
+					if (p < self.pMin):
+						break
+					# Calculated s
+					s_res = fState.s
+					# Correcting v
+					ds = s - s_res
+					sigma = ds * fState.dvds_T
+					v = v_res + sigma
+					fState.update_Trho(T, 1. / v)
+					#print(T, p/1e5, s_res, fState.s)
+	 				#print ('rho: %e, T: %e, q: %e, s: %e'%(fState.rho, fState.T, fState.q, fState.s))
+					hArr.append(fState.h)
+					pArr.append(fState.p)
+					##################
+					# Putting labels
+					i = len(hArr) - 1
+					b = np.log10(self.pMax / 1e5) - self.majDiagonalSlope * self.hMin / 1e3
+					if (np.log10(pArr[i-1] / 1e5) - self.majDiagonalSlope * hArr[i-1] / 1e3 - b) * \
+						(np.log10(pArr[i] / 1e5) - self.majDiagonalSlope * hArr[i] / 1e3 - b) <= 0:
+						angle = self.getLabelAngle(x1 = hArr[i-1], x2 = hArr[i],
+													xmin = self.hMin, xmax = self.hMax,
+													y1 = pArr[i-1], y2 = pArr[i],
+													ymin = self.pMin, ymax = self.pMax)
+						# Determining vertical offset off major diagonal
+						fig = self.ax.get_figure()
+						y_in = fig.get_size_inches()[1] 
+						y_pts = y_in * fig.get_dpi()
+						log_p_diag = self.majDiagonalSlope * hArr[i-1] / 1e3 + b
+						offest_y = - (np.log10(pArr[i-1] / 1e5) - log_p_diag) / np.log10(self.pMax/self.pMin) * y_pts
+						self.ax.annotate(formatNumber(s/1e3, sig = 3), 
+											xy = (hArr[i-1]/1e3, pArr[i-1]/1e5),
+											xytext=(2, offest_y),
+											textcoords='offset points',
+											color='m', size="small", rotation = angle)
+					#######################
+				hArr = np.array(hArr)
+				pArr = np.array(pArr)
+				#print("Num points: {}".format(len(pArr)))
+				#print("Final s: {}".format(fState.s))
+				if (s == sArr[0]):
+					self.ax.semilogy(hArr/1e3, pArr/1e5, 'm', label = "entropy [kJ/kg]")
+				else:
+					self.ax.semilogy(hArr/1e3, pArr/1e5, 'm')
+			except RuntimeError, e:
+				print '------------------'
+				print 'Runtime Warning for s=%e'%s 
+				print e
 	
 	def draw(self, isotherms=True, isochores=True, isentrops=True, qIsolines=True):
 		fig = Figure(figsize=(16.0, 10.0))
@@ -460,16 +487,17 @@ def main():
 	# Critical point exits the plot to the right
 	problemPlots = ['n-Decane', 'n-Dodecane', 'D4', 'D5', 'D6', 'EthylBenzene', 'Isohexane','n-Hexane', 'MethylLinoleate','MethylLinolenate', 'MethylOleate', 'MethylPalmitate', 'MethylStearate', 'MD2M', 'MD3M', 'MD4M', 'MDM', 'MM', 'n-Nonane', 'n-Octane', 'n-Undecane', 'm-Xylene', 'o-Xylene', 'p-Xylene']
 	# Fluids throwing RuntimeError
-	RuntimeErrorFluids = ['Air', 'Fluorine', 'n-Heptane', 'n-Pentane', 'Neopentane', 'Propyne', 'R113', 'R1234ze(E)', 'R152A', 'R236EA']
+	ExcludedFluids = ['Air', 'Propyne', 'R1234ze(E)']
+	WarningFluids = ['Fluorine', 'R152A', 'R236EA']
 	
-	fluidList = ['ParaHydrogen']
+	fluidList = ['Fluorine', 'R152A', 'R236EA']
 	for i in range(len(fluidList)):
 		fluid = fluidList[i]
 		print("{}. Calculating with fluid '{}'".format(i, fluid))
-# 		#try:
+		#try:
 		diagram = PHDiagram(fluid)
 		diagram.setLimits()
-		diagram.draw()
+		diagram.draw(isotherms=True, isochores=True, isentrops=True, qIsolines=True)
 		#except RuntimeError, e:
 		#	print e
 if __name__ == '__main__':
