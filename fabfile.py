@@ -230,6 +230,9 @@ def installPipPackages():
 		# Matplotlib
 		'matplotlib',
 		'mpld3',
+		# Blist, provides some data structures based on B-trees
+		# like improved list, sortedlist, sortedset etc.
+		'blist',
 		# Finite volume solver
 		'ez_setup',
 		'fipy',
