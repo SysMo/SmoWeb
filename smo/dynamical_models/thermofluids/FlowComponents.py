@@ -25,7 +25,7 @@ class FluidPistonPump(dm.DynamicalModel):
 		self.flow.HDot = self.HDot
 
 class FluidHeater(dm.DynamicalModel):
-	def __init__(self, fluid):
+	def __init__(self, fluid, condModel = None):
 		self.fluid = fluid
 		self.fStateIn = FluidState(fluid)
 		self.fStateOut = FluidState(fluid)
@@ -35,7 +35,11 @@ class FluidHeater(dm.DynamicalModel):
 		self.portIn = FluidPort('C', self.fStateDown)
 		self.portOut = FluidPort('R', self.flowOut)
 		self.thermalPort = ThermalPort('R', self.heatOut)
-		self.conductionModel = lambda TFluid, TExt: 100.0
+		if (condModel == None):
+			self.condModel = lambda TFluid, TExt: 100.0
+		else:
+			self.condModel = condModel
+			
 
 	def setState(self):
 		self.fStateDown.update_Trho(self.portOut.state.T, self.portOut.state.rho)
@@ -47,7 +51,7 @@ class FluidHeater(dm.DynamicalModel):
 			self.fStateIn.update_ph(self.portOut.state.p, hIn)
 			self.Tin = self.fStateIn.T
 			TExt = self.thermalPort.state.T
-			cond = self.conductionModel(self.Tin, TExt)
+			cond = self.condModel(self.Tin, TExt)
 			self.QDot = cond * (self.Tin - TExt)
 			self.HDotOut = self.portIn.flow.HDot - self.QDot
 			hOut = self.HDotOut / self.mDot
