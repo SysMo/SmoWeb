@@ -91,13 +91,17 @@ class Simulation(Explicit_Problem):
 		hdfFile = h5py.File(filePath)		
 		self.resStorage = hdfFile[datasetPath]
 	
-	def exportToCsv(self, fileName = '../../data/SimulationResult.csv'):
+	def exportToCsv(self, fileName = '../../data/SimulationResult.csv', tPrint = None):
 		f = open(fileName, 'w')
 		f.write(",".join(self.resStorage.dtype.names))
 		f.write('\n')
-		for row in self.resStorage:
-			f.write(",".join(["{}".format(value) for value in row]))
-			f.write('\n')
+		if (tPrint is None):
+			for row in self.resStorage:
+				f.write(",".join(["{}".format(value) for value in row]))
+				f.write('\n')
+		else:
+			# Here the resampling code should be added
+			pass
 		f.close()
 
 	def prepareSimulation(self):
