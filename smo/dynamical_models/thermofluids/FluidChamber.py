@@ -54,7 +54,7 @@ class FluidChamber(dm.DynamicalModel):
 		self.TDot = (uDot - k2) / self.fState.cv;
 			
 
-def testFluidChamber():
+def testFluidChamber_Fueling():
 	from SourcesSinks import FlowSource
 
 	print "=== START: Test FluidChamber ==="
@@ -118,4 +118,4 @@ def testFluidChamber():
 
 
 if __name__ == '__main__':
-	testFluidChamber()
+	testFluidChamber_Fueling()
