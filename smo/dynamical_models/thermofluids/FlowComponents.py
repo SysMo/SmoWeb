@@ -39,6 +39,8 @@ class FluidHeater(dm.DynamicalModel):
 			self.condModel = lambda TFluid, TExt: 100.0
 		else:
 			self.condModel = condModel
+		self.TOut = 0
+		self.TIn = 0
 			
 
 	def setState(self):
@@ -52,11 +54,19 @@ class FluidHeater(dm.DynamicalModel):
 			self.Tin = self.fStateIn.T
 			TExt = self.thermalPort.state.T
 			cond = self.condModel(self.Tin, TExt)
+			
 			self.QDot = cond * (self.Tin - TExt)
 			self.HDotOut = self.portIn.flow.HDot - self.QDot
 			hOut = self.HDotOut / self.mDot
 			self.fStateOut.update_ph(self.portOut.state.p, hOut)
 			self.TOut = self.fStateOut.T
+			# Correction of the outlet temperature is too low or too high
+			if ((self.QDot < 0 and self.TOut > TExt) or (self.QDot > 0 and self.TOut < TExt)):
+				self.TOut = TExt
+				self.fStateOut.update_Tp(self.TOut, self.portOut.state.p)
+				self.HDotOut = self.mDot * self.fStateOut.h
+				self.QDot = self.portIn.flow.HDot - self.HDotOut
+				
 		else:
 			self.QDot = 0
 			self.HDotOut = 0
