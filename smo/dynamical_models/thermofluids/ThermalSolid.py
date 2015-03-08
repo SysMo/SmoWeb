@@ -6,7 +6,7 @@ Created on Feb 25, 2015
 '''
 
 import numpy as np
-import smo.dynamical_models.DynamicalModel as dm
+import smo.dynamical_models.core.DynamicalModel as dm
 from smo.math.util import Interpolator1D
 from smo.media.MaterialData import Solids
 from Structures import HeatFlow, ThermalState, ThermalPort

@@ -5,7 +5,7 @@ Created on Mar 4, 2015
 @copyright: SysMo Ltd., Bulgaria
 '''
 
-import smo.dynamical_models.DynamicalModel as dm
+import smo.dynamical_models.core.DynamicalModel as dm
 from Structures import FluidPort, ThermalPort
 
 class TwoPortHeatTransfer(dm.DynamicalModel):

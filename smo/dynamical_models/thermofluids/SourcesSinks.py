@@ -4,7 +4,7 @@ Created on Mar 4, 2015
 @author: Atanas Pavlov
 @copyright: SysMo Ltd., Bulgaria
 '''
-import smo.dynamical_models.DynamicalModel as dm
+import smo.dynamical_models.core.DynamicalModel as dm
 from smo.media.CoolProp.CoolProp import Fluid, FluidState
 from Structures import FluidFlow, FluidPort
 from Structures import ThermalPort,	ThermalState
