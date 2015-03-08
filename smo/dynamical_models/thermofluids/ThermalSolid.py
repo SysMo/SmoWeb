@@ -86,17 +86,11 @@ class SolidConductiveBody(dm.DynamicalModel):
 			self.T1Ext = self.port1.state.T
 		else:
 			self.Q1DotExt = self.port1.flow.QDot
-#			if self.segmentMass == 24:
-#				print "Liner: port1.flow.QDot = ", self.port1.flow.QDot, " self.Q1DotExt = ", self.Q1DotExt
 			
 		if (self.port2.portType == 'R'):
 			self.T2Ext = self.port2.state.T
 		else:
 			self.Q2DotExt = self.port2.flow.QDot
-#			if self.segmentMass == 24:
-#				print "Liner: port2.flow.QDot = ", self.port2.flow.QDot, " self.Q2DotExt = ", self.Q2DotExt
-#			if self.segmentMass == 8.5:
-#				print "Composite: port2.flow.QDot = ", self.port2.flow.QDot, " self.Q2DotExt = ", self.Q2DotExt
 		
 		self.TDot *= 0.0
 		# Compute heat capacities
@@ -107,12 +101,9 @@ class SolidConductiveBody(dm.DynamicalModel):
 			self.cond[0] = self.thermCondModel((self.T1Ext +  self.T[0])/2)
 			self.QDot[0] = self.cond[0] * self.conductionArea / self.segmentThickness * (self.T1Ext -  self.T[0])
 			self.TDot[0] += self.QDot[0] / (self.segmentMass * self.cp[0])
-#			if self.segmentMass == 8.5:
-#				print "Composite: QDot[0] = ", self.QDot[0]
 			a = 1
 		else:
 			self.TDot[0] += self.Q1DotExt / (self.segmentMass * self.cp[0])
-#			if self.segmentMass == 24: print "Liner: self.Q1DotExt = ", self.Q1DotExt
 			a = 0
 
 		if (self.port2.portType == 'R'):
@@ -122,7 +113,6 @@ class SolidConductiveBody(dm.DynamicalModel):
 			b = 1
 		else:
 			self.TDot[-1] += self.Q2DotExt / (self.segmentMass * self.cp[-1])
-#			if self.segmentMass == 24: print "Liner: self.Q2DotExt = ", self.Q2DotExt
 			b = 0
 			
 		for i in range(a, self.numConductiveSegments - b):
@@ -137,6 +127,7 @@ class SolidConductiveBody(dm.DynamicalModel):
 			self.port1.flow.QDot = -self.Q1DotExt
 		else:			
 			pass # Already done in setState 
+		
 		if (self.port2.portType == 'R'):
 			self.Q2DotExt = self.QDot[-1]
 			self.port2.flow.QDot = -self.Q2DotExt
