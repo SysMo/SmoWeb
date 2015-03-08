@@ -54,7 +54,7 @@ class FluidChamber(dm.DynamicalModel):
 		self.TDot = (uDot - k2) / self.fState.cv;
 			
 
-def testFluidChamber():
+def testFluidChamber_Fueling():
 	from SourcesSinks import FlowSource
 
 	print "=== START: Test FluidChamber ==="
@@ -66,8 +66,8 @@ def testFluidChamber():
 	csv_writer.writerow(["Time[s]", "Tank pressure [bar]", "Tank temperature [K]", "Tank density [kg/m**3]", "Inlet enthalpy flow rate [W]"])
 	
 	# Parameters
-	mDot = 75./3600 #[kg/s]
-	Tin = 63.0 #[K]
+	mDot = 50./3600 #[kg/s]
+	Tin = 250.0 #[K]
 
 	# Create Fluid
 	fluid = Fluid('ParaHydrogen')
@@ -75,13 +75,13 @@ def testFluidChamber():
 	fluidSource = FlowSource(fluid, mDot = mDot, TOut = Tin)
 	# Create tank
 	tank = FluidChamber(fluid)
-	tank.V = 0.1155 #[m**3] 115.5 L
+	tank.V = 0.100 #[m**3] 100 L
 	# Connect tank and flow source
 	tank.fluidPort.connect(fluidSource.port1)
 	
 	# Initial tank state
 	TTank_init = 300 #[K]
-	pTank_init = 20e5 #[Pa]
+	pTank_init = 2e5 #[Pa]
 	tank.initialize(TTank_init, pTank_init)
 	rhoTank = tank.fState.rho
 	TTank = tank.fState.T
@@ -107,7 +107,7 @@ def testFluidChamber():
 				
 		# Compute tank
 		tank.compute()
-		if (tank.p > 300e5):
+		if (tank.p > 200e5):
 			break
 		TTank += tank.TDot * dt
 		rhoTank += tank.rhoDot *dt
@@ -118,4 +118,4 @@ def testFluidChamber():
 
 
 if __name__ == '__main__':
-	testFluidChamber()
+	testFluidChamber_Fueling()

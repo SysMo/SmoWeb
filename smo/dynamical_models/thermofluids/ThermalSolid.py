@@ -67,6 +67,7 @@ class SolidConductiveBody(dm.DynamicalModel):
 			self.port1 = ThermalPort(port1Type, ThermalState())
 		else:
 			self.port1 = ThermalPort(port1Type)
+			
 		if (port2Type == 'C'):
 			self.port2 = ThermalPort(port2Type, ThermalState())
 		else:
@@ -85,6 +86,7 @@ class SolidConductiveBody(dm.DynamicalModel):
 			self.T1Ext = self.port1.state.T
 		else:
 			self.Q1DotExt = self.port1.flow.QDot
+			
 		if (self.port2.portType == 'R'):
 			self.T2Ext = self.port2.state.T
 		else:
@@ -122,10 +124,13 @@ class SolidConductiveBody(dm.DynamicalModel):
 		# Write port variables
 		if (self.port1.portType == 'R'):
 			self.Q1DotExt = self.QDot[0]
+			self.port1.flow.QDot = -self.Q1DotExt
 		else:			
 			pass # Already done in setState 
+		
 		if (self.port2.portType == 'R'):
 			self.Q2DotExt = self.QDot[-1]
+			self.port2.flow.QDot = -self.Q2DotExt
 		else:			
 			pass # Already done in setState 
 
@@ -137,23 +142,12 @@ def testSolidConductiveBody():
 	import pylab as plt
 	numbMassSegments = 4
 	
-	# Tank (Liner)
-	scBody_Liner = SolidConductiveBody(
-			material = 'Aluminium6061', 
-			mass = 24., #[kg]
-			thickness = 0.004, #[m]
-			conductionArea = 1.8, #[m**2]
-			port1Type = 'R', port2Type = 'C', 
-			numMassSegments = 1, 
-			TInit = 300 #[K]
-			)
-	
 	# Tank (composite)
 	scBody = SolidConductiveBody(
 			material = 'CarbonFiberComposite', 
-			mass = 34., #[kg]
-			thickness = 0.0105, #[m]
-			conductionArea = 1.8, #[m**2]
+			mass = 100., #[kg]
+			thickness = 0.01, #[m]
+			conductionArea = 10, #[m**2]
 			port1Type = 'R', port2Type = 'C', 
 			numMassSegments = numbMassSegments, 
 			TInit = 300 #[K]

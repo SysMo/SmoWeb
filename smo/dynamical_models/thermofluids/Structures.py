@@ -80,6 +80,7 @@ class RCPort(Port):
 			self.portType = portType
 		else:
 			raise ValueError("portType for {} port must be 'C' or 'R', {} given instead".format(self.portDomain, portType))
+		
 		if (portType == 'C'):
 			if (outVar is None):
 				raise ValueError("A 'C' type port must be given a state instance")
