@@ -122,27 +122,37 @@ class CompressionExpansionModel(NumericalModel):
         return self.__dict__[prefix + sVarDict[sVar] + suffix]
 
     def compute(self):
-        if self.transitionType == 'S':
-            process = IsentropicExpansion(self.fluidName, self.eta, self.heatOutFraction)
+        initState = FluidState(self.fluidName)
         
-        initState = process.initState
-
         # Compute initial state
         initState.update(
                 self.stateVariable1, self.getStateValue(self.stateVariable1, suffix = "1"), 
                 self.stateVariable2, self.getStateValue(self.stateVariable2, suffix = "2")
         )
+        self.T_i = initState.T
+        self.p_i = initState.p
+        self.rho_i = initState.rho
+        self.h_i = initState.h
+        self.s_i = initState.s
+        self.q_i = initState.q
+        self.u_i = initState.u
         
-        if self.transitionType == 'S':
-            process.compute_process(p_final = self.p_final, mDot = self.mDot)
-        
-        self.T_i = process.T_i
-        self.p_i = process.p_i
-        self.rho_i = process.rho_i
-        self.h_i = process.h_i
-        self.s_i = process.s_i
-        self.q_i = process.q_i
-        self.u_i = process.u_i
+        if self.p_final >= initState.p:
+            if self.transitionType == 'S':
+                process = IsentropicExpansion(self.fluidName, self.eta, self.heatOutFraction)
+                process.initState = initState
+                process.compute_process(p_final = self.p_final, mDot = self.mDot)
+            elif self.transitionType == 'H':
+                pass
+            elif self.transitionType == 'T':
+                pass
+        else:
+            if self.transitionType == 'S':
+                pass
+            elif self.transitionType == 'H':
+                pass
+            elif self.transitionType == 'T':
+                pass
         
         self.T_f = process.T_f
         self.p_f = process.p_f
