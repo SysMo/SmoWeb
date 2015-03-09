@@ -405,10 +405,11 @@ class PHDiagramModel(NumericalModel):
 	# Fields
 	fluidName = Choices(PHDiagramFluids, default = 'ParaHydrogen', label = 'fluid')
 	isotherms = Boolean(label = 'isotherms')
+	temperatureUnit = Choices(OrderedDict((('K', 'K'), ('degC', 'degC'))), default = 'K', label="temperature unit", show="self.isotherms == true")
 	isochores = Boolean(label = 'isochores')
 	isentrops = Boolean(label = 'isentrops')
 	qIsolines = Boolean(label = 'vapor quality isolines')
-	diagramInputs = FieldGroup([fluidName, isotherms, isochores, isentrops, qIsolines], 
+	diagramInputs = FieldGroup([fluidName, isotherms, temperatureUnit, isochores, isentrops, qIsolines], 
 								label = 'Diagram')
 	
 	defaultMaxP = Boolean(label = 'default max pressure')
@@ -442,14 +443,14 @@ class PHDiagramModel(NumericalModel):
 	modelBlocks = [warning, inputView, resultView]
 	
 	def compute(self):
-		diagram = PHDiagram(self.fluidName)
+		diagram = PHDiagram(self.fluidName, temperatureUnit = self.temperatureUnit)
 		pMax, TMax = None, None
 		if not self.defaultMaxP:
 			pMax = self.maxPressure
 		if not self.defaultMaxT:
 			TMax = self.maxTemperature
 		diagram.setLimits(pMax = pMax, TMax = TMax)
-		fHandle, resourcePath  = diagram.draw(isotherms=self.isotherms, 
+		fHandle, resourcePath  = diagram.draw(isotherms=self.isotherms,
 												isochores=self.isochores, 
 												isentrops=self.isentrops, 
 												qIsolines=self.qIsolines)

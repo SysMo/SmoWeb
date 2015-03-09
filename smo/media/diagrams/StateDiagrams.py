@@ -144,6 +144,10 @@ class StateDiagram(object):
 		return math.degrees(math.atan(0.7 * frac_range_y / frac_range_x))
 
 class PHDiagram(StateDiagram):
+	def __init__(self, fluidName, temperatureUnit = 'K'):
+		super(PHDiagram, self).__init__(fluidName)
+		self.temperatureUnit = temperatureUnit
+	
 	def setLimits(self, pMin = None, pMax = None,  hMin = None, hMax = None, TMax = None):
 		# Reference points
 		self.minLiquid = FluidState(self.fluid)
@@ -323,11 +327,14 @@ class PHDiagram(StateDiagram):
 		TArr = np.logspace(np.log10(self.TMin), np.log10(self.TMax), num = 20)
 		TOrders = np.floor(np.log10(TArr))
 		TArr = np.ceil(TArr / 10**(TOrders - 2)) * 10**(TOrders - 2)
-		
 		fSatL = FluidState(self.fluidName)
 		fSatV = FluidState(self.fluidName)
 		f1 = FluidState(self.fluidName)
 		for T in TArr:
+			if self.temperatureUnit == 'degC':
+				T_label = T  - 273.15
+			else:
+				T_label = T
 			try:
 				f1.update_Tp(T, self.pMax)
 				if (T > self.critical.T):
@@ -348,7 +355,7 @@ class PHDiagram(StateDiagram):
 					# Determining label location
 					if (T < self.critical.T):
 						if (i == len(rhoArr1)):
-							self.ax.annotate(formatNumber(T, sig = 2), 
+							self.ax.annotate(formatNumber(T_label, sig = 3), 
 											xy = ((fSatL.h + fSatV.h) / 2. / 1e3, pArr[i] / 1e5),
 											xytext=(0, 3),
 											textcoords='offset points',
@@ -363,14 +370,18 @@ class PHDiagram(StateDiagram):
 															xmin = self.hMin, xmax = self.hMax,
 															y1 = pArr[i-1], y2 = pArr[i],
 															ymin = self.pMin, ymax = self.pMax)
-								self.ax.annotate(formatNumber(T, sig = 2), 
+								self.ax.annotate(formatNumber(T_label, sig = 3), 
 												xy = (hArr[i]/1e3, pArr[i]/1e5),
 												xytext=(0, 3),
 												textcoords='offset points',
 												color='r', size="small", rotation = angle)
 				
 				if (T == TArr[0]):
-					self.ax.semilogy(hArr/1e3, pArr/1e5, 'r', label = 'temperature [K]')
+					if self.temperatureUnit == 'degC':
+						label = "temperature [C]"
+					else:
+						label = "temperature [K]"
+					self.ax.semilogy(hArr/1e3, pArr/1e5, 'r', label = label)
 				else:
 					self.ax.semilogy(hArr/1e3, pArr/1e5, 'r')
 			except RuntimeError, e:
