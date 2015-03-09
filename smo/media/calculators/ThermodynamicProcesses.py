@@ -49,10 +49,10 @@ class ThermodynamicProcess(object):
 		
 		# Compute works and heat
 		self.wIdeal = finalState.h - self.initState.h
-		if self.processType == "expansion":
+		if self.processType == "compression":
 			self.wReal = self.wIdeal / self.eta
 			wExtra = self.wReal - self.wIdeal
-		elif self.processType == "compression":
+		elif self.processType == "expansion":
 			self.wReal = self.wIdeal * self.eta
 			wExtra = self.wIdeal - self.wReal
 		self.qOut = wExtra * self.heatOutFraction
