@@ -24,7 +24,7 @@ TransitionType = OrderedDict((
 ))
 
 
-from smo.media.calculators.ThermodynamicProcesses import IsentropicExpansion
+from smo.media.calculators.ThermodynamicProcesses import IsentropicExpansion, IsentropicCompression
 class CompressionExpansionModel(NumericalModel):
     label = "Compression / Expansion"
     
@@ -140,19 +140,29 @@ class CompressionExpansionModel(NumericalModel):
         if self.p_final >= initState.p:
             if self.transitionType == 'S':
                 process = IsentropicExpansion(self.fluidName, self.eta, self.heatOutFraction)
-                process.initState = initState
-                process.compute_process(p_final = self.p_final, mDot = self.mDot)
+                finalStateVariable = 'P'
+                finalStateVariableValue = self.getStateValue(finalStateVariable, suffix = "_final")
+#                 process.initState = initState
+#                 process.compute_process(p_final = self.p_final, mDot = self.mDot)
             elif self.transitionType == 'H':
                 pass
             elif self.transitionType == 'T':
                 pass
         else:
             if self.transitionType == 'S':
-                pass
+                process = IsentropicCompression(self.fluidName, self.eta, self.heatOutFraction)
+                finalStateVariable = 'P'
+                finalStateVariableValue = self.getStateValue(finalStateVariable, suffix = "_final")
             elif self.transitionType == 'H':
                 pass
             elif self.transitionType == 'T':
                 pass
+        
+        process.initState = initState
+        process.compute_process(constantStateVariable = self.transitionType, 
+                                finalStateVariable = finalStateVariable, 
+                                finalStateVariableValue = finalStateVariableValue, 
+                                mDot = self.mDot)
         
         self.T_f = process.T_f
         self.p_f = process.p_f

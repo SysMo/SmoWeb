@@ -230,12 +230,11 @@ class PHDiagram(StateDiagram):
 					fState.update_pq(p[i], q)
 					h[i] = fState.h
 				# Putting labels
-				angle = self.getLabelAngle(x1 = h[9], x2 = h[10],
+				if '{:1.1f}'.format(q) in qLabels:
+					angle = self.getLabelAngle(x1 = h[9], x2 = h[10],
 											xmin = self.hMin, xmax = self.hMax,
 											y1 = p[9], y2 = p[10],
 											ymin = self.pMin, ymax = self.pMax)
-				
-				if '{:1.1f}'.format(q) in qLabels:
 					self.ax.annotate("{:1.1f}".format(q), 
 									xy = (h[10]/ 1e3, p[10] / 1e5),
 									xytext=(-12, 0),
@@ -313,14 +312,14 @@ class PHDiagram(StateDiagram):
 										xytext=(-30, -10),
 										textcoords='offset points',
 										color='g', size="small", rotation = angle)
+				if (rho == rhoArr[0]):
+					self.ax.semilogy(hArr/1e3, pArr/1e5, 'g', label = 'density [kg/m3]')
+				else:
+					self.ax.semilogy(hArr/1e3, pArr/1e5, 'g')
 			except RuntimeError, e:
 				print '------------------'
 				print 'Runtime Warning for rho=%e'%rho 
 				print(e)
-			if (rho == rhoArr[0]):
-				self.ax.semilogy(hArr/1e3, pArr/1e5, 'g', label = 'density [kg/m3]')
-			else:
-				self.ax.semilogy(hArr/1e3, pArr/1e5, 'g')
 		
 	def plotIsotherms(self):
 		fState = FluidState(self.fluid)
@@ -458,7 +457,7 @@ class PHDiagram(StateDiagram):
 				#print("Num points: {}".format(len(pArr)))
 				#print("Final s: {}".format(fState.s))
 				if (s == sArr[0]):
-					self.ax.semilogy(hArr/1e3, pArr/1e5, 'm', label = "entropy [kJ/kg]")
+					self.ax.semilogy(hArr/1e3, pArr/1e5, 'm', label = "entropy [kJ/kg-K]")
 				else:
 					self.ax.semilogy(hArr/1e3, pArr/1e5, 'm')
 			except RuntimeError, e:
