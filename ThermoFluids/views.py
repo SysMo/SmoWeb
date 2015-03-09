@@ -26,11 +26,11 @@ class FluidPropsCalculatorView(ModularPageView):
 		else:
 			return fpc.modelView2Json(fpc.resultView)
 	
-from smo.media.calculators.ThermodynamicProcess import ThermodynamicProcess
+from ThermoFluids.models.ThermodynamicProcessesModels import CompressionExpansionModel, HeatingCoolingModel
 @registerView(router)
 class ThermodynamicProcessView(ModularPageView):
 	label = "Thermodynamic processes"
-	modules = [ThermodynamicProcess]
+	modules = [CompressionExpansionModel, HeatingCoolingModel]
 
 from .models.PipeFlowModel import PipeFlowModel, PipeFlowDoc
 @registerView(router)
