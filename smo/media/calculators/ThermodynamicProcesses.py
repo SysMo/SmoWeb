@@ -12,7 +12,8 @@ class ThermodynamicProcess(object):
 		sVarDict = {'P': 'p', 'T': 'T', 'D': 'rho', 'H': 'h', 'S': 's', 'Q': 'q'}
 		return self.__dict__[prefix + sVarDict[sVar] + suffix]
 	
-	def compute(self, constantStateVariable, finalStateVariable, finalStateVariableValue, mDot):
+	def compute(self, finalStateVariable, finalStateVariableValue, mDot = None, initState = None):
+		
 		finalState = FluidState(self.fluidName)
 		
 		self.T_i = self.initState.T
@@ -23,7 +24,7 @@ class ThermodynamicProcess(object):
 		self.q_i = self.initState.q
 		self.u_i = self.initState.u
 		
-		finalState.update(constantStateVariable, self.getStateValue(constantStateVariable, suffix="_i"),
+		finalState.update(self.constantStateVariable, self.getStateValue(self.constantStateVariable, suffix="_i"),
 							finalStateVariable, finalStateVariableValue)
 		
 		# Compute works and heat
@@ -55,43 +56,76 @@ class ThermodynamicProcess(object):
 		self.q_f = finalState.q
 		self.u_f = finalState.u
 
-		# Compute energy flows
-		self.wDotIdeal = self.wIdeal * mDot
-		self.wDotReal = self.wReal * mDot
-		self.deltaHDot = self.deltaH * mDot
-		self.qDotOut = self.qOut * mDot
-		self.qDotFluid = self.qFluid * mDot
+		if mDot is not None:
+			# Compute energy flows
+			self.wDotIdeal = self.wIdeal * mDot
+			self.wDotReal = self.wReal * mDot
+			self.deltaHDot = self.deltaH * mDot
+			self.qDotOut = self.qOut * mDot
+			self.qDotFluid = self.qFluid * mDot
+			
+		return finalState
+		
+	def draw(self, fig, finalStateVariable, finalStateVariableValue, numPoints = 5):
+		if finalStateVariable != 'Q':
+			stateVariableArr = np.logspace(np.log10(self.getStateValue(finalStateVariable, suffix="_i")), np.log10(finalStateVariableValue), num = numPoints)
+		else:
+			stateVariableArr = np.arange(self.getStateValue(finalStateVariable, suffix="_i"), finalStateVariableValue, numPoints)
+			
+		pArr = np.zeros(len(stateVariableArr))
+		hArr = np.zeros(len(stateVariableArr))
+		
+		hArr[0] = self.initState.h
+		pArr[0] = self.initState.p
+		
+		fState = self.initState
+		for i in range(1, len(stateVariableArr)):
+			fState = self.compute(finalStateVariable = finalStateVariable, 
+							finalStateVariableValue = stateVariableArr[i], initState = fState)
+			hArr[i] = fState.h
+			pArr[i] = fState.p
+		
+		print hArr/1e3
+		print pArr/1e5
+		ax = fig.get_axes()[0]
+		ax.semilogy(hArr/1e3, pArr/1e5, color = 'black', linewidth = 2)
+		
+		return fig
 
 class IsentropicExpansion(ThermodynamicProcess):
 	def __init__(self, fluidName, eta, heatOutFraction):
 		super(IsentropicExpansion, self).__init__(fluidName, eta, heatOutFraction)
 		self.processType = "expansion"
+		self.constantStateVariable = 'S'
 
 class IsentropicCompression(ThermodynamicProcess):
 	def __init__(self, fluidName, eta, heatOutFraction):
 		super(IsentropicCompression, self).__init__(fluidName, eta, heatOutFraction)
 		self.processType = "compression"
+		self.constantStateVariable = 'S'
 		
 class IsothermalExpansion(ThermodynamicProcess):
 	def __init__(self, fluidName, eta, heatOutFraction):
 		super(IsothermalExpansion, self).__init__(fluidName, eta, heatOutFraction)
 		self.processType = "expansion"
+		self.constantStateVariable = 'T'
 
 class IsothermalCompression(ThermodynamicProcess):
 	def __init__(self, fluidName, eta, heatOutFraction):
 		super(IsothermalCompression, self).__init__(fluidName, eta, heatOutFraction)
 		self.processType = "compression"
+		self.constantStateVariable = 'T'
 		
 class IsenthalpicExpansion(ThermodynamicProcess):
 	def __init__(self, fluidName, eta, heatOutFraction):
 		super(IsenthalpicExpansion, self).__init__(fluidName, eta, heatOutFraction)
 		self.processType = "expansion"
+		self.constantStateVariable = 'H'
 
-from smo.media.diagrams.StateDiagrams import PHDiagram
-import os
 class HeatingCooling(ThermodynamicProcess):
 	def __init__(self, fluidName):
 		super(HeatingCooling, self).__init__(fluidName)
+		self.constantStateVariable = 'P'
 	
 	def compute(self, finalStateVariable, finalStateVariableValue, mDot = None, initState = None):
 		finalState = FluidState(self.fluidName)
@@ -118,40 +152,11 @@ class HeatingCooling(ThermodynamicProcess):
 		self.q_f = finalState.q
 		self.u_f = finalState.u
 		
+		# Compute heat
+		self.qOut = self.h_f - self.h_i
+		
 		if mDot is not None:
-			# Compute heat
-			self.qOut = self.h_f - self.h_i
-			
 			# Compute heat flow
 			self.qDotOut = self.qOut * mDot
 		
-		return finalState
-		
-	def draw(self, fig, finalStateVariable, finalStateVariableValue, numPoints = 5):
-		if finalStateVariable == 'T':
-			stateVariableArr = np.logspace(np.log10(self.initState.T), np.log10(finalStateVariableValue), num = numPoints)
-		elif finalStateVariable == 'Q':
-			stateVariableArr = np.arange(self.initState.q, finalStateVariableValue, numPoints)
-			
-		pArr = np.zeros(len(stateVariableArr))
-		hArr = np.zeros(len(stateVariableArr))
-		
-		hArr[0] = self.initState.h
-		pArr[0] = self.initState.p
-		
-		fState = self.initState
-		for i in range(1, len(stateVariableArr)):
-			fState = self.compute(finalStateVariable = finalStateVariable, 
-							finalStateVariableValue = stateVariableArr[i], initState = fState)
-			
-			hArr[i] = fState.h
-			pArr[i] = fState.p
-					
-		ax = fig.get_axes()[0]
-		ax.semilogy(hArr/1e3, pArr/1e5, color = 'black', linewidth = 2)
-		
-		return fig
-			
-			
-		
-		
+		return finalState	

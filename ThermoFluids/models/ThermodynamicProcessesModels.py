@@ -145,10 +145,9 @@ class CompressionExpansionModel(NumericalModel):
                 process = IsothermalExpansion(self.fluidName, self.eta, self.heatOutFraction)
         
         process.initState = initState
-        process.compute(constantStateVariable = self.transitionType, 
-                                finalStateVariable = 'P', 
-                                finalStateVariableValue = self.p_final, 
-                                mDot = self.mDot)
+        process.compute(finalStateVariable = 'P', 
+                        finalStateVariableValue = self.p_final, 
+                        mDot = self.mDot)
         
         self.T_f = process.T_f
         self.p_f = process.p_f
@@ -168,6 +167,17 @@ class CompressionExpansionModel(NumericalModel):
         self.deltaHDot = process.deltaHDot
         self.qDotOut = process.qDotOut
         self.qDotFluid = process.qDotFluid
+        
+        diagram = PHDiagram(self.fluidName, temperatureUnit = 'degC')
+        diagram.setLimits()
+        diagramFig  = diagram.draw()
+        
+        processFig = process.draw(fig = diagramFig, 
+                     finalStateVariable = 'P', 
+                     finalStateVariableValue = self.p_final, 
+                     numPoints = 10)
+        
+        diagram.export(processFig)
 
 from smo.media.calculators.ThermodynamicProcesses import HeatingCooling
 class HeatingCoolingModel(NumericalModel):
