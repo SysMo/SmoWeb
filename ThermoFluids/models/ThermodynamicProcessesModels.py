@@ -16,9 +16,7 @@ StateVariableOptions = OrderedDict((
 ))
 
 TransitionType = OrderedDict((
-    #('P', 'isobaric (const. p)'),
     ('T', 'isothermal (const. T)'),
-    #('D', 'isochoric (const. v)'),
     ('H', 'isenthalpic (const. h)'),
     ('S', 'isentropic (const. s)'),
 ))
@@ -30,9 +28,7 @@ from smo.media.calculators.ThermodynamicProcesses import IsentropicExpansion, Is
 class CompressionExpansionModel(NumericalModel):
     label = "Compression / Expansion"
     
-    # 1. ############ Inputs ###############
-    # 1.1 Input values
-    
+    ############ Inputs ###############
     fluidName = Choices(options = Fluids, default = 'ParaHydrogen', label = 'fluid')    
     stateVariable1 = Choices(options = StateVariableOptions, default = 'P', label = 'first state variable')
     p1 = Quantity('Pressure', default = (1, 'bar'), label = 'pressure', show="self.stateVariable1 == 'P'")
@@ -52,13 +48,7 @@ class CompressionExpansionModel(NumericalModel):
     initialState = FieldGroup([fluidName, stateVariable1, p1, T1, rho1, h1, s1, q1, stateVariable2, p2, T2, rho2, h2, s2, q2, mDot], label = 'Initial state')
 
     transitionType = Choices(options = TransitionType, default = 'S', label = "process type")
-#     stateVariable_final = Choices(options = OrderedDict((('T', 'temperature (T)'), ('Q', 'vapor quality (Q)'))), 
-#                                     default = 'T', label = 'state variable', show="self.transitionType == 'T'")    
     p_final = Quantity('Pressure', default = (1, 'bar'), label = 'pressure')
-#     T_final = Quantity('Temperature', default = (300, 'K'), label = 'temperature', 
-#                         show="self.transitionType == 'T' && self.stateVariable_final == 'T'")
-#     q_final = Quantity('VaporQuality', default = (1, '-'), minValue = 0, maxValue = 1, label = 'vapour quality', 
-#                         show="self.transitionType == 'T' && self.stateVariable_final == 'Q'")
     eta = Quantity(default = 1, minValue = 0, maxValue = 1, label = 'efficiency')
     heatOutFraction = Quantity(default = 0.1, minValue = 0, maxValue = 1, label = 'released heat fraction')
     finalState = FieldGroup([transitionType, p_final, eta, heatOutFraction], label = 'Final state')
@@ -201,10 +191,15 @@ class HeatingCoolingModel(NumericalModel):
     q2 = Quantity('VaporQuality', default = (1, '-'), minValue = 0, maxValue = 1, label = 'vapour quality', show="self.stateVariable2 == 'Q'")
     mDot = Quantity('MassFlowRate', default = (1, 'kg/h'), label = 'mass flow')
     initialState = FieldGroup([fluidName, stateVariable1, p1, T1, rho1, h1, s1, q1, stateVariable2, p2, T2, rho2, h2, s2, q2, mDot], label = 'Initial state')
-
-    T_final = Quantity('Temperature', default = (300, 'K'), label = 'temperature')
-    q_final = Quantity('VaporQuality', label = 'vapor quality')
-    finalState = FieldGroup([T_final, q_final], label = 'Final state')
+    
+    stateVariable_final = Choices(options = OrderedDict((('T', 'temperature (T)'), ('Q', 'vapor quality (Q)'))), 
+                                    default = 'T', label = 'state variable')    
+    T_final = Quantity('Temperature', default = (300, 'K'), label = 'temperature', 
+                       show="self.stateVariable_final == 'T'")
+    q_final = Quantity('VaporQuality', default = (1, '-'), minValue = 0, maxValue = 1, label = 'vapour quality', 
+                      show="self.stateVariable_final == 'Q'")
+    finalState = FieldGroup([stateVariable_final, T_final, q_final], label = 'Final state')
+    
     inputs = SuperGroup([initialState, finalState])
     
     # Actions
@@ -214,15 +209,78 @@ class HeatingCoolingModel(NumericalModel):
     # Model View
     inputView = ModelView(ioType = "input", superGroups = [inputs], 
         actionBar = inputActionBar, autoFetch = True)
-    
+
     ############# Results ###############
+    # Initial state
+    T_i = Quantity('Temperature', label = 'temperature')
+    p_i = Quantity('Pressure', label = 'pressure')
+    rho_i = Quantity('Density', label = 'density')
+    h_i = Quantity('SpecificEnthalpy', label = 'specific enthalpy')
+    s_i = Quantity('SpecificEntropy', label = 'specific entropy')
+    q_i = Quantity('VaporQuality', label = 'vapor quality')
+    u_i = Quantity('SpecificInternalEnergy', label = 'specific internal energy')    
+    initialStateResults = FieldGroup([T_i, p_i, rho_i, h_i, s_i, q_i, u_i], label = 'Initial state')
+
+    # Final state
+    T_f = Quantity('Temperature', label = 'temperature')
+    p_f = Quantity('Pressure', label = 'pressure')
+    rho_f = Quantity('Density', label = 'density')
+    h_f = Quantity('SpecificEnthalpy', label = 'specific enthalpy')
+    s_f = Quantity('SpecificEntropy', label = 'specific entropy')
+    q_f = Quantity('VaporQuality', label = 'vapor quality')
+    u_f = Quantity('SpecificInternalEnergy', label = 'specific internal energy')    
+    finalStateResults = FieldGroup([T_f, p_f, rho_f, h_f, s_f, q_f, u_f], label = 'Final state')
+    
+    stateResults = SuperGroup([initialStateResults, finalStateResults], label = "States")
+    # Specific enetry quantities
+    qOut = Quantity('SpecificEnergy', label = "heat released")
+    specificEnergyResults = FieldGroup([qOut], label = "Heat/work (specific quantities)")
+    # Energy flow quantities
+    qDotOut = Quantity('HeatFlowRate', label = "heat released")
+    energyFlowResults = FieldGroup([qDotOut], label = "Heat/work flows")
+
+    energyBalanceResults = SuperGroup([specificEnergyResults, energyFlowResults], label = "Energy balance")
     
     # Model View
-    resultView = ModelView(ioType = "output", superGroups = [])
+    resultView = ModelView(ioType = "output", superGroups = [stateResults, energyBalanceResults])
 
     ############# Page structure ########
     modelBlocks = [inputView, resultView]
-    
+
     ############# Methods ###############
+    def getStateValue(self, sVar, prefix = "", suffix=""):
+        sVarDict = {'P': 'p', 'T': 'T', 'D': 'rho', 'H': 'h', 'S': 's', 'Q': 'q'}
+        return self.__dict__[prefix + sVarDict[sVar] + suffix]
+    
     def compute(self):
-        pass
+        initState = FluidState(self.fluidName)
+        
+        # Compute initial state
+        initState.update(
+                self.stateVariable1, self.getStateValue(self.stateVariable1, suffix = "1"), 
+                self.stateVariable2, self.getStateValue(self.stateVariable2, suffix = "2")
+        )
+        self.T_i = initState.T
+        self.p_i = initState.p
+        self.rho_i = initState.rho
+        self.h_i = initState.h
+        self.s_i = initState.s
+        self.q_i = initState.q
+        self.u_i = initState.u
+        
+        process = HeatingCooling(self.fluidName)
+        process.initState = initState
+        process.compute(finalStateVariable = self.stateVariable_final, 
+                        finalStateVariableValue = self.getStateValue(self.stateVariable_final, suffix = "_final"), 
+                        mDot = self.mDot)
+        
+        self.T_f = process.T_f
+        self.p_f = process.p_f
+        self.rho_f = process.rho_f
+        self.h_f = process.h_f
+        self.s_f = process.s_f
+        self.q_f = process.q_f
+        self.u_f = process.u_f
+        
+        self.qOut = process.qOut
+        self.qDotOut = process.qDotOut
