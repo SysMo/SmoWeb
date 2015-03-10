@@ -4,7 +4,7 @@ from smo.model.actions import ServerAction, ActionBar
 from smo.model.fields import *
 from smo.media.MaterialData import Fluids
 from collections import OrderedDict
-
+from smo.media.diagrams.StateDiagrams import PHDiagram
 
 StateVariableOptions = OrderedDict((
     ('P', 'pressure (P)'),
@@ -268,10 +268,13 @@ class HeatingCoolingModel(NumericalModel):
         self.q_i = initState.q
         self.u_i = initState.u
         
+        finalStateVariable = self.stateVariable_final
+        finalStateVariableValue = self.getStateValue(self.stateVariable_final, suffix = "_final")
+        
         process = HeatingCooling(self.fluidName)
         process.initState = initState
-        process.compute(finalStateVariable = self.stateVariable_final, 
-                        finalStateVariableValue = self.getStateValue(self.stateVariable_final, suffix = "_final"), 
+        process.compute(finalStateVariable = finalStateVariable, 
+                        finalStateVariableValue = finalStateVariableValue, 
                         mDot = self.mDot)
         
         self.T_f = process.T_f
@@ -284,3 +287,14 @@ class HeatingCoolingModel(NumericalModel):
         
         self.qOut = process.qOut
         self.qDotOut = process.qDotOut
+        
+        diagram = PHDiagram(self.fluidName, temperatureUnit = 'degC')
+        diagram.setLimits()
+        diagramFig  = diagram.draw()
+        
+        processFig = process.draw(fig = diagramFig, 
+                     finalStateVariable = finalStateVariable, 
+                     finalStateVariableValue = finalStateVariableValue, 
+                     numPoints = 10)
+        
+        diagram.export(processFig)

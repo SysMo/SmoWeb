@@ -1,4 +1,5 @@
 from smo.media.CoolProp.CoolProp import FluidState
+import numpy as np
 
 class ThermodynamicProcess(object):
 	def __init__(self, fluidName, eta = None, heatOutFraction = None):
@@ -92,16 +93,19 @@ class HeatingCooling(ThermodynamicProcess):
 	def __init__(self, fluidName):
 		super(HeatingCooling, self).__init__(fluidName)
 	
-	def compute(self, finalStateVariable, finalStateVariableValue, mDot):
+	def compute(self, finalStateVariable, finalStateVariableValue, mDot = None, initState = None):
 		finalState = FluidState(self.fluidName)
 		
-		self.T_i = self.initState.T
-		self.p_i = self.initState.p
-		self.rho_i = self.initState.rho
-		self.h_i = self.initState.h
-		self.s_i = self.initState.s
-		self.q_i = self.initState.q
-		self.u_i = self.initState.u
+		if initState is None:
+			initState = self.initState
+		
+		self.T_i = initState.T
+		self.p_i = initState.p
+		self.rho_i = initState.rho
+		self.h_i = initState.h
+		self.s_i = initState.s
+		self.q_i = initState.q
+		self.u_i = initState.u
 		
 		finalState.update('P', self.p_i, finalStateVariable, finalStateVariableValue)
 		
@@ -114,28 +118,40 @@ class HeatingCooling(ThermodynamicProcess):
 		self.q_f = finalState.q
 		self.u_f = finalState.u
 		
-		# Compute heat
-		self.qOut = self.h_f - self.h_i
+		if mDot is not None:
+			# Compute heat
+			self.qOut = self.h_f - self.h_i
+			
+			# Compute heat flow
+			self.qDotOut = self.qOut * mDot
 		
-		# Compute heat flow
-		self.qDotOut = self.qOut * mDot
+		return finalState
 		
-# 		diagram = PHDiagram(self.fluidName, temperatureUnit = 'degC')
-# 		diagram.setLimits()
-# 		fig = diagram.draw(isotherms=self.isotherms,
-# 							isochores=self.isochores, 
-# 							isentrops=self.isentrops, 
-# 							qIsolines=self.qIsolines)
-# 		
-# 		fig = diagram.draw(isotherms=self.isotherms,
-# 					isochores=self.isochores, 
-# 					isentrops=self.isentrops, 
-# 					qIsolines=self.qIsolines, fig = fig, drawProcess=True)
-# 		
-# 		fHandle, resourcePath  = diagram.draw(isotherms=self.isotherms,
-# 												isochores=self.isochores, 
-# 												isentrops=self.isentrops, 
-# 												qIsolines=self.qIsolines)
-# 		
-# 		self.diagram = resourcePath
-# 		os.close(fHandle)
+	def draw(self, fig, finalStateVariable, finalStateVariableValue, numPoints = 5):
+		if finalStateVariable == 'T':
+			stateVariableArr = np.logspace(np.log10(self.initState.T), np.log10(finalStateVariableValue), num = numPoints)
+		elif finalStateVariable == 'Q':
+			stateVariableArr = np.arange(self.initState.q, finalStateVariableValue, numPoints)
+			
+		pArr = np.zeros(len(stateVariableArr))
+		hArr = np.zeros(len(stateVariableArr))
+		
+		hArr[0] = self.initState.h
+		pArr[0] = self.initState.p
+		
+		fState = self.initState
+		for i in range(1, len(stateVariableArr)):
+			fState = self.compute(finalStateVariable = finalStateVariable, 
+							finalStateVariableValue = stateVariableArr[i], initState = fState)
+			
+			hArr[i] = fState.h
+			pArr[i] = fState.p
+					
+		ax = fig.get_axes()[0]
+		ax.semilogy(hArr/1e3, pArr/1e5, color = 'black', linewidth = 2)
+		
+		return fig
+			
+			
+		
+		
