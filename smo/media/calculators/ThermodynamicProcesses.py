@@ -33,7 +33,7 @@ class ThermodynamicProcess(object):
 		sVarDict = {'P': 'p', 'T': 'T', 'D': 'rho', 'H': 'h', 'S': 's', 'Q': 'q'}
 		return self.__dict__[prefix + sVarDict[sVar] + suffix]
 	
-	def compute_process(self, constantStateVariable, finalStateVariable, finalStateVariableValue, mDot):
+	def compute(self, constantStateVariable, finalStateVariable, finalStateVariableValue, mDot):
 		finalState = FluidState(self.fluidName)
 		
 		self.T_i = self.initState.T
@@ -92,7 +92,21 @@ class IsentropicCompression(ThermodynamicProcess):
 	def __init__(self, fluidName, eta, heatOutFraction):
 		super(IsentropicCompression, self).__init__(fluidName, eta, heatOutFraction)
 		self.processType = "compression"
+		
+class IsothermalExpansion(ThermodynamicProcess):
+	def __init__(self, fluidName, eta, heatOutFraction):
+		super(IsothermalExpansion, self).__init__(fluidName, eta, heatOutFraction)
+		self.processType = "expansion"
 
+class IsothermalCompression(ThermodynamicProcess):
+	def __init__(self, fluidName, eta, heatOutFraction):
+		super(IsothermalCompression, self).__init__(fluidName, eta, heatOutFraction)
+		self.processType = "compression"
+		
+class IsenthalpicExpansion(ThermodynamicProcess):
+	def __init__(self, fluidName, eta, heatOutFraction):
+		super(IsenthalpicExpansion, self).__init__(fluidName, eta, heatOutFraction)
+		self.processType = "expansion"
 
 # class IsentropicExpansion(object):
 # 	def __init__(self, fluidName, eta, heatOutFraction):

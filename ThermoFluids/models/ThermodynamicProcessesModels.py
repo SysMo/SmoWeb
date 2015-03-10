@@ -24,7 +24,9 @@ TransitionType = OrderedDict((
 ))
 
 
-from smo.media.calculators.ThermodynamicProcesses import IsentropicExpansion, IsentropicCompression
+from smo.media.calculators.ThermodynamicProcesses import IsentropicExpansion, IsentropicCompression, \
+                                                        IsothermalExpansion, IsothermalCompression, \
+                                                        IsenthalpicExpansion
 class CompressionExpansionModel(NumericalModel):
     label = "Compression / Expansion"
     
@@ -50,16 +52,16 @@ class CompressionExpansionModel(NumericalModel):
     initialState = FieldGroup([fluidName, stateVariable1, p1, T1, rho1, h1, s1, q1, stateVariable2, p2, T2, rho2, h2, s2, q2, mDot], label = 'Initial state')
 
     transitionType = Choices(options = TransitionType, default = 'S', label = "process type")
-    final_StateVariable = Choices(options = OrderedDict((('T', 'temperature (T)'), ('Q', 'vapor quality (Q)'))), 
-                                    default = 'T', label = 'state variable', show="self.transitionType == 'T'")    
-    p_final = Quantity('Pressure', default = (1, 'bar'), label = 'pressure', show="self.transitionType != 'T'")
-    T_final = Quantity('Temperature', default = (300, 'K'), label = 'temperature', 
-                        show="self.transitionType == 'T' && self.final_StateVariable == 'T'")
-    q_final = Quantity('VaporQuality', default = (1, '-'), minValue = 0, maxValue = 1, label = 'vapour quality', 
-                        show="self.transitionType == 'T' && self.final_StateVariable == 'Q'")
+#     stateVariable_final = Choices(options = OrderedDict((('T', 'temperature (T)'), ('Q', 'vapor quality (Q)'))), 
+#                                     default = 'T', label = 'state variable', show="self.transitionType == 'T'")    
+    p_final = Quantity('Pressure', default = (1, 'bar'), label = 'pressure')
+#     T_final = Quantity('Temperature', default = (300, 'K'), label = 'temperature', 
+#                         show="self.transitionType == 'T' && self.stateVariable_final == 'T'")
+#     q_final = Quantity('VaporQuality', default = (1, '-'), minValue = 0, maxValue = 1, label = 'vapour quality', 
+#                         show="self.transitionType == 'T' && self.stateVariable_final == 'Q'")
     eta = Quantity(default = 1, minValue = 0, maxValue = 1, label = 'efficiency')
     heatOutFraction = Quantity(default = 0.1, minValue = 0, maxValue = 1, label = 'released heat fraction')
-    finalState = FieldGroup([transitionType, p_final, final_StateVariable, T_final, q_final, eta, heatOutFraction], label = 'Final state')
+    finalState = FieldGroup([transitionType, p_final, eta, heatOutFraction], label = 'Final state')
     
     inputs = SuperGroup([initialState, finalState])
     
@@ -137,31 +139,25 @@ class CompressionExpansionModel(NumericalModel):
         self.q_i = initState.q
         self.u_i = initState.u
         
-        if self.p_final >= initState.p:
+        if self.p_final > initState.p:
             if self.transitionType == 'S':
                 process = IsentropicCompression(self.fluidName, self.eta, self.heatOutFraction)
-                finalStateVariable = 'P'
-                finalStateVariableValue = self.getStateValue(finalStateVariable, suffix = "_final")
-#                 process.initState = initState
-#                 process.compute_process(p_final = self.p_final, mDot = self.mDot)
             elif self.transitionType == 'H':
-                raise ValueError('Unimplemented process.')
+                raise ValueError('For isenthalpic expansion the final pressure must be lower than the initial pressure.')
             elif self.transitionType == 'T':
-                raise ValueError('Unimplemented process.')
+                process = IsothermalCompression(self.fluidName, self.eta, self.heatOutFraction)
         else:
             if self.transitionType == 'S':
                 process = IsentropicExpansion(self.fluidName, self.eta, self.heatOutFraction)
-                finalStateVariable = 'P'
-                finalStateVariableValue = self.getStateValue(finalStateVariable, suffix = "_final")
             elif self.transitionType == 'H':
-                raise ValueError('Unimplemented process.')
+                process = IsenthalpicExpansion(self.fluidName, self.eta, self.heatOutFraction)
             elif self.transitionType == 'T':
-                raise ValueError('Unimplemented process.')
+                process = IsothermalExpansion(self.fluidName, self.eta, self.heatOutFraction)
         
         process.initState = initState
-        process.compute_process(constantStateVariable = self.transitionType, 
-                                finalStateVariable = finalStateVariable, 
-                                finalStateVariableValue = finalStateVariableValue, 
+        process.compute(constantStateVariable = self.transitionType, 
+                                finalStateVariable = 'P', 
+                                finalStateVariableValue = self.p_final, 
                                 mDot = self.mDot)
         
         self.T_f = process.T_f
