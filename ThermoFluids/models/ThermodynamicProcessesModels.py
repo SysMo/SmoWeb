@@ -50,8 +50,8 @@ class CompressionExpansionModel(NumericalModel):
     transitionType = Choices(options = TransitionType, default = 'S', label = "process type")
     p_final = Quantity('Pressure', default = (1, 'bar'), label = 'pressure')
     eta = Quantity(default = 1, minValue = 0, maxValue = 1, label = 'efficiency')
-    heatOutFraction = Quantity(default = 0.1, minValue = 0, maxValue = 1, label = 'released heat fraction')
-    finalState = FieldGroup([transitionType, p_final, eta, heatOutFraction], label = 'Final state')
+    fQ = Quantity(default = 0.1, minValue = 0, maxValue = 1, label = 'heat loss factor', show="self.transitionType != 'T'")
+    finalState = FieldGroup([transitionType, p_final, eta, fQ], label = 'Final state')
     
     inputs = SuperGroup([initialState, finalState])
     
@@ -90,15 +90,13 @@ class CompressionExpansionModel(NumericalModel):
     wReal = Quantity('SpecificEnergy', label = "real work")
     deltaH = Quantity('SpecificEnthalpy', label = 'enthalpy change (fluid)') 
     qOut = Quantity('SpecificEnergy', label = "heat released")
-    qFluid = Quantity('SpecificEnergy', label = "heat to fluid")
-    specificEnergyResults = FieldGroup([wIdeal, wReal, deltaH, qOut, qFluid], label = "Heat/work (specific quantities)")
+    specificEnergyResults = FieldGroup([wIdeal, wReal, deltaH, qOut], label = "Heat/work (specific quantities)")
     # Energy flow quantities
     wDotIdeal = Quantity('Power', label = "ideal work")
     wDotReal = Quantity('Power', label = "real work")
     deltaHDot = Quantity('Power', label = 'enthalpy change (fluid)') 
     qDotOut = Quantity('HeatFlowRate', label = "heat released")
-    qDotFluid = Quantity('HeatFlowRate', label = "heat to fluid")
-    energyFlowResults = FieldGroup([wDotIdeal, wDotReal, deltaHDot, qDotOut, qDotFluid], label = "Heat/work flows")
+    energyFlowResults = FieldGroup([wDotIdeal, wDotReal, deltaHDot, qDotOut], label = "Heat/work flows")
 
     energyBalanceResults = SuperGroup([specificEnergyResults, energyFlowResults], label = "Energy balance")
     
@@ -135,18 +133,18 @@ class CompressionExpansionModel(NumericalModel):
         
         if self.p_final > initState.p:
             if self.transitionType == 'S':
-                process = IsentropicCompression(self.fluidName, self.eta, self.heatOutFraction)
+                process = IsentropicCompression(self.fluidName, self.eta, self.fQ)
             elif self.transitionType == 'H':
                 raise ValueError('For isenthalpic expansion the final pressure must be lower than the initial pressure.')
             elif self.transitionType == 'T':
-                process = IsothermalCompression(self.fluidName, self.eta, self.heatOutFraction)
+                process = IsothermalCompression(self.fluidName, self.eta, self.fQ)
         else:
             if self.transitionType == 'S':
-                process = IsentropicExpansion(self.fluidName, self.eta, self.heatOutFraction)
+                process = IsentropicExpansion(self.fluidName, self.eta, self.fQ)
             elif self.transitionType == 'H':
-                process = IsenthalpicExpansion(self.fluidName, self.eta, self.heatOutFraction)
+                process = IsenthalpicExpansion(self.fluidName, self.eta, self.fQ)
             elif self.transitionType == 'T':
-                process = IsothermalExpansion(self.fluidName, self.eta, self.heatOutFraction)
+                process = IsothermalExpansion(self.fluidName, self.eta, self.fQ)
         
         process.initState = initState
         process.compute(finalStateVariable = 'P', 
@@ -164,13 +162,11 @@ class CompressionExpansionModel(NumericalModel):
         self.wIdeal = process.wIdeal
         self.wReal = process.wReal
         self.qOut = process.qOut
-        self.qFluid = process.qFluid
 
         self.wDotIdeal = process.wDotIdeal
         self.wDotReal = process.wDotReal
         self.deltaHDot = process.deltaHDot
         self.qDotOut = process.qDotOut
-        self.qDotFluid = process.qDotFluid
         
         diagram = PHDiagram(self.fluidName, temperatureUnit = 'degC')
         diagram.setLimits()
