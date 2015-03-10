@@ -102,8 +102,12 @@ class CompressionExpansionModel(NumericalModel):
 
     energyBalanceResults = SuperGroup([specificEnergyResults, energyFlowResults], label = "Energy balance")
     
+    diagram = Image(default='', width=880, height=550)
+    diagramViewGroup = ViewGroup([diagram], label = "P-H Diagram")
+    diagramSuperGroup = SuperGroup([diagramViewGroup], label = "Diagram")
+    
     # Model View
-    resultView = ModelView(ioType = "output", superGroups = [stateResults, energyBalanceResults])
+    resultView = ModelView(ioType = "output", superGroups = [stateResults, energyBalanceResults, diagramSuperGroup])
 
     ############# Page structure ########
     modelBlocks = [inputView, resultView]
@@ -171,13 +175,13 @@ class CompressionExpansionModel(NumericalModel):
         diagram = PHDiagram(self.fluidName, temperatureUnit = 'degC')
         diagram.setLimits()
         diagramFig  = diagram.draw()
-        
         processFig = process.draw(fig = diagramFig, 
                      finalStateVariable = 'P', 
-                     finalStateVariableValue = self.p_final, 
-                     numPoints = 10)
+                     finalStateVariableValue = self.p_final)
         
-        diagram.export(processFig)
+        fHandle, resourcePath  = diagram.export(processFig)
+        self.diagram = resourcePath
+        os.close(fHandle)
 
 from smo.media.calculators.ThermodynamicProcesses import HeatingCooling
 class HeatingCoolingModel(NumericalModel):
@@ -251,8 +255,12 @@ class HeatingCoolingModel(NumericalModel):
 
     energyBalanceResults = SuperGroup([specificEnergyResults, energyFlowResults], label = "Energy balance")
     
+    diagram = Image(default='', width=880, height=550)
+    diagramViewGroup = ViewGroup([diagram], label = "P-H Diagram")
+    diagramSuperGroup = SuperGroup([diagramViewGroup], label = "Diagram")
+    
     # Model View
-    resultView = ModelView(ioType = "output", superGroups = [stateResults, energyBalanceResults])
+    resultView = ModelView(ioType = "output", superGroups = [stateResults, energyBalanceResults, diagramSuperGroup])
 
     ############# Page structure ########
     modelBlocks = [inputView, resultView]
@@ -301,10 +309,10 @@ class HeatingCoolingModel(NumericalModel):
         diagram = PHDiagram(self.fluidName, temperatureUnit = 'degC')
         diagram.setLimits()
         diagramFig  = diagram.draw()
-        
         processFig = process.draw(fig = diagramFig, 
                      finalStateVariable = finalStateVariable, 
-                     finalStateVariableValue = finalStateVariableValue, 
-                     numPoints = 10)
+                     finalStateVariableValue = finalStateVariableValue)
         
-        diagram.export(processFig)
+        fHandle, resourcePath  = diagram.export(processFig)
+        self.diagram = resourcePath
+        os.close(fHandle)

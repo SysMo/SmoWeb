@@ -66,7 +66,7 @@ class ThermodynamicProcess(object):
 			
 		return finalState
 		
-	def draw(self, fig, finalStateVariable, finalStateVariableValue, numPoints = 5):
+	def draw(self, fig, finalStateVariable, finalStateVariableValue, numPoints = 10):
 		if finalStateVariable != 'Q':
 			stateVariableArr = np.logspace(np.log10(self.getStateValue(finalStateVariable, suffix="_i")), np.log10(finalStateVariableValue), num = numPoints)
 		else:
