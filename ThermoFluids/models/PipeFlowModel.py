@@ -5,6 +5,7 @@ from smo.web.modules import RestModule
 from smo.media.MaterialData import Solids, Fluids
 from smo.flow.PipeFlow import PipeFlow
 
+
 class PipeFlowModel(NumericalModel):
     label = "Pipe Flow"
     figure = ModelFigure(src="ThermoFluids/img/ModuleImages/StraightPipe.svg")

@@ -450,10 +450,12 @@ class PHDiagramModel(NumericalModel):
 		if not self.defaultMaxT:
 			TMax = self.maxTemperature
 		diagram.setLimits(pMax = pMax, TMax = TMax)
-		fHandle, resourcePath  = diagram.draw(isotherms=self.isotherms,
-												isochores=self.isochores, 
-												isentrops=self.isentrops, 
-												qIsolines=self.qIsolines)
+		fig  = diagram.draw(isotherms=self.isotherms,
+							isochores=self.isochores, 
+							isentrops=self.isentrops, 
+							qIsolines=self.qIsolines)
+		
+		fHandle, resourcePath  = diagram.export(fig)
 		self.diagram = resourcePath
 		os.close(fHandle)
 		
