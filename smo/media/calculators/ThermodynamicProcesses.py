@@ -86,6 +86,8 @@ class IsenthalpicExpansion(ThermodynamicProcess):
 		super(IsenthalpicExpansion, self).__init__(fluidName, eta, heatOutFraction)
 		self.processType = "expansion"
 
+from smo.media.diagrams.StateDiagrams import PHDiagram
+import os
 class HeatingCooling(ThermodynamicProcess):
 	def __init__(self, fluidName):
 		super(HeatingCooling, self).__init__(fluidName)
@@ -117,3 +119,23 @@ class HeatingCooling(ThermodynamicProcess):
 		
 		# Compute heat flow
 		self.qDotOut = self.qOut * mDot
+		
+# 		diagram = PHDiagram(self.fluidName, temperatureUnit = 'degC')
+# 		diagram.setLimits()
+# 		fig = diagram.draw(isotherms=self.isotherms,
+# 							isochores=self.isochores, 
+# 							isentrops=self.isentrops, 
+# 							qIsolines=self.qIsolines)
+# 		
+# 		fig = diagram.draw(isotherms=self.isotherms,
+# 					isochores=self.isochores, 
+# 					isentrops=self.isentrops, 
+# 					qIsolines=self.qIsolines, fig = fig, drawProcess=True)
+# 		
+# 		fHandle, resourcePath  = diagram.draw(isotherms=self.isotherms,
+# 												isochores=self.isochores, 
+# 												isentrops=self.isentrops, 
+# 												qIsolines=self.qIsolines)
+# 		
+# 		self.diagram = resourcePath
+# 		os.close(fHandle)
