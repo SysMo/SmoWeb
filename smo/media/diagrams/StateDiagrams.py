@@ -465,21 +465,16 @@ class PHDiagram(StateDiagram):
 				print 'Runtime Warning for s=%e'%s 
 				print e
 	
-	def draw(self, isotherms=True, isochores=True, isentrops=True, qIsolines=True, fig = None, drawProcess = False):
-		if fig is None:
-			fig = Figure(figsize=(16.0, 10.0))
-			self.ax = fig.add_subplot(1,1,1)
-			self.ax.set_xlabel('Enthalpy [kJ/kg]')
-			self.ax.set_ylabel('Pressure [bar]')
-			self.ax.set_title(self.fluidName, y=1.04)
-			self.ax.grid(True, which = 'both')
-			self.ax.legend(loc='upper center',  bbox_to_anchor=(0.5, 1.05),  fontsize="small", ncol=4)
-		else:
-			self.ax = fig.gca()
+	def draw(self, isotherms=True, isochores=True, isentrops=True, qIsolines=True):
+		fig = Figure(figsize=(16.0, 10.0))
+		self.ax = fig.add_subplot(1,1,1)
+		self.ax.set_xlabel('Enthalpy [kJ/kg]')
+		self.ax.set_ylabel('Pressure [bar]')
+		self.ax.set_title(self.fluidName, y=1.04)
+		self.ax.grid(True, which = 'both')
 		
-		if not drawProcess:
-			self.ax.set_xlim(self.hMin / 1e3, self.hMax / 1e3)
-			self.ax.set_ylim(self.pMin / 1e5, self.pMax / 1e5)
+		self.ax.set_xlim(self.hMin / 1e3, self.hMax / 1e3)
+		self.ax.set_ylim(self.pMin / 1e5, self.pMax / 1e5)
 		
 		if qIsolines:
 			self.plotDome()
@@ -490,6 +485,7 @@ class PHDiagram(StateDiagram):
 		if isentrops:
 			self.plotIsentrops()
 		
+		self.ax.legend(loc='upper center',  bbox_to_anchor=(0.5, 1.05),  fontsize="small", ncol=4)
 		return fig
 	
 	def export(self, fig):
