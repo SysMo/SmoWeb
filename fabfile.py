@@ -18,7 +18,8 @@ env.projectModules = ['SmoWeb']
 env.applicationModules = [
 	'DataManagement',
 	'ThermoFluids',
-	'SmoWebBase'
+	'SmoWebBase',
+	'BioReactors'
 ]
 env.extraFolders = [
 	'smo',
