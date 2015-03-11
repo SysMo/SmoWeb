@@ -129,7 +129,7 @@ class StateDiagram(object):
 		self.fluidName = fluidName
 		self.fluid = Fluid(fluidName)
 	
-	def getLabelPlacement(self, x1, x2, y1, y2, xlog = False, ylog = True):
+	def getLabelPlacement(self, x1, x2, y1, y2, xlog = False, ylog = True, d = 3):
 		if (xlog == True):
 			frac_range_x = np.log10(x2/x1) / np.log10(self.xMax/self.xMin)
 		else:	
@@ -143,7 +143,6 @@ class StateDiagram(object):
 		delta_y = frac_range_y * self.y_pts
 		
 		alpha = math.atan(delta_y / delta_x)
-		d = 0
 		s = math.sqrt(delta_x**2 + delta_y**2)
 		e = math.sqrt(s**2 / 4. + d**2)
 		
@@ -256,7 +255,7 @@ class PHDiagram(StateDiagram):
 											y1 = p[9], y2 = p[10])
 					self.ax.annotate("{:1.1f}".format(q), 
 									xy = (h[10]/ 1e3, p[10] / 1e5),
-									xytext=(offset_x, offset_y),
+									xytext=(-offset_x, -offset_y),
 									textcoords='offset points',
 									color='b', size="small", rotation = angle)
 				h[-1] = self.critical.h
@@ -321,7 +320,7 @@ class PHDiagram(StateDiagram):
 																			y1 = pArr[i-1], y2 = pArr[i])
 						self.ax.annotate(formatNumber(rho, sig = 2), 
 										xy = (hArr[i] / 1e3, pArr[i] / 1e5),
-										xytext=(-30, -10),
+										xytext=(-30, -12),
 										textcoords='offset points',
 										color='g', size="small", rotation = angle)
 				if (rho == rhoArr[0]):

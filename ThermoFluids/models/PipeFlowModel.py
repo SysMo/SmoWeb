@@ -94,4 +94,4 @@ class PipeFlowModel(NumericalModel):
 
 class PipeFlowDoc(RestModule):
     name = 'PipeFlowDoc'
-    label = 'Pipe Flow (Docs)'
+    label = 'Pipe Flow (Doc)'
