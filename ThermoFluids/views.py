@@ -44,7 +44,7 @@ class FreeConvectionView(ModularPageView):
 	label = "Free convection"
 	modules = [FreeConvection_External, FreeConvection_Internal, FreeConvectionDoc]
 
-from smo.media.calculators.CycleCalculator import HeatPump
+from smo.media.calculators.HeatPump import HeatPump
 @registerView(router)
 class HeatPumpView(ModularPageView):
 	label = "Heat pump"

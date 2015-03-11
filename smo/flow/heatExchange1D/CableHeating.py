@@ -171,7 +171,9 @@ class CableHeating1D(NumericalModel):
 		* conduction along the wire
 	"""
 	label = "Cable Heating"
-
+	description = ModelDescription("1D thermal solver for heat heating of a conducting cable. \
+	Accounts for resistive heat generation (contact and distributed) as dissipation \
+	(through conduction, convection and radiation)'", show = True)  
 	# 1. ############ Inputs ###############
 	# 1.1 Input values
 	d = Quantity('Length', default = (2, 'mm'), label = 'diameter')

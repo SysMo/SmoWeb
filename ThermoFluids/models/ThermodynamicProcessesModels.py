@@ -139,6 +139,7 @@ class ThermodynamicProcessModel(NumericalModel):
 		
 class CompressionExpansionModel(ThermodynamicProcessModel):
 	label = "Compression / Expansion"
+	description = ModelDescription("Parameteric models for compression/expansion processes: isobaric, isothermal and isenthalpic", show = True)
 
 	transitionType = Choices(options = TransitionType, default = 'S', label = "process type")
 	p_final = Quantity('Pressure', default = (1, 'bar'), label = 'pressure')
@@ -178,6 +179,7 @@ class CompressionExpansionModel(ThermodynamicProcessModel):
 from smo.media.calculators.ThermodynamicProcesses import HeatingCooling
 class HeatingCoolingModel(ThermodynamicProcessModel):
 	label = "Heating / Cooling"
+	description = ModelDescription("Heating/cooling process at constant pressure", show = True)
 
 	stateVariable_final = Choices(options = OrderedDict((('T', 'temperature (T)'), ('Q', 'vapor quality (Q)'))), 
 									default = 'T', label = 'state variable')	

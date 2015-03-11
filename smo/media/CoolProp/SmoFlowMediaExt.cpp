@@ -135,6 +135,7 @@ double SmoFlow_CoolPropState::dpdT_sat() {
 	} else {
 		_dpdT_sat = NAN;
 	}
+	return _dpdT_sat;
 }
 
 double SmoFlow_CoolPropState::dpdT_constv() {

@@ -40,7 +40,10 @@ class ThermodynamicProcess(object):
 	def computeNextState(self, fCurrent, fNext, stateVar, stateVal):
 		raise NotImplementedError("The concrete classes inheriting from 'ThermodynamicProcess' must implement 'computeNextState' method")
 	
-	def compute(self, stateVar, stateVal, mDot = None, numIntermediateStates = 10):
+	def compute(self, stateVar, stateVal, mDot = None, numIntermediateStates = 0):
+		"""
+		The intermediate states only work for some special cases. Generally the final state computed with and without intermediate states is different
+		"""
 		self.chars = self.computeNextState(self.initialState, self.finalState, stateVar, stateVal)
 		if (mDot is not None):
 			self.flows.compute(self.chars, mDot)
@@ -61,10 +64,8 @@ class ThermodynamicProcess(object):
 			hArr[i] = self.fStates[i].h
 			pArr[i] = self.fStates[i].p
 		
-		print pArr
-		print hArr
 		ax = fig.get_axes()[0]
-		ax.semilogy(hArr/1e3, pArr/1e5, color = 'black', linewidth = 2)
+		ax.semilogy(hArr/1e3, pArr/1e5, 'k.-', linewidth = 2)
 		
 		# State points
 		ax.semilogy(hArr[0:1]/1e3, pArr[0:1]/1e5, 'ko')
@@ -89,8 +90,6 @@ class ThermodynamicProcess(object):
 class CompressionExpansion(ThermodynamicProcess):
 	def computeIntermediateStateDistribution(self, stateVar, stateVal, numPoints):
 		if (stateVar == 'P'):
-			print self.initialState.p
-			print stateVal
 			return 'P', np.logspace(np.log10(self.initialState.p), np.log10(stateVal), num = numPoints)
 		else:
 			raise ValueError('The final state for compression/expansion process must be defined by pressure')
@@ -109,14 +108,14 @@ class IsentropicProcess(CompressionExpansion):
 		
 
 	def computeNextState(self, fCurrent, fNext, stateVar, stateVal):
-		fNext.update_ps(stateVal, fCurrent.s)
+		fNext.update('S', fCurrent.s, stateVar, stateVal)
 		ch = ProcessCharacteristics()
 		# Compute works and heat
 		ch.wIdeal = fNext.h - fCurrent.h
 		if (fNext.p > fCurrent.p):			
-			ch.wReal = ch.wIdeal * self.eta
-		else:
 			ch.wReal = ch.wIdeal / self.eta
+		else:
+			ch.wReal = ch.wIdeal * self.eta
 		ch.qIn = - self.fQ * ch.wReal
 		
 		# Real final state
@@ -127,30 +126,32 @@ class IsentropicProcess(CompressionExpansion):
 
 		
 class IsothermalProcess(CompressionExpansion):
-	def __init__(self, fluidName, eta):
+	def __init__(self, fluidName, eta, fQ):
 		super(IsothermalProcess, self).__init__(fluidName)
 		self.eta = eta
+		self.fQ = fQ
 		
 	def computeNextState(self, fCurrent, fNext, stateVar, stateVal):
 		fNext.update('T', fCurrent.T, stateVar, stateVal)
 		ch = ProcessCharacteristics()
 		# Compute works and heat
-		self.wIdeal = fNext.h - fCurrent.h
-		if (fNext.p > fCurrent.p):			
-			ch.wReal = ch.wIdeal * self.eta
-		else:
+		qInIdeal = fCurrent.T * (fNext.s - fCurrent.s)
+		ch.wIdeal = (fNext.h - fCurrent.h) - qInIdeal
+		if (fNext.p > fCurrent.p):
 			ch.wReal = ch.wIdeal / self.eta
+		else:
+			ch.wReal = ch.wIdeal * self.eta
 		
 		# Real final state
-		ch.delta_h = ch.wReal
+		ch.qIn = qInIdeal * self.fQ
+		ch.delta_h = ch.wReal + ch.qIn
 		fNext.update_ph(stateVal, fCurrent.h + ch.delta_h)
 		
 		return ch
 		
-class IsenthalpicExpansion(ThermodynamicProcess):
-	def __init__(self, fluidName, eta, heatOutFraction):
-		super(IsenthalpicExpansion, self).__init__(fluidName, eta, heatOutFraction)
-		self.constantStateVariable = 'H'
+class IsenthalpicExpansion(CompressionExpansion):
+	def __init__(self, fluidName):
+		super(IsenthalpicExpansion, self).__init__(fluidName)
 		
 	def computeNextState(self, fCurrent, fNext, stateVar, stateVal):
 		if (stateVal > fCurrent.p):
@@ -162,26 +163,23 @@ class IsenthalpicExpansion(ThermodynamicProcess):
 ################# Heating/Cooling ######################		
 class HeatingCooling(ThermodynamicProcess):
 	def computeIntermediateStateDistribution(self, stateVar, stateVal, numPoints):
-		fState = FluidState(self.fluid)
-		if (stateVar == 'T'):
-			fState.update_Tp(stateVal, self.initialState.p)
-		elif (stateVar == 'Q'):				
-			fState.update_pq(self.initialState.p, stateVal)
+		if (stateVar in ['T', 'Q', 'H'] or stateVar == 'Q'):
+			return 'H', np.logspace(np.log10(self.initialState.h), np.log10(self.finalState.h), num = numPoints)
 		else:
 			raise ValueError('The final state for compression/expansion process must be defined by temperature or vapor quality')
-		return np.logspace(np.log10(self.initialState.h, np.log10(fState.h), num = numPoints))
 
 class IsobaricProcess(HeatingCooling):
 	def __init__(self, fluidName):
 		super(HeatingCooling, self).__init__(fluidName)
 		self.constantStateVariable = 'P'
 		
-	def computeNextState(self, fCurrent, fNext, stateVal):
-		fNext.update_ph('P', fCurrent.p, stateVal)
-		
+	def computeNextState(self, fCurrent, fNext, stateVar, stateVal):
+		fNext.update('P', fCurrent.p, stateVar, stateVal)
+		ch = ProcessCharacteristics()
 		# Compute heat
-		qOut = fNext.h - fCurrent.h
-		self.wIdeal = 0
-		self.wReal = 0
-		self.delta_h
-		self.qOut
+		ch.wIdeal = 0
+		ch.wReal = 0
+		ch.delta_h = fNext.h - fCurrent.h
+		ch.qIn = ch.delta_h
+
+		return ch

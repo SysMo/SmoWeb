@@ -44,7 +44,8 @@ SurfaceShapes = OrderedDict((
 class FreeConvection_External(NumericalModel):
 	name = "FreeConvection_External"
 	label = "Free Convection External"
-	
+	description = ModelDescription("Heat exchange due to natural convection for external surfaces", show = True)
+
 	############# Inputs ###############
 	# Fields
 	fluidName = Choices(Fluids, default = 'Nitrogen', label = 'fluid')	
@@ -220,7 +221,8 @@ class FreeConvection_External(NumericalModel):
 class FreeConvection_Internal(NumericalModel):
 	name = "FreeConvection_Internal"
 	label = "Free Convection Internal"
-	
+	description = ModelDescription("Heat exchange due to natural convection for closed volumes", show = True)
+
 	############# Inputs ###############
 	# Fields
 	fluidName = Choices(Fluids, default = 'Nitrogen', label = 'fluid')	

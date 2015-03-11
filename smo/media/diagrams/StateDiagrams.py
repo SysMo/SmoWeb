@@ -513,7 +513,7 @@ def main():
 	ExcludedFluids = ['Air', 'Propyne', 'R1234ze(E)']
 	WarningFluids = ['Fluorine', 'R152A', 'R236EA']
 	
-	fluidList = ['Helium']
+	fluidList = ['ParaHydrogen']
 	for i in range(len(fluidList)):
 		fluid = fluidList[i]
 		print("{}. Calculating with fluid '{}'".format(i, fluid))
@@ -525,7 +525,7 @@ def main():
 		#	print e
 		import pylab as plt
 		fig = plt.figure()
-		diagram.draw(isotherms=False, isochores=True, isentrops=False, qIsolines=True, fig = fig)
+		diagram.draw(isotherms = True, isochores = True, isentrops = True, qIsolines = True, fig = fig)
 		plt.show()
 if __name__ == '__main__':
 	main()	

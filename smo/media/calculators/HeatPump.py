@@ -52,6 +52,8 @@ from collections import OrderedDict
 class HeatPump(NumericalModel):
 	label = "Heat Pump"
 	figure = ModelFigure(src="ThermoFluids/img/ModuleImages/HeatPump.svg")
+	description = ModelDescription("Simple model of a heat pump. Could be used to calculate air-conditioners or refrigerators", show = True)
+
 # 	description = ModelDescription('Heat Pump.', show = False)
 	
 	############# Inputs ###############

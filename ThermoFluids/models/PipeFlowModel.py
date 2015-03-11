@@ -9,7 +9,8 @@ from smo.flow.PipeFlow import PipeFlow
 class PipeFlowModel(NumericalModel):
     label = "Pipe Flow"
     figure = ModelFigure(src="ThermoFluids/img/ModuleImages/StraightPipe.svg")
-    
+    description = ModelDescription("Pipe flow calculator accounting for heat exchange and pressure drop", show = True)
+
     ############# Inputs ###############
     # Fields
     internalDiameter = Quantity('Length', default = (5, 'mm'), label = 'internal diameter (d<sub>i</sub>)')
