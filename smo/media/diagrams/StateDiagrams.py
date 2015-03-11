@@ -8,13 +8,11 @@ import numpy as np
 import math
 from smo.math.util import formatNumber
 from smo.media.CoolProp.CoolProp import FluidState, Fluid
-#import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-from smo.media.MaterialData import Fluids
 import os, tempfile
-from SmoWeb.settings import BASE_DIR, MEDIA_ROOT
-from datetime import timedelta
+from SmoWeb.settings import MEDIA_ROOT
+#from datetime import timedelta
 from collections import OrderedDict
 
 PHDiagramFluids = OrderedDict((
@@ -131,17 +129,40 @@ class StateDiagram(object):
 		self.fluidName = fluidName
 		self.fluid = Fluid(fluidName)
 	
-	def getLabelAngle(self, x1, x2, xmin, xmax, y1, y2, ymin, ymax, xlog = False, ylog = True):
-		if (xlog == True):
-			frac_range_x = np.log10(x2/x1) / np.log10(xmax/xmin)
-		else:	
-			frac_range_x = (x2 - x1) / (xmax - xmin)
-		if (ylog == True):
-			frac_range_y = np.log10(y2/y1) / np.log10(ymax/ymin)
-		else:
-			frac_range_y = (y2 - y1) / (ymax - ymin)
+	def getLabelPlacement(self, x1, x2, y1, y2, xlog = False, ylog = True):
+		fig = self.ax.get_figure()
+		x_in, y_in = fig.get_size_inches()
+		dpi = fig.get_dpi()
+		y_pts = y_in * dpi
+		x_pts = x_in * dpi
 		
-		return math.degrees(math.atan(0.7 * frac_range_y / frac_range_x))
+		if (xlog == True):
+			frac_range_x = np.log10(x2/x1) / np.log10(self.xMax/self.xMin)
+		else:	
+			frac_range_x = (x2 - x1) / (self.xMax - self.xMin)
+		if (ylog == True):
+			frac_range_y = np.log10(y2/y1) / np.log10(self.yMax/self.yMin)
+		else:
+			frac_range_y = (y2 - y1) / (self.yMax - self.yMin)
+		
+		delta_x = frac_range_x  * x_pts
+		delta_y = frac_range_y * y_pts
+		
+		alpha = math.atan(delta_y / delta_x)
+		d = 0
+		s = math.sqrt(delta_x**2 + delta_y**2)
+		e = math.sqrt(s**2 / 4. + d**2)
+		
+		beta = math.atan(2 * d / s)
+		gamma = math.radians(90) - alpha - beta
+		
+		offset_x = e * math.sin(gamma)
+		offset_y = e * math.cos(gamma)
+		
+		alpha = math.degrees(alpha)
+		
+		#return math.degrees(math.atan(0.7 * frac_range_y / frac_range_x))
+		return (alpha, offset_x, offset_y)
 
 class PHDiagram(StateDiagram):
 	def __init__(self, fluidName, temperatureUnit = 'K'):
@@ -193,6 +214,12 @@ class PHDiagram(StateDiagram):
 			
 		self.hMax = hMax
 		
+		# Axes ranges
+		self.xMin = self.hMin
+		self.xMax = self.hMax
+		self.yMin = self.pMin
+		self.yMax = self.pMax
+		
 		# Density range
 		fState.update_ph(self.pMin, self.hMax)
 		self.rhoMin = fState.rho
@@ -231,13 +258,11 @@ class PHDiagram(StateDiagram):
 					h[i] = fState.h
 				# Putting labels
 				if '{:1.1f}'.format(q) in qLabels:
-					angle = self.getLabelAngle(x1 = h[9], x2 = h[10],
-											xmin = self.hMin, xmax = self.hMax,
-											y1 = p[9], y2 = p[10],
-											ymin = self.pMin, ymax = self.pMax)
+					angle, offset_x, offset_y = self.getLabelPlacement(x1 = h[9], x2 = h[10],
+											y1 = p[9], y2 = p[10])
 					self.ax.annotate("{:1.1f}".format(q), 
 									xy = (h[10]/ 1e3, p[10] / 1e5),
-									xytext=(-12, 0),
+									xytext=(offset_x, offset_y),
 									textcoords='offset points',
 									color='b', size="small", rotation = angle)
 				h[-1] = self.critical.h
@@ -271,42 +296,35 @@ class PHDiagram(StateDiagram):
 					pArr[i] = fState.p
 					# Putting labels
 					# Determining annotated point and label text offest
+					
 					if (pArr[i-1] < self.pMax and pArr[i] > self.pMax):
 						if (hArr[i] < h_level_low):
-							angle = self.getLabelAngle(x1 = hArr[i-1], x2 = hArr[i],
-												xmin = self.hMin, xmax = self.hMax,
-												y1 = pArr[i-1], y2 = pArr[i],
-												ymin = self.pMin, ymax = self.pMax)
+							angle, offset_x, offset_y = self.getLabelPlacement(x1 = hArr[i-1], x2 = hArr[i],
+																				y1 = pArr[i-1], y2 = pArr[i])
 							self.ax.annotate(formatNumber(rho, sig = 2), 
 											xy = (hArr[i-1] / 1e3, pArr[i-1] / 1e5),
 											xytext=(0, -10),
 											textcoords='offset points',
 											color='g', size="small", rotation = angle)
 						elif (hArr[i] > h_level_low and hArr[i] < h_level_high):
-							angle = self.getLabelAngle(x1 = hArr[i-2], x2 = hArr[i-1],
-												xmin = self.hMin, xmax = self.hMax,
-												y1 = pArr[i-2], y2 = pArr[i-1],
-												ymin = self.pMin, ymax = self.pMax)
+							angle, offset_x, offset_y = self.getLabelPlacement(x1 = hArr[i-2], x2 = hArr[i-1],
+																				y1 = pArr[i-2], y2 = pArr[i-1])
 							self.ax.annotate(formatNumber(rho, sig = 2), 
 											xy = (hArr[i-2] / 1e3, pArr[i-2] / 1e5),
-											xytext=(-5, -5),
+											xytext=(5, -5),
 											textcoords='offset points',
 											color='g', size="small", rotation = angle)
 						elif (hArr[i] > h_level_high):
-							angle = self.getLabelAngle(x1 = hArr[i-10], x2 = hArr[i-9],
-												xmin = self.hMin, xmax = self.hMax,
-												y1 = pArr[i-10], y2 = pArr[i-9],
-												ymin = self.pMin, ymax = self.pMax)
+							angle, offset_x, offset_y = self.getLabelPlacement(x1 = hArr[i-10], x2 = hArr[i-9],
+																				y1 = pArr[i-10], y2 = pArr[i-9])
 							self.ax.annotate(formatNumber(rho, sig = 2), 
 											xy = (hArr[i-10] / 1e3, pArr[i-10] / 1e5),
 											xytext=(0, -5),
 											textcoords='offset points',
 											color='g', size="small", rotation = angle)
 					elif (i == len(TArr) - 1 and pArr[i] < self.pMax and pArr[i-1] > self.pMin):
-						angle = self.getLabelAngle(x1 = hArr[i-1], x2 = hArr[i],
-												xmin = self.hMin, xmax = self.hMax,
-												y1 = pArr[i-1], y2 = pArr[i],
-												ymin = self.pMin, ymax = self.pMax)
+						angle, offset_x, offset_y = self.getLabelPlacement(x1 = hArr[i-1], x2 = hArr[i],
+																			y1 = pArr[i-1], y2 = pArr[i])
 						self.ax.annotate(formatNumber(rho, sig = 2), 
 										xy = (hArr[i] / 1e3, pArr[i] / 1e5),
 										xytext=(-30, -10),
@@ -365,13 +383,11 @@ class PHDiagram(StateDiagram):
 							if (np.log10(pArr[i-1] / 1e5) - self.minDiagonalSlope * hArr[i-1] / 1e3 - b) * \
 								(np.log10(pArr[i] / 1e5) - self.minDiagonalSlope * hArr[i] / 1e3 - b) <= 0:
 								# Getting label rotation angle
-								angle = self.getLabelAngle(x1 = hArr[i-1], x2 = hArr[i],
-															xmin = self.hMin, xmax = self.hMax,
-															y1 = pArr[i-1], y2 = pArr[i],
-															ymin = self.pMin, ymax = self.pMax)
+								angle, offset_x, offset_y = self.getLabelPlacement(x1 = hArr[i-1], x2 = hArr[i],
+																					y1 = pArr[i-1], y2 = pArr[i])
 								self.ax.annotate(formatNumber(T_label, sig = 3), 
 												xy = (hArr[i]/1e3, pArr[i]/1e5),
-												xytext=(0, 3),
+												xytext=(offset_x, offset_y),
 												textcoords='offset points',
 												color='r', size="small", rotation = angle)
 				
@@ -436,19 +452,11 @@ class PHDiagram(StateDiagram):
 					b = np.log10(self.pMax / 1e5) - self.majDiagonalSlope * self.hMin / 1e3
 					if (np.log10(pArr[i-1] / 1e5) - self.majDiagonalSlope * hArr[i-1] / 1e3 - b) * \
 						(np.log10(pArr[i] / 1e5) - self.majDiagonalSlope * hArr[i] / 1e3 - b) <= 0:
-						angle = self.getLabelAngle(x1 = hArr[i-1], x2 = hArr[i],
-													xmin = self.hMin, xmax = self.hMax,
-													y1 = pArr[i-1], y2 = pArr[i],
-													ymin = self.pMin, ymax = self.pMax)
-						# Determining vertical offset off major diagonal
-						fig = self.ax.get_figure()
-						y_in = fig.get_size_inches()[1] 
-						y_pts = y_in * fig.get_dpi()
-						log_p_diag = self.majDiagonalSlope * hArr[i-1] / 1e3 + b
-						offest_y = - (np.log10(pArr[i-1] / 1e5) - log_p_diag) / np.log10(self.pMax/self.pMin) * y_pts
+						angle, offset_x, offset_y = self.getLabelPlacement(x1 = hArr[i-1], x2 = hArr[i],
+																			y1 = pArr[i-1], y2 = pArr[i])
 						self.ax.annotate(formatNumber(s/1e3, sig = 3), 
 											xy = (hArr[i-1]/1e3, pArr[i-1]/1e5),
-											xytext=(2, offest_y),
+											xytext=(-offset_x, -offset_y),
 											textcoords='offset points',
 											color='m', size="small", rotation = angle)
 					#######################
@@ -465,8 +473,10 @@ class PHDiagram(StateDiagram):
 				print 'Runtime Warning for s=%e'%s 
 				print e
 	
-	def draw(self, isotherms=True, isochores=True, isentrops=True, qIsolines=True):
-		fig = Figure(figsize=(16.0, 10.0))
+	def draw(self, isotherms=True, isochores=True, isentrops=True, qIsolines=True, fig = None):
+		if (fig is None):
+			fig = Figure(figsize=(16.0, 10.0))
+		self.fig = fig
 		self.ax = fig.add_subplot(1,1,1)
 		self.ax.set_xlabel('Enthalpy [kJ/kg]')
 		self.ax.set_ylabel('Pressure [bar]')
@@ -504,15 +514,19 @@ def main():
 	ExcludedFluids = ['Air', 'Propyne', 'R1234ze(E)']
 	WarningFluids = ['Fluorine', 'R152A', 'R236EA']
 	
-	fluidList = ['Fluorine', 'R152A', 'R236EA']
+	fluidList = ['Helium']
 	for i in range(len(fluidList)):
 		fluid = fluidList[i]
 		print("{}. Calculating with fluid '{}'".format(i, fluid))
 		#try:
 		diagram = PHDiagram(fluid)
 		diagram.setLimits()
-		diagram.draw(isotherms=True, isochores=True, isentrops=True, qIsolines=True)
+		
 		#except RuntimeError, e:
 		#	print e
+		import pylab as plt
+		fig = plt.figure()
+		diagram.draw(isotherms=False, isochores=True, isentrops=False, qIsolines=True, fig = fig)
+		plt.show()
 if __name__ == '__main__':
 	main()	
