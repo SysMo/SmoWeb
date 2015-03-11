@@ -130,12 +130,6 @@ class StateDiagram(object):
 		self.fluid = Fluid(fluidName)
 	
 	def getLabelPlacement(self, x1, x2, y1, y2, xlog = False, ylog = True):
-		fig = self.ax.get_figure()
-		x_in, y_in = fig.get_size_inches()
-		dpi = fig.get_dpi()
-		y_pts = y_in * dpi
-		x_pts = x_in * dpi
-		
 		if (xlog == True):
 			frac_range_x = np.log10(x2/x1) / np.log10(self.xMax/self.xMin)
 		else:	
@@ -145,8 +139,8 @@ class StateDiagram(object):
 		else:
 			frac_range_y = (y2 - y1) / (self.yMax - self.yMin)
 		
-		delta_x = frac_range_x  * x_pts
-		delta_y = frac_range_y * y_pts
+		delta_x = frac_range_x  * self.x_pts
+		delta_y = frac_range_y * self.y_pts
 		
 		alpha = math.atan(delta_y / delta_x)
 		d = 0
@@ -477,11 +471,16 @@ class PHDiagram(StateDiagram):
 		if (fig is None):
 			fig = Figure(figsize=(16.0, 10.0))
 		self.fig = fig
-		self.ax = fig.add_subplot(1,1,1)
+		self.ax = self.fig.add_subplot(1,1,1)
 		self.ax.set_xlabel('Enthalpy [kJ/kg]')
 		self.ax.set_ylabel('Pressure [bar]')
 		self.ax.set_title(self.fluidName, y=1.04)
 		self.ax.grid(True, which = 'both')
+		
+		x_in, y_in = self.fig.get_size_inches()
+		dpi = self.fig.get_dpi()
+		self.x_pts = x_in * dpi
+		self.y_pts = y_in * dpi
 		
 		self.ax.set_xlim(self.hMin / 1e3, self.hMax / 1e3)
 		self.ax.set_ylim(self.pMin / 1e5, self.pMax / 1e5)
