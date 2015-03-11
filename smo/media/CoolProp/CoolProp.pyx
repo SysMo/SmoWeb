@@ -408,7 +408,7 @@ cdef class FluidState:
 	property dsdq_T: 
 		""""""
 		def __get__(self):
-			return self.ptr. dsdq_constT()
+			return self.ptr.dsdq_constT()
 
 	property dsdT_q: 
 		""""""

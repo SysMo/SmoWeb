@@ -129,7 +129,12 @@ double SmoFlow_CoolPropState::dqdT_constv() {
 }
 
 double SmoFlow_CoolPropState::dpdT_sat() {
-	return 1./CoolPropStateClassSI::dTdp_along_sat();
+	double _dpdT_sat;
+	if (TwoPhase) {
+		_dpdT_sat = 1./CoolPropStateClassSI::dTdp_along_sat();
+	} else {
+		_dpdT_sat = NAN;
+	}
 }
 
 double SmoFlow_CoolPropState::dpdT_constv() {

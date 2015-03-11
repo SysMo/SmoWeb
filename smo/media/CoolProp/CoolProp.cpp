@@ -6154,7 +6154,7 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_8dpdT_sat
  * 	property dsdq_T:
  * 		""""""
  * 		def __get__(self):             # <<<<<<<<<<<<<<
- * 			return self.ptr. dsdq_constT()
+ * 			return self.ptr.dsdq_constT()
  * 
  */
 
@@ -6183,7 +6183,7 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_6dsdq_T__
   /* "smo/media/CoolProp/CoolProp.pyx":411
  * 		""""""
  * 		def __get__(self):
- * 			return self.ptr. dsdq_constT()             # <<<<<<<<<<<<<<
+ * 			return self.ptr.dsdq_constT()             # <<<<<<<<<<<<<<
  * 
  * 	property dsdT_q:
  */
@@ -6198,7 +6198,7 @@ static PyObject *__pyx_pf_3smo_5media_8CoolProp_8CoolProp_10FluidState_6dsdq_T__
  * 	property dsdq_T:
  * 		""""""
  * 		def __get__(self):             # <<<<<<<<<<<<<<
- * 			return self.ptr. dsdq_constT()
+ * 			return self.ptr.dsdq_constT()
  * 
  */
 
