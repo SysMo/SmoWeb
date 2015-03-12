@@ -5,11 +5,11 @@ import BioReactors
 
 router = ViewRouter('BioReactors', BioReactors)
 
-from .models.SimpleGradostatModel import SimpleGradostatModel, SimpleGradostatDoc 
+from BioReactors.models.SimpleChemostatModel import SimpleChemostatModel, SimpleChemostatDoc 
 @registerView(router)
 class SimpleGradostatView(ModularPageView):
     label = 'Simple Gradostat'
-    modules = [SimpleGradostatModel, SimpleGradostatDoc]
+    modules = [SimpleChemostatModel, SimpleChemostatDoc]
     requireJS = ['dygraph', 'dygraphExport']
     requireGoogle = ['visualization']
     

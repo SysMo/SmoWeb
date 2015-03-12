@@ -53,7 +53,7 @@ class ResultStorage(object):
 		# Create numpy array used as a buffer for writing
 		self.buffer = np.zeros(shape = (self.chunkSize + 1,), dtype = dtype)
 		# Create the raw result dataset
-		self.data = self.h5File['cycles'].create_dataset(
+		self.data = self.h5File[self.datasetPath].create_dataset(
 					self.simulationName + '_raw', shape = (0,), dtype = dtype,
 					chunks = (self.chunkSize,), maxshape = (None,))
 		# Create a lenngth 1 array for storing the current values for the time step
