@@ -34,7 +34,7 @@ class SimpleGradostatModel(NumericalModel):
         actionBar = inputActionBar, autoFetch = True)
     
     ############# Results ###############
-    plot = PlotView(label='Plot', dataLabels = ['time', 'S', 'X'])
+    plot = PlotView(label='Plot', dataLabels = ['time', 'S', 'X'], options = {'ylabel' : None})
     table = TableView(label='Table', dataLabels = ['time', 'S', 'X'], 
                       quantities = ['Time', 'Dimensionless', 'Dimensionless'],
                       options = {'title': 'Title', 'formats': ['0.0000', '0.0000']})

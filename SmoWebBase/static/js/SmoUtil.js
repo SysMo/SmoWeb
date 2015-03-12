@@ -841,18 +841,92 @@ smoModule.directive('smoPlot', ['$compile', function($compile) {
 			modelName: '@modelName'
 		},
 		controller: function($scope) {
+			$scope.expanded = false;
+			$scope.toggle = function(){
+				$scope.expanded = !$scope.expanded;
+				if ($scope.expanded == false){
+					$scope.plotData();
+				}
+			}
+			
+			$scope.init = function(){
+				$scope.displayArray = angular.copy($scope.smoDataSource[$scope.fieldVar.name]);
+				$scope.options = angular.copy($scope.fieldVar.options);
+				$scope.numColumns = $scope.displayArray[0].length;
+				$scope.ylabel = $scope.fieldVar.options.ylabel;
+				
+				//Setting initial visibility
+				$scope.columnsShow = [];
+				for (var i=0; i<$scope.numColumns; i++){
+					$scope.columnsShow[i] = true;
+				}
+				
+				$scope.allChecked = true;
+				
+				var numEditRows;
+				if ($scope.numColumns % 5){
+					numEditRows = Math.floor($scope.numColumns / 5) + 1;
+				} else {
+					numEditRows = Math.floor($scope.numColumns / 5);
+				}
+				$scope.editRows = [];
+				for (var i=0; i<numEditRows; i++){
+					$scope.editRows.push(i);
+				}
+				
+				$scope.plotData();
+				$scope.options.dateWindow = $scope.chart.xAxisRange();
+				$scope.options.valueRange = $scope.chart.yAxisRange();
+			}
+			
+			$scope.setToAll = function(){
+				for (i=1; i<$scope.columnsShow.length; i++){
+					$scope.columnsShow[i] = $scope.allChecked;
+				}
+				$scope.setDisplayData();
+			}
+			
+			$scope.updateChecked = function(){
+				$scope.allChecked = false;
+				$scope.setDisplayData();
+			}
+			
+			$scope.setDisplayData = function(){
+				$scope.displayArray = [];
+				for (var i=0; i<$scope.smoDataSource[$scope.fieldVar.name].length; i++) {
+					var row = [];
+					row.push($scope.smoDataSource[$scope.fieldVar.name][i][0]);
+					for (var j=1; j<$scope.numColumns; j++){
+						if ($scope.columnsShow[j] == true){
+							row.push($scope.smoDataSource[$scope.fieldVar.name][i][j]);
+						}
+					}
+					$scope.displayArray.push(row);
+				}
+				
+				$scope.options.labels = [];
+				$scope.options.labels.push($scope.fieldVar.options.labels[0]);
+				for (var j=1; j<$scope.numColumns; j++){
+					if ($scope.columnsShow[j] == true){
+						$scope.options.labels.push($scope.fieldVar.options.labels[j]);
+					}
+				}
+				
+				if ($scope.options.labels.length == 2) {
+					$scope.options.ylabel = $scope.ylabel || $scope.options.labels[1];
+				} else {
+					$scope.options.ylabel = null;
+				}
+			}	
 			
 			$scope.plotData = function() {
-				
-				$scope.fieldVar.options.labelsDiv = $scope.modelName + '_' + $scope.fieldVar.name + 'LegendDiv';
-				
+				$scope.options.labelsDiv = $scope.modelName + '_' + $scope.fieldVar.name + 'LegendDiv';
 				$scope.chart = new Dygraph(document.getElementById($scope.modelName + '_' + $scope.fieldVar.name + 'PlotDiv'), 
-						$scope.smoDataSource[$scope.fieldVar.name],
-						$scope.fieldVar.options);
+						$scope.displayArray,
+						$scope.options);
 			}
 			
 			$scope.pngFileName = $scope.fieldVar.name + '.png';
-			
 			$scope.exportPNG = function(){
 				var img = document.getElementById($scope.modelName + '_' + $scope.fieldVar.name + 'Img');
 				Dygraph.Export.asPNG($scope.chart, img);
@@ -888,6 +962,24 @@ smoModule.directive('smoPlot', ['$compile', function($compile) {
 								<smo-button icon="save" size="md" action="exportPNG()" tip="Save plot"></smo-button>\
 								<img id="' + scope.modelName + '_' + scope.fieldVar.name + 'Img" hidden>\
 								<a id="' + scope.modelName + '_' + scope.fieldVar.name + 'PngElem" hidden></a>\
+								<smo-button action="toggle()" icon="settings" tip="Settings" size="md"></smo-button>\
+								<div class="table-view-edit" ng-show="expanded">\
+									<div style="cursor: pointer; margin-top: 50px; margin-right: 20px;"><smo-button action="toggle()" icon="close" tip="Close editor"></smo-button></div>\
+									<table class="nice-table" style="border: none;">\
+										<tr>\
+											<th style="min-width: 10px;">\
+												<input type="checkbox" ng-model="allChecked" ng-change="setToAll()"></input>\
+												<span>All</span>\
+											</th>\
+										</tr>\
+										<tr ng-repeat="row in editRows">\
+											<td style="min-width: 10px;" ng-repeat="seriesName in fieldVar.options.labels.slice(1).slice(row*5, row*5+5) track by $index">\
+												<input type="checkbox" ng-model="columnsShow[1 + row*5 + $index]" ng-change="updateChecked()"></input>\
+												<span ng-bind="seriesName"></span>\
+											</td>\
+										</tr>\
+									</table>\
+								</div>\
 							</div>';
 
 			var el = angular.element(template);
@@ -895,7 +987,7 @@ smoModule.directive('smoPlot', ['$compile', function($compile) {
 	        element.append(el);
 	        compiled(scope); 
 	        scope.$watch(scope.smoDataSource[scope.fieldVar.name], function(value) {
-	        	scope.plotData();
+	        	scope.init();
 		});
 		}	
 	}
@@ -1090,7 +1182,6 @@ smoModule.directive('smoTable', ['$compile', function($compile) {
 								<input type="checkbox" ng-model="allChecked" ng-change="setToAll()"></input>\
 								<span>All</span>\
 							</th>\
-						</tr>\
 						</tr>\
 						<tr ng-repeat="row in editRows">\
 							<td style="min-width: 10px;" ng-repeat="columnName in tableArray[0].slice(row*5, row*5+5) track by $index">\
