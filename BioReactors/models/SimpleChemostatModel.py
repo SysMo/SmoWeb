@@ -8,6 +8,7 @@ from collections import OrderedDict
 class SimpleChemostatModel(NumericalModel):
     label = "Simple Chemostat"
     description = ModelDescription("Simple chemostat simulator", show = True)
+    figure = ModelFigure(src="BioReactors/img/ModuleImages/SimpleChemostat.png", show=False)
     
     #1. ############ Inputs ###############
     #1.1 Fields - Input values
