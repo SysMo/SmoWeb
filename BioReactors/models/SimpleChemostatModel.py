@@ -30,7 +30,8 @@ class SimpleChemostatModel(NumericalModel):
     
     #1.2 Fields - Settings
     tSimulation = Quantity(default = 100, minValue = 0, maxValue=10000, label = 'simulation time')
-    solverFieldGourp = FieldGroup([tSimulation], label = 'Solver')
+    tPrint = Quantity(default = 0.1, minValue = 1e-4, maxValue=1000, label = 'print interval')
+    solverFieldGourp = FieldGroup([tSimulation, tPrint], label = 'Solver')
     
     settingsSuperGroup = SuperGroup([solverFieldGourp], label = 'Settings')
     
@@ -70,12 +71,11 @@ class SimpleChemostatModel(NumericalModel):
             tFinal = self.tSimulation)
         
         model.prepareSimulation()
-        model.run(tPrint = 1.0)
+        model.run(tPrint = self.tPrint)
         
         results = model.getResults()
         
         self.plot = np.array(results)
-        #self.plot = np.array([[1, 1, 0, 0], [2, 1, 0, 0], [2, 2, 0, 0], [3, 2, 0, 0], [4, 2, 0, 0]]) #:DELME:
         self.table = np.array(results)
 
 class SimpleChemostatDoc(RestModule):

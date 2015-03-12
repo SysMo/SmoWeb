@@ -29,11 +29,9 @@ class ResultStorage(object):
 	def __del__(self):
 		self.h5File.close()
 	
-	def initializeWriting(self, varList, chunkSize, dt = 1e-3, datasetFamily = 'simulation_{:0>4d}'):
+	def initializeWriting(self, varList, chunkSize, datasetFamily = 'simulation_{:0>4d}'):
 		# Size of result chunks
 		self.chunkSize = chunkSize
-		# Minimum time between 2 data points
-		self.dt = dt
 		# Naming convention for the results
 		self.datasetFamily = datasetFamily
 		# Create the group for the result if not present
@@ -51,17 +49,14 @@ class ResultStorage(object):
 		# Create column type
 		dtype = self.makeDType(varList = varList)
 		# Create numpy array used as a buffer for writing
-		self.buffer = np.zeros(shape = (self.chunkSize + 1,), dtype = dtype)
+		self.buffer = np.zeros(shape = (self.chunkSize), dtype = dtype)
 		# Create the raw result dataset
 		self.data = self.h5File[self.datasetPath].create_dataset(
 					self.simulationName + '_raw', shape = (0,), dtype = dtype,
 					chunks = (self.chunkSize,), maxshape = (None,))
 		# Create a lenngth 1 array for storing the current values for the time step
 		self.record = np.empty(shape = (1,), dtype = dtype)
-		self.bufferIndex = 1
-		self.lastStorageTime = -1.
-		self.numSaves = 0
-		
+		self.bufferIndex = 0
 
 	def makeDType(self, varList):
 		dtype = [(name, np.float32) for name in varList]
@@ -69,28 +64,15 @@ class ResultStorage(object):
 	
 	def saveTimeStep(self):
 		# Save the current time step
-		# If there was another result with same (or very close time) overwrite that result
 		# TRICKY: what happens if there is a discontinuity (before, after)? 
-		t = self.record['t'][0]
-		if ( t - self.lastStorageTime > self.dt and t > 1e-10):
-			self.buffer[self.bufferIndex] = self.record
-			self.lastStorageTime = t
-			self.bufferIndex += 1
-		else:
-			self.buffer[self.bufferIndex - 1] = self.record
+		self.buffer[self.bufferIndex] = self.record
+		self.bufferIndex += 1
 		# If the buffer is full dump it to the result file
-		# The last value of the buffer, is moved as first value to the new buffer, so that
-		# if overwritten, the correction will be reflected in the dataset at the next writing
 		if (self.bufferIndex >= self.chunkSize):
-# 			self.data.resize((len(self.data) + self.chunkSize,))
-# 			if (self.numSaves > 0):
-# 				self.data[-self.chunkSize - 1:] = self.buffer
-# 			else:
-# 				self.data[-self.chunkSize:] = self.buffer[1:]
-# 			self.buffer[0] = self.buffer[-1]
-# 			self.numSaves += 1
-			self.bufferIndex = 1
-			print ('Wrote to HDF')
+			self.data.resize((len(self.data) + self.chunkSize,))
+			self.data[-self.chunkSize:] = self.buffer
+			self.bufferIndex = 0
+			#print ('Wrote the buffer to HDF')
 		
 	def finalizeResult(self):
 		# Dump what is left in the buffer to the raw dataset

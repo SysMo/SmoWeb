@@ -31,7 +31,7 @@ class SimpleChemostatTimeEvent(TimeEvent):
 		self.newValue_D = newValue_D
 		
 		self.eventType = "GRADOSTAT_TIME_EVENT"
-		self.description = "Change the dilution rate (D) on {0}".format(newValue_D)
+		self.description = "Change the dilution rate (D) to {0}".format(newValue_D)
 		
 class SimpleChemostat(Simulation):
 	"""
@@ -46,6 +46,7 @@ class SimpleChemostat(Simulation):
 		# Create state vector and derivative vector
 		stateVarNames = ['S', 'X'] 
 		self.y = NamedStateVector(stateVarNames)
+		self.yRes = NamedStateVector(stateVarNames)
 		self.yDot = NamedStateVector(stateVarNames)
 
 		# Initialize data storage
@@ -54,7 +55,7 @@ class SimpleChemostat(Simulation):
 		if (kwargs.get('initDataStorage', True)):
 			self.resultStorage.initializeWriting(
 				varList = ['t'] + stateVarNames + ['D'],
-				chunkSize = 10000, dt = 1e-3)
+				chunkSize = 1e4)
 		
 		# Set parameter values
 		self.m = kwargs.get('m', 3)
@@ -129,15 +130,15 @@ class SimpleChemostat(Simulation):
 			self.D = timeEventList[0].newValue_D
 			if (reportEvents):
 				print("Time event located at time: {} - {}".format(solver.t, timeEventList[0].description))
-		
+	
 		if (False):
 			raise TerminateSimulation()
 	
 	def handle_result(self, solver, t, y):
 		super(SimpleChemostat, self).handle_result(solver, t, y)
-				
-		# Called on communication intervals  
-		self.resultStorage.record[:] = (solver.t, self.y.S, self.y.X, self.D)
+		
+		self.yRes.set(y)
+		self.resultStorage.record[:] = (t, self.yRes.S, self.yRes.X, self.D)
 		self.resultStorage.saveTimeStep()
 		
 	def run(self, tPrint = 1.0):
