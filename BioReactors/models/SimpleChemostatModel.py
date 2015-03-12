@@ -19,11 +19,11 @@ class SimpleChemostatModel(NumericalModel):
     D_vals = RecordArray(OrderedDict((
             ('D', Quantity(default = 1, minValue = 0, label = 'D')),
             ('days', Quantity(default = 20, minValue = 0, label = 'Time')),
-        )), label = 'D_vals')  
+        )), label = 'dilution rate (D)')  
     parametersFieldGroup = FieldGroup([S_in, m, K, gamma, D_vals], label = "Parameters")
     
-    S0 = Quantity(default = 0, minValue = 0, label = 'S0')
-    X0 = Quantity(default = 0.5, minValue = 0, label = 'X0')
+    S0 = Quantity(default = 0, minValue = 0, label = 'initial conc. of substrate (S<sub>0</sub>)')
+    X0 = Quantity(default = 0.5, minValue = 0, label = 'initial conc. of culture (X<sub>0</sub>)')
     initialValuesFieldGroup = FieldGroup([S0, X0], label = "Initial values")
     
     inputValuesSuperGroup = SuperGroup([parametersFieldGroup, initialValuesFieldGroup], label = "Input values")
@@ -75,6 +75,7 @@ class SimpleChemostatModel(NumericalModel):
         results = model.getResults()
         
         self.plot = np.array(results)
+        #self.plot = np.array([[1, 1, 0, 0], [2, 1, 0, 0], [2, 2, 0, 0], [3, 2, 0, 0], [4, 2, 0, 0]]) #:DELME:
         self.table = np.array(results)
 
 class SimpleChemostatDoc(RestModule):

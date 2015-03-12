@@ -38,15 +38,15 @@ where:
 
 :math:`S_{in}` - concentration of the input nutrient (substrate) [mass/volume]
 
-:math:`m` - maximal growth rate [1/time]
-
-:math:`K` - half saturation constant [mass/volume]
+:math:`D` - dilution (or washout) flow rate [1/time]
 
 :math:`\gamma` - yield coefficient of microorganisms (:math:`\gamma <= 1`) [-]
 
 :math:`\mu(S) = \frac{m.S}{K+S}` - specific growth rate (Monod type)
 
-:math:`D` - dilution (or washout) flow rate [1/time]
+:math:`m` - maximal growth rate [1/time]
+
+:math:`K` - half saturation constant [mass/volume]
 
 
 
