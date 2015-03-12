@@ -1517,8 +1517,10 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 			}
 			
 			$scope.delRow = function(row) {
-				$scope.smoDataSource[$scope.smoRecordArray.name].splice(row, 1);
-				$scope.arrDisplayValue.splice(row, 1);
+				if ($scope.arrDisplayValue.length > 1) {
+					$scope.smoDataSource[$scope.smoRecordArray.name].splice(row, 1);
+					$scope.arrDisplayValue.splice(row, 1);
+				}
 			}
 			
 		},
