@@ -12,18 +12,18 @@ class SimpleChemostatModel(NumericalModel):
     
     #1. ############ Inputs ###############
     #1.1 Fields - Input values
-    S_in = Quantity(default = 2.2, minValue = 0, label ='conc. of input substrate (S<sub>in</sub>)')
-    m = Quantity(default = 3, minValue = 0, label = 'maximal growth rate (m)')
-    K = Quantity(default = 3.7, minValue = 0, label = 'half saturation constant (K)')
-    gamma = Quantity(default = 0.6, minValue = 0, label = 'yield coefficient (&#947)')
+    S_in = Quantity(default = 2.2, minValue = 0, label ='S<sub>in</sub>', description = 'concentration of the input substrate [mass/volume]')
+    m = Quantity(default = 3, minValue = 0, label = 'm', description = 'maximal growth rate [1/time]')
+    K = Quantity(default = 3.7, minValue = 0, label = 'K', description = 'half saturation constant [mass/volume]')
+    gamma = Quantity(default = 0.6, minValue = 0, maxValue = 1.0, label = '&#947', description = 'yield coefficient of microorganisms [-]')
     D_vals = RecordArray(OrderedDict((
+            ('time', Quantity(default = 20, minValue = 0, label = 'Duration')),
             ('D', Quantity(default = 1, minValue = 0, label = 'D')),
-            ('days', Quantity(default = 20, minValue = 0, label = 'Time')),
-        )), label = 'dilution rate (D)')  
+        )), label = 'D', description = 'dilution rate [1/time]')  
     parametersFieldGroup = FieldGroup([S_in, m, K, gamma, D_vals], label = "Parameters")
     
-    S0 = Quantity(default = 0, minValue = 0, label = 'initial conc. of substrate (S<sub>0</sub>)')
-    X0 = Quantity(default = 0.5, minValue = 0, label = 'initial conc. of culture (X<sub>0</sub>)')
+    S0 = Quantity(default = 0, minValue = 0, label = 'S<sub>0</sub>', description = 'initial concentration of substrate [mass/volume]')
+    X0 = Quantity(default = 0.5, minValue = 0, label = 'X<sub>0</sub>', description = 'initial concentration of microorganisms [mass/volume]')
     initialValuesFieldGroup = FieldGroup([S0, X0], label = "Initial values")
     
     inputValuesSuperGroup = SuperGroup([parametersFieldGroup, initialValuesFieldGroup], label = "Input values")
@@ -46,7 +46,7 @@ class SimpleChemostatModel(NumericalModel):
     #2. ############ Results ###############
     plot = PlotView(label='Plot', dataLabels = ['time', 'S', 'X', 'D'], options = {'ylabel' : None})
     table = TableView(label='Table', dataLabels = ['time', 'S', 'X', 'D'], 
-                      quantities = ['Time', 'Dimensionless', 'Dimensionless', 'Dimensionless'],
+                      quantities = ['Dimensionless', 'Dimensionless', 'Dimensionless', 'Dimensionless'],
                       options = {'title': 'Title', 'formats': ['0.0000', '0.0000', '0.0000']})
     
     resultsViewGroup = ViewGroup([plot, table], label = 'Results')

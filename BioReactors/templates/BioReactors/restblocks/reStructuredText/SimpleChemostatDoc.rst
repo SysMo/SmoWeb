@@ -32,7 +32,7 @@ The mathematical model of simple chemostat is [Chemostat:95]_:
 
 where:
 
-:math:`S(t)` - concentration of nutrient (substrate) [mass/volume]
+:math:`S(t)` - concentration of nutrient (substrate) [mass/volume] (or [mol/volume])
 
 :math:`X(t)` - concentration of culture (microorganisms) [mass/volume]
 
@@ -40,9 +40,9 @@ where:
 
 :math:`D` - dilution (or washout) flow rate [1/time]
 
-:math:`\gamma` - yield coefficient of microorganisms (:math:`\gamma <= 1`) [-]
+:math:`\gamma` - yield coefficient of microorganisms (:math:`\gamma \leq 1`) [-]
 
-:math:`\mu(S) = \frac{m.S}{K+S}` - specific growth rate (Monod type)
+:math:`\mu(S) = \frac{m.S}{K+S}` - specific growth rate (Monod type) [mass/volume-time]
 
 :math:`m` - maximal growth rate [1/time]
 

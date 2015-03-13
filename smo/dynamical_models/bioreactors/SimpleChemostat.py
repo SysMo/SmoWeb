@@ -65,15 +65,15 @@ class SimpleChemostat(Simulation):
 		self.gamma = kwargs.get('gamma', 1)
 		
 		# Register time event (changed of D)
-		self.D_vals = kwargs.get('D_vals', np.array([[1, 100]]))
+		self.D_vals = kwargs.get('D_vals', np.array([[100, 1.0]]))
 		D_val = self.D_vals[0]
-		self.D = D_val[0]
+		self.D = D_val[1]
 		
-		t_ChangedD = D_val[1]
+		t_ChangedD = D_val[0]
 		for i in range(len(self.D_vals)-1):
 			self.D_val = self.D_vals[i+1]
-			self.timeEventRegistry.add(SimpleChemostatTimeEvent(t = t_ChangedD, newValue_D = self.D_val[0]))
-			t_ChangedD += self.D_val[1]
+			self.timeEventRegistry.add(SimpleChemostatTimeEvent(t = t_ChangedD, newValue_D = self.D_val[1]))
+			t_ChangedD += self.D_val[0]
 		
 		# Set initial values of the states
 		self.y.S = kwargs.get('S0', 0)
