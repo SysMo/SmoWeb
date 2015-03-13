@@ -12,25 +12,25 @@ class SimpleChemostatModel(NumericalModel):
     
     #1. ############ Inputs ###############
     #1.1 Fields - Input values
-    S_in = Quantity(default = 2.2, minValue = 0, label ='S<sub>in</sub>', description = 'concentration of the input substrate [mass/volume]')
-    m = Quantity(default = 3, minValue = 0, label = 'm', description = 'maximal growth rate [1/time]')
-    K = Quantity(default = 3.7, minValue = 0, label = 'K', description = 'half saturation constant [mass/volume]')
+    S_in = Quantity('Density', default = (5, 'g/L'), minValue = 0, label ='S<sub>in</sub>', description = 'concentration of the input substrate [mass/volume]')
+    m = Quantity('Hertz', default = (3, '1/h'), minValue = 0, label = 'm', description = 'maximal growth rate [1/time]')
+    K = Quantity('Density', default = (3.7, 'g/L'), minValue = 0, label = 'K', description = 'half saturation constant [mass/volume]')
     gamma = Quantity(default = 0.6, minValue = 0, maxValue = 1.0, label = '&#947', description = 'yield coefficient of microorganisms [-]')
     D_vals = RecordArray(OrderedDict((
-            ('time', Quantity(default = 20, minValue = 0, label = 'Duration')),
-            ('D', Quantity(default = 1, minValue = 0, label = 'D')),
+            ('time', Quantity('Time', default = (20, 'h'), minValue = 0, label = 'Duration')),
+            ('D', Quantity('Hertz', default = (1, '1/h'), minValue = 0, label = 'D')),
         )), label = 'D', description = 'dilution rate [1/time]')  
     parametersFieldGroup = FieldGroup([S_in, m, K, gamma, D_vals], label = "Parameters")
     
-    S0 = Quantity(default = 0, minValue = 0, label = 'S<sub>0</sub>', description = 'initial concentration of substrate [mass/volume]')
-    X0 = Quantity(default = 0.5, minValue = 0, label = 'X<sub>0</sub>', description = 'initial concentration of microorganisms [mass/volume]')
+    S0 = Quantity('Density', default = (0, 'g/L'), minValue = 0, label = 'S<sub>0</sub>', description = 'initial concentration of substrate [mass/volume]')
+    X0 = Quantity('Density', default = (0.5, 'g/L'), minValue = 0, label = 'X<sub>0</sub>', description = 'initial concentration of microorganisms [mass/volume]')
     initialValuesFieldGroup = FieldGroup([S0, X0], label = "Initial values")
     
     inputValuesSuperGroup = SuperGroup([parametersFieldGroup, initialValuesFieldGroup], label = "Input values")
     
     #1.2 Fields - Settings
-    tSimulation = Quantity(default = 100, minValue = 0, maxValue=10000, label = 'simulation time')
-    tPrint = Quantity(default = 0.1, minValue = 1e-4, maxValue=1000, label = 'print interval')
+    tSimulation = Quantity('Time', default = (100, 'h'), minValue = 0, maxValue=10000, label = 'simulation time')
+    tPrint = Quantity('Time', default = (0.1, 'h'), minValue = 1e-4, maxValue=1000, label = 'print interval')
     solverFieldGourp = FieldGroup([tSimulation, tPrint], label = 'Solver')
     
     settingsSuperGroup = SuperGroup([solverFieldGourp], label = 'Settings')
@@ -46,8 +46,10 @@ class SimpleChemostatModel(NumericalModel):
     #2. ############ Results ###############
     plot = PlotView(label='Plot', dataLabels = ['time', 'S', 'X', 'D'], options = {'ylabel' : None})
     table = TableView(label='Table', dataLabels = ['time', 'S', 'X', 'D'], 
-                      quantities = ['Dimensionless', 'Dimensionless', 'Dimensionless', 'Dimensionless'],
-                      options = {'title': 'Title', 'formats': ['0.0000', '0.0000', '0.0000']})
+                      quantities = ['Time', 'Density', 'Density', 'Hertz'],
+                      options = {'title': 'Title', 
+                                 'formats': ['0.0000', '0.0000', '0.0000'], 
+                                 'columnUnitDefs' : ['h', 'g/L', 'g/L', '1/h']})
     
     resultsViewGroup = ViewGroup([plot, table], label = 'Results')
     results = SuperGroup([resultsViewGroup])

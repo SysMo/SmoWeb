@@ -15,6 +15,8 @@ Quantities = {
 		'units' : OrderedDict((('m**3', {'mult' : 1}), ('L', {'mult' : 1e-3}), ('cm**3', {'mult' : 1e-6}), ('mm**3', {'mult' : 1e-9}),))},
 	'Time' : {'title' : 'time', 'nominalValue' : 1, 'SIUnit' : 's', 
 		'units' : OrderedDict((('s', {'mult' : 1}), ('ms', {'mult' : 1e-3}), ('us', {'mult' : 1e-6}), ('min', {'mult' : 60}), ('h', {'mult' : 3600}), ('day', {'mult' : 8.64e4}), ('year', {'mult' : 3.15576e7}),))},
+	'Hertz' : {'title' : 'hertz', 'nominalValue' : 1, 'SIUnit' : '1/s',
+		'units' : OrderedDict((('1/s', {'mult' : 1}), ('1/min', {'mult' : 1./60}), ('1/h', {'mult' : 1./3600}), ('1/day', {'mult' : 1./8.64e4}),))},
 	'Angle' : {'title' : 'angle', 'nominalValue' : numpy.pi/4, 'SIUnit' : 'rad', 
 		'units' : OrderedDict((('rad', {'mult' : 1}), ('deg', {'mult' : numpy.pi/180})))},
 	'Force' : {'title' : 'force', 'nominalValue' : 1, 'SIUnit' : 'N', 

@@ -15,7 +15,7 @@ from SmoWeb.settings import MEDIA_ROOT
 
 """ Global Settings """
 tmpFolderPath = os.path.join (MEDIA_ROOT, 'tmp')
-csvFileName = os.path.join(tmpFolderPath, 'BioReactors_SimpleGradostat_SimulationResults.csv')
+csvFileName = os.path.join(tmpFolderPath, 'BioReactors_SimpleChemostat_SimulationResults.csv')
 dataStorageFilePath =  os.path.join(tmpFolderPath, 'BioReactors_SimulationResults.h5')
 dataStorageDatasetPath = '/SimpleChemostat'
 
@@ -24,20 +24,20 @@ dataStorageDatasetPath = '/SimpleChemostat'
 """ Classes """
 class SimpleChemostatTimeEvent(TimeEvent):	
 	"""
-	Class for time event of SimpleGradostatModel
+	Class for time event of SimpleChemostatModel
 	"""
 	def __init__(self, t, newValue_D):
 		self.t = t
 		self.newValue_D = newValue_D
 		
-		self.eventType = "GRADOSTAT_TIME_EVENT"
+		self.eventType = "Chemostat_TIME_EVENT"
 		self.description = "Change the dilution rate (D) to {0}".format(newValue_D)
 		
 class SimpleChemostat(Simulation):
 	"""
 	Class for implementation the model of simple chemostat 
 	"""
-	name = 'Model of a simple Gradostat.'
+	name = 'Model of a simple chemostat.'
 	
 	def __init__(self, **kwargs):
 		super(SimpleChemostat, self).__init__(**kwargs)
@@ -158,7 +158,7 @@ class SimpleChemostat(Simulation):
 
 
 """ Test functions """
-def TestSimpleGradostat():
+def TestSimpleChemostat():
 	# Settings
 	simulate = True #True - run simulation; False - plot an old results 
 	tFinal = 500 
@@ -188,5 +188,5 @@ def TestSimpleGradostat():
 	
 if __name__ == '__main__':
 	#NamedStateVector.test()
-	TestSimpleGradostat()
+	TestSimpleChemostat()
 	
