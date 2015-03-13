@@ -62,8 +62,8 @@ class HeatPump(NumericalModel):
 	mDotRefrigerant = Quantity('MassFlowRate', default = (1, 'kg/min'), label = 'refrigerant flow rate')
 	pLow = Quantity('Pressure', default = (1, 'bar'), label = 'low pressure')
 	pHigh = Quantity('Pressure', default = (10, 'bar'), label = 'high pressure')
-	THot = Quantity('Temperature', default = (300, 'K'), label = 'warm temperature')
-	TCold = Quantity('Temperature', default = (270, 'K'), label = 'cold temperature')
+	THot = Quantity('Temperature', default = (300, 'K'), label = 'condenser temperature')
+	TCold = Quantity('Temperature', default = (270, 'K'), label = 'evaporator temperature')
 	compressionType = Choices(
 		OrderedDict((
 				('isentropic', 'isentropic'),

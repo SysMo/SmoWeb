@@ -10,6 +10,32 @@ ThermodynamicVariables = {
 	'w' : {'label': 'work', 'scale': 1e3, 'unit': 'kJ/kg'},
 }
 
+class Compressor(object):
+	def __init__(self, type, eta, fQ):
+		self.type = type
+		self.eta = eta
+		self.fQ = fQ
+	
+	def compute(self):
+		pass
+
+class ThermodynamicCycle(object):
+	pass
+
+class ReverseBraytonCycle(ThermodynamicCycle):
+	def __init__(self, fluidName):
+		self.fluid = Fluid(fluidName)
+		self.p1 = FluidState(self.fluid)
+		self.p2 = FluidState(self.fluid)
+		self.p3 = FluidState(self.fluid)
+		self.p4 = FluidState(self.fluid)
+# 		c1 = Compressor()
+# 		c2 = Condensor()
+# 		c3 = ThrottleValve()
+# 		c4 = Evaporator()
+		
+
+
 class IsentropicProcess(object):
 	def __init__(self, fluidName):
 		self.fluidName = fluidName

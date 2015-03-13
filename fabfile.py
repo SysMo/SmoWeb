@@ -250,9 +250,11 @@ def installPipPackages():
 		'celery',
 		# Documentation utility for python
 		'sphinx',
-		# Utility to read/write Excel files
+		# Utilities to read/write Excel files
 		'xlrd',
 		'xlwt',
+		'openpyxl',
+		'xlsxwriter',
 		# Data processing utilities
 		'numexpr',
 		'tables', # PyTables

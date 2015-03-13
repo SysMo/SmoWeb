@@ -8,6 +8,11 @@ import numpy as np
 import math
 
 def formatNumber(n, sig = 6):
+	'''
+	Converts a floating point number to a string using
+	the given number of significant digits.
+	:param sig: number of significant digits
+	'''
 	if (n == 0):
 		return '0'		
 	if (abs(n) < 1e-80):
@@ -19,22 +24,15 @@ def formatNumber(n, sig = 6):
 
 class Interpolator1D(object):
 	"""
-	1D interpolator using numpy.interp
+	1D interpolator using numpy.interp. Allows the values to be
+	set only once in the constructor, and then called as a function.
 	"""
 	def __init__(self, xValues, yValues, outOfRange = 'value'):
 		self.xValues = np.array(xValues);
-		self.yValues = np.array(yValues);
-		#self.minX = self.xValues[0]
-		#self.maxX = self.xValues[-1]
-		
+		self.yValues = np.array(yValues);		
 
 	def __call__(self, inputValues):
 		from numpy import interp
-		#self.belowMin = inputValues < self.minX
-		#self.aboveMax = inputValues > self.maxX
-		#limitedValues = inputValues[:]
-		#limitedValues[self.belowMin] = self.minX
-		#limitedValues[self.aboveMac] = self.maxX
 		return interp(inputValues, self.xValues, self.yValues)
 
 class SectionCalculator(object):
@@ -72,18 +70,30 @@ class SectionCalculator(object):
 		print calc(np.arange(15) + 1)
 
 class NamedStateVector(object):
+	"""
+	A data structure which has two different views. 
+	On one hand it is a vector of values (of the same type),
+	on the other hand each value can be accessed by name, as though
+	it is a member variable of the class.
+	"""
 	def __init__(self, stateList):
 		from collections import OrderedDict
 		self.__dict__['stateMap'] = OrderedDict((zip(stateList, range(len(stateList)))))
 		self.__dict__['_values'] = np.zeros((len(stateList)))
 
 	def set(self, values, copy = False):
+		'''
+		Sets variable values from a numpy vector
+		'''
 		if (copy):
 			self.__dict__['_values'] = values[:]
 		else:  
 			self.__dict__['_values'] = values
 	
 	def get(self, copy = False):
+		'''
+		Sets numpy array's values from the internal storage
+		'''
 		if (copy):
 			values = self._values[:]
 		else:  
