@@ -43,9 +43,26 @@ class SimpleChemostatModel(NumericalModel):
         actionBar = inputActionBar, autoFetch = True)
     
     #2. ############ Results ###############
-    plot = PlotView(label='Plot', dataLabels = ['time', 'S', 'X', 'D'], options = {'ylabel' : None})
-    table = TableView(label='Table', dataLabels = ['time', 'S', 'X', 'D'], 
-                      quantities = ['Time', 'Dimensionless', 'Dimensionless', 'Dimensionless'],
+#     plot = PlotView(label='Plot', dataLabels = ['time', 'S', 'X', 'D'], options = {'ylabel' : None})
+#     table = TableView(label='Table', dataLabels = ['time', 'S', 'X', 'D'], 
+#                       quantities = ['Time', 'Dimensionless', 'Dimensionless', 'Dimensionless'],
+#                       options = {'title': 'Title', 'formats': ['0.0000', '0.0000', '0.0000']})
+    
+    plot = PlotView1(structDict = OrderedDict((
+                            ('time', Quantity('Time', default = (1, 'h'))),
+                            ('S', Quantity('Dimensionless')),
+                            ('X', Quantity('Dimensionless')),
+                            ('D', Quantity('Dimensionless')),
+                        )),
+                        label='Plot', 
+                        options = {'ylabel' : None})
+    table = TableView1(structDict = OrderedDict((
+                            ('time', Quantity('Time', default = (1, 'h'))),
+                            ('S', Quantity('Dimensionless')),
+                            ('X', Quantity('Dimensionless')),
+                            ('D', Quantity('Dimensionless')),
+                        )),
+                      label='Table', 
                       options = {'title': 'Title', 'formats': ['0.0000', '0.0000', '0.0000']})
     
     resultsViewGroup = ViewGroup([plot, table], label = 'Results')
@@ -76,6 +93,7 @@ class SimpleChemostatModel(NumericalModel):
         
         self.plot = np.array(results)
         self.table = np.array(results)
+        
 
 class SimpleChemostatDoc(RestModule):
     label = 'Simple Chemostat (Doc)'

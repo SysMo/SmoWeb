@@ -114,8 +114,7 @@ class NumericalModel(object):
 		
 		if (modelView.actionBar is not None):
 			for action in modelView.actionBar.actionList:
-				actions.append(action.toJson())
-		
+				actions.append(action.toJson()) 
 		return {'definitions': definitions, 'values': fieldValues, 'actions': actions}
 
 	def superGroup2Json(self, group, fieldValues):
@@ -171,4 +170,4 @@ class NumericalModel(object):
 		"""
 		for key, value in jsonDict.iteritems():
 			field = self.declared_fields[key]
-			self.__dict__[key] = field.parseValue(value)
+			self.__dict__[key] = field.parseValue(value)	
