@@ -146,7 +146,7 @@ class SimpleChemostat(Simulation):
 		self.resultStorage.finalizeResult()
 		
 	def getResults(self):
-		return self.resultStorage.data[:]
+		return self.resultStorage.data
 	
 	def plotHDFResults(self):		
 		data = self.resultStorage.data
