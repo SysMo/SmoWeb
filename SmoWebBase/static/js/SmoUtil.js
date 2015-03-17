@@ -1219,22 +1219,20 @@ smoModule.directive('smoPlot', ['$compile', 'util', function($compile, util) {
 			$scope.expanded = false;
 			$scope.toggle = function(){
 				$scope.expanded = !$scope.expanded;
-				if ($scope.expanded == false){
+				if ($scope.expanded == false) {
+					$scope.setDataView();
 					$scope.plotData();
 				}
 			}
 			
-			$scope.init = function(){
-				$scope.options = $scope.fieldVar.options;
+			$scope.init = function() {
 				$scope.values = $scope.smoDataSource[$scope.fieldVar.name];
-				$scope.labels = $scope.fieldVar.labels;
-				
 				$scope.numCols = $scope.values[0].length;
 				$scope.numRows = $scope.values.length;
-				$scope.ylabel = $scope.options.ylabel;
-				
-				$scope.displayOptions = angular.copy($scope.options);
 				$scope.displayValues = angular.copy($scope.values);
+				
+				$scope.fieldVar.options.labels = $scope.fieldVar.labels;
+				$scope.options = angular.copy($scope.fieldVar.options);
 				
 				for (var col=0; col<$scope.numCols; col++){
 					var field = $scope.fieldVar.fields[col];
@@ -1265,7 +1263,7 @@ smoModule.directive('smoPlot', ['$compile', 'util', function($compile, util) {
 					}
 					
 					$scope.options.labels[col] 
-						= $scope.labels[col] + ' [' + field.displayUnit + ']';
+						= $scope.fieldVar.options.labels[col] + ' [' + field.displayUnit + ']';
 				}
 				
 				//Determining number of rows in edit mode
@@ -1293,47 +1291,79 @@ smoModule.directive('smoPlot', ['$compile', 'util', function($compile, util) {
 				//$scope.options.valueRange = $scope.chart.yAxisRange();
 			}
 			
-			$scope.setToAll = function(){
+			$scope.setToAll = function() {
 				for (i=1; i<$scope.columnsShow.length; i++){
 					$scope.columnsShow[i] = $scope.allChecked;
 				}
-				$scope.setDataView();
 			}
 			
-			$scope.updateChecked = function(){
+			$scope.updateChecked = function() {
+				$scope.columnsShow[0] = true;
 				$scope.allChecked = false;
-				$scope.setDataView();
 			}
 			
-			$scope.setDataView = function(){
+			$scope.setDataView = function() {
+				$scope.viewValues = [];
 				for (var i=0; i<$scope.numRows; i++) {
-					for (var j=1; j<$scope.numCols; j++){
-						if ($scope.columnsShow[j] == false){
-							$scope.displayValues[i].splice(j, 1);
+					var row = [];
+					for (var j=0; j<$scope.numCols; j++){
+						if ($scope.columnsShow[j] == true){
+							row.push($scope.displayValues[i][j]);
 						}
 					}
+					$scope.viewValues[i] = row;
 				}
 				
-				for (var j=1; j<$scope.numCols; j++){
-					if ($scope.columnsShow[j] == false){
-						$scope.displayOptions.labels.splice(j, 1);
+				$scope.viewOptions = angular.copy($scope.options);
+				var row = [];
+				for (var j=0; j<$scope.numCols; j++){
+					if ($scope.columnsShow[j] == true){
+						row.push($scope.options.labels[j]);
 					}
 				}
+				$scope.viewOptions.labels = row;
 				
-				if ($scope.displayOptions.labels.length == 2) {
-					$scope.displayOptions.ylabel = $scope.ylabel || $scope.displayOptions.labels[1];
+				if ($scope.viewOptions.labels.length == 2) {
+					$scope.viewOptions.ylabel = $scope.options.ylabel || $scope.viewOptions.labels[1];
 				} else {
-					$scope.displayOptions.ylabel = null;
+					$scope.viewOptions.ylabel = null;
 				}
-			}	
+				
+				$scope.viewOptions.xlabel = $scope.options.labels[0];
+				
+			}
+			
+			$scope.changeUnit = function(col) {
+				var field = $scope.fieldVar.fields[col];
+				
+				for (var i=0; i<field.units.length; i++) {
+					if (field.displayUnit == field.units[i][0]){
+						field.dispUnitDef = field.units[i][1];
+					}	
+				}
+				
+				var offset = 0;
+				if ('offset' in field.dispUnitDef) {
+					offset = field.dispUnitDef.offset;
+				}
+				
+				for (var row=0; row<$scope.numRows; row++){
+					$scope.displayValues[row][col]
+						= util.formatNumber(($scope.values[row][col] - offset) / field.dispUnitDef.mult);
+				}
+				
+				$scope.options.labels[col] 
+					= $scope.fieldVar.options.labels[col] + ' [' + field.displayUnit + ']';
+				
+				$scope.setDataView();
+			}
 			
 			$scope.plotData = function() {
-				$scope.options.labelsDiv = $scope.modelName + '_' + $scope.fieldVar.name + 'LegendDiv';
+				$scope.viewOptions.labelsDiv = $scope.modelName + '_' + $scope.fieldVar.name + 'LegendDiv';
 				$scope.chart = new Dygraph(document.getElementById($scope.modelName + '_' + $scope.fieldVar.name + 'PlotDiv'), 
-						$scope.displayValues,
-						$scope.displayOptions);
-				$scope.displayValues = angular.copy($scope.values);
-				$scope.displayOptions = angular.copy($scope.options);
+						$scope.viewValues,
+						$scope.viewOptions);
+				$scope.options.valueRange = $scope.chart.yAxisRange();
 			}
 			
 			$scope.pngFileName = $scope.fieldVar.name + '.png';
@@ -1373,7 +1403,7 @@ smoModule.directive('smoPlot', ['$compile', 'util', function($compile, util) {
 								<img id="' + scope.modelName + '_' + scope.fieldVar.name + 'Img" hidden>\
 								<a id="' + scope.modelName + '_' + scope.fieldVar.name + 'PngElem" hidden></a>\
 								<smo-button action="toggle()" icon="settings" tip="Settings" size="md"></smo-button>\
-								<div class="table-view-edit" ng-show="expanded">\
+								<div class="view-edit" ng-show="expanded">\
 									<div style="cursor: pointer; margin-top: 50px; margin-right: 20px;"><smo-button action="toggle()" icon="close" tip="Close editor"></smo-button></div>\
 									<table class="nice-table" style="border: none;">\
 										<tr>\
@@ -1383,7 +1413,7 @@ smoModule.directive('smoPlot', ['$compile', 'util', function($compile, util) {
 											</th>\
 										</tr>\
 										<tr ng-repeat="row in editRows">\
-											<td style="min-width: 10px;" ng-repeat="label in labels.slice(row*5, row*5+5) track by $index">\
+											<td style="min-width: 10px;" ng-repeat="label in fieldVar.labels.slice(row*5, row*5+5) track by $index">\
 												<input type="checkbox" ng-model="columnsShow[row*5 + $index]" ng-change="updateChecked()"></input>\
 												<span ng-bind="label"></span>\
 												<div class="field-select quantity"> \
@@ -1615,7 +1645,7 @@ smoModule.directive('smoTable', ['$compile', 'util', function($compile, util) {
 				<smo-button icon="save" size="md" action="exportCSV()" tip="Save data"></smo-button>\
 				<a id="' + scope.modelName + '_' + scope.fieldVar.name + 'CsvElem" hidden></a>\
 				<smo-button action="toggle()" icon="settings" tip="Settings" size="md"></smo-button>\
-				<div class="table-view-edit" ng-show="expanded">\
+				<div class="view-edit" ng-show="expanded">\
 					<div style="cursor: pointer; margin-top: 50px; margin-right: 20px;"><smo-button action="toggle()" icon="close" tip="Close editor"></smo-button></div>\
 					<table class="nice-table" style="border: none;">\
 						<tr>\

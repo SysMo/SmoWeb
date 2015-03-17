@@ -49,7 +49,7 @@ class SimpleChemostatModel(NumericalModel):
 #                       options = {'title': 'Title', 'formats': ['0.0000', '0.0000', '0.0000']})
     
     plot = PlotView1(structDict = OrderedDict((
-                            ('time', Quantity('Time', default = (1, 'h'))),
+                            ('time', Quantity('Time', default = (1, 'min'))),
                             ('S', Quantity('Dimensionless')),
                             ('X', Quantity('Dimensionless')),
                             ('D', Quantity('Dimensionless')),
@@ -57,7 +57,7 @@ class SimpleChemostatModel(NumericalModel):
                         label='Plot', 
                         options = {'ylabel' : None})
     table = TableView1(structDict = OrderedDict((
-                            ('time', Quantity('Time', default = (1, 'h'))),
+                            ('time', Quantity('Time', default = (1, 'min'))),
                             ('S', Quantity('Dimensionless')),
                             ('X', Quantity('Dimensionless')),
                             ('D', Quantity('Dimensionless')),
