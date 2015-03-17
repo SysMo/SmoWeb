@@ -239,7 +239,7 @@
 }
 
 /* Internet Explorer specific styles */
-.no-rgba .record-array, .no-rgba .table-view-edit {
+.no-rgba .record-array, .no-rgba .table-view-edit, .no-rgba .view-edit {
 	background: black;
 }
 

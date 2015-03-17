@@ -573,7 +573,7 @@ class TableView1(View):
 	"""
 	Field for visualization of table data
 	"""
-	def __init__(self, options = None, *args, **kwargs):
+	def __init__(self, structDict = None, options = None, *args, **kwargs):
 		"""
 		:param numpy.array default: ordered dictionary
 		:param dict options: additional options to be passed
@@ -587,7 +587,7 @@ class TableView1(View):
 			else:
 				raise ArgumentTypeError('Options passed to TableView must be a dictionary object')
 		
-		super(TableView1, self).__init__(*args, **kwargs)
+		super(TableView1, self).__init__(structDict = structDict, *args, **kwargs)
 		
 	def toFormDict(self):
 		fieldDict = super(TableView1, self).toFormDict()
@@ -686,7 +686,7 @@ class PlotView1(View):
 	"""
 	Field for visualization of table data
 	"""
-	def __init__(self, xlog = None, ylog = None, options = None, *args, **kwargs):
+	def __init__(self, structDict = None, xlog = None, ylog = None, options = None, *args, **kwargs):
 		"""
 		:param numpy.array default: ordered dictionary
 		:param dict options: additional options to be passed
@@ -710,7 +710,7 @@ class PlotView1(View):
 			else:
 				raise ArgumentTypeError('Options passed to TableView must be a dictionary object')
 		
-		super(PlotView1, self).__init__(*args, **kwargs)
+		super(PlotView1, self).__init__(structDict = structDict, *args, **kwargs)
 		
 	def toFormDict(self):
 		fieldDict = super(PlotView1, self).toFormDict()

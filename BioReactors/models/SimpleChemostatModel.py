@@ -48,22 +48,22 @@ class SimpleChemostatModel(NumericalModel):
 #                       quantities = ['Time', 'Dimensionless', 'Dimensionless', 'Dimensionless'],
 #                       options = {'title': 'Title', 'formats': ['0.0000', '0.0000', '0.0000']})
     
-    plot = PlotView1(structDict = OrderedDict((
-                            ('time', Quantity('Time', default = (1, 'min'))),
+    plot = PlotView1(OrderedDict((
+                            ('time', Quantity('Time', default = (1, 'h'))),
                             ('S', Quantity('Dimensionless')),
                             ('X', Quantity('Dimensionless')),
                             ('D', Quantity('Dimensionless')),
                         )),
                         label='Plot', 
                         options = {'ylabel' : None})
-    table = TableView1(structDict = OrderedDict((
+    table = TableView1(OrderedDict((
                             ('time', Quantity('Time', default = (1, 'min'))),
                             ('S', Quantity('Dimensionless')),
                             ('X', Quantity('Dimensionless')),
                             ('D', Quantity('Dimensionless')),
                         )),
                       label='Table', 
-                      options = {'title': 'Title', 'formats': ['0.0000', '0.0000', '0.0000']})
+                      options = {'title': 'Title', 'formats': ['0.000', '0.000', '0.000', '0.000']})
     
     resultsViewGroup = ViewGroup([plot, table], label = 'Results')
     results = SuperGroup([resultsViewGroup])
