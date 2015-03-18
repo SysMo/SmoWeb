@@ -213,7 +213,7 @@
 	color: black;
 }
 /* Record array and TableView editor */
-.record-array, .table-view-edit, .view-edit {
+.record-array, .view-edit {
 	position: absolute;
 	position: fixed;
 	left: 0px;
@@ -239,9 +239,10 @@
 }
 
 /* Internet Explorer specific styles */
-.no-rgba .record-array, .no-rgba .table-view-edit, .no-rgba .view-edit {
+.no-rgba .record-array, .no-rgba .view-edit {
 	background: black;
 }
+
 
 
 
