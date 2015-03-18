@@ -455,17 +455,16 @@ class TableView(DataSeriesView):
 	"""
 	def __init__(self, structTuple = None, options = None, *args, **kwargs):
 		"""
-		:param structTuple: tuple defining the structure of the 
-			view data. It consists of ``(name, type)`` pairs, 
-			where ``name`` is the column name, and ``type`` is one of the basic
-			field types (:class:`Quantity`, :class:`String`, :class:`Boolean` etc.)
+		:param structTuple: tuple defining the structure of the view data. \
+		It consists of ``(name, type)`` pairs, \
+		where ``name`` is the column name, and ``type`` is the :class:`Quantity` field type
 		
 		Example::
-				(
-					('pressure', Quantity('Pressure')),
-					('temperature', Quantity('Temperature')),	   
-				)
+				(	('pressure', Quantity('Pressure')),
+					('temperature', Quantity('Temperature'))	)
+				
 		:param dict options: additional options to be passed
+		
 		"""
 		
 		if (options is None):
@@ -493,19 +492,18 @@ class PlotView(DataSeriesView):
 	"""
 	def __init__(self, structTuple = None, xlog = None, ylog = None, options = None, *args, **kwargs):
 		"""
-		:param structTuple: tuple defining the structure of the 
-			view data. It consists of ``(name, type)`` pairs, 
-			where ``name`` is the column name, and ``type`` is one of the basic
-			field types (:class:`Quantity`, :class:`String`, :class:`Boolean` etc.)
+		:param structTuple: tuple defining the structure of the view data. \
+		It consists of ``(name, type)`` pairs, \
+		where ``name`` is the column name, and ``type`` is the :class:`Quantity` field type
 		
 		Example::
-				(
-					('pressure', Quantity('Pressure')),
-					('temperature', Quantity('Temperature')),	   
-				)
+				(	('pressure', Quantity('Pressure')),
+					('temperature', Quantity('Temperature'))	)
+				
 		:param bool xlog: use logarithmic scale for x axis
 		:param bool ylog: use logarithmic scale for y axis
 		:param dict options: additional options to be passed
+		
 		"""
 		
 		if (xlog is None):
