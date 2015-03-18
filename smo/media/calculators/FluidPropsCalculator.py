@@ -119,7 +119,7 @@ class PropertyCalculatorCoolprop(NumericalModel):
 	vaporResults = FieldGroup([rho_V, h_V, s_V], label="Vapor")
 	saturationProps = SuperGroup([liquidResults, vaporResults], label="Phases")
 	#####
-	paramVarTable = TableView(OrderedDict((
+	paramVarTable = TableView((
 	                            ('T', Quantity('Temperature')),
 	                            ('p', Quantity('Pressure')),
 	                            ('rho', Quantity('Density')),
@@ -129,11 +129,10 @@ class PropertyCalculatorCoolprop(NumericalModel):
 	                            ('cp', Quantity('SpecificHeatCapacity')),
 	                            ('cv', Quantity('SpecificHeatCapacity')),
 	                            ('lambda', Quantity('ThermalConductivity')),
-	                            ('mu', Quantity('DynamicViscosity')),
-	                        )),
-							label="Variation Table",
-							options = {'formats': ['0.000', '0.000E0', '0.000', '0.000E0', '0.00', '0.000E0', 
-													'0.000E0', '0.000E0', '0.000E0', '0.000E0']})
+	                            ('mu', Quantity('DynamicViscosity')),),
+								label="Variation Table",
+								options = {'formats': ['0.000', '0.000E0', '0.000', '0.000E0', '0.00', '0.000E0', 
+														'0.000E0', '0.000E0', '0.000E0', '0.000E0']})
 	
 # 	testVarTable = VariationTable(label="Variation Table", dataLabels = ['T', 'p', 'h'], 
 # 							visibleColumns = [1,2], quantities = ['Temperature', 'Pressure', 'SpecificEnthalpy'],
@@ -346,37 +345,37 @@ class SaturationData(NumericalModel):
 	
 	############# Results ###############
 	# Fields
-	T_p_satPlot = PlotView(OrderedDict((
-									('pressure', Quantity('Pressure', default=(1,'Pa'))),
-		                            ('saturation temperature', Quantity('Temperature', default=(1,'K')))
-		                            )),
-									label = 'Temperature', 
-									xlog = True, 
-									options = {'ylabel': 'temperature [K]'}, description="Temperature pressure saturation plot")
-	rho_p_satPlot = PlotView(OrderedDict((
-		                            ('pressure', Quantity('Pressure', default=(1,'Pa'))),
-		                            ('liquid density', Quantity('Density', default=(1,'kg/m**3'))),
-	                           		('vapor density', Quantity('Density', default=(1,'kg/m**3')))
-		                            )),
-									label = 'Density',
-									options = {'ylabel': 'density [kg/m**3]'})
-	delta_h_p_satPlot = PlotView(OrderedDict((
+	T_p_satPlot = PlotView((
+								('pressure', Quantity('Pressure', default=(1,'Pa'))),
+	                            ('temperature', Quantity('Temperature', default=(1,'K')))
+	                            ),
+								label = 'Temperature', 
+								xlog = True, 
+								options = {'title': 'Saturation temperature'}, description="Temperature pressure saturation plot")
+	rho_p_satPlot = PlotView((
+								('pressure', Quantity('Pressure', default=(1,'Pa'))),
+								('liquid density', Quantity('Density', default=(1,'kg/m**3'))),
+								('vapor density', Quantity('Density', default=(1,'kg/m**3')))
+								),
+								label = 'Density',
+								options = {'ylabel': 'density'})
+	delta_h_p_satPlot = PlotView((
 		                            ('pressure', Quantity('Pressure', default=(1,'Pa'))),
 		                            ('h evap.', Quantity('SpecificEnthalpy', default=(1,'kJ/kg'))),
-			                        )),
+			                        ),
 									label = 'Evap. enthalpy',
 									xlog = True, 
 									options = {'title': 'Evaporation enthalpy'}, 
 									description="Evaporation enthalpy pressure saturation")
-	delta_s_p_satPlot = PlotView(OrderedDict((
+	delta_s_p_satPlot = PlotView((
 		                            ('pressure', Quantity('Pressure', default=(1,'Pa'))),
 		                            ('s evap.', Quantity('SpecificEntropy', default=(1,'kJ/kg-K'))),
-			                        )),
+			                        ),
 									label = 'Evap. entropy',
 									xlog = True,  
 									options = {'title': 'Evaporation entropy'})
 	
-	satTableView = TableView(OrderedDict((
+	satTableView = TableView((
 	                            ('p', Quantity('Pressure')),
 	                            ('T', Quantity('Temperature')),
 	                            ('rho_L', Quantity('Density')),
@@ -387,7 +386,7 @@ class SaturationData(NumericalModel):
 	                            ('s_L', Quantity('SpecificEntropy')),
 	                            ('s_V', Quantity('SpecificEntropy')),
 	                            ('s_V - s_L', Quantity('SpecificEntropy'))
-		                        )),
+		                        ),
 								label = 'Sat. table',
 								options = {'title': 'Saturation data', 'formats': '0.0000E0'})
 	

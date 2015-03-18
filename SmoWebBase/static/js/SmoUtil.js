@@ -832,7 +832,7 @@ smoModule.directive('smoBool', ['$compile', function($compile) {
 	}
 }]);
 
-smoModule.directive('smoDataView', ['$compile', function($compile) {
+smoModule.directive('smoDataSeriesView', ['$compile', function($compile) {
 	return {
 		restrict : 'A',
 		scope : {
@@ -876,11 +876,8 @@ smoModule.directive('smoDataView', ['$compile', function($compile) {
 				}
 				$scope.options.labels = row;
 				
-				if ($scope.options.labels.length == 2) {
+				if ($scope.options.labels.length == 2)
 					$scope.options.ylabel = $scope.options.ylabel || $scope.options.labels[1];
-				} else {
-					$scope.options.ylabel = "";
-				}
 				
 				$scope.options.xlabel = $scope.options.labels[0];			
 			}
@@ -1274,10 +1271,8 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 						navPillPanes.push('<div class="tab-pane" id="' + field.name + '">');
 					}
 					
-					if (field.type == 'PlotView') {
-						navPillPanes.push('<div ' + showFieldCode + ' smo-data-view field-var="fields.' + field.name + '" model-name="' + scope.modelName + '" smo-data-source="smoDataSource"></div>');
-					} else if (field.type == 'TableView') {
-						navPillPanes.push('<div ' + showFieldCode + ' smo-data-view field-var="fields.' + field.name + '" model-name="' + scope.modelName + '" smo-data-source="smoDataSource" style="width: 840px; max-height: 450px; overflow: auto;"></div>');
+					if (field.type == 'TableView' || field.type == 'PlotView') {
+						navPillPanes.push('<div ' + showFieldCode + ' smo-data-series-view field-var="fields.' + field.name + '" model-name="' + scope.modelName + '" smo-data-source="smoDataSource" style="width: 840px; max-height: 650px; overflow: auto;"></div>');
 					} else if (field.type == 'Image') {
 						navPillPanes.push('<div ' + showFieldCode + ' smo-img field-var="fields.' + field.name + '" model-name="' + scope.modelName + '" smo-data-source="smoDataSource" style="max-width: 840px; overflow: auto;"></div>');
 					}
@@ -1306,10 +1301,8 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 				template += '\
 					<div style="white-space: nowrap; background-color: white; padding :10px; text-align: center;">';
 				
-				if (field.type == 'PlotView') {
-					template += '<div ' + showFieldCode + ' smo-data-view field-var="smoViewGroup.fields[0]" model-name="' + scope.modelName + '" smo-data-source="smoDataSource"></div>';
-				} else if (field.type == 'TableView') {
-					template += '<div ' + showFieldCode + ' smo-data-view field-var="smoViewGroup.fields[0]" model-name="' + scope.modelName + '" smo-data-source="smoDataSource" style="max-width: 840px; max-height: 450px; overflow: auto;"></div>';
+				if (field.type == 'TableView' || field.type == 'PlotView') {
+					template += '<div ' + showFieldCode + ' smo-data-series-view field-var="smoViewGroup.fields[0]" model-name="' + scope.modelName + '" smo-data-source="smoDataSource" style="max-width: 840px; max-height: 650px; overflow: auto;"></div>';
 				} else if (field.type == 'Image') {
 					template += '<div ' + showFieldCode + ' smo-img field-var="smoViewGroup.fields[0]" model-name="' + scope.modelName + '" smo-data-source="smoDataSource" style="max-width: 840px; overflow: auto;"></div>';
 				}

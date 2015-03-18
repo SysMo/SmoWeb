@@ -206,14 +206,14 @@ class CryogenicPipe(NumericalModel):
 	# 1.1 Input values
 	d_int = Quantity('Length', default = (5, 'mm'), label = 'internal diameter')
 	d_ext = Quantity('Length', default = (10, 'mm'), label = 'external diameter')
-	sections = RecordArray(OrderedDict((
-			('length', Quantity('Length', default = (1, 'm'), label = 'length')),
-			('emissivity1', Quantity(default = 0.036, label = 'emissivity 1')),
-			('temperature1', Quantity('Temperature', default = (40, 'K'), label = 'temperature 1')),
-			('emissivity2', Quantity(default = 0.1385, label = 'emissivity 2')),
-			('temperature2', Quantity('Temperature', default = (288, 'K'), label = 'temperature 2')),
-			('meshSize', Quantity('Length', default = (5, 'mm'), label = 'meshSize')),
-		)), label = 'sections')
+	sections = RecordArray((
+								('length', Quantity('Length', default = (1, 'm'), label = 'length')),
+								('emissivity1', Quantity(default = 0.036, label = 'emissivity 1')),
+								('temperature1', Quantity('Temperature', default = (40, 'K'), label = 'temperature 1')),
+								('emissivity2', Quantity(default = 0.1385, label = 'emissivity 2')),
+								('temperature2', Quantity('Temperature', default = (288, 'K'), label = 'temperature 2')),
+								('meshSize', Quantity('Length', default = (5, 'mm'), label = 'meshSize')),
+							), label = 'sections')
 	pipeMaterial = ObjectReference(Solids, default = 'StainlessSteel304', label = 'pipe material')
 	g1 = FieldGroup([d_int, d_ext, sections, pipeMaterial], label = 'Pipe')
 	
@@ -240,9 +240,9 @@ class CryogenicPipe(NumericalModel):
 	relaxationFactor = Quantity(default = 0.99, maxValue = 2.0, label = 'relaxation factor')
 	s1 = FieldGroup([maxNumIter, absTolerance, relaxationFactor], label = 'Solver')
 	
-	testPoints = RecordArray(OrderedDict((
-			('xPosition',  Quantity('Length', label = 'x position')),
-	)), label = 'test points')
+	testPoints = RecordArray((
+								('xPosition',  Quantity('Length', label = 'x position')),
+							), label = 'test points')
 	s2 = FieldGroup([testPoints], label = 'Post-processing')
 
 	settings = SuperGroup([s1, s2], label = 'Settings')
@@ -268,68 +268,68 @@ class CryogenicPipe(NumericalModel):
 	r1g = SuperGroup([r1], label = 'Values')
 
 	# 2.2 Distributions
-	T_x = PlotView(OrderedDict((
-                            ('x position', Quantity('Length', default=(1, 'm'))),
-                            ('temperature', Quantity('Temperature', default=(1, 'K'))),
-                        	)),
-							label = 'Temperature')
-	QAx_x = PlotView(OrderedDict((
-                            ('x position', Quantity('Length', default=(1, 'm'))),
-                            ('heat flow', Quantity('HeatFlowRate', default=(1, 'W'))),
-                        	)),
-							label = 'Axial heat flow')
-	QRad_x = PlotView(OrderedDict((
-                            ('x position', Quantity('Length', default=(1, 'm'))),
-                            ('flux density', Quantity('LinearHeatFluxDensity', default=(1, 'W/m'))),
-                        	)),
-							label = 'Radiation flux')
-	cond_x = PlotView(OrderedDict((
-                            ('x position', Quantity('Length', default=(1, 'm'))),
-                            ('thermal conductivity', Quantity('ThermalConductivity', default=(1, 'W/m-K'))),
-                        	)),
-							label = 'Conductivity (pipe)')
-	emiss_x = PlotView(OrderedDict((
-                            ('x position', Quantity('Length', default=(1, 'm'))),
-                            ('emissivity', Quantity('Dimensionless'))
-                        	)),
-							label = 'Emissivity')
-	table_x = TableView(OrderedDict((
-                            ('x position', Quantity('Length')),
-                            ('temperature', Quantity('Temperature')),
-                            ('heat flow', Quantity('HeatFlowRate')),
-                        	)),
+	T_x = PlotView((
+                    ('x position', Quantity('Length', default=(1, 'm'))),
+                    ('temperature', Quantity('Temperature', default=(1, 'K'))),
+                	),
+					label = 'Temperature')
+	QAx_x = PlotView((
+	                    ('x position', Quantity('Length', default=(1, 'm'))),
+	                    ('heat flow', Quantity('HeatFlowRate', default=(1, 'W'))),
+	                	),
+						label = 'Axial heat flow')
+	QRad_x = PlotView((
+                        ('x position', Quantity('Length', default=(1, 'm'))),
+                        ('flux density', Quantity('LinearHeatFluxDensity', default=(1, 'W/m'))),
+                    	),
+						label = 'Radiation flux')
+	cond_x = PlotView((
+                        ('x position', Quantity('Length', default=(1, 'm'))),
+                        ('thermal conductivity', Quantity('ThermalConductivity', default=(1, 'W/m-K'))),
+                    	),
+						label = 'Conductivity (pipe)')
+	emiss_x = PlotView((
+                        ('x position', Quantity('Length', default=(1, 'm'))),
+                        ('emissivity', Quantity('Dimensionless'))
+                    	),
+						label = 'Emissivity')
+	table_x = TableView((
+	                        ('x position', Quantity('Length')),
+	                        ('temperature', Quantity('Temperature')),
+	                        ('heat flow', Quantity('HeatFlowRate')),
+	                    	),
 							label = 'Distributions (table)',
 							options = {'formats': ['0.000', '0.00', '0.000E00'] })
-	testPointResults = TableView(OrderedDict((
+	testPointResults = TableView((
 		                            ('x position', Quantity('Length')),
 		                            ('temperature', Quantity('Temperature'))
-		                        	)),
+		                        	),
 								label = 'Test points',
 								options = {'formats': ['0.000', '0.00']}) 
 	r2 = ViewGroup([T_x, QAx_x, QRad_x, cond_x, emiss_x, table_x, testPointResults], label =  'Distributions')
 	r2g = SuperGroup([r2], label = 'Distributions')
 	
 	# 2.2 Material properties
-	cond_T = PlotView(OrderedDict((
-                            ('temperature', Quantity('Temperature', default=(1, 'K'))),
-                            ('thermal conductivity', Quantity('ThermalConductivity', default=(1,'W/m-K')))
-                        	)),
-							label = 'Conductivity pipe')
+	cond_T = PlotView((
+                        ('temperature', Quantity('Temperature', default=(1, 'K'))),
+                        ('thermal conductivity', Quantity('ThermalConductivity', default=(1,'W/m-K')))
+                    	),
+						label = 'Conductivity pipe')
 	#emiss_T = PlotView(label = 'Emissivity', dataLabels = ['temperature [K]', 'emissivity [-]'])
 	r3 = ViewGroup([cond_T], label = 'Material properties')
 	r3g = SuperGroup([r3], label = 'Material properties')
 
 	# 2.4 Residuals 
-	residualPlot = PlotView(OrderedDict((
+	residualPlot = PlotView((
 	                            ('iteration #', Quantity('Dimensionless')),
 	                            ('residual', Quantity('Dimensionless'))
-	                        	)),
+	                        	),
 								label = 'Residual (plot)', ylog = True)
-	residualTable = TableView(OrderedDict((
+	residualTable = TableView((
 	                            ('residual', Quantity('Dimensionless')),
 	                            ('TLeft', Quantity('Temperature')),
 	                            ('TRight', Quantity('Temperature')),
-	                        	)),
+	                        	),
 								label = 'Residual (table)',
 								options = {'formats': ['0.0000E0', '0.000', '0.000']})
 	r4 = ViewGroup([residualPlot, residualTable], label = 'Convergence')

@@ -3,7 +3,6 @@ from smo.model.actions import ServerAction, ActionBar
 from smo.model.fields import *
 from smo.web.modules import RestModule
 from smo.dynamical_models.bioreactors.SimpleChemostat import SimpleChemostat
-from collections import OrderedDict
 
 class SimpleChemostatModel(NumericalModel):
     label = "Simple Chemostat"
@@ -16,10 +15,10 @@ class SimpleChemostatModel(NumericalModel):
     m = Quantity(default = 3, minValue = 0, label = 'maximal growth rate (m)')
     K = Quantity(default = 3.7, minValue = 0, label = 'half saturation constant (K)')
     gamma = Quantity(default = 0.6, minValue = 0, label = 'yield coefficient (&#947)')
-    D_vals = RecordArray(OrderedDict((
-            ('D', Quantity(default = 1, minValue = 0, label = 'D')),
-            ('days', Quantity(default = 20, minValue = 0, label = 'Time')),
-        )), label = 'D_vals')  
+    D_vals = RecordArray((
+                                ('D', Quantity(default = 1, minValue = 0, label = 'D')),
+                                ('days', Quantity(default = 20, minValue = 0, label = 'Time')),
+                            ), label = 'D_vals')  
     parametersFieldGroup = FieldGroup([S_in, m, K, gamma, D_vals], label = "Parameters")
     
     S0 = Quantity(default = 0, minValue = 0, label = 'S0')
@@ -43,20 +42,20 @@ class SimpleChemostatModel(NumericalModel):
         actionBar = inputActionBar, autoFetch = True)
     
     #2. ############ Results ###############    
-    plot = PlotView(OrderedDict((
-                            ('time', Quantity('Time', default=(1, 'h'))),
-                            ('S', Quantity('Dimensionless')),
-                            ('X', Quantity('Dimensionless')),
-                            ('D', Quantity('Dimensionless')),
-                        )),
-                        label='Plot', 
-                        options = {'ylabel' : None})
-    table = TableView(OrderedDict((
+    plot = PlotView((
+                        ('time', Quantity('Time', default=(1, 'h'))),
+                        ('S', Quantity('Dimensionless')),
+                        ('X', Quantity('Dimensionless')),
+                        ('D', Quantity('Dimensionless')),
+                    ),
+                    label='Plot', 
+                    options = {'ylabel' : None})
+    table = TableView((
                             ('time', Quantity('Time', default=(1, 'min'))),
                             ('S', Quantity('Dimensionless')),
                             ('X', Quantity('Dimensionless')),
                             ('D', Quantity('Dimensionless')),
-                        )),
+                        ),
                       label='Table', 
                       options = {'title': 'Title', 'formats': ['0.000', '0.000', '0.000', '0.000']})
     
