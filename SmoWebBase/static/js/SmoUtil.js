@@ -1207,467 +1207,467 @@ smoModule.directive('smoBool', ['$compile', function($compile) {
 //	}
 //}]);
 
-smoModule.directive('smoPlot', ['$compile', function($compile) {
-	return {
-		restrict : 'A',
-		scope : {
-			fieldVar: '=',
-			smoDataSource : '=',
-			modelName: '@modelName'
-		},
-		controller: function($scope) {
-			$scope.expanded = false;
-			$scope.toggle = function(){
-				$scope.expanded = !$scope.expanded;
-				if ($scope.expanded == false) {
-					$scope.setDataView();
-					$scope.draw();
-				}
-			}
-			
-			$scope.init = function() {
-				$scope.values = $scope.smoDataSource[$scope.fieldVar.name];
-				$scope.displayValues = angular.copy($scope.values);
-				$scope.labels = angular.copy($scope.fieldVar.labels);
-				
-				$scope.numCols = $scope.values[0].length;
-				$scope.numRows = $scope.values.length;
-				
-				for (var col=0; col<$scope.numCols; col++){
-					var field = $scope.fieldVar.fields[col];
-						
-					field.unit 
-						= field.unit || field.SIUnit;
-					field.displayUnit 
-						= field.displayUnit || field.defaultDispUnit || field.unit;
-					
-					for (var i=0; i<field.units.length; i++) {
-						if (field.unit == field.units[i][0]){
-							field.unitDef = field.units[i][1];
-						}
-						if (field.displayUnit == field.units[i][0]){
-							field.dispUnitDef = field.units[i][1];
-						}	
-					}
-					
-					var unitOffset = field.unitDef.offset || 0;
-					var dispUnitOffset = field.dispUnitDef.offset || 0;
-					
-					for (var row=0; row<$scope.numRows; row++){
-						$scope.values[row][col]
-							= $scope.values[row][col] * field.unitDef.mult + unitOffset;
-						
-						$scope.displayValues[row][col] 
-							= ($scope.values[row][col] - dispUnitOffset) / field.dispUnitDef.mult;
-					}
-					
-					$scope.labels[col] 
-						= $scope.fieldVar.labels[col] + ' [' + field.displayUnit + ']';
-				}
-				
-				//Determining number of rows in edit mode
-				var numEditRows;
-				if ($scope.numCols % 5){
-					numEditRows = Math.floor($scope.numCols / 5) + 1;
-				} else {
-					numEditRows = Math.floor($scope.numCols / 5);
-				}
-				$scope.editRows = [];
-				for (var i=0; i<numEditRows; i++){
-					$scope.editRows.push(i);
-				}
-				
-				//Setting initial visibility
-				$scope.columnsShow = [];
-				for (var i=0; i<$scope.fieldVar.visibleColumns.length; i++){
-					$scope.columnsShow[$scope.fieldVar.visibleColumns[i]] = true;
-				}
-				$scope.allChecked = true;
-				
-				$scope.setDataView();
-				$scope.draw();
-				//$scope.options.dateWindow = $scope.chart.xAxisRange();
-				//$scope.options.valueRange = $scope.chart.yAxisRange();
-			}
-			
-			$scope.setToAll = function() {
-				for (i=1; i<$scope.columnsShow.length; i++){
-					$scope.columnsShow[i] = $scope.allChecked;
-				}
-			}
-			
-			$scope.updateChecked = function() {
-				$scope.columnsShow[0] = true;
-				$scope.allChecked = false;
-			}
-			
-			$scope.setDataView = function() {
-				$scope.viewData = [];
-				for (var i=0; i<$scope.numRows; i++) {
-					var row = [];
-					for (var j=0; j<$scope.numCols; j++){
-						if ($scope.columnsShow[j] == true){
-							row.push($scope.displayValues[i][j]);
-						}
-					}
-					$scope.viewData[i] = row;
-				}
-				
-				$scope.options = angular.copy($scope.fieldVar.options);
-				var row = [];
-				for (var j=0; j<$scope.numCols; j++){
-					if ($scope.columnsShow[j] == true){
-						row.push($scope.labels[j]);
-					}
-				}
-				$scope.options.labels = row;
-				
-				if ($scope.options.labels.length == 2) {
-					$scope.options.ylabel = $scope.options.ylabel || $scope.options.labels[1];
-				} else {
-					$scope.options.ylabel = "";
-				}
-				
-				$scope.options.xlabel = $scope.options.labels[0];			
-			}
-			
-			$scope.changeUnit = function(col) {
-				var field = $scope.fieldVar.fields[col];
-				
-				for (var i=0; i<field.units.length; i++) {
-					if (field.displayUnit == field.units[i][0]){
-						field.dispUnitDef = field.units[i][1];
-					}	
-				}
-				
-				var offset = 0;
-				if ('offset' in field.dispUnitDef) {
-					offset = field.dispUnitDef.offset;
-				}
-				
-				for (var row=0; row<$scope.numRows; row++){
-					$scope.displayValues[row][col]
-						= ($scope.values[row][col] - offset) / field.dispUnitDef.mult;
-				}
-				
-				$scope.labels[col] 
-					= $scope.fieldVar.labels[col] + ' [' + field.displayUnit + ']';
-			}
-			
-			$scope.draw = function() {
-				$scope.options.labelsDiv = $scope.modelName + '_' + $scope.fieldVar.name + 'LegendDiv';
-				$scope.chart = new Dygraph(document.getElementById($scope.modelName + '_' + $scope.fieldVar.name + 'PlotDiv'), 
-						$scope.viewData,
-						$scope.options);
-			}
-			
-			$scope.pngFileName = $scope.fieldVar.name + '.png';
-			$scope.exportPNG = function(){
-				var img = document.getElementById($scope.modelName + '_' + $scope.fieldVar.name + 'Img');
-				Dygraph.Export.asPNG($scope.chart, img);
-				
-				var link = document.getElementById($scope.modelName + '_' + $scope.fieldVar.name + 'PngElem');
-				
-			 	if(link.download !== undefined) { // feature detection
-			 	  // Browsers that support HTML5 download attribute
-			 	  link.setAttribute("href", img.src);
-			 	  link.setAttribute("download", $scope.pngFileName);
-			 	 } else {
-			 		// it needs to implement server side export
-					//link.setAttribute("href", "http://www.example.com/export");
-			 		  alert("Needs to implement server side export");
-			 		  return;
-			 	}
-			 	
-			 	link.click();
-			}
-			
-		},
-		link : function(scope, element, attr) {
-			var template = '\
-							<div style="display: inline-block;">\
-								<div id="' + scope.modelName + '_' + scope.fieldVar.name + 'PlotDiv"></div>\
-							</div>\
-							<div style="margin-left: 55px; margin-top: 10px;">\
-								<div id="' + scope.modelName + '_' + scope.fieldVar.name + 'LegendDiv"></div>\
-							</div>\
-							<div style = "margin-top: 10px; margin-bottom: 10px;">\
-								Export plot&nbsp\
-								<input ng-model="pngFileName"></input>\
-								<smo-button icon="save" size="md" action="exportPNG()" tip="Save plot"></smo-button>\
-								<img id="' + scope.modelName + '_' + scope.fieldVar.name + 'Img" hidden>\
-								<a id="' + scope.modelName + '_' + scope.fieldVar.name + 'PngElem" hidden></a>\
-								<smo-button action="toggle()" icon="settings" tip="Settings" size="md"></smo-button>\
-								<div class="view-edit" ng-show="expanded" ng-click="toggle()">\
-									<table class="nice-table" style="border: none;">\
-										<tr>\
-											<th style="min-width: 10px;" colspan="100%">\
-												<input type="checkbox" ng-model="allChecked" ng-change="setToAll()"></input>\
-												<span>All</span>\
-											</th>\
-										</tr>\
-										<tr ng-repeat="row in editRows">\
-											<td style="min-width: 10px;" ng-repeat="label in fieldVar.labels.slice(row*5, row*5+5) track by $index">\
-												<input type="checkbox" ng-model="columnsShow[row*5 + $index]" ng-change="updateChecked()"></input>\
-												<span ng-bind="label"></span>\
-												<div class="field-select quantity"> \
-													<select ng-model="fieldVar.fields[row*5 + $index].displayUnit" ng-options="pair[0] as pair[0] for pair in fieldVar.fields[row*5 + $index].units" ng-change="changeUnit(row*5 + $index)"></select>\
-												</div>\
-											</td>\
-										</tr>\
-									</table>\
-								</div>\
-							</div>';
+//smoModule.directive('smoPlot1', ['$compile', function($compile) {
+//	return {
+//		restrict : 'A',
+//		scope : {
+//			fieldVar: '=',
+//			smoDataSource : '=',
+//			modelName: '@modelName'
+//		},
+//		controller: function($scope) {
+//			$scope.expanded = false;
+//			$scope.toggle = function(){
+//				$scope.expanded = !$scope.expanded;
+//				if ($scope.expanded == false) {
+//					$scope.setDataView();
+//					$scope.draw();
+//				}
+//			}
+//			
+//			$scope.init = function() {
+//				$scope.values = $scope.smoDataSource[$scope.fieldVar.name];
+//				$scope.displayValues = angular.copy($scope.values);
+//				$scope.labels = angular.copy($scope.fieldVar.labels);
+//				
+//				$scope.numCols = $scope.values[0].length;
+//				$scope.numRows = $scope.values.length;
+//				
+//				for (var col=0; col<$scope.numCols; col++){
+//					var field = $scope.fieldVar.fields[col];
+//						
+//					field.unit 
+//						= field.unit || field.SIUnit;
+//					field.displayUnit 
+//						= field.displayUnit || field.defaultDispUnit || field.unit;
+//					
+//					for (var i=0; i<field.units.length; i++) {
+//						if (field.unit == field.units[i][0]){
+//							field.unitDef = field.units[i][1];
+//						}
+//						if (field.displayUnit == field.units[i][0]){
+//							field.dispUnitDef = field.units[i][1];
+//						}	
+//					}
+//					
+//					var unitOffset = field.unitDef.offset || 0;
+//					var dispUnitOffset = field.dispUnitDef.offset || 0;
+//					
+//					for (var row=0; row<$scope.numRows; row++){
+//						$scope.values[row][col]
+//							= $scope.values[row][col] * field.unitDef.mult + unitOffset;
+//						
+//						$scope.displayValues[row][col] 
+//							= ($scope.values[row][col] - dispUnitOffset) / field.dispUnitDef.mult;
+//					}
+//					
+//					$scope.labels[col] 
+//						= $scope.fieldVar.labels[col] + ' [' + field.displayUnit + ']';
+//				}
+//				
+//				//Determining number of rows in edit mode
+//				var numEditRows;
+//				if ($scope.numCols % 5){
+//					numEditRows = Math.floor($scope.numCols / 5) + 1;
+//				} else {
+//					numEditRows = Math.floor($scope.numCols / 5);
+//				}
+//				$scope.editRows = [];
+//				for (var i=0; i<numEditRows; i++){
+//					$scope.editRows.push(i);
+//				}
+//				
+//				//Setting initial visibility
+//				$scope.columnsShow = [];
+//				for (var i=0; i<$scope.fieldVar.visibleColumns.length; i++){
+//					$scope.columnsShow[$scope.fieldVar.visibleColumns[i]] = true;
+//				}
+//				$scope.allChecked = true;
+//				
+//				$scope.setDataView();
+//				$scope.draw();
+//				//$scope.options.dateWindow = $scope.chart.xAxisRange();
+//				//$scope.options.valueRange = $scope.chart.yAxisRange();
+//			}
+//			
+//			$scope.setToAll = function() {
+//				for (i=1; i<$scope.columnsShow.length; i++){
+//					$scope.columnsShow[i] = $scope.allChecked;
+//				}
+//			}
+//			
+//			$scope.updateChecked = function() {
+//				$scope.columnsShow[0] = true;
+//				$scope.allChecked = false;
+//			}
+//			
+//			$scope.setDataView = function() {
+//				$scope.viewData = [];
+//				for (var i=0; i<$scope.numRows; i++) {
+//					var row = [];
+//					for (var j=0; j<$scope.numCols; j++){
+//						if ($scope.columnsShow[j] == true){
+//							row.push($scope.displayValues[i][j]);
+//						}
+//					}
+//					$scope.viewData[i] = row;
+//				}
+//				
+//				$scope.options = angular.copy($scope.fieldVar.options);
+//				var row = [];
+//				for (var j=0; j<$scope.numCols; j++){
+//					if ($scope.columnsShow[j] == true){
+//						row.push($scope.labels[j]);
+//					}
+//				}
+//				$scope.options.labels = row;
+//				
+//				if ($scope.options.labels.length == 2) {
+//					$scope.options.ylabel = $scope.options.ylabel || $scope.options.labels[1];
+//				} else {
+//					$scope.options.ylabel = "";
+//				}
+//				
+//				$scope.options.xlabel = $scope.options.labels[0];			
+//			}
+//			
+//			$scope.changeUnit = function(col) {
+//				var field = $scope.fieldVar.fields[col];
+//				
+//				for (var i=0; i<field.units.length; i++) {
+//					if (field.displayUnit == field.units[i][0]){
+//						field.dispUnitDef = field.units[i][1];
+//					}	
+//				}
+//				
+//				var offset = 0;
+//				if ('offset' in field.dispUnitDef) {
+//					offset = field.dispUnitDef.offset;
+//				}
+//				
+//				for (var row=0; row<$scope.numRows; row++){
+//					$scope.displayValues[row][col]
+//						= ($scope.values[row][col] - offset) / field.dispUnitDef.mult;
+//				}
+//				
+//				$scope.labels[col] 
+//					= $scope.fieldVar.labels[col] + ' [' + field.displayUnit + ']';
+//			}
+//			
+//			$scope.draw = function() {
+//				$scope.options.labelsDiv = $scope.modelName + '_' + $scope.fieldVar.name + 'LegendDiv';
+//				$scope.chart = new Dygraph(document.getElementById($scope.modelName + '_' + $scope.fieldVar.name + 'PlotDiv'), 
+//						$scope.viewData,
+//						$scope.options);
+//			}
+//			
+//			$scope.pngFileName = $scope.fieldVar.name + '.png';
+//			$scope.exportPNG = function(){
+//				var img = document.getElementById($scope.modelName + '_' + $scope.fieldVar.name + 'Img');
+//				Dygraph.Export.asPNG($scope.chart, img);
+//				
+//				var link = document.getElementById($scope.modelName + '_' + $scope.fieldVar.name + 'PngElem');
+//				
+//			 	if(link.download !== undefined) { // feature detection
+//			 	  // Browsers that support HTML5 download attribute
+//			 	  link.setAttribute("href", img.src);
+//			 	  link.setAttribute("download", $scope.pngFileName);
+//			 	 } else {
+//			 		// it needs to implement server side export
+//					//link.setAttribute("href", "http://www.example.com/export");
+//			 		  alert("Needs to implement server side export");
+//			 		  return;
+//			 	}
+//			 	
+//			 	link.click();
+//			}
+//			
+//		},
+//		link : function(scope, element, attr) {
+//			var template = '\
+//							<div style="display: inline-block;">\
+//								<div id="' + scope.modelName + '_' + scope.fieldVar.name + 'PlotDiv"></div>\
+//							</div>\
+//							<div style="margin-left: 55px; margin-top: 10px;">\
+//								<div id="' + scope.modelName + '_' + scope.fieldVar.name + 'LegendDiv"></div>\
+//							</div>\
+//							<div style = "margin-top: 10px; margin-bottom: 10px;">\
+//								Export plot&nbsp\
+//								<input ng-model="pngFileName"></input>\
+//								<smo-button icon="save" size="md" action="exportPNG()" tip="Save plot"></smo-button>\
+//								<img id="' + scope.modelName + '_' + scope.fieldVar.name + 'Img" hidden>\
+//								<a id="' + scope.modelName + '_' + scope.fieldVar.name + 'PngElem" hidden></a>\
+//								<smo-button action="toggle()" icon="settings" tip="Settings" size="md"></smo-button>\
+//								<div class="view-edit" ng-show="expanded" ng-click="toggle()">\
+//									<table class="nice-table" style="border: none;">\
+//										<tr>\
+//											<th style="min-width: 10px;" colspan="100%">\
+//												<input type="checkbox" ng-model="allChecked" ng-change="setToAll()"></input>\
+//												<span>All</span>\
+//											</th>\
+//										</tr>\
+//										<tr ng-repeat="row in editRows">\
+//											<td style="min-width: 10px;" ng-repeat="label in fieldVar.labels.slice(row*5, row*5+5) track by $index">\
+//												<input type="checkbox" ng-model="columnsShow[row*5 + $index]" ng-change="updateChecked()"></input>\
+//												<span ng-bind="label"></span>\
+//												<div class="field-select quantity"> \
+//													<select ng-model="fieldVar.fields[row*5 + $index].displayUnit" ng-options="pair[0] as pair[0] for pair in fieldVar.fields[row*5 + $index].units" ng-change="changeUnit(row*5 + $index)"></select>\
+//												</div>\
+//											</td>\
+//										</tr>\
+//									</table>\
+//								</div>\
+//							</div>';
+//
+//			var el = angular.element(template);
+//	        compiled = $compile(el);
+//	        element.append(el);
+//	        compiled(scope);
+//	        $(".view-edit > table").bind('click', function(e){
+//                e.stopPropagation();
+//            });
+//	        scope.$watch(scope.smoDataSource[scope.fieldVar.name], function(value) {
+//	        	scope.init();
+//		});
+//		}	
+//	}
+//}]);
 
-			var el = angular.element(template);
-	        compiled = $compile(el);
-	        element.append(el);
-	        compiled(scope);
-	        $(".view-edit > table").bind('click', function(e){
-                e.stopPropagation();
-            });
-	        scope.$watch(scope.smoDataSource[scope.fieldVar.name], function(value) {
-	        	scope.init();
-		});
-		}	
-	}
-}]);
 
+//smoModule.directive('smoTable1', ['$compile', function($compile) {
+//	return {
+//		restrict : 'A',
+//		scope : {
+//			fieldVar: '=',
+//			smoDataSource : '=',
+//			modelName: '@modelName'
+//		},
+//		controller: function($scope) {
+//			$scope.expanded = false;
+//			$scope.toggle = function(){
+//				$scope.expanded = !$scope.expanded;
+//				if ($scope.expanded == false){
+//					$scope.setDataView();
+//					$scope.draw();
+//				}
+//			}
+//			
+//			$scope.init = function() {
+//				$scope.values = $scope.smoDataSource[$scope.fieldVar.name];
+//				$scope.displayValues = angular.copy($scope.values);
+//				$scope.labels = angular.copy($scope.fieldVar.labels);
+//				
+//				$scope.numCols = $scope.values[0].length;
+//				$scope.numRows = $scope.values.length;
+//				
+//				for (var col=0; col<$scope.numCols; col++){
+//					var field = $scope.fieldVar.fields[col];
+//						
+//					field.unit 
+//						= field.unit || field.SIUnit;
+//					field.displayUnit 
+//						= field.displayUnit || field.defaultDispUnit || field.unit;
+//					
+//					for (var i=0; i<field.units.length; i++) {
+//						if (field.unit == field.units[i][0]){
+//							field.unitDef = field.units[i][1];
+//						}
+//						if (field.displayUnit == field.units[i][0]){
+//							field.dispUnitDef = field.units[i][1];
+//						}	
+//					}
+//					
+//					var unitOffset = field.unitDef.offset || 0;
+//					var dispUnitOffset = field.dispUnitDef.offset || 0;
+//					
+//					for (var row=0; row<$scope.numRows; row++){
+//						$scope.values[row][col]
+//							= $scope.values[row][col] * field.unitDef.mult + unitOffset;
+//						
+//						$scope.displayValues[row][col] 
+//							= ($scope.values[row][col] - dispUnitOffset) / field.dispUnitDef.mult;
+//					}
+//					
+//					$scope.labels[col] 
+//						= $scope.fieldVar.labels[col] + ' [' + field.displayUnit + ']';
+//				}
+//				
+//				//Determining number of rows in edit mode
+//				var numEditRows;
+//				if ($scope.numCols % 5){
+//					numEditRows = Math.floor($scope.numCols / 5) + 1;
+//				} else {
+//					numEditRows = Math.floor($scope.numCols / 5);
+//				}
+//				$scope.editRows = [];
+//				for (var i=0; i<numEditRows; i++){
+//					$scope.editRows.push(i);
+//				}
+//				
+//				//Setting initial visibility
+//				$scope.columnsShow = [];
+//				for (var i=0; i<$scope.fieldVar.visibleColumns.length; i++){
+//					$scope.columnsShow[$scope.fieldVar.visibleColumns[i]] = true;
+//				}
+//				$scope.allChecked = true;
+//				
+//				$scope.setDataView();
+//				$scope.draw();
+//			}
+//						
+//			$scope.updateChecked = function(){
+//				$scope.allChecked = false;
+//			}
+//			
+//			$scope.setToAll = function(){
+//				for (i=0; i<$scope.columnsShow.length; i++){
+//					$scope.columnsShow[i] = $scope.allChecked;
+//				}
+//			}
+//			
+//			$scope.setDataView = function(){
+//				$scope.viewCloumns = [];
+//				for (i=0; i<$scope.numCols; i++){
+//					if ($scope.columnsShow[i] == true){
+//						$scope.viewCloumns.push(i);
+//					}
+//				}
+//				$scope.displayTable = angular.copy($scope.displayValues);
+//				$scope.displayTable.unshift($scope.labels);
+//				$scope.dataTable = google.visualization.arrayToDataTable($scope.displayTable);
+//				$scope.dataView = new google.visualization.DataView($scope.dataTable);
+//				$scope.dataView.setColumns($scope.viewCloumns);
+//			}
+//			
+//			$scope.changeUnit = function(col) {
+//				var field = $scope.fieldVar.fields[col];
+//				
+//				for (var i=0; i<field.units.length; i++) {
+//					if (field.displayUnit == field.units[i][0]){
+//						field.dispUnitDef = field.units[i][1];
+//					}	
+//				}
+//				
+//				var offset = 0;
+//				if ('offset' in field.dispUnitDef) {
+//					offset = field.dispUnitDef.offset;
+//				}
+//				
+//				for (var row=0; row<$scope.numRows; row++){
+//					$scope.displayValues[row][col]
+//						= ($scope.values[row][col] - offset) / field.dispUnitDef.mult;
+//				}
+//				
+//				$scope.labels[col] = $scope.fieldVar.labels[col] + ' [' + field.displayUnit + ']';
+//			}
+//			
+//			$scope.draw = function() {
+//				//Drawing the table
+//				var tableView 
+//					= new google.visualization.Table(document.getElementById($scope.modelName + '_' + $scope.fieldVar.name + 'TableDiv'));
+//				
+//				if(typeof $scope.fieldVar.options.formats === 'string'){
+//					for (var i=0; i < $scope.numCols; i++){
+//						formatter = new google.visualization.NumberFormat({pattern: $scope.fieldVar.options.formats});
+//						formatter.format($scope.dataTable, i);
+//					}
+//				} else {
+//					for (var i=0; i < $scope.numCols; i++){
+//						try {
+//							formatter = new google.visualization.NumberFormat({pattern: $scope.fieldVar.options.formats[i]});
+//						}
+//						catch(err) {
+//							formatter = new google.visualization.NumberFormat();
+//						}
+//						
+//						formatter.format($scope.dataTable, i);
+//					}
+//				}
+//				
+//				tableView.draw($scope.dataView, {showRowNumber: true, sort:'disable', page:'enable', pageSize:14});
+//			}
+//			
+//			$scope.csvFileName = $scope.fieldVar.name + '.csv';
+//			
+//			$scope.exportCSV = function(){
+//				var exportTable = $scope.dataView.toDataTable();		
+//				var labels = [];
+//				for (var i=0; i<exportTable.getNumberOfColumns(); i++){
+//					labels.push(exportTable.getColumnLabel(i));
+//				}
+//				
+//				var labelsString = labels.join(",");
+//				var csvString = labelsString + "\n";
+//				
+////				var dataTable = google.visualization.arrayToDataTable($scope.smoDataSource[$scope.fieldVar.name]);
+//				var dataTableCSV = google.visualization.dataTableToCsv(exportTable);
+//				
+//				csvString += dataTableCSV;
+//				
+//				// download stuff
+//			 	var blob = new Blob([csvString], {
+//			 	  "type": "text/csv;charset=utf8;"			
+//			 	});
+//			 	var link = document.getElementById($scope.modelName + '_' + $scope.fieldVar.name + 'CsvElem');
+//							
+//			 	if(link.download !== undefined) { // feature detection
+//			 	  // Browsers that support HTML5 download attribute
+//			 	  link.setAttribute("href", window.URL.createObjectURL(blob));
+//			 	  link.setAttribute("download", $scope.csvFileName);
+//			 	 } else {
+//			 		// it needs to implement server side export
+//					//link.setAttribute("href", "http://www.example.com/export");
+//			 		  alert("Needs to implement server side export");
+//			 		  return;
+//			 	}
+////	 		 	document.body.appendChild(link);
+//			 	link.click();
+//			}
+//		},
+//		link : function(scope, element, attr) {
+//			var template = '<div id="' + scope.modelName + '_' + scope.fieldVar.name + 'TableDiv"></div>\
+//			<div style = "margin-top: 10px; margin-bottom: 10px;">\
+//				Export data&nbsp\
+//				<input ng-model="csvFileName"></input>\
+//				<smo-button icon="save" size="md" action="exportCSV()" tip="Save data"></smo-button>\
+//				<a id="' + scope.modelName + '_' + scope.fieldVar.name + 'CsvElem" hidden></a>\
+//				<smo-button action="toggle()" icon="settings" tip="Settings" size="md"></smo-button>\
+//				<div class="view-edit" ng-show="expanded" ng-click="toggle()">\
+//					<table class="nice-table" style="border: none;">\
+//						<tr>\
+//							<th style="min-width: 10px;" colspan="100%">\
+//								<input type="checkbox" ng-model="allChecked" ng-change="setToAll()"></input>\
+//								<span>All</span>\
+//							</th>\
+//						</tr>\
+//						<tr ng-repeat="row in editRows">\
+//							<td style="min-width: 10px;" ng-repeat="label in fieldVar.labels.slice(row*5, row*5+5) track by $index">\
+//								<input type="checkbox" ng-model="columnsShow[row*5 + $index]" ng-change="updateChecked()"></input>\
+//								<span ng-bind="label"></span>\
+//								<div class="field-select quantity">\
+//									<select ng-model="fieldVar.fields[row*5 + $index].displayUnit" ng-options="pair[0] as pair[0] for pair in fieldVar.fields[row*5 + $index].units" ng-change="changeUnit(row*5 + $index)"></select>\
+//								</div>\
+//							</td>\
+//						</tr>\
+//					</table>\
+//				</div>\
+//			</div>';
+//				
+//			var el = angular.element(template);
+//	        compiled = $compile(el);
+//	        element.append(el);
+//	        compiled(scope); 
+//	        $(".view-edit > table").bind('click', function(e){
+//                e.stopPropagation();
+//            });
+//	        scope.$watch(scope.smoDataSource[scope.fieldVar.name], function(value) {
+//				scope.init();
+//		});
+//		}	
+//	}
+//}]);
 
-smoModule.directive('smoTable', ['$compile', function($compile) {
-	return {
-		restrict : 'A',
-		scope : {
-			fieldVar: '=',
-			smoDataSource : '=',
-			modelName: '@modelName'
-		},
-		controller: function($scope) {
-			$scope.expanded = false;
-			$scope.toggle = function(){
-				$scope.expanded = !$scope.expanded;
-				if ($scope.expanded == false){
-					$scope.setDataView();
-					$scope.draw();
-				}
-			}
-			
-			$scope.init = function() {
-				$scope.values = $scope.smoDataSource[$scope.fieldVar.name];
-				$scope.displayValues = angular.copy($scope.values);
-				$scope.labels = angular.copy($scope.fieldVar.labels);
-				
-				$scope.numCols = $scope.values[0].length;
-				$scope.numRows = $scope.values.length;
-				
-				for (var col=0; col<$scope.numCols; col++){
-					var field = $scope.fieldVar.fields[col];
-						
-					field.unit 
-						= field.unit || field.SIUnit;
-					field.displayUnit 
-						= field.displayUnit || field.defaultDispUnit || field.unit;
-					
-					for (var i=0; i<field.units.length; i++) {
-						if (field.unit == field.units[i][0]){
-							field.unitDef = field.units[i][1];
-						}
-						if (field.displayUnit == field.units[i][0]){
-							field.dispUnitDef = field.units[i][1];
-						}	
-					}
-					
-					var unitOffset = field.unitDef.offset || 0;
-					var dispUnitOffset = field.dispUnitDef.offset || 0;
-					
-					for (var row=0; row<$scope.numRows; row++){
-						$scope.values[row][col]
-							= $scope.values[row][col] * field.unitDef.mult + unitOffset;
-						
-						$scope.displayValues[row][col] 
-							= ($scope.values[row][col] - dispUnitOffset) / field.dispUnitDef.mult;
-					}
-					
-					$scope.labels[col] 
-						= $scope.fieldVar.labels[col] + ' [' + field.displayUnit + ']';
-				}
-				
-				//Determining number of rows in edit mode
-				var numEditRows;
-				if ($scope.numCols % 5){
-					numEditRows = Math.floor($scope.numCols / 5) + 1;
-				} else {
-					numEditRows = Math.floor($scope.numCols / 5);
-				}
-				$scope.editRows = [];
-				for (var i=0; i<numEditRows; i++){
-					$scope.editRows.push(i);
-				}
-				
-				//Setting initial visibility
-				$scope.columnsShow = [];
-				for (var i=0; i<$scope.fieldVar.visibleColumns.length; i++){
-					$scope.columnsShow[$scope.fieldVar.visibleColumns[i]] = true;
-				}
-				$scope.allChecked = true;
-				
-				$scope.setDataView();
-				$scope.draw();
-			}
-						
-			$scope.updateChecked = function(){
-				$scope.allChecked = false;
-			}
-			
-			$scope.setToAll = function(){
-				for (i=0; i<$scope.columnsShow.length; i++){
-					$scope.columnsShow[i] = $scope.allChecked;
-				}
-			}
-			
-			$scope.setDataView = function(){
-				$scope.viewCloumns = [];
-				for (i=0; i<$scope.numCols; i++){
-					if ($scope.columnsShow[i] == true){
-						$scope.viewCloumns.push(i);
-					}
-				}
-				$scope.displayTable = angular.copy($scope.displayValues);
-				$scope.displayTable.unshift($scope.labels);
-				$scope.dataTable = google.visualization.arrayToDataTable($scope.displayTable);
-				$scope.dataView = new google.visualization.DataView($scope.dataTable);
-				$scope.dataView.setColumns($scope.viewCloumns);
-			}
-			
-			$scope.changeUnit = function(col) {
-				var field = $scope.fieldVar.fields[col];
-				
-				for (var i=0; i<field.units.length; i++) {
-					if (field.displayUnit == field.units[i][0]){
-						field.dispUnitDef = field.units[i][1];
-					}	
-				}
-				
-				var offset = 0;
-				if ('offset' in field.dispUnitDef) {
-					offset = field.dispUnitDef.offset;
-				}
-				
-				for (var row=0; row<$scope.numRows; row++){
-					$scope.displayValues[row][col]
-						= ($scope.values[row][col] - offset) / field.dispUnitDef.mult;
-				}
-				
-				$scope.labels[col] = $scope.fieldVar.labels[col] + ' [' + field.displayUnit + ']';
-			}
-			
-			$scope.draw = function() {
-				//Drawing the table
-				var tableView 
-					= new google.visualization.Table(document.getElementById($scope.modelName + '_' + $scope.fieldVar.name + 'TableDiv'));
-				
-				if(typeof $scope.fieldVar.options.formats === 'string'){
-					for (var i=0; i < $scope.numCols; i++){
-						formatter = new google.visualization.NumberFormat({pattern: $scope.fieldVar.options.formats});
-						formatter.format($scope.dataTable, i);
-					}
-				} else {
-					for (var i=0; i < $scope.numCols; i++){
-						try {
-							formatter = new google.visualization.NumberFormat({pattern: $scope.fieldVar.options.formats[i]});
-						}
-						catch(err) {
-							formatter = new google.visualization.NumberFormat();
-						}
-						
-						formatter.format($scope.dataTable, i);
-					}
-				}
-				
-				tableView.draw($scope.dataView, {showRowNumber: true, sort:'disable', page:'enable', pageSize:14});
-			}
-			
-			$scope.csvFileName = $scope.fieldVar.name + '.csv';
-			
-			$scope.exportCSV = function(){
-				var exportTable = $scope.dataView.toDataTable();		
-				var labels = [];
-				for (var i=0; i<exportTable.getNumberOfColumns(); i++){
-					labels.push(exportTable.getColumnLabel(i));
-				}
-				
-				var labelsString = labels.join(",");
-				var csvString = labelsString + "\n";
-				
-//				var dataTable = google.visualization.arrayToDataTable($scope.smoDataSource[$scope.fieldVar.name]);
-				var dataTableCSV = google.visualization.dataTableToCsv(exportTable);
-				
-				csvString += dataTableCSV;
-				
-				// download stuff
-			 	var blob = new Blob([csvString], {
-			 	  "type": "text/csv;charset=utf8;"			
-			 	});
-			 	var link = document.getElementById($scope.modelName + '_' + $scope.fieldVar.name + 'CsvElem');
-							
-			 	if(link.download !== undefined) { // feature detection
-			 	  // Browsers that support HTML5 download attribute
-			 	  link.setAttribute("href", window.URL.createObjectURL(blob));
-			 	  link.setAttribute("download", $scope.csvFileName);
-			 	 } else {
-			 		// it needs to implement server side export
-					//link.setAttribute("href", "http://www.example.com/export");
-			 		  alert("Needs to implement server side export");
-			 		  return;
-			 	}
-//	 		 	document.body.appendChild(link);
-			 	link.click();
-			}
-		},
-		link : function(scope, element, attr) {
-			var template = '<div id="' + scope.modelName + '_' + scope.fieldVar.name + 'TableDiv"></div>\
-			<div style = "margin-top: 10px; margin-bottom: 10px;">\
-				Export data&nbsp\
-				<input ng-model="csvFileName"></input>\
-				<smo-button icon="save" size="md" action="exportCSV()" tip="Save data"></smo-button>\
-				<a id="' + scope.modelName + '_' + scope.fieldVar.name + 'CsvElem" hidden></a>\
-				<smo-button action="toggle()" icon="settings" tip="Settings" size="md"></smo-button>\
-				<div class="view-edit" ng-show="expanded" ng-click="toggle()">\
-					<table class="nice-table" style="border: none;">\
-						<tr>\
-							<th style="min-width: 10px;" colspan="100%">\
-								<input type="checkbox" ng-model="allChecked" ng-change="setToAll()"></input>\
-								<span>All</span>\
-							</th>\
-						</tr>\
-						<tr ng-repeat="row in editRows">\
-							<td style="min-width: 10px;" ng-repeat="label in fieldVar.labels.slice(row*5, row*5+5) track by $index">\
-								<input type="checkbox" ng-model="columnsShow[row*5 + $index]" ng-change="updateChecked()"></input>\
-								<span ng-bind="label"></span>\
-								<div class="field-select quantity">\
-									<select ng-model="fieldVar.fields[row*5 + $index].displayUnit" ng-options="pair[0] as pair[0] for pair in fieldVar.fields[row*5 + $index].units" ng-change="changeUnit(row*5 + $index)"></select>\
-								</div>\
-							</td>\
-						</tr>\
-					</table>\
-				</div>\
-			</div>';
-				
-			var el = angular.element(template);
-	        compiled = $compile(el);
-	        element.append(el);
-	        compiled(scope); 
-	        $(".view-edit > table").bind('click', function(e){
-                e.stopPropagation();
-            });
-	        scope.$watch(scope.smoDataSource[scope.fieldVar.name], function(value) {
-				scope.init();
-		});
-		}	
-	}
-}]);
-
-smoModule.directive('smoView', ['$compile', function($compile) {
+smoModule.directive('smoDataView', ['$compile', function($compile) {
 	return {
 		restrict : 'A',
 		scope : {
@@ -2102,9 +2102,9 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 					}
 					
 					if (field.type == 'PlotView') {
-						navPillPanes.push('<div ' + showFieldCode + ' smo-view field-var="fields.' + field.name + '" model-name="' + scope.modelName + '" smo-data-source="smoDataSource"></div>');
+						navPillPanes.push('<div ' + showFieldCode + ' smo-data-view field-var="fields.' + field.name + '" model-name="' + scope.modelName + '" smo-data-source="smoDataSource"></div>');
 					} else if (field.type == 'TableView') {
-						navPillPanes.push('<div ' + showFieldCode + ' smo-view field-var="fields.' + field.name + '" model-name="' + scope.modelName + '" smo-data-source="smoDataSource" style="max-width: 840px; overflow: auto;"></div>');
+						navPillPanes.push('<div ' + showFieldCode + ' smo-data-view field-var="fields.' + field.name + '" model-name="' + scope.modelName + '" smo-data-source="smoDataSource" style="max-width: 840px; overflow: auto;"></div>');
 					} else if (field.type == 'Image') {
 						navPillPanes.push('<div ' + showFieldCode + ' smo-img field-var="fields.' + field.name + '" model-name="' + scope.modelName + '" smo-data-source="smoDataSource" style="max-width: 840px; overflow: auto;"></div>');
 					}

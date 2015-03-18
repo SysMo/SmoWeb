@@ -359,7 +359,7 @@ class RecordArray(Field):
 		fieldDict['fields'] = jsonFieldList
 		return fieldDict
 	
-class View(Field):
+class DataView(Field):
 	"""
 	Composite output field for representing a table or plot
 	"""
@@ -380,7 +380,7 @@ class View(Field):
 			)
   
 		"""
-		super(View, self).__init__(*args, **kwargs)	
+		super(DataView, self).__init__(*args, **kwargs)	
 		
 		if (structDict is None):
 			raise ValueError('The data structure is not defined.')
@@ -437,7 +437,7 @@ class View(Field):
 		return value.tolist()
 
 	def toFormDict(self):
-		fieldDict = super(View, self).toFormDict()
+		fieldDict = super(DataView, self).toFormDict()
 		fieldDict['type'] = 'View'
 		jsonFieldList = []		
 		for field in self.fieldList:
@@ -569,7 +569,7 @@ class TableView(Field):
 # 		extendedData.insert(0, self.dataLabels)
 # 		return extendedData
 
-class TableView1(View):
+class TableView1(DataView):
 	"""
 	Field for visualization of table data
 	"""
@@ -682,7 +682,7 @@ class PlotView(Field):
 		fieldDict['options'] = self.options
 		return fieldDict
 
-class PlotView1(View):
+class PlotView1(DataView):
 	"""
 	Field for visualization of table data
 	"""
