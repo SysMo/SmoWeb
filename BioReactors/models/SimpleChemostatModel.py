@@ -3,7 +3,6 @@ from smo.model.actions import ServerAction, ActionBar
 from smo.model.fields import *
 from smo.web.modules import RestModule
 from smo.dynamical_models.bioreactors.SimpleChemostat import SimpleChemostat
-from collections import OrderedDict
 
 class SimpleChemostatModel(NumericalModel):
     label = "Simple Chemostat"
@@ -16,10 +15,10 @@ class SimpleChemostatModel(NumericalModel):
     m = Quantity('Hertz', default = (3, '1/h'), minValue = 0, label = 'm', description = 'maximal growth rate [1/time]')
     K = Quantity('Density', default = (3.7, 'g/L'), minValue = 0, label = 'K', description = 'half saturation constant [mass/volume]')
     gamma = Quantity(default = 0.6, minValue = 0, maxValue = 1.0, label = '&#947', description = 'yield coefficient of microorganisms [-]')
-    D_vals = RecordArray(OrderedDict((
+    D_vals = RecordArray((
             ('time', Quantity('Time', default = (20, 'h'), minValue = 0, label = 'Duration')),
             ('D', Quantity('Hertz', default = (1, '1/h'), minValue = 0, label = 'D')),
-        )), label = 'D', description = 'dilution rate [1/time]')  
+        ), label = 'D', description = 'dilution rate [1/time]')  
     parametersFieldGroup = FieldGroup([S_in, m, K, gamma, D_vals], label = "Parameters")
     
     S0 = Quantity('Density', default = (0, 'g/L'), minValue = 0, label = 'S<sub>0</sub>', description = 'initial concentration of substrate [mass/volume]')
@@ -43,13 +42,24 @@ class SimpleChemostatModel(NumericalModel):
     inputView = ModelView(ioType = "input", superGroups = [inputValuesSuperGroup, settingsSuperGroup], 
         actionBar = inputActionBar, autoFetch = True)
     
-    #2. ############ Results ###############
-    plot = PlotView(label='Plot', dataLabels = ['time', 'S', 'X', 'D'], options = {'ylabel' : None})
-    table = TableView(label='Table', dataLabels = ['time', 'S', 'X', 'D'], 
-                      quantities = ['Time', 'Density', 'Density', 'Hertz'],
-                      options = {'title': 'Title', 
-                                 'formats': ['0.0000', '0.0000', '0.0000'], 
-                                 'columnUnitDefs' : ['h', 'g/L', 'g/L', '1/h']})
+    #2. ############ Results ###############    
+    plot = PlotView((
+                        ('time', Quantity('Time', default=(1, 'h'))),
+                        ('S', Quantity('Density', default=(1, 'g/L'))),
+                        ('X', Quantity('Density', default=(1, 'g/L'))),
+                        ('D', Quantity('Hertz', default=(1, '1/h'))),
+                    ),
+                    label='Plot', 
+                    options = {'ylabel' : None})
+    table = TableView((
+                            ('time', Quantity('Time', default=(1, 'h'))),
+                            ('S', Quantity('Density', default=(1, 'g/L'))),
+                            ('X', Quantity('Density', default=(1, 'g/L'))),
+                            ('D', Quantity('Hertz', default=(1, '1/h'))),
+                        ),
+                      label='Table', 
+                      options = {'title': 'Title', 'formats': ['0.000', '0.000', '0.000', '0.000']})
+
     
     resultsViewGroup = ViewGroup([plot, table], label = 'Results')
     results = SuperGroup([resultsViewGroup])
@@ -79,6 +89,7 @@ class SimpleChemostatModel(NumericalModel):
         
         self.plot = np.array(results)
         self.table = np.array(results)
+        
 
 class SimpleChemostatDoc(RestModule):
     label = 'Simple Chemostat (Doc)'

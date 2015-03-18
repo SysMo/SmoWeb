@@ -13,4 +13,5 @@ Welcome to SmoWeb internal documentation!
    
    Setup
    CoolProp
-   Diagrams 
+   Diagrams
+   IE 
