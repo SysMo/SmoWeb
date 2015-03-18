@@ -246,24 +246,51 @@ class CableHeating1D(NumericalModel):
 	r1g = SuperGroup([r11, r12], label = 'Values')
 
 	# 2.2 Distributions
-	T_x = PlotView(label = 'Temperatures', dataLabels = ['x position [m]', 'core temperature [degC]', 'surface temperature [degC]'],
-				options = {'ylabel': 'temperature [degC]'})
-	QAx_x = PlotView(label = 'Axial heat flow', dataLabels = ['x position [m]', 'heat flow [W]'])
-	QConv_x = PlotView(label = 'Convection flux', dataLabels = ['x position [m]', 'flux density [W/m]'])
-	QRad_x = PlotView(label = 'Radiation flux', dataLabels = ['x position [m]', 'flux density [W/m]'])
-	table_x = TableView(label = 'Distributions (table)', 
-					dataLabels = ['x position', 'temperature', 'heat flow'],
-					quantities = ['Length', 'Temperature', 'HeatFlowRate'],
-					options = {'formats': ['0.000', '0.00', '0.000E00'] })
+	T_x = PlotView(OrderedDict((
+                            ('x position', Quantity('Length', default=(1, 'm'))),
+                            ('core temperature', Quantity('Temperature', default=(1, 'degC'))),
+                            ('surface temperature', Quantity('Temperature', default=(1, 'degC'))),
+                        	)),
+							label = 'Temperatures',
+							options = {'ylabel': 'temperature [degC]'})
+	QAx_x = PlotView(OrderedDict((
+                            ('x position', Quantity('Length', default=(1, 'm'))),
+                            ('heat flow', Quantity('HeatFlowRate', default=(1, 'W')))
+                        	)),
+							label = 'Axial heat flow')
+	QConv_x = PlotView(OrderedDict((
+                            ('x position', Quantity('Length', default=(1, 'm'))),
+                            ('flux density', Quantity('LinearHeatFluxDensity', default=(1, 'W/m')))
+                        	)),
+							label = 'Convection flux')
+	QRad_x = PlotView(OrderedDict((
+                            ('x position', Quantity('Length', default=(1, 'm'))),
+                            ('flux density', Quantity('LinearHeatFluxDensity', default=(1, 'W/m')))
+                        	)),
+							label = 'Radiation flux')
+	table_x = TableView(OrderedDict((
+	                            ('x position', Quantity('Length')),
+	                            ('temperature', Quantity('Temperature')),
+	                            ('heat flow', Quantity('HeatFlowRate')),
+	                        	)),
+								label = 'Distributions (table)',
+								options = {'formats': ['0.000', '0.00', '0.000E00'] })
 	r3 = ViewGroup([T_x, QAx_x, QConv_x, QRad_x, table_x], label =  'Distributions')
 	r3g = SuperGroup([r3], label = 'Distributions')
 	
 	# 2.3 Residuals 
-	residualPlot = PlotView(label = 'Residual (plot)', dataLabels = ['iteration #', 'residual'], ylog = True)
-	residualTable = TableView(label = 'Residual (table)', 
-							dataLabels = ['residual', 'TLeft', 'TRight'],
-							quantities =  ['Dimensionless', 'Temperature', 'Temperature'],
-							options = {'formats': ['0.0000E0', '0.000', '0.000']})
+	residualPlot = PlotView(OrderedDict((
+                            ('iteration #', Quantity('Dimensionless')),
+                            ('residual', Quantity('Dimensionless'))
+                        	)),
+							label = 'Residual (plot)', ylog = True)
+	residualTable = TableView(OrderedDict((
+	                            ('residual', Quantity('Dimensionless')),
+	                            ('TLeft', Quantity('Temperature')),
+	                            ('TRight', Quantity('Temperature')),
+	                        	)),
+								label = 'Residual (table)',
+								options = {'formats': ['0.0000E0', '0.000', '0.000']})
 	r4 = ViewGroup([residualPlot, residualTable], label = 'Convergence')
 	r4g = SuperGroup([r4], label = 'Convergence')
 	

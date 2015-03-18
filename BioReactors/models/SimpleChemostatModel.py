@@ -42,22 +42,17 @@ class SimpleChemostatModel(NumericalModel):
     inputView = ModelView(ioType = "input", superGroups = [inputValuesSuperGroup, settingsSuperGroup], 
         actionBar = inputActionBar, autoFetch = True)
     
-    #2. ############ Results ###############
-#     plot = PlotView(label='Plot', dataLabels = ['time', 'S', 'X', 'D'], options = {'ylabel' : None})
-#     table = TableView(label='Table', dataLabels = ['time', 'S', 'X', 'D'], 
-#                       quantities = ['Time', 'Dimensionless', 'Dimensionless', 'Dimensionless'],
-#                       options = {'title': 'Title', 'formats': ['0.0000', '0.0000', '0.0000']})
-    
-    plot = PlotView1(OrderedDict((
-                            ('time', Quantity('Time', default = (1, 'h'))),
+    #2. ############ Results ###############    
+    plot = PlotView(OrderedDict((
+                            ('time', Quantity('Time', default=(1, 'h'))),
                             ('S', Quantity('Dimensionless')),
                             ('X', Quantity('Dimensionless')),
                             ('D', Quantity('Dimensionless')),
                         )),
                         label='Plot', 
                         options = {'ylabel' : None})
-    table = TableView1(OrderedDict((
-                            ('time', Quantity('Time', default = (1, 'min'))),
+    table = TableView(OrderedDict((
+                            ('time', Quantity('Time', default=(1, 'min'))),
                             ('S', Quantity('Dimensionless')),
                             ('X', Quantity('Dimensionless')),
                             ('D', Quantity('Dimensionless')),

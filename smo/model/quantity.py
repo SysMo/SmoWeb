@@ -59,6 +59,8 @@ Quantities = {
 		('mW', {'mult' : 1e-3}),  ('uW', {'mult' : 1e-6}),  ('hp', {'mult' : 746.0}), ('BTU/h', {'mult' : 0.293}),))},
 	'HeatFluxDensity' : {'title' : 'heat flux density', 'nominalValue' : 1, 'SIUnit' : 'W/m**2', 'defDispUnit' : 'W/m**2',
 		'units' : OrderedDict((('W/m**2', {'mult' : 1}), ('kW/m**2', {'mult' : 1e3})))},
+	'LinearHeatFluxDensity' : {'title' : 'linear heat flux density', 'nominalValue' : 1, 'SIUnit' : 'W/m', 'defDispUnit' : 'W/m',
+		'units' : OrderedDict((('W/m', {'mult' : 1}), ('kW/m', {'mult' : 1e3})))},
 	'ThermalConductivity' : {'title' : 'thermal conductivity', 'nominalValue' : 1.0, 'SIUnit' : 'W/m-K', 'defDispUnit' : 'W/m-K',
 		'units' : OrderedDict((('W/m-K', {'mult' : 1}), ('W/cm-K', {'mult' : 1e2}), ('W/mm-K', {'mult' : 1e3})))},
 	'ThermalExpansionCoefficient' : {'title' : 'thermal expansion coefficient', 'nominalValue' : 1.0, 'SIUnit' : '1/K', 'defDispUnit' : '1/K',

@@ -447,72 +447,72 @@ class DataView(Field):
 		fieldDict['visibleColumns'] = self.visibleColumns
 		return fieldDict
 
-class TableView(Field):
-	"""
-	Field for visualization of table data
-	"""
-	def __init__(self, default = None, dataLabels = None, quantities = None, visibleColumns = None, options = None, *args, **kwargs):
-		"""
-		:param numpy.array default: default array
-		:param list dataLabels: list of column data labels
-		:param dict options: additional options to be passed
-		"""
-		super(TableView, self).__init__(*args, **kwargs)
-		if (default is None):
-			self.default = np.array([])
-		else:
-			self.default = self.parseValue(default)
-		
-		if (dataLabels is None):
-			self.dataLabels = []
-		else:
-			self.dataLabels = dataLabels
-			
-		if (visibleColumns is None):
-			self.visibleColumns = [n for n in range(len(self.dataLabels))]
-		else:
-			self.visibleColumns = 	visibleColumns
-		
-		if (quantities is None):
-			raise ValueError('List of quantity names must be passed to TableView constructor.')
-		else:
-			self.columnUnitDefs = []
-			for quantity in quantities:		
-				unitsList = []
-				for key in Quantities[quantity]['units'].keys():			
-					unitsList.append([key, Quantities[quantity]['units'][key]])
-					
-				self.columnUnitDefs.append([Quantities[quantity]['SIUnit'], unitsList])
-		
-		if (options is None):
-			self.options = {}
-		else:
-			if (isinstance(options, dict)):
-				self.options = options
-			else:
-				raise ArgumentTypeError('Options passed to TableView must be a dictionary object')
-	
-	def parseValue(self, value):
-		if (isinstance(value, np.ndarray)):
-			return value
-		else:
-			raise ArgumentTypeError('The value of TableView must be a numpy array')
-		
-	def toFormDict(self):
-		fieldDict = super(TableView, self).toFormDict()
-		if ('title' not in self.options.keys()):
-			self.options['title'] = self.label
-		
-		fieldDict['type'] = 'TableView'
-		fieldDict['options'] = self.options
-		fieldDict['visibleColumns'] = self.visibleColumns
-		fieldDict['columnUnitDefs'] = self.columnUnitDefs
-		return fieldDict
-
-	def getValueRepr(self, value):
-		extendedData = value.tolist()
-		extendedData.insert(0, self.dataLabels)
-		return extendedData
+# class TableView(Field):
+# 	"""
+# 	Field for visualization of table data
+# 	"""
+# 	def __init__(self, default = None, dataLabels = None, quantities = None, visibleColumns = None, options = None, *args, **kwargs):
+# 		"""
+# 		:param numpy.array default: default array
+# 		:param list dataLabels: list of column data labels
+# 		:param dict options: additional options to be passed
+# 		"""
+# 		super(TableView, self).__init__(*args, **kwargs)
+# 		if (default is None):
+# 			self.default = np.array([])
+# 		else:
+# 			self.default = self.parseValue(default)
+# 		
+# 		if (dataLabels is None):
+# 			self.dataLabels = []
+# 		else:
+# 			self.dataLabels = dataLabels
+# 			
+# 		if (visibleColumns is None):
+# 			self.visibleColumns = [n for n in range(len(self.dataLabels))]
+# 		else:
+# 			self.visibleColumns = 	visibleColumns
+# 		
+# 		if (quantities is None):
+# 			raise ValueError('List of quantity names must be passed to TableView constructor.')
+# 		else:
+# 			self.columnUnitDefs = []
+# 			for quantity in quantities:		
+# 				unitsList = []
+# 				for key in Quantities[quantity]['units'].keys():			
+# 					unitsList.append([key, Quantities[quantity]['units'][key]])
+# 					
+# 				self.columnUnitDefs.append([Quantities[quantity]['SIUnit'], unitsList])
+# 		
+# 		if (options is None):
+# 			self.options = {}
+# 		else:
+# 			if (isinstance(options, dict)):
+# 				self.options = options
+# 			else:
+# 				raise ArgumentTypeError('Options passed to TableView must be a dictionary object')
+# 	
+# 	def parseValue(self, value):
+# 		if (isinstance(value, np.ndarray)):
+# 			return value
+# 		else:
+# 			raise ArgumentTypeError('The value of TableView must be a numpy array')
+# 		
+# 	def toFormDict(self):
+# 		fieldDict = super(TableView, self).toFormDict()
+# 		if ('title' not in self.options.keys()):
+# 			self.options['title'] = self.label
+# 		
+# 		fieldDict['type'] = 'TableView'
+# 		fieldDict['options'] = self.options
+# 		fieldDict['visibleColumns'] = self.visibleColumns
+# 		fieldDict['columnUnitDefs'] = self.columnUnitDefs
+# 		return fieldDict
+# 
+# 	def getValueRepr(self, value):
+# 		extendedData = value.tolist()
+# 		extendedData.insert(0, self.dataLabels)
+# 		return extendedData
 
 # Left for reference for future implementation!!!
 # from pymongo import MongoClient
@@ -569,7 +569,7 @@ class TableView(Field):
 # 		extendedData.insert(0, self.dataLabels)
 # 		return extendedData
 
-class TableView1(DataView):
+class TableView(DataView):
 	"""
 	Field for visualization of table data
 	"""
@@ -587,10 +587,10 @@ class TableView1(DataView):
 			else:
 				raise ArgumentTypeError('Options passed to TableView must be a dictionary object')
 		
-		super(TableView1, self).__init__(structDict = structDict, *args, **kwargs)
+		super(TableView, self).__init__(structDict = structDict, *args, **kwargs)
 		
 	def toFormDict(self):
-		fieldDict = super(TableView1, self).toFormDict()
+		fieldDict = super(TableView, self).toFormDict()
 		if ('title' not in self.options.keys()):
 			self.options['title'] = self.label
 		
@@ -598,91 +598,91 @@ class TableView1(DataView):
 		fieldDict['type'] = 'TableView'
 		return fieldDict
 
-class PlotView(Field):
-	"""
-	Field for creating interactive plots
-	"""
-	def __init__(self, default = None, dataLabels = None, xlog = None, ylog = None, options = None, *args, **kwargs):
-		"""
-		:param numpy.array default: default value
-		:param list dataLabels: list of line labels
-		:param bool xlog: use logarithmic scale for x axis
-		:param bool ylog: use logarithmic scale for y axis
-		:param dict options: additional options to be passed
-		"""
-		super(PlotView, self).__init__(*args, **kwargs)
-		if (default is None):
-			self.default = np.array([])
-		else:
-			self.default = self.parseValue(default)
-		
-		if (dataLabels is None):
-			self.dataLabels = []
-		else:
-			self.dataLabels = dataLabels
-			
-		if (xlog is None):
-			self.xlog = False
-		else:
-			self.xlog = xlog
-			
-		if (ylog is None):
-			self.ylog = False
-		else:
-			self.ylog = ylog
-		
-		if (options is None):
-			self.options = {}
-		else:
-			if (isinstance(options, dict)):
-				self.options = options
-			else:
-				raise ArgumentTypeError('Options passed to PlotView must be a dictionary object')
-		
-	def parseValue(self, value):
-		if (isinstance(value, np.ndarray)):
-			return value
-		else:
-			raise ArgumentTypeError('The value of PlotView must be a numpy array')
-	
-	def getValueRepr(self, value):
-		return value.tolist()
+# class PlotView(Field):
+# 	"""
+# 	Field for creating interactive plots
+# 	"""
+# 	def __init__(self, default = None, dataLabels = None, xlog = None, ylog = None, options = None, *args, **kwargs):
+# 		"""
+# 		:param numpy.array default: default value
+# 		:param list dataLabels: list of line labels
+# 		:param bool xlog: use logarithmic scale for x axis
+# 		:param bool ylog: use logarithmic scale for y axis
+# 		:param dict options: additional options to be passed
+# 		"""
+# 		super(PlotView, self).__init__(*args, **kwargs)
+# 		if (default is None):
+# 			self.default = np.array([])
+# 		else:
+# 			self.default = self.parseValue(default)
+# 		
+# 		if (dataLabels is None):
+# 			self.dataLabels = []
+# 		else:
+# 			self.dataLabels = dataLabels
+# 			
+# 		if (xlog is None):
+# 			self.xlog = False
+# 		else:
+# 			self.xlog = xlog
+# 			
+# 		if (ylog is None):
+# 			self.ylog = False
+# 		else:
+# 			self.ylog = ylog
+# 		
+# 		if (options is None):
+# 			self.options = {}
+# 		else:
+# 			if (isinstance(options, dict)):
+# 				self.options = options
+# 			else:
+# 				raise ArgumentTypeError('Options passed to PlotView must be a dictionary object')
+# 		
+# 	def parseValue(self, value):
+# 		if (isinstance(value, np.ndarray)):
+# 			return value
+# 		else:
+# 			raise ArgumentTypeError('The value of PlotView must be a numpy array')
+# 	
+# 	def getValueRepr(self, value):
+# 		return value.tolist()
+# 
+# 	def toFormDict(self):
+# 		if ('title' not in self.options.keys()):
+# 			self.options['title'] = self.label
+# 			
+# 		if ('width' not in self.options.keys()):
+# 			self.options['width'] = 700
+# 		
+# 		if ('height' not in self.options.keys()):
+# 			self.options['height'] = 400
+# 		
+# 		self.options['labels'] = self.dataLabels
+# 		
+# 		if ('xlabel' not in self.options.keys()):
+# 			self.options['xlabel'] = self.dataLabels[0]
+# 		
+# 		if ('ylabel' not in self.options.keys()):
+# 			self.options['ylabel'] = self.dataLabels[1]
+# 		
+# 		if ('labelsDivWidth' not in self.options.keys()):
+# 			self.options['labelsDivWidth'] = 400
+# 			
+# 		self.options['labelsSeparateLines'] = True
+# 		
+# 		if (self.xlog):
+# 			self.options['axes'] = { 'x' : {'logscale': True} }
+# 		
+# 		if (self.ylog):
+# 			self.options['logscale'] = True
+# 		
+# 		fieldDict = super(PlotView, self).toFormDict()
+# 		fieldDict['type'] = 'PlotView'
+# 		fieldDict['options'] = self.options
+# 		return fieldDict
 
-	def toFormDict(self):
-		if ('title' not in self.options.keys()):
-			self.options['title'] = self.label
-			
-		if ('width' not in self.options.keys()):
-			self.options['width'] = 700
-		
-		if ('height' not in self.options.keys()):
-			self.options['height'] = 400
-		
-		self.options['labels'] = self.dataLabels
-		
-		if ('xlabel' not in self.options.keys()):
-			self.options['xlabel'] = self.dataLabels[0]
-		
-		if ('ylabel' not in self.options.keys()):
-			self.options['ylabel'] = self.dataLabels[1]
-		
-		if ('labelsDivWidth' not in self.options.keys()):
-			self.options['labelsDivWidth'] = 400
-			
-		self.options['labelsSeparateLines'] = True
-		
-		if (self.xlog):
-			self.options['axes'] = { 'x' : {'logscale': True} }
-		
-		if (self.ylog):
-			self.options['logscale'] = True
-		
-		fieldDict = super(PlotView, self).toFormDict()
-		fieldDict['type'] = 'PlotView'
-		fieldDict['options'] = self.options
-		return fieldDict
-
-class PlotView1(DataView):
+class PlotView(DataView):
 	"""
 	Field for visualization of table data
 	"""
@@ -710,10 +710,10 @@ class PlotView1(DataView):
 			else:
 				raise ArgumentTypeError('Options passed to TableView must be a dictionary object')
 		
-		super(PlotView1, self).__init__(structDict = structDict, *args, **kwargs)
+		super(PlotView, self).__init__(structDict = structDict, *args, **kwargs)
 		
 	def toFormDict(self):
-		fieldDict = super(PlotView1, self).toFormDict()
+		fieldDict = super(PlotView, self).toFormDict()
 		if ('title' not in self.options.keys()):
 			self.options['title'] = self.label
 			
