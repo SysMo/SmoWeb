@@ -16,13 +16,13 @@ Simple Chemostat
 Chemostat
 ---------
 
-A chemostat (from Chemical environment is static) is a bioreactor to which fresh medium is continuously added, 
+A chemostat (from "Chemical environment is static") is a bioreactor to which fresh medium is continuously added, 
 while culture liquid is continuously removed to keep the culture volume constant. By changing the rate 
-with which medium is added to the bioreactor the growth rate of the microorganism can be easily controlled [Wiki-Chemostat]_.
+at which medium is added to the bioreactor the growth rate of the microorganism can be easily controlled [Wiki-Chemostat]_.
 
 Mathematical model
 ------------------
-The mathematical model of simple chemostat is [Chemostat:95]_:
+The mathematical model of a simple chemostat is [Chemostat95]_:
 
 .. math::   
    S' = (S_{in} - S)D - \frac{1}{\gamma}\mu(S)X
@@ -52,6 +52,6 @@ where:
 
 References
 ----------
- 
+
 .. [Wiki-Chemostat] http://en.wikipedia.org/wiki/Chemostat
-.. [Chemostat:95] H. Smith and P. Waltman. The Theory of the Chemostat: Dynamics of Microbial Competition. Cambridge University Press, 1995
+.. [Chemostat95] Smith, H. and Waltman, P. The Theory of the Chemostat: Dynamics of Microbial Competition. Cambridge University Press, 1995
