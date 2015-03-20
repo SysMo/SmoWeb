@@ -1208,6 +1208,7 @@ smoModule.directive('smoFieldGroup', ['$compile', 'util', function($compile, uti
 				scope.smoDataSource = scope.dataSource[scope.smoFieldGroup.dataSourceRoot];
 			} else {
 				scope.smoDataSource = scope.dataSource;
+
 			}
 			scope.fields = {};
 			var groupFields = [];
@@ -1279,6 +1280,7 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 			modelName: '@modelName'
 		},
 		link : function(scope, element, attr) {
+
 			// Passing values from dataSourceRoot if such property exists in a view-group
 			if (typeof scope.smoViewGroup.dataSourceRoot !== 'undefined') {
 				scope.smoDataSource = scope.dataSource[scope.smoViewGroup.dataSourceRoot];
