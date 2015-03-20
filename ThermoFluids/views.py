@@ -8,7 +8,7 @@ mongoClient = MongoClient()
 
 router = ViewRouter('ThermoFluids', ThermoFluids)
 
-from smo.media.calculators.FluidPropsCalculator import PropertyCalculatorCoolprop, FluidInfo, SaturationData, PHDiagramModel, FluidPropertiesDoc
+from .models import PropertyCalculatorCoolprop, FluidInfo, SaturationData, PHDiagramModel, FluidPropertiesDoc
 @registerView(router)
 class FluidPropsCalculatorView(ModularPageView):
 	label = 'Fluid properties (CoolProp)'
@@ -26,19 +26,19 @@ class FluidPropsCalculatorView(ModularPageView):
 		else:
 			return fpc.modelView2Json(fpc.resultView)
 	
-from ThermoFluids.models.ThermodynamicProcessesModels import CompressionExpansionModel, HeatingCoolingModel
+from .models import CompressionExpansionModel, HeatingCoolingModel
 @registerView(router)
 class ThermodynamicProcessView(ModularPageView):
 	label = "Thermodynamic processes"
 	modules = [CompressionExpansionModel, HeatingCoolingModel]
 
-from .models.PipeFlowModel import PipeFlowModel, PipeFlowDoc
+from .models import PipeFlowModel, PipeFlowDoc
 @registerView(router)
 class PipeFlowView(ModularPageView):
 	label = "Pipe flow"
 	modules = [PipeFlowModel, PipeFlowDoc]
 
-from smo.flow.FreeConvection import FreeConvection_External, FreeConvection_Internal, FreeConvectionDoc
+from .models import FreeConvection_External, FreeConvection_Internal, FreeConvectionDoc
 @registerView(router)
 class FreeConvectionView(ModularPageView):
 	label = "Free convection"

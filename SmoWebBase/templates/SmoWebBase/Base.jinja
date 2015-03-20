@@ -20,14 +20,15 @@
 	<!-- Modernizr - HTML5/CSS3 feature detection library -->
 	<script src="{{ static('js/Modernizr.js') }}"></script>
 	
-	<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7; IE=EmulateIE9;">
+	<meta http-equiv="x-ua-compatible" content="IE=Edge"/> 
+
     <!--[if IE]><script src="{{ static('js/excanvas.js') }}"></script><![endif]-->
 	 
 	<script>
 	  	$( document ).ready(function() {
-	  		//Checking if browser is IE and displaying a warning message.
-			var isIE = false || !!document.documentMode; // At least IE6
-	  		if (isIE == true){
+	  		//Checking if browser is IE and displaying a warning message. Setting global variable isIE
+			isIE = false || !!document.documentMode; // At least IE6
+	  		if (isIE == true) {
 	  			$("#browserAlert").show();
 	  		}
 			//Replaces eg. 'logo.svg' with 'logo.png' if there is no html5 compatibility

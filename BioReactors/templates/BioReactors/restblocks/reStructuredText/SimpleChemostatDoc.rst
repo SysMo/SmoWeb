@@ -16,13 +16,13 @@ Simple Chemostat
 Chemostat
 ---------
 
-A chemostat (from Chemical environment is static) is a bioreactor to which fresh medium is continuously added, 
+A chemostat (from "Chemical environment is static") is a bioreactor to which fresh medium is continuously added, 
 while culture liquid is continuously removed to keep the culture volume constant. By changing the rate 
-with which medium is added to the bioreactor the growth rate of the microorganism can be easily controlled [Wiki-Chemostat]_.
+at which medium is added to the bioreactor the growth rate of the microorganism can be easily controlled [Wiki-Chemostat]_.
 
 Mathematical model
 ------------------
-The mathematical model of simple chemostat is [Chemostat:95]_:
+The mathematical model of a simple chemostat is [Chemostat95]_:
 
 .. math::   
    S' = (S_{in} - S)D - \frac{1}{\gamma}\mu(S)X
@@ -32,7 +32,7 @@ The mathematical model of simple chemostat is [Chemostat:95]_:
 
 where:
 
-:math:`S(t)` - concentration of nutrient (substrate) [mass/volume]
+:math:`S(t)` - concentration of nutrient (substrate) [mass/volume] (or [mol/volume])
 
 :math:`X(t)` - concentration of culture (microorganisms) [mass/volume]
 
@@ -40,9 +40,9 @@ where:
 
 :math:`D` - dilution (or washout) flow rate [1/time]
 
-:math:`\gamma` - yield coefficient of microorganisms (:math:`\gamma <= 1`) [-]
+:math:`\gamma` - yield coefficient of microorganisms (:math:`\gamma \leq 1`) [-]
 
-:math:`\mu(S) = \frac{m.S}{K+S}` - specific growth rate (Monod type)
+:math:`\mu(S) = \frac{m.S}{K+S}` - specific growth rate (Monod type) [mass/volume-time]
 
 :math:`m` - maximal growth rate [1/time]
 
@@ -52,6 +52,6 @@ where:
 
 References
 ----------
- 
+
 .. [Wiki-Chemostat] http://en.wikipedia.org/wiki/Chemostat
-.. [Chemostat:95] H. Smith and P. Waltman. The Theory of the Chemostat: Dynamics of Microbial Competition. Cambridge University Press, 1995
+.. [Chemostat95] Smith, H. and Waltman, P. The Theory of the Chemostat: Dynamics of Microbial Competition. Cambridge University Press, 1995

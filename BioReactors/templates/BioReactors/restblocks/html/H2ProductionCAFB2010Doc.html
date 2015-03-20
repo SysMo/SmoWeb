@@ -1,0 +1,137 @@
+<div class="document" id="hydrogen-production-in-a-continuous-anaerobic-fermentation-bioreactor-cafb">
+<h1 class="title">Hydrogen production in a continuous anaerobic fermentation bioreactor (CAFB)</h1>
+<div class="figure align-center">
+<img alt="/static/BioReactors/img/H2ProductionCAFB2010/H2ProductionCAFB2010_SchematicView.png" src="/static/BioReactors/img/H2ProductionCAFB2010/H2ProductionCAFB2010_SchematicView.png" style="width: 500px;" />
+<p class="caption">Schematic view of the continuous anaerobic fermentation bioreactor using in the source paper.</p>
+</div>
+<p>The source paper: <a class="citation-reference" href="#h2productioncafb-2010" id="id1">[H2ProductionCAFB:2010]</a></p>
+<div class="section" id="introduction">
+<h1>1.&nbsp;&nbsp;&nbsp;Introduction</h1>
+<p>One of the great challenges of this century is to obtain new sources of renewable energy,
+capable of replacing fossil fuels. Biological processes have shown strong potentialities
+for sustainable H<sub>2</sub> production, while hydrogen is presently mainly produced from the
+reforming of fossil materials (90% of world production, 45 billion tons) with a high level
+of pollution generated <a class="citation-reference" href="#sustaninableenergy-2003" id="id2">[SustaninableEnergy:2003]</a>.</p>
+<p>Hydrogen can be produced by microorganisms using two enzymes (i.e., hydrogenase and
+nitrogenase) active in their metabolic pathways. The involved processes of biohydrogen
+production can be classified into three main classes: biophotolysis, photodecomposition
+and acidogenic fermentation of carbohydrates (i.e., acidogenesis). The two first processes
+are photobiological (i.e., light is needed) while the acidogenesis step presents several
+advantages such as a production yield higher than those obtained with photobiological
+processes and the capacity of working all day long (i.e., even with nolight) <a class="citation-reference" href="#h2production-2001" id="id3">[H2Production:2001]</a>.</p>
+</div>
+<div class="section" id="mathematical-model">
+<h1>2.&nbsp;&nbsp;&nbsp;Mathematical model</h1>
+<p>In the source paper authors used a general mass balance model of a continuous
+stirred tank reactor fed with carbohydrates. While molasses contain only carbohydrates like
+sucrose, fructose and glucose and because of the fast hydrolysis of sucrose, they considered
+that all the carbohydrates are represented by glucose. The mathematical model of glucose
+metabolism performed by a single microorganism producing acetate, propionate, butyrate,
+biomass, carbon inorganic (i.e., CO<sub>2</sub>, HCO<sup>-</sup><sub>3</sub>, etc.) and hydrogen is:</p>
+<div class="math">
+\begin{equation*}
+\frac{d}{dt}\left[\begin{array}{c}
+Glu\\
+Ace\\
+Pro\\
+Bu\\
+X\\
+CO_{2}\\
+H_{2}
+\end{array}\right]=Y\cdot r-D\left[\begin{array}{c}
+Glu\\
+Ace\\
+Pro\\
+Bu\\
+X\\
+CO_{2}\\
+H_{2}
+\end{array}\right]+D\left[\begin{array}{c}
+Glu_{in}\\
+0\\
+0\\
+0\\
+0\\
+0\\
+0
+\end{array}\right]-D\left[\begin{array}{c}
+0\\
+0\\
+0\\
+0\\
+0\\
+q_{CO_{2}}\\
+q_{H_{2}}
+\end{array}\right]
+\end{equation*}
+</div>
+<p>where the state variables Glu, Ace, Pro, Bu, X, CO<sub>2</sub> and H<sub>2</sub> represent,
+respectively, the concentrations in [gL<sup>-1</sup>] of glucose, acetate, propionate,
+butyrate, biomass; carbon dioxide (in [mol L<sup>-1</sup>]) and dissolved hydrogen in the
+liquid phase (in [gL<sup>-1</sup>]). The vector <span class="math">\(r\)</span> describes the kinetics of the involved
+biological reactions (in  [g L<sup>-1</sup> h<sup>-1</sup>]), D is the dilution rate [h<sup>-1</sup>]
+and <span class="math">\(q_{CO_{2}}\)</span> and <span class="math">\(q_{H_{2}}\)</span> the gas flow rates of carbon dioxide
+(in [mol L<sup>-1</sup> h<sup>-1</sup>]) and hydrogen (in [g L<sup>-1</sup> h<sup>-1</sup>]). <span class="math">\(Y\)</span>
+represents the matrix of pseudo-stoichiometric coefficients, i.e.</p>
+<div class="math">
+\begin{equation*}
+\begin{array}{cc}
+r=\left[\begin{array}{c}
+\frac{\rho_{max,1}\cdot Glu}{K_{Glu,1}+Glu}X\\
+\frac{\rho_{max,2}\cdot Glu}{K_{Glu,2}+Glu}X
+\end{array}\right] &amp; \; Y=\left[\begin{array}{cc}
+-1 &amp; -1\\
+0 &amp; w_{22}\\
+0 &amp; w_{32}\\
+w_{41} &amp; w_{42}\\
+w_{51} &amp; 0\\
+w_{61} &amp; w_{62}\\
+w_{71} &amp; 0
+\end{array}\right]\end{array}
+\end{equation*}
+</div>
+<p>where:</p>
+<blockquote>
+<ul class="simple">
+<li><span class="math">\(w_{i,j}\)</span> are pseudo-stoichiometric coefficients</li>
+<li><span class="math">\(\rho_{max,1}\)</span> is maximal growth rate [h<sup>-1</sup>] of hydrogen production</li>
+<li><span class="math">\(\rho_{max,2}\)</span> is maximal growth rate [h<sup>-1</sup>] of acid production</li>
+<li><span class="math">\(K_{Glu,1}\)</span> is half saturation constant [g L<sup>-1</sup>] of hydrogen production</li>
+<li><span class="math">\(K_{Glu,2}\)</span> is half saturation constant [g L<sup>-1</sup>] of acid production</li>
+</ul>
+</blockquote>
+<p>The kinetics of the involved biological reactions could be expressed in a
+Petersen matrix form:</p>
+<div class="figure align-center">
+<img alt="/static/BioReactors/img/H2ProductionCAFB2010/H2ProductionCAFB2010_PetersonMatrix.png" src="/static/BioReactors/img/H2ProductionCAFB2010/H2ProductionCAFB2010_PetersonMatrix.png" style="width: 750px;" />
+<p class="caption">Pseudo-stoichimetric matrix of hydrogen production expressed in Petersen matrix form.</p>
+</div>
+</div>
+<div class="section" id="references">
+<h1>3.&nbsp;&nbsp;&nbsp;References</h1>
+<table class="docutils citation" frame="void" id="sustaninableenergy-2003" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[SustaninableEnergy:2003]</a></td><td>Maddy J, Cherryman S, Hawkes FR, Hawkes DL, Dinsdale RM, Guwy AJ, et al.
+HYDROGEN 2003 report number 1 ERDF part-funded project entitled:
+“a sustainable energy supply for wales: towards the hydrogen economy”.
+University of Glamorgan; 2003.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="h2productioncafb-2010" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[H2ProductionCAFB:2010]</a></td><td>Cesar-Arturo Aceves-Lara, Eric Latrille, Jean-Philippe Steyer,
+Optimal control of hydrogen production in a continuous anaerobic fermentation bioreactor,
+International Journal of Hydrogen Energy, Vol. 35(19), 2010, 10710-10718.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="h2production-2001" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id3">[H2Production:2001]</a></td><td>Das D, Veziroglu TN. Hydrogen production by biological processes: a survey of literature.
+Int J Hydrogen Energy 2001; 26:13e28.</td></tr>
+</tbody>
+</table>
+</div>
+</div>

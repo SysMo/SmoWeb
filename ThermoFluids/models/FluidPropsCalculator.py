@@ -119,10 +119,20 @@ class PropertyCalculatorCoolprop(NumericalModel):
 	vaporResults = FieldGroup([rho_V, h_V, s_V], label="Vapor")
 	saturationProps = SuperGroup([liquidResults, vaporResults], label="Phases")
 	#####
-	paramVarTable = TableView(label="Variation Table", dataLabels = ['T', 'p', 'rho', 'h', 'q', 'u', 'cp', 'cv', 'lambda', 'mu'], 
-							quantities = ['Temperature', 'Pressure', 'Density', 'SpecificEnthalpy', 'VaporQuality', 'SpecificEnergy',
-										 'SpecificHeatCapacity', 'SpecificHeatCapacity', 'ThermalConductivity', 'DynamicViscosity'],
-							options = {'formats': ['0.000', '0.000E0', '0.000', '0.000E0', '0.00', '0.000E0', '0.000E0', '0.000E0', '0.000E0', '0.000E0']})
+	paramVarTable = TableView((
+	                            ('T', Quantity('Temperature')),
+	                            ('p', Quantity('Pressure')),
+	                            ('rho', Quantity('Density')),
+	                            ('h', Quantity('SpecificEnthalpy')),
+	                            ('q', Quantity('VaporQuality')),
+	                            ('u', Quantity('SpecificEnergy')),
+	                            ('cp', Quantity('SpecificHeatCapacity')),
+	                            ('cv', Quantity('SpecificHeatCapacity')),
+	                            ('lambda', Quantity('ThermalConductivity')),
+	                            ('mu', Quantity('DynamicViscosity')),),
+								label="Variation Table",
+								options = {'formats': ['0.000', '0.000E0', '0.000', '0.000E0', '0.00', '0.000E0', 
+														'0.000E0', '0.000E0', '0.000E0', '0.000E0']})
 	
 # 	testVarTable = VariationTable(label="Variation Table", dataLabels = ['T', 'p', 'h'], 
 # 							visibleColumns = [1,2], quantities = ['Temperature', 'Pressure', 'SpecificEnthalpy'],
@@ -335,25 +345,50 @@ class SaturationData(NumericalModel):
 	
 	############# Results ###############
 	# Fields
-	T_p_satPlot = PlotView(label = 'Temperature', dataLabels = ['pressure [Pa]', 'saturation temperature [K]'], 
-							xlog = True, 
-							options = {'ylabel': 'temperature [K]'}, description="Temperature pressure saturation plot")
-	rho_p_satPlot = PlotView(label = 'Density', dataLabels = ['pressure [Pa]', 'liquid density [kg/m**3]', 'vapor density [kg/m**3]'],
-							options = {'ylabel': 'density [kg/m**3]'})
-	delta_h_p_satPlot = PlotView(label = 'Evap. enthalpy', dataLabels = ['pressure [Pa]', 'h evap [kJ/kg]'], 
+	T_p_satPlot = PlotView((
+								('pressure', Quantity('Pressure', default=(1,'Pa'))),
+	                            ('temperature', Quantity('Temperature', default=(1,'K')))
+	                            ),
+								label = 'Temperature', 
 								xlog = True, 
-								options = {'title': 'Evaporation enthalpy'}, description="Evaporation enthalpy pressure saturation")
-	delta_s_p_satPlot = PlotView(label = 'Evap. entropy', dataLabels = ['pressure [Pa]', 's evap. [kJ/kg-K]'],
-								xlog = True,  
-								options = {'title': 'Evaporation entropy'})
+								options = {'title': 'Saturation temperature'}, description="Temperature pressure saturation plot")
+	rho_p_satPlot = PlotView((
+								('pressure', Quantity('Pressure', default=(1,'Pa'))),
+								('liquid density', Quantity('Density', default=(1,'kg/m**3'))),
+								('vapor density', Quantity('Density', default=(1,'kg/m**3')))
+								),
+								label = 'Density',
+								options = {'ylabel': 'density'})
+	delta_h_p_satPlot = PlotView((
+		                            ('pressure', Quantity('Pressure', default=(1,'Pa'))),
+		                            ('h evap.', Quantity('SpecificEnthalpy', default=(1,'kJ/kg'))),
+			                        ),
+									label = 'Evap. enthalpy',
+									xlog = True, 
+									options = {'title': 'Evaporation enthalpy'}, 
+									description="Evaporation enthalpy pressure saturation")
+	delta_s_p_satPlot = PlotView((
+		                            ('pressure', Quantity('Pressure', default=(1,'Pa'))),
+		                            ('s evap.', Quantity('SpecificEntropy', default=(1,'kJ/kg-K'))),
+			                        ),
+									label = 'Evap. entropy',
+									xlog = True,  
+									options = {'title': 'Evaporation entropy'})
 	
-	satTableView = TableView(label = 'Sat. table', dataLabels = ['p', 'T', 'rho_L', 'rho_V', 'h_L', 
-											'h_V', 'h_V - h_L', 's_L', 's_V', 
-											's_V - s_L'],
-									quantities = ['Pressure', 'Temperature', 'Density', 'Density', 'SpecificEnthalpy',
-												'SpecificEnthalpy', 'SpecificEnthalpy', 'SpecificEntropy', 'SpecificEntropy',
-												'SpecificEntropy'], 
-									options = {'title': 'Saturation data', 'formats': '0.0000E0'})
+	satTableView = TableView((
+	                            ('p', Quantity('Pressure')),
+	                            ('T', Quantity('Temperature')),
+	                            ('rho_L', Quantity('Density')),
+	                            ('rho_V', Quantity('Density')),
+	                            ('h_L', Quantity('SpecificEnthalpy')),
+	                            ('h_V', Quantity('SpecificEnthalpy')),
+	                            ('h_V - h_L', Quantity('SpecificEnthalpy')),
+	                            ('s_L', Quantity('SpecificEntropy')),
+	                            ('s_V', Quantity('SpecificEntropy')),
+	                            ('s_V - s_L', Quantity('SpecificEntropy'))
+		                        ),
+								label = 'Sat. table',
+								options = {'title': 'Saturation data', 'formats': '0.0000E0'})
 	
 	satViewGroup = ViewGroup([T_p_satPlot, rho_p_satPlot, delta_h_p_satPlot, delta_s_p_satPlot,
 								satTableView], label="Saturation Data")
