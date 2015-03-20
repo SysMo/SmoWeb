@@ -28,6 +28,9 @@ class Team(RestModule):
 
 class Platform(RestModule):
     label = "Platform"
+    
+class Testimonials(RestModule):
+    label = "Testimonials"
 
 class Disclaimer(HtmlModule):
     label = "Disclaimer"
@@ -38,7 +41,7 @@ class Disclaimer(HtmlModule):
 class HomeView(ModularPageView):
     label = "Home View"
     injectVariables = ['ModelCommunicator', 'variables']
-    modules = [HomeModule, UnitConverter, Company, Team, Platform, Disclaimer]
+    modules = [HomeModule, UnitConverter, Company, Team, Platform, Testimonials, Disclaimer]
     
     @action.post()
     def getQuantities(self, parameters, model=None, view= None):

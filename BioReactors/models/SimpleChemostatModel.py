@@ -11,25 +11,26 @@ class SimpleChemostatModel(NumericalModel):
     
     #1. ############ Inputs ###############
     #1.1 Fields - Input values
-    S_in = Quantity('Density', default = (5, 'g/L'), minValue = 0, label ='S<sub>in</sub>', description = 'concentration of the input substrate')
-    m = Quantity('Hertz', default = (3, '1/h'), minValue = 0, label = 'm', description = 'maximal growth rate')
-    K = Quantity('Density', default = (3.7, 'g/L'), minValue = 0, label = 'K', description = 'half saturation constant')
+    S_in = Quantity('Density', default = (5, 'g/L'), minValue = (0, 'g/L'), label ='S<sub>in</sub>', description = 'input substrate concentration')
+    m = Quantity('TimeRate', default = (3, '1/h'), minValue = (0, '1/h'), label = 'm', description = 'maximum specific growth rate of the microorganisms')
+    K = Quantity('Density', default = (3.7, 'g/L'), minValue = (0, 'g/L'), label = 'K', description = 'half saturation constant')
     gamma = Quantity(default = 0.6, minValue = 0, maxValue = 1.0, label = '&#947', description = 'yield coefficient of microorganisms')
+
     D_vals = RecordArray((
-            ('time', Quantity('Time', default = (20, 'h'), minValue = 0, label = 'Duration')),
-            ('D', Quantity('Hertz', default = (1, '1/h'), minValue = 0, label = 'D')),
-        ), label = 'D', description = 'dilution rate [1/time]')  
+            ('time', Quantity('Time', default = (20, 'h'), minValue = (0, 'h'), label = 'Duration')),
+            ('D', Quantity('TimeRate', default = (1, '1/h'), minValue = (0, '1/h'), label = 'D')),
+        ), label = 'D', description = 'dilution (or washout) rate')  
     parametersFieldGroup = FieldGroup([S_in, m, K, gamma, D_vals], label = "Parameters")
     
-    S0 = Quantity('Density', default = (0, 'g/L'), minValue = 0, label = 'S<sub>0</sub>', description = 'initial concentration of substrate')
-    X0 = Quantity('Density', default = (0.5, 'g/L'), minValue = 0, label = 'X<sub>0</sub>', description = 'initial concentration of microorganisms')
+    S0 = Quantity('Density', default = (0, 'g/L'), minValue = 0, label = 'S<sub>0</sub>', description = 'initial substrate concentration')
+    X0 = Quantity('Density', default = (0.5, 'g/L'), minValue = 0, label = 'X<sub>0</sub>', description = 'initial microorganisms concentration')
     initialValuesFieldGroup = FieldGroup([S0, X0], label = "Initial values")
     
     inputValuesSuperGroup = SuperGroup([parametersFieldGroup, initialValuesFieldGroup], label = "Input values")
     
     #1.2 Fields - Settings
-    tSimulation = Quantity('Time', default = (100, 'h'), minValue = 0, maxValue=10000, label = 'simulation time')
-    tPrint = Quantity('Time', default = (0.1, 'h'), minValue = 1e-4, maxValue=1000, label = 'print interval')
+    tSimulation = Quantity('Time', default = (100, 'h'), minValue = (0, 'h'), maxValue=(10000, 'h'), label = 'simulation time')
+    tPrint = Quantity('Time', default = (0.1, 'h'), minValue = (1e-5, 'h'), maxValue = (1000, 'h'), label = 'print interval')
     solverFieldGourp = FieldGroup([tSimulation, tPrint], label = 'Solver')
     
     settingsSuperGroup = SuperGroup([solverFieldGourp], label = 'Settings')
@@ -47,7 +48,7 @@ class SimpleChemostatModel(NumericalModel):
                         ('time', Quantity('Time', default=(1, 'h'))),
                         ('S', Quantity('Density', default=(1, 'g/L'))),
                         ('X', Quantity('Density', default=(1, 'g/L'))),
-                        ('D', Quantity('Hertz', default=(1, '1/h'))),
+                        ('D', Quantity('TimeRate', default=(1, '1/h'))),
                     ),
                     label='Plot', 
                     options = {'ylabel' : None})
@@ -55,7 +56,7 @@ class SimpleChemostatModel(NumericalModel):
                             ('time', Quantity('Time', default=(1, 'h'))),
                             ('S', Quantity('Density', default=(1, 'g/L'))),
                             ('X', Quantity('Density', default=(1, 'g/L'))),
-                            ('D', Quantity('Hertz', default=(1, '1/h'))),
+                            ('D', Quantity('TimeRate', default=(1, '1/h'))),
                         ),
                       label='Table', 
                       options = {'title': 'Title', 'formats': ['0.000', '0.000', '0.000', '0.000']})

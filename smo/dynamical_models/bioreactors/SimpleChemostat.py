@@ -161,8 +161,8 @@ class SimpleChemostat(Simulation):
 def TestSimpleChemostat():
 	# Settings
 	simulate = True #True - run simulation; False - plot an old results 
-	tFinal = 500 
-	D_vals = np.array([[1, 100], [0.5, 200], [1.1, 1e6]])
+	tFinal = 500
+	D_vals = np.array([[100, 1], [200, 0.5], [1e6, 1.1]])
 	
 	# Create the model
 	model = SimpleChemostat(

@@ -14,4 +14,5 @@ Welcome to SmoWeb internal documentation!
    Setup
    CoolProp
    Diagrams
-   IE 
+   IE
+   AcademicAreas 
