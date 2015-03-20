@@ -353,8 +353,11 @@ smoModule.factory('ModelCommunicator', function($http, $window, $timeout, $locat
 		this.dataReceived = false;
 		this.errorMsg = "";
 		this.stackTrace = "";
-		// Empty the receiver object
-		this.data = {};
+		// Initialize the communicator's data object if it does not exist
+		if (typeof this.data === 'undefined') {
+			this.data = {};
+		}
+		
 		this.dataReceived = false;
 		// Variable introduced so that success and error functions can access this object
 		var communicator = this;
@@ -374,7 +377,13 @@ smoModule.factory('ModelCommunicator', function($http, $window, $timeout, $locat
 			if (!response.errStatus) {
 				communicator.serverError = false;
 				communicator.dataReceived = true;
-				communicator.data = response.data;
+				console.log(response.data);
+				// If the communicator has received the definitions once, just the values are updated
+				if (communicator.data.definitions) {
+					communicator.data.values = response.data.values;
+				} else {
+					communicator.data = response.data;
+				}
 				communicator.dataReceived = true;
 				if (!(typeof onSuccess === 'undefined')) {
 					communicator.onSuccess(communicator);
