@@ -377,7 +377,6 @@ smoModule.factory('ModelCommunicator', function($http, $window, $timeout, $locat
 			if (!response.errStatus) {
 				communicator.serverError = false;
 				communicator.dataReceived = true;
-				console.log(response.data);
 				// If the communicator has received the definitions once, just the values are updated
 				if (communicator.data.definitions) {
 					communicator.data.values = response.data.values;
