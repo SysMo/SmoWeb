@@ -11,17 +11,35 @@ from smo.model.fields import *
 from smo.web.modules import RestModule
 from smo.media.MaterialData import Fluids
 
-class RankineCycle(NumericalModel):
+class CycleComponent(NumericalModel):
+	abstract = True
+
+class ThermodynamicalCycle(NumericalModel):
+	abstract = True
+	
+class Compressor(CycleComponent):
+	modelType = Choices(OrderedDict((
+		('S', 'isentropic'),
+		('T', 'isothermal'),
+	)), label = 'compressor model')
+	eta = Quantity(default = 1, minValue = 0, maxValue = 1, label = 'efficiency', show = "self.compressorModelType == 'S'")
+	fQ = Quantity(default = 0, minValue = 0, maxValue = 1, label = 'heat loss factor', show="self.compressorModelType == 'S'")
+	fg = FieldGroup([modelType, eta, fQ])
+	modelBlocks = []
+
+class RankineCycle(ThermodynamicalCycle):
 	label = "Ranking cycle"
 	figure = ModelFigure(src="ThermoFluids/img/ModuleImages/ReverseBraytonCycle.svg")
 	description = ModelDescription("Basic Rankine cycle used in power generation")
 	
-# 	#================ Inputs ================#
-# 	#---------------- Fields ----------------#
-# 	# FieldGroup
-# 	fluidName = Choices(Fluids, default = 'R134a', label = 'fluid')	
-# 	mDotRefrigerant = Quantity('MassFlowRate', default = (1, 'kg/min'), label = 'refrigerant flow rate')
-# 	refrigerantInputs = FieldGroup([fluidName, mDotRefrigerant], 'Refrigerant')
+	#================ Inputs ================#
+	#---------------- Fields ----------------#
+	# FieldGroup
+	fluidName = Choices(Fluids, default = 'R134a', label = 'fluid')	
+	mDotRefrigerant = Quantity('MassFlowRate', default = (1, 'kg/min'), label = 'refrigerant flow rate')
+	refrigerantInputs = FieldGroup([fluidName, mDotRefrigerant], 'Refrigerant')
+	compressor = SubModelGroup(Compressor, Compressor.fg)
+	
 # 	# FieldGroup
 # 	compressorModelType = Choices(OrderedDict((
 # 		('S', 'isentropic'),
@@ -120,3 +138,13 @@ class RankineCycle(NumericalModel):
 	#================ Methods ================#	def compute(self):
 	def compute(self):
 		pass
+	
+def main():
+	rc = RankineCycle()
+# 	print rc.declared_fields
+# 	print rc.declared_submodels
+# 	print rc.declared_attrs
+# 	print rc.compressor.eta
+
+if __name__ == '__main__':
+	main()

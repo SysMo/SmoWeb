@@ -13,11 +13,15 @@ class NumericalModelMeta(type):
 			attrs['label'] = name
 		if ('showOnHome' not in attrs):
 			attrs['showOnHome'] = True
+		if ('abstract' not in attrs):
+			attrs['abstract'] = False
 		# Collect fields from current class.
 		current_fields = []
-# 		current_groups = []
+		current_submodels = []
 		for key, value in list(attrs.items()):
-			if isinstance(value, fields.Field):
+			if isinstance(value, fields.SubModelGroup):
+				current_submodels.append((key, value))
+			elif isinstance(value, fields.Field):
 				current_fields.append((key, value))
 				value._name = key
 				attrs.pop(key)
@@ -29,24 +33,33 @@ class NumericalModelMeta(type):
 				value.name = key
 				
 		current_fields.sort(key=lambda x: x[1].creation_counter)
+		current_submodels.sort(key=lambda x: x[1].creation_counter)
 		attrs['declared_fields'] = OrderedDict(current_fields)
+		attrs['declared_submodels'] = OrderedDict(current_submodels)
+		attrs['declared_attrs'] = {}
+		attrs['declared_attrs'].update(attrs['declared_fields'])
+		attrs['declared_attrs'].update(attrs['declared_submodels'])
 # 		current_groups.sort(key=lambda x: x[1].creation_counter)
 # 		attrs['declared_groups'] = OrderedDict(current_groups)
-
+		
+		# Create the class type
 		new_class = (super(NumericalModelMeta, cls)
 			.__new__(cls, name, bases, attrs))
 		
 		# Collect fields from base classes
 		base_fields = OrderedDict()
+		base_submodels = OrderedDict()
 		for c in reversed(new_class.__mro__[1:]):			
-			if hasattr(c, 'declared_fields'):
+			if hasattr(c, 'declared_attrs'):
 				# Checks for already declared fields in base classes
-				for key in c.declared_fields:
-					if key in new_class.declared_fields:
-						raise AttributeError("Base class {0} already has field '{1}'.".format(c.__name__, key))
-				base_fields.update(c.declared_fields)		
-				
+				for key in c.declared_attrs:
+					if key in new_class.declared_attrs:
+						raise AttributeError("Base class {0} already has attribute '{1}'.".format(c.__name__, key))
+				base_fields.update(c.declared_fields)
+				base_submodels.update(c.declared_submodels)
+					
 		new_class.declared_fields.update(base_fields)
+		new_class.declared_submodels.update(base_submodels)
 		
 		# Resolving unresolved fields in field- and view-groups
 		for key, value in new_class.__dict__.iteritems():
@@ -56,7 +69,7 @@ class NumericalModelMeta(type):
 					value.fields.append(new_class.declared_fields[unresolved_field])	
 		
 		# Checking for obligatory attribute 'modelBlocks'
-		if (name  != 'NumericalModel'):
+		if (name  != 'NumericalModel' and not new_class.abstract):
 			if ('modelBlocks' not in new_class.__dict__):
 				raise AttributeError("Page structure undefined. Class {0} must have attribute 'modelBlocks'.".format(name))
 		
@@ -81,11 +94,21 @@ class NumericalModel(object):
 		"""Constructor for all numerical models. 
 		Sets default values for all model fields"""
 		self = object.__new__(cls)
+		# Set default values to fields
 		for name, field in self.declared_fields.iteritems():
 			if (isinstance(field, (fields.RecordArray, fields.DataSeriesView))):
 				self.__setattr__(name, field.default.copy())
 			else:
-				self.__setattr__(name, field.default)  
+				self.__setattr__(name, field.default)
+		# Create submodel instances
+		for name, submodel in self.declared_submodels.iteritems():
+			if name in kwargs:
+				params = kwargs.pop(name)
+				instance = submodel.klass(**params)
+			else:
+				instance = submodel.klass()
+			self.__dict__[name] = instance
+		# Modify fields with values from the constructor
 		for name, value in kwargs.iteritems():
 			self.__setattr__(name, value)
 		return self

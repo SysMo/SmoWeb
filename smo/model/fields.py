@@ -627,6 +627,24 @@ class Image(Field):
 		fieldDict['width'] = self.width	
 		fieldDict['height'] = self.height			
 		return fieldDict
+
+class SubModelGroup(Field):
+	"""
+	Include field group or supergroup from a sub-model
+	"""
+	def __init__(self, klass, group, *args, **kwargs):
+		Field.__init__(self, *args, **kwargs)
+		self.group = group
+		self.klass = klass
+		
+	def parseValue(self, value):
+		return value
+
+	def getValueRepr(self, value):
+		return value
+	
+	def toFormDict(self):
+		return Field.toFormDict(self)
 	
 class Group(object):
 	"""Abstract class for group of fields"""
