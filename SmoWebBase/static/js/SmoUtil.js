@@ -848,22 +848,25 @@ smoModule.directive('smoDataSeriesView', ['$compile', function($compile) {
 			smoDataSource : '=',
 			modelName: '@modelName'
 		},
+		
 		controller: function($scope) {
 			var setTableView = function(){
-				$scope.viewCloumns = [];
+				//Setting the visible columns of a table based on the visibility controls
+				$scope.fieldVar.visibleColumns = [];
 				for (i=0; i<$scope.numCols; i++){
 					if ($scope.columnsShow[i] == true){
-						$scope.viewCloumns.push(i);
+						$scope.fieldVar.visibleColumns.push(i);
 					}
 				}
 				$scope.displayTable = angular.copy($scope.displayValues);
 				$scope.displayTable.unshift($scope.labels);
 				$scope.dataTable = google.visualization.arrayToDataTable($scope.displayTable);
 				$scope.dataView = new google.visualization.DataView($scope.dataTable);
-				$scope.dataView.setColumns($scope.viewCloumns);
+				$scope.dataView.setColumns($scope.fieldVar.visibleColumns);
 			}
 			
 			var setPlotView = function() {
+				//Setting the visibile portion of data of a plot based on the visibility controls
 				$scope.viewData = [];
 				for (var i=0; i<$scope.numRows; i++) {
 					var row = [];
@@ -875,14 +878,17 @@ smoModule.directive('smoDataSeriesView', ['$compile', function($compile) {
 					$scope.viewData[i] = row;
 				}
 				
+				//Selecting the corresponding labels and changing the 'definitions' object to remember visibility
 				$scope.options = angular.copy($scope.fieldVar.options);
-				var row = [];
-				for (var j=0; j<$scope.numCols; j++){
+				$scope.fieldVar.visibleColumns = [];
+				var viewLabels = [];
+				for (var j=0; j<$scope.numCols; j++) {
 					if ($scope.columnsShow[j] == true){
-						row.push($scope.labels[j]);
+						viewLabels.push($scope.labels[j]);
+						$scope.fieldVar.visibleColumns.push(j);
 					}
 				}
-				$scope.options.labels = row;
+				$scope.options.labels = viewLabels;
 				
 				if ($scope.options.labels.length == 2)
 					$scope.options.ylabel = $scope.options.ylabel || $scope.options.labels[1];
@@ -1000,19 +1006,31 @@ smoModule.directive('smoDataSeriesView', ['$compile', function($compile) {
 			
 			$scope.setToAll = function() {
 				var i;
-				if ($scope.fieldVar.type == 'PlotView')
+				if ($scope.fieldVar.type == 'PlotView') {
 					i = 1;
-				else if ($scope.fieldVar.type == 'TableView')
+				} else if ($scope.fieldVar.type == 'TableView') {
 					i = 0;
-				for (i; i<$scope.columnsShow.length; i++){
+				}
+				for (i; i<$scope.numCols; i++) {
 					$scope.columnsShow[i] = $scope.allChecked;
 				}
 			}
 			
 			$scope.updateChecked = function() {
-				if ($scope.fieldVar.type == 'PlotView')
+				var i;
+				if ($scope.fieldVar.type == 'PlotView') {
 					$scope.columnsShow[0] = true;
-				$scope.allChecked = false;
+					i = 1;
+				} else if ($scope.fieldVar.type == 'TableView') {
+					i = 0;
+				}
+				for (i; i<$scope.numCols; i++) {
+					if ($scope.columnsShow[i] == false) {
+						$scope.allChecked = false;
+						return;
+					}
+				}
+				$scope.allChecked = true;
 			}	
 
 //Common functionality			
@@ -1101,10 +1119,17 @@ smoModule.directive('smoDataSeriesView', ['$compile', function($compile) {
 				
 				//Setting initial visibility
 				$scope.columnsShow = [];
-				for (var i=0; i<$scope.fieldVar.visibleColumns.length; i++){
+				for (var i; i<$scope.numCols; i++) {
+					$scope.columnsShow[i] = false;
+				}
+				for (var i=0; i<$scope.fieldVar.visibleColumns.length; i++) {
 					$scope.columnsShow[$scope.fieldVar.visibleColumns[i]] = true;
 				}
-				$scope.allChecked = true;
+				if ($scope.fieldVar.visibleColumns.length == $scope.numCols) {
+					$scope.allChecked = true;
+				} else {
+					$scope.allChecked = false;
+				}
 				
 				$scope.setDataView();
 				$scope.draw();
