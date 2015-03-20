@@ -1,7 +1,8 @@
 import fields
 from collections import OrderedDict
-from smo.model.fields import FieldGroup, ViewGroup, ModelView 
+from smo.model.fields import FieldGroup, ViewGroup, ModelView
 from smo.web.blocks import HtmlBlock, JsBlock
+import smo.web.exceptions as E
 
 class NumericalModelMeta(type):
 	"""Metaclass facilitating the creation of a numerical
@@ -21,6 +22,8 @@ class NumericalModelMeta(type):
 		for key, value in list(attrs.items()):
 			if isinstance(value, fields.SubModelGroup):
 				current_submodels.append((key, value))
+				value._name = key
+				attrs.pop(key)
 			elif isinstance(value, fields.Field):
 				current_fields.append((key, value))
 				value._name = key
@@ -65,9 +68,9 @@ class NumericalModelMeta(type):
 		for key, value in new_class.__dict__.iteritems():
 			if isinstance(value, FieldGroup) or isinstance(value, ViewGroup):
 				for i in range(len(value.unresolved_fields)):
-					unresolved_field = value.unresolved_fields.pop(i)
+					unresolved_field = value.unresolved_fields[i]
 					value.fields.append(new_class.declared_fields[unresolved_field])	
-		
+				del value.unresolved_fields[:]
 		# Checking for obligatory attribute 'modelBlocks'
 		if (name  != 'NumericalModel' and not new_class.abstract):
 			if ('modelBlocks' not in new_class.__dict__):
@@ -145,34 +148,27 @@ class NumericalModel(object):
 		Provides JSON serializaton of super-group 
 		"""
 		jsonObject = {'type': 'SuperGroup', 'name': group._name, 'label': group.label, 'show': group.show}
-		subgroupList = []
+		subgroupList = []		
 		for subgroup in group.groups:
-			if (isinstance(subgroup, fields.FieldGroup)):
-				subgroupList.append(self.fieldGroup2Json(subgroup, fieldValues))
-			elif (isinstance(subgroup, fields.ViewGroup)):
-				subgroupList.append(self.viewGroup2Json(subgroup, fieldValues))
-			elif (isinstance(subgroup, fields.SuperGroup)):
-				subgroupList.append(self.superGroup2Json(subgroup, fieldValues))
+			if (isinstance(subgroup, fields.SubModelGroup)):
+				groupContent = self.subModelGroup2Json(subgroup, fieldValues)
+			elif (isinstance(subgroup, fields.BasicGroup)):
+				groupContent = self.basicGroup2Json(subgroup, fieldValues)
+			else:
+				raise TypeError("SuperGroup can only contain Field groups and View groups, not {}".format(type(subgroup)))
+			subgroupList.append(groupContent)
 		jsonObject['groups'] = subgroupList				
 		return jsonObject
 		
-	def fieldGroup2Json(self, group, fieldValues):
+	def basicGroup2Json(self, group, fieldValues):
 		"""
-		Provides JSON serializaton of field-group 
+		Provides JSON serializaton of field-group and view-group 
 		"""
-		jsonObject = {'type': 'FieldGroup', 'name': group._name, 'label': group.label, 'show': group.show}
-		fieldList = []
-		for field in group.fields:
-			fieldList.append(field.toFormDict())
-			fieldValues[field._name] = field.getValueRepr(self.__getattr__(field._name))
-		jsonObject['fields'] = fieldList
-		return jsonObject
-				
-	def viewGroup2Json(self, group, fieldValues):
-		"""
-		Provides JSON serializaton of view-group 
-		"""
-		jsonObject = {'type': 'ViewGroup', 'name': group._name, 'label': group.label, 'show': group.show}
+		jsonObject = {'name': group._name, 'label': group.label, 'show': group.show}
+		if (isinstance(group, FieldGroup)):
+			jsonObject['type'] = 'FieldGroup'
+		else:
+			jsonObject['type'] = 'ViewGroup'
 		fieldList = []
 		for field in group.fields:
 			fieldList.append(field.toFormDict())
@@ -180,17 +176,29 @@ class NumericalModel(object):
 		jsonObject['fields'] = fieldList
 		return jsonObject
 	
-# Left if needed in the future	
-# 	def fieldValues2Json(self):
-# 		jsonObject = {}
-# 		for name, field in self.declared_fields.iteritems():
-# 			jsonObject[name] = field.getValueRepr(self.__dict__[name])
-# 		return jsonObject
+	def subModelGroup2Json(self, group, fieldValues):
+		"""
+		Provides JSON serializaton of sub-model group
+		"""
+		instance = self.__getattr__(group._name)
+		subFieldValues = {}
+		jsonObject = instance.basicGroup2Json(group.group, subFieldValues)
+		jsonObject['name'] = group._name
+		if (group.label is not None):			
+			jsonObject['label'] = group.label
+		jsonObject['dataSourceRoot'] = group._name
+		fieldValues[group._name] = subFieldValues
+		return jsonObject
 	
 	def fieldValuesFromJson(self, jsonDict):
 		"""
 		Sets field values from dictionary representing JSON object
 		"""
 		for key, value in jsonDict.iteritems():
-			field = self.declared_fields[key]
-			self.__dict__[key] = field.parseValue(value)	
+			if (key in self.declared_fields):
+				field = self.declared_fields[key]
+				self.__dict__[key] = field.parseValue(value)
+			elif (key in self.declared_submodels):
+				self.__getattr__(key).fieldValuesFromJson(value)
+			else:
+				raise E.FieldError('No field with name {} in model {}'.format(key, self.name)) 

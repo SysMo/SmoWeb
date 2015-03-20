@@ -4,10 +4,10 @@ Created on Mar 20, 2015
 @author:  Atanas Pavlov
 @copyright: SysMo Ltd, Bulgaria
 '''
-
+from collections import OrderedDict
 from smo.model.model import NumericalModel
 from smo.model.actions import ServerAction, ActionBar
-from smo.model.fields import *
+import smo.model.fields as F
 from smo.web.modules import RestModule
 from smo.media.MaterialData import Fluids
 
@@ -18,28 +18,78 @@ class ThermodynamicalCycle(NumericalModel):
 	abstract = True
 	
 class Compressor(CycleComponent):
-	modelType = Choices(OrderedDict((
+	modelType = F.Choices(OrderedDict((
 		('S', 'isentropic'),
 		('T', 'isothermal'),
 	)), label = 'compressor model')
-	eta = Quantity(default = 1, minValue = 0, maxValue = 1, label = 'efficiency', show = "self.compressorModelType == 'S'")
-	fQ = Quantity(default = 0, minValue = 0, maxValue = 1, label = 'heat loss factor', show="self.compressorModelType == 'S'")
-	fg = FieldGroup([modelType, eta, fQ])
+	eta = F.Quantity(default = 1, minValue = 0, maxValue = 1, label = 'efficiency', show = "self.modelType == 'S'")
+	fQ = F.Quantity(default = 0, minValue = 0, maxValue = 1, label = 'heat loss factor', show="self.modelType == 'S'")
+	FG = F.FieldGroup([modelType, eta, fQ], label = 'Compressor')
 	modelBlocks = []
+	
+class IsobaricHeatExchanger(CycleComponent):
+	etaThermal = F.Quantity(default = 0.9, label = 'thermal efficiency', minValue = 0, maxValue = 1, show = 'self.outletStateChoice == "eta"')
+	TExt = F.Quantity('Temperature', default = (30, 'degC'), label = 'external temperature', show = 'self.outletStateChoice == "eta"')
+	qOutlet = F.Quantity(default = 0, minValue = 0, maxValue = 1, label = 'outlet vapor quality', show = 'self.outletStateChoice == "Q"')
+	TOutlet = F.Quantity('Temperature', default = (40, 'degC'), label = 'outlet temperature', show = 'self.outletStateChoice == "T"')
+	hOutlet = F.Quantity('SpecificEnthalpy', default = (100, 'kJ/kg'), minValue = -1e10, label = 'outlet enthalpy', show = 'self.outletStateChoice == "H"')
+	modelBlocks = []
+
+class Evaporator(IsobaricHeatExchanger):
+	outletStateChoice = F.Choices(OrderedDict((
+		('dT', 'super-heating'),
+		('Q', 'vapor quality'),
+		('eta', 'thermal efficiency'),
+		('T', 'temperature'),
+		('H', 'enthalpy'),
+	)), label = 'compute outlet by')
+	dTOutlet = F.Quantity('TemperatureDifference', default = (10, 'degC'), minValue = 1e-3, maxValue = 1e10, label = 'outlet superheating', show = 'self.outletStateChoice == "dT"')
+	FG = F.FieldGroup(['outletStateChoice', 'etaThermal', 'TExt', 'dTOutlet', 
+			'TOutlet', 'qOutlet', 'hOutlet'], 
+			label = 'Evaporator')
+	modelBlocks = []
+
+class Condenser(IsobaricHeatExchanger):
+	outletStateChoice = F.Choices(OrderedDict((
+		('dT', 'sub-cooling'),
+		('Q', 'vapor quality'),
+		('eta', 'thermal efficiency'),
+		('T', 'temperature'),
+		('H', 'enthalpy'),
+	)), label = 'compute outlet by')
+	dTOutlet = F.Quantity('TemperatureDifference', default = (-10, 'degC'), minValue = -1e10, maxValue = -1e-3, label = 'outlet subcooling', show = 'self.outletStateChoice == "dT"')
+	FG = F.FieldGroup(['outletStateChoice', 'etaThermal', 'TExt', 'dTOutlet', 
+			'TOutlet', 'qOutlet', 'hOutlet'], 
+			label = 'Condensor')
+	modelBlocks = []
+
 
 class RankineCycle(ThermodynamicalCycle):
 	label = "Ranking cycle"
-	figure = ModelFigure(src="ThermoFluids/img/ModuleImages/ReverseBraytonCycle.svg")
-	description = ModelDescription("Basic Rankine cycle used in power generation")
+	figure = F.ModelFigure(src="ThermoFluids/img/ModuleImages/ReverseBraytonCycle.svg")
+	description = F.ModelDescription("Basic Rankine cycle used in power generation")
 	
 	#================ Inputs ================#
 	#---------------- Fields ----------------#
 	# FieldGroup
-	fluidName = Choices(Fluids, default = 'R134a', label = 'fluid')	
-	mDotRefrigerant = Quantity('MassFlowRate', default = (1, 'kg/min'), label = 'refrigerant flow rate')
-	refrigerantInputs = FieldGroup([fluidName, mDotRefrigerant], 'Refrigerant')
-	compressor = SubModelGroup(Compressor, Compressor.fg)
-	
+	fluidName = F.Choices(Fluids, default = 'R134a', label = 'fluid')	
+	mDot = F.Quantity('MassFlowRate', default = (1, 'kg/min'), label = 'mass flow rate', description = 'Mass flow rate of the working fluid through the pump')
+	pLow = F.Quantity('Pressure', default = (1, 'bar'), label = 'low pressure')
+	pHigh = F.Quantity('Pressure', default = (50, 'bar'), label = 'high pressure')
+	workingFluidGroup = F.FieldGroup([fluidName, mDot, pLow, pHigh], 'Working fluid')	
+	compressor = F.SubModelGroup(Compressor, Compressor.FG, label  = 'Pump')
+	boiler = F.SubModelGroup(Evaporator, Evaporator.FG, label = 'Boiler')
+	condensor = F.SubModelGroup(Condenser, Condenser.FG, label = 'Condensor')
+	inputs = F.SuperGroup([workingFluidGroup, compressor, boiler, condensor])	
+	#---------------- Actions ----------------#
+	computeAction = ServerAction("compute", label = "Compute", outputView = 'resultView')
+	inputActionBar = ActionBar([computeAction], save = True)
+
+	#--------------- Model view ---------------#
+	inputView = F.ModelView(ioType = "input", superGroups = [inputs], 
+		actionBar = inputActionBar, autoFetch = True)
+ 	#================ Results ================#
+	resultView = F.ModelView(ioType = "output", superGroups = [])
 # 	# FieldGroup
 # 	compressorModelType = Choices(OrderedDict((
 # 		('S', 'isentropic'),
@@ -49,7 +99,6 @@ class RankineCycle(ThermodynamicalCycle):
 # 	fQCompressor = Quantity(default = 0, minValue = 0, maxValue = 1, label = 'heat loss factor', show="self.compressorModelType == 'S'")
 # 	compressorInputs = FieldGroup([compressorModelType, etaCompressor, fQCompressor], label = 'Compressor')
 # 	# FieldGroup
-# 	TCondensation = Quantity('Temperature', default = (40, 'degC'), label = 'condensation temperature')
 # 	condenserOutletStateChoice = Choices(OrderedDict((
 # 		('dT', 'sub-cooling'),
 # 		('Q', 'vapor quality'),
@@ -64,9 +113,6 @@ class RankineCycle(ThermodynamicalCycle):
 # 	TOutletCondenser = Quantity('Temperature', default = (40, 'degC'), label = 'outlet temperature', show = 'self.condenserOutletStateChoice == "T"')
 # 	hOutletCondenser = Quantity('SpecificEnthalpy', default = (100, 'kJ/kg'), minValue = -1e10, label = 'outlet enthalpy', show = 'self.condenserOutletStateChoice == "H"')
 # 	
-# 	condenserInputs = FieldGroup([TCondensation, condenserOutletStateChoice, etaCondenser, TExtCondenser, dTOutletCondenser, 
-# 			TOutletCondenser, qOutletCondenser, hOutletCondenser], 
-# 			label = 'Condensor')
 # 
 # 	# FieldGroup
 # 	TEvaporation = Quantity('Temperature', default = (-10, 'degC'), label = 'evaporation temperature')
@@ -99,7 +145,6 @@ class RankineCycle(ThermodynamicalCycle):
 # 	inputView = ModelView(ioType = "input", superGroups = [inputs], 
 # 		actionBar = inputActionBar, autoFetch = True)	
 # 
-# 	#================ Results ================#
 # 	#---------------- Fields ----------------#
 # 	cycleStatesTable = TableView((
 # 		('T', Quantity('Temperature', default = (1, 'K'))),
@@ -132,12 +177,11 @@ class RankineCycle(ThermodynamicalCycle):
 # 	resultView = ModelView(ioType = "output", superGroups = [resultDiagrams, resultStates, resultFlows])
 
 	#============= Page structure =============#
-	#modelBlocks = [inputView, resultView]
-	modelBlocks = []
+	modelBlocks = [inputView, resultView]
 
 	#================ Methods ================#	def compute(self):
 	def compute(self):
-		pass
+		print self.compressor.eta
 	
 def main():
 	rc = RankineCycle()
@@ -145,6 +189,8 @@ def main():
 # 	print rc.declared_submodels
 # 	print rc.declared_attrs
 # 	print rc.compressor.eta
-
+	import json 
+	print json.dumps(rc.modelView2Json(RankineCycle.inputView), indent = 4)
+	
 if __name__ == '__main__':
 	main()
