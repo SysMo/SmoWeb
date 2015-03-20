@@ -9,8 +9,10 @@ from smo.media.CoolProp.CoolProp import Fluid, FluidState
 from Structures import *
 
 class FluidPistonPump(dm.DynamicalModel):
-	def __init__(self, fluid):
+	def __init__(self, fluid, etaS, fQ):
 		self.fluid = fluid
+		self.etaS = etaS
+		self.fQ = fQ
 		self.fStateOut = FluidState(fluid)
 		self.flow = FluidFlow()
 		self.portOut = FluidPort('R', self.flow)
@@ -19,6 +21,10 @@ class FluidPistonPump(dm.DynamicalModel):
 		self.VDot = self.n * self.V
 		self.mDot = self.VDot * self.portIn.state.rho
 		self.fStateOut.update_ps(self.portOut.state.p, self.portIn.state.s)
+		wIdeal = self.fStateOut.h - self.portIn.state.h
+		wReal = wIdeal / self.etaS
+		delta_hOut = wReal * (1 - self.fQ)
+		self.fStateOut.update_ph(self.portOut.state.p, self.portIn.state.h + delta_hOut)
 		self.TOut = self.fStateOut.T
 		self.HDot = self.mDot * self.fStateOut.h
 		self.flow.mDot = self.mDot

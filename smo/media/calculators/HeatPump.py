@@ -195,6 +195,158 @@ class HeatPump(NumericalModel):
 		self.COPCooling = self.QEvap / self.WCompr
 		self.COPHeating = self.QCondens / self.WCompr
 
+from processes import ReverseBraytonCycle, CompressorOneStage, IsobaricHeatExchanger
+from smo.media.diagrams.StateDiagrams import PHDiagram
+class ReverseBraytonCycleModel(NumericalModel):
+	label = "Reverse Brayton Cycle"
+	figure = ModelFigure(src="ThermoFluids/img/ModuleImages/HeatPump.svg")
+	description = ModelDescription("Basic Brayton cycle used in refrigerators and air conditioners")
+
+	#================ Inputs ================#
+	#---------------- Fields ----------------#
+	# FieldGroup
+	fluidName = Choices(Fluids, default = 'R134a', label = 'fluid')	
+	mDotRefrigerant = Quantity('MassFlowRate', default = (1, 'kg/min'), label = 'refrigerant flow rate')
+	refrigerantInputs = FieldGroup([fluidName, mDotRefrigerant], 'Refrigerant')
+	# FieldGroup
+	compressorModelType = Choices(OrderedDict((
+		('S', 'isentropic'),
+		('T', 'isothermal'),
+	)), label = 'compressor model')
+	etaCompressor = Quantity(default = 1, minValue = 0, maxValue = 1, label = 'efficiency', show = "self.compressorModelType == 'S'")
+	fQCompressor = Quantity(default = 0, minValue = 0, maxValue = 1, label = 'heat loss factor', show="self.compressorModelType == 'S'")
+	compressorInputs = FieldGroup([compressorModelType, etaCompressor, fQCompressor], label = 'Compressor')
+	# FieldGroup
+	TCondensation = Quantity('Temperature', default = (40, 'degC'), label = 'condensation temperature')
+	condenserOutletStateChoice = Choices(OrderedDict((
+		('eta', 'thermal efficiency'),
+		('dT', 'sub-cooling'),
+		('Q', 'vapor quality'),
+		('T', 'temperature'),
+		('H', 'enthalpy'),
+	)), label = 'compute outlet by')
+	etaCondenser = Quantity(default = 0.9, label = 'thermal efficiency', minValue = 0, maxValue = 1, show = 'self.condenserOutletStateChoice == "eta"')
+	TExtCondenser = Quantity('Temperature', default = (30, 'degC'), label = 'external temperature', show = 'self.condenserOutletStateChoice == "eta"')
+	dTOutletCondenser = Quantity('TemperatureDifference', default = (-5, 'degC'), minValue = -1e10, maxValue = -1e-3, label = 'outlet subcooling', show = 'self.condenserOutletStateChoice == "dT"')
+	qOutletCondenser = Quantity(default = 0, minValue = 0, maxValue = 1, label = 'outlet vapor quality', show = 'self.condenserOutletStateChoice == "Q"')
+	TOutletCondenser = Quantity('Temperature', default = (40, 'degC'), label = 'outlet temperature', show = 'self.condenserOutletStateChoice == "T"')
+	hOutletCondenser = Quantity('SpecificEnthalpy', default = (100, 'kJ/kg'), minValue = -1e10, label = 'outlet enthalpy', show = 'self.condenserOutletStateChoice == "H"')
+	
+	condenserInputs = FieldGroup([TCondensation, condenserOutletStateChoice, etaCondenser, TExtCondenser, dTOutletCondenser, 
+			TOutletCondenser, qOutletCondenser, hOutletCondenser], 
+			label = 'Condensor')
+
+	# FieldGroup
+	TEvaporation = Quantity('Temperature', default = (-10, 'degC'), label = 'evaporation temperature')
+	evaporatorOutletStateChoice = Choices(OrderedDict((
+		('eta', 'thermal efficiency'),
+		('dT', 'super-heating'),
+		('Q', 'vapor quality'),
+		('T', 'temperature'),
+		('H', 'enthalpy'),
+	)), label = 'compute outlet by')
+	etaEvaporator = Quantity(default = 0.9, label = 'thermal efficiency', minValue = 0, maxValue = 1, show = 'self.evaporatorOutletStateChoice == "eta"')
+	TExtEvaporator = Quantity('Temperature', default = (0, 'degC'), label = 'external temperature', show = 'self.evaporatorOutletStateChoice == "eta"')
+	dTOutletEvaporator = Quantity('TemperatureDifference', default = (5, 'degC'), minValue = 1e-3, maxValue = 1e10, label = 'outlet subcooling', show = 'self.evaporatorOutletStateChoice == "dT"')
+	qOutletEvaporator = Quantity(default = 1, minValue = 0, maxValue = 1, label = 'outlet vapor quality', show = 'self.evaporatorOutletStateChoice == "Q"')
+	TOutletEvaporator = Quantity('Temperature', default = (-10, 'degC'), label = 'outlet temperature', show = 'self.evaporatorOutletStateChoice == "T"')
+	hOutletEvaporator = Quantity('SpecificEnthalpy', default = (100, 'kJ/kg'), minValue = -1e10, label = 'outlet enthalpy', show = 'self.evaporatorOutletStateChoice == "H"')
+
+	evaporatorInputs = FieldGroup([TEvaporation, evaporatorOutletStateChoice, etaEvaporator, TExtEvaporator, dTOutletEvaporator, 
+			TOutletEvaporator, qOutletEvaporator, hOutletEvaporator], 
+			label = 'Evaporator')
+
+	
+	inputs = SuperGroup([refrigerantInputs, compressorInputs, condenserInputs, evaporatorInputs])
+
+	#---------------- Actions ----------------#
+	computeAction = ServerAction("compute", label = "Compute", outputView = 'resultView')
+	inputActionBar = ActionBar([computeAction], save = True)
+
+	#--------------- Model view ---------------#
+	inputView = ModelView(ioType = "input", superGroups = [inputs], 
+		actionBar = inputActionBar, autoFetch = True)	
+
+	#================ Results ================#
+	#---------------- Fields ----------------#
+	cycleStatesTable = TableView(label="Cycle states", dataLabels = ['T', 'p', 'rho', 'h', 'q', 's'], 
+			quantities = ['Temperature', 'Pressure', 'Density', 'SpecificEnthalpy', 'VaporQuality', 'SpecificEntropy'],
+ 			options = {'formats': ['0.000', '0.000E0', '0.000', '0.000E0', '0.00', '0.000E0']})
+
+	cycleStates = ViewGroup([cycleStatesTable], label = "States")
+	resultValues = SuperGroup([cycleStates], label="Values")
+	#---------------- Cycle diagram -----------#
+	diagram = Image(default='', width=880, height=550)
+	diagramViewGroup = ViewGroup([diagram], label = "P-H Diagram")
+	resultDiagrams = SuperGroup([diagramViewGroup], label = "Diagrams")
+
+	#--------------- Model view ---------------#
+	resultView = ModelView(ioType = "output", superGroups = [resultValues, resultDiagrams])
+
+	#============= Page structure =============#
+	modelBlocks = [inputView, resultView]
+
+	#================ Methods ================#
+	def compute(self):
+		cycleStateTableDType = np.dtype([
+			('T', np.float), ('p', np.float), ('rho', np.float), 
+			('h', np.float), ('q', np.float), ('s', np.float)
+			])
+		self.cycleStatesTable = np.zeros((4,), dtype = cycleStateTableDType)
+
+		cycle = ReverseBraytonCycle(self.fluidName,
+				compressor = CompressorOneStage(self.compressorModelType, self.etaCompressor, self.fQCompressor),
+				condenser = IsobaricHeatExchanger(),
+				evaporator = IsobaricHeatExchanger()
+		)
+
+		cycle.setTEvaporation(self.TEvaporation)
+		cycle.setTCondensation(self.TCondensation)
+		
+		cycle.evaporator.compute(
+			self.evaporatorOutletStateChoice, pIn = cycle.pLow,
+			eta = self.etaEvaporator, TExt = self.TExtEvaporator, 
+			dT = self.dTOutletEvaporator, q = self.qOutletEvaporator, 
+			T = self.TOutletEvaporator, h = self.hOutletEvaporator)
+		
+		cycle.compressor.compute(cycle.pHigh)
+
+		cycle.condenser.compute(self.condenserOutletStateChoice,
+			eta = self.etaCondenser, TExt = self.TExtCondenser, 
+			dT = self.dTOutletCondenser, q = self.qOutletCondenser, 
+			T = self.TOutletCondenser, h = self.hOutletCondenser)
+	
+		cycle.throttleValve.compute(cycle.pLow)
+
+		for i in range(len(cycle.fp)):
+			fp = cycle.fp[i]
+			self.cycleStatesTable[i] = (fp.T, fp.p, fp.rho, fp.h, fp.q, fp.s)
+
+		self.createStateDiagram(cycle)
+
+	def createStateDiagram(self, cycle):
+		diagram = PHDiagram(self.fluidName, temperatureUnit = 'degC')
+		diagram.setLimits()
+		fig  = diagram.draw()
+		ax = fig.get_axes()[0]
+		
+		ncp = len(cycle.fp)
+		for i in range(ncp):
+			ax.semilogy(cycle.fp[i].h/1e3, cycle.fp[i].p/1e5, 'ko')
+			ax.semilogy(
+				[cycle.fp[i].h/1e3, cycle.fp[(i + 1)%ncp].h/1e3], 
+				[cycle.fp[i].p/1e5, cycle.fp[(i + 1)%ncp].p/1e5],
+				'k', linewidth = 2)
+			ax.annotate('{}'.format(i+1), 
+				xy = (cycle.fp[i].h/1e3, cycle.fp[i].p/1e5),
+				xytext = (10, 3), textcoords = 'offset points',
+				size = 'x-large')
+		fHandle, resourcePath  = diagram.export(fig)
+		self.diagram = resourcePath
+		os.close(fHandle)
+
+		
+		
 class HeatPumpDoc(RestModule):
 	name = 'HeatPumpDoc'
 	label = 'Heat Pump (Docs)'

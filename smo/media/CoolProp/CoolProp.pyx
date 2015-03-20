@@ -266,6 +266,7 @@ cdef class FluidState:
 	cdef CP.SmoFlow_CoolPropState* ptr
 	cdef public SaturationStateLiquid _SatL
 	cdef public SaturationStateVapor _SatV
+	cdef Fluid fluid 
 
 	def __init__(self, fluid):
 		"""__init__(fluid)
@@ -278,9 +279,11 @@ cdef class FluidState:
 		# From fluid name
 		if (isinstance(fluid, str) or isinstance(fluid, unicode)):
 			fluidName = fluid
+			self.fluid = Fluid(fluid)
 			self.ptr = new CP.SmoFlow_CoolPropState(fluidName)
 		# From fluid object
 		elif (isinstance(fluid, Fluid)):
+			self.fluid = fluid
 			self.ptr = new CP.SmoFlow_CoolPropState((<Fluid>fluid).ptr)
 		else:
 			raise TypeError('The argument of FluidState constructor must be either str or Fluid')
@@ -291,6 +294,11 @@ cdef class FluidState:
 	def __dealloc__(self):
 		del self.ptr
 
+	property fluid:
+		"""fluid"""
+		def __get__(self):
+			return self.fluid
+		
 	property T:
 		"""temperature"""	
 		def __get__(self):
@@ -468,9 +476,20 @@ cdef class FluidState:
 		
 		Updates fluid state by two state variables.
 		"""
-		cdef long p1Index = CP.get_param_index(state1)
-		cdef long p2Index = CP.get_param_index(state2)
-		self.ptr.update(p1Index, state1Value, p2Index, state2Value, -1, -1)
+		cdef long p1Index
+		cdef long p2Index
+		cdef double TSat
+		
+		if (state1.compare("dT") == 0 and state2.compare("P") == 0):
+			TSat = self.fluid.saturation_p(state2Value)['TsatL']
+			self.ptr.update(iT, TSat + state1Value, iP, state2Value, -1, -1)
+		elif (state1.compare("P") == 0 and state2.compare("dT") == 0):
+			TSat = self.fluid.saturation_p(state1Value)['TsatL']
+			self.ptr.update(iT, TSat + state2Value, iP, state1Value, -1, -1)
+		else:
+			p1Index = CP.get_param_index(state1)
+			p2Index = CP.get_param_index(state2)
+			self.ptr.update(p1Index, state1Value, p2Index, state2Value, -1, -1)
 	
 	def update_Tp(self, double T, double p):
 		"""update_Tp(T, p)

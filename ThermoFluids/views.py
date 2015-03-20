@@ -44,11 +44,12 @@ class FreeConvectionView(ModularPageView):
 	label = "Free convection"
 	modules = [FreeConvection_External, FreeConvection_Internal, FreeConvectionDoc]
 
-from smo.media.calculators.HeatPump import HeatPump
+from smo.media.calculators.HeatPump import HeatPump, ReverseBraytonCycleModel
 @registerView(router)
 class HeatPumpView(ModularPageView):
 	label = "Heat pump"
-	modules = [HeatPump]	
+	modules = [HeatPump, ReverseBraytonCycleModel]	
+	requireGoogle = ['visualization']
 	
 from smo.flow.heatExchange1D.CryogenicPipe import CryogenicPipe
 from smo.flow.heatExchange1D.CableHeating import CableHeating1D

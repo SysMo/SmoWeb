@@ -9,7 +9,7 @@ from smo.util.writers import SmoHTMLWriter
 
 srvAddress = 'platform.sysmoltd.com' 
 
-env.hosts = srvAddress
+#env.hosts = srvAddress
 env.projectRoot = os.getcwd()
 env.installDir = '/srv/SmoWeb/'
 env.virtualBinDir = os.path.abspath(os.path.join(env.installDir, '../VirtualEnv/SmoWebPlatform/bin/'))
@@ -200,7 +200,12 @@ def installAptPackages():
 		'rabbitmq-server',
 		# Sundials solvers
 		'libsundials-serial-dev',
-		'libsuperlu3-dev',		
+		'libsuperlu3-dev',
+		# Language agnostic inter-process communication via messages (structured data)
+		'protobuf-compiler',
+		'thrift-compiler',
+		'libevent-dev',
+		#libboost-dev libboost-test-dev libboost-program-options-dev libboost-system-dev libboost-filesystem-dev libevent-dev automake libtool flex bison pkg-config libssl-dev
 	]
 	packageString = (" ").join(packageList)
 	sudo('apt-get install {0}'.format(packageString))
@@ -259,7 +264,8 @@ def installPipPackages():
 		'numexpr',
 		'tables', # PyTables
 		'pandas' # Pandas
-		
+		# IPC
+		'thrift'
 	]
 	with virtualenv():
 		with shell_env(CFLAGS="-I/usr/lib/openmpi/include/"): # Necessary for HDF5 based packages
