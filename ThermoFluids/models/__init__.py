@@ -1,4 +1,8 @@
 from FreeConvection import FreeConvection_External, FreeConvection_Internal, FreeConvectionDoc
-from ThermodynamicProcessesModels import CompressionExpansionModel, HeatingCoolingModel
+from ThermodynamicProcesses import CompressionExpansionModel, HeatingCoolingModel
 from PipeFlowModel import PipeFlowModel, PipeFlowDoc
 from FluidPropsCalculator import PropertyCalculatorCoolprop, FluidInfo, SaturationData, PHDiagramModel, FluidPropertiesDoc
+from ReverseBraytonCycle import ReverseBraytonCycle
+from RankineCycle import RankineCycle
+from CryogenicPipe import CryogenicPipe
+from CableHeating import CableHeating1D

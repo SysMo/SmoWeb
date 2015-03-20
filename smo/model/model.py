@@ -82,7 +82,7 @@ class NumericalModel(object):
 		Sets default values for all model fields"""
 		self = object.__new__(cls)
 		for name, field in self.declared_fields.iteritems():
-			if (isinstance(object, fields.RecordArray)):
+			if (isinstance(field, (fields.RecordArray, fields.DataSeriesView))):
 				self.__setattr__(name, field.default.copy())
 			else:
 				self.__setattr__(name, field.default)  

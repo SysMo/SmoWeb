@@ -8,7 +8,7 @@ class ViewRouter(object):
 	decorator, and can be served when requested (from router.pages)
 	"""
 	
-	registry = {}
+	registry = OrderedDict()
 	""" Global registry of routers"""
 	
 	def __init__(self, name, appNamespace, label = None):

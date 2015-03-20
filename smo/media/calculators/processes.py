@@ -1,7 +1,7 @@
 from smo.media.CoolProp.CoolProp import Fluid, FluidState
 import numpy as np
 import pylab as plt
-
+from smo.model.model import NumericalModel
 ThermodynamicVariables = {
 	'p' : {'label': 'pressure', 'scale': 1e5, 'unit': 'bar'},
 	'T' : {'label': 'temperature', 'scale': 1.0, 'unit': 'K'},
@@ -48,6 +48,8 @@ class IsobaricHeatExchanger(CycleComponent):
 			self.outlet.update_ph(pIn, kwargs['h'])
 		else:
 			raise ValueError('Unknown compute method {}'.format(computeMethod))
+		
+		self.qIn = self.outlet.h - self.inlet.h
 
 class ThrottleValve(CycleComponent):
 	def compute(self, pOut):
@@ -56,12 +58,12 @@ class ThrottleValve(CycleComponent):
 
 class ThermodynamicCycle(object):
 	def __init__(self, fluid, numPoints):
-		self.fp = [FluidState(fluid) for i in range(numPoints)] 
+		self.fp = [FluidState(fluid) for i in range(numPoints)]
 		self.fluid = Fluid(fluid)
-
-class ReverseBraytonCycle(ThermodynamicCycle):
+	
+class ReverseBraytonCycle1(ThermodynamicCycle):
 	def __init__(self, fluid, compressor, condenser, evaporator):
-		super(ReverseBraytonCycle, self).__init__(fluid, 4)
+		super(ReverseBraytonCycle1, self).__init__(fluid, 4)
 		self.compressor = compressor
 		self.compressor.inlet = self.fp[0] 
 		self.compressor.outlet = self.fp[1]
@@ -74,6 +76,11 @@ class ReverseBraytonCycle(ThermodynamicCycle):
 		self.evaporator = evaporator
 		self.evaporator.inlet = self.fp[3]
 		self.evaporator.outlet = self.fp[0]
+		# Add components
+		#self.components.append(self.compressor)
+		#self.components.append(self.condenser)
+		#self.components.append(self.throttleValve)
+		#self.components.append(self.evaporator)
 	
 	def setTCondensation(self, T):
 		if (self.fluid.tripple['T'] < T < self.fluid.critical['T']):
@@ -106,9 +113,6 @@ class ReverseBraytonCycle(ThermodynamicCycle):
 			self.TCondensation = sat['TsatL']
 		else:
 			raise ValueError('PHigh  ({} bar) must be between {} bar and {} bar'.format(p/1e5, self.fluid.tripple['p']/1e5, self.fluid.critical['p']/1e5))
-
-	def compute(self):
-		pass
 	
 # class IsentropicProcess(object):
 # 	def __init__(self, fluidName):

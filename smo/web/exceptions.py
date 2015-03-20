@@ -1,14 +1,17 @@
 class CustomException(Exception):
-    def __init__(self, value):
-        self.value = value
-    def __str__(self):
-        return repr(self.value)
+	def __init__(self, value):
+		self.value = value
+	def __str__(self):
+		return repr(self.value)
 
 class ArgumentError(CustomException):
-    pass
+	pass
 
 class ArgumentTypeError(CustomException):
-    pass
+	pass
 
 class FieldError(CustomException):
-    pass
+	pass
+
+class ConvergenceError(CustomException):
+	pass

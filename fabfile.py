@@ -206,6 +206,8 @@ def installAptPackages():
 		'thrift-compiler',
 		'libevent-dev',
 		#libboost-dev libboost-test-dev libboost-program-options-dev libboost-system-dev libboost-filesystem-dev libevent-dev automake libtool flex bison pkg-config libssl-dev
+		# graph visualization
+		'libgraphviz-dev',
 	]
 	packageString = (" ").join(packageList)
 	sudo('apt-get install {0}'.format(packageString))
@@ -263,9 +265,11 @@ def installPipPackages():
 		# Data processing utilities
 		'numexpr',
 		'tables', # PyTables
-		'pandas' # Pandas
+		'pandas', # Pandas
 		# IPC
-		'thrift'
+		'thrift',
+		# graph visualization
+		'pygraphviz'
 	]
 	with virtualenv():
 		with shell_env(CFLAGS="-I/usr/lib/openmpi/include/"): # Necessary for HDF5 based packages
