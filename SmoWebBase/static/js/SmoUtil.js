@@ -1199,10 +1199,16 @@ smoModule.directive('smoFieldGroup', ['$compile', 'util', function($compile, uti
 		restrict : 'A',
 		scope : {
 			smoFieldGroup : '=',
-			smoDataSource : '=',
+			dataSource : '=smoDataSource',
 			viewType: '='
 		},
 		link : function(scope, element, attr) {
+			// Passing values from dataSourceRoot if such property exists in a field-group
+			if (typeof scope.smoFieldGroup.dataSourceRoot !== 'undefined') {
+				scope.smoDataSource = scope.dataSource[scope.smoFieldGroup.dataSourceRoot];
+			} else {
+				scope.smoDataSource = scope.dataSource;
+			}
 			scope.fields = {};
 			var groupFields = [];
 			for (var i = 0; i < scope.smoFieldGroup.fields.length; i++) {
@@ -1269,13 +1275,17 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 		restrict : 'A',
 		scope : {
 			smoViewGroup : '=',
-			smoDataSource : '=',
+			dataSource : '=smoDataSource',
 			modelName: '@modelName'
 		},
-		controller: function($scope) {
-			
-		},
 		link : function(scope, element, attr) {
+			// Passing values from dataSourceRoot if such property exists in a view-group
+			if (typeof scope.smoViewGroup.dataSourceRoot !== 'undefined') {
+				scope.smoDataSource = scope.dataSource[scope.smoViewGroup.dataSourceRoot];
+			} else {
+				scope.smoDataSource = scope.dataSource;
+			}
+			
 			var template;
 			if (scope.smoViewGroup.label) {
 				template = '<div class="field-group-label" style="margin-top: 25px;">' + scope.smoViewGroup.label + '</div>';
