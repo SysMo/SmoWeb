@@ -32,11 +32,12 @@ class ThermodynamicProcessView(ModularPageView):
 	label = "Thermodynamic processes"
 	modules = [CompressionExpansionModel, HeatingCoolingModel]
 
-from .models import PipeFlowModel, PipeFlowDoc
+from .models import PipeFlowDoc
+from ThermoFluids.models import PipeFlow
 @registerView(router)
 class PipeFlowView(ModularPageView):
 	label = "Pipe flow"
-	modules = [PipeFlowModel, PipeFlowDoc]
+	modules = [PipeFlow, PipeFlowDoc]
 
 from .models import FreeConvection_External, FreeConvection_Internal, FreeConvectionDoc
 @registerView(router)
