@@ -121,7 +121,8 @@ class NumericalModel(object):
 		if name in self.declared_fields.keys():
 			object.__setattr__(self, name, self.declared_fields[name].parseValue(value))
 		else:
-			raise AttributeError("Class '{0}' has no field '{1}'".format(self.__class__.__name__, name))
+			object.__setattr__(self, name, value)
+			#raise AttributeError("Class '{0}' has no field '{1}'".format(self.__class__.__name__, name))
 	
 	def __getattr__(self, name):
 		return object.__getattribute__(self, name)
