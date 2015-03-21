@@ -45,37 +45,25 @@ class FreeConvectionView(ModularPageView):
 	label = "Free convection"
 	modules = [FreeConvection_External, FreeConvection_Internal, FreeConvectionDoc]
 
-from smo.media.calculators.HeatPump import HeatPump
+from .models import ReverseBraytonCycle
 @registerView(router)
-class HeatPumpView(ModularPageView):
-	label = "Heat pump"
-	modules = [HeatPump]	
+class HeatingCoolingCyces(ModularPageView):
+	label = "Heating/cooling cycles"
+	modules = [ReverseBraytonCycle]	
+	requireGoogle = ['visualization']
+
+from.models import RankineCycle
+@registerView(router)
+class PowerGenerationCycles(ModularPageView):
+	label = "Power generation cycles"
+	modules = [RankineCycle]
+	requireGoogle = ['visualization']
 	
-from smo.flow.heatExchange1D.CryogenicPipe import CryogenicPipe
-from smo.flow.heatExchange1D.CableHeating import CableHeating1D
+from .models import CryogenicPipe
+from .models import CableHeating1D
 @registerView(router)
 class HeatExchange1DView(ModularPageView):
 	label = "Heat exchange 1D"
 	modules = [CryogenicPipe, CableHeating1D]	
 	requireJS = ['dygraph', 'dygraphExport']
 	requireGoogle = ['visualization']
-
-		
-# from smo.flow.CryogenicInsulation import GasConduction
-# class CryogenicInsulation(ModularPageView):	
-# 	def get(self, request):
-# 		return render_to_response('ThermoFluids/CryogenicInsulation.html', locals(), 
-# 				context_instance=RequestContext(request))
-# 
-# 	@action.post()
-# 	def getCryogenicInsulationInputs(self, parameters):
-# 		gc = GasConduction()
-# 		return gc.superGroupList2Json([gc.inputs])
-# 	
-# 	@action.post()
-# 	def computeCryogenicInsulation(self, parameters):
-# 		gc = GasConduction()
-# 		gc.fieldValuesFromJson(parameters)
-# 		gc.compute()		
-# 		return gc.superGroupList2Json([gc.results])
-	

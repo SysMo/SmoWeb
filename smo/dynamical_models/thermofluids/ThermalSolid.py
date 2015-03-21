@@ -123,14 +123,14 @@ class SolidConductiveBody(dm.DynamicalModel):
 			
 		# Write port variables
 		if (self.port1.portType == 'R'):
-			self.Q1DotExt = self.QDot[0]
-			self.port1.flow.QDot = -self.Q1DotExt
+			self.Q1DotExt = -self.QDot[0]
+			self.port1.flow.QDot = self.Q1DotExt
 		else:			
 			pass # Already done in setState 
 		
 		if (self.port2.portType == 'R'):
 			self.Q2DotExt = self.QDot[-1]
-			self.port2.flow.QDot = -self.Q2DotExt
+			self.port2.flow.QDot = self.Q2DotExt
 		else:			
 			pass # Already done in setState 
 

@@ -25,7 +25,7 @@ TransitionType = OrderedDict((
 from smo.media.calculators.ThermodynamicProcesses import IsentropicProcess, IsothermalProcess, IsobaricProcess, IsenthalpicExpansion
 class ThermodynamicProcessModel(NumericalModel):
 	############ Inputs ###############
-	fluidName = Choices(options = Fluids, default = 'ParaHydrogen', label = 'fluid')	
+	fluidName = Choices(options = Fluids, default = 'Water', label = 'fluid')	
 	stateVariable1 = Choices(options = StateVariableOptions, default = 'P', label = 'first state variable')
 	p1 = Quantity('Pressure', default = (1, 'bar'), label = 'pressure', show="self.stateVariable1 == 'P'")
 	T1 = Quantity('Temperature', default = (300, 'K'), label = 'temperature', show="self.stateVariable1 == 'T'")
@@ -142,7 +142,7 @@ class CompressionExpansionModel(ThermodynamicProcessModel):
 	description = ModelDescription("Parameteric models for compression/expansion processes: isobaric, isothermal and isenthalpic", show = True)
 
 	transitionType = Choices(options = TransitionType, default = 'S', label = "process type")
-	p_final = Quantity('Pressure', default = (1, 'bar'), label = 'pressure')
+	p_final = Quantity('Pressure', default = (10, 'bar'), label = 'pressure')
 	eta = Quantity(default = 1, minValue = 0, maxValue = 1, label = 'efficiency', show = "self.transitionType != 'H'")
 	fQ_S = Quantity(default = 0, minValue = 0, maxValue = 1, label = 'heat loss factor', show="self.transitionType == 'S'")
 	fQ_T = Quantity(default = 1, minValue = 0, maxValue = 1, label = 'heat loss factor', show="self.transitionType == 'T'")
@@ -183,7 +183,7 @@ class HeatingCoolingModel(ThermodynamicProcessModel):
 
 	stateVariable_final = Choices(options = OrderedDict((('T', 'temperature (T)'), ('Q', 'vapor quality (Q)'))), 
 									default = 'T', label = 'state variable')	
-	T_final = Quantity('Temperature', default = (300, 'K'), label = 'temperature', 
+	T_final = Quantity('Temperature', default = (350, 'K'), label = 'temperature', 
 					   show="self.stateVariable_final == 'T'")
 	q_final = Quantity('VaporQuality', default = (1, '-'), minValue = 0, maxValue = 1, label = 'vapour quality', 
 					  show="self.stateVariable_final == 'Q'")

@@ -2,7 +2,7 @@
 Task scheduler
 ==============
 
-From `here <http://docs.celeryproject.org/en/latest/tutorials/daemonizing.html#daemonizing>`_
+Text source: `<http://docs.celeryproject.org/en/latest/tutorials/daemonizing.html#daemonizing>`_
 
 Example configuration
 ~~~~~~~~~~~~~~~~~~~~~

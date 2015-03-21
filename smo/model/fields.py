@@ -627,7 +627,17 @@ class Image(Field):
 		fieldDict['width'] = self.width	
 		fieldDict['height'] = self.height			
 		return fieldDict
-	
+
+class SubModelGroup(Field):
+	"""
+	Include field group or supergroup from a sub-model
+	"""
+	def __init__(self, klass, group, *args, **kwargs):
+		Field.__init__(self, *args, **kwargs)
+		self.group = group
+		self.klass = klass
+		self.show = kwargs.get('show', True)
+			
 class Group(object):
 	"""Abstract class for group of fields"""
 	# Tracks each time an instance is created. Used to retain order.
@@ -639,10 +649,9 @@ class Group(object):
 		self.creation_counter = Group.creation_counter
 		Group.creation_counter += 1
 
-class FieldGroup(Group):
-	"""Represents a group of fields of all basic types except for PlotView and TableView"""
+class BasicGroup(Group):
 	def __init__(self, fields = None, *args, **kwargs):
-		super(FieldGroup, self).__init__(*args, **kwargs)
+		super(BasicGroup, self).__init__(*args, **kwargs)
 		self.fields = []
 		self.unresolved_fields = []
 		if (fields is not None):
@@ -652,20 +661,14 @@ class FieldGroup(Group):
 				else:
 					self.fields.append(field)
 
-class ViewGroup(Group):
+class FieldGroup(BasicGroup):
+	"""Represents a group of fields of all basic types except for PlotView and TableView"""
+	pass
+
+class ViewGroup(BasicGroup):
 	"""Represents a group of fields of type PlotView and/or TableView"""
-	def __init__(self, fields = None, *args, **kwargs):
-		super(ViewGroup, self).__init__(*args, **kwargs)
-# 		self.fields = [] if (fields is None) else fields
-		self.fields = []
-		self.unresolved_fields = []
-		if (fields is not None):
-			for field in fields:
-				if isinstance(field, str):
-					self.unresolved_fields.append(field)
-				else:
-					self.fields.append(field)
-		
+	pass
+
 class SuperGroup(Group):
 	"""Represents a group of FieldGroup and/or ViewGroup groups"""
 	def __init__(self, groups = None, *args, **kwargs):
