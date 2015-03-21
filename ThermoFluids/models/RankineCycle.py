@@ -14,7 +14,7 @@ import smo.web.exceptions as E
 
 class RankineCycle(TC.ThermodynamicalCycle):
 	label = "Ranking cycle"
-	figure = F.ModelFigure(src="ThermoFluids/img/ModuleImages/ReverseBraytonCycle.svg")
+	figure = F.ModelFigure(src="ThermoFluids/img/ModuleImages/RankineCycle.png",  height = 300)
 	description = F.ModelDescription("Basic Rankine cycle used in power generation")
 	
 	#================ Inputs ================#
