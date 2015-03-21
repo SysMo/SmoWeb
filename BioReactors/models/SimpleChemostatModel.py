@@ -2,11 +2,12 @@ from smo.model.model import NumericalModel
 from smo.model.actions import ServerAction, ActionBar
 from smo.model.fields import *
 from smo.web.modules import RestModule
+
 from smo.dynamical_models.bioreactors.SimpleChemostat import SimpleChemostat
 
 class SimpleChemostatModel(NumericalModel):
     label = "Simple Chemostat"
-    description = ModelDescription("Simple chemostat simulator", show = True)
+    description = ModelDescription("Simulator of simple chemostat", show = True)
     figure = ModelFigure(src="BioReactors/img/ModuleImages/SimpleChemostat.png", show=False)
     
     #1. ############ Inputs ###############
@@ -15,19 +16,19 @@ class SimpleChemostatModel(NumericalModel):
     m = Quantity('TimeRate', default = (3, '1/h'), minValue = (0, '1/h'), label = 'm', description = 'maximum specific growth rate of the microorganisms')
     K = Quantity('Density', default = (3.7, 'g/L'), minValue = (0, 'g/L'), label = 'K', description = 'half saturation constant')
     gamma = Quantity(default = 0.6, minValue = 0, maxValue = 1.0, label = '&#947', description = 'yield coefficient of microorganisms')
-
     D_vals = RecordArray((
-            ('time', Quantity('Time', default = (20, 'h'), minValue = (0, 'h'), label = 'Duration')),
-            ('D', Quantity('TimeRate', default = (1, '1/h'), minValue = (0, '1/h'), label = 'D')),
-        ), label = 'D', description = 'dilution (or washout) rate')  
+                         ('time', Quantity('Time', default = (20, 'h'), minValue = (0, 'h'), label = 'Duration')),
+                         ('D', Quantity('TimeRate', default = (1, '1/h'), minValue = (0, '1/h'), label = 'D')),
+                         ), 
+                         label = 'D', description = 'dilution (or washout) rate')  
     parametersFieldGroup = FieldGroup([S_in, m, K, gamma, D_vals], label = "Parameters")
     
     S0 = Quantity('Density', default = (0, 'g/L'), minValue = 0, label = 'S<sub>0</sub>', description = 'initial substrate concentration')
     X0 = Quantity('Density', default = (0.5, 'g/L'), minValue = 0, label = 'X<sub>0</sub>', description = 'initial microorganisms concentration')
     initialValuesFieldGroup = FieldGroup([S0, X0], label = "Initial values")
-    
+        
     inputValuesSuperGroup = SuperGroup([parametersFieldGroup, initialValuesFieldGroup], label = "Input values")
-    
+
     #1.2 Fields - Settings
     tSimulation = Quantity('Time', default = (100, 'h'), minValue = (0, 'h'), maxValue=(10000, 'h'), label = 'simulation time')
     tPrint = Quantity('Time', default = (0.1, 'h'), minValue = (1e-5, 'h'), maxValue = (1000, 'h'), label = 'print interval')
@@ -40,8 +41,7 @@ class SimpleChemostatModel(NumericalModel):
     inputActionBar = ActionBar([computeAction], save = True)
     
     #1.4 Model view
-    inputView = ModelView(ioType = "input", superGroups = [inputValuesSuperGroup, settingsSuperGroup], 
-        actionBar = inputActionBar, autoFetch = True)
+    inputView = ModelView(ioType = "input", superGroups = [inputValuesSuperGroup, settingsSuperGroup], actionBar = inputActionBar, autoFetch = True)
     
     #2. ############ Results ###############    
     plot = PlotView((
@@ -70,6 +70,7 @@ class SimpleChemostatModel(NumericalModel):
     
     ############# Page structure ########
     modelBlocks = [inputView, resultView]
+    
     
     def compute(self):
         model = SimpleChemostat(

@@ -148,6 +148,9 @@ class SimpleChemostat(Simulation):
 	def getResults(self):
 		return self.resultStorage.data
 	
+	def loadResult(self, simIndex):
+		self.resultStorage.loadResult(simIndex)
+	
 	def plotHDFResults(self):		
 		data = self.resultStorage.data
 		xData = data['t']
@@ -160,7 +163,7 @@ class SimpleChemostat(Simulation):
 """ Test functions """
 def TestSimpleChemostat():
 	# Settings
-	simulate = True #True - run simulation; False - plot an old results 
+	simulate = False #True - run simulation; False - plot an old results 
 	tFinal = 500
 	D_vals = np.array([[100, 1], [200, 0.5], [1e6, 1.1]])
 	
@@ -175,7 +178,7 @@ def TestSimpleChemostat():
 		model.prepareSimulation()
 		model.run(tPrint = 1.0)
 	else:
-		model.loadResult()
+		model.loadResult(simIndex = 1)
 	
 	# Export to csv file
 	model.resultStorage.exportToCsv(fileName = csvFileName)
