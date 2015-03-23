@@ -52,11 +52,11 @@ class HeatingCoolingCyces(ModularPageView):
 	modules = [ReverseBraytonCycle]	
 	requireGoogle = ['visualization']
 
-from.models import RankineCycle
+from .models import RankineCycle, RankineCycleWithRecurperator
 @registerView(router)
 class PowerGenerationCycles(ModularPageView):
 	label = "Power generation cycles"
-	modules = [RankineCycle]
+	modules = [RankineCycle, RankineCycleWithRecurperator]
 	requireGoogle = ['visualization']
 	
 from .models import CryogenicPipe

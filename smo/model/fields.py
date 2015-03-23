@@ -674,6 +674,11 @@ class SuperGroup(Group):
 	def __init__(self, groups = None, *args, **kwargs):
 		super(SuperGroup, self).__init__(*args, **kwargs)
 		self.groups = [] if (groups is None) else groups
+		
+	def update(self, groups):
+		for group in groups:
+			if (group not in self.groups):
+				self.groups.append(group)
 
 class ModelView(object):
 	"""

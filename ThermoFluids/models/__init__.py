@@ -3,6 +3,6 @@ from PipeFlow import PipeFlow, PipeFlowDoc
 from ThermodynamicProcesses import CompressionExpansionModel, HeatingCoolingModel
 from FreeConvection import FreeConvection_External, FreeConvection_Internal, FreeConvectionDoc
 from ReverseBraytonCycle import ReverseBraytonCycle
-from RankineCycle import RankineCycle
+from RankineCycle import RankineCycle, RankineCycleWithRecurperator
 from CryogenicPipe import CryogenicPipe
 from CableHeating import CableHeating1D

@@ -135,3 +135,49 @@ class Condenser(IsobaricHeatExchanger):
 			'TOutlet', 'qOutlet', 'hOutlet'], 
 			label = 'Condenser')
 	modelBlocks = []
+
+class HeatExchangerTwoStreams(CycleComponent):
+	abstract = True
+	eta = F.Quantity(default = 1, minValue = 0, maxValue = 1, label = 'efficiency')
+	FG = F.FieldGroup([eta], label = 'Heat exchanger')
+	def compute(self, m1Dot, m2Dot):
+		self.outlet1.update_Tp(self.inlet2.T, self.inlet1.p)
+		self.outlet2.update_Tp(self.inlet1.T, self.inlet2.p)
+		dH1DotMax = m1Dot * (self.inlet1.h - self.outlet1.h)
+		dH2DotMax = m2Dot * (self.inlet2.h - self.outlet2.h)
+		if (abs(dH1DotMax) > abs(dH2DotMax)):
+			dQDot = dH2DotMax * self.eta
+			print 2, dQDot
+			self.outlet1.update_ph(self.inlet1.p, self.inlet1.h + dQDot / m1Dot)
+			self.outlet2.update_ph(self.inlet2.p, self.inlet2.h - dQDot / m2Dot)
+		else:
+			dQDot = dH1DotMax * self.eta
+			print 1, dQDot
+			self.outlet1.update_ph(self.inlet1.p, self.inlet1.h - dQDot / m1Dot)
+			self.outlet2.update_ph(self.inlet2.p, self.inlet2.h + dQDot / m2Dot)
+	def __str__(self):
+		return """
+Inlet 1: T = {self.inlet1.T}, p = {self.inlet1.p}, q = {self.inlet1.q}, h = {self.inlet1.h} 
+Outlet 1: T = {self.outlet1.T}, p = {self.outlet1.p}, q = {self.outlet1.q}, h = {self.outlet1.h} 
+Inlet 2: T = {self.inlet2.T}, p = {self.inlet2.p}, q = {self.inlet2.q}, h = {self.inlet2.h}
+Outlet2: T = {self.outlet2.T}, p = {self.outlet2.p}, q = {self.outlet2.q}, h = {self.outlet2.h}
+		""".format(self = self)
+	@staticmethod
+	def test():
+		fp = [FluidState('Water') for _ in range(4)]
+		he = HeatExchangerTwoStreams()
+		he.inlet1 = fp[0]
+		he.outlet1 = fp[1]
+		he.inlet2 = fp[2]
+		he.outlet2 = fp[3]
+
+		he.inlet1.update_Tp(80 + 273.15, 1e5)
+		he.inlet2.update_Tp(20 + 273.15, 1e5)
+		m1Dot = 1.
+		m2Dot = 10.
+		
+		he.compute(m1Dot, m2Dot)
+		print he
+
+if __name__ == '__main__':
+	HeatExchangerTwoStreams.test()
