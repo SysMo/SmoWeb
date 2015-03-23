@@ -39,9 +39,16 @@ class SimpleChemostat(Simulation):
 	"""
 	name = 'Model of a simple chemostat.'
 	
-	def __init__(self, **kwargs):
+	def __init__(self, model, **kwargs):
 		super(SimpleChemostat, self).__init__(**kwargs)
-		self.tFinal = kwargs.get('tFinal', 100.0)
+		
+		# Initialize parameters
+		self.m = model.m
+		self.K = model.K
+		self.S_in = model.S_in
+		self.X_in = model.X_in
+		self.gamma = model.gamma
+		self.D_vals = model.D_vals
 
 		# Create state vector and derivative vector
 		stateVarNames = ['S', 'X'] 
@@ -57,27 +64,19 @@ class SimpleChemostat(Simulation):
 				varList = ['t'] + stateVarNames + ['D'],
 				chunkSize = 1e4)
 		
-		# Set parameter values
-		self.m = kwargs.get('m', 3)
-		self.K = kwargs.get('k', 3.67)
-		self.S_in = kwargs.get('S_in', 2.2)
-		self.X_in = kwargs.get('X_in', 0.0)
-		self.gamma = kwargs.get('gamma', 1)
-		
 		# Register time event (changed of D)
-		self.D_vals = kwargs.get('D_vals', np.array([[100, 1.0]]))
 		D_val = self.D_vals[0]
 		self.D = D_val[1]
 		
-		t_ChangedD = D_val[0]
+		tChangedD = D_val[0]
 		for i in range(len(self.D_vals)-1):
 			self.D_val = self.D_vals[i+1]
-			self.timeEventRegistry.add(SimpleChemostatTimeEvent(t = t_ChangedD, newValue_D = self.D_val[1]))
-			t_ChangedD += self.D_val[0]
+			self.timeEventRegistry.add(SimpleChemostatTimeEvent(t = tChangedD, newValue_D = self.D_val[1]))
+			tChangedD += self.D_val[0]
 		
 		# Set initial values of the states
-		self.y.S = kwargs.get('S0', 0)
-		self.y.X = kwargs.get('X0', 0.5)
+		self.y.S = model.S0
+		self.y.X = model.X0
 				
 		# Set all the initial state values
 		self.y0 = self.y.get(copy = True)
@@ -141,8 +140,8 @@ class SimpleChemostat(Simulation):
 		self.resultStorage.record[:] = (t, self.yRes.S, self.yRes.X, self.D)
 		self.resultStorage.saveTimeStep()
 		
-	def run(self, tPrint = 1.0):
-		self.simSolver.simulate(tfinal = self.tFinal, ncp = np.floor(self.tFinal/tPrint))
+	def run(self, tFinal = 10., tPrint = 0.1):
+		self.simSolver.simulate(tfinal = tFinal, ncp = np.floor(tFinal/tPrint))
 		self.resultStorage.finalizeResult()
 		
 	def getResults(self):
@@ -157,26 +156,41 @@ class SimpleChemostat(Simulation):
 		plt.plot(xData, data['S'], 'r', label = 'S')
 		plt.plot(xData, data['X'], 'b', label = 'X')
 		plt.plot(xData, data['D'], 'g', label = 'D')
+		
+		plt.gca().set_xlim([0, len(xData) - 1])
+		plt.legend()
+		plt.show()
 
 
 
 """ Test functions """
 def TestSimpleChemostat():
 	# Settings
-	simulate = False #True - run simulation; False - plot an old results 
-	tFinal = 500
-	D_vals = np.array([[100, 1], [200, 0.5], [1e6, 1.1]])
+	simulate = True #True - run simulation; False - plot an old results 
+	tFinal = 500.
+	tPrint = 1.
+	
+	# Initialize model parameters
+	class SimpleChemostatParams():
+		m = 3.0
+		K = 3.7
+		S_in = 2.2
+		X_in = 0.0
+		gamma = 0.6
+		D_vals = np.array([[100, 1], [200, 0.5], [1e6, 1.1]])
+		
+		S0 = 0.0
+		X0 = 0.5
 	
 	# Create the model
 	model = SimpleChemostat(
-		D_vals = D_vals,
-		tFinal = tFinal, 
+		SimpleChemostatParams(),
 		initDataStorage = simulate)
 	
 	# Run simulation or load old results
 	if (simulate == True):
 		model.prepareSimulation()
-		model.run(tPrint = 1.0)
+		model.run(tFinal, tPrint)
 	else:
 		model.loadResult(simIndex = 1)
 	
@@ -185,9 +199,6 @@ def TestSimpleChemostat():
 	
 	# Plot results
 	model.plotHDFResults()
-	plt.gca().set_xlim([0, model.tFinal])
-	plt.legend()
-	plt.show()
 	
 if __name__ == '__main__':
 	#NamedStateVector.test()

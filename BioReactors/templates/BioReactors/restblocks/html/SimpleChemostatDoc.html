@@ -21,7 +21,7 @@ S' = (S_{in} - S)D - \frac{1}{\gamma}\mu(S)X
 </div>
 <div class="math">
 \begin{equation*}
-X' = -DX + \mu(S)X
+X' = (X_{in} - X)D + \mu(S)X
 \end{equation*}
 </div>
 <p>where:</p>
@@ -29,6 +29,7 @@ X' = -DX + \mu(S)X
 <p><span class="math">\(S(t)\)</span> - the substrate concentration [mass/volume]</p>
 <p><span class="math">\(X(t)\)</span> - the microorganisms concentration [mass/volume]</p>
 <p><span class="math">\(S_{in}\)</span> - the input substrate concentration [mass/volume]</p>
+<p><span class="math">\(X_{in}\)</span> - the input microorganisms concentration [mass/volume]; usually  <span class="math">\(X_{in} = 0\)</span></p>
 <p><span class="math">\(D\)</span> - the dilution (or washout) rate [1/time]</p>
 <p><span class="math">\(\gamma\)</span> - the yield coefficient of microorganisms (<span class="math">\(\gamma \leq 1\)</span>) [-]</p>
 <p><span class="math">\(\mu(S) = \frac{m.S}{K+S}\)</span> - the specific growth rate (Monod type) [mass/volume-time]</p>
@@ -48,7 +49,7 @@ X' = -DX + \mu(S)X
 </div>
 <div class="math">
 \begin{equation*}
-\mbox{the rate of change of the microorganisms = - washout + growth}
+\mbox{the rate of change of the microorganisms = input - washout + growth}
 \end{equation*}
 </div>
 </div>

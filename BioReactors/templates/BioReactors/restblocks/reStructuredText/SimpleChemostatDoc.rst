@@ -27,7 +27,7 @@ The mathematical model of a simple chemostat is [Chemostat95]_:
 .. math::   
    S' = (S_{in} - S)D - \frac{1}{\gamma}\mu(S)X
    
-   X' = -DX + \mu(S)X
+   X' = (X_{in} - X)D + \mu(S)X
    
 
 where:
@@ -37,6 +37,8 @@ where:
    :math:`X(t)` - the microorganisms concentration [mass/volume]
    
    :math:`S_{in}` - the input substrate concentration [mass/volume]
+   
+   :math:`X_{in}` - the input microorganisms concentration [mass/volume]; usually  :math:`X_{in} = 0` 
    
    :math:`D` - the dilution (or washout) rate [1/time]
    
@@ -62,7 +64,7 @@ In simple words, the above ordinary differential equations say:
 
    \mbox{the rate of change of the substrate = input - washout - consumption}
    
-   \mbox{the rate of change of the microorganisms = - washout + growth}
+   \mbox{the rate of change of the microorganisms = input - washout + growth}
 
 
 References
