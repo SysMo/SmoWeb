@@ -32,8 +32,7 @@ class ThermodynamicProcessView(ModularPageView):
 	label = "Thermodynamic processes"
 	modules = [CompressionExpansionModel, HeatingCoolingModel]
 
-from .models import PipeFlowDoc
-from ThermoFluids.models import PipeFlow
+from .models import PipeFlow, PipeFlowDoc
 @registerView(router)
 class PipeFlowView(ModularPageView):
 	label = "Pipe flow"
@@ -52,7 +51,7 @@ class HeatingCoolingCyces(ModularPageView):
 	modules = [ReverseBraytonCycle]	
 	requireGoogle = ['visualization']
 
-from.models import RankineCycle
+from .models import RankineCycle
 @registerView(router)
 class PowerGenerationCycles(ModularPageView):
 	label = "Power generation cycles"
