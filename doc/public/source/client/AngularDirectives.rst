@@ -221,10 +221,10 @@ a label and stacked fields::
 smoViewGroup
 ------------
 
-Displays a grouping of plot and/or table fields. Each view-group is visualized as a delimited area with pill navigation
-on the left for switching among the plots and/or tables::
+Displays a grouping of data series (plot or table) and image fields. Each view-group is visualized as a delimited area with pill navigation
+on the left for switching among its fields::
 
-   <div smo-view-group="viewGroup" smo-data-source="smoDataSource"></div>
+   <div smo-view-group="viewGroup" model-name="PipeFlow" smo-data-source="smoDataSource"></div>
 
 .. figure:: img/viewgroup.png
    :align: center
@@ -238,9 +238,10 @@ on the left for switching among the plots and/or tables::
 
 **Parameters:**
    * **smo-view-group** - An object defining the view-group
+   * **model-name** - The name of the model
    * **smo-data-source** - An object containing the values of the fields making up the view-group
    
-**Uses:** *smoPlot*, *smoTable*
+**Uses:** *smoDataSeriesView*, *smoImg*
 
 
 ----------------
@@ -250,7 +251,7 @@ smoSuperGroupSet
 Displays a set of super-groups, each of which consists of one or more field-groups and/or view-groups.
 Multiple super-groups are displayed in tabs::
 
-   <div smo-super-group-set="superGroupSet" model-name="flowResistanceInputs" view-type="input" smo-data-source="values"></div>
+   <div smo-super-group-set="superGroupSet" model-name="PipeFlow" view-type="input" smo-data-source="values"></div>
 
 .. figure:: img/supergroupset.png
    :align: center
@@ -263,13 +264,13 @@ Multiple super-groups are displayed in tabs::
 
 **Parameters:**
    * **smo-super-group-set** - An object defining the set of super-groups
-   * **model-name** - The name of the model represented by the super-group set
+   * **model-name** - The name of the model
    * **view-type** - The display type of the super-groups in the set, which also applies to all their field-groups and/or view-groups. Valid strings are:
       * *input*
       * *output*
    * **smo-data-source** - An object containing the values of the fields which are part of the super-groups
    
-**Uses:** *smoPlot*, *smoTable*
+**Uses:** *smoFieldGroup*, *smoViewGroup*
 
 ------------
 smoModelView
@@ -281,18 +282,22 @@ such as fetching the initial data needed to visualise the model or sending input
 Through the communicator, the directive is also able to inform the user about an unsuccessful outcome of the communication 
 by displaying error messages::      
 
-   <div smo-model-view="flowResistanceInputs" view-type="input" communicator="flowResistance.inputCommunicator"></div>
+   <div smo-model-view="inputView" model-name="PipeFlow" view-type="input" auto-fetch="true" view-record-id="551034227dc7c744aa21436e"></div>
 
 **Restrict:** Attribute
 
 **Scope:** Yes
 
 **Parameters:**
-   * **smo-model-view** - The name of the model to be visualised.
+   * **smo-model-view** - The name of the view being visualised
+   * **model-name** - The name of the model, whose view is being visualised
    * **view-type** - The display type of the model. Valid strings are:
       * *input*
       * *output*
-   * **communicator** - A communicator object
+   * **auto-fetch** - Boolean value, indicating whether the view should be automatically loaded
+   * **view-record-id** - ID of record of values of the view persisted in a MongoDB database
+
+**Uses:** *smoSuperGroupSet*, *smoViewToolbar*
     
 .. _dygraphs: http://dygraphs.com/
 .. _Google Charts: https://developers.google.com/chart/
