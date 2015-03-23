@@ -233,7 +233,7 @@ Actions
 Model view
 ----------
 
-:class:`smo.model.fields.ModelView`
------------------------------------
+:class:`ModelView`
+------------------
 
 .. autoclass:: smo.model.fields.ModelView

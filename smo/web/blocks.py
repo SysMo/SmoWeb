@@ -1,5 +1,7 @@
 class CodeBlock(object):
-    """ A block of code included in the template """
+    """ 
+    A block of code included in the template
+    """
     def __init__(self, srcType = None, src = None):
         if (srcType == None):
             self.srcType = 'string'
@@ -23,9 +25,19 @@ class CodeBlock(object):
             raise ValueError("Valid source types are 'string' and 'file'.")
             
 class HtmlBlock(CodeBlock):
-    """ A block of HTML code """
+    """
+    A block of HTML code
+    
+    :param str srcType: 'string' or 'file'
+    :param str src: the string of code or file path 
+    """
     pass
 
 class JsBlock(CodeBlock):
-    """ A block of JavaScript code """
+    """
+    A block of JavaScript code
+    
+    :param str srcType: 'string' or 'file'
+    :param str src: the string of code or file path 
+    """
     pass
