@@ -119,90 +119,91 @@ class RankineCycle(TC.ThermodynamicalCycle):
 
 
 class RankineCycleWithRecurperator(RankineCycle):
-	label = "Rankine cycle with regenerator"
+	label = "Rankine cycle with recurperator"
 	figure = F.ModelFigure(src="ThermoFluids/img/ModuleImages/RankineCycle.png",  height = 300)
-	description = F.ModelDescription("Rankine cycle with regenerator, \
+	description = F.ModelDescription("Rankine cycle with recurperator, \
 		using the temperature of the hot steam before the condenser to pre-heat the fluid before entering the boiler", show = True)
-
-	#================ Inputs ================#
-	#---------------- Fields ----------------#
-	# FieldGroup
-	recurperator = F.SubModelGroup(TC.HeatExchangerTwoStreams, TC.HeatExchangerTwoStreams.FG, label = 'Recurperator')
-	inputs = F.SuperGroup([RankineCycle.workingFluidGroup, RankineCycle.pump, 
-			recurperator, RankineCycle.boiler, RankineCycle.turbine, RankineCycle.condenser])
-	#--------------- Model view ---------------#
-	inputView = F.ModelView(ioType = "input", superGroups = [inputs], 
-		actionBar = RankineCycle.inputActionBar, autoFetch = True)
-	#================ Results ================#
-	#---------------- Energy flows -----------#
-	flowFieldGroup = F.FieldGroup([RankineCycle.pumpPower, RankineCycle.boilerHeat, 
-			RankineCycle.turbinePower, RankineCycle.condenserHeat], label = 'Energy flows')
-	resultEnergy = F.SuperGroup([flowFieldGroup, RankineCycle.efficiencyFieldGroup], label = 'Energy')
-	resultView = F.ModelView(ioType = "output", superGroups = [TC.ThermodynamicalCycle.resultDiagrams, TC.ThermodynamicalCycle.resultStates, resultEnergy])
-
-	#============= Page structure =============#
-	modelBlocks = [inputView, resultView]
-
-	#================ Methods ================#	def compute(self):
-	def compute(self):
-		# Connect components to points
-		self.initCompute(self.fluidName, 4)
-		self.pump.inlet = self.condenser.outlet = self.fp[0]
-		self.pump.outlet = self.boiler.inlet = self.fp[1]
-		self.boiler.outlet = self.turbine.inlet= self.fp[2]
-		self.turbine.outlet = self.condenser.inlet = self.fp[3]
-
-		# Cycle iterations
-		absToleranceEnthalpy = 1.0;
-		maxNumIter = 20
-		i = 0
-		self.fp[0].update_pq(self.pLow, 0)
-		while (i < maxNumIter):
-			hOld = self.fp[0].h
-			self.computeCycle()
-			hNew = self.fp[0].h
-			if (abs(hOld - hNew) < absToleranceEnthalpy):
-				break
-		if (hOld - hNew >= absToleranceEnthalpy):
-			raise E.ConvergenceError('Solution did not converge')
-
-		# Results
-		self.postProcess()
-		
-	def computeCycle(self):
-		self.pump.compute(self.pHigh)
-		self.boiler.compute()	
-		self.turbine.compute(self.pLow)
-		self.condenser.compute()
-		
-	def postProcess(self):
-		super(RankineCycle, self).postProcess()
-		# Flows
-		self.pumpPower = self.mDot * self.pump.w 
-		self.boilerHeat = self.mDot * self.boiler.qIn
-		self.turbinePower = - self.mDot * self.turbine.w
-		self.condenserHeat = - self.mDot * self.condenser.qIn 
-		# Efficiencies
-		self.eta = (self.turbinePower - self.pumpPower) / self.boilerHeat
-		self.etaCarnot = 1 - self.condenser.outlet.T / self.boiler.outlet.T
-	
-	def createStateDiagram(self):
-		diagram = PHDiagram(self.fluidName, temperatureUnit = 'degC')
-		diagram.setLimits()
-		fig  = diagram.draw()
-		ax = fig.get_axes()[0]
-		
-		ncp = len(self.fp)
-		for i in range(ncp):
-			ax.semilogy(self.fp[i].h/1e3, self.fp[i].p/1e5, 'ko')
-			ax.semilogy(
-				[self.fp[i].h/1e3, self.fp[(i + 1)%ncp].h/1e3], 
-				[self.fp[i].p/1e5, self.fp[(i + 1)%ncp].p/1e5],
-				'k', linewidth = 2)
-			ax.annotate('{}'.format(i+1), 
-				xy = (self.fp[i].h/1e3, self.fp[i].p/1e5),
-				xytext = (10, 3), textcoords = 'offset points',
-				size = 'x-large')
-		fHandle, resourcePath  = diagram.export(fig)
-		self.diagram = resourcePath
-		os.close(fHandle)	
+	# REMOVE THIS
+	modelBlocks = []
+# 	#================ Inputs ================#
+# 	#---------------- Fields ----------------#
+# 	# FieldGroup
+# 	recurperator = F.SubModelGroup(TC.HeatExchangerTwoStreams, TC.HeatExchangerTwoStreams.FG, label = 'Recurperator')
+# 	inputs = F.SuperGroup([RankineCycle.workingFluidGroup, RankineCycle.pump, 
+# 			recurperator, RankineCycle.boiler, RankineCycle.turbine, RankineCycle.condenser])
+# 	#--------------- Model view ---------------#
+# 	inputView = F.ModelView(ioType = "input", superGroups = [inputs], 
+# 		actionBar = RankineCycle.inputActionBar, autoFetch = True)
+# 	#================ Results ================#
+# 	#---------------- Energy flows -----------#
+# 	flowFieldGroup = F.FieldGroup([RankineCycle.pumpPower, RankineCycle.boilerHeat, 
+# 			RankineCycle.turbinePower, RankineCycle.condenserHeat], label = 'Energy flows')
+# 	resultEnergy = F.SuperGroup([flowFieldGroup, RankineCycle.efficiencyFieldGroup], label = 'Energy')
+# 	resultView = F.ModelView(ioType = "output", superGroups = [TC.ThermodynamicalCycle.resultDiagrams, TC.ThermodynamicalCycle.resultStates, resultEnergy])
+# 
+# 	#============= Page structure =============#
+# 	modelBlocks = [inputView, resultView]
+# 
+# 	#================ Methods ================#	def compute(self):
+# 	def compute(self):
+# 		# Connect components to points
+# 		self.initCompute(self.fluidName, 4)
+# 		self.pump.inlet = self.condenser.outlet = self.fp[0]
+# 		self.pump.outlet = self.boiler.inlet = self.fp[1]
+# 		self.boiler.outlet = self.turbine.inlet= self.fp[2]
+# 		self.turbine.outlet = self.condenser.inlet = self.fp[3]
+# 
+# 		# Cycle iterations
+# 		absToleranceEnthalpy = 1.0;
+# 		maxNumIter = 20
+# 		i = 0
+# 		self.fp[0].update_pq(self.pLow, 0)
+# 		while (i < maxNumIter):
+# 			hOld = self.fp[0].h
+# 			self.computeCycle()
+# 			hNew = self.fp[0].h
+# 			if (abs(hOld - hNew) < absToleranceEnthalpy):
+# 				break
+# 		if (hOld - hNew >= absToleranceEnthalpy):
+# 			raise E.ConvergenceError('Solution did not converge')
+# 
+# 		# Results
+# 		self.postProcess()
+# 		
+# 	def computeCycle(self):
+# 		self.pump.compute(self.pHigh)
+# 		self.boiler.compute()	
+# 		self.turbine.compute(self.pLow)
+# 		self.condenser.compute()
+# 		
+# 	def postProcess(self):
+# 		super(RankineCycle, self).postProcess()
+# 		# Flows
+# 		self.pumpPower = self.mDot * self.pump.w 
+# 		self.boilerHeat = self.mDot * self.boiler.qIn
+# 		self.turbinePower = - self.mDot * self.turbine.w
+# 		self.condenserHeat = - self.mDot * self.condenser.qIn 
+# 		# Efficiencies
+# 		self.eta = (self.turbinePower - self.pumpPower) / self.boilerHeat
+# 		self.etaCarnot = 1 - self.condenser.outlet.T / self.boiler.outlet.T
+# 	
+# 	def createStateDiagram(self):
+# 		diagram = PHDiagram(self.fluidName, temperatureUnit = 'degC')
+# 		diagram.setLimits()
+# 		fig  = diagram.draw()
+# 		ax = fig.get_axes()[0]
+# 		
+# 		ncp = len(self.fp)
+# 		for i in range(ncp):
+# 			ax.semilogy(self.fp[i].h/1e3, self.fp[i].p/1e5, 'ko')
+# 			ax.semilogy(
+# 				[self.fp[i].h/1e3, self.fp[(i + 1)%ncp].h/1e3], 
+# 				[self.fp[i].p/1e5, self.fp[(i + 1)%ncp].p/1e5],
+# 				'k', linewidth = 2)
+# 			ax.annotate('{}'.format(i+1), 
+# 				xy = (self.fp[i].h/1e3, self.fp[i].p/1e5),
+# 				xytext = (10, 3), textcoords = 'offset points',
+# 				size = 'x-large')
+# 		fHandle, resourcePath  = diagram.export(fig)
+# 		self.diagram = resourcePath
+# 		os.close(fHandle)	

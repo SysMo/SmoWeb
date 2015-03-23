@@ -32,8 +32,7 @@ class ThermodynamicProcessView(ModularPageView):
 	label = "Thermodynamic processes"
 	modules = [CompressionExpansionModel, HeatingCoolingModel]
 
-from .models import PipeFlowDoc
-from ThermoFluids.models import PipeFlow
+from .models import PipeFlow, PipeFlowDoc
 @registerView(router)
 class PipeFlowView(ModularPageView):
 	label = "Pipe flow"

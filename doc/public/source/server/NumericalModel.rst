@@ -98,41 +98,67 @@ the field. This attribute is crated in the constructor of :class:`~smo.model.mod
 -----------------
 
 .. autoclass:: Quantity
+   :show-inheritance:
 
 :class:`String`
 ---------------
 
 .. autoclass:: String
+   :show-inheritance:
 
 :class:`Boolean`
 ----------------
 
 .. autoclass:: Boolean
+   :show-inheritance:
 
 :class:`Choices`
 ----------------
 
 .. autoclass:: Choices
+   :show-inheritance:
 
 :class:`RecordArray`
 --------------------
 
 .. autoclass:: RecordArray
+   :show-inheritance:
 
 :class:`ObjectReference`
 ------------------------
 
 .. autoclass:: ObjectReference
+   :show-inheritance:
+
+:class:`DataSeriesView`
+-----------------------
+
+.. autoclass:: DataSeriesView
+   :show-inheritance:
 
 :class:`TableView`
 ------------------
 
 .. autoclass:: TableView
+   :show-inheritance:
 
 :class:`PlotView`
 -----------------
 
 .. autoclass:: PlotView
+   :show-inheritance:
+
+:class:`Image`
+--------------
+
+.. autoclass:: Image
+   :show-inheritance:
+   
+:class:`SubModelGroup`
+----------------------
+
+.. autoclass:: SubModelGroup
+   :show-inheritance:
 
 :class:`ModelFigure`
 --------------------
@@ -162,20 +188,29 @@ Groups
 
 .. autoclass:: Group
 
+:class:`BasicGroup`
+-------------------
+
+.. autoclass:: BasicGroup
+   :show-inheritance:
+
 :class:`FieldGroup`
 -------------------
 
 .. autoclass:: FieldGroup
+   :show-inheritance:
 
 :class:`ViewGroup`
 ------------------
 
 .. autoclass:: ViewGroup
-
+   :show-inheritance:
+   
 :class:`SuperGroup`
 -------------------
 
 .. autoclass:: SuperGroup
+   :show-inheritance:
 
 -------
 Actions

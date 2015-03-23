@@ -66,10 +66,9 @@ class Quantity(Field):
 	def __init__(self, type = 'Dimensionless', default = None, minValue = 1e-99, maxValue = 1e99, *args, **kwargs):
 		"""
 		:param str type: the quantity type (Length, Mass, Time etc.)
-		:param default: default value for the field. Could be a number or a tuple (value, unit)
-			like (2, 'mm')
-		:param float minValue: the minimum allowed value for the field
-		:param float maxValue: the maximum allowed value for the field
+		:param default: default value for the field. Could be value in SI unit or tuple (value, unit) like (2, 'mm').
+		:param minValue: the minimum allowed value for the field. Could be value in SI unit or tuple (value, unit) like (2, 'mm').
+		:param maxValue: the maximum allowed value for the field. Could be value in SI unit or tuple (value, unit) like (2, 'mm').
 		"""
 		super(Quantity, self).__init__(*args, **kwargs)
 		self.type = type
@@ -207,13 +206,12 @@ class Choices(Field):
 	"""
 	Allows the user to make a choice from a list of options
 	"""
-	def __init__(self, options, default = None, maxLength = None, *args, **kwargs):
+	def __init__(self, options, default = None, *args, **kwargs):
 		"""
 		:param options: dictionary or ordered dictionary containing the possible 
 			choices represented by (value, label) pairs. The label is used in the
 			display combo-box
 		:param default: default value (from options)
-		:param maxLength: ???
 		"""
 		super(Choices, self).__init__(*args, **kwargs)
 		self.options = options
@@ -221,11 +219,6 @@ class Choices(Field):
 			self.default = options.keys()[0]
 		else:
 			self.default = self.parseValue(default)
-			
-		if (maxLength is None):
-			self.maxLength = 100
-		else:
-			self.maxLength = maxLength
 	
 	def parseValue(self, value):
 		if (value in self.options.keys()):
@@ -374,11 +367,11 @@ class DataSeriesView(Field):
 			field types (:class:`Quantity`, :class:`String`, :class:`Boolean` etc.)
 		
 		Example::
-				(
-					('pressure', Quantity('Pressure')),
-					('temperature', Quantity('Temperature')),	   
-				)
-		:param visibleColumns: list of integers specifying which columns of the view data are visible
+				(	('pressure', Quantity('Pressure')),
+					('temperature', Quantity('Temperature'))	)
+
+		:param visibleColumns: list of integers specifying which columns are visible in the view
+		
 		"""
 		super(DataSeriesView, self).__init__(*args, **kwargs)	
 		
@@ -596,8 +589,8 @@ class Image(Field):
 	def __init__(self, default = None, width = None, height = None, *args, **kwargs):
 		"""
 		:param str src: path to image source
-		:param int width: image width
-		:param int height: image height
+		:param int width: image width in pixels
+		:param int height: image height in pixels
 		"""
 		super(Image, self).__init__(*args, **kwargs)
 		if default is None:
@@ -630,16 +623,18 @@ class Image(Field):
 
 class SubModelGroup(Field):
 	"""
-	Include field group or supergroup from a sub-model
+	Used to include field-group or supergroup from a sub-model
+	
+	:param klass: the sub-model class
+	:param group: the sub-model group to be included
 	"""
 	def __init__(self, klass, group, *args, **kwargs):
 		Field.__init__(self, *args, **kwargs)
 		self.group = group
 		self.klass = klass
-		self.show = kwargs.get('show', True)
 			
 class Group(object):
-	"""Abstract class for group of fields"""
+	"""Abstract group class"""
 	# Tracks each time an instance is created. Used to retain order.
 	creation_counter = 0
 	def __init__(self, label = "", show = True):
@@ -650,16 +645,13 @@ class Group(object):
 		Group.creation_counter += 1
 
 class BasicGroup(Group):
+	"""Abstract class for group of fields"""
 	def __init__(self, fields = None, *args, **kwargs):
 		super(BasicGroup, self).__init__(*args, **kwargs)
 		self.fields = []
-		self.unresolved_fields = []
 		if (fields is not None):
 			for field in fields:
-				if isinstance(field, str):
-					self.unresolved_fields.append(field)
-				else:
-					self.fields.append(field)
+				self.fields.append(field)
 
 class FieldGroup(BasicGroup):
 	"""Represents a group of fields of all basic types except for PlotView and TableView"""
@@ -697,7 +689,13 @@ class ModelView(object):
 		self.autoFetch = autoFetch
 		
 class ModelFigure(object):
-	""" Represents a figure displayed with the numerical model """
+	"""
+	Represents a figure displayed with the numerical model, which also serves as thumbnail for the model
+	
+	:param int width: width in pixels of the figure on the model page
+	:param int height: height in pixels of the figure on the model page
+	:param bool show: show figure on the model page
+	"""
 	def __init__(self, src = None, width = None, height = None, show = True):
 		if (src == None):
 			raise ValueError('File path missing as first argument.')
@@ -718,7 +716,12 @@ class ModelFigure(object):
 		self.show = show
 			
 class ModelDescription(object):
-	""" Description of the numerical model """
+	"""
+	Description of the numerical model
+	
+	:param str text: the description text displayed on the model page
+	:param str asTooltip: custom tooltip description of the model. If ``None``, ``text`` is used instead.
+	"""
 	def __init__(self, text, asTooltip = None, show = False):
 		self.text = text
 		self.show = show

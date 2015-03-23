@@ -67,10 +67,9 @@ class NumericalModelMeta(type):
 		# Resolving unresolved fields in field- and view-groups
 		for key, value in new_class.__dict__.iteritems():
 			if isinstance(value, FieldGroup) or isinstance(value, ViewGroup):
-				for i in range(len(value.unresolved_fields)):
-					unresolved_field = value.unresolved_fields[i]
-					value.fields.append(new_class.declared_fields[unresolved_field])	
-				del value.unresolved_fields[:]
+				for i in range(len(value.fields)):
+					if isinstance(value.fields[i], basestring):
+						value.fields[i] = new_class.declared_fields[value.fields[i]]
 		# Checking for obligatory attribute 'modelBlocks'
 		if (name  != 'NumericalModel' and not new_class.abstract):
 			if ('modelBlocks' not in new_class.__dict__):
