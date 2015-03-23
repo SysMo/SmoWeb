@@ -206,13 +206,12 @@ class Choices(Field):
 	"""
 	Allows the user to make a choice from a list of options
 	"""
-	def __init__(self, options, default = None, maxLength = None, *args, **kwargs):
+	def __init__(self, options, default = None, *args, **kwargs):
 		"""
 		:param options: dictionary or ordered dictionary containing the possible 
 			choices represented by (value, label) pairs. The label is used in the
 			display combo-box
 		:param default: default value (from options)
-		:param maxLength: ???
 		"""
 		super(Choices, self).__init__(*args, **kwargs)
 		self.options = options
@@ -220,11 +219,6 @@ class Choices(Field):
 			self.default = options.keys()[0]
 		else:
 			self.default = self.parseValue(default)
-			
-		if (maxLength is None):
-			self.maxLength = 100
-		else:
-			self.maxLength = maxLength
 	
 	def parseValue(self, value):
 		if (value in self.options.keys()):
@@ -635,10 +629,9 @@ class SubModelGroup(Field):
 		Field.__init__(self, *args, **kwargs)
 		self.group = group
 		self.klass = klass
-		self.show = kwargs.get('show', True)
 			
 class Group(object):
-	"""Abstract class for group of fields"""
+	"""Abstract group class"""
 	# Tracks each time an instance is created. Used to retain order.
 	creation_counter = 0
 	def __init__(self, label = "", show = True):
@@ -649,16 +642,13 @@ class Group(object):
 		Group.creation_counter += 1
 
 class BasicGroup(Group):
+	"""Abstract class for group of fields"""
 	def __init__(self, fields = None, *args, **kwargs):
 		super(BasicGroup, self).__init__(*args, **kwargs)
 		self.fields = []
-		self.unresolved_fields = []
 		if (fields is not None):
 			for field in fields:
-				if isinstance(field, str):
-					self.unresolved_fields.append(field)
-				else:
-					self.fields.append(field)
+				self.fields.append(field)
 
 class FieldGroup(BasicGroup):
 	"""Represents a group of fields of all basic types except for PlotView and TableView"""
