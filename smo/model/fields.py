@@ -623,7 +623,10 @@ class Image(Field):
 
 class SubModelGroup(Field):
 	"""
-	Include field group or supergroup from a sub-model
+	Used to include field-group or supergroup from a sub-model
+	
+	:param klass: the sub-model class
+	:param group: the sub-model group to be included
 	"""
 	def __init__(self, klass, group, *args, **kwargs):
 		Field.__init__(self, *args, **kwargs)

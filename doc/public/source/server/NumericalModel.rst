@@ -153,6 +153,12 @@ the field. This attribute is crated in the constructor of :class:`~smo.model.mod
 
 .. autoclass:: Image
    :show-inheritance:
+   
+:class:`SubModelGroup`
+----------------------
+
+.. autoclass:: SubModelGroup
+   :show-inheritance:
 
 :class:`ModelFigure`
 --------------------
@@ -182,20 +188,29 @@ Groups
 
 .. autoclass:: Group
 
+:class:`BasicGroup`
+-------------------
+
+.. autoclass:: BasicGroup
+   :show-inheritance:
+
 :class:`FieldGroup`
 -------------------
 
 .. autoclass:: FieldGroup
+   :show-inheritance:
 
 :class:`ViewGroup`
 ------------------
 
 .. autoclass:: ViewGroup
-
+   :show-inheritance:
+   
 :class:`SuperGroup`
 -------------------
 
 .. autoclass:: SuperGroup
+   :show-inheritance:
 
 -------
 Actions
