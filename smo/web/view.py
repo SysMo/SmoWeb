@@ -89,6 +89,8 @@ class ModularPageView(object):
 		* Restructured text views
 		* HTML module views
 		
+	:param: :class:`smo.web.router.ViewRouter` router: a router instance with which the view is registered 
+		
 	Class attributes:
 		* :attr:`label`: label for the page view class (default is the page view class name)
 		* :attr:`controllerName`: name of the AngularJS contoller for the page view (default is the page view class name + 'Controller')

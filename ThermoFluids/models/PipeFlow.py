@@ -142,6 +142,7 @@ class PipeFlow(NumericalModel):
         self.fluidVolume = self.crossSectionalArea * self.length
         self.internalSurfaceArea = np.pi * self.internalDiameter * self.length
         self.externalSurfaceArea = np.pi * self.externalDiameter * self.length
+        print self.pipeMaterial
         self.pipeSolidMass = self.pipeMaterial['refValues']['density'] \
             * np.pi / 4 * (self.externalDiameter**2 - self.internalDiameter**2) * self.length
         
