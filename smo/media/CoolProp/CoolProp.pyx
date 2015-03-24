@@ -266,7 +266,8 @@ cdef class FluidState:
 	cdef CP.SmoFlow_CoolPropState* ptr
 	cdef public SaturationStateLiquid _SatL
 	cdef public SaturationStateVapor _SatV
-	cdef Fluid fluid 
+	cdef Fluid fluid
+	cdef bool updated
 
 	def __init__(self, fluid):
 		"""__init__(fluid)
@@ -290,120 +291,147 @@ cdef class FluidState:
 		
 		self._SatL = SaturationStateLiquid(self)
 		self._SatV = SaturationStateVapor(self)
+		self.updated = False
 			
 	def __dealloc__(self):
 		del self.ptr
 
+	def checkUpdated(self):
+		if (not self.updated):
+			raise RuntimeError("In order to read a property, you must first call one of the 'update' functions")
+
 	property fluid:
 		"""fluid"""
 		def __get__(self):
+			self.checkUpdated()
 			return self.fluid
 		
 	property T:
 		"""temperature"""	
 		def __get__(self):
+			self.checkUpdated()
 			return self.ptr.T()
 	
 	property p:
 		"""pressure"""	
 		def __get__(self):
+			self.checkUpdated()
 			return self.ptr.p()
 	
 	property rho:
 		"""density"""	
 		def __get__(self):
+			self.checkUpdated()
 			return self.ptr.rho()
 	
 	property v:
 		"""specific volume"""	
 		def __get__(self):
+			self.checkUpdated()
 			return 1./self.ptr.rho()
 
 	property h:
 		"""specific enthalpy"""	
 		def __get__(self):
+			self.checkUpdated()
 			return self.ptr.h()
 	
 	property q:
 		"""vapor quality"""	
 		def __get__(self):
+			self.checkUpdated()
 			return self.ptr.q()
 
 	def isTwoPhase(self):
 		"""Checks if state is in the two-phase region\n
 		Returns bool"""
+		self.checkUpdated()
 		return self.ptr.TwoPhase
 	
 	property s:
 		"""specific entropy"""	
 		def __get__(self):
+			self.checkUpdated()
 			return self.ptr.s()
 	
 	property u:
 		"""specific internal energy"""	
 		def __get__(self):
+			self.checkUpdated()
 			return self.ptr.u()
 	
 	property cp:
 		"""specific heat capacity at constant pressure"""	
 		def __get__(self):
+			self.checkUpdated()
 			return self.ptr.cp()
 	
 	property cv:
 		"""specific heat capacity at constant volume"""	
 		def __get__(self):
+			self.checkUpdated()
 			return self.ptr.cv()
 
 ####################################################################
 # Two-phase-safe derivatives
 	property dvdp_T:
 		""""""
-		def __get__(self):		
+		def __get__(self):
+			self.checkUpdated()		
 			return self.ptr.dvdp_constT()
 
 	property dvdT_p:
 		""""""
-		def __get__(self):		
+		def __get__(self):
+			self.checkUpdated()		
 			return self.ptr.dvdT_constp()
 				
 	property dpdrho_T:
 		""""""	
 		def __get__(self):
+			self.checkUpdated()
 			return self.ptr.dpdrho_constT()
 		
 	property dpdT_v:
 		""""""	
-		def __get__(self):		
+		def __get__(self):
+			self.checkUpdated()		
 			return self.ptr.dpdT_constv()
 		
 	property dvds_T:
 		""""""	
-		def __get__(self):		
+		def __get__(self):
+			self.checkUpdated()		
 			return 1. / self.ptr.dpdT_constv()
 		
 	property dpdv_T:
 		""""""	
-		def __get__(self):		
+		def __get__(self):
+			self.checkUpdated()		
 			return self.ptr.dpdv_constT()
 			
 	property dsdp_T:
 			""""""
-			def __get__(self):		
+			def __get__(self):
+				self.checkUpdated()		
 				return self.ptr.dsdp_constT()
 	
 	property dhdT_p:
 			""""""
-			def __get__(self):		
+			def __get__(self):
+				self.checkUpdated()		
 				return self.ptr.dhdT_constp()
 	
 	property dpdT_h:
 			""""""
-			def __get__(self):		
+			def __get__(self):
+				self.checkUpdated()		
 				return self.ptr.dpdT_consth()
 	
 	property dsdT_v:
 			""""""
-			def __get__(self):		
+			def __get__(self):
+				self.checkUpdated()		
 				return self.ptr.dsdT_constv()
 
 ####################################################################
@@ -411,31 +439,37 @@ cdef class FluidState:
 	property dpdT_sat:
 		""""""	
 		def __get__(self):
+			self.checkUpdated()
 			return self.ptr.dpdT_sat()
 
 	property dsdq_T: 
 		""""""
 		def __get__(self):
+			self.checkUpdated()
 			return self.ptr.dsdq_constT()
 
 	property dsdT_q: 
 		""""""
 		def __get__(self):
+			self.checkUpdated()
 			return self.ptr.dsdT_constq()
 
 	property dvdT_q: 
 		""""""
 		def __get__(self):
+			self.checkUpdated()
 			return self.ptr.dvdT_constq()
 
 	property dvdq_T: 
 		""""""
 		def __get__(self):
+			self.checkUpdated()
 			return self.ptr.dvdq_constT()
 
 	property dqdT_v:
 		""""""
 		def __get__(self):
+			self.checkUpdated()
 			return self.ptr.dqdT_constv()
 ####################################################################
 ####################################################################
@@ -443,28 +477,44 @@ cdef class FluidState:
 	property beta:
 		"""isobaric thermal expansivity"""	
 		def __get__(self):
+			self.checkUpdated()
 			return self.ptr.beta()
 	
 	property mu:
 		"""dynamic viscosity"""					
 		def __get__(self):
+			self.checkUpdated()
 			return self.ptr.viscosity()
 	
 	property cond:
 		"""thermal conductivity"""
 		def __get__(self):
+			self.checkUpdated()
 			return self.ptr.conductivity()
 	
 	property Pr:
 		"""Prandtl number"""
 		def __get__(self):
+			self.checkUpdated()
 			return self.ptr.Prandtl()
 	
 	property gamma:
 		"""heat capacity ratio"""
 		def __get__(self):
+			self.checkUpdated()
 			return self.ptr.gamma()
-
+	
+	#########################################	
+	# Extra properties
+	def b(self, double TExt):
+		"""exergy"""
+		self.checkUpdated()
+		return self.ptr.h() - TExt * self.ptr.s()
+	
+	
+	#########################################
+	# Update methods
+		
 	def update(self, 
 			string state1, double state1Value,
 			string state2, double state2Value):
@@ -490,6 +540,8 @@ cdef class FluidState:
 			p1Index = CP.get_param_index(state1)
 			p2Index = CP.get_param_index(state2)
 			self.ptr.update(p1Index, state1Value, p2Index, state2Value, -1, -1)
+			
+		self.updated = True
 	
 	def update_Tp(self, double T, double p):
 		"""update_Tp(T, p)
@@ -500,6 +552,7 @@ cdef class FluidState:
 		
 		"""
 		self.ptr.update(iT, T, iP, p, -1, -1)
+		self.updated = True
 	
 	def update_Trho(self, double T, double rho):
 		"""update_Trho(T, rho)
@@ -508,7 +561,8 @@ cdef class FluidState:
 		
 		Updates fluid state by temperature and density
 		"""
-		self.ptr.update(iT, T, iD, rho, -1, -1)	
+		self.ptr.update(iT, T, iD, rho, -1, -1)
+		self.updated = True	
 	
 	def update_Ts(self, double T, double s):
 		"""update_Ts(T, s)
@@ -517,7 +571,8 @@ cdef class FluidState:
 		
 		Updates fluid state by temperature and specific entropy
 		"""
-		self.ptr.update(iT, T, iS, s, -1, -1)	
+		self.ptr.update(iT, T, iS, s, -1, -1)
+		self.updated = True	
 	
 	def update_prho(self, double p, double rho):
 		"""update_prho(p, rho)
@@ -526,7 +581,8 @@ cdef class FluidState:
 		
 		Updates fluid state by pressure and density
 		"""
-		self.ptr.update(iP, p, iD, rho, -1, -1)	
+		self.ptr.update(iP, p, iD, rho, -1, -1)
+		self.updated = True	
 	
 	def update_ph(self, double p, double h):
 		"""update_ph(p, h)
@@ -535,7 +591,8 @@ cdef class FluidState:
 		
 		Updates fluid state by pressure and specific enthalpy
 		"""
-		self.ptr.update(iP, p, iH, h, -1, -1)	
+		self.ptr.update(iP, p, iH, h, -1, -1)
+		self.updated = True	
 	
 	def update_ps(self, double p, double s):
 		"""update_ps(p, s)
@@ -544,7 +601,8 @@ cdef class FluidState:
 		
 		Updates fluid state by pressure and specific entropy
 		"""
-		self.ptr.update(iP, p, iS, s, -1, -1)	
+		self.ptr.update(iP, p, iS, s, -1, -1)
+		self.updated = True	
 	
 	def update_pq(self, double p, double q):
 		"""update_pq(p, q)
@@ -553,7 +611,8 @@ cdef class FluidState:
 		
 		Updates fluid state by pressure and vapor quality
 		"""
-		self.ptr.update(iP, p, iQ, q, -1, -1)	
+		self.ptr.update(iP, p, iQ, q, -1, -1)
+		self.updated = True		
 	
 	def update_Tq(self, double T, double q):
 		"""update_Tq(T, q)
@@ -563,15 +622,18 @@ cdef class FluidState:
 		Updates fluid state by temperature and vapor quality
 		"""
 		self.ptr.update(iT, T, iQ, q, -1, -1)
+		self.updated = True
 
 	property SatL:
 		"""Saturated liquid object"""
 		def __get__(self):
+			self.checkUpdated()
 			return self._SatL
 	
 	property SatV:
 		"""Saturated vapor object"""
 		def __get__(self):
+			self.checkUpdated()
 			return self._SatV
 	
 # 	def getSatL(self):

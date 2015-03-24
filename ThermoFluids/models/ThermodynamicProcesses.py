@@ -148,14 +148,14 @@ class CompressionExpansionModel(ThermodynamicProcessModel):
 	fQ_T = Quantity(default = 1, minValue = 0, maxValue = 1, label = 'heat loss factor', show="self.transitionType == 'T'")
 	finalState = FieldGroup([transitionType, p_final, eta, fQ_S, fQ_T], label = 'Final state')
 
-	inputs = SuperGroup([ThermodynamicProcessModel.initialState, finalState])
+	inputs = SuperGroup(['initialState', finalState])
 	
 	# Model View
 	inputView = ModelView(ioType = "input", superGroups = [inputs], 
 		actionBar = ThermodynamicProcessModel.inputActionBar, autoFetch = True)
 
 	############# Page structure ########
-	modelBlocks = [inputView, ThermodynamicProcessModel.resultView]
+	modelBlocks = [inputView, 'resultView']
 
 	############# Methods ###############
 
@@ -189,14 +189,14 @@ class HeatingCoolingModel(ThermodynamicProcessModel):
 					  show="self.stateVariable_final == 'Q'")
 	finalState = FieldGroup([stateVariable_final, T_final, q_final], label = 'Final state')
 	
-	inputs = SuperGroup([ThermodynamicProcessModel.initialState, finalState])
+	inputs = SuperGroup(['initialState', finalState])
 	
 	# Model View
 	inputView = ModelView(ioType = "input", superGroups = [inputs], 
 		actionBar = ThermodynamicProcessModel.inputActionBar, autoFetch = True)
 
 	############# Page structure ########
-	modelBlocks = [inputView, ThermodynamicProcessModel.resultView]
+	modelBlocks = [inputView, 'resultView']
 
 	############# Methods ###############
 

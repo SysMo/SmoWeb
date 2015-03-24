@@ -1,8 +1,9 @@
-from quantity import Quantities
 import os
+from collections import OrderedDict
+import copy
 import numpy as np
+from quantity import Quantities
 from smo.web.exceptions import *
-from assimulo.support import OrderedDict
 
 class Field(object):
 	"""
@@ -52,7 +53,7 @@ class Field(object):
 		"""
 		Converts the definition of the field to a form suitable for JSON serialization
 		"""
-		fieldDict = {'name' : self._name, 'label': self.label}
+		fieldDict = {'name' : self.name, 'label': self.label}
 		if (self.show is not None):
 			fieldDict['show'] = self.show
 		fieldDict['description'] = self.description		
@@ -253,7 +254,7 @@ class ObjectReference(Field):
 				return self.targetContainer[value]
 			except KeyError:
 				raise KeyError("The reference target container for field {0} has no object with key '{1}'".
-							format(self._name, value))
+							format(self.name, value))
 		elif (isinstance(value, dict) and '_key' in value):
 				return value
 		else:	
@@ -310,15 +311,15 @@ class RecordArray(Field):
 		
 		for name, field in structDict.items():
 			structField = field
-			structField._name = name
+			structField.name = name
 			defaultValueList.append(field.default)
 			self.fieldList.append(structField)
 			if isinstance(field, Quantity):
-				typeList.append((field._name, np.float64))
+				typeList.append((field.name, np.float64))
 			elif isinstance(field, Boolean): 
-				typeList.append((field._name, np.dtype(bool)))
+				typeList.append((field.name, np.dtype(bool)))
 			elif (isinstance(field, String) or isinstance(field, Choices)): 
-				typeList.append((field._name, np.dtype('S' + str(field.maxLength))))
+				typeList.append((field.name, np.dtype('S' + str(field.maxLength))))
 			
 		defaultValueList = tuple(defaultValueList)
 		self.dtype = np.dtype(typeList)	
@@ -389,16 +390,16 @@ class DataSeriesView(Field):
 		
 		for name, field in structDict.items():
 			structField = field
-			structField._name = name
+			structField.name = name
 			self.dataLabels.append(name)
 			defaultValueList.append(field.default)
 			self.fieldList.append(structField)
 			if isinstance(field, Quantity):
-				typeList.append((field._name, np.float64))
+				typeList.append((field.name, np.float64))
 			elif isinstance(field, Boolean): 
-				typeList.append((field._name, np.dtype(bool)))
+				typeList.append((field.name, np.dtype(bool)))
 			elif (isinstance(field, String) or isinstance(field, Choices)): 
-				typeList.append((field._name, np.dtype('S' + str(field.maxLength))))
+				typeList.append((field.name, np.dtype('S' + str(field.maxLength))))
 			
 		defaultValueList = tuple(defaultValueList)
 		self.dtype = np.dtype(typeList)	
@@ -628,10 +629,23 @@ class SubModelGroup(Field):
 	:param klass: the sub-model class
 	:param group: the sub-model group to be included
 	"""
-	def __init__(self, klass, group, *args, **kwargs):
+	def __init__(self, klass, groupName, *args, **kwargs):
 		Field.__init__(self, *args, **kwargs)
-		self.group = group
 		self.klass = klass
+		# Search in basic  and super groups
+		if (groupName in klass.declared_basicGroups):
+			self.group = klass.declared_basicGroups[groupName]
+		elif (groupName in klass.declared_superGroups):
+			self.group = klass.declared_superGroups[groupName]
+		else:
+			raise AttributeError('Class {} has no declared group {}'.format(klass.__name__, groupName))
+
+	def copyByName(self):
+		newObject = copy.copy(self)
+		return newObject
+	
+	def resolve(self, resDict):
+		pass
 			
 class Group(object):
 	"""Abstract group class"""
@@ -652,6 +666,16 @@ class BasicGroup(Group):
 		if (fields is not None):
 			for field in fields:
 				self.fields.append(field)
+	
+	def copyByName(self):
+		newObject = copy.copy(self)
+		newObject.fields = [field.name for field in self.fields] 
+		return newObject
+	
+	def resolve(self, resDict):
+		for i in range(len(self.fields)):
+			if (isinstance(self.fields[i], basestring)):
+				self.fields[i] = resDict[self.fields[i]]	
 
 class FieldGroup(BasicGroup):
 	"""Represents a group of fields of all basic types except for PlotView and TableView"""
@@ -667,10 +691,15 @@ class SuperGroup(Group):
 		super(SuperGroup, self).__init__(*args, **kwargs)
 		self.groups = [] if (groups is None) else groups
 		
-	def update(self, groups):
-		for group in groups:
-			if (group not in self.groups):
-				self.groups.append(group)
+	def copyByName(self):
+		newObject = copy.copy(self)
+		newObject.groups = [group.name for group in self.groups] 
+		return newObject
+	
+	def resolve(self, resDict):
+		for i in range(len(self.groups)):
+			if (isinstance(self.groups[i], basestring)):
+				self.groups[i] = resDict[self.groups[i]]	
 
 class ModelView(object):
 	"""
@@ -687,6 +716,16 @@ class ModelView(object):
 		self.superGroups = superGroups
 		self.actionBar = actionBar
 		self.autoFetch = autoFetch
+		
+	def copyByName(self):
+		newObject = copy.copy(self)
+		newObject.superGroups = [group.name for group in self.superGroups] 
+		return newObject
+	
+	def resolve(self, resDict):
+		for i in range(len(self.superGroups)):
+			if (isinstance(self.superGroups[i], basestring)):
+				self.superGroups[i] = resDict[self.superGroups[i]]	
 		
 class ModelFigure(object):
 	"""

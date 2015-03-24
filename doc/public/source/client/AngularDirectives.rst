@@ -245,12 +245,10 @@ and table using the `Google Charts`_ library. It allows for export in *png* and 
 .. figure:: img/plot.png
    :align: center
 
-   Plot
+|
    
 .. figure:: img/table.png
    :align: center
-
-   Table
    
 **Restrict:** Attribute
 
@@ -273,8 +271,6 @@ Displays an image::
    :align: center
    :width: 800
    :height: 500
-
-   Image
    
 **Restrict:** Attribute
 

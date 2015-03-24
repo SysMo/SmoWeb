@@ -176,7 +176,7 @@ class PropertyCalculatorCoolprop(NumericalModel):
 		self.dpdv_T = fState.dpdv_T
 		
 		self.isTwoPhase = fState.isTwoPhase()
-		if (self.isTwoPhase == True):
+		if (self.isTwoPhase):
 			satL = fState.SatL
 			satV = fState.SatV
 

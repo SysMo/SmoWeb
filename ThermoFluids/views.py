@@ -21,10 +21,12 @@ class FluidPropsCalculatorView(ModularPageView):
 		fpc = PropertyCalculatorCoolprop()
 		fpc.fieldValuesFromJson(parameters)
 		fpc.compute()
-		if (fpc.isTwoPhase == True):
-			return fpc.modelView2Json(fpc.resultViewIsTwoPhase)
+		if (fpc.isTwoPhase):
+			a =  fpc.modelView2Json('resultViewIsTwoPhase')
+			print a['definitions'][1]['groups'][0]['name']
+			return a
 		else:
-			return fpc.modelView2Json(fpc.resultView)
+			return fpc.modelView2Json('resultView')
 	
 from .models import CompressionExpansionModel, HeatingCoolingModel
 @registerView(router)
