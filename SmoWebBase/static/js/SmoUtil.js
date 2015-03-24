@@ -1137,12 +1137,16 @@ smoModule.directive('smoDataSeriesView', ['$compile', function($compile) {
 			
 		},
 		link : function(scope, element, attr) {
-			var template;
+			var template = '\
+				<div style="margin-bottom: 5px; text-align: left;">\
+					<smo-button action="toggle()" icon="settings" tip="Settings" size="md"></smo-button>\
+					<smo-button icon="save" size="md" action="exportData()" tip="Save"></smo-button>\
+				</div>';
 			
 			if (scope.fieldVar.type == 'TableView')
-				template = '<div id="' + scope.modelName + '_' + scope.fieldVar.name + 'TableDiv"></div>';
+				template += '<div id="' + scope.modelName + '_' + scope.fieldVar.name + 'TableDiv"></div>';
 			else if (scope.fieldVar.type == 'PlotView')
-				template = '\
+				template += '\
 					<div style="display: inline-block;">\
 						<div id="' + scope.modelName + '_' + scope.fieldVar.name + 'PlotDiv"></div>\
 					</div>\
@@ -1152,13 +1156,9 @@ smoModule.directive('smoDataSeriesView', ['$compile', function($compile) {
 			
 			template += '\
 			<div style = "margin-top: 10px; margin-bottom: 10px;">\
-				Export&nbsp\
-				<input ng-model="fileName"></input>\
-				<smo-button icon="save" size="md" action="exportData()" tip="Save"></smo-button>\
 				<a id="' + scope.modelName + '_' + scope.fieldVar.name + 'CsvElem" hidden></a>\
 				<img id="' + scope.modelName + '_' + scope.fieldVar.name + 'Img" hidden>\
 				<a id="' + scope.modelName + '_' + scope.fieldVar.name + 'PngElem" hidden></a>\
-				<smo-button action="toggle()" icon="settings" tip="Settings" size="md"></smo-button>\
 				<div class="view-edit" ng-show="expanded" ng-click="toggle()">\
 					<table class="nice-table" style="border: none;">\
 						<tr>\
@@ -1309,10 +1309,10 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 					}
 					
 					if (i==0){
-						navPills.push('<li class="active"><a id="' + field.name + 'Tab" data-target="#' + field.name + '" role="tab" data-toggle="tab"><div data-toggle="tooltip" data-viewport="[smo-view-group]" title="' + field.description + '" tooltip>' + field.label + '</div></a></li>');
+						navPills.push('<li class="active"><a id="' + field.name + 'Tab" data-target="#' + field.name + '" role="tab" data-toggle="tab"><div data-toggle="tooltip" data-placement="right" data-viewport="[smo-view-group]" title="' + field.description + '" tooltip>' + field.label + '</div></a></li>');
 						navPillPanes.push('<div class="tab-pane active" id="' + field.name + '">');
 					} else {
-						navPills.push('<li><a id="' + field.name + 'Tab" data-target="#' + field.name + '" role="tab" data-toggle="tab"><div data-toggle="tooltip" data-viewport="[smo-view-group]" title="' + field.description + '" tooltip>' + field.label + '</div></a></li>');
+						navPills.push('<li><a id="' + field.name + 'Tab" data-target="#' + field.name + '" role="tab" data-toggle="tab"><div data-toggle="tooltip" data-placement="right" data-viewport="[smo-view-group]", title="' + field.description + '" tooltip>' + field.label + '</div></a></li>');
 						navPillPanes.push('<div class="tab-pane" id="' + field.name + '">');
 					}
 					
