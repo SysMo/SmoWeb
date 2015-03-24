@@ -4,26 +4,113 @@ Angular directives
 
 .. highlight:: html
 
----------
-smoButton
----------
+------------
+smoModelView
+------------
 
-Creates a button::
-   
-   <smo-button action="addRow(i)" icon="plus" tip="Inserts row at i-th index" size="md"></smo-button>
+This directive handles the communication with the server via a communicator object. The communicator is responsible for
+sending AJAX requests to carry out specific actions, 
+such as fetching the initial data needed to visualise the model or sending input values to make calculations.
+Through the communicator, the directive is also able to inform the user about an unsuccessful outcome of the communication 
+by displaying error messages::      
 
-**Restrict:** Element
+   <div smo-model-view="inputView" model-name="PipeFlow" view-type="input" auto-fetch="true" view-record-id="551034227dc7c744aa21436e"></div>
 
-**Scope:** No
+**Restrict:** Attribute
+
+**Scope:** Yes
 
 **Parameters:**
-   * **action** - The function call on a click event
-   * **icon** - The base name of a *.png* file containing the icon of the button
-   * **tip** - A tooltip to appear on hover
-   * **size** - The width of the button. Valid strings are:
-      * *sm* - 16px, also the default value
-      * *md* - 24px
-      * *lg* - 32px
+   * **smo-model-view** - The name of the view being visualised
+   * **model-name** - The name of the model, whose view is being visualised
+   * **view-type** - The display type of the model. Valid strings are:
+      * *input*
+      * *output*
+   * **auto-fetch** - Boolean value, indicating whether the view should be automatically loaded
+   * **view-record-id** - ID of record of values of the view persisted in a MongoDB database
+
+**Uses:** *smoSuperGroupSet*, *smoViewToolbar*
+
+----------------
+smoSuperGroupSet
+----------------
+
+Displays a set of super-groups, each of which consists of one or more field-groups and/or view-groups.
+Multiple super-groups are displayed in tabs::
+
+   <div smo-super-group-set="superGroupSet" model-name="PipeFlow" view-type="input" smo-data-source="values"></div>
+
+.. figure:: img/supergroupset.png
+   :align: center
+   
+   Super-group set
+
+**Restrict:** Attribute
+
+**Scope:** Yes
+
+**Parameters:**
+   * **smo-super-group-set** - An object defining the set of super-groups
+   * **model-name** - The name of the model
+   * **view-type** - The display type of the super-groups in the set, which also applies to all their field-groups and/or view-groups. Valid strings are:
+      * *input*
+      * *output*
+   * **smo-data-source** - An object containing the values of the fields which are part of the super-groups
+   
+**Uses:** *smoFieldGroup*, *smoViewGroup*
+
+-------------
+smoFieldGroup
+-------------
+
+Visualizes a basic group of fields. Each field-group is displayed as a delimited colored area containing 
+a label and stacked fields::
+
+   <div smo-field-group="fieldGroup" view-type="input" smo-data-source="smoDataSource"></div>
+
+.. figure:: img/fieldgroup.png
+   :align: center
+   
+   Field-group
+   
+**Restrict:** Attribute
+
+**Scope:** Yes
+
+**Parameters:**
+   * **smo-field-group** - An object defining the field-group
+   * **view-type** - The display type of the field-group, which applies also to all its fields. Valid strings are:
+      * *input*
+      * *output*
+   * **smo-data-source** - An object containing the values of the fields making up the field-group
+   
+**Uses:** *smoQuantity*, *smoChoice*, *smoString*, *smoBool*, *smoRecordArray*
+
+------------
+smoViewGroup
+------------
+
+Displays a grouping of data series (plot or table) and image fields. Each view-group is visualized as a delimited area with pill navigation
+on the left for switching among its fields::
+
+   <div smo-view-group="viewGroup" model-name="PipeFlow" smo-data-source="smoDataSource"></div>
+
+.. figure:: img/viewgroup.png
+   :align: center
+  
+
+   View-group
+   
+**Restrict:** Attribute
+
+**Scope:** Yes
+
+**Parameters:**
+   * **smo-view-group** - An object defining the view-group
+   * **model-name** - The name of the model
+   * **smo-data-source** - An object containing the values of the fields making up the view-group
+   
+**Uses:** *smoDataSeriesView*, *smoImg*
 
 -----------
 smoQuantity
@@ -147,40 +234,23 @@ The array pops up in edit mode when an icon is clicked by the user::
    * **smo-record-array** - An object defining the field
    * **smo-data-source** - An object containing the value of the field 
    
--------
-smoPlot
--------
-Displays a plot field. The directive draws a plot of a set of data using the `dygraphs`_ library 
-and allows for its export in a *png* format::
+-----------------
+smoDataSeriesView
+-----------------
+Displays a plot or table. The directive draws a plot of series of data using the `dygraphs`_ library 
+and table using the `Google Charts`_ library. It allows for export in *png* and *csv* formats, respectively::
 
-   <div smo-plot field-var="field" smo-data-source="values"></div>
+   <div smo-data-series-view field-var="field" model-name="PipeFlow" smo-data-source="values"></div>
 
 .. figure:: img/plot.png
    :align: center
 
-   Plot field
+   Plot
    
-**Restrict:** Attribute
-
-**Scope:** Yes
-
-**Parameters:**
-   * **field-var** - An object defining the field
-   * **smo-data-source** - An object containing the value of the field
-
---------
-smoTable
---------
-
-Displays a table field. The directive draws a `Google Charts`_ table for a set of data 
-and allows for its export in a *csv* file::
-
-   <div smo-table field-var="field" smo-data-source="values"></div>
-
 .. figure:: img/table.png
    :align: center
 
-   Table field
+   Table
    
 **Restrict:** Attribute
 
@@ -188,111 +258,72 @@ and allows for its export in a *csv* file::
 
 **Parameters:**
    * **field-var** - An object defining the field
+   * **model-name** - The name of the model
    * **smo-data-source** - An object containing the value of the field
 
--------------
-smoFieldGroup
--------------
+------
+smoImg
+------
 
-Visualizes a basic group of fields. Each field-group is displayed as a delimited colored area containing 
-a label and stacked fields::
+Displays an image::
 
-   <div smo-field-group="fieldGroup" view-type="input" smo-data-source="smoDataSource"></div>
+   <div smo-img field-var="fields" model-name="PipeFlow" smo-data-source="values"></div>
 
-.. figure:: img/fieldgroup.png
+.. figure:: img/image.png
    :align: center
-   
-   Field-group
-   
-**Restrict:** Attribute
+   :width: 800
+   :height: 500
 
-**Scope:** Yes
-
-**Parameters:**
-   * **smo-field-group** - An object defining the field-group
-   * **view-type** - The display type of the field-group, which applies also to all its fields. Valid strings are:
-      * *input*
-      * *output*
-   * **smo-data-source** - An object containing the values of the fields making up the field-group
-   
-**Uses:** *smoQuantity*, *smoChoice*, *smoString*, *smoBool*, *smoRecordArray*
-
-------------
-smoViewGroup
-------------
-
-Displays a grouping of plot and/or table fields. Each view-group is visualized as a delimited area with pill navigation
-on the left for switching among the plots and/or tables::
-
-   <div smo-view-group="viewGroup" smo-data-source="smoDataSource"></div>
-
-.. figure:: img/viewgroup.png
-   :align: center
-  
-
-   View-group
+   Image
    
 **Restrict:** Attribute
 
 **Scope:** Yes
 
 **Parameters:**
-   * **smo-view-group** - An object defining the view-group
-   * **smo-data-source** - An object containing the values of the fields making up the view-group
-   
-**Uses:** *smoPlot*, *smoTable*
+   * **field-var** - An object defining the field
+   * **model-name** - The name of the model
+   * **smo-data-source** - An object containing the value of the field
 
+--------------
+smoViewToolbar
+--------------
 
-----------------
-smoSuperGroupSet
-----------------
+A toolbar with buttons to perform actions in relation to a particular view::
 
-Displays a set of super-groups, each of which consists of one or more field-groups and/or view-groups.
-Multiple super-groups are displayed in tabs::
-
-   <div smo-super-group-set="superGroupSet" model-name="flowResistanceInputs" view-type="input" smo-data-source="values"></div>
-
-.. figure:: img/supergroupset.png
-   :align: center
-   
-   Super-group set
+   <div smo-view-toolbar model="model" view-name="inputView" actions="actions"></div>
 
 **Restrict:** Attribute
 
 **Scope:** Yes
 
 **Parameters:**
-   * **smo-super-group-set** - An object defining the set of super-groups
-   * **model-name** - The name of the model represented by the super-group set
-   * **view-type** - The display type of the super-groups in the set, which also applies to all their field-groups and/or view-groups. Valid strings are:
-      * *input*
-      * *output*
-   * **smo-data-source** - An object containing the values of the fields which are part of the super-groups
+   * **model** - Object representing the model
+   * **view-name** - The name of the view
+   * **actions** - Array of actions
+
+**Uses:** *smoButton*
+
+---------
+smoButton
+---------
+
+Creates a button::
    
-**Uses:** *smoPlot*, *smoTable*
+   <smo-button action="addRow(i)" icon="plus" tip="Inserts row at i-th index" size="md"></smo-button>
 
-------------
-smoModelView
-------------
+**Restrict:** Element
 
-This directive handles the communication with the server via a communicator object. The communicator is responsible for
-sending AJAX requests to carry out specific actions, 
-such as fetching the initial data needed to visualise the model or sending input values to make calculations.
-Through the communicator, the directive is also able to inform the user about an unsuccessful outcome of the communication 
-by displaying error messages::      
-
-   <div smo-model-view="flowResistanceInputs" view-type="input" communicator="flowResistance.inputCommunicator"></div>
-
-**Restrict:** Attribute
-
-**Scope:** Yes
+**Scope:** No
 
 **Parameters:**
-   * **smo-model-view** - The name of the model to be visualised.
-   * **view-type** - The display type of the model. Valid strings are:
-      * *input*
-      * *output*
-   * **communicator** - A communicator object
+   * **action** - The function call on a click event
+   * **icon** - The base name of a *.png* file containing the icon of the button
+   * **tip** - A tooltip to appear on hover
+   * **size** - The width of the button. Valid strings are:
+      * *sm* - 16px, also the default value
+      * *md* - 24px
+      * *lg* - 32px
     
 .. _dygraphs: http://dygraphs.com/
 .. _Google Charts: https://developers.google.com/chart/

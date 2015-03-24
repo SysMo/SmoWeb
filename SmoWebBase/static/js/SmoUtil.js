@@ -1137,12 +1137,16 @@ smoModule.directive('smoDataSeriesView', ['$compile', function($compile) {
 			
 		},
 		link : function(scope, element, attr) {
-			var template;
+			var template = '\
+				<div style="margin-bottom: 5px; text-align: left;">\
+					<smo-button action="toggle()" icon="settings" tip="Settings" size="md"></smo-button>\
+					<smo-button icon="save" size="md" action="exportData()" tip="Save"></smo-button>\
+				</div>';
 			
 			if (scope.fieldVar.type == 'TableView')
-				template = '<div id="' + scope.modelName + '_' + scope.fieldVar.name + 'TableDiv"></div>';
+				template += '<div id="' + scope.modelName + '_' + scope.fieldVar.name + 'TableDiv"></div>';
 			else if (scope.fieldVar.type == 'PlotView')
-				template = '\
+				template += '\
 					<div style="display: inline-block;">\
 						<div id="' + scope.modelName + '_' + scope.fieldVar.name + 'PlotDiv"></div>\
 					</div>\
@@ -1152,17 +1156,13 @@ smoModule.directive('smoDataSeriesView', ['$compile', function($compile) {
 			
 			template += '\
 			<div style = "margin-top: 10px; margin-bottom: 10px;">\
-				Export&nbsp\
-				<input ng-model="fileName"></input>\
-				<smo-button icon="save" size="md" action="exportData()" tip="Save"></smo-button>\
 				<a id="' + scope.modelName + '_' + scope.fieldVar.name + 'CsvElem" hidden></a>\
 				<img id="' + scope.modelName + '_' + scope.fieldVar.name + 'Img" hidden>\
 				<a id="' + scope.modelName + '_' + scope.fieldVar.name + 'PngElem" hidden></a>\
-				<smo-button action="toggle()" icon="settings" tip="Settings" size="md"></smo-button>\
 				<div class="view-edit" ng-show="expanded" ng-click="toggle()">\
 					<table class="nice-table" style="border: none;">\
 						<tr>\
-							<th style="min-width: 10px;" colspan="100%">\
+							<th style="min-width: 10px;" colspan="5">\
 								<input type="checkbox" ng-model="allChecked" ng-change="setToAll()"></input>\
 								<span>All</span>\
 							</th>\
@@ -1174,6 +1174,8 @@ smoModule.directive('smoDataSeriesView', ['$compile', function($compile) {
 								<div class="field-select quantity">\
 									<select ng-model="fieldVar.fields[row*5 + $index].displayUnit" ng-options="pair[0] as pair[0] for pair in fieldVar.fields[row*5 + $index].units" ng-change="changeUnit(row*5 + $index)"></select>\
 								</div>\
+							</td>\
+							<td ng-if="$last && $index>0 && fieldVar.labels.slice(row*5, row*5+5).length<5" colspan="{{5 - fieldVar.labels.slice(row*5, row*5+5).length}}">\
 							</td>\
 						</tr>\
 					</table>\
@@ -1309,10 +1311,10 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 					}
 					
 					if (i==0){
-						navPills.push('<li class="active"><a id="' + field.name + 'Tab" data-target="#' + field.name + '" role="tab" data-toggle="tab"><div data-toggle="tooltip" data-viewport="[smo-view-group]" title="' + field.description + '" tooltip>' + field.label + '</div></a></li>');
+						navPills.push('<li class="active"><a id="' + field.name + 'Tab" data-target="#' + field.name + '" role="tab" data-toggle="tab"><div data-toggle="tooltip" data-placement="right" data-viewport="[smo-view-group]" title="' + field.description + '" tooltip>' + field.label + '</div></a></li>');
 						navPillPanes.push('<div class="tab-pane active" id="' + field.name + '">');
 					} else {
-						navPills.push('<li><a id="' + field.name + 'Tab" data-target="#' + field.name + '" role="tab" data-toggle="tab"><div data-toggle="tooltip" data-viewport="[smo-view-group]" title="' + field.description + '" tooltip>' + field.label + '</div></a></li>');
+						navPills.push('<li><a id="' + field.name + 'Tab" data-target="#' + field.name + '" role="tab" data-toggle="tab"><div data-toggle="tooltip" data-placement="right" data-viewport="[smo-view-group]", title="' + field.description + '" tooltip>' + field.label + '</div></a></li>');
 						navPillPanes.push('<div class="tab-pane" id="' + field.name + '">');
 					}
 					
