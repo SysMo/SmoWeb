@@ -271,8 +271,6 @@ Displays an image::
    :align: center
    :width: 800
    :height: 500
-
-   Image
    
 **Restrict:** Attribute
 
