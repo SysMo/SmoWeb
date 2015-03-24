@@ -13,7 +13,8 @@ void SmoFlow_CoolPropState::createTwoPhaseStates() {
 			SatV->no_SatLSatV(); // Kill the recursive building of the saturation classes
 		}
 	}
-
+	// Enable extended property calculations in the two-phase region
+	enable_EXTTP();
 }
 
 

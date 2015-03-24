@@ -464,7 +464,16 @@ cdef class FluidState:
 		"""heat capacity ratio"""
 		def __get__(self):
 			return self.ptr.gamma()
-
+	
+	#########################################	
+	# Extra properties
+	def b(self, double TExt):
+		return self.ptr.h() - TExt * self.ptr.s()
+	
+	
+	#########################################
+	# Update methods
+		
 	def update(self, 
 			string state1, double state1Value,
 			string state2, double state2Value):

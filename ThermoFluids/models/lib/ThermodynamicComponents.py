@@ -26,6 +26,7 @@ class ThermodynamicalCycle(NumericalModel):
 		('h', F.Quantity('SpecificEnthalpy', default = (1, 'kJ/kg'))),
 		('s', F.Quantity('SpecificEntropy', default = (1, 'kJ/kg-K'))),
 		('q', F.Quantity()),
+		('b', F.Quantity('SpecificEnergy', default = (1, 'kJ/kg')))
 		), label="Cycle states")
 						
 	cycleStates = F.ViewGroup([cycleStatesTable], label = "States")
@@ -39,14 +40,14 @@ class ThermodynamicalCycle(NumericalModel):
 		self.fp = [FluidState(fluid) for i in range(numPoints)]
 		self.fluid = Fluid(fluid)
 		
-	def postProcess(self):
+	def postProcess(self, TAmbient):
 		## State diagram
 		self.createStateDiagram()
 		## Table of states
 		self.cycleStatesTable.resize(len(self.fp))
 		for i in range(len(self.fp)):
 			fp = self.fp[i]
-			self.cycleStatesTable[i] = (fp.T, fp.p, fp.rho, fp.h, fp.s, fp.q)
+			self.cycleStatesTable[i] = (fp.T, fp.p, fp.rho, fp.h, fp.s, fp.q, fp.b(TAmbient))
 
 class Compressor(CycleComponent):
 	modelType = F.Choices(OrderedDict((
@@ -146,15 +147,11 @@ class HeatExchangerTwoStreams(CycleComponent):
 		dH1DotMax = m1Dot * (self.inlet1.h - self.outlet1.h)
 		dH2DotMax = m2Dot * (self.inlet2.h - self.outlet2.h)
 		if (abs(dH1DotMax) > abs(dH2DotMax)):
-			dQDot = dH2DotMax * self.eta
-			print 2, dQDot
-			self.outlet1.update_ph(self.inlet1.p, self.inlet1.h + dQDot / m1Dot)
-			self.outlet2.update_ph(self.inlet2.p, self.inlet2.h - dQDot / m2Dot)
+			self.QDot = dH2DotMax * self.eta
 		else:
-			dQDot = dH1DotMax * self.eta
-			print 1, dQDot
-			self.outlet1.update_ph(self.inlet1.p, self.inlet1.h - dQDot / m1Dot)
-			self.outlet2.update_ph(self.inlet2.p, self.inlet2.h + dQDot / m2Dot)
+			self.QDot = -dH1DotMax * self.eta
+		self.outlet1.update_ph(self.inlet1.p, self.inlet1.h + self.QDot / m1Dot)
+		self.outlet2.update_ph(self.inlet2.p, self.inlet2.h - self.QDot / m2Dot)
 	def __str__(self):
 		return """
 Inlet 1: T = {self.inlet1.T}, p = {self.inlet1.p}, q = {self.inlet1.q}, h = {self.inlet1.h} 
@@ -174,7 +171,7 @@ Outlet2: T = {self.outlet2.T}, p = {self.outlet2.p}, q = {self.outlet2.q}, h = {
 		he.inlet1.update_Tp(80 + 273.15, 1e5)
 		he.inlet2.update_Tp(20 + 273.15, 1e5)
 		m1Dot = 1.
-		m2Dot = 10.
+		m2Dot = 1.
 		
 		he.compute(m1Dot, m2Dot)
 		print he
