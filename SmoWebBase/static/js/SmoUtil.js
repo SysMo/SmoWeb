@@ -1162,7 +1162,7 @@ smoModule.directive('smoDataSeriesView', ['$compile', function($compile) {
 				<div class="view-edit" ng-show="expanded" ng-click="toggle()">\
 					<table class="nice-table" style="border: none;">\
 						<tr>\
-							<th style="min-width: 10px;" colspan="100%">\
+							<th style="min-width: 10px;" colspan="5">\
 								<input type="checkbox" ng-model="allChecked" ng-change="setToAll()"></input>\
 								<span>All</span>\
 							</th>\
@@ -1174,6 +1174,8 @@ smoModule.directive('smoDataSeriesView', ['$compile', function($compile) {
 								<div class="field-select quantity">\
 									<select ng-model="fieldVar.fields[row*5 + $index].displayUnit" ng-options="pair[0] as pair[0] for pair in fieldVar.fields[row*5 + $index].units" ng-change="changeUnit(row*5 + $index)"></select>\
 								</div>\
+							</td>\
+							<td ng-if="$last && $index>0 && fieldVar.labels.slice(row*5, row*5+5).length<5" colspan="{{5 - fieldVar.labels.slice(row*5, row*5+5).length}}">\
 							</td>\
 						</tr>\
 					</table>\
