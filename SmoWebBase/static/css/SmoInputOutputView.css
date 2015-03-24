@@ -37,7 +37,10 @@
 /* Field and view group content */
 .field-group-container, .view-group-container {
 	border: 2px solid #0875CA;
-	padding: 10px;
+	padding-top: 15px;
+	padding-left: 10px;
+	padding-right: 10px;
+	padding-bottom: 15px;
 	border-bottom-left-radius: 10px;
 	border-bottom-right-radius: 10px;
 }

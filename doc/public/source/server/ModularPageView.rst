@@ -70,3 +70,23 @@ Page modules may be one of the following types:
    :align: center
 
    An active `RestModule` module 
+
+------
+Blocks
+------
+
+:class:`ModelView`
+------------------
+
+:class:`smo.model.fields.ModelView`
+
+:class:`HtmlBlock`
+------------------
+
+.. autoclass:: smo.web.blocks.HtmlBlock
+
+:class:`JsBlock`
+----------------
+
+.. autoclass:: smo.web.blocks.JsBlock
+
