@@ -1,6 +1,6 @@
 import fields
 from collections import OrderedDict
-from smo.model.fields import FieldGroup, ViewGroup, ModelView
+from smo.model.fields import FieldGroup, BasicGroup, ModelView, SuperGroup
 from smo.web.blocks import HtmlBlock, JsBlock
 import smo.web.exceptions as E
 
@@ -19,63 +19,152 @@ class NumericalModelMeta(type):
 		# Collect fields from current class.
 		current_fields = []
 		current_submodels = []
+		current_basicGroups = {}
+		current_superGroups = {}
+		current_modelViews = {}
 		for key, value in list(attrs.items()):
 			if isinstance(value, fields.SubModelGroup):
 				current_submodels.append((key, value))
-				value._name = key
+				if (isinstance(value.group, BasicGroup)):
+					current_basicGroups[key] = value
+				elif (isinstance(value.group, SuperGroup)):
+					current_superGroups[key] = value
+				else:
+					raise TypeError ('The submodel group {} in class {} must be either field or view group'.format(key, name))
+				value.name = key
 				attrs.pop(key)
 			elif isinstance(value, fields.Field):
 				current_fields.append((key, value))
-				value._name = key
+				value.name = key
+				attrs.pop(key)
+			elif isinstance(value, fields.BasicGroup):
+				value.name = key
+				current_basicGroups[key] = value
+				attrs.pop(key)
+			elif isinstance(value, fields.SuperGroup):
+				value.name = key
+				current_superGroups[key] = value
 				attrs.pop(key)
 			elif isinstance(value, fields.Group):
-				value._name = key
+#				value.name = key
+#				attrs.pop(key)
+				raise TypeError('Unknown group type')
 			elif isinstance(value, ModelView):
 				value.name = key
+				current_modelViews[key] = value
+				attrs.pop(key)
 			elif isinstance(value, HtmlBlock) or isinstance(value, JsBlock):
 				value.name = key
 				
 		current_fields.sort(key=lambda x: x[1].creation_counter)
 		current_submodels.sort(key=lambda x: x[1].creation_counter)
+		# Fields
 		attrs['declared_fields'] = OrderedDict(current_fields)
 		attrs['declared_submodels'] = OrderedDict(current_submodels)
 		attrs['declared_attrs'] = {}
 		attrs['declared_attrs'].update(attrs['declared_fields'])
 		attrs['declared_attrs'].update(attrs['declared_submodels'])
-# 		current_groups.sort(key=lambda x: x[1].creation_counter)
-# 		attrs['declared_groups'] = OrderedDict(current_groups)
+		# Groups
+		attrs['declared_basicGroups'] = current_basicGroups
+		attrs['declared_superGroups'] = current_superGroups
+		attrs['declared_modelViews'] = current_modelViews
 		
 		# Create the class type
-		new_class = (super(NumericalModelMeta, cls)
+		klass = (super(NumericalModelMeta, cls)
 			.__new__(cls, name, bases, attrs))
 		
 		# Collect fields from base classes
 		base_fields = OrderedDict()
 		base_submodels = OrderedDict()
-		for c in reversed(new_class.__mro__[1:]):			
-			if hasattr(c, 'declared_attrs'):
-				# Checks for already declared fields in base classes
-				for key in c.declared_attrs:
-					if key in new_class.declared_attrs:
-						raise AttributeError("Base class {0} already has attribute '{1}'.".format(c.__name__, key))
-				base_fields.update(c.declared_fields)
-				base_submodels.update(c.declared_submodels)
-					
-		new_class.declared_fields.update(base_fields)
-		new_class.declared_submodels.update(base_submodels)
+		base_basicGroups = {}
+		base_superGroups = {}
+		base_modelViews = {}
+		# It should not be necessary to walk the complete MRO. Just the bases should be enough
+		# as they have already collected all the fields from their ancesstors
+		#for base in reversed(klass.__mro__[1:]):
+		for base in klass.__bases__:
+			if not (hasattr(base, 'declared_attrs')):
+				continue			
+			# Collect declared fields from base classes
+			for key in base.declared_attrs:
+				if key in klass.declared_attrs:
+					raise AttributeError("Base class {0} defines attribute '{1}', which class {2} attempts to redefine".format(base.__name__, key, name))
+				elif (key in base_fields or key in base_submodels):
+					raise AttributeError("Attribute {} in class {} already inherited. Attempt to inherit it again from base class {}.".format(key, name, base.__name__))
+			base_fields.update(base.declared_fields)
+			base_submodels.update(base.declared_submodels)
+			
+			# Collect declared field and view groups from base classes
+			for key, value in base.declared_basicGroups.iteritems():
+				if (key in klass.declared_basicGroups):
+					# The group is redefined in the new class, so don't inherit it
+					pass
+				else:
+					if (key not in base_basicGroups):
+						base_basicGroups[key] =  value.copyByName()
+					else:
+						raise AttributeError("Group {} in class {} already inherited. Attempt to inherit it again from base class {}.".format(key, name, base.__name__))
+
+			# Collect declared super-groups from base classes
+			for key, value in base.declared_superGroups.iteritems():
+				if (key in klass.declared_superGroups):
+					# The group is redefined in the new class, so don't inherit it
+					pass
+				else:
+					if (key not in base_superGroups):
+						base_superGroups[key] =  value.copyByName()
+					else:
+						raise AttributeError("Group {} in class {} already inherited. Attempt to inherit it again from base class {}.".format(key, name, base.__name__))
+
+			# Collect declared model-views from base classes
+			for key, value in base.declared_modelViews.iteritems():
+				if (key in klass.declared_modelViews):
+					# The group is redefined in the new class, so don't inherit it
+					pass
+				else:
+					if (key not in base_modelViews):
+						base_modelViews[key] =  value.copyByName()
+					else:
+						raise AttributeError("ModelView {} in class {} already inherited. Attempt to inherit it again from base class {}.".format(key, name, base.__name__))
+
+		klass.declared_fields.update(base_fields)
+		klass.declared_submodels.update(base_submodels)
+		klass.declared_attrs.update(base_fields)
+		klass.declared_attrs.update(base_submodels)
+		klass.declared_basicGroups.update(base_basicGroups)
+		klass.declared_superGroups.update(base_superGroups)
+		klass.declared_modelViews.update(base_modelViews)
+		# Resolving fields in field- and view-groups by name
+		for value in klass.declared_basicGroups.itervalues():
+			if (isinstance(value, BasicGroup)): # Could be submodel group
+				value.resolve(klass.declared_fields)
 		
-		# Resolving unresolved fields in field- and view-groups
-		for key, value in new_class.__dict__.iteritems():
-			if isinstance(value, FieldGroup) or isinstance(value, ViewGroup):
-				for i in range(len(value.fields)):
-					if isinstance(value.fields[i], basestring):
-						value.fields[i] = new_class.declared_fields[value.fields[i]]
+		#Resolving field groups, view groups or submodel groups by name
+		for value in klass.declared_superGroups.itervalues():
+			if (isinstance(value, SuperGroup)):
+				value.resolve(klass.declared_basicGroups)
+
+		# Resolving supergroups by name
+		for value in klass.declared_modelViews.itervalues():
+			value.resolve(klass.declared_superGroups)
+												
 		# Checking for obligatory attribute 'modelBlocks'
-		if (name  != 'NumericalModel' and not new_class.abstract):
-			if ('modelBlocks' not in new_class.__dict__):
-				raise AttributeError("Page structure undefined. Class {0} must have attribute 'modelBlocks'.".format(name))
-		
-		return new_class
+		if (name  != 'NumericalModel' and not klass.abstract):			
+			if ('modelBlocks' not in klass.__dict__):
+				modelBlocks = None
+				for base in klass.__bases__:
+					if hasattr(base, 'modelBlocks'):
+						modelBlocks = [block.name if isinstance(block, ModelView) else block for block in base.modelBlocks]
+				if (modelBlocks is None):
+					raise AttributeError("Page structure undefined. Class {0} must have attribute 'modelBlocks' or must inherit it from a base class.".format(name))
+				else:
+					klass.modelBlocks = modelBlocks
+			print("Class: {}, {}".format(name, klass.modelBlocks)) 
+			for i in range(len(klass.modelBlocks)):
+				# Then resolve them to the ModelViews from the current model 
+				if (isinstance(klass.modelBlocks[i], basestring)):
+					klass.modelBlocks[i] = klass.declared_modelViews[klass.modelBlocks[i]]
+		return klass
 
 class NumericalModel(object):
 	"""
@@ -129,6 +218,8 @@ class NumericalModel(object):
 	def modelView2Json(self, modelView):
 		"""Creates JSON representation of the modelView including 
 		field definitions, field values and actions"""
+		if (isinstance(modelView, basestring)):
+			modelView = self.declared_modelViews[modelView]
 		definitions = [] 
 		fieldValues = {}
 		actions = []
@@ -147,7 +238,7 @@ class NumericalModel(object):
 		"""
 		Provides JSON serializaton of super-group 
 		"""
-		jsonObject = {'type': 'SuperGroup', 'name': group._name, 'label': group.label, 'show': group.show}
+		jsonObject = {'type': 'SuperGroup', 'name': group.name, 'label': group.label, 'show': group.show}
 		subgroupList = []		
 		for subgroup in group.groups:
 			if (isinstance(subgroup, fields.SubModelGroup)):
@@ -164,7 +255,7 @@ class NumericalModel(object):
 		"""
 		Provides JSON serializaton of field-group and view-group 
 		"""
-		jsonObject = {'name': group._name, 'label': group.label, 'show': group.show}
+		jsonObject = {'name': group.name, 'label': group.label, 'show': group.show}
 		if (isinstance(group, FieldGroup)):
 			jsonObject['type'] = 'FieldGroup'
 		else:
@@ -172,7 +263,7 @@ class NumericalModel(object):
 		fieldList = []
 		for field in group.fields:
 			fieldList.append(field.toFormDict())
-			fieldValues[field._name] = field.getValueRepr(self.__getattr__(field._name))
+			fieldValues[field.name] = field.getValueRepr(self.__getattr__(field.name))
 		jsonObject['fields'] = fieldList
 		return jsonObject
 	
@@ -180,14 +271,14 @@ class NumericalModel(object):
 		"""
 		Provides JSON serializaton of sub-model group
 		"""
-		instance = self.__getattr__(group._name)
+		instance = self.__getattr__(group.name)
 		subFieldValues = {}
 		jsonObject = instance.basicGroup2Json(group.group, subFieldValues)
-		jsonObject['name'] = group._name
+		jsonObject['name'] = group.name
 		if (group.label is not None):			
 			jsonObject['label'] = group.label
-		jsonObject['dataSourceRoot'] = group._name
-		fieldValues[group._name] = subFieldValues
+		jsonObject['dataSourceRoot'] = group.name
+		fieldValues[group.name] = subFieldValues
 		return jsonObject
 	
 	def fieldValuesFromJson(self, jsonDict):

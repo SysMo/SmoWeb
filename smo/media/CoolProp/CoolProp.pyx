@@ -266,7 +266,8 @@ cdef class FluidState:
 	cdef CP.SmoFlow_CoolPropState* ptr
 	cdef public SaturationStateLiquid _SatL
 	cdef public SaturationStateVapor _SatV
-	cdef Fluid fluid 
+	cdef Fluid fluid
+	cdef bool updated
 
 	def __init__(self, fluid):
 		"""__init__(fluid)
@@ -290,9 +291,14 @@ cdef class FluidState:
 		
 		self._SatL = SaturationStateLiquid(self)
 		self._SatV = SaturationStateVapor(self)
+		self.updated = False
 			
 	def __dealloc__(self):
 		del self.ptr
+
+	def checkUpdated(self):
+		if (not self.updated):
+			raise RuntimeError("In order to read a property, you must first call one of the 'update' functions")
 
 	property fluid:
 		"""fluid"""
@@ -464,7 +470,16 @@ cdef class FluidState:
 		"""heat capacity ratio"""
 		def __get__(self):
 			return self.ptr.gamma()
-
+	
+	#########################################	
+	# Extra properties
+	def b(self, double TExt):
+		return self.ptr.h() - TExt * self.ptr.s()
+	
+	
+	#########################################
+	# Update methods
+		
 	def update(self, 
 			string state1, double state1Value,
 			string state2, double state2Value):
