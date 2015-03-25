@@ -112,7 +112,8 @@ class ReverseBraytonCycle(HeatPumpCycle):
 
 	#---------------- Actions ----------------#
 	computeAction = ServerAction("compute", label = "Compute", outputView = 'resultView')
-	inputActionBar = ActionBar([computeAction], save = True)
+	exampleAction = ServerAction("loadEg", label = "Examples", options = (('CO2TranscriticalCycle', 'CO2 transcritial cycle'),) )
+	inputActionBar = ActionBar([computeAction, exampleAction], save = True)
 
 	#--------------- Model view ---------------#
 	inputView = F.ModelView(ioType = "input", superGroups = [inputs], 
@@ -187,17 +188,17 @@ class ReverseBraytonCycle(HeatPumpCycle):
 		self.phDiagram = self.cycleDiagram.draw(self.fluid, self.fp, fluidLines)	
 
 	def CO2TranscriticalCycle(self):
-		self.fluid = 'CarbonDioxide'
+		self.fluidName = 'CarbonDioxide'
 		self.pHighMethod = 'P'
 		self.pHigh = (130, 'bar')
 		self.pLowMethod = 'T'
-		self.pLow = (10, 'degC')
+		self.TEvaporation = (10, 'degC')
 		self.compressor.eta = 0.8
-		self.fQ = 0.2
+		self.compressor.fQ = 0.2
 		self.condenser.computeMethod = 'T'
 		self.condenser.TOutlet = (50, 'degC')
 		self.evaporator.computeMethod = 'dT'
-		self.evaporator.dT = (5, 'degC')
+		self.evaporator.dTOutlet = (5, 'degC')
 		
 class HeatPumpDoc(RestModule):
 	name = 'HeatPumpDoc'
