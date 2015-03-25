@@ -1371,11 +1371,19 @@ smoModule.directive('smoSuperGroup', ['$compile', function($compile) {
 		restrict : 'A',
 		scope : {
 			smoSuperGroup : '=',
-			smoDataSource : '=',
+			dataSource : '=smoDataSource',
 			modelName: '@modelName',
 			viewType: '='
 		},
 		link : function(scope, element, attr) {
+			
+				// Passing values from dataSourceRoot if such property exists in a view-group
+				if (typeof scope.smoSuperGroup.dataSourceRoot !== 'undefined') {
+					scope.smoDataSource = scope.dataSource[scope.smoSuperGroup.dataSourceRoot];
+				} else {
+					scope.smoDataSource = scope.dataSource;
+				}
+			
 				var template = '';
 				for (var j = 0; j < scope.smoSuperGroup.groups.length; j++) {
 					if (scope.smoSuperGroup.groups[j].type == 'FieldGroup') {
@@ -1402,7 +1410,7 @@ smoModule.directive('smoSuperGroupSet', ['$compile', function($compile) {
 			modelName: '@modelName',
 			viewType: '@viewType'
 		},
-		link : function(scope, element, attr) {	
+		link : function(scope, element, attr) {
 			if (scope.smoSuperGroupSet.length > 1) {
 				var navTabs = [];
 				var navTabPanes = [];

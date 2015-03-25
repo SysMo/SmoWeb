@@ -76,7 +76,7 @@ class CycleDiagram(NumericalModel):
 class ThermodynamicalCycle(NumericalModel):
 	abstract = True
 	#================ Inputs ================#
-	cycleDiagram = F.SubModelGroup(CycleDiagram, 'inputs')
+	cycleDiagram = F.SubModelGroup(CycleDiagram, 'inputs', label='Cycle diagram')
 	#================ Results ================#
 	#---------------- Fields ----------------#
 	cycleStatesTable = F.TableView((
