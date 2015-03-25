@@ -71,43 +71,6 @@ class CycleDiagram(NumericalModel):
 		fHandle, resourcePath  = diagram.export(fig)
 		os.close(fHandle)
 		return resourcePath
-		
-	
-class ThermodynamicalCycle(NumericalModel):
-	abstract = True
-	#================ Inputs ================#
-	cycleDiagram = F.SubModelGroup(CycleDiagram, 'inputs')
-	#================ Results ================#
-	#---------------- Fields ----------------#
-	cycleStatesTable = F.TableView((
-		('T', F.Quantity('Temperature', default = (1, 'K'))),
-		('p', F.Quantity('Pressure', default = (1, 'bar'))),
-		('rho', F.Quantity('Density', default = (1, 'kg/m**3'))),
-		('h', F.Quantity('SpecificEnthalpy', default = (1, 'kJ/kg'))),
-		('s', F.Quantity('SpecificEntropy', default = (1, 'kJ/kg-K'))),
-		('q', F.Quantity()),
-		('b', F.Quantity('SpecificEnergy', default = (1, 'kJ/kg')))
-		), label="Cycle states")
-						
-	cycleStates = F.ViewGroup([cycleStatesTable], label = "States")
-	resultStates = F.SuperGroup([cycleStates], label="States")
-	#---------------- Cycle diagram -----------#
-	phDiagram = F.Image(default='', width=880, height=550)
-	cycleDiagrams = F.ViewGroup([phDiagram], label = "P-H Diagram")
-	resultDiagrams = F.SuperGroup([cycleDiagrams], label = "Diagrams")
-	
-	def initCompute(self, fluid, numPoints):
-		self.fp = [FluidState(fluid) for i in range(numPoints)]
-		self.fluid = Fluid(fluid)
-		
-	def postProcess(self, TAmbient):
-		## State diagram
-		self.createStateDiagram()
-		## Table of states
-		self.cycleStatesTable.resize(len(self.fp))
-		for i in range(len(self.fp)):
-			fp = self.fp[i]
-			self.cycleStatesTable[i] = (fp.T, fp.p, fp.rho, fp.h, fp.s, fp.q, fp.b(TAmbient))
 
 class Compressor(CycleComponent):
 	modelType = F.Choices(OrderedDict((

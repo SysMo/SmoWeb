@@ -10,9 +10,10 @@ import smo.model.fields as F
 from smo.media.MaterialData import Fluids
 from smo.media.diagrams.StateDiagrams import PHDiagram
 import lib.ThermodynamicComponents as TC
+from lib.CycleBases import HeatEngineCycle
 import smo.web.exceptions as E 
 
-class RankineCycle(TC.ThermodynamicalCycle):
+class RankineCycle(HeatEngineCycle):
 	label = "Rankine cycle"
 	figure = F.ModelFigure(src="ThermoFluids/img/ModuleImages/RankineCycle.png",  height = 300)
 	description = F.ModelDescription("Basic Rankine cycle used in power generation", show = True)
