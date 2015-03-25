@@ -28,12 +28,6 @@ class FluidPropsCalculatorView(ModularPageView):
 		else:
 			return fpc.modelView2Json('resultView')
 	
-	@action.post()
-	def loadExample(self, model, view, parameters):
-		fpc = PropertyCalculatorCoolprop()
-		getattr(fpc, parameters)()
-		return fpc.modelView2Json(view)
-	
 from .models import CompressionExpansionModel, HeatingCoolingModel
 @registerView(router)
 class ThermodynamicProcessView(ModularPageView):

@@ -1713,7 +1713,7 @@ smoModule.directive('smoViewToolbar', ['$compile', '$rootScope', function($compi
 			for (var i = 0; i < scope.actions.length; i++) {
 				if (scope.actions[i].options.length>0) {
 					buttons.push('\
-					<div class="btn-group">\
+					<div class="btn-group dropup">\
 					  <button type="button" ng-disabled="!form.$valid" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">\
 						 {{actions[' + i + '].label}} <span class="caret"></span>\
 					  </button>\

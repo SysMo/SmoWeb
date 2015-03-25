@@ -74,12 +74,12 @@ class PropertyCalculatorCoolprop(NumericalModel):
 	
 	# Actions
 	computeAction = ServerAction("computeFluidProps", label = "Compute", outputView = 'resultView')
-	loadEg = ServerAction("loadExample", label = "Example", options=(('water', 'Water'), 
-																		('ethane', 'Ethane'), 
-																		('oxygen', 'O2'),
-																		("ammonia", "Ammonia"),
-																		("argon", "Argon")), outputView = 'inputView')
-	inputActionBar = ActionBar([computeAction, loadEg], save = True)
+	loadEgAction = ServerAction("loadEg", label = "Examples", options=(('water', 'Water Example'), 
+																		('ethane', 'Ethane Example'), 
+																		('oxygen', 'O2 Example'),
+																		("ammonia", "Ammonia Example"),
+																		("argon", "Argon Example")), outputView = 'inputView')
+	inputActionBar = ActionBar([computeAction, loadEgAction], save = True)
 	
 	# Model view
 	inputView = ModelView(ioType = "input", superGroups = [inputs], 
@@ -163,6 +163,9 @@ class PropertyCalculatorCoolprop(NumericalModel):
 	
 	def water(self):
 		self.fluidName = 'Water'
+		self.stateVariable2 = 'Q'
+		self.q2 = 0.4
+		
 			
 	def ethane(self):
 		self.fluidName = 'Ethane'
