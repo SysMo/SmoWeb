@@ -46,11 +46,11 @@ class FreeConvectionView(ModularPageView):
 	label = "Free convection"
 	modules = [FreeConvection_External, FreeConvection_Internal, FreeConvectionDoc]
 
-from .models import ReverseBraytonCycle
+from .models import ReverseBraytonCycle, ReverseBraytonCycleWithRecurperator
 @registerView(router)
 class HeatingCoolingCyces(ModularPageView):
 	label = "Heating/cooling cycles"
-	modules = [ReverseBraytonCycle]	
+	modules = [ReverseBraytonCycle, ReverseBraytonCycleWithRecurperator]	
 	requireGoogle = ['visualization']
 
 from .models import RankineCycle, RankineCycleWithRecurperator

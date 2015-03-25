@@ -2,7 +2,7 @@ from FluidPropsCalculator import PropertyCalculatorCoolprop, FluidInfo, Saturati
 from PipeFlow import PipeFlow, PipeFlowDoc
 from ThermodynamicProcesses import CompressionExpansionModel, HeatingCoolingModel
 from FreeConvection import FreeConvection_External, FreeConvection_Internal, FreeConvectionDoc
-from ReverseBraytonCycle import ReverseBraytonCycle
+from ReverseBraytonCycle import ReverseBraytonCycle, ReverseBraytonCycleWithRecurperator
 from RankineCycle import RankineCycle, RankineCycleWithRecurperator
 from CryogenicPipe import CryogenicPipe
 from CableHeating import CableHeating1D

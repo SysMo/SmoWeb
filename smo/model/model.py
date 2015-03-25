@@ -226,9 +226,6 @@ class NumericalModel(object):
 		for group in modelView.superGroups:
 			if (isinstance(group, fields.SubModelGroup)):
 				groupContent = self.subModelGroup2Json(group, fieldValues)
-				print groupContent
-				print '------------'
-				print fieldValues
 			elif (isinstance(group, fields.SuperGroup)):
 				groupContent = self.superGroup2Json(group, fieldValues)
 			else:

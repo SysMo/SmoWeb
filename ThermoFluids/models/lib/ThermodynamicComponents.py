@@ -11,12 +11,6 @@ import smo.model.fields as F
 from smo.media.CoolProp.CoolProp import Fluid, FluidState
 from smo.media.diagrams.StateDiagrams import PHDiagram
 
-
-class CycleComponent(NumericalModel):
-	abstract = True
-	w = F.Quantity('Power', default = (0, 'kW'), label = 'specific work')
-	qIn = F.Quantity('HeatFlowRate', default = (0, 'kW'), label = 'specific heat in')
-	
 class CycleDiagram(NumericalModel):
 	#================ Inputs ================#
 	isotherms = F.Boolean(label = 'isotherms')
@@ -72,6 +66,11 @@ class CycleDiagram(NumericalModel):
 		os.close(fHandle)
 		return resourcePath
 
+class CycleComponent(NumericalModel):
+	abstract = True
+	w = F.Quantity('Power', default = (0, 'kW'), label = 'specific work')
+	qIn = F.Quantity('HeatFlowRate', default = (0, 'kW'), label = 'specific heat in')
+	
 class Compressor(CycleComponent):
 	modelType = F.Choices(OrderedDict((
 		('S', 'isentropic'),

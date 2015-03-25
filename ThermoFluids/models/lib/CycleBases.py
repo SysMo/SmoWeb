@@ -14,7 +14,7 @@ from smo.media.CoolProp.CoolProp import Fluid, FluidState
 class ThermodynamicalCycle(NumericalModel):
 	abstract = True
 	#================ Inputs ================#
-	cycleDiagram = F.SubModelGroup(TC.CycleDiagram, 'inputs')
+	cycleDiagram = F.SubModelGroup(TC.CycleDiagram, 'inputs', label = 'Diagram settings')
 	#================ Results ================#
 	#---------------- Fields ----------------#
 	cycleStatesTable = F.TableView((
