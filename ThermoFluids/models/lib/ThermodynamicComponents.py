@@ -10,6 +10,7 @@ from smo.model.model import NumericalModel
 import smo.model.fields as F
 from smo.media.CoolProp.CoolProp import Fluid, FluidState
 from smo.media.diagrams.StateDiagrams import PHDiagram
+from smo.web.modules import RestModule
 
 class CycleDiagram(NumericalModel):
 	#================ Inputs ================#
@@ -82,12 +83,17 @@ class Compressor(CycleComponent):
 	modelBlocks = []
 
 	def compute(self, pOut):
-		self.outlet.update_ps(pOut, self.inlet.s)
-		wIdeal = self.outlet.h - self.inlet.h
-		self.w = wIdeal / self.eta
-		self.qIn = - self.fQ * self.w
-		delta_h = self.w + self.qIn
-		self.outlet.update_ph(pOut, self.inlet.h + delta_h)
+		if (self.modelType == 'S'):
+			self.outlet.update_ps(pOut, self.inlet.s)
+			wIdeal = self.outlet.h - self.inlet.h
+			self.w = wIdeal / self.eta
+			self.qIn = - self.fQ * self.w
+			delta_h = self.w + self.qIn
+			self.outlet.update_ph(pOut, self.inlet.h + delta_h)
+		else:
+			self.outlet.update_Tp(self.inlet.T, pOut)
+			self.qIn = (self.outlet.s - self.inlet.s) * self.inlet.T
+			self.w = self.outlet.h - self.inlet.h - self.qIn
 
 class Turbine(CycleComponent):
 	eta = F.Quantity(default = 1, minValue = 0, maxValue = 1, label = 'efficiency')
@@ -206,6 +212,9 @@ Outlet2: T = {self.outlet2.T}, p = {self.outlet2.p}, q = {self.outlet2.q}, h = {
 		
 		he.compute(m1Dot, m2Dot)
 		print he
+
+class ThermodynamicComponentsDoc(RestModule):
+	label = 'Thermodynamic components'
 
 if __name__ == '__main__':
 	HeatExchangerTwoStreams.test()

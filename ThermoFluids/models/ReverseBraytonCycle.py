@@ -193,12 +193,7 @@ class ReverseBraytonCycleWithRecurperator(ReverseBraytonCycle):
 	def R134aCycle(self):
 		super(ReverseBraytonCycleWithRecurperator, self).R134aCycle()
 		self.recurperator.eta = 0.7
-		
-class HeatPumpDoc(RestModule):
-	name = 'HeatPumpDoc'
-	label = 'Heat Pump (Docs)'
-	template = 'documentation/html/HeatPumpDoc.html'
-		
+				
 if __name__ == '__main__':
 	#IsentropicCompression.test()
 	pass

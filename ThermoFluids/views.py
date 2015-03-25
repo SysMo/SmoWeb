@@ -46,6 +46,13 @@ class FreeConvectionView(ModularPageView):
 	label = "Free convection"
 	modules = [FreeConvection_External, FreeConvection_Internal, FreeConvectionDoc]
 
+from .models.lib.ThermodynamicComponents import ThermodynamicComponentsDoc
+@registerView(router)
+class ThermodynamicComponents(ModularPageView):
+	label = "Thermodynamic components (Doc)"
+	modules = [ThermodynamicComponentsDoc]
+	
+
 from .models import ReverseBraytonCycle, ReverseBraytonCycleWithRecurperator
 @registerView(router)
 class HeatingCoolingCyces(ModularPageView):
