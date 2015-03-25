@@ -243,7 +243,9 @@ class NumericalModel(object):
 		"""
 		Provides JSON serializaton of super-group 
 		"""
-		jsonObject = {'type': 'SuperGroup', 'name': group.name, 'label': group.label, 'show': group.show}
+		jsonObject = {'type': 'SuperGroup', 'name': group.name, 'label': group.label}
+		if (group.show is not None):
+			jsonObject['show'] = group.show
 		subgroupList = []		
 		for subgroup in group.groups:
 			if (isinstance(subgroup, fields.SubModelGroup)):
@@ -260,7 +262,9 @@ class NumericalModel(object):
 		"""
 		Provides JSON serializaton of field-group and view-group 
 		"""
-		jsonObject = {'name': group.name, 'label': group.label, 'show': group.show}
+		jsonObject = {'name': group.name, 'label': group.label}
+		if (group.show is not None):
+			jsonObject['show'] = group.show
 		if (isinstance(group, FieldGroup)):
 			jsonObject['type'] = 'FieldGroup'
 		else:
