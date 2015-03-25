@@ -6,19 +6,25 @@ class ServerAction(Action):
 	Server action is a command sent from the client to the server at the push of
 	a button.
 	"""
-	def __init__(self, name, label, outputView = ''):
+	def __init__(self, name, label, options = None, outputView = ''):
 		self.name = name
 		self.label = label
 		self.outputView = outputView
 		
 		self.type = 'ServerAction'
-		
+		self.options = options	
 	def toJson(self):
+		optionList = []
+		if (self.options is not None):
+			for optionTuple in self.options:
+				optionList.append(list(optionTuple))
+				
 		jsonObject = {
 			'name': self.name,
 			'label': self.label,
 			'outputView': self.outputView,
-			'type': self.type
+			'type': self.type,
+			'options': optionList
 		}
 		return jsonObject
 

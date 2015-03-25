@@ -74,7 +74,12 @@ class PropertyCalculatorCoolprop(NumericalModel):
 	
 	# Actions
 	computeAction = ServerAction("computeFluidProps", label = "Compute", outputView = 'resultView')
-	inputActionBar = ActionBar([computeAction], save = True)
+	loadEgAction = ServerAction("loadEg", label = "Examples", options=(('water', 'Water Example'), 
+																		('ethane', 'Ethane Example'), 
+																		('oxygen', 'O2 Example'),
+																		("ammonia", "Ammonia Example"),
+																		("argon", "Argon Example")), outputView = 'inputView')
+	inputActionBar = ActionBar([computeAction, loadEgAction], save = True)
 	
 	# Model view
 	inputView = ModelView(ioType = "input", superGroups = [inputs], 
@@ -141,7 +146,8 @@ class PropertyCalculatorCoolprop(NumericalModel):
 # 							fieldName = "testVarTable")
 	
 	paramVariation = ViewGroup([paramVarTable], label="Parameter Variation")
-	FluidPoints = SuperGroup([paramVariation], label = "Fluid Points")	
+	FluidPoints = SuperGroup([paramVariation], label = "Fluid Points")
+		
 	# Model view
 	resultView = ModelView(ioType = "output", superGroups = [props, FluidPoints])
 	resultViewIsTwoPhase = ModelView(ioType = "output", superGroups = [props, saturationProps, FluidPoints])
@@ -153,7 +159,26 @@ class PropertyCalculatorCoolprop(NumericalModel):
 	def getStateValue(self, sVar, index):
 		sVarDict = {'P': 'p', 'T': 'T', 'D': 'rho', 'H': 'h', 'S': 's', 'Q': 'q'}
 		return self.__dict__[sVarDict[sVar]+str(index)]
+	
+	
+	def water(self):
+		self.fluidName = 'Water'
+		self.stateVariable2 = 'Q'
+		self.q2 = 0.4
+		
 			
+	def ethane(self):
+		self.fluidName = 'Ethane'
+	
+	def oxygen(self):
+		self.fluidName = 'Oxygen'
+		
+	def ammonia(self):
+		self.fluidName = 'Ammonia'
+		
+	def argon(self):
+		self.fluidName = 'Argon'
+		
 	def compute(self):
 		fState = FluidState(self.fluidName)
 		fState.update(self.stateVariable1, self.getStateValue(self.stateVariable1, 1), 

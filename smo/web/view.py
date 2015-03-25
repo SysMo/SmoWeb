@@ -270,6 +270,12 @@ class ModularPageView(object):
 		instance.fieldValuesFromJson(parameters)
 		instance.compute()
 		return instance.modelView2Json(view)
+	
+	@action.post()
+	def loadEg(self, model, view, parameters):
+		instance = model()
+		getattr(instance, parameters)()
+		return instance.modelView2Json(view)
 				
 	@classmethod
 	def asView(cls):
