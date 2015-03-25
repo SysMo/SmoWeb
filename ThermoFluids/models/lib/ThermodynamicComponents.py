@@ -4,10 +4,12 @@ Created on Mar 21, 2015
 @author:  Atanas Pavlov
 @copyright: SysMo Ltd, Bulgaria
 '''
+import os
 from collections import OrderedDict
 from smo.model.model import NumericalModel
 import smo.model.fields as F
 from smo.media.CoolProp.CoolProp import Fluid, FluidState
+from smo.media.diagrams.StateDiagrams import PHDiagram
 
 
 class CycleComponent(NumericalModel):
@@ -15,8 +17,66 @@ class CycleComponent(NumericalModel):
 	w = F.Quantity('Power', default = (0, 'kW'), label = 'specific work')
 	qIn = F.Quantity('HeatFlowRate', default = (0, 'kW'), label = 'specific heat in')
 	
+class CycleDiagram(NumericalModel):
+	abstract = True
+	#================ Inputs ================#
+	isotherms = F.Boolean(label = 'isotherms')
+	temperatureUnit = F.Choices(OrderedDict((('K', 'K'), ('degC', 'degC'))), default = 'K', label="temperature unit", show="self.isotherms == true")
+	isochores = F.Boolean(label = 'isochores')
+	isentrops = F.Boolean(label = 'isentrops')
+	qIsolines = F.Boolean(label = 'vapor quality isolines')
+	diagramInputs = F.FieldGroup([isotherms, temperatureUnit, isochores, isentrops, qIsolines], 
+								label = 'Diagram')
+	
+	defaultMaxP = F.Boolean(label = 'default max pressure')
+	defaultMaxT = F.Boolean(label = 'default max temperature')
+	maxPressure = F.Quantity('Pressure', default = (1, 'bar'), label = 'max pressure', show="self.defaultMaxP == false")
+	maxTemperature = F.Quantity('Temperature', default = (300, 'K'), label = 'max temperature', show="self.defaultMaxT == false")
+	boundaryInputs = F.FieldGroup([defaultMaxP, defaultMaxT, maxPressure, maxTemperature],
+								label = 'Value Limits')
+	
+	inputs = F.SuperGroup([diagramInputs, boundaryInputs], label = 'Diagram settings')
+	
+	def draw(self, fluid, fluidPoints, cycleLines):
+		# Create diagram object
+		diagram = PHDiagram(fluid.name, temperatureUnit = self.temperatureUnit)
+		# Set limits
+		pMax, TMax = None, None
+		if not self.defaultMaxP:
+			pMax = self.maxPressure
+		if not self.defaultMaxT:
+			TMax = self.maxTemperature
+		diagram.setLimits(pMax = pMax, TMax = TMax)
+		fig  = diagram.draw(isotherms=self.isotherms,
+							isochores=self.isochores, 
+							isentrops=self.isentrops, 
+							qIsolines=self.qIsolines)
+		ax = fig.get_axes()[0]		
+		# Draw points
+		i = 1
+		for fp in fluidPoints:
+			ax.semilogy(fp.h/1e3, fp.p/1e5, 'ko')
+			ax.annotate('{}'.format(i), 
+				xy = (fp.h/1e3, fp.p/1e5),
+				xytext = (3, 2), textcoords = 'offset points',
+				size = 'x-large')
+			i += 1
+		# Draw lines
+		for (fp1, fp2) in cycleLines:
+			ax.semilogy(
+				[fp1.h/1e3, fp2.h/1e3], 
+				[fp1.p/1e5, fp2.p/1e5],
+				'k', linewidth = 2)
+		# Export diagram to file
+		fHandle, resourcePath  = diagram.export(fig)
+		os.close(fHandle)
+		return resourcePath
+		
+	
 class ThermodynamicalCycle(NumericalModel):
 	abstract = True
+	#================ Inputs ================#
+	cycleDiagram = F.SubModelGroup(CycleDiagram, 'inputs')
 	#================ Results ================#
 	#---------------- Fields ----------------#
 	cycleStatesTable = F.TableView((
@@ -32,9 +92,9 @@ class ThermodynamicalCycle(NumericalModel):
 	cycleStates = F.ViewGroup([cycleStatesTable], label = "States")
 	resultStates = F.SuperGroup([cycleStates], label="States")
 	#---------------- Cycle diagram -----------#
-	diagram = F.Image(default='', width=880, height=550)
-	diagramViewGroup = F.ViewGroup([diagram], label = "P-H Diagram")
-	resultDiagrams = F.SuperGroup([diagramViewGroup], label = "Diagrams")
+	phDiagram = F.Image(default='', width=880, height=550)
+	cycleDiagrams = F.ViewGroup([phDiagram], label = "P-H Diagram")
+	resultDiagrams = F.SuperGroup([cycleDiagrams], label = "Diagrams")
 	
 	def initCompute(self, fluid, numPoints):
 		self.fp = [FluidState(fluid) for i in range(numPoints)]
@@ -54,8 +114,8 @@ class Compressor(CycleComponent):
 		('S', 'isentropic'),
 		('T', 'isothermal'),
 	)), label = 'compressor model')
-	eta = F.Quantity(default = 1, minValue = 0, maxValue = 1, label = 'efficiency', show = "self.modelType == 'S'")
-	fQ = F.Quantity(default = 0, minValue = 0, maxValue = 1, label = 'heat loss factor', show="self.modelType == 'S'")
+	eta = F.Quantity('Efficiency', label = 'efficiency', show = "self.modelType == 'S'")
+	fQ = F.Quantity('Fraction', default = 0., label = 'heat loss factor', show="self.modelType == 'S'")
 	FG = F.FieldGroup([modelType, eta, fQ], label = 'Compressor')
 	modelBlocks = []
 
@@ -80,6 +140,15 @@ class Turbine(CycleComponent):
 		delta_h = self.w + self.qIn
 		self.outlet.update_ph(pOut, self.inlet.h + delta_h)
 	
+class ThrottleValve(CycleComponent):
+	FG = F.FieldGroup([])
+	modelBlocks = []
+	
+	def compute(self, pOut):
+		self.outlet.update_ph(pOut, self.inlet.h)
+		self.w = 0
+		self.qIn = 0
+
 class IsobaricHeatExchanger(CycleComponent):
 	etaThermal = F.Quantity(default = 0.9, label = 'thermal efficiency', minValue = 0, maxValue = 1, show = 'self.computeMethod == "eta"')
 	TExt = F.Quantity('Temperature', default = (30, 'degC'), label = 'external temperature', show = 'self.computeMethod == "eta"')

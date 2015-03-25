@@ -183,7 +183,8 @@ class PHDiagram(StateDiagram):
 		self.minVapor.update_pq(self.pMin, 1)
 		
 		if (pMax is None):
-			pMax =  10**(np.floor(np.log10(self.critical.p)) + 1.0)
+#			pMax =  10**(np.floor(np.log10(self.critical.p)) + 1.0)
+			pMax = 3 * self.critical.p
 		self.pMax = pMax
 		
 		

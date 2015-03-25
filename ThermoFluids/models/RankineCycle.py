@@ -21,11 +21,11 @@ class RankineCycle(TC.ThermodynamicalCycle):
 	#---------------- Fields ----------------#
 	# FieldGroup
 	fluidName = F.Choices(Fluids, default = 'Water', label = 'fluid')
-	ambientTemperature = F.Quantity('Temperature', default = (15, 'degC'), label = 'ambient temperature')
+	TAmbient = F.Quantity('Temperature', default = (15, 'degC'), label = 'ambient temperature')
 	mDot = F.Quantity('MassFlowRate', default = (1, 'kg/min'), label = 'mass flow rate', description = 'Mass flow rate of the working fluid through the pump')
 	pLow = F.Quantity('Pressure', default = (1, 'bar'), label = 'low pressure')
 	pHigh = F.Quantity('Pressure', default = (50, 'bar'), label = 'high pressure')
-	workingFluidGroup = F.FieldGroup([fluidName, mDot, pLow, pHigh], 'Working fluid')	
+	workingFluidGroup = F.FieldGroup([fluidName, TAmbient, mDot, pLow, pHigh], 'Working fluid')	
 	pump = F.SubModelGroup(TC.Compressor, 'FG', label  = 'Pump')
 	boiler = F.SubModelGroup(TC.Evaporator, 'FG', label = 'Boiler')
 	turbine = F.SubModelGroup(TC.Turbine, 'FG', label = 'Turbine')
@@ -88,7 +88,7 @@ class RankineCycle(TC.ThermodynamicalCycle):
 		self.condenser.compute()
 		
 	def postProcess(self):
-		super(RankineCycle, self).postProcess(self.ambientTemperature)
+		super(RankineCycle, self).postProcess(self.TAmbient)
 		# Flows
 		self.pumpPower = self.mDot * self.pump.w 
 		self.boilerHeat = self.mDot * self.boiler.qIn

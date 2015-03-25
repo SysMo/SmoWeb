@@ -64,7 +64,7 @@ class Quantity(Field):
 	Represents a physical quantity (e.g. Length, Time, Mass etc.). Allows values to 
 	be set using units e.g. (2, 'km')  
 	'''
-	def __init__(self, type = 'Dimensionless', default = None, minValue = 1e-99, maxValue = 1e99, *args, **kwargs):
+	def __init__(self, type = 'Dimensionless', default = None, minValue = None, maxValue = None, *args, **kwargs):
 		"""
 		:param str type: the quantity type (Length, Mass, Time etc.)
 		:param default: default value for the field. Could be value in SI unit or tuple (value, unit) like (2, 'mm').
@@ -73,8 +73,17 @@ class Quantity(Field):
 		"""
 		super(Quantity, self).__init__(*args, **kwargs)
 		self.type = type
-		self.minValue = self.parseValue(minValue)
-		self.maxValue = self.parseValue(maxValue)
+		
+		if (minValue is None):
+			self.minValue = Quantities[self.type].get('minValue', 1e-99)
+		else:
+			self.minValue = self.parseValue(minValue)
+		
+		if (maxValue is None):
+			self.maxValue = Quantities[self.type].get('maxValue', 1e99)
+		else:
+			self.maxValue = self.parseValue(maxValue)
+		
 		if (default is None):
 			self.default = 1.0
 			if ('defDispUnit' in Quantities[self.type].keys()):
