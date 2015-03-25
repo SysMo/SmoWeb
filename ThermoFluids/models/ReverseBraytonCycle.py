@@ -116,7 +116,7 @@ class ReverseBraytonCycle(HeatPumpCycle):
 	inputActionBar = ActionBar([computeAction, exampleAction], save = True)
 
 	#--------------- Model view ---------------#
-	inputView = F.ModelView(ioType = "input", superGroups = [inputs], 
+	inputView = F.ModelView(ioType = "input", superGroups = [inputs, 'cycleDiagram'], 
 		actionBar = inputActionBar, autoFetch = True)	
 
 	#================ Results ================#
