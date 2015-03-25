@@ -1205,6 +1205,7 @@ smoModule.directive('smoFieldGroup', ['$compile', 'util', function($compile, uti
 			viewType: '='
 		},
 		link : function(scope, element, attr) {
+			
 			// Passing values from dataSourceRoot if such property exists in a field-group
 			if (typeof scope.smoFieldGroup.dataSourceRoot !== 'undefined') {
 				scope.smoDataSource = scope.dataSource[scope.smoFieldGroup.dataSourceRoot];
@@ -1365,6 +1366,40 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 	}
 }]);
 
+smoModule.directive('smoSuperGroup', ['$compile', function($compile) {
+	return {
+		restrict : 'A',
+		scope : {
+			smoSuperGroup : '=',
+			dataSource : '=smoDataSource',
+			modelName: '@modelName',
+			viewType: '='
+		},
+		link : function(scope, element, attr) {
+			
+				// Passing values from dataSourceRoot if such property exists in a view-group
+				if (typeof scope.smoSuperGroup.dataSourceRoot !== 'undefined') {
+					scope.smoDataSource = scope.dataSource[scope.smoSuperGroup.dataSourceRoot];
+				} else {
+					scope.smoDataSource = scope.dataSource;
+				}
+			
+				var template = '';
+				for (var j = 0; j < scope.smoSuperGroup.groups.length; j++) {
+					if (scope.smoSuperGroup.groups[j].type == 'FieldGroup') {
+						template += '<div smo-field-group="smoSuperGroup.groups[' + j + ']" view-type="viewType" smo-data-source="smoDataSource"></div>';
+					} else if (scope.smoSuperGroup.groups[j].type == 'ViewGroup') {
+						template += '<div smo-view-group="smoSuperGroup.groups[' + j + ']" model-name="' + scope.modelName + '" smo-data-source="smoDataSource"></div>';
+					}					
+				}
+			
+			var el = angular.element(template);
+	        compiled = $compile(el);
+	        element.append(el);
+	        compiled(scope);
+		}	
+	}
+}]);
 
 smoModule.directive('smoSuperGroupSet', ['$compile', function($compile) {
 	return {
@@ -1375,7 +1410,7 @@ smoModule.directive('smoSuperGroupSet', ['$compile', function($compile) {
 			modelName: '@modelName',
 			viewType: '@viewType'
 		},
-		link : function(scope, element, attr) {	
+		link : function(scope, element, attr) {
 			if (scope.smoSuperGroupSet.length > 1) {
 				var navTabs = [];
 				var navTabPanes = [];
@@ -1389,39 +1424,17 @@ smoModule.directive('smoSuperGroupSet', ['$compile', function($compile) {
 						navTabPanes.push('<div class="tab-pane" id="' + scope.modelName + superGroup.name + '">');
 					}
 					
-					var superGroupFields = [];
-					for (var j = 0; j < superGroup.groups.length; j++) {
-						if (superGroup.groups[j].type == 'FieldGroup') {
-							// Attach the field value to the quantity so that the original value is updated when the quantity value changes
-							superGroupFields.push('<div smo-field-group="smoSuperGroupSet[' + i + '].groups[' + j + ']" view-type="viewType" smo-data-source="smoDataSource"></div>');
-						} else if (superGroup.groups[j].type == 'ViewGroup') {
-							superGroupFields.push('<div smo-view-group="smoSuperGroupSet[' + i + '].groups[' + j + ']" model-name="' + scope.modelName + '" smo-data-source="smoDataSource"></div>');
-						}						
-					}
-					
-					navTabPanes.push(superGroupFields.join(""));
+					navTabPanes.push('<div smo-super-group="smoSuperGroupSet[' + i + ']" model-name="' + scope.modelName + '" view-type="viewType" smo-data-source="smoDataSource"></div>');
 					navTabPanes.push('</div>');
 				}
+				
 				var template = '<ul class="nav nav-tabs" role="tablist">' + navTabs.join("") + '</ul>' +
 				'<div class="tab-content super-group">' + navTabPanes.join("") + '</div>';
 			} else if (scope.smoSuperGroupSet.length == 1) {
-				var superGroup = scope.smoSuperGroupSet[0];
-				var superGroupFields = [];
-				for (var j = 0; j < superGroup.groups.length; j++) {
-					if (superGroup.groups[j].type == 'FieldGroup') {
-						// Attach the field value to the quantity so that the original value is updated when the quantity value changes
-						superGroupFields.push('<div smo-field-group="smoSuperGroupSet[0].groups[' + j + ']" view-type="viewType" smo-data-source="smoDataSource"></div>');
-					} else if (superGroup.groups[j].type == 'ViewGroup') {
-						superGroupFields.push('<div smo-view-group="smoSuperGroupSet[0].groups[' + j + ']" model-name="' + scope.modelName + '" smo-data-source="smoDataSource"></div>');
-					}					
-				}
-				var template = '<div class="super-group">' +
-//									'<h1>' + superGroup.label + '</h1>' +
-									 superGroupFields.join("") + 
-								'</div>';
+				var template = '<div class="super-group">\
+									<div smo-super-group="smoSuperGroupSet[0]" model-name="' + scope.modelName + '" view-type="viewType" smo-data-source="smoDataSource"></div>\
+								</div>';
 			}
-			
-
 			
 			var el = angular.element(template);
 	        compiled = $compile(el);
