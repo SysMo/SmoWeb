@@ -31,8 +31,8 @@ class ThermodynamicalCycle(NumericalModel):
 	resultStates = F.SuperGroup([cycleStates], label="States")
 	#---------------- Cycle diagram -----------#
 	phDiagram = F.Image(default='', width=880, height=550)
-	cycleDiagrams = F.ViewGroup([phDiagram], label = "P-H Diagram")
-	resultDiagrams = F.SuperGroup([cycleDiagrams], label = "Diagrams")
+	cycleDiagramVG = F.ViewGroup([phDiagram], label = "P-H Diagram")
+	resultDiagrams = F.SuperGroup([cycleDiagramVG], label = "Diagrams")
 	
 	def initCompute(self, fluid, numPoints):
 		self.fp = [FluidState(fluid) for i in range(numPoints)]

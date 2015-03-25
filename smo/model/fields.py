@@ -660,9 +660,11 @@ class Group(object):
 	"""Abstract group class"""
 	# Tracks each time an instance is created. Used to retain order.
 	creation_counter = 0
-	def __init__(self, label = "", show = True):
+	def __init__(self, label = "", show = None):
 		self.label = label
 		self.show = show
+		if (self.show is not None):
+			self.show = self.show.replace('"', '\'')
 		# Increase the creation counter, and save our local copy.
 		self.creation_counter = Group.creation_counter
 		Group.creation_counter += 1

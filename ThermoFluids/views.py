@@ -16,17 +16,17 @@ class FluidPropsCalculatorView(ModularPageView):
 	requireJS = ['dygraph', 'dygraphExport']
 	requireGoogle = ['visualization']
 	
-	@action.post()	
-	def computeFluidProps(self, model, view, parameters):		
-		fpc = PropertyCalculatorCoolprop()
-		fpc.fieldValuesFromJson(parameters)
-		fpc.compute()
-		if (fpc.isTwoPhase):
-			a =  fpc.modelView2Json('resultViewIsTwoPhase')
-			print a['definitions'][1]['groups'][0]['name']
-			return a
-		else:
-			return fpc.modelView2Json('resultView')
+# 	@action.post()	
+# 	def computeFluidProps(self, model, view, parameters):		
+# 		fpc = PropertyCalculatorCoolprop()
+# 		fpc.fieldValuesFromJson(parameters)
+# 		fpc.compute()
+# 		if (fpc.isTwoPhase):
+# 			a =  fpc.modelView2Json('resultViewIsTwoPhase')
+# 			print a['definitions'][1]['groups'][0]['name']
+# 			return a
+# 		else:
+# 			return fpc.modelView2Json('resultView')
 	
 from .models import CompressionExpansionModel, HeatingCoolingModel
 @registerView(router)

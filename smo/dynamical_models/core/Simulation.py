@@ -31,7 +31,7 @@ class ResultStorage(object):
 	
 	def initializeWriting(self, varList, chunkSize, datasetFamily = 'simulation_{:0>4d}'):
 		# Size of result chunks
-		self.chunkSize = chunkSize
+		self.chunkSize = int(chunkSize)
 		# Naming convention for the results
 		self.datasetFamily = datasetFamily
 		# Create the group for the result if not present
@@ -64,20 +64,20 @@ class ResultStorage(object):
 	
 	def saveTimeStep(self):
 		# Save the current time step
-		# TRICKY: what happens if there is a discontinuity (before, after)? 
 		self.buffer[self.bufferIndex] = self.record
 		self.bufferIndex += 1
 		# If the buffer is full dump it to the result file
 		if (self.bufferIndex >= self.chunkSize):
+			#print ('Wrote the buffer to HDF')
 			self.data.resize((len(self.data) + self.chunkSize,))
 			self.data[-self.chunkSize:] = self.buffer
 			self.bufferIndex = 0
-			#print ('Wrote the buffer to HDF')
 		
 	def finalizeResult(self):
 		# Dump what is left in the buffer to the raw dataset
-		self.data.resize((len(self.data) + self.bufferIndex,))
-		self.data[-self.bufferIndex:] = self.buffer[:self.bufferIndex]
+		if self.bufferIndex > 0:
+			self.data.resize((len(self.data) + self.bufferIndex,))
+			self.data[-self.bufferIndex:] = self.buffer[:self.bufferIndex]
 		
 		# Create the processed data set
 		self.h5File[self.datasetPath].create_dataset(self.simulationName, 

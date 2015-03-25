@@ -73,13 +73,8 @@ class PropertyCalculatorCoolprop(NumericalModel):
 	inputs = SuperGroup([stateGroup1, stateGroup2], label = "Inputs")
 	
 	# Actions
-	computeAction = ServerAction("computeFluidProps", label = "Compute", outputView = 'resultView')
-	loadEgAction = ServerAction("loadEg", label = "Examples", options=(('water', 'Water Example'), 
-																		('ethane', 'Ethane Example'), 
-																		('oxygen', 'O2 Example'),
-																		("ammonia", "Ammonia Example"),
-																		("argon", "Argon Example")), outputView = 'inputView')
-	inputActionBar = ActionBar([computeAction, loadEgAction], save = True)
+	computeAction = ServerAction("compute", label = "Compute", outputView = 'resultView')
+	inputActionBar = ActionBar([computeAction], save = True)
 	
 	# Model view
 	inputView = ModelView(ioType = "input", superGroups = [inputs], 
@@ -119,10 +114,10 @@ class PropertyCalculatorCoolprop(NumericalModel):
 	h_V = Quantity('SpecificEnthalpy', label = 'specific enthalpy')
 	s_V = Quantity('SpecificEntropy', label = 'specific entropy')
 	#####
-	isTwoPhase = Boolean(label = 'is two phase')
-	liquidResults = FieldGroup([rho_L, h_L, s_L], label="Liquid")
+	isTwoPhase = Boolean(label = 'is two phase', show="false")
+	liquidResults = FieldGroup([rho_L, h_L, s_L, isTwoPhase], label="Liquid")
 	vaporResults = FieldGroup([rho_V, h_V, s_V], label="Vapor")
-	saturationProps = SuperGroup([liquidResults, vaporResults], label="Phases")
+	saturationProps = SuperGroup([liquidResults, vaporResults], label="Phases", show="self.isTwoPhase == true")
 	#####
 	paramVarTable = TableView((
 	                            ('T', Quantity('Temperature')),
@@ -149,35 +144,16 @@ class PropertyCalculatorCoolprop(NumericalModel):
 	FluidPoints = SuperGroup([paramVariation], label = "Fluid Points")
 		
 	# Model view
-	resultView = ModelView(ioType = "output", superGroups = [props, FluidPoints])
-	resultViewIsTwoPhase = ModelView(ioType = "output", superGroups = [props, saturationProps, FluidPoints])
+	resultView = ModelView(ioType = "output", superGroups = [props, saturationProps, FluidPoints])
+	#resultViewIsTwoPhase = ModelView(ioType = "output", superGroups = [props, saturationProps, FluidPoints])
 	
 	############# Page structure ########
-	modelBlocks = [inputView, resultView, resultViewIsTwoPhase]
+	modelBlocks = [inputView, resultView]
 
 	############# Methods ###############	
 	def getStateValue(self, sVar, index):
 		sVarDict = {'P': 'p', 'T': 'T', 'D': 'rho', 'H': 'h', 'S': 's', 'Q': 'q'}
 		return self.__dict__[sVarDict[sVar]+str(index)]
-	
-	
-	def water(self):
-		self.fluidName = 'Water'
-		self.stateVariable2 = 'Q'
-		self.q2 = 0.4
-		
-			
-	def ethane(self):
-		self.fluidName = 'Ethane'
-	
-	def oxygen(self):
-		self.fluidName = 'Oxygen'
-		
-	def ammonia(self):
-		self.fluidName = 'Ammonia'
-		
-	def argon(self):
-		self.fluidName = 'Argon'
 		
 	def compute(self):
 		fState = FluidState(self.fluidName)

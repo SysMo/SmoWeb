@@ -18,7 +18,6 @@ class CycleComponent(NumericalModel):
 	qIn = F.Quantity('HeatFlowRate', default = (0, 'kW'), label = 'specific heat in')
 	
 class CycleDiagram(NumericalModel):
-	abstract = True
 	#================ Inputs ================#
 	isotherms = F.Boolean(label = 'isotherms')
 	temperatureUnit = F.Choices(OrderedDict((('K', 'K'), ('degC', 'degC'))), default = 'K', label="temperature unit", show="self.isotherms == true")
@@ -36,6 +35,7 @@ class CycleDiagram(NumericalModel):
 								label = 'Value Limits')
 	
 	inputs = F.SuperGroup([diagramInputs, boundaryInputs], label = 'Diagram settings')
+	modelBlocks = []
 	
 	def draw(self, fluid, fluidPoints, cycleLines):
 		# Create diagram object

@@ -9,7 +9,7 @@ from smo.util.writers import SmoHTMLWriter
 
 srvAddress = 'platform.sysmoltd.com' 
 
-#env.hosts = srvAddress
+env.hosts = srvAddress
 env.projectRoot = os.getcwd()
 env.installDir = '/srv/SmoWeb/'
 env.virtualBinDir = os.path.abspath(os.path.join(env.installDir, '../VirtualEnv/SmoWebPlatform/bin/'))
@@ -275,6 +275,15 @@ def installPipPackages():
 		with shell_env(CFLAGS="-I/usr/lib/openmpi/include/"): # Necessary for HDF5 based packages
 			for package in packageList:
 				run('pip install {0}'.format(package))
+#######################################################################
+def listExtraPyPackages():
+	"""
+	List of all extra python packages
+	"""
+	print ("""Extra python packages:
+	pydelay - for solving a system of delay differential equations (DDEs)
+	""")
+
 #######################################################################
 def installPySparse():
 	"""
