@@ -1689,27 +1689,42 @@ smoModule.directive('smoViewToolbar', ['$compile', '$rootScope', function($compi
 				} 
 			}
 			
-			$scope.actionHandler = function(action) {
+			$scope.actionHandler = function(action, params) {
 				var targetView = action.outputView || $scope.viewName;
 				var communicator = $scope.model[targetView + 'Communicator'];
 				
+				params = params || $scope.model[$scope.viewName + 'Communicator'].data.values;
+				
 				if (action.name == 'save') {
 					communicator.saveUserInput('save', 
-						$scope.model[$scope.viewName + 'Communicator'].data.values);
+							params);
 				} else {
 					if (communicator.model.recordId) {
-						$scope.model[$scope.viewName + 'Communicator'].data.values.recordId =
+						params.recordId =
 							communicator.model.recordId;
 					}
 					communicator.fetchData(action.name,
-						$scope.model[$scope.viewName + 'Communicator'].data.values, onFetchSuccess);
+							params, onFetchSuccess);
 				}
 			}
 		},
 		link : function(scope, element, attr) {
 			buttons = [];
 			for (var i = 0; i < scope.actions.length; i++) {
-				buttons.push('<button type="button" ng-disabled="!form.$valid" class="btn btn-primary" ng-click="actionHandler(actions[' + i + '])">' + scope.actions[i].label + '</button>');
+				if (scope.actions[i].options.length>0) {
+					buttons.push('\
+					<div class="btn-group">\
+					  <button type="button" ng-disabled="!form.$valid" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false">\
+						 {{actions[' + i + '].label}} <span class="caret"></span>\
+					  </button>\
+					  <ul class="dropdown-menu" role="menu">\
+					     <li ng-repeat="option in actions[' + i + '].options"><a ng-click="actionHandler(actions[' + i + '], option[0])" style="cursor:pointer">{{option[1]}}</a></li>\
+					  </ul>\
+					</div>');
+					
+				} else {
+					buttons.push('<button type="button" ng-disabled="!form.$valid" class="btn btn-primary" ng-click="actionHandler(actions[' + i + '])">' + scope.actions[i].label + '</button>');
+				}
 			}
 			var template = '<div style="margin-left: 20px;" class="btn-group" role="group">'+ buttons.join("") + '</div>';
 			var el = angular.element(template);
