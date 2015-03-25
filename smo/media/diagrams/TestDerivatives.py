@@ -50,8 +50,8 @@ class DerivativeTest:
         self.fState = FluidState(self.fluid)
 
     def numerical_derivative(self, stateVarNum,
-                                    stateVarDenom, stateVarDenom_val, delta = 1.000001, 
-                                    stateVarConst, stateVarConst_val):
+                                    stateVarDenom, stateVarDenom_val, 
+                                    stateVarConst, stateVarConst_val, delta = 1.000001):
         """
         stateVarNum - name of state variable in numerator of the derivative (name is in style of FluidState properties)
         stateVarDenom - name of state variable in denominator of the derivative (name is in style of FluidState.update arguments)

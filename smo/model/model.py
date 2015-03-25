@@ -159,11 +159,11 @@ class NumericalModelMeta(type):
 					raise AttributeError("Page structure undefined. Class {0} must have attribute 'modelBlocks' or must inherit it from a base class.".format(name))
 				else:
 					klass.modelBlocks = modelBlocks
-			print("Class: {}, {}".format(name, klass.modelBlocks)) 
 			for i in range(len(klass.modelBlocks)):
 				# Then resolve them to the ModelViews from the current model 
 				if (isinstance(klass.modelBlocks[i], basestring)):
 					klass.modelBlocks[i] = klass.declared_modelViews[klass.modelBlocks[i]]
+			print("NumericalModel class: {}, {}".format(name, [modelBlock.name for modelBlock in klass.modelBlocks])) 
 		return klass
 
 class NumericalModel(object):
@@ -224,11 +224,16 @@ class NumericalModel(object):
 		fieldValues = {}
 		actions = []
 		for group in modelView.superGroups:
-			if (isinstance(group, fields.SuperGroup)):
-				definitions.append(self.superGroup2Json(group, fieldValues))
+			if (isinstance(group, fields.SubModelGroup)):
+				groupContent = self.subModelGroup2Json(group, fieldValues)
+				print groupContent
+				print '------------'
+				print fieldValues
+			elif (isinstance(group, fields.SuperGroup)):
+				groupContent = self.superGroup2Json(group, fieldValues)
 			else:
-				raise TypeError("The argument to 'groupList2Json' must be a list of SuperGroups" )
-		
+				raise TypeError("The argument to 'groupList2Json' must be a list of SuperGroups" )		
+			definitions.append(groupContent)
 		if (modelView.actionBar is not None):
 			for action in modelView.actionBar.actionList:
 				actions.append(action.toJson()) 
@@ -273,7 +278,12 @@ class NumericalModel(object):
 		"""
 		instance = self.__getattr__(group.name)
 		subFieldValues = {}
-		jsonObject = instance.basicGroup2Json(group.group, subFieldValues)
+		if (isinstance(group.group, BasicGroup)):
+			jsonObject = instance.basicGroup2Json(group.group, subFieldValues)
+		elif (isinstance(group.group, SuperGroup)):
+			jsonObject = instance.superGroup2Json(group.group, subFieldValues)
+		else:
+			pass			
 		jsonObject['name'] = group.name
 		if (group.label is not None):			
 			jsonObject['label'] = group.label
