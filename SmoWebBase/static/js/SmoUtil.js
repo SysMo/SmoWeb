@@ -1202,10 +1202,9 @@ smoModule.directive('smoFieldGroup', ['$compile', 'util', function($compile, uti
 		scope : {
 			smoFieldGroup : '=',
 			dataSource : '=smoDataSource',
-			viewType: '='
+			viewType: '@viewType'
 		},
 		link : function(scope, element, attr) {
-			
 			// Passing values from dataSourceRoot if such property exists in a field-group
 			if (typeof scope.smoFieldGroup.dataSourceRoot !== 'undefined') {
 				scope.smoDataSource = scope.dataSource[scope.smoFieldGroup.dataSourceRoot];
@@ -1218,9 +1217,9 @@ smoModule.directive('smoFieldGroup', ['$compile', 'util', function($compile, uti
 			for (var i = 0; i < scope.smoFieldGroup.fields.length; i++) {
 				var field = scope.smoFieldGroup.fields[i];
 				scope.fields[field.name] = field;
-				var showFieldCode = "";
-				if (!(typeof field.show === "undefined")){
-					showFieldCode = 'ng-show="' + field.show.replace(/self/g, 'smoDataSource') + '"';
+				var showCode = "";
+				if (typeof field.show !== "undefined"){
+					showCode = 'ng-show="' + field.show.replace(/self/g, 'smoDataSource') + '"';
 				}
 				if (field.type == 'Quantity') {
 					field.value = scope.smoDataSource[field.name];
@@ -1228,43 +1227,36 @@ smoModule.directive('smoFieldGroup', ['$compile', 'util', function($compile, uti
 					
 					// Attach the field value to the quantity so that the original value is updated when the quantity value changes
 					if (scope.viewType == 'input') 
-						groupFields.push('<div ' + showFieldCode + ' smo-quantity view-type="input" field-var="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
+						groupFields.push('<div ' + showCode + ' smo-quantity view-type="input" field-var="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
 					if (scope.viewType == 'output')
-						groupFields.push('<div ' + showFieldCode + ' smo-quantity view-type="output" field-var="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
+						groupFields.push('<div ' + showCode + ' smo-quantity view-type="output" field-var="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
 				} else if (field.type == 'Choices') {
 					if (scope.viewType == 'input')
-						groupFields.push('<div ' + showFieldCode + ' smo-choice field-var="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
+						groupFields.push('<div ' + showCode + ' smo-choice field-var="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
 				} else if (field.type == 'String') {
 					if (scope.viewType == 'input') 
-						groupFields.push('<div ' + showFieldCode + ' smo-string view-type="input" field-var="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
+						groupFields.push('<div ' + showCode + ' smo-string view-type="input" field-var="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
 					if (scope.viewType == 'output')
-						groupFields.push('<div ' + showFieldCode + ' smo-string view-type="output" field-var="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
+						groupFields.push('<div ' + showCode + ' smo-string view-type="output" field-var="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
 				} else if (field.type == 'Boolean') {
 					if (scope.viewType == 'input') 
-						groupFields.push('<div ' + showFieldCode + ' smo-bool view-type="input" field-var="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
+						groupFields.push('<div ' + showCode + ' smo-bool view-type="input" field-var="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
 					if (scope.viewType == 'output')
-						groupFields.push('<div ' + showFieldCode + ' smo-bool view-type="output" field-var="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
+						groupFields.push('<div ' + showCode + ' smo-bool view-type="output" field-var="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
 				} else if (field.type == 'RecordArray') {
-						groupFields.push('<div smo-record-array="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
+						groupFields.push('<div ' + showCode + ' smo-record-array="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
 				}	
 			}
 			
-			var template;
+			var template = "";
 			
-			if (scope.smoFieldGroup.show == true) {
-				if (scope.smoFieldGroup.label) {
-					template = '<div class="field-group-label" style="margin-top: 25px;">' + scope.smoFieldGroup.label + '</div>' + 
-						'<div class="field-group-container">' +
+			if (scope.smoFieldGroup.label) {
+				template += '<div class="field-group-label" style="margin-top: 25px;">' + scope.smoFieldGroup.label + '</div>';
+			} 
+			
+			template += '<div class="field-group-container">' +
 							groupFields.join("") +
 						'</div>';
-				} else {
-					template = '<div class="field-group-container">' +
-						groupFields.join("") +
-					'</div>';
-				}
-			} else {
-				template = '';
-			}
 
 			var el = angular.element(template);
 	        compiled = $compile(el);
@@ -1291,11 +1283,9 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 				scope.smoDataSource = scope.dataSource;
 			}
 			
-			var template;
+			var template = "";
 			if (scope.smoViewGroup.label) {
-				template = '<div class="field-group-label" style="margin-top: 25px;">' + scope.smoViewGroup.label + '</div>';
-			} else {
-				template = '';
+				template += '<div class="field-group-label" style="margin-top: 25px;">' + scope.smoViewGroup.label + '</div>';
 			}
 			
 			if (scope.smoViewGroup.fields.length > 1) {
@@ -1306,9 +1296,9 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 				for (var i = 0; i < scope.smoViewGroup.fields.length; i++) {
 					var field = scope.smoViewGroup.fields[i];
 					scope.fields[field.name] = field;
-					var showFieldCode = "";
-					if (!(typeof field.show === "undefined")){
-						showFieldCode = 'ng-show="' + field.show.replace(/self/g, 'smoDataSource') + '"';
+					var showCode = "";
+					if (typeof field.show !== "undefined"){
+						showCode = 'ng-show="' + field.show.replace(/self/g, 'smoDataSource') + '"';
 					}
 					
 					if (i==0){
@@ -1320,9 +1310,9 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 					}
 					
 					if (field.type == 'TableView' || field.type == 'PlotView') {
-						navPillPanes.push('<div ' + showFieldCode + ' smo-data-series-view field-var="fields.' + field.name + '" model-name="' + scope.modelName + '" smo-data-source="smoDataSource" style="width: 840px; max-height: 650px; overflow: auto;"></div>');
+						navPillPanes.push('<div ' + showCode + ' smo-data-series-view field-var="fields.' + field.name + '" model-name="' + scope.modelName + '" smo-data-source="smoDataSource" style="width: 840px; max-height: 650px; overflow: auto;"></div>');
 					} else if (field.type == 'Image') {
-						navPillPanes.push('<div ' + showFieldCode + ' smo-img field-var="fields.' + field.name + '" model-name="' + scope.modelName + '" smo-data-source="smoDataSource" style="max-width: 840px; overflow: auto;"></div>');
+						navPillPanes.push('<div ' + showCode + ' smo-img field-var="fields.' + field.name + '" model-name="' + scope.modelName + '" smo-data-source="smoDataSource" style="max-width: 840px; overflow: auto;"></div>');
 					}
 					
 					navPillPanes.push('</div>'); 
@@ -1341,18 +1331,18 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 				
 			} else if (scope.smoViewGroup.fields.length == 1) {
 				var field = scope.smoViewGroup.fields[0];
-				var showFieldCode = "";
-				if (!(typeof field.show === "undefined")){
-					showFieldCode = 'ng-show="' + field.show.replace(/self/g, 'smoDataSource') + '"';
+				var showCode = "";
+				if (typeof field.show !== "undefined"){
+					showCode = 'ng-show="' + field.show.replace(/self/g, 'smoDataSource') + '"';
 				}
 				
 				template += '\
 					<div style="white-space: nowrap; background-color: white; padding :10px; text-align: center;">';
 				
 				if (field.type == 'TableView' || field.type == 'PlotView') {
-					template += '<div ' + showFieldCode + ' smo-data-series-view field-var="smoViewGroup.fields[0]" model-name="' + scope.modelName + '" smo-data-source="smoDataSource" style="max-width: 840px; max-height: 650px; overflow: auto;"></div>';
+					template += '<div ' + showCode + ' smo-data-series-view field-var="smoViewGroup.fields[0]" model-name="' + scope.modelName + '" smo-data-source="smoDataSource" style="max-width: 840px; max-height: 650px; overflow: auto;"></div>';
 				} else if (field.type == 'Image') {
-					template += '<div ' + showFieldCode + ' smo-img field-var="smoViewGroup.fields[0]" model-name="' + scope.modelName + '" smo-data-source="smoDataSource" style="max-width: 840px; overflow: auto;"></div>';
+					template += '<div ' + showCode + ' smo-img field-var="smoViewGroup.fields[0]" model-name="' + scope.modelName + '" smo-data-source="smoDataSource" style="max-width: 840px; overflow: auto;"></div>';
 				}
 				
 				template += '</div>';					
@@ -1373,10 +1363,9 @@ smoModule.directive('smoSuperGroup', ['$compile', function($compile) {
 			smoSuperGroup : '=',
 			dataSource : '=smoDataSource',
 			modelName: '@modelName',
-			viewType: '='
+			viewType: '@viewType'
 		},
 		link : function(scope, element, attr) {
-			
 				// Passing values from dataSourceRoot if such property exists in a view-group
 				if (typeof scope.smoSuperGroup.dataSourceRoot !== 'undefined') {
 					scope.smoDataSource = scope.dataSource[scope.smoSuperGroup.dataSourceRoot];
@@ -1387,7 +1376,7 @@ smoModule.directive('smoSuperGroup', ['$compile', function($compile) {
 				var template = '';
 				for (var j = 0; j < scope.smoSuperGroup.groups.length; j++) {
 					if (scope.smoSuperGroup.groups[j].type == 'FieldGroup') {
-						template += '<div smo-field-group="smoSuperGroup.groups[' + j + ']" view-type="viewType" smo-data-source="smoDataSource"></div>';
+						template += '<div smo-field-group="smoSuperGroup.groups[' + j + ']" view-type="' + scope.viewType + '" smo-data-source="smoDataSource"></div>';
 					} else if (scope.smoSuperGroup.groups[j].type == 'ViewGroup') {
 						template += '<div smo-view-group="smoSuperGroup.groups[' + j + ']" model-name="' + scope.modelName + '" smo-data-source="smoDataSource"></div>';
 					}					
@@ -1416,23 +1405,37 @@ smoModule.directive('smoSuperGroupSet', ['$compile', function($compile) {
 				var navTabPanes = [];
 				for (var i = 0; i < scope.smoSuperGroupSet.length; i++) {
 					var superGroup = scope.smoSuperGroupSet[i];
-					if (i==0){
-						navTabs.push('<li class="active"><a id="' + scope.modelName + superGroup.name + 'Tab" data-target="#' + scope.modelName + superGroup.name + '" role="tab" data-toggle="tab">' + superGroup.label + '</a></li>');
-						navTabPanes.push('<div class="tab-pane active" id="' + scope.modelName + superGroup.name + '">');
-					} else {
-						navTabs.push('<li><a id="' + scope.modelName + superGroup.name + 'Tab" data-target="#' + scope.modelName + superGroup.name + '" role="tab" data-toggle="tab">' + superGroup.label + '</a></li>');
-						navTabPanes.push('<div class="tab-pane" id="' + scope.modelName + superGroup.name + '">');
+					
+					var showCode = "";
+					if (typeof superGroup.show !== "undefined"){
+						showCode = 'ng-show="' + superGroup.show.replace(/self/g, 'smoDataSource') + '"';
 					}
 					
-					navTabPanes.push('<div smo-super-group="smoSuperGroupSet[' + i + ']" model-name="' + scope.modelName + '" view-type="viewType" smo-data-source="smoDataSource"></div>');
+					if (i==0){
+						navTabs.push('<li ' + showCode + ' class="active"><a id="' + scope.modelName + superGroup.name + 'Tab" data-target="#' + scope.modelName + superGroup.name + '" role="tab" data-toggle="tab">' + superGroup.label + '</a></li>');
+						navTabPanes.push('<div ' + showCode + ' class="tab-pane active" id="' + scope.modelName + superGroup.name + '">');
+					} else {
+						navTabs.push('<li ' + showCode + '><a id="' + scope.modelName + superGroup.name + 'Tab" data-target="#' + scope.modelName + superGroup.name + '" role="tab" data-toggle="tab">' + superGroup.label + '</a></li>');
+						navTabPanes.push('<div ' + showCode + ' class="tab-pane" id="' + scope.modelName + superGroup.name + '">');
+					}
+					
+					navTabPanes.push('<div smo-super-group="smoSuperGroupSet[' + i + ']" model-name="' + scope.modelName + '" view-type="' + scope.viewType + '" smo-data-source="smoDataSource"></div>');
 					navTabPanes.push('</div>');
 				}
 				
-				var template = '<ul class="nav nav-tabs" role="tablist">' + navTabs.join("") + '</ul>' +
-				'<div class="tab-content super-group">' + navTabPanes.join("") + '</div>';
+				var template = '<ul class="nav nav-tabs" role="tablist">' +
+									navTabs.join("") + 
+								'</ul>' +
+								'<div class="tab-content super-group">' + 
+									navTabPanes.join("") + 
+								'</div>';
 			} else if (scope.smoSuperGroupSet.length == 1) {
-				var template = '<div class="super-group">\
-									<div smo-super-group="smoSuperGroupSet[0]" model-name="' + scope.modelName + '" view-type="viewType" smo-data-source="smoDataSource"></div>\
+				var showCode = "";
+				if (typeof scope.smoSuperGroupSet[0].show !== "undefined"){
+					showCode = 'ng-show="' + scope.smoSuperGroupSet[0].show.replace(/self/g, 'smoDataSource') + '"';
+				}
+				var template = '<div class="super-group" ' + showCode + '>\
+									<div smo-super-group="smoSuperGroupSet[0]" model-name="' + scope.modelName + '" view-type="' + scope.viewType + '" smo-data-source="smoDataSource"></div>\
 								</div>';
 			}
 			

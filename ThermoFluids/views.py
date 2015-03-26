@@ -16,17 +16,17 @@ class FluidPropsCalculatorView(ModularPageView):
 	requireJS = ['dygraph', 'dygraphExport']
 	requireGoogle = ['visualization']
 	
-	@action.post()	
-	def computeFluidProps(self, model, view, parameters):		
-		fpc = PropertyCalculatorCoolprop()
-		fpc.fieldValuesFromJson(parameters)
-		fpc.compute()
-		if (fpc.isTwoPhase):
-			a =  fpc.modelView2Json('resultViewIsTwoPhase')
-			print a['definitions'][1]['groups'][0]['name']
-			return a
-		else:
-			return fpc.modelView2Json('resultView')
+# 	@action.post()	
+# 	def computeFluidProps(self, model, view, parameters):		
+# 		fpc = PropertyCalculatorCoolprop()
+# 		fpc.fieldValuesFromJson(parameters)
+# 		fpc.compute()
+# 		if (fpc.isTwoPhase):
+# 			a =  fpc.modelView2Json('resultViewIsTwoPhase')
+# 			print a['definitions'][1]['groups'][0]['name']
+# 			return a
+# 		else:
+# 			return fpc.modelView2Json('resultView')
 	
 from .models import CompressionExpansionModel, HeatingCoolingModel
 @registerView(router)
@@ -46,11 +46,18 @@ class FreeConvectionView(ModularPageView):
 	label = "Free convection"
 	modules = [FreeConvection_External, FreeConvection_Internal, FreeConvectionDoc]
 
-from .models import ReverseBraytonCycle
+from .models.lib.ThermodynamicComponents import ThermodynamicComponentsDoc
+@registerView(router)
+class ThermodynamicComponents(ModularPageView):
+	label = "Thermodynamic components (Doc)"
+	modules = [ThermodynamicComponentsDoc]
+	
+
+from .models import ReverseBraytonCycle, ReverseBraytonCycleWithRecurperator
 @registerView(router)
 class HeatingCoolingCyces(ModularPageView):
 	label = "Heating/cooling cycles"
-	modules = [ReverseBraytonCycle]	
+	modules = [ReverseBraytonCycle, ReverseBraytonCycleWithRecurperator]	
 	requireGoogle = ['visualization']
 
 from .models import RankineCycle, RankineCycleWithRecurperator

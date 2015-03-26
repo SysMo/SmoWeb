@@ -10,15 +10,9 @@ from smo.model.model import NumericalModel
 import smo.model.fields as F
 from smo.media.CoolProp.CoolProp import Fluid, FluidState
 from smo.media.diagrams.StateDiagrams import PHDiagram
+from smo.web.modules import RestModule
 
-
-class CycleComponent(NumericalModel):
-	abstract = True
-	w = F.Quantity('Power', default = (0, 'kW'), label = 'specific work')
-	qIn = F.Quantity('HeatFlowRate', default = (0, 'kW'), label = 'specific heat in')
-	
 class CycleDiagram(NumericalModel):
-	abstract = True
 	#================ Inputs ================#
 	isotherms = F.Boolean(label = 'isotherms')
 	temperatureUnit = F.Choices(OrderedDict((('K', 'K'), ('degC', 'degC'))), default = 'K', label="temperature unit", show="self.isotherms == true")
@@ -36,6 +30,7 @@ class CycleDiagram(NumericalModel):
 								label = 'Value Limits')
 	
 	inputs = F.SuperGroup([diagramInputs, boundaryInputs], label = 'Diagram settings')
+	modelBlocks = []
 	
 	def draw(self, fluid, fluidPoints, cycleLines):
 		# Create diagram object
@@ -71,44 +66,12 @@ class CycleDiagram(NumericalModel):
 		fHandle, resourcePath  = diagram.export(fig)
 		os.close(fHandle)
 		return resourcePath
-		
-	
-class ThermodynamicalCycle(NumericalModel):
-	abstract = True
-	#================ Inputs ================#
-	cycleDiagram = F.SubModelGroup(CycleDiagram, 'inputs', label='Cycle diagram')
-	#================ Results ================#
-	#---------------- Fields ----------------#
-	cycleStatesTable = F.TableView((
-		('T', F.Quantity('Temperature', default = (1, 'K'))),
-		('p', F.Quantity('Pressure', default = (1, 'bar'))),
-		('rho', F.Quantity('Density', default = (1, 'kg/m**3'))),
-		('h', F.Quantity('SpecificEnthalpy', default = (1, 'kJ/kg'))),
-		('s', F.Quantity('SpecificEntropy', default = (1, 'kJ/kg-K'))),
-		('q', F.Quantity()),
-		('b', F.Quantity('SpecificEnergy', default = (1, 'kJ/kg')))
-		), label="Cycle states")
-						
-	cycleStates = F.ViewGroup([cycleStatesTable], label = "States")
-	resultStates = F.SuperGroup([cycleStates], label="States")
-	#---------------- Cycle diagram -----------#
-	phDiagram = F.Image(default='', width=880, height=550)
-	cycleDiagrams = F.ViewGroup([phDiagram], label = "P-H Diagram")
-	resultDiagrams = F.SuperGroup([cycleDiagrams], label = "Diagrams")
-	
-	def initCompute(self, fluid, numPoints):
-		self.fp = [FluidState(fluid) for i in range(numPoints)]
-		self.fluid = Fluid(fluid)
-		
-	def postProcess(self, TAmbient):
-		## State diagram
-		self.createStateDiagram()
-		## Table of states
-		self.cycleStatesTable.resize(len(self.fp))
-		for i in range(len(self.fp)):
-			fp = self.fp[i]
-			self.cycleStatesTable[i] = (fp.T, fp.p, fp.rho, fp.h, fp.s, fp.q, fp.b(TAmbient))
 
+class CycleComponent(NumericalModel):
+	abstract = True
+	w = F.Quantity('Power', default = (0, 'kW'), label = 'specific work')
+	qIn = F.Quantity('HeatFlowRate', default = (0, 'kW'), label = 'specific heat in')
+	
 class Compressor(CycleComponent):
 	modelType = F.Choices(OrderedDict((
 		('S', 'isentropic'),
@@ -120,12 +83,17 @@ class Compressor(CycleComponent):
 	modelBlocks = []
 
 	def compute(self, pOut):
-		self.outlet.update_ps(pOut, self.inlet.s)
-		wIdeal = self.outlet.h - self.inlet.h
-		self.w = wIdeal / self.eta
-		self.qIn = - self.fQ * self.w
-		delta_h = self.w + self.qIn
-		self.outlet.update_ph(pOut, self.inlet.h + delta_h)
+		if (self.modelType == 'S'):
+			self.outlet.update_ps(pOut, self.inlet.s)
+			wIdeal = self.outlet.h - self.inlet.h
+			self.w = wIdeal / self.eta
+			self.qIn = - self.fQ * self.w
+			delta_h = self.w + self.qIn
+			self.outlet.update_ph(pOut, self.inlet.h + delta_h)
+		else:
+			self.outlet.update_Tp(self.inlet.T, pOut)
+			self.qIn = (self.outlet.s - self.inlet.s) * self.inlet.T
+			self.w = self.outlet.h - self.inlet.h - self.qIn
 
 class Turbine(CycleComponent):
 	eta = F.Quantity(default = 1, minValue = 0, maxValue = 1, label = 'efficiency')
@@ -244,6 +212,9 @@ Outlet2: T = {self.outlet2.T}, p = {self.outlet2.p}, q = {self.outlet2.q}, h = {
 		
 		he.compute(m1Dot, m2Dot)
 		print he
+
+class ThermodynamicComponentsDoc(RestModule):
+	label = 'Thermodynamic components'
 
 if __name__ == '__main__':
 	HeatExchangerTwoStreams.test()

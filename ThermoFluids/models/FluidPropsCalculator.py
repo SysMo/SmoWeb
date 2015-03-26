@@ -73,7 +73,7 @@ class PropertyCalculatorCoolprop(NumericalModel):
 	inputs = SuperGroup([stateGroup1, stateGroup2], label = "Inputs")
 	
 	# Actions
-	computeAction = ServerAction("computeFluidProps", label = "Compute", outputView = 'resultView')
+	computeAction = ServerAction("compute", label = "Compute", outputView = 'resultView')
 	inputActionBar = ActionBar([computeAction], save = True)
 	
 	# Model view
@@ -114,10 +114,10 @@ class PropertyCalculatorCoolprop(NumericalModel):
 	h_V = Quantity('SpecificEnthalpy', label = 'specific enthalpy')
 	s_V = Quantity('SpecificEntropy', label = 'specific entropy')
 	#####
-	isTwoPhase = Boolean(label = 'is two phase')
-	liquidResults = FieldGroup([rho_L, h_L, s_L], label="Liquid")
+	isTwoPhase = Boolean(label = 'is two phase', show="false")
+	liquidResults = FieldGroup([rho_L, h_L, s_L, isTwoPhase], label="Liquid")
 	vaporResults = FieldGroup([rho_V, h_V, s_V], label="Vapor")
-	saturationProps = SuperGroup([liquidResults, vaporResults], label="Phases")
+	saturationProps = SuperGroup([liquidResults, vaporResults], label="Phases", show="self.isTwoPhase == true")
 	#####
 	paramVarTable = TableView((
 	                            ('T', Quantity('Temperature')),
@@ -144,11 +144,11 @@ class PropertyCalculatorCoolprop(NumericalModel):
 	FluidPoints = SuperGroup([paramVariation], label = "Fluid Points")
 		
 	# Model view
-	resultView = ModelView(ioType = "output", superGroups = [props, FluidPoints])
-	resultViewIsTwoPhase = ModelView(ioType = "output", superGroups = [props, saturationProps, FluidPoints])
+	resultView = ModelView(ioType = "output", superGroups = [props, saturationProps, FluidPoints])
+	#resultViewIsTwoPhase = ModelView(ioType = "output", superGroups = [props, saturationProps, FluidPoints])
 	
 	############# Page structure ########
-	modelBlocks = [inputView, resultView, resultViewIsTwoPhase]
+	modelBlocks = [inputView, resultView]
 
 	############# Methods ###############	
 	def getStateValue(self, sVar, index):

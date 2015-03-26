@@ -636,6 +636,16 @@ cdef class FluidState:
 			self.checkUpdated()
 			return self._SatV
 	
+	def getStateVarsAsDict(self):
+		self.checkUpdated()
+		return {
+			'T': self.T,
+			'p': self.p,
+			'rho': self.rho,
+			'h': self.h,
+			's': self.s,
+			'q': self.q
+		}
 # 	def getSatL(self):
 # 		"""Returns dictionary of saturation properties in the liquid phase - rho, s, h"""
 # 		#cdef CP.CoolPropStateClassSI* satL
