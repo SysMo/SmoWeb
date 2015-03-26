@@ -5,11 +5,10 @@ import BioReactors
 
 router = ViewRouter('BioReactors', BioReactors)
 
-from .models import SimpleChemostatModel, SimpleChemostatDoc 
+from .models import ChemostatDDEModel, ChemostatDDEDoc, ChemostatSimpleModel, ChemostatSimpleDoc
 @registerView(router)
-class SimpleChemostatView(ModularPageView):
-    label = 'Simple Chemostat'
-    modules = [SimpleChemostatModel, SimpleChemostatDoc]
+class ChemostatView(ModularPageView):
+    label = 'Chemostat'
+    modules = [ChemostatSimpleModel, ChemostatSimpleDoc, ChemostatDDEModel, ChemostatDDEDoc]
     requireJS = ['dygraph', 'dygraphExport']
     requireGoogle = ['visualization']
-    

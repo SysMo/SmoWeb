@@ -15,16 +15,16 @@ from SmoWeb.settings import MEDIA_ROOT
 
 """ Global Settings """
 tmpFolderPath = os.path.join (MEDIA_ROOT, 'tmp')
-csvFileName = os.path.join(tmpFolderPath, 'BioReactors_SimpleChemostat_SimulationResults.csv')
+csvFileName = os.path.join(tmpFolderPath, 'BioReactors_ChemostatSimple_SimulationResults.csv')
 dataStorageFilePath =  os.path.join(tmpFolderPath, 'BioReactors_SimulationResults.h5')
-dataStorageDatasetPath = '/SimpleChemostat'
+dataStorageDatasetPath = '/ChemostatSimple'
 
 
 
 """ Classes """
-class SimpleChemostatTimeEvent(TimeEvent):	
+class ChemostatSimpleTimeEvent(TimeEvent):	
 	"""
-	Class for time event of SimpleChemostatModel
+	Class for time event of ChemostatSimple
 	"""
 	def __init__(self, t, newValue_D):
 		self.t = t
@@ -33,14 +33,14 @@ class SimpleChemostatTimeEvent(TimeEvent):
 		self.eventType = "Chemostat_TIME_EVENT"
 		self.description = "Change the dilution rate (D) to {0}".format(newValue_D)
 		
-class SimpleChemostat(Simulation):
+class ChemostatSimple(Simulation):
 	"""
 	Class for implementation the model of simple chemostat 
 	"""
 	name = 'Model of a simple chemostat.'
 	
 	def __init__(self, model, **kwargs):
-		super(SimpleChemostat, self).__init__(**kwargs)
+		super(ChemostatSimple, self).__init__(**kwargs)
 		
 		# Initialize parameters
 		self.m = model.m
@@ -71,7 +71,7 @@ class SimpleChemostat(Simulation):
 		tChangedD = D_val[0]
 		for i in range(len(self.D_vals)-1):
 			self.D_val = self.D_vals[i+1]
-			self.timeEventRegistry.add(SimpleChemostatTimeEvent(t = tChangedD, newValue_D = self.D_val[1]))
+			self.timeEventRegistry.add(ChemostatSimpleTimeEvent(t = tChangedD, newValue_D = self.D_val[1]))
 			tChangedD += self.D_val[0]
 		
 		# Set initial values of the states
@@ -134,14 +134,19 @@ class SimpleChemostat(Simulation):
 			raise TerminateSimulation()
 	
 	def handle_result(self, solver, t, y):
-		super(SimpleChemostat, self).handle_result(solver, t, y)
+		super(ChemostatSimple, self).handle_result(solver, t, y)
 		
 		self.yRes.set(y)
 		self.resultStorage.record[:] = (t, self.yRes.S, self.yRes.X, self.D)
 		self.resultStorage.saveTimeStep()
 		
-	def run(self, tFinal = 10., tPrint = 0.1):
-		self.simSolver.simulate(tfinal = tFinal, ncp = np.floor(tFinal/tPrint))
+	def run(self, solverParameters):
+		params = solverParameters
+		
+		self.simSolver.simulate(
+			tfinal = params.tFinal, 
+			ncp = np.floor(params.tFinal/params.tPrint)
+		)
 		self.resultStorage.finalizeResult()
 		
 	def getResults(self):
@@ -164,14 +169,18 @@ class SimpleChemostat(Simulation):
 
 
 """ Test functions """
-def TestSimpleChemostat():
+def TestChemostatSimple():
 	# Settings
 	simulate = True #True - run simulation; False - plot an old results 
-	tFinal = 500.
-	tPrint = 1.
 	
+	# Initialize simulation parameters
+	class SolverParams():
+		tFinal = 500.
+		tPrint = 1.0
+	solverParams = SolverParams()
+		
 	# Initialize model parameters
-	class SimpleChemostatParams():
+	class ModelParams():
 		m = 3.0
 		K = 3.7
 		S_in = 2.2
@@ -181,16 +190,17 @@ def TestSimpleChemostat():
 		
 		S0 = 0.0
 		X0 = 0.5
+	modelParams = ModelParams()
 	
 	# Create the model
-	model = SimpleChemostat(
-		SimpleChemostatParams(),
+	model = ChemostatSimple(
+		modelParams,
 		initDataStorage = simulate)
 	
 	# Run simulation or load old results
 	if (simulate == True):
 		model.prepareSimulation()
-		model.run(tFinal, tPrint)
+		model.run(solverParams)
 	else:
 		model.loadResult(simIndex = 1)
 	
@@ -202,5 +212,5 @@ def TestSimpleChemostat():
 	
 if __name__ == '__main__':
 	#NamedStateVector.test()
-	TestSimpleChemostat()
+	TestChemostatSimple()
 	

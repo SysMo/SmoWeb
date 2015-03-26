@@ -32,29 +32,29 @@ The mathematical model of a simple chemostat is [Chemostat95]_:
 
 where:
    
-   :math:`S(t)` - the substrate concentration [mass/volume]
+   :math:`S(t)` - the substrate concentration [conc.]
    
-   :math:`X(t)` - the microorganisms concentration [mass/volume]
+   :math:`X(t)` - the microorganisms concentration [conc.]
    
-   :math:`S_{in}` - the input substrate concentration [mass/volume]
+   :math:`S_{in}` - the input substrate concentration [conc.]
    
-   :math:`X_{in}` - the input microorganisms concentration [mass/volume]; usually  :math:`X_{in} = 0` 
+   :math:`X_{in}` - the input microorganisms concentration [conc.]; usually  :math:`X_{in} = 0` 
    
    :math:`D` - the dilution (or washout) rate [1/time]
    
    :math:`\gamma` - the yield coefficient of microorganisms (:math:`\gamma \leq 1`) [-]
    
-   :math:`\mu(S) = \frac{m.S}{K+S}` - the specific growth rate (Monod type) [mass/volume-time]
+   :math:`\mu(S) = \frac{m.S}{K+S}` - the specific growth rate (Monod type) [conc./time]
    
    :math:`m` - the maximum specific growth rate of the microorganisms [1/time]
    
-   :math:`K` - the half saturation constant [mass/volume]
+   :math:`K` - the half saturation constant [conc.]
    
 and
    
-   :math:`S'=\frac{dS(t)}{dt}` - the rate of change of the substrate concentration [mass/volume-time]
+   :math:`S'=\frac{dS(t)}{dt}` - the rate of change of the substrate concentration [conc./time]
 
-   :math:`X'=\frac{dX(t)}{dt}` - the rate of change of the microorganisms concentration [mass/volume-time]
+   :math:`X'=\frac{dX(t)}{dt}` - the rate of change of the microorganisms concentration [conc./time]
 
 
 
@@ -65,6 +65,12 @@ In simple words, the above ordinary differential equations say:
    \mbox{the rate of change of the substrate = input - washout - consumption}
    
    \mbox{the rate of change of the microorganisms = input - washout + growth}
+   
+   
+Units:
+   *[conc.]* - unit for concentration; usually is measured in: *g/L*, *kmol/m*\ :sup:`3` or *kgCOD/m*\ :sup:`3` 
+   
+   *[time]* - unit for time; usually is measured in *day*
 
 
 References

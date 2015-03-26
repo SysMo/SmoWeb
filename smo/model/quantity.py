@@ -4,6 +4,7 @@ from collections import OrderedDict
 Quantities = {
 	'Dimensionless' : {'title' : 'dimensionless quantity', 'nominalValue' : 1.0, 'SIUnit' : '-', 
 			'units' : OrderedDict((('-', {'mult' : 1}),))},
+			
 	'Efficiency' : {'title' : 'efficiency', 'minValue' : 0.0, 'maxValue' : 1.0, 'nominalValue' : 1.0, 'SIUnit' : '-', 
 			'units' : OrderedDict((('-', {'mult' : 1}), ('%', {'mult' : 1e-2}),))},
 	'Fraction' : {'title' : 'fraction', 'minValue' : 0.0, 'maxValue' : 1.0, 'nominalValue' : 1.0, 'SIUnit' : '-', 
@@ -61,6 +62,7 @@ Quantities = {
 		'units' : OrderedDict((('J/kg-K', {'mult' : 1}), ('kJ/kg-K', {'mult' : 1e3}),))},
 	'SpecificHeatCapacity' : {'title' : 'specific heat capacity', 'nominalValue' : 1e3, 'SIUnit' : 'J/kg-K', 'defDispUnit' : 'kJ/kg-K',
 		'units' : OrderedDict((('J/kg-K', {'mult' : 1}), ('kJ/kg-K', {'mult' : 1e3}),))},
+			
 	# Thermal
 	'HeatFlowRate' : {'title' : 'heat flow rate', 'nominalValue' : 1e3, 'SIUnit' : 'W', 'defDispUnit' : 'kW',
 		'units' : OrderedDict((('W', {'mult' : 1}), ('kW', {'mult' : 1e3}), ('MW', {'mult' : 1e6}), ('GW', {'mult' : 1e9}),
@@ -91,7 +93,8 @@ Quantities = {
 	'ElectricalCurrent' : {'title' : 'electrical current', 'nominalValue' : 1.0, 'SIUnit' : 'A', 'defDispUnit' : 'A',
 		'units' : OrderedDict((('nA', {'mult' : 1e-9}), ('uA', {'mult' : 1e-6}), ('mA', {'mult' : 1e-3}), 
 			('A', {'mult' : 1}), ('kA', {'mult' : 1e3})))},			
-			
+	
+	# Flow	
 	'DynamicViscosity' : {'title' : 'dynamic viscosity', 'nominalValue' : 1.0, 'SIUnit' : 'Pa-s', 'defDispUnit' : 'Pa-s',
 		'units' : OrderedDict((('Pa-s', {'mult' : 1}), ('mPa-s', {'mult' : 1e-3}), ('P', {'mult' : 0.1}), ('cP', {'mult' : 1e-3}),))},
 	'VaporQuality' : {'title' : 'vapor quality', 'nominalValue' : 1.0, 'SIUnit' : '-', 
@@ -101,5 +104,17 @@ Quantities = {
 			('kg/h', {'mult' : 1/3.6e3}), ('g/h', {'mult' : 1e-3/3.6e3}),))},
 	'VolumetricFlowRate' : {'title' : 'volumetric flow rate', 'nominalValue' : 1.0, 'SIUnit' : 'm**3/s', 
 		'units' : OrderedDict((('m**3/s', {'mult' : 1}), ('m**3/h', {'mult' : 1./3.6e3}), ('L/s', {'mult' : 1e-3}),
-			('L/min', {'mult' : 1e-3/60}), ('L/h', {'mult' : 1e-3/3.6e3}),))}
+			('L/min', {'mult' : 1e-3/60}), ('L/h', {'mult' : 1e-3/3.6e3}),))},
+			
+	# Bio-units
+	'Bio_Time' : {'title' : 'bio: time', 'nominalValue' : 1.0, 'SIUnit' : 'day', 
+		'units' : OrderedDict((('s', {'mult' : 1/86400.}), ('min', {'mult' : 1/1440.}), ('h', {'mult' : 1/24.}), ('day', {'mult' : 1.0}), ('year', {'mult' : 365.}),))},
+	'Bio_TimeRate' : {'title' : 'bio: time rate', 'nominalValue' : 1.0, 'SIUnit' : '1/day',
+		'units' : OrderedDict((('1/s', {'mult' : 86400.}), ('1/min', {'mult' : 1440.}), ('1/h', {'mult' : 24.}), ('1/day', {'mult' : 1.0}),))},
+	'Bio_MassConcentration' : {'title' : 'bio: mass concentration', 'nominalValue' : 1.0, 'minValue' : 0.0, 'SIUnit' : 'kg/m**3', 
+		'units' : OrderedDict((('kg/m**3', {'mult' : 1}), ('g/L', {'mult' : 1}), ('g/cm**3', {'mult' : 1e3}),))},
+	'Bio_CODConcentration' : {'title' : 'bio: COD concentration', 'nominalValue' : 1.0, 'minValue' : 0.0, 'SIUnit' : 'kgCOD/m**3', 
+		'units' : OrderedDict((('kgCOD/m**3', {'mult' : 1}), ('gCOD/L', {'mult' : 1}), ('gCOD/cm**3', {'mult' : 1e3}),))},
+	'Bio_MolarConcentration' : {'title' : 'bio: molar concentration', 'nominalValue' : 1.0, 'minValue' : 0.0, 'SIUnit' : 'kmol/m**3', 
+		'units' : OrderedDict((('kmol/m**3', {'mult' : 1}), ('mol/m**3', {'mult' : 1./1e3}), ('mol/L', {'mult' : 1}), ('mol/cm**3', {'mult' : 1e3}),))},
 }

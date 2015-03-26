@@ -1,1 +1,2 @@
-from SimpleChemostatModel import SimpleChemostatModel, SimpleChemostatDoc
+from ChemostatSimpleModel import ChemostatSimpleModel, ChemostatSimpleDoc
+from ChemostatDDEModel import ChemostatDDEModel, ChemostatDDEDoc

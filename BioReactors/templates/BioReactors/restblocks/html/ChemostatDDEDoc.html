@@ -1,0 +1,53 @@
+<div class="document" id="chemostat-dde">
+<h1 class="title">Chemostat (DDE)</h1>
+<div class="figure align-center">
+<img alt="/static/BioReactors/img/ModuleImages/SimpleChemostat.png" src="/static/BioReactors/img/ModuleImages/SimpleChemostat.png" style="width: 150px;" />
+<p class="caption">Stirred bioreactor operated as a chemostat, with a continuous inflow (the feed) and outflow (the effluent).</p>
+</div>
+<div class="section" id="delay-differential-equations-dde">
+<h1>1.&nbsp;&nbsp;&nbsp;Delay differential equations (DDE)</h1>
+<p>Delay differential equations (DDEs) are a type of differential equation in which the derivative
+of the unknown function at a certain time is given in terms of the values of the function at previous times.
+A general form of the time-delay differential equation for <span class="math">\(x(t)\)</span> is</p>
+<div class="math">
+\begin{equation*}
+x'(t) = f(t, x(t), x_{t})
+\end{equation*}
+</div>
+<p>where <span class="math">\(x_t=\{x(\tau):\tau\leq t\}\)</span> represents the trajectory of the solution in the past <a class="citation-reference" href="#wiki-dde" id="id1">[Wiki-DDE]</a>.</p>
+</div>
+<div class="section" id="mathematical-model">
+<h1>2.&nbsp;&nbsp;&nbsp;Mathematical model</h1>
+<p>One example of an mathematical model of an chemostat with delay differential equations (DDE) is:</p>
+<blockquote>
+<p><span class="math">\(s'_{1}(t)=D\left(s_{1}^{in}-s_{1}(t)\right)-k_{1}\mu_{1}\left(s_{1}(t)\right)x_{1}(t)\)</span></p>
+<p><span class="math">\(x'_{1}(t)=\mu_{1}\left(s_{1}(t-\tau_{1})\right)x_{1}(t-\tau_{1})-\alpha Dx_{1}(t)\)</span></p>
+<p><span class="math">\(s'_{2}(t)=D\left(s_{2}^{in}-s_{2}(t)\right)+k_{2}\mu_{1}\left(s_{1}(t)\right)x_{1}(t)-k_{3}\mu_{2}\left(s_{2}(t)\right)x_{2}(t)\)</span></p>
+<p><span class="math">\(x'_{2}(t)=\mu_{2}\left(s_{2}(t-\tau_{2})\right)x_{2}(t-\tau_{2})-\alpha Dx_{2}(t)\)</span></p>
+</blockquote>
+<p>where:</p>
+<blockquote>
+<p><span class="math">\(s_{1}, s_{2}\)</span> - the substrate concentrations</p>
+<p><span class="math">\(x_{1}, x_{2}\)</span> - the bacteria concentrations</p>
+<p><span class="math">\(s_{1}^{in}, s_{2}^{in}\)</span> - the input substrate concentrations</p>
+<p><span class="math">\(D\)</span> - the dilution (or washout) rate</p>
+<p><span class="math">\(k_{1}, k_{2}, k_{3}\)</span> - the yield coefficients</p>
+<p><span class="math">\(\alpha\)</span> - the proportion of bacteria that are affected by the dilution rate D</p>
+<p><span class="math">\(\tau_{1}, \tau_{2}\)</span> - the time delay in conversion of the corresponding substrate to viable biomass for the i-th bacterial population</p>
+<p><span class="math">\(\mu_{1}(s_{1}) = \frac{m_{1}s_{1}}{k_{s1}+s_{1}}\)</span> - the specific growth rate of the bacteria-1</p>
+<p><span class="math">\(\mu_{2}(s_{2}) = \frac{m_{2}s_{2}}{k_{s2}+s_{2}+(s_{2}/k_{I})^{2}}\)</span> - the specific growth rate of the bacteria-2</p>
+<p><span class="math">\(m_{1}, m_{2}\)</span> - the maximum specific growth rates of the bacteria</p>
+<p><span class="math">\(k_{s1}, k_{s2}\)</span> - the half saturation constants</p>
+<p><span class="math">\(k_{I}\)</span> - constant</p>
+</blockquote>
+</div>
+<div class="section" id="references">
+<h1>3.&nbsp;&nbsp;&nbsp;References</h1>
+<table class="docutils citation" frame="void" id="wiki-dde" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[Wiki-DDE]</a></td><td><a class="reference external" href="http://en.wikipedia.org/wiki/Delay_differential_equation" target="_self">http://en.wikipedia.org/wiki/Delay_differential_equation</a></td></tr>
+</tbody>
+</table>
+</div>
+</div>
