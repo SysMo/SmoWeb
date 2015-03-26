@@ -13,3 +13,10 @@ class SimpleChemostatView(ModularPageView):
     requireJS = ['dygraph', 'dygraphExport']
     requireGoogle = ['visualization']
     
+from .models import AnaerobicDigestionDDEModel, AnaerobicDigestionDDEDoc 
+@registerView(router)
+class AnaerobicDigestionDDEView(ModularPageView):
+    label = 'Anaerobic Digestion (DDE)'
+    modules = [AnaerobicDigestionDDEModel, AnaerobicDigestionDDEDoc]
+    requireJS = ['dygraph', 'dygraphExport']
+    requireGoogle = ['visualization']

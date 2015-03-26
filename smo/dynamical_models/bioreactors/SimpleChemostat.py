@@ -140,8 +140,11 @@ class SimpleChemostat(Simulation):
 		self.resultStorage.record[:] = (t, self.yRes.S, self.yRes.X, self.D)
 		self.resultStorage.saveTimeStep()
 		
-	def run(self, tFinal = 10., tPrint = 0.1):
-		self.simSolver.simulate(tfinal = tFinal, ncp = np.floor(tFinal/tPrint))
+	def run(self, solver):
+		self.simSolver.simulate(
+			tfinal = solver.tFinal, 
+			ncp = np.floor(solver.tFinal/solver.tPrint)
+		)
 		self.resultStorage.finalizeResult()
 		
 	def getResults(self):
@@ -167,11 +170,15 @@ class SimpleChemostat(Simulation):
 def TestSimpleChemostat():
 	# Settings
 	simulate = True #True - run simulation; False - plot an old results 
-	tFinal = 500.
-	tPrint = 1.
 	
+	# Initialize simulation parameters
+	class SolverParams():
+		tFinal = 500.
+		tPrint = 1.0
+	solverParams = SolverParams()
+		
 	# Initialize model parameters
-	class SimpleChemostatParams():
+	class ModelParams():
 		m = 3.0
 		K = 3.7
 		S_in = 2.2
@@ -181,16 +188,17 @@ def TestSimpleChemostat():
 		
 		S0 = 0.0
 		X0 = 0.5
+	modelParams = ModelParams()
 	
 	# Create the model
 	model = SimpleChemostat(
-		SimpleChemostatParams(),
+		modelParams,
 		initDataStorage = simulate)
 	
 	# Run simulation or load old results
 	if (simulate == True):
 		model.prepareSimulation()
-		model.run(tFinal, tPrint)
+		model.run(solverParams)
 	else:
 		model.loadResult(simIndex = 1)
 	
