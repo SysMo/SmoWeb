@@ -27,7 +27,7 @@ cycle design is, is the *second law* efficiency:
 Rankine cycle
 -------------
 
-.. figure:: /static/ThermoFluids/img/ModuleImages/RankineCycle.png
+.. figure:: /static/ThermoFluids/img/ModuleImages/RankineCycle.svg
    :width: 500px
    :align: center
    
@@ -51,7 +51,7 @@ steam turbines to power generators. It consists of four steps:
 Regenerative Rankine cycle
 --------------------------
 
-.. figure:: /static/ThermoFluids/img/ModuleImages/RankineCycle.png
+.. figure:: /static/ThermoFluids/img/ModuleImages/RankineCycle_Recuperator.png
    :width: 500px
    :align: center
    

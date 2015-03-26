@@ -119,7 +119,7 @@ class RankineCycle(HeatEngineCycle):
 
 class RegenerativeRankineCycle(RankineCycle):
 	label = "Regenerative Rankine cycle"
-	figure = F.ModelFigure(src="ThermoFluids/img/ModuleImages/RankineCycle.png",  height = 300)
+	figure = F.ModelFigure(src="ThermoFluids/img/ModuleImages/RankineCycle_Recuperator.svg",  height = 300)
 	description = F.ModelDescription("Rankine cycle with recuperator, \
 		using the temperature of the hot steam before the condenser to pre-heat the fluid before entering the boiler", show = True)
 	#================ Inputs ================#

@@ -38,11 +38,11 @@ The simplest vapor compression cycle consists of four steps:
 #. The cold two-phase mixture evaporates at constant pressure at the evaporator absorbing heat from the
    environment
    
------------------------------------------
+----------------------------------------
 Vapor compression cycle with recuperator
------------------------------------------
+----------------------------------------
 
-.. figure:: /static/ThermoFluids/img/ModuleImages/VaporCompressionCycle.svg
+.. figure:: /static/ThermoFluids/img/ModuleImages/VaporCompressionCycle_Recuperator.svg
    :width: 500px
    :align: center
    

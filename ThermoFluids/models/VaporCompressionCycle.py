@@ -117,7 +117,7 @@ class VaporCompressionCycle(HeatPumpCycle):
 
 class VaporCompressionCycleWithRecuperator(VaporCompressionCycle):
 	label = "Vapor compression cycle (recuperator)"
-	figure = F.ModelFigure(src="ThermoFluids/img/ModuleImages/VaporCompressionCycle.svg")
+	figure = F.ModelFigure(src="ThermoFluids/img/ModuleImages/VaporCompressionCycle_Recuperator.svg")
 	description = F.ModelDescription("Vapor compression cycle with a recuperator. The stream \
 	 before the throttle valve is precooled, using the cold stream at the evaporator outlet. \
 	 This increases the compressor cooling/heating capacity of the cycle and improves slightly the COP", show = True)
