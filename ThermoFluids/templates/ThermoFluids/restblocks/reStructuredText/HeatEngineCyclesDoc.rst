@@ -57,7 +57,7 @@ Regenerative Rankine cycle
    
    Regenerative Rankine cycle
 
-In this variation of the Rankine cycle, a counterflow heat exchanger (recurperator) is placed between:
+In this variation of the Rankine cycle, a counterflow heat exchanger (recuperator) is placed between:
  
 * the pump and the boiler on one hand
 * the turbine and the condenser on the other hand

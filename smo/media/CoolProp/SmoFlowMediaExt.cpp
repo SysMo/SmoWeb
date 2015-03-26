@@ -28,8 +28,31 @@ double SmoFlow_CoolPropState::q() {
 	return _q;
 }
 
+double SmoFlow_CoolPropState::dT() {
+	double _dT;
+	if (TwoPhase) {
+		_dT = 0;
+	} else if (p() > pFluid->crit.p.Pa) {
+		_dT = T() - pFluid->crit.T;
+	} else {
+		double TSatL, TSatV, rhoL, rhoV;
+		pFluid->saturation_p(p(), false, TSatL, TSatV, rhoL, rhoV);
+		if (T() > TSatV) {
+			_dT = T() - TSatV;
+		} else {
+			_dT = T() - TSatL;
+		}
+
+	}
+	return _dT;
+}
+
 double SmoFlow_CoolPropState::u() {
 	return h() - p() / rho();
+}
+
+double SmoFlow_CoolPropState::b(double TRef) {
+	return h() - TRef * s();
 }
 
 double SmoFlow_CoolPropState::Pr() {

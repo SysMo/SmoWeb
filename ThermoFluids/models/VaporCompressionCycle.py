@@ -32,7 +32,6 @@ class VaporCompressionCycle(HeatPumpCycle):
 			('CO2TranscriticalCycle', 'CO2 transcritial cycle'),
 	))
 	inputActionBar = ActionBar([computeAction, exampleAction], save = True)
-
 	#--------------- Model view ---------------#
 	inputView = F.ModelView(ioType = "input", superGroups = [inputs, 'cycleDiagram'], 
 		actionBar = inputActionBar, autoFetch = True)	
@@ -42,18 +41,21 @@ class VaporCompressionCycle(HeatPumpCycle):
 	condenserHeat = F.Quantity('HeatFlowRate', default = (1, 'kW'), label = 'condenser heat out')
 	evaporatorHeat = F.Quantity('HeatFlowRate', default = (1, 'kW'), label = 'evaporator heat in')
 	flowFieldGroup = F.FieldGroup([compressorPower, condenserHeat, evaporatorHeat], label = 'Energy flows')
-	
 	resultEnergy = F.SuperGroup([flowFieldGroup, 'efficiencyFieldGroup'], label = 'Energy')
-	
 	resultView = F.ModelView(ioType = "output", superGroups = ['resultDiagrams', 'resultStates', resultEnergy])
 
 	#============= Page structure =============#
 	modelBlocks = [inputView, resultView]
 
 	#================ Methods ================#
+	def __init__(self):
+		self.R134aCycle()
+		
 	def compute(self):
 		if (self.cycleTranscritical and self.condenser.computeMethod == 'dT'):
 			raise ValueError('In transcritical cycle, condenser sub-cooling cannot be used as input')
+		if (self.cycleSupercritical and self.evaporator.computeMethod == 'dT'):
+			raise ValueError('In supercritical cycle, evaporator super-heating cannot be used as input')
 
 		self.initCompute(fluid = self.fluidName, numPoints = 4)
 		self.evaporator.outlet = self.compressor.inlet = self.fp[0]
@@ -64,18 +66,7 @@ class VaporCompressionCycle(HeatPumpCycle):
 		# Initial guess
 		self.fp[0].update_pq(self.pLow, 1)
 		# Cycle iterations
-		absToleranceEnthalpy = 1.0;
-		maxNumIter = 20
-		i = 0
-		while (i < maxNumIter):
-			hOld = self.fp[0].h
-			self.computeCycle()
-			hNew = self.fp[0].h
-			if (abs(hOld - hNew) < absToleranceEnthalpy):
-				break
-		if (hOld - hNew >= absToleranceEnthalpy):
-			raise E.ConvergenceError('Solution did not converge')
-
+		self.cycleIterator.run()
 		# Results
 		self.postProcess()
 	
@@ -88,11 +79,12 @@ class VaporCompressionCycle(HeatPumpCycle):
 		
 	def postProcess(self):
 		super(VaporCompressionCycle, self).postProcess(self.TAmbient)
-		self.compressorPower = self.mDotRefrigerant * self.compressor.w
-		self.compressorHeat = -self.mDotRefrigerant * self.compressor.qIn
-		self.condenserHeat = -self.mDotRefrigerant * self.condenser.qIn
-		self.evaporatorHeat = self.mDotRefrigerant * self.evaporator.qIn
-		
+		# Flows
+		self.compressorPower = self.mDot * self.compressor.w
+		self.compressorHeat = -self.mDot * self.compressor.qIn
+		self.condenserHeat = -self.mDot * self.condenser.qIn
+		self.evaporatorHeat = self.mDot * self.evaporator.qIn
+		# Efficiencies
 		self.COPCooling = self.evaporatorHeat / self.compressorPower
 		self.COPHeating = self.condenserHeat / self.compressorPower
 
@@ -123,33 +115,33 @@ class VaporCompressionCycle(HeatPumpCycle):
 		self.evaporator.computeMethod = 'Q'
 		self.evaporator.qOutlet = 1.0
 
-class VaporCompressionCycleWithRecurperator(VaporCompressionCycle):
-	label = "Vapor compression cycle (recurperator)"
+class VaporCompressionCycleWithRecuperator(VaporCompressionCycle):
+	label = "Vapor compression cycle (recuperator)"
 	figure = F.ModelFigure(src="ThermoFluids/img/ModuleImages/VaporCompressionCycle.svg")
-	description = F.ModelDescription("Vapor compression cycle with a recurperator. The stream \
+	description = F.ModelDescription("Vapor compression cycle with a recuperator. The stream \
 	 before the throttle valve is precooled, using the cold stream at the evaporator outlet. \
 	 This increases the compressor cooling/heating capacity of the cycle and improves slightly the COP", show = True)
 	#================ Inputs ================#
 	#---------------- Fields ----------------#
-	recurperator = F.SubModelGroup(TC.HeatExchangerTwoStreams, 'FG', label = 'Recurperator')
-	inputs = F.SuperGroup(['workingFluidGroup', 'compressor', recurperator, 'condenser', 'evaporator'], label = 'Cycle definition')
+	recuperator = F.SubModelGroup(TC.HeatExchangerTwoStreams, 'FG', label = 'Recuperator')
+	inputs = F.SuperGroup(['workingFluidGroup', 'compressor', recuperator, 'condenser', 'evaporator'], label = 'Cycle definition')
 	#--------------- Model view ---------------#
 
 	#================ Results ================#
 	#---------------- Energy flows -----------#
-	recurperatorHeat = F.Quantity('HeatFlowRate', default = (0, 'kW'), label = 'recurperator heat rate')
-	flowFieldGroup = F.FieldGroup(['compressorPower', recurperatorHeat, 'condenserHeat', 'evaporatorHeat'], label = 'Energy flows')
+	recuperatorHeat = F.Quantity('HeatFlowRate', default = (0, 'kW'), label = 'recuperator heat rate')
+	flowFieldGroup = F.FieldGroup(['compressorPower', recuperatorHeat, 'condenserHeat', 'evaporatorHeat'], label = 'Energy flows')
 	#================ Methods ================#
 	def compute(self):
 		if (self.cycleTranscritical and self.condenser.computeMethod == 'dT'):
 			raise ValueError('In transcritical cycle, condenser sub-cooling cannot be used as input')
 
 		self.initCompute(fluid = self.fluidName, numPoints = 6)
-		self.evaporator.outlet = self.recurperator.inlet1 = self.fp[0]
-		self.recurperator.outlet1 = self.compressor.inlet = self.fp[1]
+		self.evaporator.outlet = self.recuperator.inlet1 = self.fp[0]
+		self.recuperator.outlet1 = self.compressor.inlet = self.fp[1]
 		self.compressor.outlet = self.condenser.inlet = self.fp[2]
-		self.condenser.outlet = self.recurperator.inlet2 = self.fp[3]
-		self.recurperator.outlet2 = self.throttleValve.inlet = self.fp[4]
+		self.condenser.outlet = self.recuperator.inlet2 = self.fp[3]
+		self.recuperator.outlet2 = self.throttleValve.inlet = self.fp[4]
 		self.throttleValve.outlet = self.evaporator.inlet = self.fp[5]
 		
 		# Initial guess
@@ -159,43 +151,26 @@ class VaporCompressionCycleWithRecurperator(VaporCompressionCycle):
 		else:
 			self.fp[3].update_pq(self.pHigh, 0)
 		# Cycle iterations
-		absToleranceEnthalpy = 1.0;
-		maxNumIter = 20
-		i = 0
-		while (i < maxNumIter):
-			hOld = self.fp[0].h
-			print hOld
-			self.computeCycle()
-			hNew = self.fp[0].h
-			if (abs(hOld - hNew) < absToleranceEnthalpy):
-				break
-		if (hOld - hNew >= absToleranceEnthalpy):
-			raise E.ConvergenceError('Solution did not converge')
-
+		self.cycleIterator.run()
 		# Results
 		self.postProcess()
 	
 	def computeCycle(self):
-		self.recurperator.compute(self.mDotRefrigerant, self.mDotRefrigerant)
-		print self.fp[0].getStateVarsAsDict()
+		self.recuperator.compute(self.mDot, self.mDot)
+		self.recuperator.computeStream1(self.mDot)
 		self.compressor.compute(self.pHigh)
-		print self.fp[1].getStateVarsAsDict()
 		self.condenser.compute()
-		print self.fp[2].getStateVarsAsDict()
+		self.recuperator.computeStream2(self.mDot)
 		self.throttleValve.compute(self.pLow)
 		self.evaporator.compute()
 		
 		if (self.cycleTranscritical and self.condenser.computeMethod == 'dT'):
 			raise ValueError('In transcritical cycle, condenser sub-cooling cannot be used as input')
 	
-	def postprocess(self):
-		super(VaporCompressionCycleWithRecurperator, self).postProcess(self.TAmbient)
-		self.recurperatorHeat = self.recurperator.QDot
+	def postProcess(self):
+		super(VaporCompressionCycleWithRecuperator, self).postProcess()
+		self.recuperatorHeat = self.recuperator.QDot
 	
 	def R134aCycle(self):
-		super(VaporCompressionCycleWithRecurperator, self).R134aCycle()
-		self.recurperator.eta = 0.7
-				
-if __name__ == '__main__':
-	#IsentropicCompression.test()
-	pass
+		super(VaporCompressionCycleWithRecuperator, self).R134aCycle()
+		self.recuperator.eta = 0.7

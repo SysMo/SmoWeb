@@ -39,16 +39,16 @@ The simplest vapor compression cycle consists of four steps:
    environment
    
 -----------------------------------------
-Vapor compression cycle with recurperator
+Vapor compression cycle with recuperator
 -----------------------------------------
 
 .. figure:: /static/ThermoFluids/img/ModuleImages/VaporCompressionCycle.svg
    :width: 500px
    :align: center
    
-   Vapor compression cycle with recurperator
+   Vapor compression cycle with recuperator
 
-In this variation of the vapor compression cycle, a recurperator (counterflow heat exchanger) is placed
+In this variation of the vapor compression cycle, a recuperator (counterflow heat exchanger) is placed
 between:
 
 * the otlet of the evaporator and the inlet of the compressor, on one hand, 

@@ -178,7 +178,7 @@ cdef class SaturationState:
 		"""vapor quality"""	
 		def __get__(self):
 			return self.ptr.Q()
-
+		
 cdef class SaturationStateLiquid(SaturationState):
 	def __cinit__(self, FluidState fs):
 		self.parent = fs.ptr
@@ -342,23 +342,35 @@ cdef class FluidState:
 			self.checkUpdated()
 			return self.ptr.q()
 
+	property dT:
+		"""super-heating or sub-cooling"""
+		def __get__(self):
+			self.checkUpdated()
+			return self.ptr.dT()
+
 	def isTwoPhase(self):
 		"""Checks if state is in the two-phase region\n
 		Returns bool"""
 		self.checkUpdated()
 		return self.ptr.TwoPhase
 	
-	property s:
-		"""specific entropy"""	
-		def __get__(self):
-			self.checkUpdated()
-			return self.ptr.s()
-	
+	def b(self, double TRef):
+		"""exergy"""
+		self.checkUpdated()
+		return self.ptr.b(TRef)
+
+
 	property u:
 		"""specific internal energy"""	
 		def __get__(self):
 			self.checkUpdated()
 			return self.ptr.u()
+
+	property s:
+		"""specific entropy"""	
+		def __get__(self):
+			self.checkUpdated()
+			return self.ptr.s()
 	
 	property cp:
 		"""specific heat capacity at constant pressure"""	
@@ -503,14 +515,6 @@ cdef class FluidState:
 		def __get__(self):
 			self.checkUpdated()
 			return self.ptr.gamma()
-	
-	#########################################	
-	# Extra properties
-	def b(self, double TExt):
-		"""exergy"""
-		self.checkUpdated()
-		return self.ptr.h() - TExt * self.ptr.s()
-	
 	
 	#########################################
 	# Update methods

@@ -14,12 +14,13 @@ from smo.web.modules import RestModule
 
 class CycleDiagram(NumericalModel):
 	#================ Inputs ================#
+	enable = F.Boolean(label = 'create process diagram', default = True)
 	isotherms = F.Boolean(label = 'isotherms')
 	temperatureUnit = F.Choices(OrderedDict((('K', 'K'), ('degC', 'degC'))), default = 'K', label="temperature unit", show="self.isotherms == true")
 	isochores = F.Boolean(label = 'isochores')
 	isentrops = F.Boolean(label = 'isentrops')
 	qIsolines = F.Boolean(label = 'vapor quality isolines')
-	diagramInputs = F.FieldGroup([isotherms, temperatureUnit, isochores, isentrops, qIsolines], 
+	diagramInputs = F.FieldGroup([enable, isotherms, temperatureUnit, isochores, isentrops, qIsolines], 
 								label = 'Diagram')
 	
 	defaultMaxP = F.Boolean(label = 'default max pressure')
@@ -187,7 +188,9 @@ class HeatExchangerTwoStreams(CycleComponent):
 			self.QDot = dH2DotMax * self.eta
 		else:
 			self.QDot = -dH1DotMax * self.eta
+	def computeStream1(self, m1Dot):
 		self.outlet1.update_ph(self.inlet1.p, self.inlet1.h + self.QDot / m1Dot)
+	def computeStream2(self, m2Dot):
 		self.outlet2.update_ph(self.inlet2.p, self.inlet2.h - self.QDot / m2Dot)
 	def __str__(self):
 		return """

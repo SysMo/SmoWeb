@@ -18,7 +18,9 @@ public:
 	void createTwoPhaseStates();
 
 	double q();
+	double dT();
 	double u();
+	double b(double TAmbient);
 	double Pr();
 	double gamma();
 	double beta();

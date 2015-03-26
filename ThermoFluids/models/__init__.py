@@ -2,8 +2,8 @@ from FluidPropsCalculator import PropertyCalculatorCoolprop, FluidInfo, Saturati
 from PipeFlow import PipeFlow, PipeFlowDoc
 from ThermodynamicProcesses import CompressionExpansionModel, HeatingCoolingModel
 from FreeConvection import FreeConvection_External, FreeConvection_Internal, FreeConvectionDoc
-from ThermoFluids.models.VaporCompressionCycle import VaporCompressionCycle, VaporCompressionCycleWithRecurperator
-from RankineCycle import RankineCycle, RankineCycleWithRecurperator
+from ThermoFluids.models.VaporCompressionCycle import VaporCompressionCycle, VaporCompressionCycleWithRecuperator
+from RankineCycle import RankineCycle, RegenerativeRankineCycle
 from CryogenicPipe import CryogenicPipe
 from CableHeating import CableHeating1D
 
