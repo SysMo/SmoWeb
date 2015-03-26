@@ -52,10 +52,6 @@ where subscript *v* indicates vapor properties and subscript *l* - liquid ones.
 In order to obtain the boiling temperature at a given pressure, the user enters the pressure and an arbitrary
 value in the range 0-1 for *q*.
 
-Equations of state
-------------------
-
-
 ----------------
 CoolProp package
 ----------------
@@ -79,6 +75,9 @@ P-H diagram
 
 Isentrops
 ~~~~~~~~~
+
+A special algorithm was developed for tracing isentrops, so that most calculations can be expressed in terms
+of the fundamental variables of the equation of state: temperature and density.
 
 1. Start from a seed poing :math:`f_0`
 2. Compute the fluid state based on :math:`s` and :math:`T` variables

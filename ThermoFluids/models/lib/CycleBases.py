@@ -10,6 +10,7 @@ import ThermodynamicComponents as TC
 from smo.media.MaterialData import Fluids
 from smo.model.model import NumericalModel
 from smo.media.CoolProp.CoolProp import Fluid, FluidState
+from smo.web.modules import RestModule
 
 class ThermodynamicalCycle(NumericalModel):
 	abstract = True
@@ -131,6 +132,11 @@ class HeatPumpCycle(ThermodynamicalCycle):
 		else:
 			self.setTCondensation(self.TCondensation)
 
+class HeatPumpCyclesDoc(RestModule):
+	label = 'Documentation'
 
 class HeatEngineCycle(ThermodynamicalCycle):
 	abstract = True
+
+class HeatEngineCyclesDoc(RestModule):
+	label = 'Documentation'

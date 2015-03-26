@@ -3,6 +3,7 @@ from smo.web.view import action
 from smo.web.router import ViewRouter, registerView
 from pymongo import MongoClient
 import ThermoFluids
+import models as M
 
 mongoClient = MongoClient()
 
@@ -53,25 +54,21 @@ class ThermodynamicComponents(ModularPageView):
 	modules = [ThermodynamicComponentsDoc]
 	
 
-from .models import ReverseBraytonCycle, ReverseBraytonCycleWithRecurperator
 @registerView(router)
 class HeatingCoolingCyces(ModularPageView):
 	label = "Heating/cooling cycles"
-	modules = [ReverseBraytonCycle, ReverseBraytonCycleWithRecurperator]	
+	modules = [M.VaporCompressionCycle, M.VaporCompressionCycleWithRecurperator, M.HeatPumpCyclesDoc]	
 	requireGoogle = ['visualization']
 
-from .models import RankineCycle, RankineCycleWithRecurperator
 @registerView(router)
 class PowerGenerationCycles(ModularPageView):
 	label = "Power generation cycles"
-	modules = [RankineCycle, RankineCycleWithRecurperator]
+	modules = [M.RankineCycle, M.RankineCycleWithRecurperator, M.HeatEngineCyclesDoc]
 	requireGoogle = ['visualization']
 	
-from .models import CryogenicPipe
-from .models import CableHeating1D
 @registerView(router)
 class HeatExchange1DView(ModularPageView):
 	label = "Heat exchange 1D"
-	modules = [CryogenicPipe, CableHeating1D]	
+	modules = [M.CryogenicPipe, M.CableHeating1D]	
 	requireJS = ['dygraph', 'dygraphExport']
 	requireGoogle = ['visualization']

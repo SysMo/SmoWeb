@@ -1,0 +1,62 @@
+<div class="document" id="heat-engine-cycles">
+<h1 class="title">Heat engine cycles</h1>
+<p>Heat engines produce useful work by allowing heat to move from a hot reservoir to a cold reservoir.
+Examples of heat engines are the steam and gas turbines in power plants and internal combustion engines
+powering vehicles. The cold reservoir is usually the environment, so the efficiency of the cycle is
+measured as the fraction of the heat coming from the hot reservoir converted to work:</p>
+<div class="math">
+\begin{equation*}
+\eta = \frac{W}{Q_H}
+\end{equation*}
+</div>
+<p>If the hot and cold reservoir have a well defined temperature, then the maximum efficiency that
+can be achieved is given by Carnot's efficiency:</p>
+<div class="math">
+\begin{equation*}
+\eta_c = 1 - \frac{T_C}{T_H}
+\end{equation*}
+</div>
+<p>Provided that we operate between two such fixed temperature reservoirs, a measure of how good the
+cycle design is, is the <em>second law</em> efficiency:</p>
+<div class="math">
+\begin{equation*}
+\eta_{2nd} = \frac {\eta} {\eta_c}
+\end{equation*}
+</div>
+<div class="section" id="rankine-cycle">
+<h1>Rankine cycle</h1>
+<div class="figure align-center">
+<img alt="/static/ThermoFluids/img/ModuleImages/RankineCycle.png" src="/static/ThermoFluids/img/ModuleImages/RankineCycle.png" style="width: 500px;" />
+<p class="caption">Rankine cycle</p>
+</div>
+<p>Rankine cycle is used to produce power in virtually all coal power plants and other plants using
+steam turbines to power generators. It consists of four steps:</p>
+<ol class="arabic simple">
+<li>The cold liquid water is pumped to high pressure using a liquid pump. Because liquids are nearly
+incompressible the work required for the pumping is rather small</li>
+<li>The water enters a boiler where it is heated (by burning coal etc.). The water evaporates and the
+steam is typically superheated (both processes at constant pressure) so that the steam is well away
+from the two-phase region (dry steam)</li>
+<li>The hot, high-pressure steam is expanded through a turbine, isentropically (in an ideal cycle),
+and part of the steam enthalpy is converted to work. At the outlet, wet steam (two-phase
+mixture, mostly steam) at low pressure exits the turbine</li>
+<li>The wet steam enters the condenser, gives off heat to the environment and is reliquefied before
+being pumped again.</li>
+</ol>
+</div>
+<div class="section" id="regenerative-rankine-cycle">
+<h1>Regenerative Rankine cycle</h1>
+<div class="figure align-center">
+<img alt="/static/ThermoFluids/img/ModuleImages/RankineCycle.png" src="/static/ThermoFluids/img/ModuleImages/RankineCycle.png" style="width: 500px;" />
+<p class="caption">Regenerative Rankine cycle</p>
+</div>
+<p>In this variation of the Rankine cycle, a counterflow heat exchanger (recurperator) is placed between:</p>
+<ul class="simple">
+<li>the pump and the boiler on one hand</li>
+<li>the turbine and the condenser on the other hand</li>
+</ul>
+<p>The steam exiting the turbine is still rather hot. Some of its enthalpy can be used to pre-heat the water
+entering the boiler, before it is wasted by rejecting it to the surroundings. This reduces the amount of
+heat necessary to produce the steam, and therefore increases the efficiency of the cycle.</p>
+</div>
+</div>

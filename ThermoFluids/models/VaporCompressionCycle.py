@@ -11,10 +11,10 @@ from lib.CycleBases import HeatPumpCycle
 import smo.web.exceptions as E 
 
 
-class ReverseBraytonCycle(HeatPumpCycle):
-	label = "Reverse Brayton cycle"
-	figure = F.ModelFigure(src="ThermoFluids/img/ModuleImages/ReverseBraytonCycle.svg")
-	description = F.ModelDescription("Basic Brayton cycle used in refrigerators and air conditioners", show = True)
+class VaporCompressionCycle(HeatPumpCycle):
+	label = "Vapor compression cycle"
+	figure = F.ModelFigure(src="ThermoFluids/img/ModuleImages/VaporCompressionCycle.svg")
+	description = F.ModelDescription("Basic vapor compression cycle used in refrigerators and air conditioners", show = True)
 
 	#================ Inputs ================#
 	#---------------- Fields ----------------#
@@ -87,7 +87,7 @@ class ReverseBraytonCycle(HeatPumpCycle):
 		
 		
 	def postProcess(self):
-		super(ReverseBraytonCycle, self).postProcess(self.TAmbient)
+		super(VaporCompressionCycle, self).postProcess(self.TAmbient)
 		self.compressorPower = self.mDotRefrigerant * self.compressor.w
 		self.compressorHeat = -self.mDotRefrigerant * self.compressor.qIn
 		self.condenserHeat = -self.mDotRefrigerant * self.condenser.qIn
@@ -123,10 +123,12 @@ class ReverseBraytonCycle(HeatPumpCycle):
 		self.evaporator.computeMethod = 'Q'
 		self.evaporator.qOutlet = 1.0
 
-class ReverseBraytonCycleWithRecurperator(ReverseBraytonCycle):
-	label = "Reverse Brayton cycle (recurperator)"
-	figure = F.ModelFigure(src="ThermoFluids/img/ModuleImages/ReverseBraytonCycle.svg")
-	description = F.ModelDescription("Brayton cycle with a recurperator precooling the stream before the throttle valve, using the cold stream at the evaporator outlet", show = True)
+class VaporCompressionCycleWithRecurperator(VaporCompressionCycle):
+	label = "Vapor compression cycle (recurperator)"
+	figure = F.ModelFigure(src="ThermoFluids/img/ModuleImages/VaporCompressionCycle.svg")
+	description = F.ModelDescription("Vapor compression cycle with a recurperator. The stream \
+	 before the throttle valve is precooled, using the cold stream at the evaporator outlet. \
+	 This increases the compressor cooling/heating capacity of the cycle and improves slightly the COP", show = True)
 	#================ Inputs ================#
 	#---------------- Fields ----------------#
 	recurperator = F.SubModelGroup(TC.HeatExchangerTwoStreams, 'FG', label = 'Recurperator')
@@ -187,11 +189,11 @@ class ReverseBraytonCycleWithRecurperator(ReverseBraytonCycle):
 			raise ValueError('In transcritical cycle, condenser sub-cooling cannot be used as input')
 	
 	def postprocess(self):
-		super(ReverseBraytonCycleWithRecurperator, self).postProcess(self.TAmbient)
+		super(VaporCompressionCycleWithRecurperator, self).postProcess(self.TAmbient)
 		self.recurperatorHeat = self.recurperator.QDot
 	
 	def R134aCycle(self):
-		super(ReverseBraytonCycleWithRecurperator, self).R134aCycle()
+		super(VaporCompressionCycleWithRecurperator, self).R134aCycle()
 		self.recurperator.eta = 0.7
 				
 if __name__ == '__main__':
