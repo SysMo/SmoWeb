@@ -3,11 +3,11 @@ from smo.model.actions import ServerAction, ActionBar
 from smo.model.fields import *
 from smo.web.modules import RestModule
 
-from smo.dynamical_models.bioreactors.SimpleChemostat import SimpleChemostat
+from smo.dynamical_models.bioreactors.ChemostatDDE import ChemostatDDE
 
-class AnaerobicDigestionDDEModel(NumericalModel):
-    label = "Anaerobic Digestion (DDE)"
-    description = ModelDescription("Simulator of an anaerobic digestion model with delay differential equations (DDE)", show = True)
+class ChemostatDDEModel(NumericalModel):
+    label = "Chemostat with DDE"
+    description = ModelDescription("Chemostat model with delay differential equations (DDE)", show = True)
     figure = ModelFigure(src="BioReactors/img/ModuleImages/SimpleChemostat.png", show=False)
     
     #1. ############ Inputs ###############
@@ -76,25 +76,28 @@ class AnaerobicDigestionDDEModel(NumericalModel):
     #1.4 Model view
     inputView = ModelView(ioType = "input", superGroups = [inputValuesSG, settingsSG], actionBar = inputActionBar, autoFetch = True)
     
-    #2. ############ Results ###############    
+    #2. ############ Results ###############
     plot = PlotView((
-                        ('time', Quantity('Time', default=(1, 'day'))),
-                        ('S', Quantity('Density', default=(1, 'g/L'))),
-                        ('X', Quantity('Density', default=(1, 'g/L'))),
-                        ('D', Quantity('TimeRate', default=(1, '1/day'))),
+                        ('time', Quantity('Bio_Time', default=(1, 'day'))),
+                        ('s1', Quantity('Bio_MassConcentration', default=(1, 'g/L'))),
+                        ('x1', Quantity('Bio_MassConcentration', default=(1, 'g/L'))),
+                        ('s2', Quantity('Bio_MassConcentration', default=(1, 'g/L'))),
+                        ('x2', Quantity('Bio_MassConcentration', default=(1, 'g/L'))),
                     ),
                     label='Plot', 
-                    options = {'ylabel' : None})
+                    options = {'ylabel' : None, 'title': 'Chemostat (DDE)'},
+                    )
     table = TableView((
-                            ('time', Quantity('Time', default=(1, 'day'))),
-                            ('S', Quantity('Density', default=(1, 'g/L'))),
-                            ('X', Quantity('Density', default=(1, 'g/L'))),
-                            ('D', Quantity('TimeRate', default=(1, '1/day'))),
+                            ('time', Quantity('Bio_Time', default=(1, 'day'))),
+                            ('s1', Quantity('Bio_MassConcentration', default=(1, 'g/L'))),
+                            ('x1', Quantity('Bio_MassConcentration', default=(1, 'g/L'))),
+                            ('s2', Quantity('Bio_MassConcentration', default=(1, 'g/L'))),
+                            ('x2', Quantity('Bio_MassConcentration', default=(1, 'g/L'))),
                         ),
                       label='Table', 
-                      options = {'title': 'Title', 'formats': ['0.000', '0.000', '0.000', '0.000']})
+                      options = {'title': 'Title', 'formats': ['0.0000', '0.0000', '0.0000', '0.0000', '0.0000']}
+                     )
 
-    
     resultsVG = ViewGroup([plot, table], label = 'Results')
     resultsSG = SuperGroup([resultsVG])
     
@@ -106,18 +109,16 @@ class AnaerobicDigestionDDEModel(NumericalModel):
     
     
     def compute(self):
-        """
-        simpleChemostat = SimpleChemostat(self)
+        chemostatDDE = ChemostatDDE(self)
+        chemostatDDE.run(self)
         
-        simpleChemostat.prepareSimulation()
-        simpleChemostat.run(self)
+        sol = chemostatDDE.getResults()
+        results = np.array([sol['t'], sol['s1'], sol['x1'], sol['s2'], sol['x2']]).transpose()
         
-        results = simpleChemostat.getResults()
         self.plot = np.array(results)
         self.table = np.array(results)
-        """
-
-class AnaerobicDigestionDDEDoc(RestModule):
-    label = 'Anaerobic Digestion (DDE)'
+        
+class ChemostatDDEDoc(RestModule):
+    label = 'Chemostat with DDE (Doc)'
     
     

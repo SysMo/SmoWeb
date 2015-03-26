@@ -8,11 +8,11 @@ from pydelay import dde23
 
 
 """ Classes """
-class AnaerobicDigestionDDE():
+class ChemostatDDE():
     """
-    Class for implementation the model of anaerobid digestion (2-substrates and 2-organisms) with delay differential equations (DDE)
+    Class for implementation the model of chemostat (2-substrates and 2-organisms) with delay differential equations (DDE)
     """
-    def __init__(self, model):
+    def __init__(self, model):      
         # Define the specific growth rates (in 'C' source code)
         c_code = """
         double mu1(double s, double m, double k) {
@@ -60,20 +60,27 @@ class AnaerobicDigestionDDE():
             's2': lambda t: model.s2_hist_vals,
             'x2': lambda t: model.x2_hist_vals
             }
-        self.dde.hist_from_funcs(histfunc, 4.)
+        self.dde.hist_from_funcs(histfunc, 10.) #:TRICKY: 10. is 'nn' - sample in the interval
                 
     
-    def run(self, solver):
+    def run(self, solverParameters):
+        self.solverParameters = solverParameters
+        params = solverParameters
+        
         # Set the simulation parameters
-        self.dde.set_sim_params(tfinal=solver.tFinal, dtmax=None)
+        self.dde.set_sim_params(tfinal=params.tFinal, dtmax=None)
         
         # Run the simulator
         self.dde.run()
         
+    def getResults(self):
+        params = self.solverParameters
         
-    def plotResults(self, solver):
         # Fetch the results from t=0 to t=tFinal with a step-size of dt=tPrint:
-        sol = self.dde.sample(0, solver.tFinal+solver.tPrint, solver.tPrint)
+        return self.dde.sample(0, params.tFinal + params.tPrint, params.tPrint)
+        
+    def plotResults(self):
+        sol = self.getResults()
         t = sol['t']
         s1 = sol['s1']
         x1 = sol['x1']
@@ -91,8 +98,8 @@ class AnaerobicDigestionDDE():
         
 
 """ Test functions """
-def TestAnaerobicDigestionDDE():
-    print "=== BEGIN: Test TestAnaerobicDigestionDDE ==="
+def TestChemostatDDE():
+    print "=== BEGIN: TestChemostatDDE ==="
     
     # Initialize simulation parameters
     class SolverParams():
@@ -122,12 +129,12 @@ def TestAnaerobicDigestionDDE():
         x2_hist_vals = 0.1
     modelParams = ModelParams()
     
-    model = AnaerobicDigestionDDE(modelParams)
+    model = ChemostatDDE(modelParams)
     model.run(solverParams)
-    model.plotResults(solverParams)
+    model.plotResults()
     
-    print "=== END: Test TestAnaerobicDigestionDDE ==="
+    print "=== END: Test TestChemostatDDE ==="
     
 if __name__ == '__main__':
-    TestAnaerobicDigestionDDE()
+    TestChemostatDDE()
     

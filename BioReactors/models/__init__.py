@@ -1,2 +1,2 @@
-from SimpleChemostatModel import SimpleChemostatModel, SimpleChemostatDoc
-from AnaerobicDigestionDDEModel import AnaerobicDigestionDDEModel, AnaerobicDigestionDDEDoc
+from ChemostatSimpleModel import ChemostatSimpleModel, ChemostatSimpleDoc
+from ChemostatDDEModel import ChemostatDDEModel, ChemostatDDEDoc

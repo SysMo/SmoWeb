@@ -3,11 +3,11 @@ from smo.model.actions import ServerAction, ActionBar
 from smo.model.fields import *
 from smo.web.modules import RestModule
 
-from smo.dynamical_models.bioreactors.SimpleChemostat import SimpleChemostat
+from smo.dynamical_models.bioreactors.ChemostatSimple import ChemostatSimple
 
-class SimpleChemostatModel(NumericalModel):
+class ChemostatSimpleModel(NumericalModel):
     label = "Simple Chemostat"
-    description = ModelDescription("Simulator of simple chemostat", show = True)
+    description = ModelDescription("Simple chemostat model with ordinary differential equations (ODE)", show = True)
     figure = ModelFigure(src="BioReactors/img/ModuleImages/SimpleChemostat.png", show=False)
     
     #1. ############ Inputs ###############
@@ -60,7 +60,7 @@ class SimpleChemostatModel(NumericalModel):
                         ('D', Quantity('Bio_TimeRate', default=(1, '1/day'))),
                       ),
                       label='Table', 
-                      options = {'title': 'Title', 'formats': ['0.000', '0.000', '0.000', '0.000']})
+                      options = {'title': 'Simple Chemostat', 'formats': ['0.000', '0.000', '0.000', '0.000']})
 
     
     resultsVG = ViewGroup([plot, table], label = 'Results')
@@ -74,17 +74,17 @@ class SimpleChemostatModel(NumericalModel):
     
     
     def compute(self):
-        simpleChemostat = SimpleChemostat(self)
+        chemostat = ChemostatSimple(self)
         
-        simpleChemostat.prepareSimulation()
-        simpleChemostat.run(self)
+        chemostat.prepareSimulation()
+        chemostat.run(self)
         
-        results = simpleChemostat.getResults()
+        results = chemostat.getResults()
         self.plot = np.array(results)
         self.table = np.array(results)
         
 
-class SimpleChemostatDoc(RestModule):
+class ChemostatSimpleDoc(RestModule):
     label = 'Simple Chemostat (Doc)'
     
     
