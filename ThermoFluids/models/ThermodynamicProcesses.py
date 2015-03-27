@@ -23,7 +23,7 @@ TransitionType = OrderedDict((
 
 
 from smo.media.calculators.ThermodynamicProcesses import IsentropicProcess, IsothermalProcess, IsobaricProcess, IsenthalpicExpansion
-class ThermodynamicProcessModel(NumericalModel):
+class ThermodynamicProcess(NumericalModel):
 	############ Inputs ###############
 	fluidName = Choices(options = Fluids, default = 'Water', label = 'fluid')	
 	stateVariable1 = Choices(options = StateVariableOptions, default = 'P', label = 'first state variable')
@@ -137,7 +137,7 @@ class ThermodynamicProcessModel(NumericalModel):
 		os.close(fHandle)
 		
 		
-class CompressionExpansionModel(ThermodynamicProcessModel):
+class CompressionExpansion(ThermodynamicProcess):
 	label = "Compression / Expansion"
 	description = ModelDescription("Parameteric models for compression/expansion processes: isobaric, isothermal and isenthalpic", show = True)
 
@@ -152,7 +152,7 @@ class CompressionExpansionModel(ThermodynamicProcessModel):
 	
 	# Model View
 	inputView = ModelView(ioType = "input", superGroups = [inputs], 
-		actionBar = ThermodynamicProcessModel.inputActionBar, autoFetch = True)
+		actionBar = ThermodynamicProcess.inputActionBar, autoFetch = True)
 
 	############# Page structure ########
 	modelBlocks = [inputView, 'resultView']
@@ -176,8 +176,7 @@ class CompressionExpansionModel(ThermodynamicProcessModel):
 		process.compute(stateVar = 'P', stateVal = self.p_final, mDot = self.mDot)
 		return process
 		
-from smo.media.calculators.ThermodynamicProcesses import HeatingCooling
-class HeatingCoolingModel(ThermodynamicProcessModel):
+class HeatingCooling(ThermodynamicProcess):
 	label = "Heating / Cooling"
 	description = ModelDescription("Heating/cooling process at constant pressure", show = True)
 
@@ -193,7 +192,7 @@ class HeatingCoolingModel(ThermodynamicProcessModel):
 	
 	# Model View
 	inputView = ModelView(ioType = "input", superGroups = [inputs], 
-		actionBar = ThermodynamicProcessModel.inputActionBar, autoFetch = True)
+		actionBar = ThermodynamicProcess.inputActionBar, autoFetch = True)
 
 	############# Page structure ########
 	modelBlocks = [inputView, 'resultView']

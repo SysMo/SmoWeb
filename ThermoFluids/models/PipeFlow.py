@@ -6,9 +6,6 @@ from smo.media.MaterialData import Solids, Fluids
 from smo.flow import FrictionFlow
 from smo.media.CoolProp.CoolProp import FluidState
 import math
-import numpy as np
-
-# TOutRec = []
 
 class PipeFlow(NumericalModel):
     label = "Pipe Flow"
@@ -130,11 +127,6 @@ class PipeFlow(NumericalModel):
                 break
             outletTemperature_guess = self.outletTemperature
         
-#         T = np.array(TOutRec)
-#         plt.plot(T)
-#         plt.plot(np.arange(len(T)), self.TWall * np.ones(len(T)))
-#         plt.show()
-        
     def computeGeometry(self):
         if (self.externalDiameter <= self.internalDiameter):
             raise ValueError('External diameter value must be bigger than internal diameter value.')
@@ -172,12 +164,6 @@ class PipeFlow(NumericalModel):
             fStateFilm = FluidState(self.fluidName)
             fStateFilm.update_Tp(self.inletTemperature, self.inletPressure)
             self.inletEnthalpy = fStateFilm.h
-        
-        ####
-#         self.inletDensity = fStateFilm.rho
-#         self.flowVelocity = self.massFlowRate / (self.inletDensity * self.crossSectionalArea)
-#         self.Re = self.inletDensity * self.flowVelocity * self.internalDiameter / fStateFilm.mu
-        ###
         
         self.Pr = fStateFilm.Pr
         self.cond = fStateFilm.cond
@@ -226,16 +212,6 @@ class PipeFlow(NumericalModel):
         else:
             if (self.computationWithIteration == True):
                 self.outletTemperature = 0.9 * prevOutletTemperature + 0.1 * self.outletTemperature    
-            
-#         TOutRec.append(self.outletTemperature)
-#         print ('-------')
-#         print ('inletTemperature: %e'%self.inletTemperature)
-#         print ('outletTemperature: %e'%self.outletTemperature)
-#         print ('TWall: %e'%self.TWall)
-#         print ('dTOut = %e'%(self.outletTemperature - self.TWall))
-#         print ('')
-        
-
 
 # Left for testing purposes !!!    
 #     @staticmethod

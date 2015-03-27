@@ -35,10 +35,6 @@ class CryogenicPipeSolver(object):
 			'maxIterations': 1000,
 			'relaxationFactor': 1.0
 		}
-		#material = Solids['StainlessSteel304']
-		#self.thermCondModel = interp1d(material['thermalCond_T']['T'], material['thermalCond_T']['cond'])
-		#emissivityData = material['emissivity_T']['unfinishedSurface']
-		#self.emissivityModel = interp1d(emissivityData['T'], emissivityData['epsilon'])
 		
 	def createLinearMesh(self, sections, Acs, As): 
 		""" Define mesh """
@@ -68,17 +64,6 @@ class CryogenicPipeSolver(object):
 			mesh = self.mesh, value = 0.)
 		self.thermCond = fp.FaceVariable(mesh = self.mesh)
 		self.emissivity = fp.CellVariable(mesh = self.mesh)
-	
-# 	def createRadialMesh(self, rMin, rMax, width, angle = 2 * np.pi, n = 50):
-# 		self.width = width
-# 		self.angle = angle
-# 		self.areaMult = angle * width
-# 		dx = float(rMax - rMin) / n
-# 		self.mesh = fp.CylindricalGrid1D(nx = n, dx = dx, origin = (rMin))
-# 		self.meshType = 'Radial'
-# 		# Define variable
-# 		self.T = fp.CellVariable(name = "temperature",
-# 			mesh = self.mesh, value = 0.)
 	
 	@property
 	def sideFaceAreas(self):
@@ -124,13 +109,6 @@ class CryogenicPipeSolver(object):
 			raise ValueError('BC type must be T(temperature) or Q(heat flux)')
 		
 	def solve(self):
-# 		if (progressMonitor == None):
-# 			progressMonitor = {
-# 				'maxIterations' : self.solverSettings['maxIterations'],
-# 				'tolerance': self.solverSettings['tolerance'],
-# 				'iterationNum': 0,
-# 				'residual': 1
-# 			}
 		sideFaceFactor = fp.CellVariable(name = "sideFaceFactor",
 			mesh = self.mesh, value = self.sideFaceAreas / (self.areaMult * self.mesh.cellVolumes))
 
@@ -170,10 +148,6 @@ class CryogenicPipeSolver(object):
 				self.QRight.append(self.QAx[-1])
 							
 				sweep += 1
-				# Update monitor
-# 				progressMonitor['iterationNum'] = sweep 
-# 				progressMonitor['residual'] = res  
-
 		else:
 			eqX.solve(var = self.T)
 		
@@ -181,8 +155,7 @@ class CryogenicPipeSolver(object):
 from smo.model.model import NumericalModel
 from smo.model.fields import *
 from smo.model.actions import ServerAction, ActionBar
-from smo.web.modules import RestModule
-from smo.media.MaterialData import Solids, Fluids
+from smo.media.MaterialData import Solids
 
 BoundaryConditionChoice = OrderedDict((
 	('T', 'temperature'),
@@ -232,9 +205,6 @@ class CryogenicPipe(NumericalModel):
 	inputValues = SuperGroup([g1, g2], label = 'Input values')
 	
 	# 1.2 Settings
-	#n = Quantity(default = 50, minValue = 10, maxValue = 1000, label = 'num. mesh elements')
-	#s1 = FieldGroup([n], label = 'Mesh')
-	
 	maxNumIter = Quantity(default = 100, minValue = 20, maxValue=500, label = 'max num. iterations')
 	absTolerance = Quantity(default = 1e-6, label = 'absolute tolerance')
 	relaxationFactor = Quantity(default = 0.99, maxValue = 2.0, label = 'relaxation factor')

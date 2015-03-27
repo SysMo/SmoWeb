@@ -6,8 +6,8 @@ import smo.web.exceptions as E
 
 class NumericalModelMeta(type):
 	"""Metaclass facilitating the creation of a numerical
-	model class. Collects all the declared fields in a 
-	dictionary ``self.declared_fields``"""
+	model class. Collects all declared fields, submodels, basic groups, supergroups and model views in 
+	the class in respective dictionaries"""
 	def __new__(cls, name, bases, attrs):
 		# Label
 		if ('label' not in attrs):
@@ -191,7 +191,12 @@ class NumericalModel(object):
 		* :attr:`showOnHome`: used to specify if a thumbnail of the model is to show on the home page (default is True)
 		* :attr:`figure`: ModelFigure object representing a figure, displayed on the page module of the model and on its thumbnail
 		* :attr:`description`: ModelDescription object representing a description for the model, also used as tooltip of the model's thumbnail
-		* :attr:`declared_fields`: OrderedDict containing the class attributes of type Field of the model
+		* :attr:`declared_fields`: OrderedDict containing the fields declared in the model
+		* :attr:`declared_submodels`: OrderedDict containing the submodels declared in the model
+		* :attr:`declared_attrs`: dictionary containing the declared fields and submodels
+		* :attr:`declared_basicGroups`: dictionary containing the field-groups and view-groups declared in the model
+		* :attr:`declared_superGroups`: dictionary containing the supergroups declared in the model
+		* :attr:`declared_modelViews`: dictionary containing the declared model views
 		* :attr:`modelBlocks`: (mandatory) list of blocks making up the model's page module. Block types may be: ModelView, HtmlBlock, JsBlock	
 	"""
 

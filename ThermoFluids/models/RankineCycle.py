@@ -8,7 +8,6 @@ from smo.model.actions import ServerAction, ActionBar
 import smo.model.fields as F
 import lib.ThermodynamicComponents as TC
 from lib.CycleBases import HeatEngineCycle
-import smo.web.exceptions as E 
 
 class RankineCycle(HeatEngineCycle):
 	label = "Rankine cycle"

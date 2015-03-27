@@ -8,19 +8,19 @@ mongoClient = MongoClient()
 
 router = ViewRouter('ThermoFluids', ThermoFluids)
 
-from .models import PropertyCalculatorCoolprop, FluidInfo, SaturationData, PHDiagramModel, FluidPropertiesDoc
+from .models import PropertyCalculatorCoolprop, FluidInfo, SaturationData, PHDiagram, FluidPropertiesDoc
 @registerView(router)
 class FluidPropsCalculatorView(ModularPageView):
 	label = 'Fluid properties (CoolProp)'
-	modules = [PropertyCalculatorCoolprop, FluidInfo, SaturationData, PHDiagramModel, FluidPropertiesDoc]
+	modules = [PropertyCalculatorCoolprop, FluidInfo, SaturationData, PHDiagram, FluidPropertiesDoc]
 	requireJS = ['dygraph', 'dygraphExport']
 	requireGoogle = ['visualization']
 	
-from .models import CompressionExpansionModel, HeatingCoolingModel
+from .models import CompressionExpansion, HeatingCooling
 @registerView(router)
 class ThermodynamicProcessView(ModularPageView):
 	label = "Thermodynamic processes"
-	modules = [CompressionExpansionModel, HeatingCoolingModel]
+	modules = [CompressionExpansion, HeatingCooling]
 
 from .models import PipeFlow, PipeFlowDoc
 @registerView(router)
