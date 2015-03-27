@@ -458,7 +458,7 @@ class PHDiagram(StateDiagram):
 	
 	def draw(self, isotherms=True, isochores=True, isentrops=True, qIsolines=True, fig = None):
 		if (fig is None):
-			fig = Figure(figsize=(16.0, 10.0))
+			fig = Figure(figsize=(16.0, 10.0), facecolor='white')
 		self.fig = fig
 		self.ax = self.fig.add_subplot(1,1,1)
 		self.ax.set_xlabel('Enthalpy [kJ/kg]')
@@ -484,6 +484,7 @@ class PHDiagram(StateDiagram):
 			self.plotIsentrops()
 		
 		self.ax.legend(loc='upper center',  bbox_to_anchor=(0.5, 1.05),  fontsize="small", ncol=4)
+		fig.tight_layout()
 		return fig
 	
 	def export(self, fig):
