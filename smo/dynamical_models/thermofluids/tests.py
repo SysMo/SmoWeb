@@ -5,11 +5,10 @@ Created on Mar 5, 2015
 @copyright: SysMo Ltd, Bulgaria
 '''
 import unittest
-from smo.media.CoolProp.CoolProp import FluidState
-from Structures import *
-from FlowComponents import FluidHeater
-from SourcesSinks import FlowSource, FluidStateSource, TemperatureSource
-from HeatFlowComponents import TwoPortHeatTransfer
+import smo.media.CoolProp as CP
+import smo.dynamical_models.thermofluids as DM
+from smo.dynamical_models.thermofluids import Structures as DMS
+
 """
 ======================================
 Structures.py
@@ -18,15 +17,15 @@ Structures.py
 
 class TestStructures(unittest.TestCase):
 	def setUp(self):
-		fState = FluidState('Oxygen')
-		tState = ThermalState()
-		self.fp1 = FluidPort('C', fState)
-		self.fp2 = FluidPort('R')
-		self.fp3 = DynamicCPort(FluidPort, FluidState('Oxygen'))
-		self.fp4 = FluidPort('R')
-		self.tp1 = ThermalPort('C', tState)
-		self.tp2 = ThermalPort('R')
-		self.tp3 = ThermalPort('R')
+		fState = CP.FluidState('Oxygen')
+		tState = DMS.ThermalState()
+		self.fp1 = DMS.FluidPort('C', fState)
+		self.fp2 = DMS.FluidPort('R')
+		self.fp3 = DMS.DynamicCPort(DMS.FluidPort, CP.FluidState('Oxygen'))
+		self.fp4 = DMS.FluidPort('R')
+		self.tp1 = DMS.ThermalPort('C', tState)
+		self.tp2 = DMS.ThermalPort('R')
+		self.tp3 = DMS.ThermalPort('R')
 		
 		self.fp1.state.update_Tp(300, 2e5)
 		self.fp2.flow.mDot = 3.0
@@ -76,11 +75,11 @@ class TestsFlowComponents(unittest.TestCase):
 		self.fluid = 'Nitrogen'
 		
 	def testFluidHeater(self):
-		fh = FluidHeater(self.fluid)
+		fh = DM.FluidHeater(self.fluid)
 		TFluid = 290.0
-		fs1 = FlowSource(self.fluid, mDot = 0.1, TOut = TFluid)
-		fs2 = FluidStateSource(self.fluid, sourceType = FluidStateSource.TP)
-		tp = ThermalPort('C', ThermalState(T = 350))
+		fs1 = DM.FlowSource(self.fluid, mDot = 0.1, TOut = TFluid)
+		fs2 =DM.FluidStateSource(self.fluid, sourceType = DM.FluidStateSource.TP)
+		tp = DMS.ThermalPort('C', DMS.ThermalState(T = 350))
 		fh.portOut.connect(fs2.port1)
 		fh.portIn.connect(fs1.port1)
 		fh.thermalPort.connect(tp)
@@ -105,8 +104,8 @@ class TestHeatFlowComponents(unittest.TestCase):
 	def setUp(self):
 		pass
 	def testTwoPortHeatTransfer(self):
-		t1 = TemperatureSource(T = 300.)
-		t2 = TemperatureSource(T = 250.)
+		t1 = DM.TemperatureSource(T = 300.)
+		t2 = DM.TemperatureSource(T = 250.)
 		t1.computeState()
 		t2.computeState()
 		def condModel(T1, T2):
@@ -114,7 +113,7 @@ class TestHeatFlowComponents(unittest.TestCase):
 				return (10. * (T1 - T2))
 			else:
 				return 2000.0
-		c = TwoPortHeatTransfer(condModel = condModel)
+		c = DM.TwoPortHeatTransfer(condModel = condModel)
 		c.port1.connect(t1.port1)
 		c.port2.connect(t2.port1)
 		c.compute()

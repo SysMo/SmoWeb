@@ -4,9 +4,8 @@ Created on Mar 4, 2015
 @author: Atanas Pavlov
 @copyright: SysMot Ltd., Bulgaria
 '''
+import smo.media.CoolProp as CP
 
-from smo.media.CoolProp.CoolProp import FluidState
-	
 class FluidFlow(object):
 	def __init__(self, mDot = 0., HDot = 0.):
 		self.mDot = float(mDot)
@@ -139,6 +138,6 @@ class ThermalPort(RCPort):
 		
 class FluidPort(RCPort):
 	domain = 'Fluid'
-	stateType = FluidState
+	stateType = CP.FluidState
 	flowType = FluidFlow
 	

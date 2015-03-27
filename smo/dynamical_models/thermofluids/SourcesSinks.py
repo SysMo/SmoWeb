@@ -4,29 +4,29 @@ Created on Mar 4, 2015
 @author: Atanas Pavlov
 @copyright: SysMo Ltd., Bulgaria
 '''
-import smo.dynamical_models.core.DynamicalModel as dm
-from smo.media.CoolProp.CoolProp import FluidState
-from Structures import FluidFlow, FluidPort
-from Structures import ThermalPort,	ThermalState
+import smo.media.CoolProp as CP
+import smo.dynamical_models.core as DMC
+from smo.dynamical_models.thermofluids import Structures as DMS
 
-class TemperatureSource(dm.DynamicalModel):
+class TemperatureSource(DMC.DynamicalModel):
 	def __init__(self, T):
 		self.T = T
-		self.port1 = ThermalPort('C', ThermalState())
+		self.port1 = DMS.ThermalPort('C', DMS.ThermalState())
+		
 	def computeState(self):
 		self.port1.state.T = self.T
 
-class FlowSource(dm.DynamicalModel):
+class FlowSource(DMC.DynamicalModel):
 	'''
 	Flow source or sink
 	'''
 	def __init__(self, fluid, mDot = 0, TOut = None):
 		self.fluid = fluid
-		self.fState = FluidState(fluid)
+		self.fState = CP.FluidState(fluid)
 		self.TOutModel = lambda obj: TOut
 		self.mDot = mDot
-		self.flow = FluidFlow(mDot = self.mDot)
-		self.port1 = FluidPort('R', self.flow) 
+		self.flow = DMS.FluidFlow(mDot = self.mDot)
+		self.port1 = DMS.FluidPort('R', self.flow) 
 		
 	def compute(self):
 		self.extState = self.port1.state
@@ -38,14 +38,14 @@ class FlowSource(dm.DynamicalModel):
 		self.flow.mDot = self.mDot
 		self.flow.HDot = self.HDot
 		
-class FluidStateSource(dm.DynamicalModel):
+class FluidStateSource(DMC.DynamicalModel):
 	TP = 1
 	PQ = 2
 	TQ = 3
 	def __init__(self, fluid, sourceType):
 		self.fluid = fluid
-		self.fState = FluidState(fluid)
-		self.port1 = FluidPort('C', self.fState)
+		self.fState = CP.FluidState(fluid)
+		self.port1 = DMS.FluidPort('C', self.fState)
 		self.sourceType = sourceType 
 	
 	def computeState(self):

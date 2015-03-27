@@ -4,27 +4,26 @@ Created on Feb 25, 2015
 @author: Atanas Pavlov
 @copyright: SysMo Ltd, Bulgaria
 '''
+import smo.media.CoolProp as CP
+import smo.dynamical_models.core as DMC
+from smo.dynamical_models.thermofluids import Structures as DMS
 
-import smo.dynamical_models.core.DynamicalModel as dm
-from smo.media.CoolProp.CoolProp import Fluid, FluidState
-from Structures import FluidPort, DynamicCPort
-
-class FluidChamber(dm.DynamicalModel):
-	V = dm.RealVariable(causality = dm.Causality.parameter, variability = dm.Variability.constant)
-	T = dm.RealVariable(causality = dm.Causality.input, variability = dm.Variability.continuous)
-	rho = dm.RealVariable(causality = dm.Causality.input, variability = dm.Variability.continuous)
-	TDot = dm.RealVariable(causality = dm.Causality.output, variability = dm.Variability.continuous)
-	rhoDot = dm.RealVariable(causality = dm.Causality.output, variability = dm.Variability.continuous)
-	p = dm.RealVariable(causality = dm.Causality.output, variability = dm.Variability.continuous)
-	m = dm.RealVariable(causality = dm.Causality.output, variability = dm.Variability.continuous)
+class FluidChamber(DMC.DynamicalModel):
+	V = DMC.RealVariable(causality = DMC.Causality.parameter, variability = DMC.Variability.constant)
+	T = DMC.RealVariable(causality = DMC.Causality.input, variability = DMC.Variability.continuous)
+	rho = DMC.RealVariable(causality = DMC.Causality.input, variability = DMC.Variability.continuous)
+	TDot = DMC.RealVariable(causality = DMC.Causality.output, variability = DMC.Variability.continuous)
+	rhoDot = DMC.RealVariable(causality = DMC.Causality.output, variability = DMC.Variability.continuous)
+	p = DMC.RealVariable(causality = DMC.Causality.output, variability = DMC.Variability.continuous)
+	m = DMC.RealVariable(causality = DMC.Causality.output, variability = DMC.Variability.continuous)
 	
 	def __init__(self, fluid):
-		if (isinstance(fluid, Fluid)):
+		if (isinstance(fluid, CP.Fluid)):
 			self.fluid = fluid
 		else:
-			self.fluid = Fluid(fluid)
-		self.fState = FluidState(self.fluid)
-		self.fluidPort = DynamicCPort(FluidPort, state = self.fState)
+			self.fluid = CP.Fluid(fluid)
+		self.fState = CP.FluidState(self.fluid)
+		self.fluidPort = DMS.DynamicCPort(DMS.FluidPort, state = self.fState)
 	
 	def initialize(self, T, p):
 		self.T = T
@@ -70,7 +69,7 @@ def testFluidChamber_Fueling():
 	Tin = 250.0 #[K]
 
 	# Create Fluid
-	fluid = Fluid('ParaHydrogen')
+	fluid = CP.Fluid('ParaHydrogen')
 	# Create fluid source
 	fluidSource = FlowSource(fluid, mDot = mDot, TOut = Tin)
 	# Create tank

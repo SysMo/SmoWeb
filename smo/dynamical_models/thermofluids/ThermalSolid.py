@@ -4,14 +4,13 @@ Created on Feb 25, 2015
 @author: Atanas Pavlov
 @copyright: SysMo Ltd, Bulgaria
 '''
-
 import numpy as np
-import smo.dynamical_models.core.DynamicalModel as dm
-from smo.math.util import Interpolator1D
+import smo.dynamical_models.core as DMC
+from smo.dynamical_models.thermofluids import Structures as DMS
 from smo.media.MaterialData import Solids
-from Structures import HeatFlow, ThermalState, ThermalPort
+from smo.math.util import Interpolator1D
 
-class SolidConductiveBody(dm.DynamicalModel):
+class SolidConductiveBody(DMC.DynamicalModel):
 	def __init__(self, material, mass, thickness = None, conductionArea = None, 
 				port1Type = 'C', port2Type = 'C', numMassSegments = 1, TInit = 288.15):
 		
@@ -64,14 +63,14 @@ class SolidConductiveBody(dm.DynamicalModel):
 		
 		# Set up the port valriables
 		if (port1Type == 'C'):
-			self.port1 = ThermalPort(port1Type, ThermalState())
+			self.port1 = DMS.ThermalPort(port1Type, DMS.ThermalState())
 		else:
-			self.port1 = ThermalPort(port1Type)
+			self.port1 = DMS.ThermalPort(port1Type)
 			
 		if (port2Type == 'C'):
-			self.port2 = ThermalPort(port2Type, ThermalState())
+			self.port2 = DMS.ThermalPort(port2Type, DMS.ThermalState())
 		else:
-			self.port2 = ThermalPort(port2Type)
+			self.port2 = DMS.ThermalPort(port2Type)
 	
 	def setState(self, T):
 		self.T[:] = T
@@ -156,8 +155,8 @@ def testSolidConductiveBody():
 	# Simulation parameters
 	T1 = 300 #[K]
 	qDot2 = 5e3 #[W]
-	extPort1 = ThermalPort('C', ThermalState(T = T1))
-	extPort2 = ThermalPort('R', HeatFlow(qDot = qDot2))
+	extPort1 = DMS.ThermalPort('C', DMS.ThermalState(T = T1))
+	extPort2 = DMS.ThermalPort('R', DMS.HeatFlow(qDot = qDot2))
 	scBody.port1.connect(extPort1) 
 	scBody.port2.connect(extPort2)
 	
@@ -173,7 +172,7 @@ def testSolidConductiveBody():
 	
 	# Run Simulation
 	TSegments = np.zeros((int(tFinal/tPrintInterval), numbMassSegments + 1))
-	for i in range(numIterStep):
+	for _i in range(numIterStep):
 		scBody.compute()
 		scBody.setState(scBody.T + scBody.TDot * dt)
 		

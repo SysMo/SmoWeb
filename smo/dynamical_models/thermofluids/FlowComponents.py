@@ -4,19 +4,19 @@ Created on Mar 5, 2015
 @author: AtanasPavlov
 @copyright: SysMo Ltd, Bulgaria
 '''
-import smo.dynamical_models.core.DynamicalModel as dm
-from smo.media.CoolProp.CoolProp import Fluid, FluidState
-from Structures import *
+import smo.media.CoolProp as CP
+import smo.dynamical_models.core as DMC
+from smo.dynamical_models.thermofluids import Structures as DMS
 
-class FluidPistonPump(dm.DynamicalModel):
+class FluidPistonPump(DMC.DynamicalModel):
 	def __init__(self, fluid, etaS, fQ):
 		self.fluid = fluid
 		self.etaS = etaS
 		self.fQ = fQ
-		self.fStateOut = FluidState(fluid)
-		self.flow = FluidFlow()
-		self.portOut = FluidPort('R', self.flow)
-		self.portIn = FluidPort('R', -self.flow)
+		self.fStateOut = CP.FluidState(fluid)
+		self.flow = DMS.FluidFlow()
+		self.portOut = DMS.FluidPort('R', self.flow)
+		self.portIn = DMS.FluidPort('R', -self.flow)
 	def compute(self):
 		self.VDot = self.n * self.V
 		self.mDot = self.VDot * self.portIn.state.rho
@@ -30,17 +30,17 @@ class FluidPistonPump(dm.DynamicalModel):
 		self.flow.mDot = self.mDot
 		self.flow.HDot = self.HDot
 
-class FluidHeater(dm.DynamicalModel):
+class FluidHeater(DMC.DynamicalModel):
 	def __init__(self, fluid, condModel = None):
 		self.fluid = fluid
-		self.fStateIn = FluidState(fluid)
-		self.fStateOut = FluidState(fluid)
-		self.fStateDown = FluidState(fluid)
-		self.flowOut = FluidFlow()
-		self.heatOut = HeatFlow()
-		self.portIn = FluidPort('C', self.fStateDown)
-		self.portOut = FluidPort('R', self.flowOut)
-		self.thermalPort = ThermalPort('R', self.heatOut)
+		self.fStateIn = CP.FluidState(fluid)
+		self.fStateOut = CP.FluidState(fluid)
+		self.fStateDown = CP.FluidState(fluid)
+		self.flowOut = DMS.FluidFlow()
+		self.heatOut = DMS.HeatFlow()
+		self.portIn = DMS.FluidPort('C', self.fStateDown)
+		self.portOut = DMS.FluidPort('R', self.flowOut)
+		self.thermalPort = DMS.ThermalPort('R', self.heatOut)
 		if (condModel == None):
 			self.condModel = lambda TFluid, TExt: 100.0
 		else:
@@ -72,7 +72,6 @@ class FluidHeater(dm.DynamicalModel):
 				self.fStateOut.update_Tp(self.TOut, self.portOut.state.p)
 				self.HDotOut = self.mDot * self.fStateOut.h
 				self.QDot = self.portIn.flow.HDot - self.HDotOut
-				
 		else:
 			self.QDot = 0
 			self.HDotOut = 0
