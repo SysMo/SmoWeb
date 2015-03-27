@@ -52,11 +52,33 @@ Multiple super-groups are displayed in tabs::
 **Parameters:**
    * **smo-super-group-set** - An object defining the set of super-groups
    * **model-name** - The name of the model
-   * **view-type** - The display type of the super-groups in the set, which also applies to all their field-groups and/or view-groups. Valid strings are:
+   * **view-type** - The display type of the super-groups in the set. Valid strings are:
       * *input*
       * *output*
-   * **smo-data-source** - An object containing the values of the fields which are part of the super-groups
+   * **smo-data-source** - An object containing the values of the fields that are part of the super-groups in the set
+
+**Uses:** *smoSuperGroup*
+
+-------------
+smoSuperGroup
+-------------
+
+Used for displaying a super-group::
+
+   <div smo-super-group="superGroup" model-name="PipeFlow" view-type="input" smo-data-source="smoDataSource"></div>
    
+**Restrict:** Attribute
+
+**Scope:** Yes
+
+**Parameters:**
+   * **smo-super-group** - An object defining the super-group
+   * **view-type** - The display type of the super-group, which also applies to the field-groups and/or view-groups it contains. Valid strings are:
+      * *input*
+      * *output*
+   * **smo-data-source** - An object containing the values of the fields in the super-group
+
+ 
 **Uses:** *smoFieldGroup*, *smoViewGroup*
 
 -------------
