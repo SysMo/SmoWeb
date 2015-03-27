@@ -53,15 +53,14 @@ class VaporCompressionCycle(HeatPumpCycle):
 			raise ValueError('In transcritical cycle, condenser sub-cooling cannot be used as input')
 		if (self.cycleSupercritical and self.evaporator.computeMethod == 'dT'):
 			raise ValueError('In supercritical cycle, evaporator super-heating cannot be used as input')
-
-		self.initCompute(fluid = self.fluidName, numPoints = 4)
-		self.evaporator.outlet = self.compressor.inlet = self.fp[0]
-		self.compressor.outlet = self.condenser.inlet = self.fp[1]
-		self.condenser.outlet = self.throttleValve.inlet = self.fp[2]
-		self.throttleValve.outlet = self.evaporator.inlet = self.fp[3]
-		
+		self.initCompute(fluid = self.fluidName)
+		# Connect components
+		self.connectPorts(self.evaporator.outlet, self.compressor.inlet)
+		self.connectPorts(self.compressor.outlet, self.condenser.inlet)
+		self.connectPorts(self.condenser.outlet, self.throttleValve.inlet)
+		self.connectPorts(self.throttleValve.outlet, self.evaporator.inlet)
 		# Initial guess
-		self.fp[0].update_pq(self.pLow, 1)
+		self.evaporator.outlet.state.update_pq(self.pLow, 1)
 		# Cycle iterations
 		self.cycleIterator.run()
 		# Results
@@ -132,21 +131,20 @@ class VaporCompressionCycleWithRecuperator(VaporCompressionCycle):
 	def compute(self):
 		if (self.cycleTranscritical and self.condenser.computeMethod == 'dT'):
 			raise ValueError('In transcritical cycle, condenser sub-cooling cannot be used as input')
-
-		self.initCompute(fluid = self.fluidName, numPoints = 6)
-		self.evaporator.outlet = self.recuperator.inlet1 = self.fp[0]
-		self.recuperator.outlet1 = self.compressor.inlet = self.fp[1]
-		self.compressor.outlet = self.condenser.inlet = self.fp[2]
-		self.condenser.outlet = self.recuperator.inlet2 = self.fp[3]
-		self.recuperator.outlet2 = self.throttleValve.inlet = self.fp[4]
-		self.throttleValve.outlet = self.evaporator.inlet = self.fp[5]
-		
+		self.initCompute(fluid = self.fluidName)
+		# Connect components
+		self.connectPorts(self.evaporator.outlet, self.recuperator.inlet1)
+		self.connectPorts(self.recuperator.outlet1, self.compressor.inlet)
+		self.connectPorts(self.compressor.outlet, self.condenser.inlet)
+		self.connectPorts(self.condenser.outlet, self.recuperator.inlet2)
+		self.connectPorts(self.recuperator.outlet2, self.throttleValve.inlet)
+		self.connectPorts(self.throttleValve.outlet, self.evaporator.inlet)
 		# Initial guess
-		self.fp[0].update_pq(self.pLow, 1)
+		self.evaporator.outlet.state.update_pq(self.pLow, 1)
 		if (self.cycleTranscritical):
-			self.fp[3].update_Tp(1.05 * self.fluid.critical['T'], self.pHigh)
+			self.condenser.outlet.state.update_Tp(1.05 * self.fluid.critical['T'], self.pHigh)
 		else:
-			self.fp[3].update_pq(self.pHigh, 0)
+			self.condenser.outlet.state.update_pq(self.pHigh, 0)
 		# Cycle iterations
 		self.cycleIterator.run()
 		# Results

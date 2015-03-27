@@ -6,8 +6,8 @@ import smo.web.exceptions as E
 
 class NumericalModelMeta(type):
 	"""Metaclass facilitating the creation of a numerical
-	model class. Collects all the declared fields in a 
-	dictionary ``self.declared_fields``"""
+	model class. Collects all declared fields, submodels, basic groups, supergroups and model views in 
+	the class in respective dictionaries"""
 	def __new__(cls, name, bases, attrs):
 		# Label
 		if ('label' not in attrs):
@@ -22,6 +22,7 @@ class NumericalModelMeta(type):
 		current_basicGroups = {}
 		current_superGroups = {}
 		current_modelViews = {}
+		current_ports = {}
 		for key, value in list(attrs.items()):
 			if isinstance(value, fields.SubModelGroup):
 				current_submodels.append((key, value))
@@ -31,6 +32,10 @@ class NumericalModelMeta(type):
 					current_superGroups[key] = value
 				else:
 					raise TypeError ('The submodel group {} in class {} must be either field or view group'.format(key, name))
+				value.name = key
+				attrs.pop(key)
+			elif isinstance(value, fields.Port):
+				current_ports[key] = value
 				value.name = key
 				attrs.pop(key)
 			elif isinstance(value, fields.Field):
@@ -64,6 +69,7 @@ class NumericalModelMeta(type):
 		attrs['declared_attrs'] = {}
 		attrs['declared_attrs'].update(attrs['declared_fields'])
 		attrs['declared_attrs'].update(attrs['declared_submodels'])
+		attrs['declared_ports'] = current_ports
 		# Groups
 		attrs['declared_basicGroups'] = current_basicGroups
 		attrs['declared_superGroups'] = current_superGroups
@@ -79,6 +85,7 @@ class NumericalModelMeta(type):
 		base_basicGroups = {}
 		base_superGroups = {}
 		base_modelViews = {}
+		base_ports = {}
 		# It should not be necessary to walk the complete MRO. Just the bases should be enough
 		# as they have already collected all the fields from their ancesstors
 		#for base in reversed(klass.__mro__[1:]):
@@ -90,10 +97,18 @@ class NumericalModelMeta(type):
 				if key in klass.declared_attrs:
 					raise AttributeError("Base class {0} defines attribute '{1}', which class {2} attempts to redefine".format(base.__name__, key, name))
 				elif (key in base_fields or key in base_submodels):
-					raise AttributeError("Attribute {} in class {} already inherited. Attempt to inherit it again from base class {}.".format(key, name, base.__name__))
+					raise AttributeError("Attribute {} in class {} already inherited. Attempt to inherit it again from another base class {}.".format(key, name, base.__name__))
 			base_fields.update(base.declared_fields)
 			base_submodels.update(base.declared_submodels)
 			
+			# Collect declared ports from base classes
+			for key, value in base.declared_ports.iteritems():
+				if key in klass.declared_ports:
+					raise AttributeError("Base class {0} defines port '{1}', which class {2} attempts to redefine".format(base.__name__, key, name))
+				elif (key in base_ports):
+					raise AttributeError("Port {} in class {} already inherited. Attempt to inherit it again from another base class {}.".format(key, name, base.__name__))
+				base_ports[key] = value
+				
 			# Collect declared field and view groups from base classes
 			for key, value in base.declared_basicGroups.iteritems():
 				if (key in klass.declared_basicGroups):
@@ -134,6 +149,7 @@ class NumericalModelMeta(type):
 		klass.declared_basicGroups.update(base_basicGroups)
 		klass.declared_superGroups.update(base_superGroups)
 		klass.declared_modelViews.update(base_modelViews)
+		klass.declared_ports.update(base_ports)
 		# Resolving fields in field- and view-groups by name
 		for value in klass.declared_basicGroups.itervalues():
 			if (isinstance(value, BasicGroup)): # Could be submodel group
@@ -175,7 +191,12 @@ class NumericalModel(object):
 		* :attr:`showOnHome`: used to specify if a thumbnail of the model is to show on the home page (default is True)
 		* :attr:`figure`: ModelFigure object representing a figure, displayed on the page module of the model and on its thumbnail
 		* :attr:`description`: ModelDescription object representing a description for the model, also used as tooltip of the model's thumbnail
-		* :attr:`declared_fields`: OrderedDict containing the class attributes of type Field of the model
+		* :attr:`declared_fields`: OrderedDict containing the fields declared in the model
+		* :attr:`declared_submodels`: OrderedDict containing the submodels declared in the model
+		* :attr:`declared_attrs`: dictionary containing the declared fields and submodels
+		* :attr:`declared_basicGroups`: dictionary containing the field-groups and view-groups declared in the model
+		* :attr:`declared_superGroups`: dictionary containing the supergroups declared in the model
+		* :attr:`declared_modelViews`: dictionary containing the declared model views
 		* :attr:`modelBlocks`: (mandatory) list of blocks making up the model's page module. Block types may be: ModelView, HtmlBlock, JsBlock	
 	"""
 
@@ -202,6 +223,9 @@ class NumericalModel(object):
 		# Modify fields with values from the constructor
 		for name, value in kwargs.iteritems():
 			self.__setattr__(name, value)
+		# Create port instances
+		for name, port in self.declared_ports.iteritems():
+			self.__dict__[name] = port.klass()
 		return self
 	
 	def __setattr__(self, name, value):

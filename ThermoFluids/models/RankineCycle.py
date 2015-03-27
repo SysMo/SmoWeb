@@ -57,13 +57,13 @@ class RankineCycle(HeatEngineCycle):
 				(self.condenser.computeMethod == 'dT' or self.condenser.computeMethod == 'Q')):
 			raise ValueError('In supercritical cycle condenser sub-cooling cannot be used as input')
 		# Connect components to points
-		self.initCompute(self.fluidName, 4)
-		self.pump.inlet = self.condenser.outlet = self.fp[0]
-		self.pump.outlet = self.boiler.inlet = self.fp[1]
-		self.boiler.outlet = self.turbine.inlet= self.fp[2]
-		self.turbine.outlet = self.condenser.inlet = self.fp[3]
+		self.initCompute(self.fluidName)
+		self.connectPorts(self.condenser.outlet, self.pump.inlet)
+		self.connectPorts(self.pump.outlet, self.boiler.inlet)
+		self.connectPorts(self.boiler.outlet, self.turbine.inlet)
+		self.connectPorts(self.turbine.outlet, self.condenser.inlet)
 		# Initialize fluid points
-		self.fp[0].update_pq(self.pLow, 0)
+		self.condenser.outlet.state.update_pq(self.pLow, 0)
 		# Cycle iterations
 		self.cycleIterator.run()
 		# Results
@@ -84,7 +84,7 @@ class RankineCycle(HeatEngineCycle):
 		self.condenserHeat = - self.mDot * self.condenser.qIn 
 		# Efficiencies
 		self.eta = (self.turbinePower - self.pumpPower) / self.boilerHeat
-		self.etaCarnot = 1 - self.condenser.outlet.T / self.boiler.outlet.T
+		self.etaCarnot = 1 - self.condenser.outlet.state.T / self.boiler.outlet.state.T
 		self.etaSecondLaw = self.eta / self.etaCarnot
 	
 	def SteamPlant(self):
@@ -131,19 +131,18 @@ class RegenerativeRankineCycle(RankineCycle):
 	flowFieldGroup = F.FieldGroup(['pumpPower', recuperatorHeat, 'boilerHeat', 'turbinePower', 'condenserHeat'], label = 'Energy flows')
 	#================ Methods ================#
 	def compute(self):
-		# Connect components to points
-		self.initCompute(self.fluidName, 6)
-		self.pump.inlet = self.condenser.outlet = self.fp[0]
-		self.pump.outlet = self.recuperator.inlet1 = self.fp[1]
-		self.recuperator.outlet1 = self.boiler.inlet = self.fp[2]
-		self.boiler.outlet = self.turbine.inlet= self.fp[3]
-		self.turbine.outlet = self.recuperator.inlet2 = self.fp[4]
-		self.recuperator.outlet2 = self.condenser.inlet = self.fp[5]
-		
+		self.initCompute(self.fluidName)
+		# Connect components
+		self.connectPorts(self.condenser.outlet, self.pump.inlet)
+		self.connectPorts(self.pump.outlet, self.recuperator.inlet1)
+		self.connectPorts(self.recuperator.outlet1, self.boiler.inlet)
+		self.connectPorts(self.boiler.outlet, self.turbine.inlet)
+		self.connectPorts(self.turbine.outlet, self.recuperator.inlet2)
+		self.connectPorts(self.recuperator.outlet2, self.condenser.inlet)
 		# Initial guess
-		self.fp[0].update_pq(self.pLow, 0)
-		self.fp[4].update_pq(self.pLow, 1)
-		
+		self.condenser.outlet.state.update_pq(self.pLow, 0)
+		self.boiler.outlet.state.update_pq(self.pHigh, 1)
+		self.turbine.compute(self.pLow)
 		# Cycle iterations
 		self.cycleIterator.run()
 		# Results
@@ -152,8 +151,10 @@ class RegenerativeRankineCycle(RankineCycle):
 	def computeCycle(self):
 		self.pump.compute(self.pHigh)
 		self.recuperator.compute(self.mDot, self.mDot)
+		self.recuperator.computeStream1(self.mDot)
 		self.boiler.compute()	
 		self.turbine.compute(self.pLow)
+		self.recuperator.computeStream2(self.mDot)
 		self.condenser.compute()
 		
 	def postProcess(self):
