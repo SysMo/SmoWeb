@@ -3,12 +3,9 @@ Created on Sep 17, 2014
 
 @author: ivaylo
 '''
-import csv
-import numpy as np
 import glob
 import os
 import json
-from django.db.utils import OperationalError
 from decimal import Decimal
 
 def handle_uploaded_file(f, media_path):

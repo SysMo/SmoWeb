@@ -1,5 +1,4 @@
 from smo.web.view import ModularPageView
-from smo.web.view import action
 from smo.web.router import ViewRouter, registerView
 from pymongo import MongoClient
 import ThermoFluids
@@ -16,18 +15,6 @@ class FluidPropsCalculatorView(ModularPageView):
 	modules = [PropertyCalculatorCoolprop, FluidInfo, SaturationData, PHDiagramModel, FluidPropertiesDoc]
 	requireJS = ['dygraph', 'dygraphExport']
 	requireGoogle = ['visualization']
-	
-# 	@action.post()	
-# 	def computeFluidProps(self, model, view, parameters):		
-# 		fpc = PropertyCalculatorCoolprop()
-# 		fpc.fieldValuesFromJson(parameters)
-# 		fpc.compute()
-# 		if (fpc.isTwoPhase):
-# 			a =  fpc.modelView2Json('resultViewIsTwoPhase')
-# 			print a['definitions'][1]['groups'][0]['name']
-# 			return a
-# 		else:
-# 			return fpc.modelView2Json('resultView')
 	
 from .models import CompressionExpansionModel, HeatingCoolingModel
 @registerView(router)

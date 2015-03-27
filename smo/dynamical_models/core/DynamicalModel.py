@@ -5,7 +5,6 @@ Created on Feb 25, 2015
 @copyright: SysMo Ltd, Bulgaria
 '''
 from collections import OrderedDict
-from docutils.utils.math.math2html import ParameterDefinition
 
 class Causality(object):
 	parameter = 0

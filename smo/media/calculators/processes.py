@@ -1,7 +1,4 @@
 from smo.media.CoolProp.CoolProp import Fluid, FluidState
-import numpy as np
-import pylab as plt
-from smo.model.model import NumericalModel
 ThermodynamicVariables = {
 	'p' : {'label': 'pressure', 'scale': 1e5, 'unit': 'bar'},
 	'T' : {'label': 'temperature', 'scale': 1.0, 'unit': 'K'},

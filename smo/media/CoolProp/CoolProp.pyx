@@ -650,29 +650,3 @@ cdef class FluidState:
 			's': self.s,
 			'q': self.q
 		}
-# 	def getSatL(self):
-# 		"""Returns dictionary of saturation properties in the liquid phase - rho, s, h"""
-# 		#cdef CP.CoolPropStateClassSI* satL
-# 		if (self.isTwoPhase()):
-# 			satL = self.ptr.getSatL()
-# 			return {
-# 				'rho': 	satL.rho(),
-# 				's':	satL.s(),
-# 				'h':	satL.h()
-# 			}
-# 		else:
-# 			return None
-# 
-# 	def getSatV(self):
-# 		"""Returns dictionary of saturation properties in the vapor phase - rho, s, h"""
-# 		#cdef CP.CoolPropStateClassSI* satV
-# 		if (self.isTwoPhase()):
-# 			satV = self.ptr.getSatV()
-# 			return {
-# 				'rho': 	satV.rho(),
-# 				's':	satV.s(),
-# 				'h':	satV.h()
-# 
-# 			}
-# 		else:
-# 			return None

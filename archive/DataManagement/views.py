@@ -6,14 +6,8 @@ import json
 import os.path
 from smo.web.util import handle_uploaded_file, TemporaryObjectsHash
 from smo.data.hdf import CSV2HDFImporter, HDFInterface
-from decimal import Decimal
-from smo.model.quantity import Quantities
 from smo.web.view import ModularPageView
-from smo.web.router import ViewRouter, registerView
-from smo.model.model import HtmlModule
-
-# Create your views here.
-router = ViewRouter('DataManagement')
+from smo.web.modules import HtmlModule
 
 CSVImporterObjects = TemporaryObjectsHash()
 
@@ -21,12 +15,10 @@ def hdfInterfaceView(request):
 	if request.method == "POST":
 		postData = json.loads(request.body)
 		action = postData["action"]
-		hdfNode = postData["currentNode"]
- 		
+		hdfNode = postData["currentNode"]		
 		hdfFileName = "myData.hdf" # !!! Actually here the name corresponding to the id should be used
 		hdfFilePath = os.path.join(HDF_FOLDER, hdfFileName)
-		hdfIface = HDFInterface(hdfFilePath)
- 		
+		hdfIface = HDFInterface(hdfFilePath)		
 		if (action == "getHdfFileContent"):			
 			fileContent = [hdfIface.getFileContent()]
 			return JsonResponse({'fileContent' : fileContent})
@@ -34,11 +26,9 @@ def hdfInterfaceView(request):
 			itemPath = hdfNode["path"]
 			pasteRoot = postData["input"]
 			name = hdfNode["name"]	
-			hdfIface.copyItem(itemPath, pasteRoot, name)
- 			
+			hdfIface.copyItem(itemPath, pasteRoot, name)			
 		elif (action == "createGroup"):			
-			hdfIface.createGroup(hdfNode["path"], postData["input"])
- 			
+			hdfIface.createGroup(hdfNode["path"], postData["input"])			
 		elif (action == "rename"):
 			itemPath = hdfNode["path"]
 			newName = postData["input"]
@@ -48,8 +38,7 @@ def hdfInterfaceView(request):
 			itemPath = hdfNode["path"]
 			pasteRoot = postData["input"]
 			name = hdfNode["name"]
-			hdfIface.moveItem(itemPath, pasteRoot, name)
- 		
+			hdfIface.moveItem(itemPath, pasteRoot, name)		
 		elif (action == "delete"):
 			hdfIface.deleteItem(hdfNode["path"])
 		elif (action == "view"):
@@ -61,26 +50,16 @@ def hdfInterfaceView(request):
 		return render_to_response('DataManagement/HdfInterface.html', 
 								  context_instance=RequestContext(request))
 
-
-
-
 class DataExplorer(HtmlModule):
 	srcType = 'file'
 
-@registerView(router)
 class DataExplorerView(ModularPageView):
 	label = 'Data Explorer'
 	modules = [DataExplorer]
-	
-	
-# def dataExplorerView(request):
-# 		return render_to_response('DataManagement/DataExplorer.html', 
-# 								  context_instance=RequestContext(request))
 
 class ImportCsv(HtmlModule):
 	srcType = 'file'
 
-@registerView(router)
 class ImportCsvView(ModularPageView):
 	label = 'Import CSV'
 	modules = [ImportCsv]
@@ -117,7 +96,7 @@ def importCSV(request):
 		importer = CSV2HDFImporter(csvFile.name)
 		importerId = CSVImporterObjects.push(importer)
 		(numRows, numColumns, tableValues) = importer.createPreview(numRowsInPreview)
- 
+		
 		response_data = {
 			'numRows' : numRows,
 			'numColumns' : numColumns,
@@ -133,22 +112,15 @@ def importCSV(request):
 def CSVtoHDF(request):
 	if request.method == "POST":
 		postData = json.loads(request.body)
- 		
- 		
 		columnProps = postData['columnProps']
 		firstDataRow = int(postData['firstDataRow'])
 		importerId = postData['importerId']
 		groupPath = postData['groupPath']
 		datasetName = postData['datasetName']
- 		
-# 		groupPath = "/", 
-# 		datasetName = importer.csvFileName, 
- 		
-		print postData
- 		
+				
 		importer = CSVImporterObjects.get(importerId)		
 		hdfFilePath = os.path.join(MEDIA_ROOT, 'DataManagement', 'hdf', 'myData.hdf')
- 		
+				
 		importer.import2Hdf(filePath = hdfFilePath,
 				groupPath = groupPath, 
 				datasetName = datasetName, 
@@ -156,9 +128,3 @@ def CSVtoHDF(request):
 				firstDataRow = firstDataRow, 
 				forceOverride = True)
 		CSVImporterObjects.pop(importerId)
-# 		
-# 	return HttpResponseRedirect(reverse('home'))
-# 
-# def testView(request):
-# 	return render_to_response('DataManagement/TestView.html', context_instance=RequestContext(request))
-

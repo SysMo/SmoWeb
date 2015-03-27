@@ -12,7 +12,6 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 import os, tempfile
 from SmoWeb.settings import MEDIA_ROOT
-#from datetime import timedelta
 from collections import OrderedDict
 
 PHDiagramFluids = OrderedDict((
@@ -153,8 +152,6 @@ class StateDiagram(object):
 		offset_y = e * math.cos(gamma)
 		
 		alpha = math.degrees(alpha)
-		
-		#return math.degrees(math.atan(0.7 * frac_range_y / frac_range_x))
 		return (alpha, offset_x, offset_y)
 
 class PHDiagram(StateDiagram):
@@ -183,7 +180,6 @@ class PHDiagram(StateDiagram):
 		self.minVapor.update_pq(self.pMin, 1)
 		
 		if (pMax is None):
-#			pMax =  10**(np.floor(np.log10(self.critical.p)) + 1.0)
 			pMax = 3 * self.critical.p
 		self.pMax = pMax
 		
@@ -232,7 +228,6 @@ class PHDiagram(StateDiagram):
 		
 		fState.update_ph(self.pMin, self.hMax)
 		self.sMax = fState.s
-		#print ('sMin={}, sMax={}'.format(self.sMin, self.sMax))
 		
 		# Minor diagonal coeff
 		self.minDiagonalSlope = np.log10(self.pMax/self.pMin) / (self.hMax - self.hMin) * 1e3
@@ -413,8 +408,6 @@ class PHDiagram(StateDiagram):
 				pArr.append(fState.p)
 				# Calculated v
 				v_res = fState.v
-				#print ('----------------------------------------')
-				#print ('s=%e'%s)
 				while (T > self.TMin):
 					_dvdT_s = - fState.dsdT_v / fState.dpdT_v
 					if math.isnan(_dvdT_s ):
@@ -436,8 +429,6 @@ class PHDiagram(StateDiagram):
 					sigma = ds * fState.dvds_T
 					v = v_res + sigma
 					fState.update_Trho(T, 1. / v)
-					#print(T, p/1e5, s_res, fState.s)
-	 				#print ('rho: %e, T: %e, q: %e, s: %e'%(fState.rho, fState.T, fState.q, fState.s))
 					hArr.append(fState.h)
 					pArr.append(fState.p)
 					##################
@@ -456,8 +447,6 @@ class PHDiagram(StateDiagram):
 					#######################
 				hArr = np.array(hArr)
 				pArr = np.array(pArr)
-				#print("Num points: {}".format(len(pArr)))
-				#print("Final s: {}".format(fState.s))
 				if (s == sArr[0]):
 					self.ax.semilogy(hArr/1e3, pArr/1e5, 'm', label = "entropy [kJ/kg-K]")
 				else:
@@ -507,22 +496,15 @@ class PHDiagram(StateDiagram):
 	
 def main():
 	FluidsSample = ['R134a',  'Water', 'Oxygen', 'Nitrogen', 'CarbonDioxide', 'ParaHydrogen', 'IsoButane']
-	# Critical point exits the plot to the right
-	problemPlots = ['n-Decane', 'n-Dodecane', 'D4', 'D5', 'D6', 'EthylBenzene', 'Isohexane','n-Hexane', 'MethylLinoleate','MethylLinolenate', 'MethylOleate', 'MethylPalmitate', 'MethylStearate', 'MD2M', 'MD3M', 'MD4M', 'MDM', 'MM', 'n-Nonane', 'n-Octane', 'n-Undecane', 'm-Xylene', 'o-Xylene', 'p-Xylene']
 	# Fluids throwing RuntimeError
 	ExcludedFluids = ['Air', 'Propyne', 'R1234ze(E)']
-	WarningFluids = ['Fluorine', 'R152A', 'R236EA']
 	
 	fluidList = ['ParaHydrogen']
 	for i in range(len(fluidList)):
 		fluid = fluidList[i]
 		print("{}. Calculating with fluid '{}'".format(i, fluid))
-		#try:
 		diagram = PHDiagram(fluid)
 		diagram.setLimits()
-		
-		#except RuntimeError, e:
-		#	print e
 		import pylab as plt
 		fig = plt.figure()
 		diagram.draw(isotherms = True, isochores = True, isentrops = True, qIsolines = True, fig = fig)

@@ -5,12 +5,7 @@ Created on Jan 5, 2015
 @copyright: SysMo Ltd.
 '''
 import numpy as np
-from smo.model.model import NumericalModel
-from smo.model.fields import *
-from smo.media.MaterialData import Solids
-from collections import OrderedDict
 import fipy as fp
-from fipy.solvers.pysparse import LinearLUSolver
 
 class RadialHeatTransferSolver(object):
 	"""

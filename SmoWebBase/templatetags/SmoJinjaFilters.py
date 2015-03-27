@@ -1,5 +1,4 @@
 from django_jinja import library
-from SmoWeb.settings import BASE_DIR, STATIC_URL
 
 @library.filter
 def getRestModuleUrl(module, pageView):

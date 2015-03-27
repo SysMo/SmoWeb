@@ -1,10 +1,9 @@
 from django.http import JsonResponse
 from django.shortcuts import render_to_response, RequestContext
-from SmoWeb.settings import BASE_DIR, JINJA_TEMPLATE_IMPORTS
+from SmoWeb.settings import JINJA_TEMPLATE_IMPORTS
 import json
 import traceback
 import logging
-import os
 logger = logging.getLogger('django.request.smo.view')
 
 from pymongo import MongoClient
