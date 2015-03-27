@@ -6,7 +6,7 @@ import smo.dynamical_models.bioreactors.ChemostatSimple as DM
 from smo.model.model import NumericalModel
 from smo.web.modules import RestModule
 
-class ChemostatSimpleModel(NumericalModel):
+class ChemostatSimple(NumericalModel):
     label = "Simple Chemostat"
     description = F.ModelDescription("Simple chemostat model with ordinary differential equations (ODE)", show = True)
     figure = F.ModelFigure(src="BioReactors/img/ModuleImages/SimpleChemostat.png", show=False)

@@ -7,12 +7,11 @@ import pylab as plt
 from pydelay import dde23
 
 
-""" Classes """
 class ChemostatDDE():
     """
     Class for implementation the model of chemostat (2-substrates and 2-organisms) with delay differential equations (DDE)
     """
-    def __init__(self, model):      
+    def __init__(self, model):   
         # Define the specific growth rates (in 'C' source code)
         c_code = """
         double mu1(double s, double m, double k) {
@@ -63,21 +62,18 @@ class ChemostatDDE():
         self.dde.hist_from_funcs(histfunc, 10.) #:TRICKY: 10. is 'nn' - sample in the interval
                 
     
-    def run(self, solverParameters):
-        self.solverParameters = solverParameters
-        params = solverParameters
-        
+    def run(self, solver):
+        self.solver = solver
+                
         # Set the simulation parameters
-        self.dde.set_sim_params(tfinal=params.tFinal, dtmax=None)
+        self.dde.set_sim_params(tfinal=solver.tFinal, dtmax=None)
         
         # Run the simulator
         self.dde.run()
         
     def getResults(self):
-        params = self.solverParameters
-        
         # Fetch the results from t=0 to t=tFinal with a step-size of dt=tPrint:
-        return self.dde.sample(0, params.tFinal + params.tPrint, params.tPrint)
+        return self.dde.sample(0, self.solver.tFinal + self.solver.tPrint, self.solver.tPrint)
         
     def plotResults(self):
         sol = self.getResults()
@@ -97,7 +93,6 @@ class ChemostatDDE():
         plt.show()
         
 
-""" Test functions """
 def TestChemostatDDE():
     print "=== BEGIN: TestChemostatDDE ==="
     
@@ -133,7 +128,8 @@ def TestChemostatDDE():
     model.run(solverParams)
     model.plotResults()
     
-    print "=== END: Test TestChemostatDDE ==="
+    print "=== END: TestChemostatDDE ==="
+    
     
 if __name__ == '__main__':
     TestChemostatDDE()

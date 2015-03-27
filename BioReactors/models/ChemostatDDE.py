@@ -6,7 +6,7 @@ import smo.dynamical_models.bioreactors.ChemostatDDE as DM
 from smo.model.model import NumericalModel
 from smo.web.modules import RestModule
 
-class ChemostatDDEModel(NumericalModel):
+class ChemostatDDE(NumericalModel):
     label = "Chemostat with DDE"
     description = F.ModelDescription("Chemostat model with delay differential equations (DDE)", show = True)
     figure = F.ModelFigure(src="BioReactors/img/ModuleImages/SimpleChemostat.png", show=False)

@@ -3,7 +3,6 @@ Created on March 08, 2015
 
 @author: Milen Borisov
 '''
-
 import numpy as np
 import pylab as plt
 import os
@@ -20,8 +19,6 @@ dataStorageFilePath =  os.path.join(tmpFolderPath, 'BioReactors_SimulationResult
 dataStorageDatasetPath = '/ChemostatSimple'
 
 
-
-""" Classes """
 class ChemostatSimpleTimeEvent(TimeEvent):	
 	"""
 	Class for time event of ChemostatSimple
@@ -140,12 +137,10 @@ class ChemostatSimple(Simulation):
 		self.resultStorage.record[:] = (t, self.yRes.S, self.yRes.X, self.D)
 		self.resultStorage.saveTimeStep()
 		
-	def run(self, solverParameters):
-		params = solverParameters
-		
+	def run(self, solver):		
 		self.simSolver.simulate(
-			tfinal = params.tFinal, 
-			ncp = np.floor(params.tFinal/params.tPrint)
+			tfinal = solver.tFinal, 
+			ncp = np.floor(solver.tFinal/solver.tPrint)
 		)
 		self.resultStorage.finalizeResult()
 		
@@ -167,9 +162,9 @@ class ChemostatSimple(Simulation):
 		plt.show()
 
 
-
-""" Test functions """
 def TestChemostatSimple():
+	print "=== BEGIN: TestChemostatSimple ==="
+	
 	# Settings
 	simulate = True #True - run simulation; False - plot an old results 
 	
@@ -209,6 +204,9 @@ def TestChemostatSimple():
 	
 	# Plot results
 	model.plotHDFResults()
+	
+	print "=== END: TestChemostatSimple ==="
+	
 	
 if __name__ == '__main__':
 	#NamedStateVector.test()
