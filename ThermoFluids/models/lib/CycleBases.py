@@ -13,6 +13,7 @@ from smo.model.model import NumericalModel
 from smo.media.CoolProp.CoolProp import Fluid, FluidState
 from smo.web.modules import RestModule
 import smo.web.exceptions as E
+import Ports as P
 
 class CycleIterator(object):
 	def __init__(self, cycle, hTolerance = 1.0, maxNumIter = 20):
@@ -92,11 +93,21 @@ class ThermodynamicalCycle(NumericalModel):
 	cycleTranscritical = F.Boolean(default = False)
 	cycleSupercritical = F.Boolean(default = False)
 	
-	def initCompute(self, fluid, numPoints):
+	def initCompute(self, fluid):
 		# Create fluid points
 		self.fluid = Fluid(fluid)
-		self.fp = [FluidState(fluid) for _ in range(numPoints)]
+		self.fp = [] #[FluidState(fluid) for _ in range(numPoints)]
 		self.cycleIterator = CycleIterator(self)
+
+	def connectPorts(self, port1, port2):
+		fp = FluidState(self.fluid)
+		flow = P.FluidFlow()
+		self.fp.append(fp)
+		port1.state = fp
+		port2.state = fp
+		port1.flow = flow
+		port2.flow = flow
+	
 	
 	def postProcess(self, TAmbient):
 		## State diagram
@@ -138,6 +149,7 @@ class ThermodynamicalCycle(NumericalModel):
 		else:
 			raise ValueError('PHigh  ({} bar) must be between {} bar and {} bar'.format(p/1e5, self.fluid.tripple['p']/1e5, self.fluid.critical['p']/1e5))
 
+	
 class HeatPumpCycle(ThermodynamicalCycle):	
 	abstract = True
 	#================ Inputs ================#
@@ -179,8 +191,8 @@ class HeatPumpCycle(ThermodynamicalCycle):
 		else:
 			raise ValueError('Evaporation temperature ({} K) must be between {} K and {} K'.format(T, self.fluid.tripple['T'], self.fluid.critical['T']))
 
-	def initCompute(self, fluid, numPoints):
-		ThermodynamicalCycle.initCompute(self, fluid, numPoints)
+	def initCompute(self, fluid):
+		ThermodynamicalCycle.initCompute(self, fluid)
 		# Set high and low pressures
 		if (self.pLowMethod == 'P'):
 			self.setPLow(self.pLow)
@@ -240,8 +252,8 @@ class HeatEngineCycle(ThermodynamicalCycle):
 		else:
 			raise ValueError('Evaporation temperature ({} K) must be between {} K and {} K'.format(T, self.fluid.tripple['T'], self.fluid.critical['T']))
 
-	def initCompute(self, fluid, numPoints):
-		ThermodynamicalCycle.initCompute(self, fluid, numPoints)
+	def initCompute(self, fluid):
+		ThermodynamicalCycle.initCompute(self, fluid)
 		# Set high and low pressures
 		if (self.pLowMethod == 'P'):
 			self.setPLow(self.pLow)
@@ -257,3 +269,14 @@ class HeatEngineCycle(ThermodynamicalCycle):
 
 class HeatEngineCyclesDoc(RestModule):
 	label = 'Documentation'
+	
+class LiquefierCycle(ThermodynamicalCycle):
+	abstract = True
+	#================ Inputs ================#
+	pHigh = F.Quantity('Pressure', default = (40, 'bar'), label = 'high pressure', show = "self.pHighMethod == 'P'")
+	pLow = F.Quantity('Pressure', default = (1, 'bar'), label = 'low pressure', show = "self.pLowMethod == 'P'")
+	TAmbient = F.Quantity('Temperature', default = (15, 'degC'), label = 'ambient temperature', description = 'used as reference temperature to calculate exergy')	
+	workingFluidGroup = F.FieldGroup(['fluidName', 'mDot', 
+		pHigh, pLow, TAmbient], 'Cycle parameters')
+	
+	

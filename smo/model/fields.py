@@ -631,6 +631,14 @@ class Image(Field):
 		fieldDict['height'] = self.height			
 		return fieldDict
 
+class Port(Field):
+	"""
+	Used to create ports for linking to other components
+	"""
+	def __init__(self, klass, *args, **kwargs):
+		Field.__init__(self, *args, **kwargs)
+		self.klass = klass
+	
 class SubModelGroup(Field):
 	"""
 	Used to include field-group or supergroup from a sub-model
