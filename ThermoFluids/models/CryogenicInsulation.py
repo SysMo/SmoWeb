@@ -1,4 +1,3 @@
-import numpy as np
 from smo.model.model import NumericalModel
 from smo.model.fields import *
 from smo.media.CoolProp.CoolProp import Fluid, FluidState

@@ -8,7 +8,7 @@ from smo.model.actions import ServerAction, ActionBar
 from smo.model.fields import *
 from smo.web.modules import RestModule
 from smo.media.MaterialData import Fluids
-from smo.media.CoolProp.CoolProp import Fluid, FluidState
+from smo.media.CoolProp.CoolProp import FluidState
 from collections import OrderedDict
 
 GeometryConfigurationsExternal = OrderedDict((

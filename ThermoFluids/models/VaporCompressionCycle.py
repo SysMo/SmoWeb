@@ -5,11 +5,8 @@ Created on Nov 09, 2014
 '''
 from smo.model.actions import ServerAction, ActionBar
 import smo.model.fields as F
-from smo.web.modules import RestModule
 import lib.ThermodynamicComponents as TC
 from lib.CycleBases import HeatPumpCycle
-import smo.web.exceptions as E 
-
 
 class VaporCompressionCycle(HeatPumpCycle):
 	label = "Vapor compression cycle"

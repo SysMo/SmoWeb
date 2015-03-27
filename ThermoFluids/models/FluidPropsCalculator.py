@@ -11,7 +11,7 @@ from smo.web.modules import RestModule
 from smo.media.CoolProp.CoolProp import Fluid, FluidState
 from smo.media.MaterialData import Fluids
 from smo.media.CoolProp.CoolPropReferences import References
-from smo.media.diagrams.StateDiagrams import PHDiagram, PHDiagramFluids
+import smo.media.diagrams.StateDiagrams as SD
 
 import os
 from pymongo import MongoClient
@@ -134,12 +134,6 @@ class PropertyCalculatorCoolprop(NumericalModel):
 								options = {'formats': ['0.000', '0.000E0', '0.000', '0.000E0', '0.00', '0.000E0', 
 														'0.000E0', '0.000E0', '0.000E0', '0.000E0']})
 	
-# 	testVarTable = VariationTable(label="Variation Table", dataLabels = ['T', 'p', 'h'], 
-# 							visibleColumns = [1,2], quantities = ['Temperature', 'Pressure', 'SpecificEnthalpy'],
-# 							options = {'formats': ['0.0000E0', '0.000', '0.000']},
-# 							parentCollection = coll,
-# 							fieldName = "testVarTable")
-	
 	paramVariation = ViewGroup([paramVarTable], label="Parameter Variation")
 	FluidPoints = SuperGroup([paramVariation], label = "Fluid Points")
 		
@@ -188,14 +182,6 @@ class PropertyCalculatorCoolprop(NumericalModel):
 			self.rho_V = satV.rho
 			self.h_V = satV.h
 			self.s_V = satV.s
-		
-# 		self.testVarTable = VariationTableValue(recordId = self.recordId, 
-# 											newRow = [self.T, self.p, self.h],
-# 											collection = coll["testVarTable"],
-# 											varTableName = "testVarTable")
-# 		
-# 		self.recordId = self.testVarTable.recordId
-		
 
 		self.computeParamVarTable('paramVarTable', 'recordId', ['T', 'p', 'rho', 'h', 'q', 'u', 'cp', 'cv', 'cond', 'mu'])
 		
@@ -233,7 +219,6 @@ class PropertyCalculatorCoolprop(NumericalModel):
 
 class FluidInfo(NumericalModel):
 	label = "Fluid Info"
-#	figure = ModelFigure(src="ThermoFluids/img/StateDiagram3D.svg", height=150, width=250)
 	description = ModelDescription('Critical point, triple point, fluid limits, other fluid constants, data sources.')
 	figure = ModelFigure(src="ThermoFluids/img/ModuleImages/CoolPropLogo.png", width=150)
 	
@@ -433,14 +418,14 @@ class SaturationData(NumericalModel):
 		self.delta_s_p_satPlot = data[:, (0, 9)]
 		self.satTableView = data
 
-class PHDiagramModel(NumericalModel):
+class PHDiagram(NumericalModel):
 	label = 'P-H Diagram'
 	figure = ModelFigure(src="ThermoFluids/img/ModuleImages/water_PHDiagram.png", width=200, show = False)
 	description = ModelDescription("Automatically generated log(P)-H diagrams for many fluids")
 
 	############# Inputs ###############
 	# Fields
-	fluidName = Choices(PHDiagramFluids, default = 'ParaHydrogen', label = 'fluid')
+	fluidName = Choices(SD.PHDiagramFluids, default = 'ParaHydrogen', label = 'fluid')
 	isotherms = Boolean(label = 'isotherms')
 	temperatureUnit = Choices(OrderedDict((('K', 'K'), ('degC', 'degC'))), default = 'K', label="temperature unit", show="self.isotherms == true")
 	isochores = Boolean(label = 'isochores')
@@ -480,7 +465,7 @@ class PHDiagramModel(NumericalModel):
 	modelBlocks = [warning, inputView, resultView]
 	
 	def compute(self):
-		diagram = PHDiagram(self.fluidName, temperatureUnit = self.temperatureUnit)
+		diagram = SD.PHDiagram(self.fluidName, temperatureUnit = self.temperatureUnit)
 		pMax, TMax = None, None
 		if not self.defaultMaxP:
 			pMax = self.maxPressure
@@ -501,7 +486,4 @@ class FluidPropertiesDoc(RestModule):
 	label = 'Fluid Properties (Docs)'
 		
 if __name__ == '__main__':
-# 	PropertyCalculatorCoolprop.test()
-# 	print getFluidConstants()
-# 	print getLiteratureReferences()
 	FluidInfo.test()
