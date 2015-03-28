@@ -62,7 +62,9 @@ class RankineCycle(HeatEngineCycle):
 		self.connectPorts(self.pump.outlet, self.boiler.inlet)
 		self.connectPorts(self.boiler.outlet, self.turbine.inlet)
 		self.connectPorts(self.turbine.outlet, self.condenser.inlet)
-		# Initialize fluid points
+		# Initial guess
+		for fl in self.flows:
+			fl.mDot = self.mDot
 		self.condenser.outlet.state.update_pq(self.pLow, 0)
 		# Cycle iterations
 		self.cycleIterator.run()
@@ -140,6 +142,8 @@ class RegenerativeRankineCycle(RankineCycle):
 		self.connectPorts(self.turbine.outlet, self.recuperator.inlet2)
 		self.connectPorts(self.recuperator.outlet2, self.condenser.inlet)
 		# Initial guess
+		for fl in self.flows:
+			fl.mDot = self.mDot
 		self.condenser.outlet.state.update_pq(self.pLow, 0)
 		self.boiler.outlet.state.update_pq(self.pHigh, 1)
 		self.turbine.compute(self.pLow)
@@ -150,11 +154,11 @@ class RegenerativeRankineCycle(RankineCycle):
 		
 	def computeCycle(self):
 		self.pump.compute(self.pHigh)
-		self.recuperator.compute(self.mDot, self.mDot)
-		self.recuperator.computeStream1(self.mDot)
+		self.recuperator.compute()
+		self.recuperator.computeStream1()
 		self.boiler.compute()	
 		self.turbine.compute(self.pLow)
-		self.recuperator.computeStream2(self.mDot)
+		self.recuperator.computeStream2()
 		self.condenser.compute()
 		
 	def postProcess(self):

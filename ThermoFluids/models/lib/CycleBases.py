@@ -18,36 +18,31 @@ import Ports as P
 class CycleIterator(object):
 	def __init__(self, cycle, hTolerance = 1.0, maxNumIter = 20):
 		self.cycle = cycle
-		self.ncp = len(self.cycle.fp)
-		self.old_h = np.zeros((self.ncp))
-		self.change_h = np.zeros((self.ncp))
 		self.hTolerance = hTolerance
 		self.maxNumIter = maxNumIter
 		
 	def saveOldValues(self):
 		for i in range(self.ncp):
-			self.old_h[i] = self.cycle.fp[i].h		
+			self.old_h[i] = self.cycle.fp[i].h	
+			self.old_T[i] = self.cycle.fp[i].T
 
 	def computeChange(self):
 		for i in range(self.ncp):			
 			self.change_h[i] = self.cycle.fp[i].h - self.old_h[i]
 		change = np.sqrt(np.sum(self.change_h**2))
-		print "Change: {}".format(change)
+		#print "Change: {}".format(change)
 		return change
 		
 	def checkConvergence(self):
 		self.converged = self.computeChange() < self.hTolerance
 		return self.converged
-	
-	def printValues(self):
-		cycleStatesTable = np.zeros((self.ncp, 8))
-		for i in range(len(self.cycle.fp)):
-			fp = self.cycle.fp[i]
-			cycleStatesTable[i, :] = (fp.T, fp.p, fp.rho, fp.h, fp.s, fp.q, fp.dT, fp.b(288.))
-		print cycleStatesTable
-	
+		
 	def run(self):
 		self.converged = False
+		self.ncp = len(self.cycle.fp)
+		self.old_h = np.zeros((self.ncp))
+		self.old_T = np.zeros((self.ncp))
+		self.change_h = np.zeros((self.ncp))
 		i = 0
 		self.cycle.computeCycle()
 		#self.printValues()
@@ -61,13 +56,13 @@ class CycleIterator(object):
 		if (not self.converged):
 			raise E.ConvergenceError('Solution did not converge')
 		
-		
+	def printValues(self):
+		print [fp.T for fp in self.cycle.fp]
+		print [fl.mDot for fl in self.cycle.flows]
+			
 class ThermodynamicalCycle(NumericalModel):
 	abstract = True
 	#================ Inputs ================#
-	# Cycle settings
-	fluidName = F.Choices(Fluids, default = 'R134a', label = 'working fluid')
-	mDot = F.Quantity('MassFlowRate', default = (1, 'kg/min'), label = ' fluid flow rate')
 	# Cycle diagram
 	cycleDiagram = F.SubModelGroup(TC.CycleDiagram, 'inputs', label = 'Diagram settings')
 	#================ Results ================#
@@ -80,6 +75,7 @@ class ThermodynamicalCycle(NumericalModel):
 		('s', F.Quantity('SpecificEntropy', default = (1, 'kJ/kg-K'))),
 		('q', F.Quantity()),
 		('dT', F.Quantity('TemperatureDifference', default = (1, 'degC'))),
+		('mDot', F.Quantity('MassFlowRate', default = (1, 'kg/min'))),
 		('b', F.Quantity('SpecificEnergy', default = (1, 'kJ/kg')))
 		), label="Cycle states")
 						
@@ -97,12 +93,14 @@ class ThermodynamicalCycle(NumericalModel):
 		# Create fluid points
 		self.fluid = Fluid(fluid)
 		self.fp = [] #[FluidState(fluid) for _ in range(numPoints)]
+		self.flows = []
 		self.cycleIterator = CycleIterator(self)
 
 	def connectPorts(self, port1, port2):
 		fp = FluidState(self.fluid)
 		flow = P.FluidFlow()
 		self.fp.append(fp)
+		self.flows.append(flow)
 		port1.state = fp
 		port2.state = fp
 		port1.flow = flow
@@ -117,8 +115,13 @@ class ThermodynamicalCycle(NumericalModel):
 		self.cycleStatesTable.resize(len(self.fp))
 		for i in range(len(self.fp)):
 			fp = self.fp[i]
-			self.cycleStatesTable[i] = (fp.T, fp.p, fp.rho, fp.h, fp.s, fp.q, fp.dT, fp.b(TAmbient))
-
+			self.cycleStatesTable[i] = (fp.T, fp.p, fp.rho, fp.h, fp.s, fp.q, fp.dT, self.flows[i].mDot, fp.b(TAmbient))
+		# Select the zero for the exergy scale
+		fp = FluidState(self.fluid)
+		fp.update_Tp(TAmbient, 1e5)
+		b0 = fp.b(TAmbient)
+		self.cycleStatesTable['b'] -= b0
+		
 	def createStateDiagram(self):
 		ncp = len(self.fp)
 		fluidLines = []
@@ -153,6 +156,8 @@ class ThermodynamicalCycle(NumericalModel):
 class HeatPumpCycle(ThermodynamicalCycle):	
 	abstract = True
 	#================ Inputs ================#
+	fluidName = F.Choices(Fluids, default = 'R134a', label = 'working fluid')
+	mDot = F.Quantity('MassFlowRate', default = (1, 'kg/min'), label = ' fluid flow rate')
 	pHighMethod = F.Choices(OrderedDict((
 		('P', 'pressure'),
 		('T', 'temperature'),
@@ -213,6 +218,8 @@ class HeatPumpCyclesDoc(RestModule):
 class HeatEngineCycle(ThermodynamicalCycle):
 	abstract = True
 	#================ Inputs ================#
+	fluidName = F.Choices(Fluids, default = 'R134a', label = 'refrigerant')
+	mDot = F.Quantity('MassFlowRate', default = (1, 'kg/min'), label = ' refrigerant flow rate')
 	pHighMethod = F.Choices(OrderedDict((
 		('P', 'pressure'),
 		('T', 'temperature'),
@@ -270,13 +277,27 @@ class HeatEngineCycle(ThermodynamicalCycle):
 class HeatEngineCyclesDoc(RestModule):
 	label = 'Documentation'
 	
-class LiquefierCycle(ThermodynamicalCycle):
+class LiquefactionCycle(ThermodynamicalCycle):
 	abstract = True
 	#================ Inputs ================#
-	pHigh = F.Quantity('Pressure', default = (40, 'bar'), label = 'high pressure', show = "self.pHighMethod == 'P'")
-	pLow = F.Quantity('Pressure', default = (1, 'bar'), label = 'low pressure', show = "self.pLowMethod == 'P'")
+	fluidName = F.Choices(Fluids, default = 'R134a', label = 'liquefied fluid')
+	mDot = F.Quantity('MassFlowRate', default = (1, 'kg/min'), label = 'inlet flow rate')
+	pIn = F.Quantity('Pressure', default = (1, 'bar'), label = 'inlet gas pressure')
+	TIn = F.Quantity('Temperature', default = (15, 'degC'), label = 'inlet gas temperature')
+	pHigh = F.Quantity('Pressure', default = (40, 'bar'), label = 'compressor high pressure')
+	pLiquid = F.Quantity('Pressure', default = (2, 'bar'), label = 'liquid pressure')
 	TAmbient = F.Quantity('Temperature', default = (15, 'degC'), label = 'ambient temperature', description = 'used as reference temperature to calculate exergy')	
-	workingFluidGroup = F.FieldGroup(['fluidName', 'mDot', 
-		pHigh, pLow, TAmbient], 'Cycle parameters')
+	workingFluidGroup = F.FieldGroup(['fluidName', 'mDot', pIn, TIn, 
+		pHigh, pLiquid, TAmbient], 'Cycle parameters')
+	#================ Results ================#
+	liqEnergy = F.Quantity('SpecificEnergy', default = (1, 'kJ/kg'), label = 'liquefaction energy')
+	minLiqEnergy = F.Quantity('SpecificEnergy', default = (1, 'kJ/kg'), label = 'min. liquefaction energy', 
+		description = 'minimum energy required for liquefaction in an ideal carnot cycle; \
+			equal to the difference in exergies between initial and final state')
+	etaSecondLaw = F.Quantity(label = 'second law efficiency', 
+		description = 'minimum energy required for liquefaction to the actual energy required in the cycle')
+	efficiencyFieldGroup = F.FieldGroup([liqEnergy, minLiqEnergy, etaSecondLaw], 'Efficiency')
 	
+class LiquefactionCyclesDoc(RestModule):
+	label = 'Documentation'
 	

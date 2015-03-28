@@ -60,6 +60,8 @@ class VaporCompressionCycle(HeatPumpCycle):
 		self.connectPorts(self.condenser.outlet, self.throttleValve.inlet)
 		self.connectPorts(self.throttleValve.outlet, self.evaporator.inlet)
 		# Initial guess
+		for fl in self.flows:
+			fl.mDot = self.mDot
 		self.evaporator.outlet.state.update_pq(self.pLow, 1)
 		# Cycle iterations
 		self.cycleIterator.run()
@@ -140,6 +142,8 @@ class VaporCompressionCycleWithRecuperator(VaporCompressionCycle):
 		self.connectPorts(self.recuperator.outlet2, self.throttleValve.inlet)
 		self.connectPorts(self.throttleValve.outlet, self.evaporator.inlet)
 		# Initial guess
+		for fl in self.flows:
+			fl.mDot = self.mDot
 		self.evaporator.outlet.state.update_pq(self.pLow, 1)
 		if (self.cycleTranscritical):
 			self.condenser.outlet.state.update_Tp(1.05 * self.fluid.critical['T'], self.pHigh)
@@ -151,11 +155,11 @@ class VaporCompressionCycleWithRecuperator(VaporCompressionCycle):
 		self.postProcess()
 	
 	def computeCycle(self):
-		self.recuperator.compute(self.mDot, self.mDot)
-		self.recuperator.computeStream1(self.mDot)
+		self.recuperator.compute()
+		self.recuperator.computeStream1()
 		self.compressor.compute(self.pHigh)
 		self.condenser.compute()
-		self.recuperator.computeStream2(self.mDot)
+		self.recuperator.computeStream2()
 		self.throttleValve.compute(self.pLow)
 		self.evaporator.compute()
 		

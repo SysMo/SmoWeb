@@ -72,16 +72,35 @@ class CycleDiagram(NumericalModel):
 class CycleComponent(NumericalModel):
 	abstract = True
 
+class FluidSource_TP(CycleComponent):
+	T = F.Quantity('Temperature', label = 'temperature')
+	p = F.Quantity('Pressure', label = 'pressure')
+	mDot = F.Quantity('MassFlowRate', label = 'mass flow rate')
+	FG = F.FieldGroup([T, p, mDot], label = 'Compressor')
+	modelBlocks = []
+	#================== Ports =================#
+	outlet = F.Port(P.ThermodynamicPort)
+	#================== Methods =================#		
+	def compute(self):
+		self.outlet.flow.mDot = self.mDot
+		self.outlet.state.update_Tp(self.T, self.p)
+		
 class CycleComponent2FlowPorts(CycleComponent):
 	abstract = True
-	w = F.Quantity('Power', default = (0, 'kW'), label = 'specific work')
-	qIn = F.Quantity('HeatFlowRate', default = (0, 'kW'), label = 'specific heat in')
+	w = F.Quantity('SpecificEnergy', default = (0, 'kJ/kg'), label = 'specific work')
+	qIn = F.Quantity('SpecificEnergy', default = (0, 'kJ/kg'), label = 'specific heat in')
+	WDot = F.Quantity('Power', default = (0, 'kW'), label = 'power')
+	QDotIn = F.Quantity('HeatFlowRate', default = (0, 'kW'), label = 'heat flow rate in')
 	#================== Ports =================#
 	inlet = F.Port(P.ThermodynamicPort)
 	outlet = F.Port(P.ThermodynamicPort)
 	#================== Methods =================#	
 	def compute(self):
 		self.outlet.flow.mDot = self.inlet.flow.mDot
+	
+	def postProcess(self):
+		self.WDot = self.w * self.inlet.flow.mDot
+		self.QDotIn = self.qIn * self.inlet.flow.mDot
 	
 class Compressor(CycleComponent2FlowPorts):
 	modelType = F.Choices(OrderedDict((
@@ -199,20 +218,20 @@ class HeatExchangerTwoStreams(CycleComponent):
 	inlet2 = F.Port(P.ThermodynamicPort)
 	outlet2 = F.Port(P.ThermodynamicPort)
 	#================== Methods =================#
-	def compute(self, m1Dot, m2Dot):
+	def compute(self):
 		self.outlet1.state.update_Tp(self.inlet2.state.T, self.inlet1.state.p)
 		self.outlet2.state.update_Tp(self.inlet1.state.T, self.inlet2.state.p)
-		dH1DotMax = m1Dot * (self.inlet1.state.h - self.outlet1.state.h)
-		dH2DotMax = m2Dot * (self.inlet2.state.h - self.outlet2.state.h)
+		dH1DotMax = self.inlet1.flow.mDot * (self.inlet1.state.h - self.outlet1.state.h)
+		dH2DotMax = self.inlet2.flow.mDot * (self.inlet2.state.h - self.outlet2.state.h)
 		if (abs(dH1DotMax) > abs(dH2DotMax)):
 			self.QDot = dH2DotMax * self.eta
 		else:
 			self.QDot = -dH1DotMax * self.eta
-	def computeStream1(self, m1Dot):
-		self.outlet1.flow.mDot = self.inlet1.flow.mDot
+	def computeStream1(self):
+		m1Dot = self.outlet1.flow.mDot = self.inlet1.flow.mDot
 		self.outlet1.state.update_ph(self.inlet1.state.p, self.inlet1.state.h + self.QDot / m1Dot)
-	def computeStream2(self, m2Dot):
-		self.outlet2.flow.mDot = self.inlet2.flow.mDot
+	def computeStream2(self):
+		m2Dot = self.outlet2.flow.mDot = self.inlet2.flow.mDot
 		self.outlet2.state.update_ph(self.inlet2.state.p, self.inlet2.state.h - self.QDot / m2Dot)
 	def __str__(self):
 		return """
@@ -238,7 +257,38 @@ Outlet2: T = {self.outlet2.state.T}, p = {self.outlet2.state.p}, q = {self.outle
 		he.compute(m1Dot, m2Dot)
 		print he
 
+class FluidJunction(CycleComponent):
+	FG = F.FieldGroup([])
+	modelBlocks = []
+	#================== Ports =================#
+	inletMain = F.Port(P.ThermodynamicPort)
+	inlet2 = F.Port(P.ThermodynamicPort)
+	outlet = F.Port(P.ThermodynamicPort)
+	#================== Methods =================#
+	def compute(self):
+		HDotIn = self.inletMain.flow.mDot * self.inletMain.state.h \
+			+ self.inlet2.flow.mDot * self.inlet2.state.h
+		mDotIn = self.inletMain.flow.mDot + self.inlet2.flow.mDot
+		hOut = HDotIn / mDotIn
+		self.outlet.state.update_ph(self.inletMain.state.p, hOut)
+		self.outlet.flow.mDot = mDotIn
+		
+class FluidSplitter(CycleComponent):
+	FG = F.FieldGroup([])
+	modelBlocks = []
+	#================== Ports =================#
+	inlet = F.Port(P.ThermodynamicPort)
+	outlet1 = F.Port(P.ThermodynamicPort)
+	outlet2 = F.Port(P.ThermodynamicPort)
+	#================== Methods =================#
+	def compute(self, frac1, frac2):
+		self.outlet1.flow.mDot = self.inlet.flow.mDot * frac1 / (frac1 + frac2)
+		self.outlet2.flow.mDot = self.inlet.flow.mDot * frac2 / (frac1 + frac2)
+		self.outlet1.state.update_Trho(self.inlet.state.T, self.inlet.state.rho)
+		self.outlet2.state.update_Trho(self.inlet.state.T, self.inlet.state.rho)
+
 class PhaseSeparator(CycleComponent):
+	FG = F.FieldGroup([])
 	modelBlocks = []
 	#================== Ports =================#
 	inlet = F.Port(P.ThermodynamicPort)
@@ -246,12 +296,17 @@ class PhaseSeparator(CycleComponent):
 	outletVapor = F.Port(P.ThermodynamicPort)
 	#================== Methods =================#
 	def compute(self):
+		if (0 < self.inlet.state.q < 1):
+			fq = self.inlet.state.q
+		else:
+			fq = 1.0
+		
 		self.outletLiquid.state.update_pq(self.inlet.state.p, 0)
-		self.outletLiquid.flow.mDot = (1 - self.inlet.state.q) * self.inlet.flow.mDot
+		self.outletLiquid.flow.mDot = (1 - fq) * self.inlet.flow.mDot
 		#self.outletLiquid.flow.HDot = self.outletLiquid.flow.mDot * self.outletLiquid.state.h
 
 		self.outletVapor.state.update_pq(self.inlet.state.p, 1)
-		self.outletVapor.flow.mDot = self.inlet.state.q * self.inlet.flow.mDot
+		self.outletVapor.flow.mDot = fq * self.inlet.flow.mDot
 		#self.outletVapor.flow.HDot = self.outletVapor.flow.mDot * self.outletVapor.state.h
 
 class ThermodynamicComponentsDoc(RestModule):

@@ -54,6 +54,12 @@ class PowerGenerationCycles(ModularPageView):
 	requireGoogle = ['visualization']
 	
 @registerView(router)
+class LiquefactionCycles(ModularPageView):
+	label = "Liquefaction cycles"
+	modules = [M.LindeHampsonCycle, M.LiquefactionCyclesDoc]
+	requireGoogle = ['visualization']
+
+@registerView(router)
 class HeatExchange1DView(ModularPageView):
 	label = "Heat exchange 1D"
 	modules = [M.CryogenicPipe, M.CableHeating1D]	
