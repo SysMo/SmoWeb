@@ -107,9 +107,11 @@ class Compressor(CycleComponent2FlowPorts):
 		('S', 'isentropic'),
 		('T', 'isothermal'),
 	)), label = 'compressor model')
-	eta = F.Quantity('Efficiency', label = 'efficiency', show = "self.modelType == 'S'")
+	etaS = F.Quantity('Efficiency', label = 'isentropic efficiency', show = "self.modelType == 'S'")
 	fQ = F.Quantity('Fraction', default = 0., label = 'heat loss factor', show="self.modelType == 'S'")
-	FG = F.FieldGroup([modelType, eta, fQ], label = 'Compressor')
+	etaT = F.Quantity('Efficiency', label = 'isosthermal efficiency', show = "self.modelType == 'T'")
+	dT = F.Quantity('TemperatureDifference', default = 0, label = 'temperature increase', show = "self.modelType == 'T'")
+	FG = F.FieldGroup([modelType, etaS, fQ, etaT, dT], label = 'Compressor')
 	modelBlocks = []
 	#================== Methods =================#
 	def compute(self, pOut):
@@ -117,14 +119,16 @@ class Compressor(CycleComponent2FlowPorts):
 		if (self.modelType == 'S'):
 			self.outlet.state.update_ps(pOut, self.inlet.state.s)
 			wIdeal = self.outlet.state.h - self.inlet.state.h
-			self.w = wIdeal / self.eta
+			self.w = wIdeal / self.etaS
 			self.qIn = - self.fQ * self.w
 			delta_h = self.w + self.qIn
 			self.outlet.state.update_ph(pOut, self.inlet.state.h + delta_h)
 		else:
-			self.outlet.state.update_Tp(self.inlet.state.T, pOut)
+			self.outlet.state.update_Tp(self.inlet.state.T + self.dT, pOut)
 			self.qIn = (self.outlet.state.s - self.inlet.state.s) * self.inlet.state.T
-			self.w = self.outlet.state.h - self.inlet.state.h - self.qIn
+			wIdeal = self.outlet.state.h - self.inlet.state.h - self.qIn
+			self.w = wIdeal / self.etaT
+			self.qIn -= (self.w - wIdeal)
 
 class Turbine(CycleComponent2FlowPorts):
 	eta = F.Quantity(default = 1, minValue = 0, maxValue = 1, label = 'efficiency')

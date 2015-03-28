@@ -93,7 +93,8 @@ class VaporCompressionCycle(HeatPumpCycle):
 		self.pHigh = (130, 'bar')
 		self.pLowMethod = 'T'
 		self.TEvaporation = (10, 'degC')
-		self.compressor.eta = 0.8
+		self.compressor.modelType = 'S'
+		self.compressor.etaS = 0.8
 		self.compressor.fQ = 0.2
 		self.condenser.computeMethod = 'T'
 		self.condenser.TOutlet = (50, 'degC')
@@ -106,7 +107,8 @@ class VaporCompressionCycle(HeatPumpCycle):
 		self.pHigh = (10, 'bar')
 		self.pLowMethod = 'T'
 		self.TEvaporation = (-20, 'degC')
-		self.compressor.eta = 0.75
+		self.compressor.modelType = 'S'
+		self.compressor.etaS = 0.75
 		self.compressor.fQ = 0.0
 		self.condenser.computeMethod = 'T'
 		self.condenser.TOutlet = (36, 'degC')

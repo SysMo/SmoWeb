@@ -16,7 +16,7 @@ import smo.web.exceptions as E
 import Ports as P
 
 class CycleIterator(object):
-	def __init__(self, cycle, hTolerance = 1.0, maxNumIter = 20):
+	def __init__(self, cycle, hTolerance = 1.0, maxNumIter = 100):
 		self.cycle = cycle
 		self.hTolerance = hTolerance
 		self.maxNumIter = maxNumIter
@@ -30,7 +30,7 @@ class CycleIterator(object):
 		for i in range(self.ncp):			
 			self.change_h[i] = self.cycle.fp[i].h - self.old_h[i]
 		change = np.sqrt(np.sum(self.change_h**2))
-		#print "Change: {}".format(change)
+		print "Change: {}".format(change)
 		return change
 		
 	def checkConvergence(self):
@@ -49,10 +49,12 @@ class CycleIterator(object):
 		while (i < self.maxNumIter):			
 			self.saveOldValues()
 			self.cycle.computeCycle()
-			#self.printValues()
+			print i
 			self.checkConvergence()
 			if (self.converged):
 				break
+			i += 1
+			
 		if (not self.converged):
 			raise E.ConvergenceError('Solution did not converge')
 		
@@ -238,9 +240,9 @@ class HeatEngineCycle(ThermodynamicalCycle):
 		pHighMethod, TEvaporation, pHigh, 
 		pLowMethod, TCondensation, pLow, TAmbient], 'Cycle parameters')
 	#================ Results ================#
-	eta = F.Quantity(label = 'cycle efficiency')
-	etaCarnot = F.Quantity(label = 'Carnot efficiency', description = 'efficiency of Carnot cycle between the high (boiler out) temperature and the low (condenser out) tempreature')
-	etaSecondLaw = F.Quantity(label = 'second law efficiency', description = 'ratio or real cycle efficiency over Carnot efficiency')
+	eta = F.Quantity('Efficiency', label = 'cycle efficiency')
+	etaCarnot = F.Quantity('Efficiency', label = 'Carnot efficiency', description = 'efficiency of Carnot cycle between the high (boiler out) temperature and the low (condenser out) tempreature')
+	etaSecondLaw = F.Quantity('Efficiency', label = 'second law efficiency', description = 'ratio or real cycle efficiency over Carnot efficiency')
 	efficiencyFieldGroup = F.FieldGroup([eta, etaCarnot, etaSecondLaw], 'Efficiency')
 
 	def setTCondensation(self, T):
@@ -294,8 +296,9 @@ class LiquefactionCycle(ThermodynamicalCycle):
 	minLiqEnergy = F.Quantity('SpecificEnergy', default = (1, 'kJ/kg'), label = 'min. liquefaction energy', 
 		description = 'minimum energy required for liquefaction in an ideal carnot cycle; \
 			equal to the difference in exergies between initial and final state')
-	etaSecondLaw = F.Quantity(label = 'second law efficiency', 
-		description = 'minimum energy required for liquefaction to the actual energy required in the cycle')
+	etaSecondLaw = F.Quantity('Efficiency', label = 'figure of merit (FOM)', 
+		description = 'minimum energy required for liquefaction to the actual energy required \
+			in the cycle; equivalent to second law efficiency')
 	efficiencyFieldGroup = F.FieldGroup([liqEnergy, minLiqEnergy, etaSecondLaw], 'Efficiency')
 	
 class LiquefactionCyclesDoc(RestModule):

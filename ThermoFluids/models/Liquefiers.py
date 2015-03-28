@@ -78,11 +78,13 @@ class LindeHampsonCycle(LiquefactionCycle):
 		self.gasSource.mDot = self.mDot
 		self.gasSource.compute()
 		# Initial guess
+		liqFractionGuess = 0.2
+		self.compressor.inlet.flow.mDot = 1.0 / liqFractionGuess * self.gasSource.outlet.flow.mDot
+		self.liqSeparator.outletVapor.flow.mDot = liqFractionGuess * self.mDot
+
 		self.compressor.inlet.state.update_Tp(
 			self.gasSource.outlet.state.T, self.gasSource.outlet.state.p)
-		self.compressor.inlet.flow.mDot = 1.0 * self.gasSource.outlet.flow.mDot
 		self.secThrottleValve.outlet.state.update_pq(self.pIn, 1)
-		self.liqSeparator.outletVapor.flow.mDot = 0.5 * self.mDot
 		# Cycle iterations
 		self.cycleIterator.run()
 		# Results
@@ -121,6 +123,8 @@ class LindeHampsonCycle(LiquefactionCycle):
 		self.pLiquid = (1, 'bar')
 		self.TAmbient = 300
 		self.compressor.modelType = 'T'
+		self.compressor.etaT = 0.8
+		self.compressor.dT = 50.
 		self.recuperator.eta = 1.0
 		self.cycleDiagram.defaultMaxP = False
 		self.cycleDiagram.maxPressure = (300, 'bar')
@@ -133,7 +137,8 @@ class LindeHampsonCycle(LiquefactionCycle):
 		self.pLiquid = (1, 'bar')
 		self.TAmbient = 300
 		self.compressor.modelType = 'T'
-		self.recuperator.eta = 1.0
+		self.compressor.etaT = 0.8
+		self.compressor.dT = 50.
 		self.cycleDiagram.defaultMaxP = False
 		self.cycleDiagram.defaultMaxT = False
 		self.cycleDiagram.maxPressure = (500, 'bar')

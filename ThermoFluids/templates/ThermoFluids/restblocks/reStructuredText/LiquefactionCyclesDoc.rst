@@ -17,4 +17,8 @@ Linde-Hampson cycle
 Claude cycle
 ------------
 
-TBD
+.. figure:: /static/ThermoFluids/img/ModuleImages/ClaudeCycle.svg
+   :width: 500px
+   :align: center
+   
+   Claude cycle
