@@ -8,7 +8,7 @@ import smo.media.CoolProp as CP
 import smo.dynamical_models.core as DMC
 from smo.dynamical_models.thermofluids import Structures as DMS
 
-class FluidPistonPump(DMC.DynamicalModel):
+class Compressor(DMC.DynamicalModel):
 	def __init__(self, fluid, etaS, fQ):
 		self.fluid = fluid
 		self.etaS = etaS
@@ -17,6 +17,7 @@ class FluidPistonPump(DMC.DynamicalModel):
 		self.flow = DMS.FluidFlow()
 		self.portOut = DMS.FluidPort('R', self.flow)
 		self.portIn = DMS.FluidPort('R', -self.flow)
+		
 	def compute(self):
 		self.VDot = self.n * self.V
 		self.mDot = self.VDot * self.portIn.state.rho
