@@ -7,27 +7,29 @@ Created on Mar 4, 2015
 import smo.media.CoolProp as CP
 import smo.dynamical_models.core as DMC
 from smo.dynamical_models.thermofluids import Structures as DMS
+from smo.util import AttributeDict
 
 class TwoPortHeatTransfer(DMC.DynamicalModel):
-	def __init__(self, **kwargs):
+	def __init__(self, params = None, **kwargs):
+		if params == None:
+			params = AttributeDict(kwargs)
+			
+		self.condModel = params.condModel	
 		self.port1 = DMS.ThermalPort('R')
 		self.port2 = DMS.ThermalPort('R')
-		condModelDefault = lambda T1, T2: (T1 - T2)
-		self.condModel = kwargs.get('condModel', condModelDefault)
-
+		
 	def compute (self):
-		self.QDot = self.condModel(
-			self.port1.state.T, 
-			self.port2.state.T
-			)
+		self.QDot = self.condModel(self.port1.state.T, self.port2.state.T)
 		self.port1.flow.QDot = -self.QDot
 		self.port2.flow.QDot = self.QDot
 		
 class ConvectionHeatTransfer(DMC.DynamicalModel):
-	def __init__(self, **kwargs):
-		
-		self.hConv = kwargs.get('hConv', 100)
-		self.A = kwargs.get('A', 1.0)
+	def __init__(self, params = None, **kwargs):
+		if params == None:
+			params = AttributeDict(kwargs)
+			
+		self.hConv = params.hConv
+		self.A = params.A
 
 		self.fluidPort = DMS.FluidPort('R')
 		self.wallPort = DMS.ThermalPort('R')

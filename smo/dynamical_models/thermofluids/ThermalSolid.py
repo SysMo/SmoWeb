@@ -9,68 +9,72 @@ import smo.dynamical_models.core as DMC
 from smo.dynamical_models.thermofluids import Structures as DMS
 from smo.media.MaterialData import Solids
 from smo.math.util import Interpolator1D
+from smo.util import AttributeDict
 
 class SolidConductiveBody(DMC.DynamicalModel):
-	def __init__(self, material, mass, thickness = None, conductionArea = None, 
-				port1Type = 'C', port2Type = 'C', numMassSegments = 1, TInit = 288.15):
-		
+	def __init__(self, params = None, **kwargs):
+		if params == None:
+			params = AttributeDict(kwargs)
+			
 		# Set the material
-		if (isinstance(material, basestring)):
-			self.material = Solids[material]
-		elif (isinstance(material, dict)):
-			self.material = material
-		# Thermal conductivity model
+		if (isinstance(params.material, basestring)):
+			self.material = Solids[params.material]
+		elif (isinstance(params.material, dict)):
+			self.material = params.material
+	
+		# Thermal conductivity params
 		if ('thermalCond_T' in self.material):
 			self.thermCondModel = Interpolator1D(
 					xValues = self.material['thermalCond_T']['T'],
 					yValues = self.material['thermalCond_T']['cond'])
 		else:
-			raise ValueError("The material '{}' does not define a thermal conductivity model".format(self.material.name))
-		# Heat capacity model
+			raise ValueError("The material '{}' does not define a thermal conductivity params".format(self.material.name))
+		# Heat capacity params
 		if ('heatCapacity_T' in self.material):
 			self.cpModel = Interpolator1D(
 					xValues = self.material['heatCapacity_T']['T'],
 					yValues = self.material['heatCapacity_T']['cp'])
 		else:
-			raise ValueError("The material '{}' does not define a thermal conductivity model".format(self.material.name))
+			raise ValueError("The material '{}' does not define a thermal conductivity params".format(self.material.name))
+		
 		# Mass
-		self.mass = mass
-		self.numMassSegments = numMassSegments
-		self.segmentMass= mass / numMassSegments
+		self.mass = params.mass
+		self.numMassSegments = params.numMassSegments
+		self.segmentMass= self.mass / self.numMassSegments
 		self.cp = np.zeros(self.numMassSegments)
-		self.T = np.ones(self.numMassSegments) * TInit
+		self.T = np.ones(self.numMassSegments) * params.TInit
 		self.TDot = np.zeros(self.numMassSegments)
 		
 		# Conductions and end handling
-		self.thickness = thickness
+		self.thickness = params.thickness
 		self.numConductiveSegments = self.numMassSegments - 1
-		if (port1Type in ['C', 'R']):
-			if (port1Type == 'R'):
+		if (params.port1Type in ['C', 'R']):
+			if (params.port1Type == 'R'):
 				self.numConductiveSegments += 1
 		else:
-			raise ValueError("port1Type must be 'R' or 'C', value given is '{}'".format(port1Type))
-		if (port2Type in ['C', 'R']):
-			if (port2Type == 'R'):
+			raise ValueError("port1Type must be 'R' or 'C', value given is '{}'".format(params.port1Type))
+		if (params.port2Type in ['C', 'R']):
+			if (params.port2Type == 'R'):
 				self.numConductiveSegments += 1
 		else:
-			raise ValueError("port2Type must be 'R' or 'C', value given is '{}'".format(port2Type))
+			raise ValueError("port2Type must be 'R' or 'C', value given is '{}'".format(params.port2Type))
 		
 		if (self.numConductiveSegments > 0):
 			self.segmentThickness =  self.thickness / self.numConductiveSegments
-			self.conductionArea = conductionArea
+			self.conductionArea = params.conductionArea
 			self.cond = np.zeros(self.numConductiveSegments)
 			self.QDot = np.zeros(self.numConductiveSegments)
 		
 		# Set up the port valriables
-		if (port1Type == 'C'):
-			self.port1 = DMS.ThermalPort(port1Type, DMS.ThermalState())
+		if (params.port1Type == 'C'):
+			self.port1 = DMS.ThermalPort(params.port1Type, DMS.ThermalState())
 		else:
-			self.port1 = DMS.ThermalPort(port1Type)
+			self.port1 = DMS.ThermalPort(params.port1Type)
 			
-		if (port2Type == 'C'):
-			self.port2 = DMS.ThermalPort(port2Type, DMS.ThermalState())
+		if (params.port2Type == 'C'):
+			self.port2 = DMS.ThermalPort(params.port2Type, DMS.ThermalState())
 		else:
-			self.port2 = DMS.ThermalPort(port2Type)
+			self.port2 = DMS.ThermalPort(params.port2Type)
 	
 	def setState(self, T):
 		self.T[:] = T
@@ -143,14 +147,14 @@ def testSolidConductiveBody():
 	
 	# Tank (composite)
 	scBody = SolidConductiveBody(
-			material = 'CarbonFiberComposite', 
-			mass = 100., #[kg]
-			thickness = 0.01, #[m]
-			conductionArea = 10, #[m**2]
-			port1Type = 'R', port2Type = 'C', 
-			numMassSegments = numbMassSegments, 
-			TInit = 300 #[K]
-			)
+		material = 'CarbonFiberComposite', 
+		mass = 100., #[kg]
+		thickness = 0.01, #[m]
+		conductionArea = 10, #[m**2]
+		port1Type = 'R', port2Type = 'C', 
+		numMassSegments = numbMassSegments, 
+		TInit = 300 #[K]
+	)
 	
 	# Simulation parameters
 	T1 = 300 #[K]

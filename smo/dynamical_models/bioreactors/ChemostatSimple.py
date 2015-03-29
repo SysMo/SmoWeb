@@ -7,6 +7,7 @@ import numpy as np
 import pylab as plt
 import os
 
+from smo.util import AttributeDict 
 from assimulo.exception import TerminateSimulation
 from smo.dynamical_models.core.Simulation import Simulation, TimeEvent, ResultStorage
 from smo.math.util import NamedStateVector
@@ -36,16 +37,18 @@ class ChemostatSimple(Simulation):
 	"""
 	name = 'Model of a simple chemostat.'
 	
-	def __init__(self, model, **kwargs):
+	def __init__(self, params = None, **kwargs):
 		super(ChemostatSimple, self).__init__(**kwargs)
-		
+		if params == None:
+			params = AttributeDict(kwargs)
+					
 		# Initialize parameters
-		self.m = model.m
-		self.K = model.K
-		self.S_in = model.S_in
-		self.X_in = model.X_in
-		self.gamma = model.gamma
-		self.D_vals = model.D_vals
+		self.m = params.m
+		self.K = params.K
+		self.S_in = params.S_in
+		self.X_in = params.X_in
+		self.gamma = params.gamma
+		self.D_vals = params.D_vals
 
 		# Create state vector and derivative vector
 		stateVarNames = ['S', 'X'] 
@@ -72,8 +75,8 @@ class ChemostatSimple(Simulation):
 			tChangedD += self.D_val[0]
 		
 		# Set initial values of the states
-		self.y.S = model.S0
-		self.y.X = model.X0
+		self.y.S = params.S0
+		self.y.X = params.X0
 				
 		# Set all the initial state values
 		self.y0 = self.y.get(copy = True)
@@ -137,10 +140,13 @@ class ChemostatSimple(Simulation):
 		self.resultStorage.record[:] = (t, self.yRes.S, self.yRes.X, self.D)
 		self.resultStorage.saveTimeStep()
 		
-	def run(self, solver):		
+	def run(self, params = None, **kwargs):	
+		if params == None:
+			params = AttributeDict(kwargs)
+				
 		self.simSolver.simulate(
-			tfinal = solver.tFinal, 
-			ncp = np.floor(solver.tFinal/solver.tPrint)
+			tfinal = params.tFinal, 
+			ncp = np.floor(params.tFinal/params.tPrint)
 		)
 		self.resultStorage.finalizeResult()
 		
@@ -169,46 +175,42 @@ def TestChemostatSimple():
 	simulate = True #True - run simulation; False - plot an old results 
 	
 	# Initialize simulation parameters
-	class SolverParams():
-		tFinal = 500.
-		tPrint = 1.0
-	solverParams = SolverParams()
+	solverParams = AttributeDict({
+		'tFinal' : 500., 
+		'tPrint' : 1.0
+	})
 		
 	# Initialize model parameters
-	class ModelParams():
-		m = 3.0
-		K = 3.7
-		S_in = 2.2
-		X_in = 0.0
-		gamma = 0.6
-		D_vals = np.array([[100, 1], [200, 0.5], [1e6, 1.1]])
-		
-		S0 = 0.0
-		X0 = 0.5
-	modelParams = ModelParams()
+	modelParams = AttributeDict({
+		'm' : 3.0,
+		'K' : 3.7,
+		'S_in' : 2.2,
+		'X_in' : 0.0,
+		'gamma' : 0.6,
+		'D_vals' : np.array([[100, 1], [200, 0.5], [1e6, 1.1]]),
+		'S0' : 0.0,
+		'X0' : 0.5
+	})
 	
 	# Create the model
-	model = ChemostatSimple(
-		modelParams,
-		initDataStorage = simulate)
+	chemostat = ChemostatSimple(modelParams, initDataStorage = simulate)
 	
 	# Run simulation or load old results
 	if (simulate == True):
-		model.prepareSimulation()
-		model.run(solverParams)
+		chemostat.prepareSimulation()
+		chemostat.run(solverParams)
 	else:
-		model.loadResult(simIndex = 1)
+		chemostat.loadResult(simIndex = 1)
 	
 	# Export to csv file
-	model.resultStorage.exportToCsv(fileName = csvFileName)
+	chemostat.resultStorage.exportToCsv(fileName = csvFileName)
 	
 	# Plot results
-	model.plotHDFResults()
+	chemostat.plotHDFResults()
 	
 	print "=== END: TestChemostatSimple ==="
 	
 	
 if __name__ == '__main__':
-	#NamedStateVector.test()
 	TestChemostatSimple()
 	

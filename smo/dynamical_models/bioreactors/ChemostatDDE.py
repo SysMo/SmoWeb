@@ -5,15 +5,18 @@ Created on March 23, 2015
 '''
 import pylab as plt
 from pydelay import dde23
-
+from smo.util import AttributeDict 
 
 class ChemostatDDE():
     """
     Class for implementation the model of chemostat (2-substrates and 2-organisms) with delay differential equations (DDE)
     """
-    def __init__(self, model):   
+    def __init__(self, params = None, **kwargs):   
+        if params == None:
+            params = AttributeDict(kwargs)
+        
         # Define the specific growth rates (in 'C' source code)
-        c_code = """
+        support_c_code = """
         double mu1(double s, double m, double k) {
             return (m*s)/(k + s);
         }
@@ -32,48 +35,50 @@ class ChemostatDDE():
         }
         
         # Define the parameters
-        params = {
-            'k1'    : model.k1,
-            'k2'    : model.k2,
-            'k3'    : model.k3,
-            's1_in' : model.s1_in,
-            's2_in' : model.s2_in,
-            'a'     : model.a,
-            'm1'    : model.m1,
-            'm2'    : model.m2,
-            'k_s1'  : model.k_s1,
-            'k_s2'  : model.k_s2,
-            'k_I'   : model.k_I,
-            'D'     : model.D,
-            'tau1'  : model.tau1,
-            'tau2'  : model.tau2,
+        eqns_params = {
+            'k1'    : params.k1,
+            'k2'    : params.k2,
+            'k3'    : params.k3,
+            's1_in' : params.s1_in,
+            's2_in' : params.s2_in,
+            'a'     : params.a,
+            'm1'    : params.m1,
+            'm2'    : params.m2,
+            'k_s1'  : params.k_s1,
+            'k_s2'  : params.k_s2,
+            'k_I'   : params.k_I,
+            'D'     : params.D,
+            'tau1'  : params.tau1,
+            'tau2'  : params.tau2,
         }
         
         # Initialize the solver
-        self.dde = dde23(eqns=eqns, params=params, supportcode=c_code)
+        self.dde = dde23(eqns=eqns, params=eqns_params, supportcode=support_c_code)
 
         # Set the initial conditions (i.e. set the history of the state variables)
         histfunc = {
-            's1': lambda t: model.s1_hist_vals,
-            'x1': lambda t: model.x1_hist_vals,
-            's2': lambda t: model.s2_hist_vals,
-            'x2': lambda t: model.x2_hist_vals
+            's1': lambda t: params.s1_hist_vals,
+            'x1': lambda t: params.x1_hist_vals,
+            's2': lambda t: params.s2_hist_vals,
+            'x2': lambda t: params.x2_hist_vals
             }
         self.dde.hist_from_funcs(histfunc, 10.) #:TRICKY: 10. is 'nn' - sample in the interval
                 
     
-    def run(self, solver):
-        self.solver = solver
+    def run(self, params = None, **kwargs):
+        if params == None:
+            params = AttributeDict(kwargs)
+        self.solverParams = params
                 
         # Set the simulation parameters
-        self.dde.set_sim_params(tfinal=solver.tFinal, dtmax=None)
+        self.dde.set_sim_params(tfinal=self.solverParams.tFinal, dtmax=None)
         
         # Run the simulator
         self.dde.run()
         
     def getResults(self):
         # Fetch the results from t=0 to t=tFinal with a step-size of dt=tPrint:
-        return self.dde.sample(0, self.solver.tFinal + self.solver.tPrint, self.solver.tPrint)
+        return self.dde.sample(0, self.solverParams.tFinal + self.solverParams.tPrint, self.solverParams.tPrint)
         
     def plotResults(self):
         sol = self.getResults()
@@ -97,13 +102,13 @@ def TestChemostatDDE():
     print "=== BEGIN: TestChemostatDDE ==="
     
     # Initialize simulation parameters
-    class SolverParams():
-        tFinal = 50.
-        tPrint = 0.1
-    solverParams = SolverParams()
+    solverParams = AttributeDict({
+        'tFinal' : 50., 
+        'tPrint' : 0.1
+    })
         
     # Initialize model parameters
-    class ModelParams():
+    class ModelParams(): #:TRICKY: here it is also possible to use AttributeDict instead of class ModelParams
         k1 = 10.53
         k2 = 28.6
         k3 = 1074.
@@ -124,9 +129,9 @@ def TestChemostatDDE():
         x2_hist_vals = 0.1
     modelParams = ModelParams()
     
-    model = ChemostatDDE(modelParams)
-    model.run(solverParams)
-    model.plotResults()
+    chemostat = ChemostatDDE(modelParams)
+    chemostat.run(solverParams)
+    chemostat.plotResults()
     
     print "=== END: TestChemostatDDE ==="
     

@@ -7,13 +7,21 @@ Created on Mar 5, 2015
 import smo.media.CoolProp as CP
 import smo.dynamical_models.core as DMC
 from smo.dynamical_models.thermofluids import Structures as DMS
+from smo.util import AttributeDict 
 
 class Compressor(DMC.DynamicalModel):
-	def __init__(self, fluid, etaS, fQ):
-		self.fluid = fluid
-		self.etaS = etaS
-		self.fQ = fQ
-		self.fStateOut = CP.FluidState(fluid)
+	def __init__(self, params = None, **kwargs):
+		if params == None:
+			params = AttributeDict(kwargs)
+
+		self.fluid = params.fluid #fluid
+		self.etaS = params.etaS #isentropic efficiency
+		self.fQ = params.fQ #fraction of heat flow that is lost to ambient
+		self.V = params.V #displacement volume
+		
+		self.n = 0.0 #number of reverse per seconds
+		self.fStateOut = CP.FluidState(self.fluid)
+		
 		self.flow = DMS.FluidFlow()
 		self.portOut = DMS.FluidPort('R', self.flow)
 		self.portIn = DMS.FluidPort('R', -self.flow)
@@ -21,9 +29,11 @@ class Compressor(DMC.DynamicalModel):
 	def compute(self):
 		self.VDot = self.n * self.V
 		self.mDot = self.VDot * self.portIn.state.rho
+		
 		self.fStateOut.update_ps(self.portOut.state.p, self.portIn.state.s)
 		wIdeal = self.fStateOut.h - self.portIn.state.h
 		wReal = wIdeal / self.etaS
+		
 		delta_hOut = wReal * (1 - self.fQ)
 		self.fStateOut.update_ph(self.portOut.state.p, self.portIn.state.h + delta_hOut)
 		self.TOut = self.fStateOut.T
@@ -31,24 +41,25 @@ class Compressor(DMC.DynamicalModel):
 		self.flow.mDot = self.mDot
 		self.flow.HDot = self.HDot
 
+
 class FluidHeater(DMC.DynamicalModel):
-	def __init__(self, fluid, condModel = None):
-		self.fluid = fluid
-		self.fStateIn = CP.FluidState(fluid)
-		self.fStateOut = CP.FluidState(fluid)
-		self.fStateDown = CP.FluidState(fluid)
+	def __init__(self, params = None, **kwargs):
+		if params == None:
+			params = AttributeDict(kwargs)
+			
+		self.fluid = params.fluid
+		self.condModel = params.condModel
+		
+		self.fStateIn = CP.FluidState(self.fluid)
+		self.fStateOut = CP.FluidState(self.fluid)
+		self.fStateDown = CP.FluidState(self.fluid)
 		self.flowOut = DMS.FluidFlow()
 		self.heatOut = DMS.HeatFlow()
 		self.portIn = DMS.FluidPort('C', self.fStateDown)
 		self.portOut = DMS.FluidPort('R', self.flowOut)
 		self.thermalPort = DMS.ThermalPort('R', self.heatOut)
-		if (condModel == None):
-			self.condModel = lambda TFluid, TExt: 100.0
-		else:
-			self.condModel = condModel
 		self.TOut = 0
 		self.TIn = 0
-			
 
 	def setState(self):
 		self.fStateDown.update_Trho(self.portOut.state.T, self.portOut.state.rho)

@@ -1,5 +1,5 @@
 from SourcesSinks import FlowSource, FluidStateSource, TemperatureSource
-from FlowComponents import Compressor, FluidHeater
-from HeatFlowComponents import ConvectionHeatTransfer, TwoPortHeatTransfer
+from FluidFlow import Compressor, FluidHeater
+from HeatFlow import ConvectionHeatTransfer, TwoPortHeatTransfer
 from FluidChamber import FluidChamber
 from ThermalSolid import SolidConductiveBody

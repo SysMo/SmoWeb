@@ -7,6 +7,7 @@ Created on Feb 25, 2015
 import smo.media.CoolProp as CP
 import smo.dynamical_models.core as DMC
 from smo.dynamical_models.thermofluids import Structures as DMS
+from smo.util import AttributeDict
 
 class FluidChamber(DMC.DynamicalModel):
 	V = DMC.RealVariable(causality = DMC.Causality.parameter, variability = DMC.Variability.constant)
@@ -17,11 +18,16 @@ class FluidChamber(DMC.DynamicalModel):
 	p = DMC.RealVariable(causality = DMC.Causality.output, variability = DMC.Variability.continuous)
 	m = DMC.RealVariable(causality = DMC.Causality.output, variability = DMC.Variability.continuous)
 	
-	def __init__(self, fluid):
-		if (isinstance(fluid, CP.Fluid)):
-			self.fluid = fluid
+	def __init__(self, params = None, **kwargs):
+		if params == None:
+			params = AttributeDict(kwargs)
+			
+		self.V = params.V
+		if (isinstance(params.fluid, CP.Fluid)):
+			self.fluid = params.fluid
 		else:
-			self.fluid = CP.Fluid(fluid)
+			self.fluid = CP.Fluid(params.fluid)
+			
 		self.fState = CP.FluidState(self.fluid)
 		self.fluidPort = DMS.DynamicCPort(DMS.FluidPort, state = self.fState)
 	
@@ -73,8 +79,10 @@ def testFluidChamber_Fueling():
 	# Create fluid source
 	fluidSource = FlowSource(fluid, mDot = mDot, TOut = Tin)
 	# Create tank
-	tank = FluidChamber(fluid)
-	tank.V = 0.100 #[m**3] 100 L
+	tank = FluidChamber(
+		fluid = fluid, 
+		V = 0.100 #[m**3] 100 L
+	)
 	# Connect tank and flow source
 	tank.fluidPort.connect(fluidSource.port1)
 	

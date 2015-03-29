@@ -7,6 +7,7 @@ Created on Mar 4, 2015
 import smo.media.CoolProp as CP
 import smo.dynamical_models.core as DMC
 from smo.dynamical_models.thermofluids import Structures as DMS
+from smo.util import AttributeDict
 
 class TemperatureSource(DMC.DynamicalModel):
 	def __init__(self, T):
@@ -20,11 +21,14 @@ class FlowSource(DMC.DynamicalModel):
 	'''
 	Flow source or sink
 	'''
-	def __init__(self, fluid, mDot = 0, TOut = None):
-		self.fluid = fluid
-		self.fState = CP.FluidState(fluid)
-		self.TOutModel = lambda obj: TOut
-		self.mDot = mDot
+	def __init__(self, params = None, **kwargs):
+		if params == None:
+			params = AttributeDict(kwargs)
+			
+		self.fluid = params.fluid
+		self.fState = CP.FluidState(self.fluid)
+		self.TOutModel = lambda obj: params.TOut
+		self.mDot = params.mDot
 		self.flow = DMS.FluidFlow(mDot = self.mDot)
 		self.port1 = DMS.FluidPort('R', self.flow) 
 		
@@ -42,11 +46,15 @@ class FluidStateSource(DMC.DynamicalModel):
 	TP = 1
 	PQ = 2
 	TQ = 3
-	def __init__(self, fluid, sourceType):
-		self.fluid = fluid
-		self.fState = CP.FluidState(fluid)
+	
+	def __init__(self, params = None, **kwargs):
+		if params == None:
+			params = AttributeDict(kwargs)
+			
+		self.fluid = params.fluid
+		self.fState = CP.FluidState(self.fluid)
 		self.port1 = DMS.FluidPort('C', self.fState)
-		self.sourceType = sourceType 
+		self.sourceType = params.sourceType 
 	
 	def computeState(self):
 		if (self.sourceType == self.TP):
