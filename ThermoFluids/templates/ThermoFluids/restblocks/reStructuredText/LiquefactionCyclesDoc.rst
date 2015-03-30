@@ -16,7 +16,7 @@ This is the simplest liquefaction cycle, used originally by Linde for air liquef
 cycle consists of the following steps:
 
 * compression: the gas is compressed to a rather high pressure (200-300 bar). The compressor
-  used is typically a multistage compressor with inter-cooling between the stages to approximate
+  used is typically a multistage one with inter-cooling between the stages to approximate
   iso-thermal compression
 * cooling: the fluid is cooled down to temperatures close to the liquefaction temperatures using
   a recurperator
@@ -32,13 +32,19 @@ The Linde cycle has the advantage of simplicity, but it has 3 main problems:
 * very low yield: the liquid generated is only a small percent of the flow
 * initial cool-down: the cycle cannot operate (at least not effciently)
   until the cold side is already cold.  
-
+   
 ------------
 Claude cycle
 ------------
 
+.. figure:: /static/ThermoFluids/img/ModuleImages/ClaudeCycle.svg
+   :width: 500px
+   :align: center
+   
+   Claude cycle
+
 Claude cycle is a variation of the Linde-Hampson cycle, where an expander and two additional 
-recurperators are added to the circuit. The expander extracts additional enthalpy from the fluid,
+recurperators are added to the circuit [RefrigerationUSPAS]_. The expander extracts additional enthalpy from the fluid,
 thus reducing the temperature and increasing the liquid yield. The downside is the increased complexity
 of the circuit and especially the design of a low-temperature expander.
 
@@ -52,8 +58,11 @@ Two examples of Kapitza cycles for Nitrogen with different pressure levels are i
 * `Choudhury, B. K., Process Design of Turboexpander-based Nitrogen Liquefier <http://ethesis.nitrkl.ac.in/1466/1/PROCESS_DESIGN.pdf>`_, p. 27
 * `Cryogenic cycles <http://direns.mines-paristech.fr/Sites/Thopt/en/co/cryogenie.html>`_, Claude cycle
 
-.. figure:: /static/ThermoFluids/img/ModuleImages/ClaudeCycle.svg
-   :width: 500px
-   :align: center
-   
-   Claude cycle
+gdfgdf
+
+----------
+References
+----------
+
+.. [RefrigerationUSPAS] http://uspas.fnal.gov/materials/10MIT/Lecture_2.1.pdf
+
