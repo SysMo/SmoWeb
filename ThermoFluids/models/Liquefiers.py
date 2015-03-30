@@ -155,7 +155,7 @@ class LindeHampsonCycle(LiquefactionCycle):
 class ClaudeCycle(LindeHampsonCycle):
 	label = "Claude cycle"
 	figure = F.ModelFigure(src="ThermoFluids/img/ModuleImages/ClaudeCycle.svg",  height = 300)
-	description = F.ModelDescription("Liquefaction cycle using 3 recurperators and an expander e.g. for air liquefaction", show = True)
+	description = F.ModelDescription("Liquefaction cycle using an expander and 3 recurperators for increased efficiency", show = True)
 
 	#================ Inputs ================#
 	#---------------- Fields ----------------#
