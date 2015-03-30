@@ -56,7 +56,8 @@ class PowerGenerationCycles(ModularPageView):
 @registerView(router)
 class LiquefactionCycles(ModularPageView):
 	label = "Liquefaction cycles"
-	modules = [M.LindeHampsonCycle, M.LiquefactionCyclesDoc]
+	modules = [M.LindeHampsonCycle, M.ClaudeCycle, M.LiquefactionCyclesDoc]
+	requireJS = ['dygraph', 'dygraphExport']
 	requireGoogle = ['visualization']
 
 @registerView(router)

@@ -5,6 +5,7 @@ Created on Mar 21, 2015
 @copyright: SysMo Ltd, Bulgaria
 '''
 import os
+import math as m
 from collections import OrderedDict
 from smo.model.model import NumericalModel
 import smo.model.fields as F
@@ -85,6 +86,12 @@ class FluidSource_TP(CycleComponent):
 		self.outlet.flow.mDot = self.mDot
 		self.outlet.state.update_Tp(self.T, self.p)
 		
+class FluidSink(CycleComponent):
+	modelBlocks = []
+	FG = F.FieldGroup([])
+	#================== Ports =================#
+	inlet = F.Port(P.ThermodynamicPort)
+	
 class CycleComponent2FlowPorts(CycleComponent):
 	abstract = True
 	w = F.Quantity('SpecificEnergy', default = (0, 'kJ/kg'), label = 'specific work')
@@ -213,9 +220,19 @@ class Condenser(IsobaricHeatExchanger):
 	modelBlocks = []
 
 class HeatExchangerTwoStreams(CycleComponent):
-	abstract = True
-	eta = F.Quantity(default = 1, minValue = 0, maxValue = 1, label = 'efficiency')
-	FG = F.FieldGroup([eta], label = 'Heat exchanger')
+	#================== Inputs =================#
+	computeMethod = F.Choices(OrderedDict((
+		('EG',  'effectiveness (given)'),
+		('EN', 'effectiveness (NTU)'),
+	)), label = 'compute method')
+	epsGiven = F.Quantity('Efficiency', default = 1, label = 'effectiveness', show = 'self.computeMethod == "EG"')
+	UA = F.Quantity('ThermalConductance', default = 1, label = 'UA', show = 'self.computeMethod == "EN"')
+	FG = F.FieldGroup([computeMethod, epsGiven, UA], label = 'Heat exchanger')
+	#================== Results =================#
+	NTU = F.Quantity(label = 'NTU')
+	Cr = F.Quantity(label = 'capacity ratio')
+	epsilon = F.Quantity('ThermalConductance', label = 'effectiveness')
+	modelBlocks = []
 	#================== Ports =================#
 	inlet1 = F.Port(P.ThermodynamicPort)
 	outlet1 = F.Port(P.ThermodynamicPort)
@@ -228,15 +245,33 @@ class HeatExchangerTwoStreams(CycleComponent):
 		dH1DotMax = self.inlet1.flow.mDot * (self.inlet1.state.h - self.outlet1.state.h)
 		dH2DotMax = self.inlet2.flow.mDot * (self.inlet2.state.h - self.outlet2.state.h)
 		if (abs(dH1DotMax) > abs(dH2DotMax)):
-			self.QDot = dH2DotMax * self.eta
+			if (self.computeMethod == 'EG'):
+				self.epsilon = self.epsGiven
+			else:
+				self.computeNTU(dH2DotMax, dH1DotMax)
+			self.QDot = dH2DotMax * self.epsilon
 		else:
-			self.QDot = -dH1DotMax * self.eta
+			if (self.computeMethod == 'EG'):
+				self.epsilon = self.epsGiven
+			else:
+				self.computeNTU(dH1DotMax, dH2DotMax)
+			self.QDot = -dH1DotMax * self.epsilon
+
 	def computeStream1(self):
 		m1Dot = self.outlet1.flow.mDot = self.inlet1.flow.mDot
 		self.outlet1.state.update_ph(self.inlet1.state.p, self.inlet1.state.h + self.QDot / m1Dot)
 	def computeStream2(self):
 		m2Dot = self.outlet2.flow.mDot = self.inlet2.flow.mDot
 		self.outlet2.state.update_ph(self.inlet2.state.p, self.inlet2.state.h - self.QDot / m2Dot)
+	def computeNTU(self, dHDotMin, dHDotMax):
+		deltaTInlet = self.inlet1.state.T - self.outlet1.state.T
+		CMin = dHDotMin / deltaTInlet
+		CMax = dHDotMax / deltaTInlet
+		self.NTU = self.UA / abs(CMin)
+		self.Cr = abs(CMin / CMax)
+		self.NTU_counterFlow()
+	def NTU_counterFlow(self):
+		self.epsilon = (1 - m.exp(- self.NTU * (1 - self.Cr))) / (1 - self.Cr * m.exp(- self.NTU * (1 - self.Cr))) 
 	def __str__(self):
 		return """
 Inlet 1: T = {self.inlet1.state.T}, p = {self.inlet1.state.p}, q = {self.inlet1.state.q}, h = {self.inlet1.state.h} 
@@ -261,7 +296,7 @@ Outlet2: T = {self.outlet2.state.T}, p = {self.outlet2.state.p}, q = {self.outle
 		he.compute(m1Dot, m2Dot)
 		print he
 
-class FluidJunction(CycleComponent):
+class FlowJunction(CycleComponent):
 	FG = F.FieldGroup([])
 	modelBlocks = []
 	#================== Ports =================#
@@ -277,17 +312,19 @@ class FluidJunction(CycleComponent):
 		self.outlet.state.update_ph(self.inletMain.state.p, hOut)
 		self.outlet.flow.mDot = mDotIn
 		
-class FluidSplitter(CycleComponent):
-	FG = F.FieldGroup([])
+class FlowSplitter(CycleComponent):
+	frac1 = F.Quantity('Fraction', label = 'fraction to outlet 1')
+	frac2 = F.Quantity('Fraction', label = 'fraction to outlet 2')
+	FG = F.FieldGroup([frac1, frac2])
 	modelBlocks = []
 	#================== Ports =================#
 	inlet = F.Port(P.ThermodynamicPort)
 	outlet1 = F.Port(P.ThermodynamicPort)
 	outlet2 = F.Port(P.ThermodynamicPort)
 	#================== Methods =================#
-	def compute(self, frac1, frac2):
-		self.outlet1.flow.mDot = self.inlet.flow.mDot * frac1 / (frac1 + frac2)
-		self.outlet2.flow.mDot = self.inlet.flow.mDot * frac2 / (frac1 + frac2)
+	def compute(self):
+		self.outlet1.flow.mDot = self.inlet.flow.mDot * self.frac1 / (self.frac1 + self.frac2)
+		self.outlet2.flow.mDot = self.inlet.flow.mDot * self.frac2 / (self.frac1 + self.frac2)
 		self.outlet1.state.update_Trho(self.inlet.state.T, self.inlet.state.rho)
 		self.outlet2.state.update_Trho(self.inlet.state.T, self.inlet.state.rho)
 

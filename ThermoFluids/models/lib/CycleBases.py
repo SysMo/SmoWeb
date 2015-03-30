@@ -15,48 +15,53 @@ from smo.web.modules import RestModule
 import smo.web.exceptions as E
 import Ports as P
 
-class CycleIterator(object):
-	def __init__(self, cycle, hTolerance = 1.0, maxNumIter = 100):
-		self.cycle = cycle
-		self.hTolerance = hTolerance
-		self.maxNumIter = maxNumIter
-		
-	def saveOldValues(self):
-		for i in range(self.ncp):
-			self.old_h[i] = self.cycle.fp[i].h	
-			self.old_T[i] = self.cycle.fp[i].T
-
-	def computeChange(self):
-		for i in range(self.ncp):			
-			self.change_h[i] = self.cycle.fp[i].h - self.old_h[i]
-		change = np.sqrt(np.sum(self.change_h**2))
-		print "Change: {}".format(change)
-		return change
-		
-	def checkConvergence(self):
-		self.converged = self.computeChange() < self.hTolerance
-		return self.converged
-		
+class CycleIterator(NumericalModel):
+	hTolerance = F.Quantity('SpecificEnthalpy', default = 1.0, label = 'enthalpy tolerance')
+	maxNumIter = F.Quantity(default = 500, label = 'max iterations', description = 'maximum number of iterations')
+	convSettings = F.FieldGroup([hTolerance, maxNumIter], label = 'Convergence settings')
+	solverSettings = F.SuperGroup([convSettings], label = 'Solver')
+	modelBlocks = []
 	def run(self):
 		self.converged = False
 		self.ncp = len(self.cycle.fp)
 		self.old_h = np.zeros((self.ncp))
 		self.old_T = np.zeros((self.ncp))
-		self.change_h = np.zeros((self.ncp))
+		self.old_p = np.zeros((self.ncp))
+		self.hHistory = []
+		self.change_h = np.zeros((self.ncp))		
+		self.change_hHistory = []
 		i = 0
 		self.cycle.computeCycle()
-		#self.printValues()
 		while (i < self.maxNumIter):			
 			self.saveOldValues()
 			self.cycle.computeCycle()
-			print i
 			self.checkConvergence()
 			if (self.converged):
 				break
 			i += 1
 			
 		if (not self.converged):
-			raise E.ConvergenceError('Solution did not converge')
+			raise E.ConvergenceError('Solution did not converge, delta_h = {:e}'.format(self.change_hHistory[-1]))
+
+	def saveOldValues(self):
+		for i in range(self.ncp):
+			self.old_h[i] = self.cycle.fp[i].h
+			self.old_T[i] = self.cycle.fp[i].T
+			self.old_p[i] = self.cycle.fp[i].p
+		#self.hHistory.append(self.old_h)
+
+	def computeChange(self):
+		for i in range(self.ncp):			
+			self.change_h[i] = self.cycle.fp[i].h - self.old_h[i]
+		change = np.sqrt(np.sum(self.change_h**2))
+		self.hHistory.append([x for x in self.change_h])
+		self.change_hHistory.append(change)
+		return change
+		
+	def checkConvergence(self):
+		self.converged = self.computeChange() < self.hTolerance
+		return self.converged
+		
 		
 	def printValues(self):
 		print [fp.T for fp in self.cycle.fp]
@@ -67,6 +72,8 @@ class ThermodynamicalCycle(NumericalModel):
 	#================ Inputs ================#
 	# Cycle diagram
 	cycleDiagram = F.SubModelGroup(TC.CycleDiagram, 'inputs', label = 'Diagram settings')
+	# Solver settings
+	solver = F.SubModelGroup(CycleIterator, 'solverSettings', label = 'Solver')
 	#================ Results ================#
 	#---------------- Fields ----------------#
 	cycleStatesTable = F.TableView((
@@ -87,6 +94,40 @@ class ThermodynamicalCycle(NumericalModel):
 	phDiagram = F.Image(default='', width=880, height=550)
 	cycleDiagramVG = F.ViewGroup([phDiagram], label = "P-H Diagram")
 	resultDiagrams = F.SuperGroup([cycleDiagramVG], label = "Diagrams")
+	#---------------- Convergence parameters -----------#
+	residualPlot = F.PlotView((
+	                            ('iteration #', F.Quantity('Dimensionless')),
+	                            ('h change', F.Quantity('SpecificEnthalpy'))
+	                        	),
+								label = 'Residual (plot)', ylog = True)
+	iterationTable = F.TableView((
+	                            ('h1', F.Quantity('SpecificEnthalpy')),
+	                            ('h2', F.Quantity('SpecificEnthalpy')),
+	                            ('h3', F.Quantity('SpecificEnthalpy')),
+	                            ('h4', F.Quantity('SpecificEnthalpy')),
+	                            ('h5', F.Quantity('SpecificEnthalpy')),
+	                            ('h6', F.Quantity('SpecificEnthalpy')),
+	                            ('h7', F.Quantity('SpecificEnthalpy')),
+	                            ('h8', F.Quantity('SpecificEnthalpy')),
+	                            ('h9', F.Quantity('SpecificEnthalpy')),
+	                            ('h10', F.Quantity('SpecificEnthalpy')),
+	                            ('h11', F.Quantity('SpecificEnthalpy')),
+	                            ('h12', F.Quantity('SpecificEnthalpy')),
+	                            ('h13', F.Quantity('SpecificEnthalpy')),
+	                            ('h14', F.Quantity('SpecificEnthalpy')),
+	                            ('h15', F.Quantity('SpecificEnthalpy')),
+	                            ('h16', F.Quantity('SpecificEnthalpy')),
+	                            ('h17', F.Quantity('SpecificEnthalpy')),
+	                            ('h18', F.Quantity('SpecificEnthalpy')),
+	                            ('h19', F.Quantity('SpecificEnthalpy')),
+	                            ('h20', F.Quantity('SpecificEnthalpy')),
+	                        	),
+								label = 'Residual (table)',
+								options = {'formats': (['0.0000E0'] * 20)})
+	residualGroup = F.ViewGroup([residualPlot, iterationTable], label = 'Iterations')
+	solverStats = F.SuperGroup([residualGroup], label = 'Convergence')
+
+	
 	# Info fields
 	cycleTranscritical = F.Boolean(default = False)
 	cycleSupercritical = F.Boolean(default = False)
@@ -96,7 +137,7 @@ class ThermodynamicalCycle(NumericalModel):
 		self.fluid = Fluid(fluid)
 		self.fp = [] #[FluidState(fluid) for _ in range(numPoints)]
 		self.flows = []
-		self.cycleIterator = CycleIterator(self)
+		self.solver.cycle = self
 
 	def connectPorts(self, port1, port2):
 		fp = FluidState(self.fluid)
@@ -108,7 +149,24 @@ class ThermodynamicalCycle(NumericalModel):
 		port1.flow = flow
 		port2.flow = flow
 	
-	
+	def solve(self):
+		self.solver.run()
+		self.residualPlot.resize(len(self.solver.change_hHistory))
+		for i in range(len(self.solver.change_hHistory)):
+			self.residualPlot[i] = (i + 1, self.solver.change_hHistory[i])
+		self.iterationTable.resize(len(self.solver.hHistory))
+		v = self.iterationTable.view(dtype = np.float).reshape(-1, len(self.iterationTable.dtype))
+		numCols = len(self.solver.hHistory[0])
+		for i in range(len(self.solver.hHistory)):
+			v[i, :numCols] = self.solver.hHistory[i]
+# 		print self.iterationTable
+# 		iterRecord = np.zeros(1, dtype = self.iterationTable.dtype)
+# 		numCols = len(self.solver.hHistory[0])
+# 		for i in range(len(self.solver.hHistory)):
+# 			for j in range(numCols):
+# 				iterRecord[j] = self.solver.hHistory[i][j]
+# 			self.iterationTable[i] = iterRecord
+		
 	def postProcess(self, TAmbient):
 		## State diagram
 		if (self.cycleDiagram.enable):

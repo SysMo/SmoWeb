@@ -30,7 +30,7 @@ class VaporCompressionCycle(HeatPumpCycle):
 	))
 	inputActionBar = ActionBar([computeAction, exampleAction], save = True)
 	#--------------- Model view ---------------#
-	inputView = F.ModelView(ioType = "input", superGroups = [inputs, 'cycleDiagram'], 
+	inputView = F.ModelView(ioType = "input", superGroups = [inputs, 'cycleDiagram', 'solver'], 
 		actionBar = inputActionBar, autoFetch = True)	
 
 	#================ Results ================#
@@ -39,7 +39,7 @@ class VaporCompressionCycle(HeatPumpCycle):
 	evaporatorHeat = F.Quantity('HeatFlowRate', default = (1, 'kW'), label = 'evaporator heat in')
 	flowFieldGroup = F.FieldGroup([compressorPower, condenserHeat, evaporatorHeat], label = 'Energy flows')
 	resultEnergy = F.SuperGroup([flowFieldGroup, 'efficiencyFieldGroup'], label = 'Energy')
-	resultView = F.ModelView(ioType = "output", superGroups = ['resultDiagrams', 'resultStates', resultEnergy])
+	resultView = F.ModelView(ioType = "output", superGroups = ['resultDiagrams', 'resultStates', resultEnergy, 'solverStats'])
 
 	#============= Page structure =============#
 	modelBlocks = [inputView, resultView]
@@ -64,7 +64,7 @@ class VaporCompressionCycle(HeatPumpCycle):
 			fl.mDot = self.mDot
 		self.evaporator.outlet.state.update_pq(self.pLow, 1)
 		# Cycle iterations
-		self.cycleIterator.run()
+		self.solver.run()
 		# Results
 		self.postProcess()
 	
@@ -152,7 +152,7 @@ class VaporCompressionCycleWithRecuperator(VaporCompressionCycle):
 		else:
 			self.condenser.outlet.state.update_pq(self.pHigh, 0)
 		# Cycle iterations
-		self.cycleIterator.run()
+		self.solver.run()
 		# Results
 		self.postProcess()
 	

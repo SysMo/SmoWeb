@@ -30,7 +30,7 @@ class RankineCycle(HeatEngineCycle):
 	))
 	inputActionBar = ActionBar([computeAction, exampleAction], save = True)
 	#--------------- Model view ---------------#
-	inputView = F.ModelView(ioType = "input", superGroups = [inputs, 'cycleDiagram'], 
+	inputView = F.ModelView(ioType = "input", superGroups = [inputs, 'cycleDiagram', 'solver'], 
 		actionBar = inputActionBar, autoFetch = True)
 	#================ Results ================#
 	#---------------- Energy flows -----------#
@@ -40,7 +40,7 @@ class RankineCycle(HeatEngineCycle):
 	condenserHeat = F.Quantity('HeatFlowRate', default = (1, 'kW'), label = 'condenser heat out')
 	flowFieldGroup = F.FieldGroup([pumpPower, boilerHeat, turbinePower, condenserHeat], label = 'Energy flows')
 	resultEnergy = F.SuperGroup([flowFieldGroup, 'efficiencyFieldGroup'], label = 'Energy')
-	resultView = F.ModelView(ioType = "output", superGroups = ['resultDiagrams', 'resultStates', resultEnergy])
+	resultView = F.ModelView(ioType = "output", superGroups = ['resultDiagrams', 'resultStates', resultEnergy, 'solverStats'])
 
 	#============= Page structure =============#
 	modelBlocks = [inputView, resultView]
@@ -67,7 +67,7 @@ class RankineCycle(HeatEngineCycle):
 			fl.mDot = self.mDot
 		self.condenser.outlet.state.update_pq(self.pLow, 0)
 		# Cycle iterations
-		self.cycleIterator.run()
+		self.solver.run()
 		# Results
 		self.postProcess()
 		
@@ -148,7 +148,7 @@ class RegenerativeRankineCycle(RankineCycle):
 		self.boiler.outlet.state.update_pq(self.pHigh, 1)
 		self.turbine.compute(self.pLow)
 		# Cycle iterations
-		self.cycleIterator.run()
+		self.solver.run()
 		# Results
 		self.postProcess()
 		
@@ -164,3 +164,8 @@ class RegenerativeRankineCycle(RankineCycle):
 	def postProcess(self):
 		super(RegenerativeRankineCycle, self).postProcess()
 		self.recuperatorHeat = self.recuperator.QDot 
+
+	def SteamPlant(self):
+		RankineCycle.SteamPlant(self)
+		self.pLow = (2, 'bar')
+		self.boiler.TOutlet = (600, 'degC')
