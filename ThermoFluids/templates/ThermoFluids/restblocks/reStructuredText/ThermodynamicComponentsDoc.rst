@@ -2,54 +2,53 @@
 Thermodynamic components
 ========================
 
-These components are used to build-up thermodynamic cycles (used in heat pumps, 
-heat engines, liquefiers etc.)
+These components are used to build thermodynamic cycles (used in heat pumps, 
+heat engines, liquefiers, etc.)
 
 ----------
 Compressor
 ----------
 
-There are two models of compressor: isothermal and isentropic. They represent the two
+There are two compressor models: isothermal and isentropic. They represent the two
 extremes in terms of heat exchange with the environment. 
 
-Isenttropic compressor compresses the fluid adiabatically (without exchanging heat with
-the environmet). This model approximates a very quick compression model, where there is
-not enough time for significat heat exchange with the environment. The outlet state of an
+An isentropic compressor compresses the fluid adiabatically (without exchanging heat with
+the environment). This model approximates a very quick compression model, where there is
+not enough time for significant heat exchange with the environment. The outlet state of an
 ideal isentropic heat exchanger has the same entropy as the inlet state. In reality, due
-to friction and other irreversible processes, the entropy increases, and the real work is
-higher than the ideal work, given by:
+to friction and other irreversible processes, the entropy increases and the real work is
+higher than the ideal work, which is given by:
 
 .. math::
    
    w_{id} = h\left(p_2, s_1\right) - h\left(p_1, s_1\right)
    
-The isentropic efficiency of the compressor :math:`\eta` is a parameter of the compressor, 
-such that:
+The isentropic efficiency of the compressor :math:`\eta` is a parameter of the compressor such that:
    
 .. math::
    
    w_{r} = w_{id} / \eta
 
 where :math:`w_{r}` is the real specific work. A second parameter :math:`f_Q` defines the fraction
-of the work, which is dissipated as heat in the environment:
+of the work that is dissipated as heat in the environment:
 
 .. math::
    
    q_{out} = w_{r} \cdot f_Q
    
-Finally the real outlet state of the compressor can be computed by outlet pressure and specific enthalpy,
-where the specific enthalpy is determined by energy balance:
+Finally, the real outlet state of the compressor can be computed by outlet pressure and specific enthalpy,
+where the specific enthalpy is determined by the energy balance:
 
 .. math::
    
    h_{out} = h_{in} + w_{r} - q_{out}
  
 
-Isothermal compressor compresses
+An isothermal compressor compresses
 the fluid (gas or liquid) at constant (ambient) temperature. It is the most efficient way
-of compressing fluid (minimal work), however is not practically achievable. The compression
+of compressing fluid (minimal work), although it is not feasible. The compression
 process has to be very slow in order for the temperature to constantly equilibrate with the
-environment. To approach isothermal compression in reality a multiple stage compressor with
+environment. To approach isothermal compression in practice, a multiple-stage compressor with
 intercoolers can be used.
 
 The heat flow to the environment is linked to the entropy change:
@@ -58,7 +57,7 @@ The heat flow to the environment is linked to the entropy change:
    
    q_{out} = T * \left( s_{out} - s_{in} \right)
    
-The work then is given by:
+Then the work is given by:
 
 .. math::
    w_{r} = h_{out} - h_{in} + q_{out}
@@ -90,22 +89,22 @@ Therefore
    
    h_{out} = h_{in} 
 
-However the temperature could decrease (near the two-phase region) or sometimes 
+However, the temperature could decrease (near the two-phase region) or sometimes 
 increase (at high pressures and temperatures).
 
 ----------------------
 Evaporator / Condenser
 ----------------------
 
-Pressure drop is neglected. No work is performed, so the change of enthalpy is equal to the heat
+Pressure drop is neglected. No work is done, so the change of enthalpy is equal to the heat
 input to the fluid.
 
 -------------------------
 Two-stream heat exchanger
 -------------------------
 
-This is a general abstraction of a few different heat exchanger design concepts. It could be counter-flow,
-parallel flow and cross-flow heat exchangers. The heat capacity flows are defined as:
+This is a general abstraction of a few different heat exchanger design concepts. The heat exchangers could be counter-flow,
+parallel-flow and cross-flow. The heat capacity flows are defined as:
 
 .. math::
    
@@ -113,7 +112,7 @@ parallel flow and cross-flow heat exchangers. The heat capacity flows are define
    
    {\dot Q}_2 = {\dot m}_2 \left( h(T_{1}^{in}, p_2) - h_{2}^{in} \right)
    
-The maximal heat flow rate is the minimum of the two:
+The maximal heat flow rate is the lesser of the two:
 
 .. math::
 
