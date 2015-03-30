@@ -580,8 +580,13 @@ smoModule.directive('smoImg', ['$compile', function($compile) {
 		},
 		link : function(scope, element, attr) {
 			var el_id = scope.modelName + '_' + scope.fieldVar.name;
-			var template = '<img id="' + el_id + '" width=' + scope.fieldVar.width + ' height=' + scope.fieldVar.height +
-							' style="cursor: pointer;" src="/' + scope.smoDataSource[scope.fieldVar.name] + '">';
+			var template;
+			if (scope.fieldVar.width == null || scope.fieldVar.height == null) {
+				template = '<img id="' + el_id + '" style="cursor: pointer;" src="/' + scope.smoDataSource[scope.fieldVar.name] + '">';
+			} else {
+				template = '<img id="' + el_id + '" width=' + scope.fieldVar.width + ' height=' + scope.fieldVar.height +
+				' style="cursor: pointer;" src="/' + scope.smoDataSource[scope.fieldVar.name] + '">';
+			}
 			var el = angular.element(template);
 			compiled = $compile(el);
 			element.replaceWith(el);

@@ -48,7 +48,12 @@ class LindeHampsonCycle(LiquefactionCycle):
 	coolerHeat = F.Quantity('HeatFlowRate', default = (1, 'kW'), label = 'cooler heat out')
 	flowFieldGroup = F.FieldGroup([compressorPower, compressorHeat, coolerHeat], label = 'Flows')
 	resultEnergy = F.SuperGroup([flowFieldGroup, 'efficiencyFieldGroup'], label = 'Energy')
-	resultView = F.ModelView(ioType = "output", superGroups = ['resultDiagrams', 'resultStates', resultEnergy, 'solverStats'])
+	#---------------- Scheme -----------------#
+	scheme_LindeHampson = F.Image(default="static/ThermoFluids/img/ModuleImages/LindeHampson.png")
+	SchemeVG = F.ViewGroup([scheme_LindeHampson], label="Process Scheme")
+	SchemeSG = F.SuperGroup([SchemeVG], label="Scheme")
+	
+	resultView = F.ModelView(ioType = "output", superGroups = ['resultDiagrams', SchemeSG, 'resultStates', resultEnergy, 'solverStats'])
 
 	#============= Page structure =============#
 	modelBlocks = [inputView, resultView]
@@ -179,6 +184,14 @@ class ClaudeCycle(LindeHampsonCycle):
 	#--------------- Model view ---------------#
 	inputView = F.ModelView(ioType = "input", superGroups = [inputs, 'cycleDiagram', 'solver'], 
 		actionBar = inputActionBar, autoFetch = True)
+	
+	#================ Results ================#
+	#---------------- Scheme -----------------#
+	scheme_Claude = F.Image(default="static/ThermoFluids/img/ModuleImages/ClaudeCycle.png")
+	SchemeVG = F.ViewGroup([scheme_Claude], label="Process Scheme")
+	SchemeSG = F.SuperGroup([SchemeVG], label="Scheme")
+	
+	resultView = F.ModelView(ioType = "output", superGroups = ['resultDiagrams', SchemeSG, 'resultStates', 'resultEnergy', 'solverStats'])
 		
 	def __init__(self):
 		self.cooler.computeMethod = 'eta'

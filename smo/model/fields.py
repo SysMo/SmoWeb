@@ -596,7 +596,7 @@ class Image(Field):
 	"""
 	Field for displaying an image 
 	"""
-	def __init__(self, default = None, width = None, height = None, *args, **kwargs):
+	def __init__(self, default = None, width = None, height = None, defaultScale = False, *args, **kwargs):
 		"""
 		:param str src: path to image source
 		:param int width: image width in pixels
@@ -608,14 +608,11 @@ class Image(Field):
 		else:
 			self.default = default
 		
-		if width is None:
+		if defaultScale == True:
 			self.width = 700
-		else:
-			self.width = width
-			
-		if height is None:
 			self.height = 400
 		else:
+			self.width = width
 			self.height = height
 	
 	def parseValue(self, value):
@@ -628,7 +625,7 @@ class Image(Field):
 		fieldDict = super(Image, self).toFormDict()
 		fieldDict['type'] = 'Image'
 		fieldDict['width'] = self.width	
-		fieldDict['height'] = self.height			
+		fieldDict['height'] = self.height					
 		return fieldDict
 
 class Port(Field):
