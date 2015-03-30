@@ -24,13 +24,13 @@ cycle consists of the following steps:
   forms and the liquid is separated from the vapor by allowing it to settle at the bottom of a
   reservoir
 * gas return: the vapor fraction is returned to the compressor, passing through the recurperator,
-  where it is warmed up and in the same time cools down the incoming flow from the compressor.
+  where it is warmed up and at the same time cools down the incoming flow from the compressor.
 
 The Linde cycle has the advantage of simplicity, but it has 3 main problems:
 
-* requires compressor for very high pressure
+* requires a compresssor for very high pressures
 * very low yield: the liquid generated is only a small percent of the flow
-* initial cool-down: the cycle cannot operate (at least not effciently)
+* initial cool-down: the cycle cannot operate (at least not efficiently)
   until the cold side is already cold.  
    
 ------------
@@ -43,22 +43,20 @@ Claude cycle
    
    Claude cycle
 
-Claude cycle is a variation of the Linde-Hampson cycle, where an expander and two additional 
-recurperators are added to the circuit [RefrigerationUSPAS]_. The expander extracts additional enthalpy from the fluid,
+Calude cycle is built on top of the Linde-Hampson cycle, by adding an expander and two additional 
+recurperators to the circuit [RefrigerationUSPAS]_. The expander extracts additional enthalpy from the fluid,
 thus reducing the temperature and increasing the liquid yield. The downside is the increased complexity
 of the circuit and especially the design of a low-temperature expander.
 
-The Claude cycle has 2 variations:
+The Claude cycle has two variations:
 
-* Kapitza cycle, which uses low pressures and cryogenic expander, eliminating the last recurperator
-* Heylandt cycle, which uses high pressures and room-temperature expander, eliminating the first recurperator
+* Kapitza cycle, which uses low pressures and a cryogenic expander, eliminating the last recurperator
+* Heylandt cycle, which uses high pressures and a room-temperature expander, eliminating the first recurperator
 
 Two examples of Kapitza cycles for Nitrogen with different pressure levels are implemented as examples, the data taken from:
 
 * `Choudhury, B. K., Process Design of Turboexpander-based Nitrogen Liquefier <http://ethesis.nitrkl.ac.in/1466/1/PROCESS_DESIGN.pdf>`_, p. 27
 * `Cryogenic cycles <http://direns.mines-paristech.fr/Sites/Thopt/en/co/cryogenie.html>`_, Claude cycle
-
-gdfgdf
 
 ----------
 References
