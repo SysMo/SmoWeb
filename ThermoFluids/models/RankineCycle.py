@@ -132,8 +132,8 @@ class RegenerativeRankineCycle(RankineCycle):
 	recuperatorHeat = F.Quantity('HeatFlowRate', default = (0, 'kW'), label = 'recuperator heat rate')
 	flowFieldGroup = F.FieldGroup(['pumpPower', recuperatorHeat, 'boilerHeat', 'turbinePower', 'condenserHeat'], label = 'Energy flows')
 	#---------------- Scheme -----------------#
-	scheme = F.Image(default="static/ThermoFluids/img/ModuleImages/RankineCycle_Recuperator.png")
-	SchemeVG = F.ViewGroup([scheme], label="Process Scheme")
+	scheme_Rankine_recup = F.Image(default="static/ThermoFluids/img/ModuleImages/RankineCycle_Recuperator.png")
+	SchemeVG = F.ViewGroup([scheme_Rankine_recup], label="Process Scheme")
 	SchemeSG = F.SuperGroup([SchemeVG], label="Scheme")
 	
 	resultView = F.ModelView(ioType = "output", superGroups = ['resultDiagrams', SchemeSG, 'resultStates', 'resultEnergy', 'solverStats'])

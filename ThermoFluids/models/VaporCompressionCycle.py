@@ -131,6 +131,14 @@ class VaporCompressionCycleWithRecuperator(VaporCompressionCycle):
 	#---------------- Energy flows -----------#
 	recuperatorHeat = F.Quantity('HeatFlowRate', default = (0, 'kW'), label = 'recuperator heat rate')
 	flowFieldGroup = F.FieldGroup(['compressorPower', recuperatorHeat, 'condenserHeat', 'evaporatorHeat'], label = 'Energy flows')
+	
+	#---------------- Scheme -----------------#
+	scheme_VaporCompression_recup = F.Image(default="static/ThermoFluids/img/ModuleImages/VaporCompressionCycle_Recuperator.png")
+	SchemeVG = F.ViewGroup([scheme_VaporCompression_recup], label="Process Scheme")
+	SchemeSG = F.SuperGroup([SchemeVG], label="Scheme")
+	
+	resultView = F.ModelView(ioType = "output", superGroups = ['resultDiagrams', SchemeSG, 'resultStates', 'resultEnergy', 'solverStats'])
+	
 	#================ Methods ================#
 	def compute(self):
 		if (self.cycleTranscritical and self.condenser.computeMethod == 'dT'):
