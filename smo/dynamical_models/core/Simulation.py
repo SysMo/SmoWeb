@@ -9,6 +9,7 @@ import h5py
 from blist import sortedlist
 from assimulo.solvers import CVode
 from assimulo.problem import Explicit_Problem
+from smo.util import AttributeDict 
 
 class TimeEvent(object):
 	def __init__(self, t, eventType, description = None):
@@ -152,3 +153,13 @@ class Simulation(Explicit_Problem):
 		#simSolver.maxh = 1.0
 		simSolver.store_event_points = True
 		self.simSolver = simSolver
+		
+	def run(self, params = None, **kwargs):
+		if params == None:
+			params = AttributeDict(kwargs)
+			
+		self.simSolver.simulate(
+			tfinal = params.tFinal, 
+			ncp = np.floor(params.tFinal/params.tPrint)
+		)
+		self.resultStorage.finalizeResult()

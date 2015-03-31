@@ -140,16 +140,6 @@ class ChemostatSimple(Simulation):
 		self.resultStorage.record[:] = (t, self.yRes.S, self.yRes.X, self.D)
 		self.resultStorage.saveTimeStep()
 		
-	def run(self, params = None, **kwargs):	
-		if params == None:
-			params = AttributeDict(kwargs)
-				
-		self.simSolver.simulate(
-			tfinal = params.tFinal, 
-			ncp = np.floor(params.tFinal/params.tPrint)
-		)
-		self.resultStorage.finalizeResult()
-		
 	def getResults(self):
 		return self.resultStorage.data
 	
@@ -213,4 +203,3 @@ def TestChemostatSimple():
 	
 if __name__ == '__main__':
 	TestChemostatSimple()
-	

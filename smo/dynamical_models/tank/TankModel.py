@@ -10,8 +10,9 @@ import pylab as plt
 import smo.media.CoolProp as CP
 import smo.dynamical_models.core as DMC
 import smo.dynamical_models.thermofluids as DM
-from smo.dynamical_models.thermofluids import Structures as DMS
 from TankController import TankController as TC
+from TankController import TankController
+from smo.util import AttributeDict 
 
 from assimulo.exception import TerminateSimulation
 from smo.math.util import NamedStateVector
@@ -25,12 +26,16 @@ dataStorageFilePath =  os.path.join(tmpFolderPath, 'TankSimulations_SimulationRe
 dataStorageDatasetPath = '/TankModel'
 
 
+tWaitBeforeExtraction = 50. #:TODO: params
+tWaitBeforeRefueling = 50.
+
 class TankModel(DMC.Simulation):
-	name = 'Model of the tank (refueling & extraction)'
+	name = 'Model of a tank refueling and extraction'
 	
-	def __init__(self, controller, **kwargs):
+	def __init__(self, controller, params = None, **kwargs): #:TODO: params
 		super(TankModel, self).__init__(**kwargs)
-		self.tFinal = kwargs.get('tFinal', 100.0)
+		if params == None:
+			params = AttributeDict(kwargs)
 
 		# Create state vector and derivative vector
 		stateVarNames = ['WRealCompressor', 'TTank', 'rhoTank', 'TLiner_1', 'TLiner_2', 'TComp_1', 'TComp_2', 'TComp_3', 'TComp_4'] 
@@ -42,25 +47,13 @@ class TankModel(DMC.Simulation):
 		self.resultStorage = DMC.ResultStorage(
 			filePath = dataStorageFilePath,
 			datasetPath = dataStorageDatasetPath)
-		if (kwargs.get('initDataStorage', False)):
+		if (kwargs.get('initDataStorage', True)):
 			self.resultStorage.initializeWriting(
 				varList = ['t'] + stateVarNames + ['pTank', 'TCompressorOut'],
 				chunkSize = 10000)
-		
-		# Set some parameters
-		self.mDotExtrModel = lambda t: -10./3600 if self.controller.state == TC.EXTRACTION else 0.
-		TAmbient = kwargs.get('TAmbient', 288.15) #[K]
-		if (hasattr(self, 'initialValues')):
-			TTankInit = self.initialValues['TTank']
-			pTankInit = self.initialValues['PTank']
-			TCompositeInit = self.initialValues['TComposite']
-		else:
-			TTankInit = kwargs.get('TTankInit', 300.0) #[K]
-			pTankInit = kwargs.get('pTankInit', 20e5) #[Pa]
-			TCompositeInit = kwargs.get('TComposite', 300.0) #[K]
 
 		# Fluid
-		fluid = CP.Fluid(kwargs.get('fluid', 'ParaHydrogen'))
+		fluid = CP.Fluid('ParaHydrogen')
 
 		# Refueling source
 		self.refuelingSource = DM.FluidStateSource(fluid = fluid, sourceType = DM.FluidStateSource.PQ)
@@ -76,19 +69,22 @@ class TankModel(DMC.Simulation):
 		# Tank chamber
 		self.tank = DM.FluidChamber(
 			fluid = fluid, 
-			V = kwargs.get('V', 0.1155) #[m**3]
+			V = 0.1155 #[m**3]
 		)
-		self.tank.initialize(TTankInit, pTankInit)
+		self.tank.initialize(
+			300.0, #[K] 
+			20e5, #[Pa]
+		)
 		# Connect the tank to the compressor
 		self.tank.fluidPort.connect(self.compressor.portOut)
 		
 		# Extraction sink
-		self.extractionSink = DM.FlowSource(fluid = fluid, mDot = 0.0, TOut = TAmbient)
+		self.extractionSink = DM.FlowSource(fluid = fluid, mDot = 0.0, TOut = params.TAmbient)
 		# Connect the extraction sink with the tank
 		self.extractionSink.port1.connect(self.tank.fluidPort)
 		
 		# Tank convection component
-		self.wallArea = kwargs.get('wallArea', 1.8) #[m**2]
+		self.wallArea = 1.8 #[m**2]
 		self.tankConvection = DM.ConvectionHeatTransfer(hConv = 100., A = self.wallArea)
 		# Connect to the fluid in the tank
 		self.tankConvection.fluidPort.connect(self.tank.fluidPort)
@@ -101,7 +97,7 @@ class TankModel(DMC.Simulation):
 			conductionArea = self.wallArea, #[m**2]
 			port1Type = 'C', port2Type = 'C', 
 			numMassSegments = 2, 
-			TInit = TTankInit #[K]
+			TInit = 300.0 #[K]
 		)
 		# Connect to the tank convection component
 		self.tankConvection.wallPort.connect(self.liner.port1)
@@ -114,24 +110,36 @@ class TankModel(DMC.Simulation):
 			conductionArea = self.wallArea, #[m**2]
 			port1Type = 'R', port2Type = 'C', 
 			numMassSegments = 4,
-			TInit = TTankInit #[K]
+			TInit = 300.0 #[K]
 		)
 		# Connect the liner to the composite
 		self.composite.port1.connect(self.liner.port2)
-		# Outer composite side		
-		self.composite.port2.connect(DMS.ThermalPort('R', DMS.HeatFlow(qDot = 0.)))
+				
+		# Ambient fluid component
+		ambientFluid = CP.Fluid('Air')
+		ambientSource =DM.FluidStateSource(fluid = ambientFluid, sourceType = DM.FluidStateSource.TP)
+		ambientSource.TIn = params.TAmbient #[K]
+		ambientSource.pIn = 1e5 #[Pa]
+		ambientSource.computeState()
+		
+		# Composite convection component
+		self.compositeConvection = DM.ConvectionHeatTransfer(hConv = 100., A = self.wallArea)
+		# Connect the composite convection to the ambient fluid
+		self.compositeConvection.fluidPort.connect(ambientSource.port1)
+		# Connect the composite convection to the composite  
+		self.compositeConvection.wallPort.connect(self.composite.port2)
 		
 		# Controller
 		self.controller = controller
 		
 		# Initialize the state variables
 		self.y.WRealCompressor = 0. # [W]
-		self.y.TLiner_1 = TTankInit
-		self.y.TLiner_2 = TTankInit
-		self.y.TComp_1 = TCompositeInit
-		self.y.TComp_2 = TCompositeInit
-		self.y.TComp_3 = TCompositeInit
-		self.y.TComp_4 = TCompositeInit
+		self.y.TLiner_1 = 300.0 #[K]
+		self.y.TLiner_2 = 300.0 #[K]
+		self.y.TComp_1 = 300.0 #[K]
+		self.y.TComp_2 = 300.0 #[K]
+		self.y.TComp_3 = 300.0 #[K]
+		self.y.TComp_4 = 300.0 #[K]
 		self.y.TTank = self.tank.fState.T
 		self.y.rhoTank = self.tank.fState.rho 
 		
@@ -168,15 +176,16 @@ class TankModel(DMC.Simulation):
 			self.composite.setState([self.y.TComp_1, self.y.TComp_2, self.y.TComp_3, self.y.TComp_4])
 
 			# Compute derivatives of the state variables 
-			# Compressor (Refueling)
+			# Compressor
 			self.compressor.n = self.controller.outputs.nPump
 			self.compressor.compute()
 			# Extraction sink
-			self.extractionSink.mDot = self.mDotExtrModel(t)
+			self.extractionSink.mDot = self.controller.outputs.mDotExtr
 			self.extractionSink.compute()
 			# Convection components
 			self.tankConvection.hConv = self.controller.outputs.hConvTank
 			self.tankConvection.compute()
+			self.compositeConvection.compute()
 			# Liner and composite
 			self.composite.compute()
 			self.liner.compute()
@@ -212,9 +221,15 @@ class TankModel(DMC.Simulation):
 		# Handle state events
 		if (len(stateEventInfo) > 0):
 			if (abs(stateEventInfo[0]) > 0.5):
+				oldState = self.controller.state
 				self.controller.makeStateTransition(solver)
-				self.rhs(solver.t, solver.y, solver.sw)
-
+				
+				if (oldState == TC.EXTRACTION and tWaitBeforeRefueling != 0.0):
+					self.timeEventRegistry.add(DMC.TimeEvent(t = solver.t + tWaitBeforeRefueling, eventType = TC.TE_BEGIN_REFUELING, description = 'Begin refueling'))
+				
+				if (oldState == TC.REFUELING and tWaitBeforeExtraction != 0.0):
+					self.timeEventRegistry.add(DMC.TimeEvent(t = solver.t + tWaitBeforeExtraction, eventType = TC.TE_BEGIN_EXTRACTION, description = 'Begin extraction'))
+				
 			if (reportEvents):
 				print ('State event located at time {}'.format(solver.t, solver.sw))
 		
@@ -233,12 +248,8 @@ class TankModel(DMC.Simulation):
 			self.tank.fState.p, self.compressor.TOut)
 		self.resultStorage.saveTimeStep()
 		
-	def run(self, tPrint = 1.0):
-		self.simSolver.simulate(
-			tfinal = self.tFinal, 
-			ncp = np.floor(self.tFinal/tPrint)
-		)
-		self.resultStorage.finalizeResult()
+	def loadResult(self, simIndex):
+		self.resultStorage.loadResult(simIndex)
 
 	def plotHDFResults(self):
 		data = self.resultStorage.data
@@ -257,12 +268,37 @@ class TankModel(DMC.Simulation):
 
 
 def testTankModel():
-	controller = TC(initialState = TC.REFUELING)
-	model = TankModel(tFinal = 2000., initDataStorage = True, controller = controller)
-	model.prepareSimulation()
-	model.run(tPrint = 1.0)
-	model.resultStorage.exportToCsv(fileName = csvFileName)
-	model.plotHDFResults()
+	print "=== BEGIN: testTankModel ==="
+	# Settings
+	simulate = True #True - run simulation; False - plot an old results 
+	
+	# Create the controller
+	controller = TankController(
+		initialState = TC.REFUELING, 
+		tWaitBeforeExtraction = tWaitBeforeExtraction, 
+		tWaitBeforeRefueling = tWaitBeforeRefueling)
+	
+	# Create the model							
+	tankModel = TankModel(
+		initDataStorage = simulate, 
+		controller = controller,
+		TAmbient = 288.15, #[K]
+	)
+	
+	# Run simulation or load old results
+	if (simulate):
+		tankModel.prepareSimulation()
+		tankModel.run(tFinal = 2000., tPrint = 1.0)
+	else:
+		tankModel.loadResult(simIndex = 1)
+	
+	# Export to csv file
+	#tankModel.resultStorage.exportToCsv(fileName = csvFileName)
+	
+	# Plot results 
+	tankModel.plotHDFResults()
+	
+	print "=== END: testTankModel ==="
 	
 if __name__ == '__main__':
 	testTankModel()
