@@ -205,7 +205,6 @@ class TankModel(DMC.Simulation):
 		# Handle time events
 		if (timeEvent):
 			timeEventList = self.processTimeEvent(solver.t)
-			# TODO process all time events if more than one present
 			self.controller.processTimeEvent(timeEventList[0])
 			if (reportEvents):
 				print ("Time event '{}' located at time {}".format(solver.t, solver.sw))

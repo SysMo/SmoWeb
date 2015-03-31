@@ -4,24 +4,7 @@ Created on Mar 4, 2015
 @author: Atanas Pavlov
 @copyright: SysMo Ltd, Bulgaria
 '''
-from billiard.managers import State
-
-class ControllerBase(object):
-	def checkForStateTransition(self, *kwargs):
-		raise NotImplementedError("The subclasses of ControllerBase need to implement 'checkForStateTransition' method")
-	
-	def executeEntryActions(self):
-		pass
-	
-	def executeExitActions(self):
-		pass
-	
-	def getStateFlag(self):
-		newState = self.checkForStateTransition()
-		if (newState is None):
-			return -1.0
-		else:
-			return 1.0 
+from ControllerBase import ControllerBase
 
 class TankController(ControllerBase):
 	# States
@@ -34,6 +17,7 @@ class TankController(ControllerBase):
 	END_REFUELING = 1
 	BEGIN_EXTRACTION = 2
 	END_EXTRACTION = 3
+	
 	class Inputs(): pass
 	class Outputs(): pass
 	class Parameters():
@@ -47,9 +31,7 @@ class TankController(ControllerBase):
 		self.outputs = self.Outputs()
 		self.parameters = self.Parameters(**kwargs)
 		
-		
 		self.executeEntryActions()
-		self.eps = 0.0
 	
 	def setInputs(self, **kwargs):
 		self.inputs.pTank =  kwargs['pTank']
@@ -65,19 +47,18 @@ class TankController(ControllerBase):
 		return checkValue
 	
 	def makeStateTransition(self, solver):
-		self.eps = 1e-10
+		eps = 1e-10
 		newState = self.state
 		
 		if (self.state == self.WAITING):
 			pass
 		elif (self.state == self.REFUELING):
-			if (self.inputs.pTank > (1 - self.eps) * self.parameters.pMax):
+			if (self.inputs.pTank > (1 - eps) * self.parameters.pMax):
 				newState = self.EXTRACTION
 		elif (self.state == self.EXTRACTION):
-			if (self.inputs.pTank < (1 + self.eps) * self.parameters.pMin):
+			if (self.inputs.pTank < (1 + eps) * self.parameters.pMin):
 				newState = self.REFUELING
 		
-		self.eps = 0.0
 		print("State controller changing from state {} to state {} at time {}".format(self.state, newState, solver.t))
 		self.executeExitActions()
 		self.state = newState
@@ -89,6 +70,7 @@ class TankController(ControllerBase):
 			newState = self.EXTRACTION
 		elif (timeEvent.eventType == self.END_EXTRACTION or timeEvent.eventType == self.BEGIN_REFUELING):
 			newState = self.REFUELING
+			
 		print("State controller changing from state {} to state {} at time {}".format(self.state, newState, timeEvent.t))
 		self.executeExitActions()
 		self.state = newState
