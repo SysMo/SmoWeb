@@ -95,7 +95,7 @@ class ResultStorage(object):
 		self.simulationName = self.datasetFamily.format(simIndex)
 		self.data = self.h5File[self.datasetPath][self.simulationName]
 	
-	def exportToCsv(self, fileName = '../../data/SimulationResult.csv', tPrint = None):
+	def exportToCsv(self, fileName, tPrint = None):
 		f = open(fileName, 'w')
 		f.write(",".join(self.data.dtype.names))
 		f.write('\n')

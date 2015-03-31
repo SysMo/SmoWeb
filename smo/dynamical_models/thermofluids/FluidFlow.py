@@ -31,8 +31,9 @@ class Compressor(DMC.DynamicalModel):
 		self.mDot = self.VDot * self.portIn.state.rho
 		
 		self.fStateOut.update_ps(self.portOut.state.p, self.portIn.state.s)
-		wIdeal = self.fStateOut.h - self.portIn.state.h
-		wReal = wIdeal / self.etaS
+		wIdeal = self.fStateOut.h - self.portIn.state.h #specific ideal work [W/kg]
+		wReal = wIdeal / self.etaS #specific real work [W/kg]
+		self.WRealDot = wReal * self.mDot #real work derivative [W/s]
 		
 		delta_hOut = wReal * (1 - self.fQ)
 		self.fStateOut.update_ph(self.portOut.state.p, self.portIn.state.h + delta_hOut)

@@ -5,15 +5,15 @@ Created on March 08, 2015
 '''
 import numpy as np
 import pylab as plt
-import os
 
 from smo.util import AttributeDict 
 from assimulo.exception import TerminateSimulation
 from smo.dynamical_models.core.Simulation import Simulation, TimeEvent, ResultStorage
 from smo.math.util import NamedStateVector
-from SmoWeb.settings import MEDIA_ROOT
 
 """ Global Settings """
+import os
+from SmoWeb.settings import MEDIA_ROOT
 tmpFolderPath = os.path.join (MEDIA_ROOT, 'tmp')
 csvFileName = os.path.join(tmpFolderPath, 'BioReactors_ChemostatSimple_SimulationResults.csv')
 dataStorageFilePath =  os.path.join(tmpFolderPath, 'BioReactors_SimulationResults.h5')
