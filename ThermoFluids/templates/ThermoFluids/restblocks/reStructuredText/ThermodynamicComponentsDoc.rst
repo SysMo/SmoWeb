@@ -112,16 +112,47 @@ parallel-flow and cross-flow. The heat capacity flows are defined as:
    
    {\dot Q}_2 = {\dot m}_2 \left( h(T_{1}^{in}, p_2) - h_{2}^{in} \right)
    
-The maximal heat flow rate is the lesser of the two:
+The maximal possible heat flow rate, which can be achieved in an infinetely long countercurrent heat exchanger, is the lesser of the two:
 
 .. math::
 
-   {\dot Q}_{max} = \min \left( {\dot Q}_1, {\dot Q}_2 \right)
+   {\dot Q}_{m} = \min \left( {\dot Q}_1, {\dot Q}_2 \right)
    
 Then the real heat flow rate is:
 
 .. math::
 
-   {\dot Q} = \varepsilon \cdot {\dot Q}_{max}
+   {\dot Q} = \varepsilon \cdot {\dot Q}_{m}
  
-where :math:`\varepsilon` is the efficiency of the heat exchanger. 
+where :math:`\varepsilon` is the *effectiveness* of the heat exchanger. In the :math:`NTU-\varepsilon` method [Wiki-NTU]_, the effectiveness
+is determined as a function of the *number of transfer units* and the *heat capacity ratio*:
+
+.. math::
+    \varepsilon = f\left( NTU, C_r \right)
+    
+    NTU = \frac{U \cdot A}{\dot{C}_{min}}
+    
+    C_r = \frac{\min\left(\dot{Q}_{1},\dot{Q}_{2}\right)}{\max\left(\dot{Q}_{1},\dot{Q}_{2}\right)}
+    
+where :math:`\dot{C}_{min} = {\dot Q}_{m} / (T_1^{in} - T_2^{in})`, :math:`U` is the overall heat transfer coefficient, and :math:`A` is the heat exhcange area
+
+The effectiveness formula depends on the flow configuration, as shown in the table below:
+
+.. class:: nice-table
+
++----------------------------+---------------------------------------------------------------------------------+
+| Flow configuration         | Effectiveness correlation                                                       |
++============================+=================================================================================+
+| parallel flow              | :math:`E \ = \frac {1 - \exp[-NTU(1 + C_{r})]}{1 + C_{r}}`                      |
++----------------------------+---------------------------------------------------------------------------------+
+| counter-current flow       | :math:`E \ = \frac {1 - \exp[-NTU(1 - C_{r})]}{1 - C_{r}\exp[-NTU(1 - C_{r})]}` |
++----------------------------+---------------------------------------------------------------------------------+
+| evaporation / condensation | :math:`E \ = 1 - \exp[-NTU]`                                                    |
++----------------------------+---------------------------------------------------------------------------------+
+
+
+----------
+References
+----------
+
+.. [Wiki-NTU] Wikipedia, NTU method, http://en.wikipedia.org/wiki/NTU_method
