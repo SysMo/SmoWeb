@@ -7,10 +7,12 @@ Created on April 01, 2015
 import numpy as np
 import smo.model.fields as F
 import smo.model.actions as A
-import smo.dynamical_models.tank as DM
 import lib.FluidComponents as FC
+import smo.media.CoolProp as CP
+import smo.dynamical_models.tank as DM
 from smo.model.model import NumericalModel
 from smo.web.modules import RestModule
+from smo.media.MaterialData import Fluids
 
 class Tank(NumericalModel):
     label = "Tank"
@@ -19,8 +21,15 @@ class Tank(NumericalModel):
     
     #1. ############ Inputs ###############
     #1.1 Fields - Input values
-    TAmbient = F.Quantity('Temperature', default = (15.0, 'degC'), label ='T<sub>amb</sub>', description = 'ambient temperature')
-    parametersFG = F.FieldGroup([TAmbient], label = "Parameters")
+    fluidName = F.Choices(options = Fluids, default = 'ParaHydrogen', 
+        label = 'fluid', description = 'fluid in the tank')
+    @property
+    def fluid(self):
+        return CP.Fluid(self.fluidName)
+    
+    TAmbient = F.Quantity('Temperature', default = (15.0, 'degC'), 
+        label ='T<sub>amb</sub>', description = 'ambient temperature')
+    parametersFG = F.FieldGroup([fluidName, TAmbient], label = "Parameters")
     
     refuelingSource = F.SubModelGroup(FC.FluidStateSource, 'FG', label = 'Refueling source')
     

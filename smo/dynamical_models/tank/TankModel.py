@@ -49,22 +49,18 @@ class TankModel(DMC.Simulation):
 				varList = ['t'] + stateVarNames + ['pTank', 'TCompressorOut'],
 				chunkSize = 10000)
 
-		# Fluid
-		fluid = CP.Fluid('ParaHydrogen')
-
 		# Refueling source
-		self.refuelingSource = DM.FluidStateSource(fluid = fluid)
-		self.refuelingSource.setState(params.refuelingSource)
-		self.refuelingSource.compute()
+		self.refuelingSource = DM.FluidStateSource(params.fluid)
+		self.refuelingSource.initState(params.refuelingSource)
 		
 		# Compressor	
-		self.compressor = DM.Compressor(fluid = fluid, etaS = 0.9, fQ = 0., V = 0.5e-3)
+		self.compressor = DM.Compressor(params.fluid, params.compressor)
 		# Connect the compressor to the fluid source
 		self.compressor.portIn.connect(self.refuelingSource.port1)
 		
 		# Tank chamber
 		self.tank = DM.FluidChamber(
-			fluid = fluid, 
+			fluid = params.fluid, 
 			V = 0.1155 #[m**3]
 		)
 		self.tank.initialize(
@@ -75,7 +71,7 @@ class TankModel(DMC.Simulation):
 		self.tank.fluidPort.connect(self.compressor.portOut)
 		
 		# Extraction sink
-		self.extractionSink = DM.FlowSource(fluid = fluid, mDot = 0.0, TOut = params.TAmbient)
+		self.extractionSink = DM.FlowSource(fluid = params.fluid, mDot = 0.0, TOut = params.TAmbient)
 		# Connect the extraction sink with the tank
 		self.extractionSink.port1.connect(self.tank.fluidPort)
 		
@@ -112,15 +108,15 @@ class TankModel(DMC.Simulation):
 		self.composite.port1.connect(self.liner.port2)
 				
 		# Ambient fluid component
-		ambientFluid = CP.Fluid('Air')
-		ambientSource =DM.FluidStateSource(fluid = ambientFluid, sourceType = DM.FluidStateSource.TP)
-		ambientSource.setState(sourceType = DM.FluidStateSource.TP, T = params.TAmbient, p = 1e5)
-		ambientSource.compute()
+		ambientFluidName = 'Air'
+		ambientFluid = CP.Fluid(ambientFluidName)
+		self.ambientSource = DM.FluidStateSource(ambientFluid)
+		self.ambientSource.initState(sourceType = DM.FluidStateSource.TP, T = params.TAmbient, p = 1e5)
 		
 		# Composite convection component
 		self.compositeConvection = DM.ConvectionHeatTransfer(hConv = 100., A = self.wallArea)
 		# Connect the composite convection to the ambient fluid
-		self.compositeConvection.fluidPort.connect(ambientSource.port1)
+		self.compositeConvection.fluidPort.connect(self.ambientSource.port1)
 		# Connect the composite convection to the composite  
 		self.compositeConvection.wallPort.connect(self.composite.port2)
 		
@@ -286,17 +282,24 @@ def testTankModel():
 		nCompressor = 0.53 * 1.44
 	)
 	
-	# Create the model	
-	class RefuelingSourceParams():
-		sourceType = DM.FluidStateSource.PQ
-		p = 2.7e5 #[Pa]
-		q = 0. #[-]
-							
+	# Create the model
+	fluid = CP.Fluid('ParaHydrogen')
+	
 	tankModel = TankModel(
 		initDataStorage = simulate, 
 		TAmbient = 288.15,
+		fluid = fluid,
 		controller = controller,
-		refuelingSource = RefuelingSourceParams(),
+		refuelingSource = AttributeDict({
+			'sourceType' : DM.FluidStateSource.PQ,
+			'p' : 2.7e5,
+			'q' : 0.
+		}),
+		compressor =  AttributeDict({
+			'etaS' : 0.9,
+			'fQ' : 0.,
+			'V' : 0.5e-3
+		}),
 	)
 	
 	# Run simulation or load old results
