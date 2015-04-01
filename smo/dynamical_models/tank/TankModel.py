@@ -50,11 +50,11 @@ class TankModel(DMC.Simulation):
 				chunkSize = 10000)
 
 		# Refueling source
-		self.refuelingSource = DM.FluidStateSource(params.fluid)
+		self.refuelingSource = DM.FluidStateSource(params.refuelingSource)
 		self.refuelingSource.initState(params.refuelingSource)
 		
 		# Compressor	
-		self.compressor = DM.Compressor(params.fluid, params.compressor)
+		self.compressor = DM.Compressor(params.compressor)
 		# Connect the compressor to the fluid source
 		self.compressor.portIn.connect(self.refuelingSource.port1)
 		
@@ -110,7 +110,7 @@ class TankModel(DMC.Simulation):
 		# Ambient fluid component
 		ambientFluidName = 'Air'
 		ambientFluid = CP.Fluid(ambientFluidName)
-		self.ambientSource = DM.FluidStateSource(ambientFluid)
+		self.ambientSource = DM.FluidStateSource(fluid = ambientFluid)
 		self.ambientSource.initState(sourceType = DM.FluidStateSource.TP, T = params.TAmbient, p = 1e5)
 		
 		# Composite convection component
@@ -291,11 +291,13 @@ def testTankModel():
 		fluid = fluid,
 		controller = controller,
 		refuelingSource = AttributeDict({
+			'fluid' : fluid,
 			'sourceType' : DM.FluidStateSource.PQ,
 			'p' : 2.7e5,
 			'q' : 0.
 		}),
 		compressor =  AttributeDict({
+			'fluid' : fluid,
 			'etaS' : 0.9,
 			'fQ' : 0.,
 			'V' : 0.5e-3

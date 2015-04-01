@@ -52,6 +52,8 @@ class TankController(NumericalModel):
     modelBlocks = []
     
 class FluidStateSource(NumericalModel):
+    fluid = None
+    
     sourceTypeTxt = F.Choices(
         OrderedDict((
             ('PQ', 'pressure, vapour quality'),
@@ -82,5 +84,19 @@ class FluidStateSource(NumericalModel):
     
     FG = F.FieldGroup([sourceTypeTxt, T, p, q], label = 'Initial values')
         
+    modelBlocks = []
+    
+class Compressor(NumericalModel):
+    fluid = None
+    
+    etaS = F.Quantity('Efficiency', default = (0.9, '-'),
+        label = '&#951<sub>S</sub>', description = 'isentropic efficiency')
+    fQ = F.Quantity('Fraction', default = (0.1, '-'),
+        label = 'f<sub>Q</sub>', description = 'fraction of heat loss to ambient')
+    V = F.Quantity('Volume', default = (0.25, 'L'), maxValue = (1e6, 'L'),
+        label = 'V<sub>displ</sub>', description = 'displacement volume')
+    
+    FG = F.FieldGroup([etaS, fQ, V], label = 'Initial values')
+    
     modelBlocks = []
     

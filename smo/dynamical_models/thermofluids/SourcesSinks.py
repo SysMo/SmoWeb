@@ -48,11 +48,11 @@ class FluidStateSource(DMC.DynamicalModel):
 	PQ = 2
 	TQ = 3
 	
-	def __init__(self, fluid, params = None, **kwargs):
+	def __init__(self, params = None, **kwargs):
 		if params == None:
 			params = AttributeDict(kwargs)
 			
-		self.fluid = fluid
+		self.fluid = params.fluid
 		self.fState = CP.FluidState(self.fluid)
 		self.port1 = DMS.FluidPort('C', self.fState)
 		

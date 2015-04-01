@@ -10,13 +10,13 @@ from smo.dynamical_models.thermofluids import Structures as DMS
 from smo.util import AttributeDict 
 
 class Compressor(DMC.DynamicalModel):
-	def __init__(self, fluid, params = None, **kwargs):
+	def __init__(self, params = None, **kwargs):
 		if params == None:
 			params = AttributeDict(kwargs)
 
-		self.fluid = fluid #fluid
+		self.fluid = params.fluid #fluid
 		self.etaS = params.etaS #isentropic efficiency
-		self.fQ = params.fQ #fraction of heat flow that is lost to ambient
+		self.fQ = params.fQ #fraction of heat loss to ambient
 		self.V = params.V #displacement volume
 		
 		self.n = 0.0 #number of revolutions per second

@@ -32,8 +32,9 @@ class Tank(NumericalModel):
     parametersFG = F.FieldGroup([fluidName, TAmbient], label = "Parameters")
     
     refuelingSource = F.SubModelGroup(FC.FluidStateSource, 'FG', label = 'Refueling source')
+    compressor = F.SubModelGroup(FC.Compressor, 'FG', label = 'Compressor')
     
-    initialValuesSG = F.SuperGroup([parametersFG, refuelingSource], label = "Model definitions")
+    initialValuesSG = F.SuperGroup([parametersFG, refuelingSource, compressor], label = "Model definitions")
     
     #1.2 Fields - Controller
     controllerSG = F.SubModelGroup(FC.TankController, 'SG', label  = 'Controller')
@@ -81,6 +82,10 @@ class Tank(NumericalModel):
     
     
     def compute(self):
+        # Set the fluid of the components
+        self.refuelingSource.fluid = self.fluid
+        self.compressor.fluid = self.fluid
+        
         # Create objects (TankController and TankModel)         
         self.controller = DM.TankController(self.controllerSG)     
         tank = DM.TankModel(self)

@@ -16,7 +16,7 @@ Quantities = {
 	
 	'Area' : {'title' : 'area', 'nominalValue' : 1.0, 'SIUnit' : 'm**2', 
 		'units' : {'m**2' : {'mult' : 1}, 'cm**2' : {'mult' : 1e-4}, 'mm**2' : {'mult' : 1e-6}}},
-	'Volume' : {'title' : 'volume', 'nominalValue' : 1.0, 'SIUnit' : 'm**3', 
+	'Volume' : {'title' : 'volume', 'nominalValue' : 1.0, 'SIUnit' : 'm**3', 'minValue' : 0,
 		'units' : OrderedDict((('m**3', {'mult' : 1}), ('L', {'mult' : 1e-3}), ('cm**3', {'mult' : 1e-6}), ('mm**3', {'mult' : 1e-9}),))},
 	'Time' : {'title' : 'time', 'nominalValue' : 1.0, 'SIUnit' : 's', 
 		'units' : OrderedDict((('s', {'mult' : 1}), ('ms', {'mult' : 1e-3}), ('us', {'mult' : 1e-6}), ('min', {'mult' : 60}), ('h', {'mult' : 3600}), ('day', {'mult' : 8.64e4}), ('year', {'mult' : 3.15576e7}),))},
