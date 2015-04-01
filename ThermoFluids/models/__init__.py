@@ -6,6 +6,7 @@ from ThermoFluids.models.VaporCompressionCycle import VaporCompressionCycle, Vap
 from RankineCycle import RankineCycle, RegenerativeRankineCycle
 from CryogenicPipe import CryogenicPipe
 from CableHeating import CableHeating1D
+from Tank import Tank, TankDoc
 
 #import lib
 from lib.CycleBases import HeatPumpCyclesDoc, HeatEngineCyclesDoc

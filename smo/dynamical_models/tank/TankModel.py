@@ -26,13 +26,10 @@ dataStorageFilePath =  os.path.join(tmpFolderPath, 'TankSimulations_SimulationRe
 dataStorageDatasetPath = '/TankModel'
 
 
-tWaitBeforeExtraction = 50. #:TODO: params
-tWaitBeforeRefueling = 50.
-
 class TankModel(DMC.Simulation):
 	name = 'Model of a tank refueling and extraction'
 	
-	def __init__(self, controller, params = None, **kwargs): #:TODO: params
+	def __init__(self, params = None, **kwargs): #:TODO: params
 		super(TankModel, self).__init__(**kwargs)
 		if params == None:
 			params = AttributeDict(kwargs)
@@ -56,10 +53,9 @@ class TankModel(DMC.Simulation):
 		fluid = CP.Fluid('ParaHydrogen')
 
 		# Refueling source
-		self.refuelingSource = DM.FluidStateSource(fluid = fluid, sourceType = DM.FluidStateSource.PQ)
-		self.refuelingSource.pIn = 2.7e5 #[Pa]
-		self.refuelingSource.qIn = 0. #[-]
-		self.refuelingSource.computeState()
+		self.refuelingSource = DM.FluidStateSource(fluid = fluid)
+		self.refuelingSource.setState(params.refuelingSource)
+		self.refuelingSource.compute()
 		
 		# Compressor	
 		self.compressor = DM.Compressor(fluid = fluid, etaS = 0.9, fQ = 0., V = 0.5e-3)
@@ -118,9 +114,8 @@ class TankModel(DMC.Simulation):
 		# Ambient fluid component
 		ambientFluid = CP.Fluid('Air')
 		ambientSource =DM.FluidStateSource(fluid = ambientFluid, sourceType = DM.FluidStateSource.TP)
-		ambientSource.TIn = params.TAmbient #[K]
-		ambientSource.pIn = 1e5 #[Pa]
-		ambientSource.computeState()
+		ambientSource.setState(sourceType = DM.FluidStateSource.TP, T = params.TAmbient, p = 1e5)
+		ambientSource.compute()
 		
 		# Composite convection component
 		self.compositeConvection = DM.ConvectionHeatTransfer(hConv = 100., A = self.wallArea)
@@ -130,7 +125,7 @@ class TankModel(DMC.Simulation):
 		self.compositeConvection.wallPort.connect(self.composite.port2)
 		
 		# Controller
-		self.controller = controller
+		self.controller = params.controller
 		
 		# Initialize the state variables
 		self.y.WRealCompressor = 0. # [W]
@@ -177,7 +172,7 @@ class TankModel(DMC.Simulation):
 
 			# Compute derivatives of the state variables 
 			# Compressor
-			self.compressor.n = self.controller.outputs.nPump
+			self.compressor.n = self.controller.outputs.nCompressor
 			self.compressor.compute()
 			# Extraction sink
 			self.extractionSink.mDot = self.controller.outputs.mDotExtr
@@ -224,6 +219,8 @@ class TankModel(DMC.Simulation):
 				oldState = self.controller.state
 				self.controller.makeStateTransition(solver)
 				
+				tWaitBeforeRefueling = self.controller.parameters.tWaitBeforeRefueling
+				tWaitBeforeExtraction = self.controller.parameters.tWaitBeforeExtraction
 				if (oldState == TC.EXTRACTION and tWaitBeforeRefueling != 0.0):
 					self.timeEventRegistry.add(DMC.TimeEvent(t = solver.t + tWaitBeforeRefueling, eventType = TC.TE_BEGIN_REFUELING, description = 'Begin refueling'))
 				
@@ -250,6 +247,9 @@ class TankModel(DMC.Simulation):
 		
 	def loadResult(self, simIndex):
 		self.resultStorage.loadResult(simIndex)
+		
+	def getResults(self):
+		return self.resultStorage.data
 
 	def plotHDFResults(self):
 		data = self.resultStorage.data
@@ -275,14 +275,28 @@ def testTankModel():
 	# Create the controller
 	controller = TankController(
 		initialState = TC.REFUELING, 
-		tWaitBeforeExtraction = tWaitBeforeExtraction, 
-		tWaitBeforeRefueling = tWaitBeforeRefueling)
+		tWaitBeforeExtraction = 150., 
+		tWaitBeforeRefueling = 150.,
+		pMin = 20e5,
+		pMax = 300e5,
+		mDotExtr = 30/3600.,
+		hConvTankWaiting = 10.,
+		hConvTankExtraction = 20.,
+		hConvTankRefueling = 100.,
+		nCompressor = 0.53 * 1.44
+	)
 	
-	# Create the model							
+	# Create the model	
+	class RefuelingSourceParams():
+		sourceType = DM.FluidStateSource.PQ
+		p = 2.7e5 #[Pa]
+		q = 0. #[-]
+							
 	tankModel = TankModel(
 		initDataStorage = simulate, 
+		TAmbient = 288.15,
 		controller = controller,
-		TAmbient = 288.15, #[K]
+		refuelingSource = RefuelingSourceParams(),
 	)
 	
 	# Run simulation or load old results

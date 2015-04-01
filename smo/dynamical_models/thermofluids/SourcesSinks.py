@@ -43,6 +43,7 @@ class FlowSource(DMC.DynamicalModel):
 		self.flow.HDot = self.HDot
 		
 class FluidStateSource(DMC.DynamicalModel):
+	# Source types by state variables
 	TP = 1
 	PQ = 2
 	TQ = 3
@@ -54,13 +55,28 @@ class FluidStateSource(DMC.DynamicalModel):
 		self.fluid = params.fluid
 		self.fState = CP.FluidState(self.fluid)
 		self.port1 = DMS.FluidPort('C', self.fState)
+		
+	def setState(self, params = None, **kwargs):
+		if params == None:
+			params = AttributeDict(kwargs)
+		
 		self.sourceType = params.sourceType 
-	
-	def computeState(self):
 		if (self.sourceType == self.TP):
-			self.fState.update_Tp(self.TIn, self.pIn)
+			self.T = params.T
+			self.p = params.p	
 		elif (self.sourceType == self.PQ):
-			self.fState.update_pq(self.pIn, self.qIn)
+			self.p = params.p
+			self.q = params.q
 		elif (self.sourceType == self.TQ):
-			self.fState.update_Tq(self.TIn, self.qIn)
+			self.T = params.T
+			self.q = params.q
+	
+	def compute(self):
+		if (self.sourceType == self.TP):
+			self.fState.update_Tp(self.T, self.p)
+		elif (self.sourceType == self.PQ):
+			self.fState.update_pq(self.p, self.q)
+		elif (self.sourceType == self.TQ):
+			self.fState.update_Tq(self.T, self.q)
+
 		

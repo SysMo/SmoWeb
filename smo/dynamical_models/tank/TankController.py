@@ -5,6 +5,7 @@ Created on Mar 4, 2015
 @copyright: SysMo Ltd, Bulgaria
 '''
 from ControllerBase import ControllerBase
+from smo.util import AttributeDict 
 
 class TankController(ControllerBase):
 	# States
@@ -19,23 +20,30 @@ class TankController(ControllerBase):
 	class Inputs(): pass
 	class Outputs(): pass
 	class Parameters():
-		def __init__(self, **kwargs):
-			self.pMin = kwargs.get('pMin', 20e5) #:TODO: Param
-			self.pMax = kwargs.get('pMax', 300e5)
-			self.tWaitBeforeExtraction = kwargs.get('tWaitBeforeExtraction', 50.)
-			self.tWaitBeforeRefueling = kwargs.get('tWaitBeforeRefueling', 50.)
-			self.mDotExtr = kwargs.get('mDotExtr', -30./3600)
+		def __init__(self, params):				
+			self.tWaitBeforeExtraction = params.tWaitBeforeExtraction
+			self.tWaitBeforeRefueling = params.tWaitBeforeRefueling
+			self.pMin = params.pMin
+			self.pMax = params.pMax
+			self.mDotExtr = -params.mDotExtr
+			self.hConvTankWaiting = params.hConvTankWaiting
+			self.hConvTankExtraction = params.hConvTankExtraction
+			self.hConvTankRefueling = params.hConvTankRefueling
+			self.nCompressor = params.nCompressor
 	
-	def __init__(self, initialState, **kwargs):
-		self.state = initialState
+	def __init__(self, params = None, **kwargs):
+		if params == None:
+			params = AttributeDict(kwargs)
+			
+		self.state = params.initialState
 		self.inputs = self.Inputs()
 		self.outputs = self.Outputs()
-		self.parameters = self.Parameters(**kwargs)
+		self.parameters = self.Parameters(params)
 		
 		self.executeEntryActions()
 	
 	def setInputs(self, **kwargs):
-		self.inputs.pTank =  kwargs['pTank']
+		self.inputs.pTank = kwargs['pTank']
 	
 	def checkForStateTransition(self):
 		checkValue = 0
@@ -85,16 +93,16 @@ class TankController(ControllerBase):
 		
 	def executeEntryActions(self):
 		if (self.state == self.WAITING):
-			self.outputs.nPump = 0.0 
+			self.outputs.nCompressor = 0.0
 			self.outputs.mDotExtr = 0.0
-			self.outputs.hConvTank = 10.0 #:TODO: Param
+			self.outputs.hConvTank = self.parameters.hConvTankWaiting
 		elif (self.state == self.REFUELING):
-			self.outputs.nPump = 0.53 * 1.44 
+			self.outputs.nCompressor = self.parameters.nCompressor
 			self.outputs.mDotExtr = 0.0
-			self.outputs.hConvTank = 100.0 
+			self.outputs.hConvTank = self.parameters.hConvTankRefueling 
 		elif (self.state == self.EXTRACTION):
-			self.outputs.nPump = 0.0 
+			self.outputs.nCompressor = 0.0 
 			self.outputs.mDotExtr = self.parameters.mDotExtr
-			self.outputs.hConvTank = 15.0 
+			self.outputs.hConvTank = self.parameters.hConvTankExtraction 
 	
 		

@@ -80,9 +80,10 @@ class ChemostatSimple(NumericalModel):
         chemostat.prepareSimulation()
         chemostat.run(self)
         
-        results = chemostat.getResults()
-        self.plot = np.array(results)
-        self.table = np.array(results)
+        res = chemostat.getResults()
+        results = np.array(res)
+        self.plot = results
+        self.table = results
         
 
 class ChemostatSimpleDoc(RestModule):

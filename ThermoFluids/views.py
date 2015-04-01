@@ -59,3 +59,10 @@ class HeatExchange1DView(ModularPageView):
 	modules = [M.CryogenicPipe, M.CableHeating1D]	
 	requireJS = ['dygraph', 'dygraphExport']
 	requireGoogle = ['visualization']
+
+@registerView(router)
+class TankView(ModularPageView):
+	label = "Tank"
+	modules = [M.Tank, M.TankDoc]	
+	requireJS = ['dygraph', 'dygraphExport']
+	requireGoogle = ['visualization']

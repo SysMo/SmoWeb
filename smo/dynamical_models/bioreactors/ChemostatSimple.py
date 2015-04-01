@@ -33,7 +33,7 @@ class ChemostatSimpleTimeEvent(TimeEvent):
 		
 class ChemostatSimple(Simulation):
 	"""
-	Class for implementation the model of simple chemostat 
+	Class for implementation the model of a simple chemostat 
 	"""
 	name = 'Model of a simple chemostat.'
 	

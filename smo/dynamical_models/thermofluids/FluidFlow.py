@@ -19,7 +19,7 @@ class Compressor(DMC.DynamicalModel):
 		self.fQ = params.fQ #fraction of heat flow that is lost to ambient
 		self.V = params.V #displacement volume
 		
-		self.n = 0.0 #number of reverse per seconds
+		self.n = 0.0 #number of revolutions per second
 		self.fStateOut = CP.FluidState(self.fluid)
 		
 		self.flow = DMS.FluidFlow()

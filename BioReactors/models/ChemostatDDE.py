@@ -113,11 +113,10 @@ class ChemostatDDE(NumericalModel):
         chemostatDDE = DM.ChemostatDDE(self)
         chemostatDDE.run(self)
         
-        sol = chemostatDDE.getResults()
-        results = np.array([sol['t'], sol['s1'], sol['x1'], sol['s2'], sol['x2']]).transpose()
-        
-        self.plot = np.array(results)
-        self.table = np.array(results)
+        res = chemostatDDE.getResults()
+        results = np.array([res['t'], res['s1'], res['x1'], res['s2'], res['x2']]).transpose()
+        self.plot = results
+        self.table = results
         
 class ChemostatDDEDoc(RestModule):
     label = 'Chemostat with DDE (Doc)'
