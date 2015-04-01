@@ -28,13 +28,21 @@ class Tank(NumericalModel):
         return CP.Fluid(self.fluidName)
     
     TAmbient = F.Quantity('Temperature', default = (15.0, 'degC'), 
-        label ='T<sub>amb</sub>', description = 'ambient temperature')
-    parametersFG = F.FieldGroup([fluidName, TAmbient], label = "Parameters")
+        label = 'T<sub>amb</sub>', description = 'ambient temperature')
+    
+    wallArea = F.Quantity('Area', default = (2.0, 'm**2'),
+        label = 'wall area', description = 'tank, liner and composite wall area')
+    parametersFG = F.FieldGroup([fluidName, TAmbient, wallArea], label = "Parameters")
     
     refuelingSource = F.SubModelGroup(FC.FluidStateSource, 'FG', label = 'Refueling source')
     compressor = F.SubModelGroup(FC.Compressor, 'FG', label = 'Compressor')
+    tank = F.SubModelGroup(FC.FluidChamber, 'FG', label = 'Tank')
+    tankConvection = F.SubModelGroup(FC.EmptyModel, 'FG', label = 'TankConvection')
     
-    initialValuesSG = F.SuperGroup([parametersFG, refuelingSource, compressor], label = "Model definitions")
+    initialValuesSG = F.SuperGroup(
+        [parametersFG, refuelingSource, compressor, tank], 
+        label = "Model definitions"
+    )
     
     #1.2 Fields - Controller
     controllerSG = F.SubModelGroup(FC.TankController, 'SG', label  = 'Controller')
@@ -55,17 +63,19 @@ class Tank(NumericalModel):
     
     #2. ############ Results ###############    
     plot = F.PlotView(
-        (('time', F.Quantity('Time', default=(1, 's'))),
-         ('pTank', F.Quantity('Pressure', default=(1, 'bar'))),
-         ('TTank', F.Quantity('Temperature', default=(1, 'K'))),
+        (
+            ('time', F.Quantity('Time', default=(1, 's'))),
+            ('pTank', F.Quantity('Pressure', default=(1, 'bar'))),
+            ('TTank', F.Quantity('Temperature', default=(1, 'K'))),
         ),
         label='Plot', 
         options = {'ylabel' : None}
     )
     table = F.TableView(
-        (('time', F.Quantity('Time', default=(1, 's'))),
-         ('pTank', F.Quantity('Pressure', default=(1, 'bar'))),
-         ('TTank', F.Quantity('Temperature', default=(1, 'K'))),
+        (
+             ('time', F.Quantity('Time', default=(1, 's'))),
+             ('pTank', F.Quantity('Pressure', default=(1, 'bar'))),
+             ('TTank', F.Quantity('Temperature', default=(1, 'K'))),
         ),
         label='Table', 
         options = {'title': 'Tank refueling-extraction cycles', 'formats': ['0.000', '0.000', '0.000']}
@@ -82,9 +92,14 @@ class Tank(NumericalModel):
     
     
     def compute(self):
-        # Set the fluid of the components
+        # Initialize the fluid components with the chosen fluid from the user
         self.refuelingSource.fluid = self.fluid
         self.compressor.fluid = self.fluid
+        self.tank.fluid = self.fluid
+        
+        # Initialize tankConvection
+        self.tankConvection.A = self.wallArea
+        self.tankConvection.hConv = 0.0 #:TRICKY: not used
         
         # Create objects (TankController and TankModel)         
         self.controller = DM.TankController(self.controllerSG)     

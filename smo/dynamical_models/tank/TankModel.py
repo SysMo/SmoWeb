@@ -59,14 +59,8 @@ class TankModel(DMC.Simulation):
 		self.compressor.portIn.connect(self.refuelingSource.port1)
 		
 		# Tank chamber
-		self.tank = DM.FluidChamber(
-			fluid = params.fluid, 
-			V = 0.1155 #[m**3]
-		)
-		self.tank.initialize(
-			300.0, #[K] 
-			20e5, #[Pa]
-		)
+		self.tank = DM.FluidChamber(params.tank)
+		self.tank.initialize(params.tank.TInit, params.tank.pInit)
 		# Connect the tank to the compressor
 		self.tank.fluidPort.connect(self.compressor.portOut)
 		
@@ -76,8 +70,7 @@ class TankModel(DMC.Simulation):
 		self.extractionSink.port1.connect(self.tank.fluidPort)
 		
 		# Tank convection component
-		self.wallArea = 1.8 #[m**2]
-		self.tankConvection = DM.ConvectionHeatTransfer(hConv = 100., A = self.wallArea)
+		self.tankConvection = DM.ConvectionHeatTransfer(params.tankConvection)
 		# Connect to the fluid in the tank
 		self.tankConvection.fluidPort.connect(self.tank.fluidPort)
 
@@ -86,7 +79,7 @@ class TankModel(DMC.Simulation):
 			material = 'Aluminium6061', 
 			mass = 24., #[kg]
 			thickness = 0.004, #[m]
-			conductionArea = self.wallArea, #[m**2]
+			conductionArea = params.wallArea, #[m**2]
 			port1Type = 'C', port2Type = 'C', 
 			numMassSegments = 2, 
 			TInit = 300.0 #[K]
@@ -99,7 +92,7 @@ class TankModel(DMC.Simulation):
 			material = 'CarbonFiberComposite', 
 			mass = 34., #[kg]
 			thickness = 0.0105, #[m]
-			conductionArea = self.wallArea, #[m**2]
+			conductionArea = params.wallArea, #[m**2]
 			port1Type = 'R', port2Type = 'C', 
 			numMassSegments = 4,
 			TInit = 300.0 #[K]
@@ -114,7 +107,7 @@ class TankModel(DMC.Simulation):
 		self.ambientSource.initState(sourceType = DM.FluidStateSource.TP, T = params.TAmbient, p = 1e5)
 		
 		# Composite convection component
-		self.compositeConvection = DM.ConvectionHeatTransfer(hConv = 100., A = self.wallArea)
+		self.compositeConvection = DM.ConvectionHeatTransfer(hConv = 100., A = params.wallArea)
 		# Connect the composite convection to the ambient fluid
 		self.compositeConvection.fluidPort.connect(self.ambientSource.port1)
 		# Connect the composite convection to the composite  
@@ -284,23 +277,35 @@ def testTankModel():
 	
 	# Create the model
 	fluid = CP.Fluid('ParaHydrogen')
+	tankWallArea = 1.8 #m**2
 	
 	tankModel = TankModel(
 		initDataStorage = simulate, 
 		TAmbient = 288.15,
 		fluid = fluid,
+		tankWallArea = 1.8,
 		controller = controller,
 		refuelingSource = AttributeDict({
 			'fluid' : fluid,
 			'sourceType' : DM.FluidStateSource.PQ,
 			'p' : 2.7e5,
-			'q' : 0.
+			'q' : 0.,
 		}),
-		compressor =  AttributeDict({
+		compressor = AttributeDict({
 			'fluid' : fluid,
 			'etaS' : 0.9,
 			'fQ' : 0.,
-			'V' : 0.5e-3
+			'V' : 0.5e-3,
+		}),
+		tank = AttributeDict({
+			'fluid' : fluid, 
+			'V' : 0.100,
+			'TInit' : 300.,
+			'pInit' : 20e5,
+		}),
+		tankConvection = AttributeDict({
+			'A' : tankWallArea,
+			'hConv' : 100.,
 		}),
 	)
 	

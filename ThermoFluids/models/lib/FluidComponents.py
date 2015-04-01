@@ -10,6 +10,11 @@ from smo.model.model import NumericalModel
 import smo.dynamical_models.thermofluids as DM
 from smo.dynamical_models.tank.TankController import TankController as TC
 
+class EmptyModel(NumericalModel):
+    FG = F.FieldGroup([], label = '')
+    
+    modelBlocks = []
+
 class TankController(NumericalModel):
     initialState = F.Choices(
         OrderedDict((
@@ -41,13 +46,13 @@ class TankController(NumericalModel):
     nCompressor = F.Quantity('AngularVelocity', default = (1.0, 'rev/s'), minValue = (0, 'rev/s'), maxValue = (1e4, 'rev/s'),
         label = 'n<sub>compr</sub>', description = 'compressor revolutions')
     
-    parametersFG = F.FieldGroup(
+    FG = F.FieldGroup(
         [initialState, pMin, pMax, mDotExtr, tWaitBeforeExtraction, tWaitBeforeRefueling,
          hConvTankWaiting, hConvTankExtraction, hConvTankRefueling,
          nCompressor
         ], 
         label = 'Parameters')
-    SG = F.SuperGroup([parametersFG], label = 'Controller')
+    SG = F.SuperGroup([FG], label = 'Controller')
     
     modelBlocks = []
     
@@ -99,4 +104,20 @@ class Compressor(NumericalModel):
     FG = F.FieldGroup([etaS, fQ, V], label = 'Initial values')
     
     modelBlocks = []
+    
+    
+class FluidChamber(NumericalModel):
+    fluid = None
+    
+    V = F.Quantity('Volume', default = (100., 'L'), maxValue = (1e6, 'L'),
+        label = 'volume', description = 'volume')
+    TInit = F.Quantity('Temperature', default = (300., 'K'), 
+        label = 'initial temperature')
+    pInit = F.Quantity('Pressure', default = (20., 'bar'), 
+        label = 'initial pressure')
+    
+    FG = F.FieldGroup([V, TInit, pInit], label = 'Initial values')
+
+    modelBlocks = []
+    
     

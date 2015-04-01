@@ -14,7 +14,7 @@ Quantities = {
 		'units' : OrderedDict((('nm', {'mult' : 1e-9}), ('um', {'mult' : 1e-6}), ('mm', {'mult' : 1e-3}), ('cm', {'mult' : 1e-2}), ('m', {'mult' : 1}), 
 			('km', {'mult' : 1e3}), ('in', {'mult' : 2.54e-2}), ('ft', {'mult' : 3.048e-1}), ('yd', {'mult' : 0.9144}), ('mi', {'mult' : 1609.344}),))},
 	
-	'Area' : {'title' : 'area', 'nominalValue' : 1.0, 'SIUnit' : 'm**2', 
+	'Area' : {'title' : 'area', 'nominalValue' : 1.0, 'SIUnit' : 'm**2', 'minValue' : 0.0, 
 		'units' : {'m**2' : {'mult' : 1}, 'cm**2' : {'mult' : 1e-4}, 'mm**2' : {'mult' : 1e-6}}},
 	'Volume' : {'title' : 'volume', 'nominalValue' : 1.0, 'SIUnit' : 'm**3', 'minValue' : 0,
 		'units' : OrderedDict((('m**3', {'mult' : 1}), ('L', {'mult' : 1e-3}), ('cm**3', {'mult' : 1e-6}), ('mm**3', {'mult' : 1e-9}),))},
