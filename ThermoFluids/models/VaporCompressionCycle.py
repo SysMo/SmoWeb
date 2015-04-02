@@ -30,7 +30,7 @@ class VaporCompressionCycle(HeatPumpCycle):
 	))
 	inputActionBar = ActionBar([computeAction, exampleAction], save = True)
 	#--------------- Model view ---------------#
-	inputView = F.ModelView(ioType = "input", superGroups = [inputs, 'cycleDiagram'], 
+	inputView = F.ModelView(ioType = "input", superGroups = [inputs, 'cycleDiagram', 'solver'], 
 		actionBar = inputActionBar, autoFetch = True)	
 
 	#================ Results ================#
@@ -39,7 +39,7 @@ class VaporCompressionCycle(HeatPumpCycle):
 	evaporatorHeat = F.Quantity('HeatFlowRate', default = (1, 'kW'), label = 'evaporator heat in')
 	flowFieldGroup = F.FieldGroup([compressorPower, condenserHeat, evaporatorHeat], label = 'Energy flows')
 	resultEnergy = F.SuperGroup([flowFieldGroup, 'efficiencyFieldGroup'], label = 'Energy')
-	resultView = F.ModelView(ioType = "output", superGroups = ['resultDiagrams', 'resultStates', resultEnergy])
+	resultView = F.ModelView(ioType = "output", superGroups = ['resultDiagrams', 'resultStates', resultEnergy, 'solverStats'])
 
 	#============= Page structure =============#
 	modelBlocks = [inputView, resultView]
@@ -60,9 +60,11 @@ class VaporCompressionCycle(HeatPumpCycle):
 		self.connectPorts(self.condenser.outlet, self.throttleValve.inlet)
 		self.connectPorts(self.throttleValve.outlet, self.evaporator.inlet)
 		# Initial guess
+		for fl in self.flows:
+			fl.mDot = self.mDot
 		self.evaporator.outlet.state.update_pq(self.pLow, 1)
 		# Cycle iterations
-		self.cycleIterator.run()
+		self.solver.run()
 		# Results
 		self.postProcess()
 	
@@ -91,7 +93,8 @@ class VaporCompressionCycle(HeatPumpCycle):
 		self.pHigh = (130, 'bar')
 		self.pLowMethod = 'T'
 		self.TEvaporation = (10, 'degC')
-		self.compressor.eta = 0.8
+		self.compressor.modelType = 'S'
+		self.compressor.etaS = 0.8
 		self.compressor.fQ = 0.2
 		self.condenser.computeMethod = 'T'
 		self.condenser.TOutlet = (50, 'degC')
@@ -104,7 +107,8 @@ class VaporCompressionCycle(HeatPumpCycle):
 		self.pHigh = (10, 'bar')
 		self.pLowMethod = 'T'
 		self.TEvaporation = (-20, 'degC')
-		self.compressor.eta = 0.75
+		self.compressor.modelType = 'S'
+		self.compressor.etaS = 0.75
 		self.compressor.fQ = 0.0
 		self.condenser.computeMethod = 'T'
 		self.condenser.TOutlet = (36, 'degC')
@@ -127,6 +131,14 @@ class VaporCompressionCycleWithRecuperator(VaporCompressionCycle):
 	#---------------- Energy flows -----------#
 	recuperatorHeat = F.Quantity('HeatFlowRate', default = (0, 'kW'), label = 'recuperator heat rate')
 	flowFieldGroup = F.FieldGroup(['compressorPower', recuperatorHeat, 'condenserHeat', 'evaporatorHeat'], label = 'Energy flows')
+	
+	#---------------- Scheme -----------------#
+	scheme_VaporCompression_recup = F.Image(default="static/ThermoFluids/img/ModuleImages/VaporCompressionCycle_Recuperator.png")
+	SchemeVG = F.ViewGroup([scheme_VaporCompression_recup], label="Process Scheme")
+	SchemeSG = F.SuperGroup([SchemeVG], label="Scheme")
+	
+	resultView = F.ModelView(ioType = "output", superGroups = ['resultDiagrams', SchemeSG, 'resultStates', 'resultEnergy', 'solverStats'])
+	
 	#================ Methods ================#
 	def compute(self):
 		if (self.cycleTranscritical and self.condenser.computeMethod == 'dT'):
@@ -140,22 +152,24 @@ class VaporCompressionCycleWithRecuperator(VaporCompressionCycle):
 		self.connectPorts(self.recuperator.outlet2, self.throttleValve.inlet)
 		self.connectPorts(self.throttleValve.outlet, self.evaporator.inlet)
 		# Initial guess
+		for fl in self.flows:
+			fl.mDot = self.mDot
 		self.evaporator.outlet.state.update_pq(self.pLow, 1)
 		if (self.cycleTranscritical):
 			self.condenser.outlet.state.update_Tp(1.05 * self.fluid.critical['T'], self.pHigh)
 		else:
 			self.condenser.outlet.state.update_pq(self.pHigh, 0)
 		# Cycle iterations
-		self.cycleIterator.run()
+		self.solver.run()
 		# Results
 		self.postProcess()
 	
 	def computeCycle(self):
-		self.recuperator.compute(self.mDot, self.mDot)
-		self.recuperator.computeStream1(self.mDot)
+		self.recuperator.compute()
+		self.recuperator.computeStream1()
 		self.compressor.compute(self.pHigh)
 		self.condenser.compute()
-		self.recuperator.computeStream2(self.mDot)
+		self.recuperator.computeStream2()
 		self.throttleValve.compute(self.pLow)
 		self.evaporator.compute()
 		

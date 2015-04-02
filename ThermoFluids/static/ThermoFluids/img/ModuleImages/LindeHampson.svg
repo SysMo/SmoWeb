@@ -7,7 +7,7 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="428.38959"
+   width="434.38959"
    height="252.5"
    version="1.1"
    id="svg3713"
@@ -37,9 +37,9 @@
      inkscape:window-height="751"
      id="namedview3983"
      showgrid="false"
-     inkscape:zoom="1.4142136"
-     inkscape:cx="183.47257"
-     inkscape:cy="111.58608"
+     inkscape:zoom="1"
+     inkscape:cx="209.61887"
+     inkscape:cy="86.946016"
      inkscape:window-x="0"
      inkscape:window-y="25"
      inkscape:window-maximized="1"
@@ -395,14 +395,8 @@
      id="path3941"
      pointer-events="none"
      stroke-miterlimit="10"
-     d="M 338,142.37 338,172" />
-  <path
-     style="fill:#000000;stroke:#000000;stroke-miterlimit:10"
-     inkscape:connector-curvature="0"
-     id="path3943"
-     pointer-events="none"
-     stroke-miterlimit="10"
-     d="m 338,137.12 3.5,7 -3.5,-1.75 -3.5,1.75 z" />
+     d="M 338,136.00604 338,172"
+     sodipodi:nodetypes="cc" />
   <path
      style="fill:none;stroke:#000000;stroke-miterlimit:10"
      inkscape:connector-curvature="0"
@@ -447,14 +441,8 @@
      id="path3979"
      pointer-events="none"
      stroke-miterlimit="10"
-     d="M 358,99.63 358,60 316,60" />
-  <path
-     style="fill:#000000;stroke:#000000;stroke-miterlimit:10"
-     inkscape:connector-curvature="0"
-     id="path3981"
-     pointer-events="none"
-     stroke-miterlimit="10"
-     d="m 358,104.88 -3.5,-7 3.5,1.75 3.5,-1.75 z" />
+     d="M 358,106.70107 358,60 316,60"
+     sodipodi:nodetypes="ccc" />
   <text
      xml:space="preserve"
      style="font-size:14px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans"
@@ -540,11 +528,11 @@
   <text
      sodipodi:linespacing="125%"
      id="text3744"
-     y="108.30898"
+     y="36.308983"
      x="238.55641"
      style="font-size:14px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans"
      xml:space="preserve"><tspan
-       y="108.30898"
+       y="36.308983"
        x="238.55641"
        id="tspan3746"
        sodipodi:role="line">Recuperator</tspan></text>
@@ -552,20 +540,20 @@
      sodipodi:linespacing="125%"
      id="text3736"
      y="109.79884"
-     x="365.19818"
+     x="371.19818"
      style="font-size:14px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans"
      xml:space="preserve"><tspan
        y="109.79884"
-       x="365.19818"
+       x="371.19818"
        id="tspan3738"
        sodipodi:role="line">Joule-</tspan><tspan
        id="tspan3740"
        y="127.29884"
-       x="365.19818"
+       x="371.19818"
        sodipodi:role="line">Thomson</tspan><tspan
        id="tspan3742"
        y="144.79884"
-       x="365.19818"
+       x="371.19818"
        sodipodi:role="line">valve</tspan></text>
   <text
      xml:space="preserve"
@@ -677,4 +665,15 @@
        id="tspan4458"
        x="215.42239"
        y="231.21573">Liquid out</tspan></text>
+  <text
+     xml:space="preserve"
+     style="font-size:14px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans;-inkscape-font-specification:Sans Bold"
+     x="293.02811"
+     y="216.69849"
+     id="text3522-3-5"
+     sodipodi:linespacing="125%"><tspan
+       sodipodi:role="line"
+       id="tspan3524-9-9"
+       x="293.02811"
+       y="216.69849">10</tspan></text>
 </svg>

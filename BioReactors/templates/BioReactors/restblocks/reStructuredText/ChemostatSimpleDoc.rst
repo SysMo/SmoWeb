@@ -9,7 +9,7 @@ Simple Chemostat
    :width: 150px
    :align: center
    
-   Stirred bioreactor operated as a chemostat, with a continuous inflow (the feed) and outflow (the effluent). 
+   Stirred bioreactor operated as a chemostat, with continuous inflow (the feed) and outflow (the effluent). 
    The rate of medium flow is controlled to keep the culture volume constant.
 
 
@@ -29,32 +29,39 @@ The mathematical model of a simple chemostat is [Chemostat95]_:
    
    X' = (X_{in} - X)D + \mu(S)X
    
+|
 
 where:
+
+|
    
-   :math:`S(t)` - the substrate concentration [conc.]
+:math:`S(t)` - the substrate concentration [conc.]
    
-   :math:`X(t)` - the microorganisms concentration [conc.]
+:math:`X(t)` - the microorganisms concentration [conc.]
    
-   :math:`S_{in}` - the input substrate concentration [conc.]
+:math:`S_{in}` - the input substrate concentration [conc.]
    
-   :math:`X_{in}` - the input microorganisms concentration [conc.]; usually  :math:`X_{in} = 0` 
+:math:`X_{in}` - the input microorganisms concentration [conc.]; usually  :math:`X_{in} = 0` 
    
-   :math:`D` - the dilution (or washout) rate [1/time]
+:math:`D` - the dilution (or washout) rate [1/time]
    
-   :math:`\gamma` - the yield coefficient of microorganisms (:math:`\gamma \leq 1`) [-]
+:math:`\gamma` - the yield coefficient of microorganisms (:math:`\gamma \leq 1`) [-]
    
-   :math:`\mu(S) = \frac{m.S}{K+S}` - the specific growth rate (Monod type) [conc./time]
+:math:`\mu(S) = \frac{m.S}{K+S}` - the specific growth rate (Monod type) [conc./time]
    
-   :math:`m` - the maximum specific growth rate of the microorganisms [1/time]
+:math:`m` - the maximum specific growth rate of the microorganisms [1/time]
    
-   :math:`K` - the half saturation constant [conc.]
+:math:`K` - the half saturation constant [conc.]
+ 
+|
    
 and
-   
-   :math:`S'=\frac{dS(t)}{dt}` - the rate of change of the substrate concentration [conc./time]
 
-   :math:`X'=\frac{dX(t)}{dt}` - the rate of change of the microorganisms concentration [conc./time]
+|
+   
+:math:`S'=\frac{dS(t)}{dt}` - the rate of change of the substrate concentration [conc./time]
+
+:math:`X'=\frac{dX(t)}{dt}` - the rate of change of the microorganisms concentration [conc./time]
 
 
 

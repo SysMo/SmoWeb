@@ -2,13 +2,13 @@
 <h1 class="title">Chemostat (DDE)</h1>
 <div class="figure align-center">
 <img alt="/static/BioReactors/img/ModuleImages/SimpleChemostat.png" src="/static/BioReactors/img/ModuleImages/SimpleChemostat.png" style="width: 150px;" />
-<p class="caption">Stirred bioreactor operated as a chemostat, with a continuous inflow (the feed) and outflow (the effluent).</p>
+<p class="caption">Stirred bioreactor operated as a chemostat, with continuous inflow (the feed) and outflow (the effluent).</p>
 </div>
 <div class="section" id="delay-differential-equations-dde">
 <h1>1.&nbsp;&nbsp;&nbsp;Delay differential equations (DDE)</h1>
-<p>Delay differential equations (DDEs) are a type of differential equation in which the derivative
+<p>Delay differential equations (DDEs) are a type of differential equations in which the derivative
 of the unknown function at a certain time is given in terms of the values of the function at previous times.
-A general form of the time-delay differential equation for <span class="math">\(x(t)\)</span> is</p>
+The general form of the time-delay differential equation for <span class="math">\(x(t)\)</span> is</p>
 <div class="math">
 \begin{equation*}
 x'(t) = f(t, x(t), x_{t})
@@ -18,15 +18,18 @@ x'(t) = f(t, x(t), x_{t})
 </div>
 <div class="section" id="mathematical-model">
 <h1>2.&nbsp;&nbsp;&nbsp;Mathematical model</h1>
-<p>One example of an mathematical model of an chemostat with delay differential equations (DDE) is:</p>
-<blockquote>
+<p>One example of a mathematical model of a chemostat with delay differential equations (DDE) is:</p>
 <p><span class="math">\(s'_{1}(t)=D\left(s_{1}^{in}-s_{1}(t)\right)-k_{1}\mu_{1}\left(s_{1}(t)\right)x_{1}(t)\)</span></p>
 <p><span class="math">\(x'_{1}(t)=\mu_{1}\left(s_{1}(t-\tau_{1})\right)x_{1}(t-\tau_{1})-\alpha Dx_{1}(t)\)</span></p>
 <p><span class="math">\(s'_{2}(t)=D\left(s_{2}^{in}-s_{2}(t)\right)+k_{2}\mu_{1}\left(s_{1}(t)\right)x_{1}(t)-k_{3}\mu_{2}\left(s_{2}(t)\right)x_{2}(t)\)</span></p>
 <p><span class="math">\(x'_{2}(t)=\mu_{2}\left(s_{2}(t-\tau_{2})\right)x_{2}(t-\tau_{2})-\alpha Dx_{2}(t)\)</span></p>
-</blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
 <p>where:</p>
-<blockquote>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
 <p><span class="math">\(s_{1}, s_{2}\)</span> - the substrate concentrations</p>
 <p><span class="math">\(x_{1}, x_{2}\)</span> - the bacteria concentrations</p>
 <p><span class="math">\(s_{1}^{in}, s_{2}^{in}\)</span> - the input substrate concentrations</p>
@@ -39,7 +42,6 @@ x'(t) = f(t, x(t), x_{t})
 <p><span class="math">\(m_{1}, m_{2}\)</span> - the maximum specific growth rates of the bacteria</p>
 <p><span class="math">\(k_{s1}, k_{s2}\)</span> - the half saturation constants</p>
 <p><span class="math">\(k_{I}\)</span> - constant</p>
-</blockquote>
 </div>
 <div class="section" id="references">
 <h1>3.&nbsp;&nbsp;&nbsp;References</h1>

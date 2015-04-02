@@ -1,5 +1,29 @@
 <h1 class="title">SmoWeb</h1>
 <div class="subtitle">The open computational platform by <a href="http://www.sysmoltd.com" target="_self">SysMo</a></div>
+<div style="background: white; padding: 20px; border-radius: 10px;">		
+	<p>
+		Welcome to our computational platform. Here you will find a
+		number of one-page apps that could be used to tackle various
+		engineering problems. Please select the appropriate page/app from
+		the navigation bar on the top or choose one from the thumbnails below.
+	</p>
+	<p>
+		We are currently at a major milestone: SmoWeb v. 1.0. To learn more about it,
+		check our <a href = "/?model=Platform" target="_self">Platform</a> page. Here
+		you will learn more about the platform in general,
+		the current status and the development plans for the next release.
+	</p>
+	<p>
+		We are actively searching for partners for our future development. If you 
+		would like to collaborate with us, please <a href = "http://www.sysmoltd.com/?q=contact">contact us</a>. 
+		We would also appreciate any kind of feedback or suggestions relevant to the platform
+		and the application modules.
+	</p>
+	<p>
+		We highly recommend that you use <span style="font-weight: bold;">Mozilla Firefox</span> or
+		 <span style="font-weight: bold;">Google Chrome</span> to browse this website.
+	</p>
+</div>
 <div style="margin-top: 30px; margin-bottom: 30px; text-align: center;">
 {% for routerName, router in pageView.router.registry.iteritems() %}
 	{% for pageName, viewClass in router.pages.iteritems() %}
@@ -32,16 +56,4 @@
 		{% endfor %}
 	{% endfor %}
 {% endfor %}
-</div>
-<div style="background: white; padding: 20px; border-radius: 10px;">		
-	<p>
-		Welcome to our computational platform. Here you will find a
-		number of one-page apps that could be used to tackle various
-		engineering problems. Please select the appropriate page/app from
-		the navigation bar on the top or choose one from the thumbnails above.
-	</p>
-	<p>
-		We highly recommend that you use <span style="font-weight: bold;">Mozilla Firefox</span> or
-		 <span style="font-weight: bold;">Google Chrome</span> to browse this website.
-	</p>
 </div>

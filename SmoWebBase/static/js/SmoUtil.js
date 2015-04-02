@@ -580,8 +580,13 @@ smoModule.directive('smoImg', ['$compile', function($compile) {
 		},
 		link : function(scope, element, attr) {
 			var el_id = scope.modelName + '_' + scope.fieldVar.name;
-			var template = '<img id="' + el_id + '" width=' + scope.fieldVar.width + ' height=' + scope.fieldVar.height +
-							' style="cursor: pointer;" src="/' + scope.smoDataSource[scope.fieldVar.name] + '">';
+			var template;
+			if (scope.fieldVar.width == null || scope.fieldVar.height == null) {
+				template = '<img id="' + el_id + '" style="cursor: pointer;" src="/' + scope.smoDataSource[scope.fieldVar.name] + '">';
+			} else {
+				template = '<img id="' + el_id + '" width=' + scope.fieldVar.width + ' height=' + scope.fieldVar.height +
+				' style="cursor: pointer;" src="/' + scope.smoDataSource[scope.fieldVar.name] + '">';
+			}
 			var el = angular.element(template);
 			compiled = $compile(el);
 			element.replaceWith(el);
@@ -1775,7 +1780,7 @@ smoModule.directive('smoModelView', ['$compile', '$location', 'ModelCommunicator
 		},
 		link : function(scope, element, attr) {
 			var template = '\
-				<div ng-if="communicator.loading" class="alert alert-info" role="alert">Loading...</div>\
+				<div ng-if="communicator.loading" class="alert alert-info" role="alert">Loading... (may well take a few moments)</div>\
 				<div ng-if="communicator.commError" class="alert alert-danger" role="alert">Communication error: <span ng-bind="communicator.errorMsg"></span></div>\
 				<div ng-if="communicator.serverError" class="alert alert-danger" role="alert">Server error: <span ng-bind="communicator.errorMsg"></span>\
 					<div>Stack trace:</div><pre><div ng-bind="communicator.stackTrace"></div></pre>\

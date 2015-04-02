@@ -18,7 +18,7 @@ class Field(object):
 	 	:param str description: description to show as tooltip when hovering over the field label
 		:param str show: expression (as a string), which is evaluated on the client side and is used to 
 			dynamically show and hide a field, based on the values of other fields. The
-			other fields in the params are referenced by prefixing them with ``self.``
+			other fields in the model are referenced by prefixing them with ``self.``
 		"""
 		self.label = label
 		self.description = description

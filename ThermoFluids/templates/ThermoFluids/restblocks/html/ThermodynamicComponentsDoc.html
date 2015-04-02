@@ -1,48 +1,47 @@
 <div class="document" id="thermodynamic-components">
 <h1 class="title">Thermodynamic components</h1>
-<p>These components are used to build-up thermodynamic cycles (used in heat pumps,
-heat engines, liquefiers etc.)</p>
+<p>These components are used to build thermodynamic cycles (used in heat pumps,
+heat engines, liquefiers, etc.)</p>
 <div class="section" id="compressor">
 <h1>Compressor</h1>
-<p>There are two models of compressor: isothermal and isentropic. They represent the two
+<p>There are two compressor models: isothermal and isentropic. They represent the two
 extremes in terms of heat exchange with the environment.</p>
-<p>Isenttropic compressor compresses the fluid adiabatically (without exchanging heat with
-the environmet). This model approximates a very quick compression model, where there is
-not enough time for significat heat exchange with the environment. The outlet state of an
+<p>An isentropic compressor compresses the fluid adiabatically (without exchanging heat with
+the environment). This model approximates a very quick compression model, where there is
+not enough time for significant heat exchange with the environment. The outlet state of an
 ideal isentropic heat exchanger has the same entropy as the inlet state. In reality, due
-to friction and other irreversible processes, the entropy increases, and the real work is
-higher than the ideal work, given by:</p>
+to friction and other irreversible processes, the entropy increases and the real work is
+higher than the ideal work, which is given by:</p>
 <div class="math">
 \begin{equation*}
 w_{id} = h\left(p_2, s_1\right) - h\left(p_1, s_1\right)
 \end{equation*}
 </div>
-<p>The isentropic efficiency of the compressor <span class="math">\(\eta\)</span> is a parameter of the compressor,
-such that:</p>
+<p>The isentropic efficiency of the compressor <span class="math">\(\eta\)</span> is a parameter of the compressor such that:</p>
 <div class="math">
 \begin{equation*}
 w_{r} = w_{id} / \eta
 \end{equation*}
 </div>
 <p>where <span class="math">\(w_{r}\)</span> is the real specific work. A second parameter <span class="math">\(f_Q\)</span> defines the fraction
-of the work, which is dissipated as heat in the environment:</p>
+of the work that is dissipated as heat in the environment:</p>
 <div class="math">
 \begin{equation*}
 q_{out} = w_{r} \cdot f_Q
 \end{equation*}
 </div>
-<p>Finally the real outlet state of the compressor can be computed by outlet pressure and specific enthalpy,
-where the specific enthalpy is determined by energy balance:</p>
+<p>Finally, the real outlet state of the compressor can be computed by outlet pressure and specific enthalpy,
+where the specific enthalpy is determined by the energy balance:</p>
 <div class="math">
 \begin{equation*}
 h_{out} = h_{in} + w_{r} - q_{out}
 \end{equation*}
 </div>
-<p>Isothermal compressor compresses
+<p>An isothermal compressor compresses
 the fluid (gas or liquid) at constant (ambient) temperature. It is the most efficient way
-of compressing fluid (minimal work), however is not practically achievable. The compression
+of compressing fluid (minimal work), although it is not feasible. The compression
 process has to be very slow in order for the temperature to constantly equilibrate with the
-environment. To approach isothermal compression in reality a multiple stage compressor with
+environment. To approach isothermal compression in practice, a multiple-stage compressor with
 intercoolers can be used.</p>
 <p>The heat flow to the environment is linked to the entropy change:</p>
 <div class="math">
@@ -50,7 +49,7 @@ intercoolers can be used.</p>
 q_{out} = T * \left( s_{out} - s_{in} \right)
 \end{equation*}
 </div>
-<p>The work then is given by:</p>
+<p>Then the work is given by:</p>
 <div class="math">
 \begin{equation*}
 w_{r} = h_{out} - h_{in} + q_{out}
@@ -81,18 +80,18 @@ Therefore</p>
 h_{out} = h_{in}
 \end{equation*}
 </div>
-<p>However the temperature could decrease (near the two-phase region) or sometimes
+<p>However, the temperature could decrease (near the two-phase region) or sometimes
 increase (at high pressures and temperatures).</p>
 </div>
 <div class="section" id="evaporator-condenser">
 <h1>Evaporator / Condenser</h1>
-<p>Pressure drop is neglected. No work is performed, so the change of enthalpy is equal to the heat
+<p>Pressure drop is neglected. No work is done, so the change of enthalpy is equal to the heat
 input to the fluid.</p>
 </div>
 <div class="section" id="two-stream-heat-exchanger">
 <h1>Two-stream heat exchanger</h1>
-<p>This is a general abstraction of a few different heat exchanger design concepts. It could be counter-flow,
-parallel flow and cross-flow heat exchangers. The heat capacity flows are defined as:</p>
+<p>This is a general abstraction of a few different heat exchanger design concepts. The heat exchangers could be counter-flow,
+parallel-flow and cross-flow. The heat capacity flows are defined as:</p>
 <div class="math">
 \begin{equation*}
 {\dot Q}_1 = {\dot m}_1 \left( h(T_{2}^{in}, p_1) - h_{1}^{in} \right)
@@ -103,18 +102,67 @@ parallel flow and cross-flow heat exchangers. The heat capacity flows are define
 {\dot Q}_2 = {\dot m}_2 \left( h(T_{1}^{in}, p_2) - h_{2}^{in} \right)
 \end{equation*}
 </div>
-<p>The maximal heat flow rate is the minimum of the two:</p>
+<p>The maximal possible heat flow rate, which can be achieved in an infinetely long countercurrent heat exchanger, is the lesser of the two:</p>
 <div class="math">
 \begin{equation*}
-{\dot Q}_{max} = \min \left( {\dot Q}_1, {\dot Q}_2 \right)
+{\dot Q}_{m} = \min \left( {\dot Q}_1, {\dot Q}_2 \right)
 \end{equation*}
 </div>
 <p>Then the real heat flow rate is:</p>
 <div class="math">
 \begin{equation*}
-{\dot Q} = \varepsilon \cdot {\dot Q}_{max}
+{\dot Q} = \varepsilon \cdot {\dot Q}_{m}
 \end{equation*}
 </div>
-<p>where <span class="math">\(\varepsilon\)</span> is the efficiency of the heat exchanger.</p>
+<p>where <span class="math">\(\varepsilon\)</span> is the <em>effectiveness</em> of the heat exchanger. In the <span class="math">\(NTU-\varepsilon\)</span> method <a class="citation-reference" href="#wiki-ntu" id="id1">[Wiki-NTU]</a>, the effectiveness
+is determined as a function of the <em>number of transfer units</em> and the <em>heat capacity ratio</em>:</p>
+<div class="math">
+\begin{equation*}
+\varepsilon = f\left( NTU, C_r \right)
+\end{equation*}
+</div>
+<div class="math">
+\begin{equation*}
+NTU = \frac{U \cdot A}{\dot{C}_{min}}
+\end{equation*}
+</div>
+<div class="math">
+\begin{equation*}
+C_r = \frac{\min\left(\dot{Q}_{1},\dot{Q}_{2}\right)}{\max\left(\dot{Q}_{1},\dot{Q}_{2}\right)}
+\end{equation*}
+</div>
+<p>where <span class="math">\(\dot{C}_{min} = {\dot Q}_{m} / (T_1^{in} - T_2^{in})\)</span>, <span class="math">\(U\)</span> is the overall heat transfer coefficient, and <span class="math">\(A\)</span> is the heat exhcange area</p>
+<p>The effectiveness formula depends on the flow configuration, as shown in the table below:</p>
+<table border="1" class="nice-table docutils">
+<colgroup>
+<col width="26%" />
+<col width="74%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Flow configuration</th>
+<th class="head">Effectiveness correlation</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>parallel flow</td>
+<td><span class="math">\(E \ = \frac {1 - \exp[-NTU(1 + C_{r})]}{1 + C_{r}}\)</span></td>
+</tr>
+<tr><td>counter-current flow</td>
+<td><span class="math">\(E \ = \frac {1 - \exp[-NTU(1 - C_{r})]}{1 - C_{r}\exp[-NTU(1 - C_{r})]}\)</span></td>
+</tr>
+<tr><td>evaporation / condensation</td>
+<td><span class="math">\(E \ = 1 - \exp[-NTU]\)</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="references">
+<h1>References</h1>
+<table class="docutils citation" frame="void" id="wiki-ntu" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[Wiki-NTU]</a></td><td>Wikipedia, NTU method, <a class="reference external" href="http://en.wikipedia.org/wiki/NTU_method" target="_self">http://en.wikipedia.org/wiki/NTU_method</a></td></tr>
+</tbody>
+</table>
 </div>
 </div>

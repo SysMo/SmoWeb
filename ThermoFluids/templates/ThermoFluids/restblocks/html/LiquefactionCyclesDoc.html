@@ -1,0 +1,63 @@
+<div class="document" id="liquefaction-cycles">
+<h1 class="title">Liquefaction cycles</h1>
+<div class="section" id="linde-hampson-cycle">
+<h1>Linde-Hampson cycle</h1>
+<div class="figure align-center">
+<img src="/static/ThermoFluids/img/ModuleImages/LindeHampson.svg" style="width: 500px;">
+</img>
+<p class="caption">Basic Linde-Hampson cycle</p>
+</div>
+<p>This is the simplest liquefaction cycle, used originally by Linde for air liquefaction. The
+cycle consists of the following steps:</p>
+<ul class="simple">
+<li>compression: the gas is compressed to a rather high pressure (200-300 bar). The compressor
+used is typically a multistage one with inter-cooling between the stages to approximate
+iso-thermal compression</li>
+<li>cooling: the fluid is cooled down to temperatures close to the liquefaction temperatures using
+a recurperator</li>
+<li>expansion: the fluid is expanded isenthalpically through a throttle valve; two-phase mixture
+forms and the liquid is separated from the vapor by allowing it to settle at the bottom of a
+reservoir</li>
+<li>gas return: the vapor fraction is returned to the compressor, passing through the recurperator,
+where it is warmed up and at the same time cools down the incoming flow from the compressor.</li>
+</ul>
+<p>The Linde cycle has the advantage of simplicity, but it has 3 main problems:</p>
+<ul class="simple">
+<li>requires a compresssor for very high pressures</li>
+<li>very low yield: the liquid generated is only a small percent of the flow</li>
+<li>initial cool-down: the cycle cannot operate (at least not efficiently)
+until the cold side is already cold.</li>
+</ul>
+</div>
+<div class="section" id="claude-cycle">
+<h1>Claude cycle</h1>
+<div class="figure align-center">
+<img src="/static/ThermoFluids/img/ModuleImages/ClaudeCycle.svg" style="width: 500px;">
+</img>
+<p class="caption">Claude cycle</p>
+</div>
+<p>Calude cycle is built on top of the Linde-Hampson cycle, by adding an expander and two additional
+recurperators to the circuit <a class="citation-reference" href="#refrigerationuspas" id="id1">[RefrigerationUSPAS]</a>. The expander extracts additional enthalpy from the fluid,
+thus reducing the temperature and increasing the liquid yield. The downside is the increased complexity
+of the circuit and especially the design of a low-temperature expander.</p>
+<p>The Claude cycle has two variations:</p>
+<ul class="simple">
+<li>Kapitza cycle, which uses low pressures and a cryogenic expander, eliminating the last recurperator</li>
+<li>Heylandt cycle, which uses high pressures and a room-temperature expander, eliminating the first recurperator</li>
+</ul>
+<p>Two examples of Kapitza cycles for Nitrogen with different pressure levels are implemented as examples, the data taken from:</p>
+<ul class="simple">
+<li><a class="reference external" href="http://ethesis.nitrkl.ac.in/1466/1/PROCESS_DESIGN.pdf" target="_self">Choudhury, B. K., Process Design of Turboexpander-based Nitrogen Liquefier</a>, p. 27</li>
+<li><a class="reference external" href="http://direns.mines-paristech.fr/Sites/Thopt/en/co/cryogenie.html" target="_self">Cryogenic cycles</a>, Claude cycle</li>
+</ul>
+</div>
+<div class="section" id="references">
+<h1>References</h1>
+<table class="docutils citation" frame="void" id="refrigerationuspas" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[RefrigerationUSPAS]</a></td><td><a class="reference external" href="http://uspas.fnal.gov/materials/10MIT/Lecture_2.1.pdf" target="_self">http://uspas.fnal.gov/materials/10MIT/Lecture_2.1.pdf</a></td></tr>
+</tbody>
+</table>
+</div>
+</div>
