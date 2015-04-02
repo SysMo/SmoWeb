@@ -646,17 +646,28 @@ class SubModelGroup(Field):
 	:param klass: the sub-model class
 	:param group: the sub-model group to be included
 	"""
-	def __init__(self, klass, groupName, *args, **kwargs):
+	def __init__(self, klass, content, *args, **kwargs):
 		Field.__init__(self, *args, **kwargs)
 		self.klass = klass
-		# Search in basic  and super groups
-		if (groupName in klass.declared_basicGroups):
-			self.group = klass.declared_basicGroups[groupName]
-		elif (groupName in klass.declared_superGroups):
-			self.group = klass.declared_superGroups[groupName]
-		else:
-			raise AttributeError('Class {} has no declared group {}'.format(klass.__name__, groupName))
-
+		self.useSubmodelGroup = False
+		if (isinstance(content, basestring)):
+			groupName = content
+			self.useSubmodelGroup = True
+			# Search in basic  and super groups
+			if (groupName in klass.declared_basicGroups):
+				self.group = klass.declared_basicGroups[groupName]				
+			elif (groupName in klass.declared_superGroups):
+				self.group = klass.declared_superGroups[groupName]
+			else:
+				raise AttributeError('Class {} has no declared group {}'.format(klass.__name__, groupName))
+		elif (isinstance(content, list)):
+			fields = []
+			for fieldName in content:
+				field = klass.declared_fields[fieldName]
+				fields.append(field)
+				self.group = FieldGroup(fields)
+				self.group.name = 'FG'
+			
 	def copyByName(self):
 		newObject = copy.copy(self)
 		return newObject
