@@ -17,14 +17,14 @@ applications with graphical user interface.
 **Web platform**
 ----------------
 It runs on the web and does not require installation of any software
-by the user. All the computations are performed in the cloud
+by the user. All the computations are performed in the cloud.
    
 **Open source**
 ---------------
 The platform can be used under GPL_ v.3 open source license, 
-allowing anyone to use our code at his will; he can read, review, modify or 
-contribute code to the platform or develop his own version of the platform,
-provided that he/she comply with the copyleft restrictions of the GPL licence.
+allowing anyone to use our code at their will; developers can read, review, modify or 
+contribute code to the platform or develop their own version of the platform,
+provided that they comply with the copyleft restrictions of the GPL licence.
 Alternative licensing schemes can be negotiated. More information about it
 can be found `here </?model=License>`_.
 
@@ -33,17 +33,17 @@ can be found `here </?model=License>`_.
 Python was chosen as the implementation language because it is a powerful
 modern general purpose object-oriented language. Today it has
 become an inseparable part of scientific computing, due to the vast 
-abundance of open source source python libraries and interfaces to major
-softwares. Cython is python extension, allowing to speed up critical parts
-of the software and provides easy interfacing to C/C++/Fortran libraries.
+abundance of open source python libraries and interfaces to major
+software tools. Cython is a Python extension, allowing to speed up critical parts
+of the software and providing easy interfacing to C/C++/Fortran libraries.
 
 **SmoWeb Applications**
 -----------------------
 
 A number of applications have already been developed and are continously
-developed on top of the fucntionality provided by the platform. Currently
-these are mostly in the fields of thermodynamics, heat and fluid flow and
-transient bio-system modeling. Although, the platform is suitable for any kind
+being developed on top of the fucntionality provided by the platform. Currently
+these are mostly in the fields of thermodynamics, heat and fluid flow, and
+transient bio-system modeling. Although the platform is suitable for any kind
 of engineering modeling and simulation, the main focus is on system and process
 engieering.
    
@@ -61,22 +61,22 @@ Platform
 * **Model definition** consists of interface definition and computational implementation:
 
   * a NumericalModel is defined in python code with input and output fields
-  * fields can be a physical quantity (with units), boolean, text, choice, array record, data array etc.
+  * fields can be a physical quantity (with units), boolean, text, choice, record array, data array, etc.
   * models can be inherited (expanded) or included as submodels in other models
   * fields can be grouped in field groups, and field groups in super-groups to form a model view
   * each NumericalModel has at least a single ``compute`` method, which can be arbitrarily complex,
-    and use the full power of Python language and all installed libraries 
+    and uses the full power of Python language and all installed libraries 
 
 * Automatic **graphical user interface** for the web browser
    
-  * no html, java script or css necessary; comes out of the box with the model definition
+  * no html, javascript or css necessary; comes out of the box with the model definition
   * a model can send model views with data to the browser
   * hierarchical representation of the model with dialog groups and tabs
   * numerical, boolean, text fields; choice selections from dropdown menus
   * advanced editors for complex data structures (e.g. record array)
   * the user interacts with the browser to edit the model values
   * physical quantity editors have built-in unit conversion  
-  * with the click of a button, the user can send data back and request the server to 
+  * at the click of a button, the user can send data back and request the server to 
     perform a number of predefined model actions
   * results from calculations are sent to the user for inspection
   * simple fields, plots, tables and diagrams in the results
@@ -85,7 +85,7 @@ Platform
 
   * model values can be automatically saved and retrieved from a database
   * a unique link is generated for a saved model, and can be used to share model data
-  * schema-less Mongo data base: automatic storage for any data structure defined 
+  * schema-less Mongo database: automatic storage for any data structure defined 
   * HDF5/Pandas storage for time series and other array data
 
 * Integration of numerous **computational libraries and frameworks**:
@@ -121,16 +121,16 @@ Models and applications
 SmoWeb 2.0
 ----------
 This is the current development plan for the next version of SmoWeb. We have deliberately planned
-more things than we will be able to implement, and later select a subset of them based on the resources
-we have available
+more things than we will be able to implement, and will later select a subset of them based on the available resources
+
 
 Platform
 --------
 
 * Integration of Celery, a **distributed task queue**
 
-  * long running simulation tasks will be executed in background
-  * user will be updated continuously about the progress of the simulation
+  * long running simulation tasks will be executed in the background
+  * users will be updated continuously about the progress of the simulation
 
 * Dynamical simulation environment
 
