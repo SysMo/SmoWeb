@@ -1,19 +1,167 @@
-<div class="document" id="the-platform">
-<h1 class="title">The Platform</h1>
+<div class="document" id="the-smoweb-platform">
+<h1 class="title">The SmoWeb platform</h1>
+<div class="section" id="overview">
+<h1>Overview</h1>
+<p>SmoWeb is an <em>open source web computational platform</em> developed in <em>Python</em>
+and a library of <em>applications</em> built on top of this platform.</p>
+<div class="section" id="computational-platform">
+<h2><strong>Computational Platform</strong></h2>
+<p>It provides the infastructure for rapid development of scientific
+applications with graphical user interface.</p>
+</div>
+<div class="section" id="web-platform">
+<h2><strong>Web platform</strong></h2>
+<p>It runs on the web and does not require installation of any software
+by the user. All the computations are performed in the cloud</p>
+</div>
+<div class="section" id="open-source">
+<h2><strong>Open source</strong></h2>
+<p>The platform can be used under <a class="reference external" href="https://www.gnu.org/copyleft/gpl.html" target="_self">GPL</a> v.3 open source license,
+allowing anyone to use our code at his will; he can read, review, modify or
+contribute code to the platform or develop his own version of the platform,
+provided that he/she comply with the copyleft restrictions of the GPL licence.
+Alternative licensing schemes can be negotiated. More information about it
+can be found <a class="reference external" href="/?model=License" target="_self">here</a>.</p>
+</div>
+<div class="section" id="python-cython">
+<h2><strong>Python/Cython</strong></h2>
+<p>Python was chosen as the implementation language because it is a powerful
+modern general purpose object-oriented language. Today it has
+become an inseparable part of scientific computing, due to the vast
+abundance of open source source python libraries and interfaces to major
+softwares. Cython is python extension, allowing to speed up critical parts
+of the software and provides easy interfacing to C/C++/Fortran libraries.</p>
+</div>
+<div class="section" id="smoweb-applications">
+<h2><strong>SmoWeb Applications</strong></h2>
+<p>A number of applications have already been developed and are continously
+developed on top of the fucntionality provided by the platform. Currently
+these are mostly in the fields of thermodynamics, heat and fluid flow and
+transient bio-system modeling. Although, the platform is suitable for any kind
+of engineering modeling and simulation, the main focus is on system and process
+engieering.</p>
 <div class="line-block">
 <div class="line"><br /></div>
 </div>
-<div class="section" id="what-is-smoweb">
-<h1>What is SmoWeb?</h1>
-<p>SmoWeb is a computational platform, facilitating the creation of mathematical models.
-We are particularly interested in physical models used in engineering design.
-The simplest models contain a number of numerical input fields, and a number of result fields.
-More advanced models can contain multiple field groups, arranged in a hierarchical structure.
-The inputs can be physical quantities, true/false values, choices; resizable arrays, child objects with their own field structure and tables.
-Fields can be dynamically hidden or shown based on values of other fields.
-The result data can be presented to the user as quantity fields, tables and graphs.
-The models can be of arbitrary complexity, ranging from simple arithmetic to 3D transient simulations,
-based on finite elements/volumes methods.</p>
 <p>If you are curious about the implementation of SmoWeb, check out the project's <a class="reference external" href="/static/doc/html/index.html" target="_self">documentation</a></p>
+</div>
+</div>
+<div class="section" id="smoweb-1-0">
+<h1>SmoWeb 1.0</h1>
+<div class="section" id="platform">
+<h2>Platform</h2>
+<ul class="simple">
+<li><strong>Model definition</strong> consists of interface definition and computational implementation:<ul>
+<li>a NumericalModel is defined in python code with input and output fields</li>
+<li>fields can be a physical quantity (with units), boolean, text, choice, array record, data array etc.</li>
+<li>models can be inherited (expanded) or included as submodels in other models</li>
+<li>fields can be grouped in field groups, and field groups in super-groups to form a model view</li>
+<li>each NumericalModel has at least a single <tt class="docutils literal">compute</tt> method, which can be arbitrarily complex,
+and use the full power of Python language and all installed libraries</li>
+</ul>
+</li>
+<li>Automatic <strong>graphical user interface</strong> for the web browser<ul>
+<li>no html, java script or css necessary; comes out of the box with the model definition</li>
+<li>a model can send model views with data to the browser</li>
+<li>hierarchical representation of the model with dialog groups and tabs</li>
+<li>numerical, boolean, text fields; choice selections from dropdown menus</li>
+<li>advanced editors for complex data structures (e.g. record array)</li>
+<li>the user interacts with the browser to edit the model values</li>
+<li>physical quantity editors have built-in unit conversion</li>
+<li>with the click of a button, the user can send data back and request the server to
+perform a number of predefined model actions</li>
+<li>results from calculations are sent to the user for inspection</li>
+<li>simple fields, plots, tables and diagrams in the results</li>
+</ul>
+</li>
+<li>Advanced <strong>data storage</strong>:<ul>
+<li>model values can be automatically saved and retrieved from a database</li>
+<li>a unique link is generated for a saved model, and can be used to share model data</li>
+<li>schema-less Mongo data base: automatic storage for any data structure defined</li>
+<li>HDF5/Pandas storage for time series and other array data</li>
+</ul>
+</li>
+<li>Integration of numerous <strong>computational libraries and frameworks</strong>:<ul>
+<li><a class="reference external" href="http://www.numpy.org/" target="_self">NumPy</a>, SciPy and MatPlotLib, the standard python libraries for numerical computation and
+visualization, with much of the basic functionality present in Matlab.</li>
+<li><a class="reference external" href="http://www.coolprop.org/" target="_self">CoolProp</a>: <em>property database</em> with wide range of common and refrigerant fluids including
+gas, liquid and two-phase properties</li>
+<li><a class="reference external" href="http://www.jmodelica.org/assimulo" target="_self">Assimulo</a> + <a class="reference external" href="https://computation.llnl.gov/casc/sundials/description/description.html" target="_self">CVODE</a>: library for simulating <em>dynamical system models</em> (models based on hybrid
+systems of non-linear ordinary differential equations with events/discontinuities)</li>
+<li><a class="reference external" href="https://github.com/hensing/PyDDE" target="_self">PyDDE</a>: library for simulating dynamical systems described
+by <em>differential equations with delays</em>.</li>
+<li><a class="reference external" href="http://www.ctcms.nist.gov/fipy/" target="_self">FiPy</a>: library by NIST for modeling heat and mass transfer in 1, 2, and 3D geometries based
+on the Finite Volume Method</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="models-and-applications">
+<h2>Models and applications</h2>
+<ul class="simple">
+<li>Thermo-fluids<ul>
+<li>Property calculators</li>
+<li>Pipe flow</li>
+<li>Convectional heat exchange</li>
+<li>Thermodynamic cycles</li>
+<li>1D heat exchange examples</li>
+</ul>
+</li>
+<li>Bio-reactors<ul>
+<li>Chemostat models</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="smoweb-2-0">
+<h1>SmoWeb 2.0</h1>
+<p>This is the current development plan for the next version of SmoWeb. We have deliberately planned
+more things than we will be able to implement, and later select a subset of them based on the resources
+we have available</p>
+<div class="section" id="id1">
+<h2>Platform</h2>
+<ul class="simple">
+<li>Integration of Celery, a <strong>distributed task queue</strong><ul>
+<li>long running simulation tasks will be executed in background</li>
+<li>user will be updated continuously about the progress of the simulation</li>
+</ul>
+</li>
+<li>Dynamical simulation environment<ul>
+<li>component and system model definitions in python</li>
+<li>generation of C/C++ code for simulation speed-up</li>
+<li>graphical system editor (like Simulink, or the Modelica-based GUI tools Dymola and SimulationX)</li>
+<li>(?) Modelica integration</li>
+<li>advanced result viewer</li>
+</ul>
+</li>
+<li>Parameter variation/optimization<ul>
+<li>design of experiments</li>
+<li>parameter sensitivity</li>
+<li>optimization</li>
+</ul>
+</li>
+<li>User authentication and access control</li>
+</ul>
+</div>
+<div class="section" id="id2">
+<h2>Models and applications</h2>
+<ul class="simple">
+<li>Thermo-fluid modules<ul>
+<li>more material models</li>
+<li>mixtures</li>
+<li>advanced cycles</li>
+<li>user defined systems</li>
+</ul>
+</li>
+<li>Bio-reactor modules<ul>
+<li>Advanced fermentation model</li>
+</ul>
+</li>
+<li>Chemical process modules (integration of <a class="reference external" href="http://www.cantera.org/docs/sphinx/html/index.html" target="_self">Cantera</a>)</li>
+<li>HVAC modules (energy management of buildings)</li>
+<li>Renewable energy modules (solar heating etc.)</li>
+</ul>
+</div>
 </div>
 </div>

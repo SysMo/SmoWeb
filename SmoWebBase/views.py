@@ -19,6 +19,12 @@ class UnitConverter(HtmlModule):
     converterJs = JsBlock(srcType="file", src="UnitConverter.js")
     modelBlocks = [converterHtml, converterJs]
  
+class Platform(RestModule):
+    label = "Platform"
+    
+class License(RestModule):
+    label = "License"
+
 class Company(RestModule):
     label = "Company"
 
@@ -26,9 +32,6 @@ class Team(RestModule):
     label = 'Our Team'
     
 
-class Platform(RestModule):
-    label = "Platform"
-    
 class Testimonials(RestModule):
     label = "Testimonials"
 
@@ -41,7 +44,7 @@ class Disclaimer(HtmlModule):
 class HomeView(ModularPageView):
     label = "Home View"
     injectVariables = ['ModelCommunicator', 'variables']
-    modules = [HomeModule, UnitConverter, Company, Team, Platform, Testimonials, Disclaimer]
+    modules = [HomeModule, UnitConverter, Platform, License, Company, Team, Testimonials, Disclaimer]
     
     @action.post()
     def getQuantities(self, parameters, model=None, view= None):

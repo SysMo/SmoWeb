@@ -17,10 +17,11 @@ class FluidPropsCalculatorView(ModularPageView):
 	requireGoogle = ['visualization']
 	
 from .models import CompressionExpansion, HeatingCooling
+from .models.lib.ThermodynamicComponents import ThermodynamicComponentsDoc
 @registerView(router)
 class ThermodynamicProcessView(ModularPageView):
-	label = "Thermodynamic processes"
-	modules = [CompressionExpansion, HeatingCooling]
+	label = "Thermodynamic processes and components"
+	modules = [CompressionExpansion, HeatingCooling, ThermodynamicComponentsDoc]
 
 from .models import PipeFlow, PipeFlowDoc
 @registerView(router)
@@ -34,12 +35,11 @@ class FreeConvectionView(ModularPageView):
 	label = "Free convection"
 	modules = [FreeConvection_External, FreeConvection_Internal, FreeConvectionDoc]
 
-from .models.lib.ThermodynamicComponents import ThermodynamicComponentsDoc
-@registerView(router)
-class ThermodynamicComponents(ModularPageView):
-	label = "Thermodynamic components (Doc)"
-	modules = [ThermodynamicComponentsDoc]
-	
+# @registerView(router)
+# class ThermodynamicComponents(ModularPageView):
+# 	label = "Thermodynamic components (Doc)"
+# 	modules = [ThermodynamicComponentsDoc]
+# 	
 
 @registerView(router)
 class HeatingCoolingCyces(ModularPageView):
