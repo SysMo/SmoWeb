@@ -102,18 +102,67 @@ parallel-flow and cross-flow. The heat capacity flows are defined as:</p>
 {\dot Q}_2 = {\dot m}_2 \left( h(T_{1}^{in}, p_2) - h_{2}^{in} \right)
 \end{equation*}
 </div>
-<p>The maximal heat flow rate is the lesser of the two:</p>
+<p>The maximal possible heat flow rate, which can be achieved in an infinetely long countercurrent heat exchanger, is the lesser of the two:</p>
 <div class="math">
 \begin{equation*}
-{\dot Q}_{max} = \min \left( {\dot Q}_1, {\dot Q}_2 \right)
+{\dot Q}_{m} = \min \left( {\dot Q}_1, {\dot Q}_2 \right)
 \end{equation*}
 </div>
 <p>Then the real heat flow rate is:</p>
 <div class="math">
 \begin{equation*}
-{\dot Q} = \varepsilon \cdot {\dot Q}_{max}
+{\dot Q} = \varepsilon \cdot {\dot Q}_{m}
 \end{equation*}
 </div>
-<p>where <span class="math">\(\varepsilon\)</span> is the efficiency of the heat exchanger.</p>
+<p>where <span class="math">\(\varepsilon\)</span> is the <em>effectiveness</em> of the heat exchanger. In the <span class="math">\(NTU-\varepsilon\)</span> method <a class="citation-reference" href="#wiki-ntu" id="id1">[Wiki-NTU]</a>, the effectiveness
+is determined as a function of the <em>number of transfer units</em> and the <em>heat capacity ratio</em>:</p>
+<div class="math">
+\begin{equation*}
+\varepsilon = f\left( NTU, C_r \right)
+\end{equation*}
+</div>
+<div class="math">
+\begin{equation*}
+NTU = \frac{U \cdot A}{\dot{C}_{min}}
+\end{equation*}
+</div>
+<div class="math">
+\begin{equation*}
+C_r = \frac{\min\left(\dot{Q}_{1},\dot{Q}_{2}\right)}{\max\left(\dot{Q}_{1},\dot{Q}_{2}\right)}
+\end{equation*}
+</div>
+<p>where <span class="math">\(\dot{C}_{min} = {\dot Q}_{m} / (T_1^{in} - T_2^{in})\)</span>, <span class="math">\(U\)</span> is the overall heat transfer coefficient, and <span class="math">\(A\)</span> is the heat exhcange area</p>
+<p>The effectiveness formula depends on the flow configuration, as shown in the table below:</p>
+<table border="1" class="nice-table docutils">
+<colgroup>
+<col width="26%" />
+<col width="74%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Flow configuration</th>
+<th class="head">Effectiveness correlation</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>parallel flow</td>
+<td><span class="math">\(E \ = \frac {1 - \exp[-NTU(1 + C_{r})]}{1 + C_{r}}\)</span></td>
+</tr>
+<tr><td>counter-current flow</td>
+<td><span class="math">\(E \ = \frac {1 - \exp[-NTU(1 - C_{r})]}{1 - C_{r}\exp[-NTU(1 - C_{r})]}\)</span></td>
+</tr>
+<tr><td>evaporation / condensation</td>
+<td><span class="math">\(E \ = 1 - \exp[-NTU]\)</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="references">
+<h1>References</h1>
+<table class="docutils citation" frame="void" id="wiki-ntu" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[Wiki-NTU]</a></td><td>Wikipedia, NTU method, <a class="reference external" href="http://en.wikipedia.org/wiki/NTU_method" target="_self">http://en.wikipedia.org/wiki/NTU_method</a></td></tr>
+</tbody>
+</table>
 </div>
 </div>
