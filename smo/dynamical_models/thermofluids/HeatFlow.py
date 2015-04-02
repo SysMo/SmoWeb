@@ -28,8 +28,8 @@ class ConvectionHeatTransfer(DMC.DynamicalModel):
 		if params == None:
 			params = AttributeDict(kwargs)
 			
-		self.hConv = params.hConv
-		self.A = params.A
+		self.hConv = params.hConv #convectin coefficient
+		self.A = params.A #convection area
 
 		self.fluidPort = DMS.FluidPort('R')
 		self.wallPort = DMS.ThermalPort('R')

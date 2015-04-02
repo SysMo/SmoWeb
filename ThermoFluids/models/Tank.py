@@ -17,22 +17,20 @@ from smo.media.MaterialData import Fluids
 class Tank(NumericalModel):
     label = "Tank"
     description = F.ModelDescription("Tank model with refueling and extraction", show = True)
-    figure = F.ModelFigure(src="BioReactors/img/ModuleImages/SimpleChemostat.png", show=False) #:TODO: change the image
+    figure = F.ModelFigure(src="BioReactors/img/ModuleImages/SimpleChemostat.png", show = False) #:TODO: change the image
     
     #1. ############ Inputs ###############
     #1.1 Fields - Input values
     fluidName = F.Choices(options = Fluids, default = 'ParaHydrogen', 
         label = 'fluid', description = 'fluid in the tank')
-    @property
-    def fluid(self):
-        return CP.Fluid(self.fluidName)
     
     TAmbient = F.Quantity('Temperature', default = (15.0, 'degC'), 
         label = 'T<sub>amb</sub>', description = 'ambient temperature')
     
-    wallArea = F.Quantity('Area', default = (2.0, 'm**2'),
-        label = 'wall area', description = 'tank, liner and composite wall area')
-    parametersFG = F.FieldGroup([fluidName, TAmbient, wallArea], label = "Parameters")
+    tankWallArea = F.Quantity('Area', default = (2.0, 'm**2'),
+        label = 'tank wall area', description = 'tank, liner and composite wall area')
+    globalParametersFG = F.FieldGroup([fluidName, TAmbient, tankWallArea], label = "Parameters")
+    
     
     refuelingSource = F.SubModelGroup(FC.FluidStateSource, 'FG', label = 'Refueling source')
     compressor = F.SubModelGroup(FC.Compressor, 'FG', label = 'Compressor')
@@ -40,7 +38,7 @@ class Tank(NumericalModel):
     tankConvection = F.SubModelGroup(FC.EmptyModel, 'FG', label = 'TankConvection')
     
     initialValuesSG = F.SuperGroup(
-        [parametersFG, refuelingSource, compressor, tank], 
+        [globalParametersFG, refuelingSource, compressor, tank], 
         label = "Model definitions"
     )
     
@@ -91,17 +89,33 @@ class Tank(NumericalModel):
     modelBlocks = [inputView, resultView]
     
     
-    def compute(self):
-        # Initialize the fluid components with the chosen fluid from the user
+    #================ Methods ================#
+    def __init__(self):
+        # Initialize the fluid
+        self.fluid = CP.Fluid(self.fluidName)
+        
+        # Set default values
         self.refuelingSource.fluid = self.fluid
+        self.refuelingSource.sourceTypeTxt = 'PQ'
+        self.refuelingSource.T = (15, 'K')
+        self.refuelingSource.p = (2., 'bar')
+        self.refuelingSource.q = (0, '-')
+        
         self.compressor.fluid = self.fluid
+        self.compressor.etaS = (0.9, '-')
+        self.compressor.fQ = (0.1, '-')
+        self.compressor.V = (0.25, 'L')
+        
         self.tank.fluid = self.fluid
+        self.tank.V = (100., 'L')
+        self.tank.TInit = (300., 'K')
+        self.tank.pInit = (20., 'bar')
         
-        # Initialize tankConvection
-        self.tankConvection.A = self.wallArea
+        self.tankConvection.A = self.tankWallArea
         self.tankConvection.hConv = 0.0 #:TRICKY: not used
-        
-        # Create objects (TankController and TankModel)         
+    
+    def compute(self):
+        # Create model object         
         self.controller = DM.TankController(self.controllerSG)     
         tank = DM.TankModel(self)
         
@@ -114,9 +128,7 @@ class Tank(NumericalModel):
         results = np.array([res['t'], res['pTank'], res['TTank']]).transpose()
         self.plot = results
         self.table = results
-        
 
 class TankDoc(RestModule):
     label = 'Tank (Doc)'
-    
     

@@ -10,7 +10,7 @@ Quantities = {
 	'Fraction' : {'title' : 'fraction', 'minValue' : 0.0, 'maxValue' : 1.0, 'nominalValue' : 1.0, 'SIUnit' : '-', 
 			'units' : OrderedDict((('-', {'mult' : 1}), ('%', {'mult' : 1e-2}), (u'\u2030', {'mult' : 1e-3}), ('ppm', {'mult' : 1e-6}), ('ppb', {'mult' : 1e-9}),))},
 	
-	'Length' : {'title' : 'length', 'nominalValue' : 1.0, 'SIUnit' : 'm', 
+	'Length' : {'title' : 'length', 'nominalValue' : 1.0, 'SIUnit' : 'm',
 		'units' : OrderedDict((('nm', {'mult' : 1e-9}), ('um', {'mult' : 1e-6}), ('mm', {'mult' : 1e-3}), ('cm', {'mult' : 1e-2}), ('m', {'mult' : 1}), 
 			('km', {'mult' : 1e3}), ('in', {'mult' : 2.54e-2}), ('ft', {'mult' : 3.048e-1}), ('yd', {'mult' : 0.9144}), ('mi', {'mult' : 1609.344}),))},
 	
@@ -34,7 +34,7 @@ Quantities = {
 		'units' : OrderedDict((('N', {'mult' : 1}), ('kN', {'mult' : 1e3}), ('MN', {'mult' : 1e6}), ('kgf', {'mult' : 9.80665}), ('gf', {'mult' : 9.80665e-3}), ('tf', {'mult' : 9.80665e+3}), ('lb', {'mult' : 4.44822162825}), ('oz', {'mult' : 0.278013851766}),))},
 	'Velocity' : {'title' : 'velocity', 'nominalValue' : 1.0, 'SIUnit' : 'm/s', 
 			'units' : OrderedDict((('m/s', {'mult' : 1}), ('km/h', {'mult' : 1/3.6}), ('km/s', {'mult' : 1e3}), ('mm/s', {'mult' : 1e-3}),))},
-	'Mass' : {'title' : 'mass', 'nominalValue' : 1.0, 'SIUnit' : 'kg', 
+	'Mass' : {'title' : 'mass', 'nominalValue' : 1.0, 'SIUnit' : 'kg', 'minValue' : 0.0,
 		'units' : OrderedDict((('kg', {'mult' : 1}), ('g', {'mult' : 1e-3}), ('ton', {'mult' : 1e3}),))},
 	'MolarMass' : {'title' : 'molar mass', 'nominalValue' : 1e-3, 'SIUnit' : 'kg/mol', 'defDispUnit' : 'g/mol',
 		'units' : OrderedDict((('kg/mol', {'mult' : 1}), ('g/mol', {'mult' : 1e-3}),))},

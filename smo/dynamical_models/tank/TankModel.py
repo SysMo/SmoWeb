@@ -75,11 +75,12 @@ class TankModel(DMC.Simulation):
 		self.tankConvection.fluidPort.connect(self.tank.fluidPort)
 
 		# Tank (Liner)
+		#self.liner = DM.SolidConductiveBody(params.liner)
 		self.liner = DM.SolidConductiveBody(
 			material = 'Aluminium6061', 
 			mass = 24., #[kg]
 			thickness = 0.004, #[m]
-			conductionArea = params.wallArea, #[m**2]
+			conductionArea = params.tankWallArea, #[m**2]
 			port1Type = 'C', port2Type = 'C', 
 			numMassSegments = 2, 
 			TInit = 300.0 #[K]
@@ -92,7 +93,7 @@ class TankModel(DMC.Simulation):
 			material = 'CarbonFiberComposite', 
 			mass = 34., #[kg]
 			thickness = 0.0105, #[m]
-			conductionArea = params.wallArea, #[m**2]
+			conductionArea = params.tankWallArea, #[m**2]
 			port1Type = 'R', port2Type = 'C', 
 			numMassSegments = 4,
 			TInit = 300.0 #[K]
@@ -107,7 +108,7 @@ class TankModel(DMC.Simulation):
 		self.ambientSource.initState(sourceType = DM.FluidStateSource.TP, T = params.TAmbient, p = 1e5)
 		
 		# Composite convection component
-		self.compositeConvection = DM.ConvectionHeatTransfer(hConv = 100., A = params.wallArea)
+		self.compositeConvection = DM.ConvectionHeatTransfer(hConv = 100., A = params.tankWallArea)
 		# Connect the composite convection to the ambient fluid
 		self.compositeConvection.fluidPort.connect(self.ambientSource.port1)
 		# Connect the composite convection to the composite  
@@ -283,7 +284,7 @@ def testTankModel():
 		initDataStorage = simulate, 
 		TAmbient = 288.15,
 		fluid = fluid,
-		tankWallArea = 1.8,
+		tankWallArea = tankWallArea,
 		controller = controller,
 		refuelingSource = AttributeDict({
 			'fluid' : fluid,
@@ -305,8 +306,19 @@ def testTankModel():
 		}),
 		tankConvection = AttributeDict({
 			'A' : tankWallArea,
-			'hConv' : 100.,
+			'hConv' : 100., #:unused
 		}),
+		liner = AttributeDict({
+			'material' : 'Aluminium6061',
+			'mass' : 24.,
+			'thickness' : 0.004,
+			'conductionArea' : tankWallArea,
+			'port1Type' : 'C',
+			'port2Type' : 'C',
+			'numMassSegments' : 2,
+			'TInit' : 300.
+		}),
+										
 	)
 	
 	# Run simulation or load old results

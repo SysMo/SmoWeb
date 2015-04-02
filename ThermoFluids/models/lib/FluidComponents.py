@@ -9,10 +9,15 @@ from collections import OrderedDict
 from smo.model.model import NumericalModel
 import smo.dynamical_models.thermofluids as DM
 from smo.dynamical_models.tank.TankController import TankController as TC
+from smo.media.MaterialData import Solids
+
+portType = OrderedDict((
+    ('R', 'R'),
+    ('C', 'C'),
+))
 
 class EmptyModel(NumericalModel):
     FG = F.FieldGroup([], label = '')
-    
     modelBlocks = []
 
 class TankController(NumericalModel):
@@ -61,13 +66,12 @@ class FluidStateSource(NumericalModel):
     
     sourceTypeTxt = F.Choices(
         OrderedDict((
-            ('PQ', 'pressure, vapour quality'),
             ('TP', 'temperature, pressure'),
+            ('PQ', 'pressure, vapour quality'),
             ('TQ', 'temperature, vapour quality'),
         )), 
         label = 'state variables',
-        description = 'choose the initial state variables'
-    )
+        description = 'choose the initial state variables')
     
     @property
     def sourceType(self):
@@ -80,12 +84,12 @@ class FluidStateSource(NumericalModel):
         else:
             raise ValueError('Unsupported source type of FluidStateSource.')
     
-    T = F.Quantity('Temperature', default = (15, 'K'), label = 'temperature', 
-        show = "self.sourceTypeTxt == 'TP' || self.sourceTypeTxt == 'TQ'")
-    p = F.Quantity('Pressure', default = (2., 'bar'), label = 'pressure',
-        show = "self.sourceTypeTxt == 'TP' || self.sourceTypeTxt == 'PQ'")
-    q = F.Quantity('VaporQuality', default = (0, '-'), minValue = 0, maxValue = 1, label = 'vapour quality', 
-        show = "self.sourceTypeTxt == 'TQ' || self.sourceTypeTxt == 'PQ'")
+    T = F.Quantity('Temperature', default = (300, 'K'), 
+        label = 'temperature', show = "self.sourceTypeTxt == 'TP' || self.sourceTypeTxt == 'TQ'")
+    p = F.Quantity('Pressure', default = (1., 'bar'), 
+        label = 'pressure', show = "self.sourceTypeTxt == 'TP' || self.sourceTypeTxt == 'PQ'")
+    q = F.Quantity('VaporQuality', default = (0, '-'), minValue = 0, maxValue = 1, 
+        label = 'vapour quality', show = "self.sourceTypeTxt == 'TQ' || self.sourceTypeTxt == 'PQ'")
     
     FG = F.FieldGroup([sourceTypeTxt, T, p, q], label = 'Initial values')
         
@@ -105,19 +109,52 @@ class Compressor(NumericalModel):
     
     modelBlocks = []
     
-    
 class FluidChamber(NumericalModel):
     fluid = None
     
-    V = F.Quantity('Volume', default = (100., 'L'), maxValue = (1e6, 'L'),
+    V = F.Quantity('Volume', default = (1., 'L'), maxValue = (1e6, 'L'),
         label = 'volume', description = 'volume')
     TInit = F.Quantity('Temperature', default = (300., 'K'), 
         label = 'initial temperature')
-    pInit = F.Quantity('Pressure', default = (20., 'bar'), 
+    pInit = F.Quantity('Pressure', default = (1., 'bar'), 
         label = 'initial pressure')
     
     FG = F.FieldGroup([V, TInit, pInit], label = 'Initial values')
 
     modelBlocks = []
     
+class ConvectionHeatTransfer(NumericalModel):
+    A = F.Quantity('Area', default = (1., 'm**2'),
+        label = 'convection area', description = 'convection area')
+    hConv = F.Quantity('HeatTransferCoefficient', default = (10., 'W/m**2-K'),
+        label = 'convection coefficient', description = 'convection heat transfer coefficient')
     
+    FG = F.FieldGroup([A, hConv], label = 'Initial values')
+    
+    modelBlocks = []
+    
+# class SolidConductiveBody(NumericalModel):
+#     material = F.ObjectReference(Solids, default = 'StainlessSteel304', 
+#         label = 'material', description = 'solid material')
+#     mass = F.Quantity('Mass', default = (1., 'kg'), 
+#         label = 'mass', description = 'solid mass')
+#     thickness = F.Quantity('Length', default = (0.1, 'm'), minValue = (0, 'm'),
+#         lable = 'thickness', description = 'solid thickness')
+#     conductionArea = F.Quantity('Area', default = (1., 'm**2'),
+#         label = 'conduction area', description = 'conduction area')
+#     port1Type = F.Choices(portType, 
+#         label = 'port-1 type', description = 'choose the type of port-1')
+#     port2Type = F.Choices(portType, 
+#         label = 'port-1 type', description = 'choose the type of port-2')
+#     
+#     modelBlocks = []
+
+#         self.composite = DM.SolidConductiveBody(
+#             material = 'CarbonFiberComposite', 
+#             mass = 34., #[kg]
+#             thickness = 0.0105, #[m]
+#             conductionArea = params.tankWallArea, #[m**2]
+#             port1Type = 'R', port2Type = 'C', 
+#             numMassSegments = 4,
+#             TInit = 300.0 #[K]
+#         )
