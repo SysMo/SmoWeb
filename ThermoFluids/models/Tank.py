@@ -12,7 +12,6 @@ import smo.media.CoolProp as CP
 import smo.dynamical_models.tank as DM
 from smo.model.model import NumericalModel
 from smo.web.modules import RestModule
-from smo.media.MaterialData import Fluids
 
 #:TODO: rename refueling to fueling
 
@@ -23,29 +22,13 @@ class Tank(NumericalModel):
     
     #1. ############ Inputs ###############
     #1.1 Fields - Input values
-    fluidName = F.Choices(options = Fluids, default = 'ParaHydrogen', 
-        label = 'fluid', description = 'fluid in the tank')
-    
-    TAmbient = F.Quantity('Temperature', default = (15.0, 'degC'), 
-        label = 'T<sub>amb</sub>', description = 'ambient temperature')
-    
-    tankWallArea = F.Quantity('Area', default = (2.0, 'm**2'),
-        label = 'tank wall area', description = 'tank, liner and composite wall area')
-    globalParametersFG = F.FieldGroup([fluidName, TAmbient, tankWallArea], label = "Parameters")
-    
-    
-    refuelingSource = F.SubModelGroup(FC.FluidStateSource, 'FG', label = 'Refueling source')
+    globalParams = F.SubModelGroup(FC.GlobalParameters, 'FG', label = 'Global parameters')
+    controller = F.SubModelGroup(FC.TankController, 'FG', label  = 'Controller')
+    fuelingSource = F.SubModelGroup(FC.FluidStateSource, 'FG', label = 'Fueling source')
     compressor = F.SubModelGroup(FC.Compressor, 'FG', label = 'Compressor')
-    tank = F.SubModelGroup(FC.FluidChamber, ['pInit', 'TInit'], label = 'Tank')
-    tankConvection = F.SubModelGroup(FC.EmptyModel, 'FG', label = 'TankConvection')
+    tank = F.SubModelGroup(FC.Tank, 'FG', label = 'Tank')
     
-    initialValuesSG = F.SuperGroup(
-        [globalParametersFG, refuelingSource, compressor, tank], 
-        label = "Model definitions"
-    )
-    
-    #1.2 Fields - Controller
-    controllerSG = F.SubModelGroup(FC.TankController, 'SG', label  = 'Controller')
+    parametersSG = F.SuperGroup([globalParams, fuelingSource, compressor, tank], label = "Parameters")
 
     #1.2 Fields - Settings
     tFinal = F.Quantity('Time', default = (2000, 's'), minValue = (0, 's'), maxValue=(1.e9, 's'), label = 'simulation time')
@@ -59,7 +42,7 @@ class Tank(NumericalModel):
     inputActionBar = A.ActionBar([computeAction], save = True)
     
     #1.4 Model view
-    inputView = F.ModelView(ioType = "input", superGroups = [initialValuesSG, controllerSG, settingsSG], actionBar = inputActionBar, autoFetch = True)
+    inputView = F.ModelView(ioType = "input", superGroups = [parametersSG, settingsSG], actionBar = inputActionBar, autoFetch = True)
     
     #2. ############ Results ###############    
     plot = F.PlotView(
@@ -93,8 +76,10 @@ class Tank(NumericalModel):
     
     #================ Methods ================#
     def __init__(self):
-        # Initialize the fluid
-        self.fluid = CP.Fluid(self.fluidName)
+        #:TODO: __INIT__()
+        # Initialize the fluids
+        self.fluid = CP.Fluid(self.globalParams.fluidName)
+        self.ambientFluid = CP.Fluid('Air'), #:TODO: (?) 
         
         # Set default values
         self.refuelingSource.fluid = self.fluid
@@ -114,12 +99,10 @@ class Tank(NumericalModel):
         self.tank.pInit = (20., 'bar')
         
         self.tankConvection.A = self.tankWallArea
-        self.tankConvection.hConv = 0.0 #:TRICKY: not used
-    
+        self.tankConvection.hConv = 0.0 #:TRICKY: no*8/*
     def compute(self):
         # Create model object         
-        self.controller = DM.TankController(self.controllerSG)     
-        tank = DM.TankModel(self)
+        tank = DM.TankModelFactory.create(self)
         
         # Run simulation
         tank.prepareSimulation()

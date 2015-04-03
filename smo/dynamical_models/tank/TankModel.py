@@ -26,7 +26,7 @@ dataStorageFilePath =  os.path.join(tmpFolderPath, 'TankSimulations_SimulationRe
 dataStorageDatasetPath = '/TankModel'
 
 
-class TankModel(DMC.Simulation):
+class TankModel(DMC.Simulation): #:TODO: rename TankModel to Tank
 	name = 'Model of a tank fueling and extraction'
 	
 	def __init__(self, params = None, **kwargs):
@@ -328,6 +328,30 @@ def testTankModel():
 		fluid = CP.Fluid('ParaHydrogen'),
 		ambientFluid = CP.Fluid('Air'),
 		TAmbient = 288.15,
+		
+		controller = AttributeDict(
+			initialState = TC.FUELING, 
+			tWaitBeforeExtraction = 150., 
+			tWaitBeforeFueling = 150.,
+			pMin = 20e5,
+			pMax = 300e5,
+			mDotExtr = 30/3600.,
+			nCompressor = 0.53 * 1.44,
+		),
+									
+		fuelingSource = AttributeDict(
+			sourceType = DM.FluidStateSource.PQ,
+			T = 15, #:TRICKY: unused
+			p = 2.7e5,
+			q = 0.,
+		),
+															
+		compressor = AttributeDict(
+			etaS = 0.9,
+			fQ = 0.,
+			V = 0.5e-3,
+		),
+		
 		tank = AttributeDict(
  			wallArea = 1.8,
  			volume = 0.1,
@@ -344,26 +368,6 @@ def testTankModel():
 			hConvInternalExtraction = 20.,
 			hConvInternalFueling = 100.,
  		),
-		compressor = AttributeDict(
-			etaS = 0.9,
-			fQ = 0.,
-			V = 0.5e-3,
-		),
-		fuelingSource = AttributeDict(
-			sourceType = DM.FluidStateSource.PQ,
-			T = 15, #:TRICKY: unused
-			p = 2.7e5,
-			q = 0.,
-		),
-		controller = AttributeDict(
-			initialState = TC.FUELING, 
-			tWaitBeforeExtraction = 150., 
-			tWaitBeforeFueling = 150.,
-			pMin = 20e5,
-			pMax = 300e5,
-			mDotExtr = 30/3600.,
-			nCompressor = 0.53 * 1.44,
-		),
 	)
 	
 	# Run simulation or load old results

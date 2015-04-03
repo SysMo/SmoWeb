@@ -1,2 +1,1 @@
-from TankController import TankController
-from TankModel import TankModel
+from TankModel import TankModelFactory
