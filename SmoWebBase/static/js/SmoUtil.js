@@ -1377,13 +1377,18 @@ smoModule.directive('smoSuperGroup', ['$compile', function($compile) {
 				} else {
 					scope.smoDataSource = scope.dataSource;
 				}
-			
-				var template = '';
+				
+				var template = "";
 				for (var j = 0; j < scope.smoSuperGroup.groups.length; j++) {
-					if (scope.smoSuperGroup.groups[j].type == 'FieldGroup') {
-						template += '<div smo-field-group="smoSuperGroup.groups[' + j + ']" view-type="' + scope.viewType + '" smo-data-source="smoDataSource"></div>';
-					} else if (scope.smoSuperGroup.groups[j].type == 'ViewGroup') {
-						template += '<div smo-view-group="smoSuperGroup.groups[' + j + ']" model-name="' + scope.modelName + '" smo-data-source="smoDataSource"></div>';
+					var group = scope.smoSuperGroup.groups[j];
+					var showCode = "";
+					if (typeof group.show !== "undefined") {
+						showCode = 'ng-show="' + group.show.replace(/self/g, 'smoDataSource') + '"';
+					}
+					if (group.type == 'FieldGroup') {
+						template += '<div ' + showCode + ' smo-field-group="smoSuperGroup.groups[' + j + ']" view-type="' + scope.viewType + '" smo-data-source="smoDataSource"></div>';
+					} else if (group.type == 'ViewGroup') {
+						template += '<div ' + showCode + ' smo-view-group="smoSuperGroup.groups[' + j + ']" model-name="' + scope.modelName + '" smo-data-source="smoDataSource"></div>';
 					}					
 				}
 			
