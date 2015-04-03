@@ -1280,7 +1280,6 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 			modelName: '@modelName'
 		},
 		link : function(scope, element, attr) {
-
 			// Passing values from dataSourceRoot if such property exists in a view-group
 			if (typeof scope.smoViewGroup.dataSourceRoot !== 'undefined') {
 				scope.smoDataSource = scope.dataSource[scope.smoViewGroup.dataSourceRoot];
@@ -1305,6 +1304,7 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 					if (typeof field.show !== "undefined"){
 						showCode = 'ng-show="' + field.show.replace(/self/g, 'smoDataSource') + '"';
 					}
+					console.log(showCode);
 					
 					if (i==0){
 						navPills.push('<li class="active"><a id="' + field.name + 'Tab" data-target="#' + field.name + '" role="tab" data-toggle="tab"><div data-toggle="tooltip" data-placement="right" data-viewport="[smo-view-group]" title="' + field.description + '" tooltip>' + field.label + '</div></a></li>');
@@ -1340,6 +1340,8 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 				if (typeof field.show !== "undefined"){
 					showCode = 'ng-show="' + field.show.replace(/self/g, 'smoDataSource') + '"';
 				}
+				
+				console.log(showCode);
 				
 				template += '\
 					<div style="white-space: nowrap; background-color: white; padding :10px; text-align: center;">';

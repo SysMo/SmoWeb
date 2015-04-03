@@ -284,6 +284,7 @@ class HeatExchangerTwoStreams(CycleComponent):
 	)), label = 'compute method')
 	epsGiven = F.Quantity('Efficiency', default = 1, label = 'effectiveness', show = 'self.computeMethod == "EG"')
 	UA = F.Quantity('ThermalConductance', default = 1, label = 'UA', show = 'self.computeMethod == "EN"')
+	QDot = F.Quantity('HeatFlowRate', default = (0, 'kW'), label = 'heat flow rate in')
 	FG = F.FieldGroup([computeMethod, epsGiven, UA], label = 'Heat exchanger')
 	#================== Results =================#
 	NTU = F.Quantity(label = 'NTU')

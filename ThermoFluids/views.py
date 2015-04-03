@@ -16,13 +16,13 @@ class FluidPropsCalculatorView(ModularPageView):
 	requireJS = ['dygraph', 'dygraphExport']
 	requireGoogle = ['visualization']
 	
-from .models.ThermodynamicProcesses import Compression, Expansion, Heating, Cooling
+from .models.ThermodynamicProcesses import Compression, Expansion, Heating, Cooling, HeatExchangerTwoStreams
 from .models.lib.ThermodynamicComponents import ThermodynamicComponentsDoc
 @registerView(router)
 class ThermodynamicProcessView(ModularPageView):
 	label = "Thermodynamic processes and components"
 	requireGoogle = ['visualization']
-	modules = [Compression, Expansion, Heating, Cooling, ThermodynamicComponentsDoc]
+	modules = [Compression, Expansion, Heating, Cooling, HeatExchangerTwoStreams, ThermodynamicComponentsDoc]
 
 from .models import PipeFlow, PipeFlowDoc
 @registerView(router)

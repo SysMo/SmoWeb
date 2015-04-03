@@ -3,6 +3,7 @@ import smo.model.fields as F
 import lib.ThermodynamicComponents as TC
 from collections import OrderedDict
 from lib.CycleBases import ThermodynamicalCycle
+from smo.media.CoolProp.CoolProp import Fluid
 
 class ThermodynamicalProcess(ThermodynamicalCycle):
 	############# Inputs #############
@@ -118,3 +119,59 @@ class Cooling(ThermodynamicalProcess):
 		self.fluidSource.compute()
 		self.condenser.compute()	
 		self.postProcess(self.condenser)
+
+class ThermodynamicalProcessTwoStreams(ThermodynamicalCycle):
+	############# Inputs #############
+	fluidSource1 = F.SubModelGroup(TC.FluidSource, 'FG', label = 'Inlet 1')
+	fluidSource2 = F.SubModelGroup(TC.FluidSource, 'FG', label = 'Inlet 2')
+	fluidSink1 = F.SubModelGroup(TC.FluidSink, 'FG', label = 'Outlet 1')
+	fluidSink2 = F.SubModelGroup(TC.FluidSink, 'FG', label = 'Outlet 2')
+	inputs = F.SuperGroup([fluidSource1, fluidSource2, fluidSink1, fluidSink2])
+	
+	computeAction = ServerAction("compute", label = "Compute", outputView = 'resultView')
+	inputActionBar = ActionBar([computeAction], save = True)
+	
+	# Model View
+	inputView = F.ModelView(ioType = "input", superGroups = [inputs], 
+		actionBar = inputActionBar, autoFetch = True)
+	
+	############# Results #############
+	QDot = F.Quantity('HeatFlowRate', default = (0, 'kW'), label = 'heat flow rate in')
+	NTU = F.Quantity(label = 'NTU')
+	Cr = F.Quantity(label = 'capacity ratio')
+	energyResults = F.FieldGroup([QDot, NTU, Cr], label = "Energy")
+	energyBalanceResults = F.SuperGroup([energyResults], label = "Energy balance")
+	
+	# Model View
+	resultView = F.ModelView(ioType = "output", superGroups = ['resultStates', energyBalanceResults])
+	
+	############# Page structure ########
+	modelBlocks = [inputView, resultView]
+	
+	############# Methods ###############
+	def postProcess(self, component):
+		super(ThermodynamicalProcessTwoStreams, self).postProcess(300)
+		self.QDot = component.QDot
+		self.NTU = component.NTU
+		self.Cr = component.Cr
+
+class HeatExchangerTwoStreams(ThermodynamicalProcessTwoStreams):
+	label = "Heat Exchanger (two streams)"
+	description = F.ModelDescription("Parameteric model for heat exchange between two streams", show = True)	
+	heatExchanger = F.SubModelGroup(TC.HeatExchangerTwoStreams, 'FG', label  = 'Heat exchanger')
+	inputs = F.SuperGroup(['fluidSource1', 'fluidSource2', heatExchanger])
+	
+	def compute(self):
+		self.cycleDiagram.enable = False
+		self.initCompute(self.fluidSource1.fluidName)
+		# Connect components
+		self.connectPorts(self.fluidSource1.outlet, self.heatExchanger.inlet1)
+		self.connectPorts(self.heatExchanger.outlet1, self.fluidSink1.inlet)
+		self.connectPorts(self.fluidSource2.outlet, self.heatExchanger.inlet2, fluid = self.fluidSource2.fluidName)
+		self.connectPorts(self.heatExchanger.outlet2, self.fluidSink2.inlet, fluid = self.fluidSource2.fluidName)
+		self.fluidSource1.compute()
+		self.fluidSource2.compute()
+		self.heatExchanger.compute()
+		self.heatExchanger.computeStream1()
+		self.heatExchanger.computeStream2()	
+		self.postProcess(self.heatExchanger)
