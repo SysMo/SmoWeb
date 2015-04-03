@@ -10,11 +10,11 @@ from smo.util import AttributeDict
 class TankController(ControllerBase):
 	# States
 	WAITING = 0
-	REFUELING = 1
+	FUELING = 1
 	EXTRACTION = 2
 	
 	# Time events
-	TE_BEGIN_REFUELING = 0
+	TE_BEGIN_FUELING = 0
 	TE_BEGIN_EXTRACTION = 1
 	
 	class Inputs(): pass
@@ -22,13 +22,13 @@ class TankController(ControllerBase):
 	class Parameters():
 		def __init__(self, params):				
 			self.tWaitBeforeExtraction = params.tWaitBeforeExtraction
-			self.tWaitBeforeRefueling = params.tWaitBeforeRefueling
+			self.tWaitBeforeFueling = params.tWaitBeforeFueling
 			self.pMin = params.pMin
 			self.pMax = params.pMax
 			self.mDotExtr = -params.mDotExtr
 			self.hConvTankWaiting = params.hConvTankWaiting
 			self.hConvTankExtraction = params.hConvTankExtraction
-			self.hConvTankRefueling = params.hConvTankRefueling
+			self.hConvTankFueling = params.hConvTankFueling
 			self.nCompressor = params.nCompressor
 	
 	def __init__(self, params = None, **kwargs):
@@ -49,7 +49,7 @@ class TankController(ControllerBase):
 		checkValue = 0
 		if (self.state == self.WAITING):
 			pass
-		elif (self.state == self.REFUELING):
+		elif (self.state == self.FUELING):
 			checkValue = self.inputs.pTank - self.parameters.pMax
 		elif (self.state == self.EXTRACTION):
 			checkValue = self.parameters.pMin - self.inputs.pTank
@@ -61,7 +61,7 @@ class TankController(ControllerBase):
 		
 		if (self.state == self.WAITING):
 			pass
-		elif (self.state == self.REFUELING):
+		elif (self.state == self.FUELING):
 			if (self.inputs.pTank > (1 - eps) * self.parameters.pMax):
 				if self.parameters.tWaitBeforeExtraction == 0.0:
 					newState = self.EXTRACTION
@@ -69,8 +69,8 @@ class TankController(ControllerBase):
 					newState = self.WAITING
 		elif (self.state == self.EXTRACTION):
 			if (self.inputs.pTank < (1 + eps) * self.parameters.pMin):
-				if self.parameters.tWaitBeforeRefueling == 0.0:
-					newState = self.REFUELING
+				if self.parameters.tWaitBeforeFueling == 0.0:
+					newState = self.FUELING
 				else:
 					newState = self.WAITING
 				
@@ -83,8 +83,8 @@ class TankController(ControllerBase):
 		newState = self.state
 		if (timeEvent.eventType == self.TE_BEGIN_EXTRACTION):
 			newState = self.EXTRACTION
-		elif (timeEvent.eventType == self.TE_BEGIN_REFUELING):
-			newState = self.REFUELING
+		elif (timeEvent.eventType == self.TE_BEGIN_FUELING):
+			newState = self.FUELING
 			
 		print("State controller changing from state {} to state {} at time {} (TimeEvent)".format(self.state, newState, timeEvent.t))
 		self.executeExitActions()
@@ -96,10 +96,10 @@ class TankController(ControllerBase):
 			self.outputs.nCompressor = 0.0
 			self.outputs.mDotExtr = 0.0
 			self.outputs.hConvTank = self.parameters.hConvTankWaiting
-		elif (self.state == self.REFUELING):
+		elif (self.state == self.FUELING):
 			self.outputs.nCompressor = self.parameters.nCompressor
 			self.outputs.mDotExtr = 0.0
-			self.outputs.hConvTank = self.parameters.hConvTankRefueling 
+			self.outputs.hConvTank = self.parameters.hConvTankFueling 
 		elif (self.state == self.EXTRACTION):
 			self.outputs.nCompressor = 0.0 
 			self.outputs.mDotExtr = self.parameters.mDotExtr

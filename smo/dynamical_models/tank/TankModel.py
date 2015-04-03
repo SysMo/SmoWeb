@@ -27,9 +27,9 @@ dataStorageDatasetPath = '/TankModel'
 
 
 class TankModel(DMC.Simulation):
-	name = 'Model of a tank refueling and extraction'
+	name = 'Model of a tank fueling and extraction'
 	
-	def __init__(self, params = None, **kwargs): #:TODO: params
+	def __init__(self, params = None, **kwargs):
 		super(TankModel, self).__init__(**kwargs)
 		if params == None:
 			params = AttributeDict(kwargs)
@@ -49,14 +49,14 @@ class TankModel(DMC.Simulation):
 				varList = ['t'] + stateVarNames + ['pTank', 'TCompressorOut'],
 				chunkSize = 10000)
 
-		# Refueling source
-		self.refuelingSource = DM.FluidStateSource(params.refuelingSource)
-		self.refuelingSource.initState(params.refuelingSource)
+		# Fueling source
+		self.fuelingSource = DM.FluidStateSource(params.fuelingSource)
+		self.fuelingSource.initState(params.fuelingSource)
 		
 		# Compressor	
 		self.compressor = DM.Compressor(params.compressor)
 		# Connect the compressor to the fluid source
-		self.compressor.portIn.connect(self.refuelingSource.port1)
+		self.compressor.portIn.connect(self.fuelingSource.port1)
 		
 		# Tank chamber
 		self.tank = DM.FluidChamber(params.tank)
@@ -190,12 +190,12 @@ class TankModel(DMC.Simulation):
 				oldState = self.controller.state
 				self.controller.makeStateTransition(solver)
 				
-				tWaitBeforeRefueling = self.controller.parameters.tWaitBeforeRefueling
+				tWaitBeforeFueling = self.controller.parameters.tWaitBeforeFueling
 				tWaitBeforeExtraction = self.controller.parameters.tWaitBeforeExtraction
-				if (oldState == TC.EXTRACTION and tWaitBeforeRefueling != 0.0):
-					self.timeEventRegistry.add(DMC.TimeEvent(t = solver.t + tWaitBeforeRefueling, eventType = TC.TE_BEGIN_REFUELING, description = 'Begin refueling'))
+				if (oldState == TC.EXTRACTION and tWaitBeforeFueling != 0.0):
+					self.timeEventRegistry.add(DMC.TimeEvent(t = solver.t + tWaitBeforeFueling, eventType = TC.TE_BEGIN_FUELING, description = 'Begin fueling'))
 				
-				if (oldState == TC.REFUELING and tWaitBeforeExtraction != 0.0):
+				if (oldState == TC.FUELING and tWaitBeforeExtraction != 0.0):
 					self.timeEventRegistry.add(DMC.TimeEvent(t = solver.t + tWaitBeforeExtraction, eventType = TC.TE_BEGIN_EXTRACTION, description = 'Begin extraction'))
 				
 			if (reportEvents):
@@ -235,92 +235,135 @@ class TankModel(DMC.Simulation):
 		
 		plt.gca().set_xlim([0, len(xData)])
 		plt.legend()
-		plt.show()	
-
-
+		plt.show()
+		
+class TankModelFactory():
+	@staticmethod
+	def create(params = None, **kwargs):
+		if params == None:
+			params = AttributeDict(kwargs)
+		
+		tankModel = TankModel(
+			initDataStorage = True, 
+			controller = TankController(
+				initialState = params.controller.initialState, 
+				tWaitBeforeExtraction = params.controller.tWaitBeforeExtraction, 
+				tWaitBeforeFueling = params.controller.tWaitBeforeFueling,
+				pMin = params.controller.pMin,
+				pMax = params.controller.pMax,
+				mDotExtr = params.controller.mDotExtr,
+				hConvTankWaiting = params.tank.hConvTankWaiting,
+				hConvTankExtraction = params.tank.hConvTankExtraction,
+				hConvTankFueling = params.tank.hConvTankFueling,
+				nCompressor = params.controller.nCompressor,
+			),
+			fuelingSource = AttributeDict(
+				fluid = params.fluid,
+				sourceType = params.fuelingSource.sourceType,
+				T = params.fuelingSource.T,
+				p = params.fuelingSource.p,
+				q = params.fuelingSource.q,
+			),
+			compressor = AttributeDict(
+				fluid = params.fluid,
+				etaS = params.compressor.etaS,
+				fQ = params.compressor.fQ,
+				V = params.compressor.V,
+			),
+			tank = AttributeDict(
+				fluid = params.fluid, 
+				V = params.tank.volume,
+				TInit = params.tank.TInit,
+				pInit = params.tank.pInit,
+			),
+			tankConvection = AttributeDict(
+				A = params.tank.wallArea,
+				hConv = 100., #TRICKY: unused parameter
+			),
+			liner = AttributeDict(
+				material = params.tank.linerMaterial,
+				mass = params.tank.linerMass,
+				thickness = params.tank.linerThickness,
+				conductionArea = params.tank.wallArea,
+				port1Type = 'C',
+				port2Type = 'C',
+				numMassSegments = 2,
+				TInit = params.tank.TInit,
+			),
+			composite = AttributeDict(
+				material = params.tank.compositeMaterial, 
+				mass = params.tank.compositeMass,
+				thickness = params.tank.compositeThickness,
+				conductionArea = params.tank.wallArea,
+				port1Type = 'R', 
+				port2Type = 'C', 
+				numMassSegments = 4,
+				TInit = params.tank.TInit
+			),
+			compositeConvection = AttributeDict(
+				A = params.tank.wallArea,
+				hConv = params.tank.hConvComposite,
+			),	
+			ambientSource = AttributeDict(
+				fluid = params.ambientFluid,
+				sourceType = DM.FluidStateSource.TP,
+				T = params.TAmbient,
+				p = 1e5,
+			),
+			extractionSink = AttributeDict(
+				fluid = params.fluid,
+				mDot = 0.0, #TRICKY: unused parameter
+				TOut = params.TAmbient, #TRICKY: unused parameter
+			),
+		)
+		return tankModel
+		
 def testTankModel():
 	print "=== BEGIN: testTankModel ==="
 	# Settings
-	simulate = True #True - run simulation; False - plot an old results 
+	simulate = True #True - run simulation; False - plot an old results #:TODO: MILEN
 	
 	# Create the model
-	fluid = CP.Fluid('ParaHydrogen')
-	ambientFluid = CP.Fluid('Air')
-	TAmbient = 288.15
-	tankWallArea = 1.8 #m**2
-	
-	tankModel = TankModel(
-		initDataStorage = simulate,
-				
-		controller = TankController(
-			initialState = TC.REFUELING, 
-			tWaitBeforeExtraction = 150., 
-			tWaitBeforeRefueling = 150.,
-			pMin = 20e5,
-			pMax = 300e5,
-			mDotExtr = 30/3600.,
+	tankModel = TankModelFactory.create(
+		fluid = CP.Fluid('ParaHydrogen'),
+		ambientFluid = CP.Fluid('Air'),
+		TAmbient = 288.15,
+		tank = AttributeDict(
+ 			wallArea = 1.8,
+ 			volume = 0.1,
+ 			TInit = 300.,
+			pInit = 20e5,
+			linerMaterial = 'Aluminium6061',
+			linerMass = 24.,
+		    linerThickness = 0.004,
+		    compositeMaterial = 'CarbonFiberComposite',
+		    compositeMass = 34.,
+			compositeThickness = 0.0105,
+			hConvComposite = 100.,
 			hConvTankWaiting = 10.,
 			hConvTankExtraction = 20.,
-			hConvTankRefueling = 100.,
-			nCompressor = 0.53 * 1.44,
-		),
-		refuelingSource = AttributeDict(
-			fluid = fluid,
-			sourceType = DM.FluidStateSource.PQ,
-			p = 2.7e5,
-			q = 0.,
-		),
+			hConvTankFueling = 100.,
+ 		),
 		compressor = AttributeDict(
-			fluid = fluid,
 			etaS = 0.9,
 			fQ = 0.,
 			V = 0.5e-3,
 		),
-		tank = AttributeDict(
-			fluid = fluid, 
-			V = 0.100,
-			TInit = 300.,
-			pInit = 20e5,
+		fuelingSource = AttributeDict(
+			sourceType = DM.FluidStateSource.PQ,
+			T = 15, #:TRICKY: unused
+			p = 2.7e5,
+			q = 0.,
 		),
-		tankConvection = AttributeDict(
-			A = tankWallArea,
-			hConv = 100., #TRICKY: unused parameter
+		controller = AttributeDict(
+			initialState = TC.FUELING, 
+			tWaitBeforeExtraction = 150., 
+			tWaitBeforeFueling = 150.,
+			pMin = 20e5,
+			pMax = 300e5,
+			mDotExtr = 30/3600.,
+			nCompressor = 0.53 * 1.44,
 		),
-		liner = AttributeDict(
-			material = 'Aluminium6061',
-			mass = 24.,
-			thickness = 0.004,
-			conductionArea = tankWallArea,
-			port1Type = 'C',
-			port2Type = 'C',
-			numMassSegments = 2,
-			TInit = 300.,
-		),
-		composite = AttributeDict(
-			material = 'CarbonFiberComposite', 
-			mass = 34.,
-			thickness = 0.0105,
-			conductionArea = tankWallArea,
-			port1Type = 'R', 
-			port2Type = 'C', 
-			numMassSegments = 4,
-			TInit = 300.0
-		),
-		compositeConvection = AttributeDict(
-			A = tankWallArea,
-			hConv = 100.,
-		),	
-		ambientSource = AttributeDict(
-			fluid = ambientFluid,
-			sourceType = DM.FluidStateSource.TP,
-			T = TAmbient,
-			p = 1e5,
-		),
-		extractionSink = AttributeDict(
-			fluid = fluid,
-			mDot = 0.0, #TRICKY: unused parameter
-			TOut = TAmbient, #TRICKY: unused parameter
-		),	
 	)
 	
 	# Run simulation or load old results
