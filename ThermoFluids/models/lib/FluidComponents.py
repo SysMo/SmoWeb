@@ -23,7 +23,7 @@ class EmptyModel(NumericalModel):
 class TankController(NumericalModel):
     initialState = F.Choices(
         OrderedDict((
-            (TC.REFUELING, 'refueling'),
+            (TC.FUELING, 'refueling'),
             (TC.EXTRACTION, 'extraction'),
         )), 
         label = 'start with',

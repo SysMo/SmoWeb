@@ -70,14 +70,14 @@ class TankModel(DMC.Simulation):
 		self.extractionSink.port1.connect(self.tank.fluidPort)
 		
 		# Tank convection component
-		self.tankConvection = DM.ConvectionHeatTransfer(params.tankConvection)
+		self.tankInternalConvection = DM.ConvectionHeatTransfer(params.tankInternalConvection)
 		# Connect to the fluid in the tank
-		self.tankConvection.fluidPort.connect(self.tank.fluidPort)
+		self.tankInternalConvection.fluidPort.connect(self.tank.fluidPort)
 
 		# Tank (Liner)
 		self.liner = DM.SolidConductiveBody(params.liner)
 		# Connect to the tank convection component
-		self.tankConvection.wallPort.connect(self.liner.port1)
+		self.tankInternalConvection.wallPort.connect(self.liner.port1)
 		
 		# Tank (composite)
 		self.composite = DM.SolidConductiveBody(params.composite)
@@ -89,11 +89,11 @@ class TankModel(DMC.Simulation):
 		self.ambientSource.initState(params.ambientSource)
 		
 		# Composite convection component
-		self.compositeConvection = DM.ConvectionHeatTransfer(params.compositeConvection)
+		self.tankExternalConvection = DM.ConvectionHeatTransfer(params.tankExternalConvection)
 		# Connect the composite convection to the ambient fluid
-		self.compositeConvection.fluidPort.connect(self.ambientSource.port1)
+		self.tankExternalConvection.fluidPort.connect(self.ambientSource.port1)
 		# Connect the composite convection to the composite  
-		self.compositeConvection.wallPort.connect(self.composite.port2)
+		self.tankExternalConvection.wallPort.connect(self.composite.port2)
 		
 		# Controller
 		self.controller = params.controller
@@ -149,9 +149,9 @@ class TankModel(DMC.Simulation):
 			self.extractionSink.mDot = self.controller.outputs.mDotExtr
 			self.extractionSink.compute()
 			# Convection components
-			self.tankConvection.hConv = self.controller.outputs.hConvTank
-			self.tankConvection.compute()
-			self.compositeConvection.compute()
+			self.tankInternalConvection.hConv = self.controller.outputs.hConvTank
+			self.tankInternalConvection.compute()
+			self.tankExternalConvection.compute()
 			# Liner and composite
 			self.composite.compute()
 			self.liner.compute()
@@ -252,9 +252,9 @@ class TankModelFactory():
 				pMin = params.controller.pMin,
 				pMax = params.controller.pMax,
 				mDotExtr = params.controller.mDotExtr,
-				hConvTankWaiting = params.tank.hConvTankWaiting,
-				hConvTankExtraction = params.tank.hConvTankExtraction,
-				hConvTankFueling = params.tank.hConvTankFueling,
+				hConvTankWaiting = params.tank.hConvInternalWaiting,
+				hConvTankExtraction = params.tank.hConvInternalExtraction,
+				hConvTankFueling = params.tank.hConvInternalFueling,
 				nCompressor = params.controller.nCompressor,
 			),
 			fuelingSource = AttributeDict(
@@ -276,7 +276,7 @@ class TankModelFactory():
 				TInit = params.tank.TInit,
 				pInit = params.tank.pInit,
 			),
-			tankConvection = AttributeDict(
+			tankInternalConvection = AttributeDict(
 				A = params.tank.wallArea,
 				hConv = 100., #TRICKY: unused parameter
 			),
@@ -300,9 +300,9 @@ class TankModelFactory():
 				numMassSegments = 4,
 				TInit = params.tank.TInit
 			),
-			compositeConvection = AttributeDict(
+			tankExternalConvection = AttributeDict(
 				A = params.tank.wallArea,
-				hConv = params.tank.hConvComposite,
+				hConv = params.tank.hConvExternal,
 			),	
 			ambientSource = AttributeDict(
 				fluid = params.ambientFluid,
@@ -339,10 +339,10 @@ def testTankModel():
 		    compositeMaterial = 'CarbonFiberComposite',
 		    compositeMass = 34.,
 			compositeThickness = 0.0105,
-			hConvComposite = 100.,
-			hConvTankWaiting = 10.,
-			hConvTankExtraction = 20.,
-			hConvTankFueling = 100.,
+			hConvExternal = 100.,
+			hConvInternalWaiting = 10.,
+			hConvInternalExtraction = 20.,
+			hConvInternalFueling = 100.,
  		),
 		compressor = AttributeDict(
 			etaS = 0.9,
