@@ -65,7 +65,7 @@ class TankModel(DMC.Simulation):
 		self.tank.fluidPort.connect(self.compressor.portOut)
 		
 		# Extraction sink
-		self.extractionSink = DM.FlowSource(fluid = params.fluid, mDot = 0.0, TOut = params.TAmbient)
+		self.extractionSink = DM.FlowSource(params.extractionSink)
 		# Connect the extraction sink with the tank
 		self.extractionSink.port1.connect(self.tank.fluidPort)
 		
@@ -75,40 +75,21 @@ class TankModel(DMC.Simulation):
 		self.tankConvection.fluidPort.connect(self.tank.fluidPort)
 
 		# Tank (Liner)
-		#self.liner = DM.SolidConductiveBody(params.liner)
-		self.liner = DM.SolidConductiveBody(
-			material = 'Aluminium6061', 
-			mass = 24., #[kg]
-			thickness = 0.004, #[m]
-			conductionArea = params.tankWallArea, #[m**2]
-			port1Type = 'C', port2Type = 'C', 
-			numMassSegments = 2, 
-			TInit = 300.0 #[K]
-		)
+		self.liner = DM.SolidConductiveBody(params.liner)
 		# Connect to the tank convection component
 		self.tankConvection.wallPort.connect(self.liner.port1)
 		
 		# Tank (composite)
-		self.composite = DM.SolidConductiveBody(
-			material = 'CarbonFiberComposite', 
-			mass = 34., #[kg]
-			thickness = 0.0105, #[m]
-			conductionArea = params.tankWallArea, #[m**2]
-			port1Type = 'R', port2Type = 'C', 
-			numMassSegments = 4,
-			TInit = 300.0 #[K]
-		)
+		self.composite = DM.SolidConductiveBody(params.composite)
 		# Connect the liner to the composite
 		self.composite.port1.connect(self.liner.port2)
 				
 		# Ambient fluid component
-		ambientFluidName = 'Air'
-		ambientFluid = CP.Fluid(ambientFluidName)
-		self.ambientSource = DM.FluidStateSource(fluid = ambientFluid)
-		self.ambientSource.initState(sourceType = DM.FluidStateSource.TP, T = params.TAmbient, p = 1e5)
+		self.ambientSource = DM.FluidStateSource(params.ambientSource)
+		self.ambientSource.initState(params.ambientSource)
 		
 		# Composite convection component
-		self.compositeConvection = DM.ConvectionHeatTransfer(hConv = 100., A = params.tankWallArea)
+		self.compositeConvection = DM.ConvectionHeatTransfer(params.compositeConvection)
 		# Connect the composite convection to the ambient fluid
 		self.compositeConvection.fluidPort.connect(self.ambientSource.port1)
 		# Connect the composite convection to the composite  
@@ -119,12 +100,12 @@ class TankModel(DMC.Simulation):
 		
 		# Initialize the state variables
 		self.y.WRealCompressor = 0. # [W]
-		self.y.TLiner_1 = 300.0 #[K]
-		self.y.TLiner_2 = 300.0 #[K]
-		self.y.TComp_1 = 300.0 #[K]
-		self.y.TComp_2 = 300.0 #[K]
-		self.y.TComp_3 = 300.0 #[K]
-		self.y.TComp_4 = 300.0 #[K]
+		self.y.TLiner_1 = self.liner.T[0]
+		self.y.TLiner_2 = self.liner.T[1]
+		self.y.TComp_1 = self.composite.T[0]
+		self.y.TComp_2 = self.composite.T[1]
+		self.y.TComp_3 = self.composite.T[2]
+		self.y.TComp_4 = self.composite.T[3]
 		self.y.TTank = self.tank.fState.T
 		self.y.rhoTank = self.tank.fState.rho 
 		
@@ -262,63 +243,84 @@ def testTankModel():
 	# Settings
 	simulate = True #True - run simulation; False - plot an old results 
 	
-	# Create the controller
-	controller = TankController(
-		initialState = TC.REFUELING, 
-		tWaitBeforeExtraction = 150., 
-		tWaitBeforeRefueling = 150.,
-		pMin = 20e5,
-		pMax = 300e5,
-		mDotExtr = 30/3600.,
-		hConvTankWaiting = 10.,
-		hConvTankExtraction = 20.,
-		hConvTankRefueling = 100.,
-		nCompressor = 0.53 * 1.44
-	)
-	
 	# Create the model
 	fluid = CP.Fluid('ParaHydrogen')
+	ambientFluid = CP.Fluid('Air')
+	TAmbient = 288.15
 	tankWallArea = 1.8 #m**2
 	
 	tankModel = TankModel(
-		initDataStorage = simulate, 
-		TAmbient = 288.15,
-		fluid = fluid,
-		tankWallArea = tankWallArea,
-		controller = controller,
-		refuelingSource = AttributeDict({
-			'fluid' : fluid,
-			'sourceType' : DM.FluidStateSource.PQ,
-			'p' : 2.7e5,
-			'q' : 0.,
-		}),
-		compressor = AttributeDict({
-			'fluid' : fluid,
-			'etaS' : 0.9,
-			'fQ' : 0.,
-			'V' : 0.5e-3,
-		}),
-		tank = AttributeDict({
-			'fluid' : fluid, 
-			'V' : 0.100,
-			'TInit' : 300.,
-			'pInit' : 20e5,
-		}),
-		tankConvection = AttributeDict({
-			'A' : tankWallArea,
-			'hConv' : 100., #:unused
-		}),
-		liner = AttributeDict({
-			'material' : 'Aluminium6061',
-			'mass' : 24.,
-			'thickness' : 0.004,
-			'conductionArea' : tankWallArea,
-			'port1Type' : 'C',
-			'port2Type' : 'C',
-			'numMassSegments' : 2,
-			'TInit' : 300.
-		}),
-										
+		initDataStorage = simulate,
+				
+		controller = TankController(
+			initialState = TC.REFUELING, 
+			tWaitBeforeExtraction = 150., 
+			tWaitBeforeRefueling = 150.,
+			pMin = 20e5,
+			pMax = 300e5,
+			mDotExtr = 30/3600.,
+			hConvTankWaiting = 10.,
+			hConvTankExtraction = 20.,
+			hConvTankRefueling = 100.,
+			nCompressor = 0.53 * 1.44,
+		),
+		refuelingSource = AttributeDict(
+			fluid = fluid,
+			sourceType = DM.FluidStateSource.PQ,
+			p = 2.7e5,
+			q = 0.,
+		),
+		compressor = AttributeDict(
+			fluid = fluid,
+			etaS = 0.9,
+			fQ = 0.,
+			V = 0.5e-3,
+		),
+		tank = AttributeDict(
+			fluid = fluid, 
+			V = 0.100,
+			TInit = 300.,
+			pInit = 20e5,
+		),
+		tankConvection = AttributeDict(
+			A = tankWallArea,
+			hConv = 100., #TRICKY: unused parameter
+		),
+		liner = AttributeDict(
+			material = 'Aluminium6061',
+			mass = 24.,
+			thickness = 0.004,
+			conductionArea = tankWallArea,
+			port1Type = 'C',
+			port2Type = 'C',
+			numMassSegments = 2,
+			TInit = 300.,
+		),
+		composite = AttributeDict(
+			material = 'CarbonFiberComposite', 
+			mass = 34.,
+			thickness = 0.0105,
+			conductionArea = tankWallArea,
+			port1Type = 'R', 
+			port2Type = 'C', 
+			numMassSegments = 4,
+			TInit = 300.0
+		),
+		compositeConvection = AttributeDict(
+			A = tankWallArea,
+			hConv = 100.,
+		),	
+		ambientSource = AttributeDict(
+			fluid = ambientFluid,
+			sourceType = DM.FluidStateSource.TP,
+			T = TAmbient,
+			p = 1e5,
+		),
+		extractionSink = AttributeDict(
+			fluid = fluid,
+			mDot = 0.0, #TRICKY: unused parameter
+			TOut = TAmbient, #TRICKY: unused parameter
+		),	
 	)
 	
 	# Run simulation or load old results

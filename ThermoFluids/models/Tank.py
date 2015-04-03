@@ -14,9 +14,11 @@ from smo.model.model import NumericalModel
 from smo.web.modules import RestModule
 from smo.media.MaterialData import Fluids
 
+#:TODO: rename refueling to fueling
+
 class Tank(NumericalModel):
     label = "Tank"
-    description = F.ModelDescription("Tank model with refueling and extraction", show = True)
+    description = F.ModelDescription("Tank model with fueling and extraction", show = True)
     figure = F.ModelFigure(src="BioReactors/img/ModuleImages/SimpleChemostat.png", show = False) #:TODO: change the image
     
     #1. ############ Inputs ###############
@@ -34,7 +36,7 @@ class Tank(NumericalModel):
     
     refuelingSource = F.SubModelGroup(FC.FluidStateSource, 'FG', label = 'Refueling source')
     compressor = F.SubModelGroup(FC.Compressor, 'FG', label = 'Compressor')
-    tank = F.SubModelGroup(FC.FluidChamber, 'FG', label = 'Tank')
+    tank = F.SubModelGroup(FC.FluidChamber, ['pInit', 'TInit'], label = 'Tank')
     tankConvection = F.SubModelGroup(FC.EmptyModel, 'FG', label = 'TankConvection')
     
     initialValuesSG = F.SuperGroup(
