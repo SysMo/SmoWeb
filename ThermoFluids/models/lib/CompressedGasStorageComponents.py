@@ -11,7 +11,7 @@ import smo.dynamical_models.thermofluids as DM
 from smo.dynamical_models.tank.TankController import TankController as TC
 from smo.media.MaterialData import Solids
 
-class TankController(NumericalModel):
+class Controller(NumericalModel):
     initialState = F.Choices(
         OrderedDict((
             (TC.FUELING, 'fueling'),
@@ -35,6 +35,8 @@ class TankController(NumericalModel):
     
     FG = F.FieldGroup([initialState, pMin, pMax, mDotExtr, nCompressor, tWaitBeforeExtraction, tWaitBeforeFueling], 
         label = 'Parameters')
+    
+    SG = F.SuperGroup([FG], label = "Parameters") 
     
     modelBlocks = []
     
@@ -74,7 +76,7 @@ class Compressor(NumericalModel):
     etaS = F.Quantity('Efficiency', default = (0., '-'),
         label = 'isentropic efficiency', description = 'isentropic efficiency')
     fQ = F.Quantity('Fraction', default = (0., '-'),
-        label = 'fraction of heat loss', description = 'fraction of heat loss to ambient')
+        label = 'heat loss fraction', description = 'heat loss fraction to ambient')
     V = F.Quantity('Volume', default = (0., 'L'), maxValue = (1e6, 'L'),
         label = 'displacement volume', description = 'displacement volume')
     
@@ -115,13 +117,16 @@ class Tank(NumericalModel):
     hConvInternalFueling =  F.Quantity('HeatTransferCoefficient', default = (0., 'W/m**2-K'), 
         label = 'h<sub>conv</sub> (internal, fueling)', description = 'internal convection coefficient during refueling')
 
-    
-    FG = F.FieldGroup(
-        [wallArea, volume, TInit, pInit,
-         linerMaterial, linerMass, linerThickness,
-         compositeMaterial, compositeMass, compositeThickness,
-         hConvExternal, hConvInternalWaiting, hConvInternalExtraction, hConvInternalFueling,   
-        ], 
+
+    initialValuesFG = F.FieldGroup([wallArea, volume, TInit, pInit], 
         label = 'Initial values')
+    convectionFG = F.FieldGroup([hConvExternal, hConvInternalWaiting, hConvInternalExtraction, hConvInternalFueling], 
+        label = 'Convection')
+    linerFG = F.FieldGroup([linerMaterial, linerMass, linerThickness], 
+        label = 'Liner')
+    compositeFG = F.FieldGroup([compositeMaterial, compositeMass, compositeThickness],
+        label = 'Composite')
+        
+    SG = F.SuperGroup([initialValuesFG, convectionFG, linerFG, compositeFG], label = "Parameters")
     
     modelBlocks = []

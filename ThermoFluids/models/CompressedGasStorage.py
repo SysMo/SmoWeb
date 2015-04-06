@@ -30,12 +30,12 @@ class CompressedGasStorage(NumericalModel):
         label = 'ambient temperature', description = 'ambient temperature')
     globalParams = F.FieldGroup([fluidName, fluidAmbientName, TAmbient], label = "Global")
     
-    controller = F.SubModelGroup(GSC.TankController, 'FG', label  = 'Controller')
+    controller = F.SubModelGroup(GSC.Controller, 'SG', label  = 'Controller')
     fuelingSource = F.SubModelGroup(GSC.FluidStateSource, 'FG', label = 'Fueling source')
     compressor = F.SubModelGroup(GSC.Compressor, 'FG', label = 'Compressor')
-    tank = F.SubModelGroup(GSC.Tank, 'FG', label = 'Pressure vessel')
+    tank = F.SubModelGroup(GSC.Tank, 'SG', label = 'Pressure vessel')
     
-    parametersSG = F.SuperGroup([globalParams, fuelingSource, tank, controller, compressor], label = "Parameters")
+    parametersSG = F.SuperGroup([globalParams, fuelingSource, compressor], label = "Parameters")
 
     #1.2 Fields - Settings
     tFinal = F.Quantity('Time', default = (2000, 's'), minValue = (0, 's'), maxValue=(1.e9, 's'), label = 'simulation time')
@@ -49,14 +49,15 @@ class CompressedGasStorage(NumericalModel):
     inputActionBar = A.ActionBar([computeAction], save = True)
     
     #1.4 Model view
-    inputView = F.ModelView(ioType = "input", superGroups = [parametersSG, settingsSG], actionBar = inputActionBar, autoFetch = True)
+    inputView = F.ModelView(ioType = "input", superGroups = [parametersSG, tank, controller, settingsSG], actionBar = inputActionBar, autoFetch = True)
     
     #2. ############ Results ###############    
     plot = F.PlotView(
         (
             ('time', F.Quantity('Time', default=(1, 's'))),
-            ('pTank', F.Quantity('Pressure', default=(1, 'bar'))),
-            ('TTank', F.Quantity('Temperature', default=(1, 'K'))),
+            ('vessel pressure', F.Quantity('Pressure', default=(1, 'bar'))),
+            ('vessel temperature', F.Quantity('Temperature', default=(1, 'K'))),
+            ('vessel density', F.Quantity('Density', default=(1, 'kg/m**3'))),
         ),
         label='Plot', 
         options = {'ylabel' : None}
@@ -64,11 +65,14 @@ class CompressedGasStorage(NumericalModel):
     table = F.TableView(
         (
              ('time', F.Quantity('Time', default=(1, 's'))),
-             ('pTank', F.Quantity('Pressure', default=(1, 'bar'))),
-             ('TTank', F.Quantity('Temperature', default=(1, 'K'))),
+             ('vessel pressure', F.Quantity('Pressure', default=(1, 'bar'))),
+             ('vessel temperature', F.Quantity('Temperature', default=(1, 'K'))),
+             ('vessel density', F.Quantity('Density', default=(1, 'kg/m**3'))),
         ),
         label='Table', 
-        options = {'title': 'Tank fueling-extraction', 'formats': ['0.000', '0.000', '0.000']}
+        options = {'title': 'Compressed gas storage fueling-extraction', 
+            'formats': ['0.000', '0.000', '0.000', '0.000']
+        },
     )
     
     resultsVG = F.ViewGroup([plot, table], label = 'Results')
@@ -130,12 +134,10 @@ class CompressedGasStorage(NumericalModel):
         
         # Show the results
         res = tank.getResults()
-        results = np.array([res['t'], res['pTank'], res['TTank']]).transpose()
+        results = np.array([res['t'], res['pTank'], res['TTank'], res['rhoTank']]).transpose()
         self.plot = results
         self.table = results
 
 class CompressedGasStorageDoc(RestModule):
     label = 'Compressed Gas Storage (Doc)'
-    
-
-    
+        

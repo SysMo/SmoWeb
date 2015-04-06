@@ -49,18 +49,35 @@ class FluidHeater(DMC.DynamicalModel):
 			params = AttributeDict(kwargs)
 			
 		self.fluid = params.fluid
-		self.condModel = params.condModel
 		
 		self.fStateIn = CP.FluidState(self.fluid)
 		self.fStateOut = CP.FluidState(self.fluid)
 		self.fStateDown = CP.FluidState(self.fluid)
+		self.fStateTmp = CP.FluidState(self.fluid)
+		
 		self.flowOut = DMS.FluidFlow()
 		self.heatOut = DMS.HeatFlow()
 		self.portIn = DMS.FluidPort('C', self.fStateDown)
 		self.portOut = DMS.FluidPort('R', self.flowOut)
 		self.thermalPort = DMS.ThermalPort('R', self.heatOut)
-		self.TOut = 0
-		self.TIn = 0
+		
+	def setConvectionModel(self, hConv):
+		def convectionModel(fStateIn, Tw, mDot):
+			QDot = hConv * (fStateIn.T - Tw)
+			return QDot
+		
+		self.heModel = convectionModel #heat exchange model 
+		
+	def setEffectivnessModel(self, epsilon):
+		def effectivnessModel(fStateIn, Tw, mDot):
+			fStateTmp = self.fStateTmp
+			fStateTmp.update_Tp(Tw, fStateIn.p)
+			QDotMax = mDot * (fStateIn.h - fStateTmp.h)
+			QDot = QDotMax * epsilon
+			return QDot
+		
+		self.heModel = effectivnessModel #heat exchange model 
+		
 
 	def setState(self):
 		self.fStateDown.update_Trho(self.portOut.state.T, self.portOut.state.rho)
@@ -71,21 +88,22 @@ class FluidHeater(DMC.DynamicalModel):
 			hIn = self.portIn.flow.HDot / self.mDot
 			self.fStateIn.update_ph(self.portOut.state.p, hIn)
 			self.Tin = self.fStateIn.T
-			TExt = self.thermalPort.state.T
-			cond = self.condModel(self.Tin, TExt)
+			Tw = self.thermalPort.state.T
 			
-			self.QDot = cond * (self.Tin - TExt)
+			self.QDot = self.heModel(self.fStateIn, Tw, self.mDot)
 			self.HDotOut = self.portIn.flow.HDot - self.QDot
 			hOut = self.HDotOut / self.mDot
 			self.fStateOut.update_ph(self.portOut.state.p, hOut)
 			self.TOut = self.fStateOut.T
 			# Correction of the outlet temperature is too low or too high
-			if ((self.QDot < 0 and self.TOut > TExt) or (self.QDot > 0 and self.TOut < TExt)):
-				self.TOut = TExt
+			if ((self.QDot < 0 and self.TOut > Tw) or (self.QDot > 0 and self.TOut < Tw)):
+				self.TOut = Tw
 				self.fStateOut.update_Tp(self.TOut, self.portOut.state.p)
 				self.HDotOut = self.mDot * self.fStateOut.h
 				self.QDot = self.portIn.flow.HDot - self.HDotOut
 		else:
+			self.Tin = 0
+			self.TOut = 0
 			self.QDot = 0
 			self.HDotOut = 0
 			
