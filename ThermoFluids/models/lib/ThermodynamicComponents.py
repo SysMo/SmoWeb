@@ -282,10 +282,16 @@ class HeatExchangerTwoStreams(CycleComponent):
 		('EG',  'effectiveness (given)'),
 		('EN', 'effectiveness (NTU)'),
 	)), label = 'compute method')
+	type = F.Choices(options = OrderedDict((
+												('CF', 'counter flow'),
+												('PF', 'parallel flow'),
+												('EC', 'evaporation/condensation'),
+											)), default = 'CF', label = "flow configuration",
+						show = 'self.computeMethod == "EN"')
 	epsGiven = F.Quantity('Efficiency', default = 1, label = 'effectiveness', show = 'self.computeMethod == "EG"')
 	UA = F.Quantity('ThermalConductance', default = 1, label = 'UA', show = 'self.computeMethod == "EN"')
 	QDot = F.Quantity('HeatFlowRate', default = (0, 'kW'), label = 'heat flow rate in')
-	FG = F.FieldGroup([computeMethod, epsGiven, UA], label = 'Heat exchanger')
+	FG = F.FieldGroup([computeMethod, epsGiven, UA, type], label = 'Heat exchanger')
 	#================== Results =================#
 	NTU = F.Quantity(label = 'NTU')
 	Cr = F.Quantity(label = 'capacity ratio')
@@ -327,9 +333,18 @@ class HeatExchangerTwoStreams(CycleComponent):
 		CMax = dHDotMax / deltaTInlet
 		self.NTU = self.UA / abs(CMin)
 		self.Cr = abs(CMin / CMax)
-		self.NTU_counterFlow()
+		if self.type == 'CF':
+			self.NTU_counterFlow()
+		elif self.type == 'PF':
+			self.NTU_parallelFlow()
+		elif self.type == 'EC':
+			self.NTU_evaporation_condensation()
 	def NTU_counterFlow(self):
 		self.epsilon = (1 - m.exp(- self.NTU * (1 - self.Cr))) / (1 - self.Cr * m.exp(- self.NTU * (1 - self.Cr))) 
+	def NTU_parallelFlow(self):
+		self.epsilon = (1 - m.exp(- self.NTU * (1 + self.Cr))) / (1 + self.Cr)
+	def NTU_evaporation_condensation(self):
+		self.epsilon = 1 - m.exp(- self.NTU)
 	def __str__(self):
 		return """
 Inlet 1: T = {self.inlet1.state.T}, p = {self.inlet1.state.p}, q = {self.inlet1.state.q}, h = {self.inlet1.state.h} 
