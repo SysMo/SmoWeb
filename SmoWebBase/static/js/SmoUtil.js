@@ -1801,7 +1801,7 @@ smoModule.directive('smoModelView', ['$compile', '$location', 'ModelCommunicator
 							<button type="button" class="close" data-dismiss="alert" aria-label="Close">\
 								<span aria-hidden="true">&times;</span></button>\
 							<span>{{communicator.saveFeedbackMsg}}</span>\
-							URL: <a ng-href={{communicator.savedRecordUrl}}>{{communicator.savedRecordUrl}}</a>\
+							URL: <a ng-href={{communicator.savedRecordUrl}} target="_blank">{{communicator.savedRecordUrl}}</a>\
 						</div>\
 						<div ng-if="!communicator.saveSuccess">\
 							<div class="alert alert-danger alert-dismissible" role="alert">\
