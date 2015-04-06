@@ -7,7 +7,7 @@ Created on April 01, 2015
 import numpy as np
 import smo.model.fields as F
 import smo.model.actions as A
-import lib.FluidComponents as FC
+import lib.CompressedGasStorageComponents as GSC
 import smo.media.CoolProp as CP
 import smo.dynamical_models.tank as DM
 from smo.dynamical_models.tank.TankController import TankController as TC
@@ -15,14 +15,9 @@ from smo.media.MaterialData import Fluids
 from smo.model.model import NumericalModel
 from smo.web.modules import RestModule
 
-#:TODO: rename
-#  - FG 'tank' on 'pressure vessel'
-#  - 'Tank' on 'CompressGasStorage'
-
-
-class Tank(NumericalModel):
-    label = "Tank"
-    description = F.ModelDescription("Tank model with fueling and extraction", show = True)
+class CompressedGasStorage(NumericalModel):
+    label = "Compressed Gas Storage"
+    description = F.ModelDescription("Compressed gas storage model with fueling and extraction", show = True)
     figure = F.ModelFigure(src="BioReactors/img/ModuleImages/SimpleChemostat.png", show = False) #:TODO: change the image
     
     #1. ############ Inputs ###############
@@ -35,10 +30,10 @@ class Tank(NumericalModel):
         label = 'ambient temperature', description = 'ambient temperature')
     globalParams = F.FieldGroup([fluidName, fluidAmbientName, TAmbient], label = "Global")
     
-    controller = F.SubModelGroup(FC.TankController, 'FG', label  = 'Controller')
-    fuelingSource = F.SubModelGroup(FC.FluidStateSource, 'FG', label = 'Fueling source')
-    compressor = F.SubModelGroup(FC.Compressor, 'FG', label = 'Compressor')
-    tank = F.SubModelGroup(FC.Tank, 'FG', label = 'Compressed gas storage')
+    controller = F.SubModelGroup(GSC.TankController, 'FG', label  = 'Controller')
+    fuelingSource = F.SubModelGroup(GSC.FluidStateSource, 'FG', label = 'Fueling source')
+    compressor = F.SubModelGroup(GSC.Compressor, 'FG', label = 'Compressor')
+    tank = F.SubModelGroup(GSC.Tank, 'FG', label = 'Pressure vessel')
     
     parametersSG = F.SuperGroup([globalParams, fuelingSource, tank, controller, compressor], label = "Parameters")
 
@@ -139,8 +134,8 @@ class Tank(NumericalModel):
         self.plot = results
         self.table = results
 
-class TankDoc(RestModule):
-    label = 'Tank (Doc)'
+class CompressedGasStorageDoc(RestModule):
+    label = 'Compressed Gas Storage (Doc)'
     
 
     

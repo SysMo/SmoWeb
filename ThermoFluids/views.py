@@ -68,9 +68,9 @@ class HeatExchange1DView(ModularPageView):
 	requireGoogle = ['visualization']
 
 @registerView(router)
-class TankView(ModularPageView):
-	label = "Tank"
-	modules = [M.Tank, M.TankDoc]	
+class CompressedGasStorageView(ModularPageView):
+	label = "Compressed Gas Storage"
+	modules = [M.CompressedGasStorage, M.CompressedGasStorageDoc]	
 	requireJS = ['dygraph', 'dygraphExport']
 	requireGoogle = ['visualization']
 

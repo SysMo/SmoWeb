@@ -11,8 +11,6 @@ import smo.dynamical_models.thermofluids as DM
 from smo.dynamical_models.tank.TankController import TankController as TC
 from smo.media.MaterialData import Solids
 
-#:TODO: rename FluidCompoinents to CompressorGasStorageComponents
-
 class TankController(NumericalModel):
     initialState = F.Choices(
         OrderedDict((
