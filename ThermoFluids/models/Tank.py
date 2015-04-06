@@ -10,10 +10,15 @@ import smo.model.actions as A
 import lib.FluidComponents as FC
 import smo.media.CoolProp as CP
 import smo.dynamical_models.tank as DM
+from smo.dynamical_models.tank.TankController import TankController as TC
+from smo.media.MaterialData import Fluids
 from smo.model.model import NumericalModel
 from smo.web.modules import RestModule
 
-#:TODO: rename refueling to fueling
+#:TODO: rename
+#  - FG 'tank' on 'pressure vessel'
+#  - 'Tank' on 'CompressGasStorage'
+
 
 class Tank(NumericalModel):
     label = "Tank"
@@ -22,13 +27,20 @@ class Tank(NumericalModel):
     
     #1. ############ Inputs ###############
     #1.1 Fields - Input values
-    globalParams = F.SubModelGroup(FC.GlobalParameters, 'FG', label = 'Global parameters')
+    fluidName = F.Choices(options = Fluids, default = 'ParaHydrogen', 
+        label = 'fluid', description = 'fluid of the system')
+    fluidAmbientName = F.Choices(options = Fluids, default = 'Air', 
+        label = 'ambient fluid', description = 'ambient fluid')
+    TAmbient = F.Quantity('Temperature', default = (15.0, 'degC'), 
+        label = 'ambient temperature', description = 'ambient temperature')
+    globalParams = F.FieldGroup([fluidName, fluidAmbientName, TAmbient], label = "Global")
+    
     controller = F.SubModelGroup(FC.TankController, 'FG', label  = 'Controller')
     fuelingSource = F.SubModelGroup(FC.FluidStateSource, 'FG', label = 'Fueling source')
     compressor = F.SubModelGroup(FC.Compressor, 'FG', label = 'Compressor')
-    tank = F.SubModelGroup(FC.Tank, 'FG', label = 'Tank')
+    tank = F.SubModelGroup(FC.Tank, 'FG', label = 'Compressed gas storage')
     
-    parametersSG = F.SuperGroup([globalParams, fuelingSource, compressor, tank], label = "Parameters")
+    parametersSG = F.SuperGroup([globalParams, fuelingSource, tank, controller, compressor], label = "Parameters")
 
     #1.2 Fields - Settings
     tFinal = F.Quantity('Time', default = (2000, 's'), minValue = (0, 's'), maxValue=(1.e9, 's'), label = 'simulation time')
@@ -61,7 +73,7 @@ class Tank(NumericalModel):
              ('TTank', F.Quantity('Temperature', default=(1, 'K'))),
         ),
         label='Table', 
-        options = {'title': 'Tank refueling-extraction cycles', 'formats': ['0.000', '0.000', '0.000']}
+        options = {'title': 'Tank fueling-extraction', 'formats': ['0.000', '0.000', '0.000']}
     )
     
     resultsVG = F.ViewGroup([plot, table], label = 'Results')
@@ -75,32 +87,45 @@ class Tank(NumericalModel):
     
     
     #================ Methods ================#
-    def __init__(self):
-        #:TODO: __INIT__()
-        # Initialize the fluids
-        self.fluid = CP.Fluid(self.globalParams.fluidName)
-        self.ambientFluid = CP.Fluid('Air'), #:TODO: (?) 
+    def __init__(self):        
+        # Set default values        
+        self.controller.initialState = TC.FUELING
+        self.controller.tWaitBeforeExtraction = (250., 's')
+        self.controller.tWaitBeforeFueling = (50., 's')
+        self.controller.pMin = (20., 'bar')
+        self.controller.pMax = (300., 'bar')
+        self.controller.mDotExtr = (30., 'kg/h')
+        self.controller.nCompressor = (1., 'rev/s')
         
-        # Set default values
-        self.refuelingSource.fluid = self.fluid
-        self.refuelingSource.sourceTypeTxt = 'PQ'
-        self.refuelingSource.T = (15, 'K')
-        self.refuelingSource.p = (2., 'bar')
-        self.refuelingSource.q = (0, '-')
+        self.fuelingSource.sourceTypeTxt = 'PQ'
+        self.fuelingSource.T = (300., 'K')
+        self.fuelingSource.p = (1., 'bar')
+        self.fuelingSource.q = (0., '-')
         
-        self.compressor.fluid = self.fluid
         self.compressor.etaS = (0.9, '-')
         self.compressor.fQ = (0.1, '-')
         self.compressor.V = (0.25, 'L')
         
-        self.tank.fluid = self.fluid
-        self.tank.V = (100., 'L')
+        self.tank.wallArea = (2., 'm**2')
+        self.tank.volume = (100., 'L')
         self.tank.TInit = (300., 'K')
-        self.tank.pInit = (20., 'bar')
+        self.tank.pInit = (1., 'bar')
+        self.tank.linerMaterial = 'StainlessSteel304'
+        self.tank.linerMass = (10., 'kg')
+        self.tank.linerThickness = (0.05, 'm')
+        self.tank.compositeMaterial = 'CarbonFiberComposite'
+        self.tank.compositeMass = (15., 'kg')
+        self.tank.compositeThickness = (0.1, 'm')
+        self.tank.hConvExternal = (100., 'W/m**2-K')
+        self.tank.hConvInternalWaiting = (10., 'W/m**2-K')
+        self.tank.hConvInternalExtraction = (20., 'W/m**2-K')
+        self.tank.hConvInternalFueling = (100., 'W/m**2-K')
         
-        self.tankConvection.A = self.tankWallArea
-        self.tankConvection.hConv = 0.0 #:TRICKY: no*8/*
     def compute(self):
+        # Initialize the fluids
+        self.fluid = CP.Fluid(self.fluidName)
+        self.ambientFluid = CP.Fluid(self.fluidAmbientName)
+        
         # Create model object         
         tank = DM.TankModelFactory.create(self)
         
@@ -116,4 +141,6 @@ class Tank(NumericalModel):
 
 class TankDoc(RestModule):
     label = 'Tank (Doc)'
+    
+
     

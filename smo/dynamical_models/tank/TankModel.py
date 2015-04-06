@@ -308,7 +308,7 @@ class TankModelFactory():
 				fluid = params.ambientFluid,
 				sourceType = DM.FluidStateSource.TP,
 				T = params.TAmbient,
-				p = 1e5,
+				p = 1.e5,
 			),
 			extractionSink = AttributeDict(
 				fluid = params.fluid,

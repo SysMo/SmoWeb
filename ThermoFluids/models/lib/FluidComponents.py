@@ -9,43 +9,33 @@ from collections import OrderedDict
 from smo.model.model import NumericalModel
 import smo.dynamical_models.thermofluids as DM
 from smo.dynamical_models.tank.TankController import TankController as TC
-from smo.media.MaterialData import Fluids, Solids
+from smo.media.MaterialData import Solids
 
-#:TODO: rename FluidCompoinents to TankComponents
-
-class GlobalParameters(NumericalModel):
-    fluidName = F.Choices(options = Fluids, default = 'ParaHydrogen', 
-        label = 'fluid', description = 'fluid in the tank')
-    TAmbient = F.Quantity('Temperature', default = (15.0, 'degC'), 
-        label = 'T<sub>amb</sub>', description = 'ambient temperature')
-    
-    FG = F.FieldGroup([fluidName, TAmbient], label = "Global")
-    
-    modelBlocks = []
+#:TODO: rename FluidCompoinents to CompressorGasStorageComponents
 
 class TankController(NumericalModel):
     initialState = F.Choices(
         OrderedDict((
-            (TC.FUELING, 'refueling'),
+            (TC.FUELING, 'fueling'),
             (TC.EXTRACTION, 'extraction'),
         )), 
         label = 'start with',
-        description = 'start the simulation with refueling or extraction'
+        description = 'start the simulation with fueling or extraction'
     )
-    tWaitBeforeExtraction = F.Quantity('Time', default = (50., 's'), minValue = (0., 's'), maxValue=(1.e6, 's'), 
-        label = '&#964<sub>extraction</sub>', description = 'waiting time before each extraction')
-    tWaitBeforeRefueling = F.Quantity('Time', default = (50., 's'), minValue = (0., 's'), maxValue=(1.e6, 's'), 
-        label = '&#964<sub>refueling</sub>', description = 'waiting time before each refueling')
-    pMin = F.Quantity('Pressure', default = (20., 'bar'), 
-        label = 'p<sub>min</sub>', description = 'minimum pressure in the tank')
-    pMax = F.Quantity('Pressure', default = (300., 'bar'), 
-        label = 'p<sub>max</sub>', description = 'maximum pressure in the tank')
-    mDotExtr = F.Quantity('MassFlowRate', default = (30., 'kg/h'), 
-        label = '&#7745<sub>extraction</sub>', description = 'extraction mass flow rate')
-    nCompressor = F.Quantity('AngularVelocity', default = (1.0, 'rev/s'), minValue = (0, 'rev/s'), maxValue = (1e4, 'rev/s'),
-        label = 'n<sub>compr</sub>', description = 'compressor revolutions')
+    tWaitBeforeExtraction = F.Quantity('Time', default = (0., 's'), minValue = (0., 's'), maxValue=(1.e6, 's'), 
+        label = '&#964 (extraction)', description = 'waiting time before each extraction')
+    tWaitBeforeFueling = F.Quantity('Time', default = (0., 's'), minValue = (0., 's'), maxValue=(1.e6, 's'), 
+        label = '&#964 (fueling)', description = 'waiting time before each fueling')
+    pMin = F.Quantity('Pressure', default = (0., 'bar'), 
+        label = 'minimum pressure</sub>', description = 'minimum pressure in the gas storage for starting fueling')
+    pMax = F.Quantity('Pressure', default = (0., 'bar'), 
+        label = 'maximum pressure', description = 'maximum pressure in the gas storage for stopping fueling')
+    mDotExtr = F.Quantity('MassFlowRate', default = (0., 'kg/h'), 
+        label = 'extraction mass flow rate', description = 'extraction mass flow rate')
+    nCompressor = F.Quantity('AngularVelocity', default = (0., 'rev/s'), minValue = (0, 'rev/s'), maxValue = (1e4, 'rev/s'),
+        label = 'compressor speed', description = 'compressor speed')
     
-    FG = F.FieldGroup([initialState, pMin, pMax, mDotExtr, tWaitBeforeExtraction, tWaitBeforeRefueling, nCompressor], 
+    FG = F.FieldGroup([initialState, pMin, pMax, mDotExtr, nCompressor, tWaitBeforeExtraction, tWaitBeforeFueling], 
         label = 'Parameters')
     
     modelBlocks = []
@@ -71,72 +61,69 @@ class FluidStateSource(NumericalModel):
         else:
             raise ValueError('Unsupported source type of FluidStateSource.')
     
-    T = F.Quantity('Temperature', default = (300, 'K'), 
-        label = 'temperature', show = "self.sourceTypeTxt == 'TP' || self.sourceTypeTxt == 'TQ'")
-    p = F.Quantity('Pressure', default = (1., 'bar'), 
-        label = 'pressure', show = "self.sourceTypeTxt == 'TP' || self.sourceTypeTxt == 'PQ'")
-    q = F.Quantity('VaporQuality', default = (0, '-'), minValue = 0, maxValue = 1, 
-        label = 'vapour quality', show = "self.sourceTypeTxt == 'TQ' || self.sourceTypeTxt == 'PQ'")
+    T = F.Quantity('Temperature', default = (0., 'K'), 
+        label = 'temperature', description = 'temperature', show = "self.sourceTypeTxt == 'TP' || self.sourceTypeTxt == 'TQ'")
+    p = F.Quantity('Pressure', default = (0., 'bar'), 
+        label = 'pressure', description = 'pressure', show = "self.sourceTypeTxt == 'TP' || self.sourceTypeTxt == 'PQ'")
+    q = F.Quantity('VaporQuality', default = (0., '-'), minValue = 0, maxValue = 1, 
+        label = 'vapour quality', description = 'vapour quality', show = "self.sourceTypeTxt == 'TQ' || self.sourceTypeTxt == 'PQ'")
     
     FG = F.FieldGroup([sourceTypeTxt, T, p, q], label = 'Initial values')
         
     modelBlocks = []
     
 class Compressor(NumericalModel):   
-    etaS = F.Quantity('Efficiency', default = (0.9, '-'),
-        label = '&#951<sub>S</sub>', description = 'isentropic efficiency')
-    fQ = F.Quantity('Fraction', default = (0.1, '-'),
-        label = 'f<sub>Q</sub>', description = 'fraction of heat loss to ambient')
-    V = F.Quantity('Volume', default = (0.25, 'L'), maxValue = (1e6, 'L'),
-        label = 'V<sub>displ</sub>', description = 'displacement volume')
+    etaS = F.Quantity('Efficiency', default = (0., '-'),
+        label = 'isentropic efficiency', description = 'isentropic efficiency')
+    fQ = F.Quantity('Fraction', default = (0., '-'),
+        label = 'fraction of heat loss', description = 'fraction of heat loss to ambient')
+    V = F.Quantity('Volume', default = (0., 'L'), maxValue = (1e6, 'L'),
+        label = 'displacement volume', description = 'displacement volume')
     
     FG = F.FieldGroup([etaS, fQ, V], label = 'Initial values')
     
     modelBlocks = []
     
 class Tank(NumericalModel):
-    fluid = None
-    
-    V = F.Quantity('Volume', default = (1., 'L'), maxValue = (1e6, 'L'),
+    wallArea = F.Quantity('Area', default = (0., 'm**2'),
+        label = 'wall area', description = 'wall area')
+    volume = F.Quantity('Volume', default = (0., 'L'), maxValue = (1e6, 'L'),
         label = 'volume', description = 'volume')
-    TInit = F.Quantity('Temperature', default = (300., 'K'), 
-        label = 'initial temperature')
-    pInit = F.Quantity('Pressure', default = (1., 'bar'), 
-        label = 'initial pressure')
+    TInit = F.Quantity('Temperature', default = (0., 'K'), 
+        label = 'initial temperature', description = 'initial temperature')
+    pInit = F.Quantity('Pressure', default = (0., 'bar'), 
+        label = 'initial pressure', description = 'initial pressure')
+    
+    linerMaterial = F.ObjectReference(Solids, default = 'StainlessSteel304', 
+        label = 'liner material', description = 'liner material')
+    linerMass = F.Quantity('Mass', default = (0., 'kg'), 
+        label = 'liner mass', description = 'liner mass')
+    linerThickness = F.Quantity('Length', default = (0., 'm'), minValue = (0, 'm'),
+        label = 'liner thickness', description = 'liner thickness')
+    
+    compositeMaterial = F.ObjectReference(Solids, default = 'StainlessSteel304', 
+        label = 'composite material', description = 'composite material')
+    compositeMass = F.Quantity('Mass', default = (0., 'kg'), 
+        label = 'composite mass', description = 'composite mass')
+    compositeThickness = F.Quantity('Length', default = (0., 'm'), minValue = (0, 'm'),
+        label = 'composite thickness', description = 'composite thickness')
+    
+    hConvExternal = F.Quantity('HeatTransferCoefficient', default = (0., 'W/m**2-K'), 
+        label = 'h<sub>conv</sub> (external)</sub>', description = 'external convection coefficient to ambient')
+    hConvInternalWaiting = F.Quantity('HeatTransferCoefficient', default = (0., 'W/m**2-K'), 
+        label = 'h<sub>conv</sub> (internal,waiting)</sub>', description = 'internal convection coefficient during waiting time')
+    hConvInternalExtraction = F.Quantity('HeatTransferCoefficient', default = (0., 'W/m**2-K'), 
+        label = 'h<sub>conv</sub> (internal, extraction)</sub>', description = 'internal convection coefficient during extraction')
+    hConvInternalFueling =  F.Quantity('HeatTransferCoefficient', default = (0., 'W/m**2-K'), 
+        label = 'h<sub>conv</sub> (internal, fueling)', description = 'internal convection coefficient during refueling')
 
-    tankWallArea = F.Quantity('Area', default = (2.0, 'm**2'),
-        label = 'tank wall area', description = 'tank, liner and composite wall area')    
-    hConvTankWaiting = F.Quantity('HeatTransferCoefficient', default = (10, 'W/m**2-K'), 
-        label = 'h<sub>conv,waiting</sub>', description = 'tank convection coefficient during waiting time')
-    hConvTankExtraction = F.Quantity('HeatTransferCoefficient', default = (20., 'W/m**2-K'), 
-        label = 'h<sub>conv,extraction</sub>', description = 'tank convection coefficient during extraction')
-    hConvTankRefueling =  F.Quantity('HeatTransferCoefficient', default = (100., 'W/m**2-K'), 
-        label = 'h<sub>conv,refueling</sub>', description = 'tank convection coefficient during refueling')
-
     
-    FG = F.FieldGroup([V, TInit, pInit], label = 'Initial values')
-    
-    modelBlocks = []
-
-#:TODO: DELME (below)
-class ConvectionHeatTransfer(NumericalModel):
-    A = F.Quantity('Area', default = (1., 'm**2'),
-        label = 'convection area', description = 'convection area')
-    hConv = F.Quantity('HeatTransferCoefficient', default = (10., 'W/m**2-K'),
-        label = 'convection coefficient', description = 'convection heat transfer coefficient')
-    
-    FG = F.FieldGroup([A, hConv], label = 'Initial values')
-    
-    modelBlocks = []
-    
-class SolidConductiveBody(NumericalModel):
-    material = F.ObjectReference(Solids, default = 'StainlessSteel304', 
-        label = 'material', description = 'solid material')
-    mass = F.Quantity('Mass', default = (1., 'kg'), 
-        label = 'mass', description = 'solid mass')
-    thickness = F.Quantity('Length', default = (0.1, 'm'), minValue = (0, 'm'),
-        lable = 'thickness', description = 'solid thickness')
-    conductionArea = F.Quantity('Area', default = (1., 'm**2'),
-        label = 'conduction area', description = 'conduction area')
+    FG = F.FieldGroup(
+        [wallArea, volume, TInit, pInit,
+         linerMaterial, linerMass, linerThickness,
+         compositeMaterial, compositeMass, compositeThickness,
+         hConvExternal, hConvInternalWaiting, hConvInternalExtraction, hConvInternalFueling,   
+        ], 
+        label = 'Initial values')
     
     modelBlocks = []

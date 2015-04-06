@@ -51,7 +51,7 @@ class FluidStateSource(DMC.DynamicalModel):
 	def __init__(self, params = None, **kwargs):
 		if params == None:
 			params = AttributeDict(kwargs)
-			
+		
 		self.fluid = params.fluid
 		self.fState = CP.FluidState(self.fluid)
 		self.port1 = DMS.FluidPort('C', self.fState)
@@ -80,6 +80,7 @@ class FluidStateSource(DMC.DynamicalModel):
 	
 	def compute(self):
 		if (self.sourceType == self.TP):
+			print self.T, self.p
 			self.fState.update_Tp(self.T, self.p)
 		elif (self.sourceType == self.PQ):
 			self.fState.update_pq(self.p, self.q)
