@@ -86,9 +86,54 @@ class FluidSource_TP(CycleComponent):
 		self.outlet.flow.mDot = self.mDot
 		self.outlet.state.update_Tp(self.T, self.p)
 		
+from smo.media.MaterialData import Fluids
+StateVariableOptions = OrderedDict((
+	('P', 'pressure (P)'),
+	('T', 'temperature (T)'),
+	('D', 'density (D)'),
+	('H', 'specific enthalpy (H)'),
+	('S', 'specific entropy (S)'),
+	('Q', 'vapor quality (Q)'),
+))		
+class FluidSource(CycleComponent):
+	fluidName = F.Choices(options = Fluids, default = 'Water', label = 'fluid')	
+	stateVariable1 = F.Choices(options = StateVariableOptions, default = 'P', label = 'first state variable')
+	p1 = F.Quantity('Pressure', default = (1, 'bar'), label = 'pressure', show="self.stateVariable1 == 'P'")
+	T1 = F.Quantity('Temperature', default = (300, 'K'), label = 'temperature', show="self.stateVariable1 == 'T'")
+	rho1 = F.Quantity('Density', default = (1, 'kg/m**3'), label = 'density', show="self.stateVariable1 == 'D'")
+	h1 = F.Quantity('SpecificEnthalpy', default = (1000, 'kJ/kg'), label = 'specific enthalpy', show="self.stateVariable1 == 'H'")
+	s1 = F.Quantity('SpecificEntropy', default = (100, 'kJ/kg-K'), label = 'specific entropy', show="self.stateVariable1 == 'S'")
+	q1 = F.Quantity('VaporQuality', default = (1, '-'), minValue = 0, maxValue = 1, label = 'vapour quality', show="self.stateVariable1 == 'Q'")
+	stateVariable2 = F.Choices(options = StateVariableOptions, default = 'T', label = 'second state variable')
+	p2 = F.Quantity('Pressure', default = (1, 'bar'), label = 'pressure', show="self.stateVariable2 == 'P'")
+	T2 = F.Quantity('Temperature', default = (300, 'K'), label = 'temperature', show="self.stateVariable2 == 'T'")
+	rho2 = F.Quantity('Density', default = (1, 'kg/m**3'), label = 'density', show="self.stateVariable2 == 'D'")
+	h2 = F.Quantity('SpecificEnthalpy', default = (1000, 'kJ/kg'), label = 'specific enthalpy', show="self.stateVariable2 == 'H'")
+	s2 = F.Quantity('SpecificEntropy', default = (100, 'kJ/kg-K'), label = 'specific entropy', show="self.stateVariable2 == 'S'")
+	q2 = F.Quantity('VaporQuality', default = (1, '-'), minValue = 0, maxValue = 1, label = 'vapour quality', show="self.stateVariable2 == 'Q'")
+	mDot = F.Quantity('MassFlowRate', default = (1, 'kg/h'), label = 'mass flow')
+	
+	FG = F.FieldGroup([fluidName, stateVariable1, p1, T1, rho1, h1, s1, q1, 
+						stateVariable2, p2, T2, rho2, h2, s2, q2, mDot], label = 'Compressor')
+	modelBlocks = []
+	#================== Ports ===================#
+	outlet = F.Port(P.ThermodynamicPort)
+	#================== Methods =================#
+	def getStateValue(self, sVar, prefix = "", suffix=""):
+		sVarDict = {'P': 'p', 'T': 'T', 'D': 'rho', 'H': 'h', 'S': 's', 'Q': 'q'}
+		return self.__dict__[prefix + sVarDict[sVar] + suffix]		
+	
+	def compute(self):
+		self.outlet.flow.mDot = self.mDot
+		self.outlet.state.update(
+				self.stateVariable1, self.getStateValue(self.stateVariable1, suffix = "1"), 
+				self.stateVariable2, self.getStateValue(self.stateVariable2, suffix = "2")
+		)
+		
 class FluidSink(CycleComponent):
 	modelBlocks = []
-	FG = F.FieldGroup([])
+	p = F.Quantity('Pressure', default = (10, 'bar'), label = 'pressure')
+	FG = F.FieldGroup([p])
 	#================== Ports =================#
 	inlet = F.Port(P.ThermodynamicPort)
 	
@@ -96,8 +141,10 @@ class CycleComponent2FlowPorts(CycleComponent):
 	abstract = True
 	w = F.Quantity('SpecificEnergy', default = (0, 'kJ/kg'), label = 'specific work')
 	qIn = F.Quantity('SpecificEnergy', default = (0, 'kJ/kg'), label = 'specific heat in')
+	delta_h = F.Quantity('SpecificEnthalpy', label = 'enthalpy change (fluid)')
 	WDot = F.Quantity('Power', default = (0, 'kW'), label = 'power')
 	QDotIn = F.Quantity('HeatFlowRate', default = (0, 'kW'), label = 'heat flow rate in')
+	deltaHDot = F.Quantity('Power', label = 'enthalpy change (fluid)') 
 	#================== Ports =================#
 	inlet = F.Port(P.ThermodynamicPort)
 	outlet = F.Port(P.ThermodynamicPort)
@@ -108,6 +155,7 @@ class CycleComponent2FlowPorts(CycleComponent):
 	def postProcess(self):
 		self.WDot = self.w * self.inlet.flow.mDot
 		self.QDotIn = self.qIn * self.inlet.flow.mDot
+		self.deltaHDot = self.delta_h * self.inlet.flow.mDot
 	
 class Compressor(CycleComponent2FlowPorts):
 	modelType = F.Choices(OrderedDict((
@@ -123,13 +171,15 @@ class Compressor(CycleComponent2FlowPorts):
 	#================== Methods =================#
 	def compute(self, pOut):
 		CycleComponent2FlowPorts.compute(self)
+		if (pOut < self.inlet.state.p):
+			raise ValueError('Outlet pressure must be higher than inlet pressure')
 		if (self.modelType == 'S'):
 			self.outlet.state.update_ps(pOut, self.inlet.state.s)
 			wIdeal = self.outlet.state.h - self.inlet.state.h
 			self.w = wIdeal / self.etaS
 			self.qIn = - self.fQ * self.w
-			delta_h = self.w + self.qIn
-			self.outlet.state.update_ph(pOut, self.inlet.state.h + delta_h)
+			self.delta_h = self.w + self.qIn
+			self.outlet.state.update_ph(pOut, self.inlet.state.h + self.delta_h)
 		else:
 			self.outlet.state.update_Tp(self.inlet.state.T + self.dT, pOut)
 			self.qIn = (self.outlet.state.s - self.inlet.state.s) * self.inlet.state.T
@@ -143,23 +193,28 @@ class Turbine(CycleComponent2FlowPorts):
 	modelBlocks = []
 	#================== Methods =================#	
 	def compute(self, pOut):
+		if (pOut > self.inlet.state.p):
+			raise ValueError('Outlet pressure must be lower than inlet pressure')
 		CycleComponent2FlowPorts.compute(self)
 		self.outlet.state.update_ps(pOut, self.inlet.state.s)
 		wIdeal = self.outlet.state.h - self.inlet.state.h
 		self.w = wIdeal * self.eta
 		self.qIn = 0
-		delta_h = self.w + self.qIn
-		self.outlet.state.update_ph(pOut, self.inlet.state.h + delta_h)
+		self.delta_h = self.w + self.qIn
+		self.outlet.state.update_ph(pOut, self.inlet.state.h + self.delta_h)
 	
 class ThrottleValve(CycleComponent2FlowPorts):
 	FG = F.FieldGroup([])
 	modelBlocks = []
 	#================== Methods =================#
 	def compute(self, pOut):
+		if (pOut > self.inlet.state.p):
+			raise ValueError('Outlet pressure must be lower than inlet pressure')
 		CycleComponent2FlowPorts.compute(self)
 		self.outlet.state.update_ph(pOut, self.inlet.state.h)
 		self.w = 0
 		self.qIn = 0
+		self.delta_h = 0
 
 class IsobaricHeatExchanger(CycleComponent2FlowPorts):
 	etaThermal = F.Quantity(default = 0.9, label = 'thermal efficiency', minValue = 0, maxValue = 1, show = 'self.computeMethod == "eta"')
@@ -188,6 +243,8 @@ class IsobaricHeatExchanger(CycleComponent2FlowPorts):
 			raise ValueError('Unknown compute method {}'.format(self.computeMethod))
 		
 		self.qIn = self.outlet.state.h - self.inlet.state.h
+		self.delta_h = self.qIn
+		self.w = 0
 		
 class Evaporator(IsobaricHeatExchanger):
 	computeMethod = F.Choices(OrderedDict((
@@ -225,9 +282,16 @@ class HeatExchangerTwoStreams(CycleComponent):
 		('EG',  'effectiveness (given)'),
 		('EN', 'effectiveness (NTU)'),
 	)), label = 'compute method')
+	type = F.Choices(options = OrderedDict((
+												('CF', 'counter flow'),
+												('PF', 'parallel flow'),
+												('EC', 'evaporation/condensation'),
+											)), default = 'CF', label = "flow configuration",
+						show = 'self.computeMethod == "EN"')
 	epsGiven = F.Quantity('Efficiency', default = 1, label = 'effectiveness', show = 'self.computeMethod == "EG"')
 	UA = F.Quantity('ThermalConductance', default = 1, label = 'UA', show = 'self.computeMethod == "EN"')
-	FG = F.FieldGroup([computeMethod, epsGiven, UA], label = 'Heat exchanger')
+	QDot = F.Quantity('HeatFlowRate', default = (0, 'kW'), label = 'heat flow rate in')
+	FG = F.FieldGroup([computeMethod, epsGiven, UA, type], label = 'Heat exchanger')
 	#================== Results =================#
 	NTU = F.Quantity(label = 'NTU')
 	Cr = F.Quantity(label = 'capacity ratio')
@@ -269,9 +333,18 @@ class HeatExchangerTwoStreams(CycleComponent):
 		CMax = dHDotMax / deltaTInlet
 		self.NTU = self.UA / abs(CMin)
 		self.Cr = abs(CMin / CMax)
-		self.NTU_counterFlow()
+		if self.type == 'CF':
+			self.NTU_counterFlow()
+		elif self.type == 'PF':
+			self.NTU_parallelFlow()
+		elif self.type == 'EC':
+			self.NTU_evaporation_condensation()
 	def NTU_counterFlow(self):
 		self.epsilon = (1 - m.exp(- self.NTU * (1 - self.Cr))) / (1 - self.Cr * m.exp(- self.NTU * (1 - self.Cr))) 
+	def NTU_parallelFlow(self):
+		self.epsilon = (1 - m.exp(- self.NTU * (1 + self.Cr))) / (1 + self.Cr)
+	def NTU_evaporation_condensation(self):
+		self.epsilon = 1 - m.exp(- self.NTU)
 	def __str__(self):
 		return """
 Inlet 1: T = {self.inlet1.state.T}, p = {self.inlet1.state.p}, q = {self.inlet1.state.q}, h = {self.inlet1.state.h} 

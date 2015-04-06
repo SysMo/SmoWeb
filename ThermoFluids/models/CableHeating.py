@@ -170,6 +170,7 @@ class CableHeating1D(NumericalModel):
 		* conduction along the wire
 	"""
 	label = "Cable Heating"
+	figure = ModelFigure(src="ThermoFluids/img/ModuleImages/CableHeating.svg")
 	description = ModelDescription("1D thermal solver for heat heating of a conducting cable. \
 	Accounts for resistive heat generation (contact and distributed) as dissipation \
 	(through conduction, convection and radiation)'", show = True)  

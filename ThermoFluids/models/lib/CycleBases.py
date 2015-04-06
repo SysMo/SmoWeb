@@ -139,8 +139,10 @@ class ThermodynamicalCycle(NumericalModel):
 		self.flows = []
 		self.solver.cycle = self
 
-	def connectPorts(self, port1, port2):
-		fp = FluidState(self.fluid)
+	def connectPorts(self, port1, port2, fluid = None):
+		if fluid == None:
+			fluid = self.fluid
+		fp = FluidState(fluid)
 		flow = P.FluidFlow()
 		self.fp.append(fp)
 		self.flows.append(flow)
