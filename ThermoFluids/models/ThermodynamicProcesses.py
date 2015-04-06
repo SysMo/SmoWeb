@@ -50,7 +50,8 @@ class ThermodynamicalProcess(ThermodynamicalCycle):
 
 class Compression(ThermodynamicalProcess):
 	label = "Compression"
-	description = F.ModelDescription("Parameteric model for compression process: isentropic and isothermal", show = True)	
+	description = F.ModelDescription("Parameteric model for compression process: isentropic and isothermal", show = True)
+	figure = F.ModelFigure(src="ThermoFluids/img/ModuleImages/Compressor.svg")	
 	compressor = F.SubModelGroup(TC.Compressor, 'FG', label  = 'Compressor')
 	inputs = F.SuperGroup(['fluidSource', 'fluidSink', compressor])
 	
@@ -66,6 +67,7 @@ class Compression(ThermodynamicalProcess):
 class Expansion(ThermodynamicalProcess):
 	label = "Expansion"
 	description = F.ModelDescription("Parameteric model for expansion process: isentropic and isenthalpic", show = True)
+	figure = F.ModelFigure(src="ThermoFluids/img/ModuleImages/Turbine.svg")
 	turbine = F.SubModelGroup(TC.Turbine, 'FG', label = 'Turbine', show="self.processType == 'S'")
 	throttleValve = F.SubModelGroup(TC.ThrottleValve, 'FG', show="false")
 	processType = F.Choices(options = OrderedDict((
@@ -91,6 +93,7 @@ class Expansion(ThermodynamicalProcess):
 class Heating(ThermodynamicalProcess):
 	label = "Heating"
 	description = F.ModelDescription("Heating process at constant pressure", show = True)
+	figure = F.ModelFigure(src="ThermoFluids/img/ModuleImages/Evaporator.svg")
 	evaporator = F.SubModelGroup(TC.Evaporator, 'FG', label = 'Evaporator')
 	inputs = F.SuperGroup(['fluidSource', evaporator])
 
@@ -107,6 +110,7 @@ class Heating(ThermodynamicalProcess):
 class Cooling(ThermodynamicalProcess):
 	label = "Cooling"
 	description = F.ModelDescription("Cooling process at constant pressure", show = True)
+	figure = F.ModelFigure(src="ThermoFluids/img/ModuleImages/Condenser.svg")
 	condenser = F.SubModelGroup(TC.Condenser, 'FG', label = 'Condenser')
 	inputs = F.SuperGroup(['fluidSource', condenser])
 
@@ -157,7 +161,8 @@ class ThermodynamicalProcessTwoStreams(ThermodynamicalCycle):
 
 class HeatExchangerTwoStreams(ThermodynamicalProcessTwoStreams):
 	label = "Heat Exchanger (two streams)"
-	description = F.ModelDescription("Parameteric model for heat exchange between two streams", show = True)	
+	description = F.ModelDescription("Parameteric model for heat exchange between two streams", show = True)
+	figure = F.ModelFigure(src="ThermoFluids/img/ModuleImages/HeatExchanger.svg")	
 	heatExchanger = F.SubModelGroup(TC.HeatExchangerTwoStreams, 'FG', label  = 'Heat exchanger')
 	inputs = F.SuperGroup(['fluidSource1', 'fluidSource2', heatExchanger])
 	
