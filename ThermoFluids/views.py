@@ -67,3 +67,12 @@ class HeatExchange1DView(ModularPageView):
 	modules = [M.CryogenicPipe, M.CableHeating1D]	
 	requireJS = ['dygraph', 'dygraphExport']
 	requireGoogle = ['visualization']
+
+# from models.TestModule import ABC
+# @registerView(router)
+# class TestPage(ModularPageView):
+# 	label = 'Test'
+# 	modules = [ABC]
+# 	requireJS = ['dygraph', 'dygraphExport']
+# 	requireGoogle = ['visualization']
+# 	
