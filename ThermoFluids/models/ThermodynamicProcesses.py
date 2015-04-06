@@ -51,7 +51,7 @@ class ThermodynamicalProcess(ThermodynamicalCycle):
 class Compression(ThermodynamicalProcess):
 	label = "Compression"
 	description = F.ModelDescription("Parameteric model for compression process: isentropic and isothermal", show = True)
-	figure = F.ModelFigure(src="ThermoFluids/img/ModuleImages/Compressor.svg")	
+	figure = F.ModelFigure(src="ThermoFluids/img/ModuleImages/Compression.svg")	
 	compressor = F.SubModelGroup(TC.Compressor, 'FG', label  = 'Compressor')
 	inputs = F.SuperGroup(['fluidSource', 'fluidSink', compressor])
 	
@@ -67,7 +67,7 @@ class Compression(ThermodynamicalProcess):
 class Expansion(ThermodynamicalProcess):
 	label = "Expansion"
 	description = F.ModelDescription("Parameteric model for expansion process: isentropic and isenthalpic", show = True)
-	figure = F.ModelFigure(src="ThermoFluids/img/ModuleImages/Turbine.svg")
+	figure = F.ModelFigure(src="ThermoFluids/img/ModuleImages/Expansion.svg")
 	turbine = F.SubModelGroup(TC.Turbine, 'FG', label = 'Turbine', show="self.processType == 'S'")
 	throttleValve = F.SubModelGroup(TC.ThrottleValve, 'FG', show="false")
 	processType = F.Choices(options = OrderedDict((
@@ -93,7 +93,7 @@ class Expansion(ThermodynamicalProcess):
 class Heating(ThermodynamicalProcess):
 	label = "Heating"
 	description = F.ModelDescription("Heating process at constant pressure", show = True)
-	figure = F.ModelFigure(src="ThermoFluids/img/ModuleImages/Evaporator.svg")
+	figure = F.ModelFigure(src="ThermoFluids/img/ModuleImages/Heating.svg")
 	evaporator = F.SubModelGroup(TC.Evaporator, 'FG', label = 'Evaporator')
 	inputs = F.SuperGroup(['fluidSource', evaporator])
 
@@ -110,7 +110,7 @@ class Heating(ThermodynamicalProcess):
 class Cooling(ThermodynamicalProcess):
 	label = "Cooling"
 	description = F.ModelDescription("Cooling process at constant pressure", show = True)
-	figure = F.ModelFigure(src="ThermoFluids/img/ModuleImages/Condenser.svg")
+	figure = F.ModelFigure(src="ThermoFluids/img/ModuleImages/Cooling.svg")
 	condenser = F.SubModelGroup(TC.Condenser, 'FG', label = 'Condenser')
 	inputs = F.SuperGroup(['fluidSource', condenser])
 
