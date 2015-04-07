@@ -380,3 +380,9 @@ div.tooltip-inner {
     white-space: normal;
     text-align: left;
 }
+
+@media (max-width: 991px) {
+	.col-sm-10 {
+	    width: 100%;
+	}
+}
