@@ -38,7 +38,13 @@ class SolidConductiveBody(DMC.DynamicalModel):
 			raise ValueError("The material '{}' does not define a thermal conductivity params".format(self.material.name))
 		
 		# Mass
-		self.mass = params.mass
+		if hasattr(params, 'mass'):
+			self.mass = params.mass
+		else:
+			rho = self.material['refValues']['density']
+			V = params.thickness * params.conductionArea
+			self.mass = rho * V
+		
 		self.numMassSegments = params.numMassSegments
 		self.segmentMass= self.mass / self.numMassSegments
 		self.cp = np.zeros(self.numMassSegments)

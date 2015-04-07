@@ -33,13 +33,13 @@ class CompressedGasStorage(NumericalModel):
     controller = F.SubModelGroup(GSC.Controller, 'SG', label  = 'Controller')
     fuelingSource = F.SubModelGroup(GSC.FluidStateSource, 'FG', label = 'Fueling source')
     compressor = F.SubModelGroup(GSC.Compressor, 'FG', label = 'Compressor')
-    conditioner = F.SubModelGroup(GSC.Conditioner, 'FG', label = 'Conditioner')
+    cooler = F.SubModelGroup(GSC.Cooler, 'FG', label = 'Cooler')
     tank = F.SubModelGroup(GSC.Tank, 'SG', label = 'Pressure vessel')
     
-    parametersSG = F.SuperGroup([globalParams, fuelingSource, compressor, conditioner], label = "Parameters")
+    parametersSG = F.SuperGroup([globalParams, fuelingSource, compressor, cooler], label = "Parameters")
 
     #1.2 Fields - Settings
-    tFinal = F.Quantity('Time', default = (2000, 's'), minValue = (0, 's'), maxValue=(1.e9, 's'), label = 'simulation time')
+    tFinal = F.Quantity('Time', default = (2500, 's'), minValue = (0, 's'), maxValue=(1.e9, 's'), label = 'simulation time')
     tPrint = F.Quantity('Time', default = (1., 's'), minValue = (1.e-5, 's'), maxValue = (1.e4, 's'), label = 'print interval')
     solverFG = F.FieldGroup([tFinal, tPrint], label = 'Solver')
     
@@ -57,7 +57,7 @@ class CompressedGasStorage(NumericalModel):
         (
             ('time', F.Quantity('Time', default=(1, 's'))),
             ('vessel pressure', F.Quantity('Pressure', default=(1, 'bar'))),
-            ('vessel temperature', F.Quantity('Temperature', default=(1, 'K'))),
+            ('vessel temperature', F.Quantity('Temperature', default=(1, 'degC'))),
             ('vessel density', F.Quantity('Density', default=(1, 'kg/m**3'))),
         ),
         label='Plot', 
@@ -67,7 +67,7 @@ class CompressedGasStorage(NumericalModel):
         (
              ('time', F.Quantity('Time', default=(1, 's'))),
              ('vessel pressure', F.Quantity('Pressure', default=(1, 'bar'))),
-             ('vessel temperature', F.Quantity('Temperature', default=(1, 'K'))),
+             ('vessel temperature', F.Quantity('Temperature', default=(1, 'degC'))),
              ('vessel density', F.Quantity('Density', default=(1, 'kg/m**3'))),
         ),
         label='Table', 
@@ -85,45 +85,42 @@ class CompressedGasStorage(NumericalModel):
     ############# Page structure ########
     modelBlocks = [inputView, resultView]
     
-    
     #================ Methods ================#
     def __init__(self):        
         # Set default values        
         self.controller.initialState = TC.FUELING
-        self.controller.tWaitBeforeExtraction = (250., 's')
-        self.controller.tWaitBeforeFueling = (50., 's')
-        self.controller.pMin = (20., 'bar')
-        self.controller.pMax = (300., 'bar')
+        self.controller.tWaitBeforeExtraction = (500., 's')
+        self.controller.tWaitBeforeFueling = (0., 's')
+        self.controller.pMin = (2., 'bar')
+        self.controller.pMax = (100., 'bar')
         self.controller.mDotExtr = (30., 'kg/h')
-        self.controller.nCompressor = (1., 'rev/s')
+        self.controller.nCompressor = (30., 'rev/s')
         
-        self.fuelingSource.sourceTypeTxt = 'PQ'
-        self.fuelingSource.T = (300., 'K')
+        self.fuelingSource.sourceTypeTxt = 'TP'
+        self.fuelingSource.T = (25., 'degC')
         self.fuelingSource.p = (1., 'bar')
         self.fuelingSource.q = (0., '-')
         
-        self.compressor.etaS = (0.9, '-')
-        self.compressor.fQ = (0.1, '-')
-        self.compressor.V = (0.25, 'L')
+        self.compressor.etaS = (0.8, '-')
+        self.compressor.fQ = (0.2, '-')
+        self.compressor.V = (1., 'L')
         
-        self.conditioner.workingState = 0
-        self.conditioner.epsilon = 1.
-        self.conditioner.THeater = 300.
+        self.cooler.workingState = 1
+        self.cooler.epsilon = 1.
+        self.cooler.TCooler = (-10, 'degC')
         
         self.tank.wallArea = (2., 'm**2')
         self.tank.volume = (100., 'L')
-        self.tank.TInit = (300., 'K')
+        self.tank.TInit = (25., 'degC')
         self.tank.pInit = (1., 'bar')
-        self.tank.linerMaterial = 'StainlessSteel304'
-        self.tank.linerMass = (10., 'kg')
-        self.tank.linerThickness = (0.05, 'm')
+        self.tank.linerMaterial = 'Aluminium6061'
+        self.tank.linerThickness = (0.005, 'm')
         self.tank.compositeMaterial = 'CarbonFiberComposite'
-        self.tank.compositeMass = (15., 'kg')
-        self.tank.compositeThickness = (0.1, 'm')
-        self.tank.hConvExternal = (100., 'W/m**2-K')
-        self.tank.hConvInternalWaiting = (10., 'W/m**2-K')
-        self.tank.hConvInternalExtraction = (20., 'W/m**2-K')
-        self.tank.hConvInternalFueling = (100., 'W/m**2-K')
+        self.tank.compositeThickness = (0.01, 'm')
+        self.tank.hConvExternal = (10., 'W/m**2-K')
+        self.tank.hConvInternalWaiting = (50., 'W/m**2-K')
+        self.tank.hConvInternalExtraction = (100., 'W/m**2-K')
+        self.tank.hConvInternalFueling = (500., 'W/m**2-K')
         
     def compute(self):        
         # Initialize the fluids

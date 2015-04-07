@@ -61,7 +61,7 @@ class FluidStateSource(NumericalModel):
         else:
             raise ValueError('Unsupported source type of FluidStateSource.')
     
-    T = F.Quantity('Temperature', default = (0., 'K'), 
+    T = F.Quantity('Temperature', default = (0., 'degC'), 
         label = 'temperature', description = 'temperature', show = "self.sourceTypeTxt == 'TP' || self.sourceTypeTxt == 'TQ'")
     p = F.Quantity('Pressure', default = (0., 'bar'), 
         label = 'pressure', description = 'pressure', show = "self.sourceTypeTxt == 'TP' || self.sourceTypeTxt == 'PQ'")
@@ -84,22 +84,21 @@ class Compressor(NumericalModel):
     
     modelBlocks = []
     
-class Conditioner(NumericalModel):
-    #useConditioner = F.Boolean(default = False, label = 'use conditioner', description = 'use conditioner')
+class Cooler(NumericalModel):
     workingState = F.Choices(
         OrderedDict((
             (0, 'off'),
             (1, 'on'),
         )), 
         label = 'state',
-        description = 'working state of the conditioner')
+        description = 'working state of the cooler')
     
     epsilon = F.Quantity('Efficiency', default = (0., '-'),
         label = 'effectiveness', description = 'effectiveness', show = "self.workingState")
-    THeater = F.Quantity('Temperature', default = (0., 'K'), 
-        label = 'heater temperature', description = 'heater temperature', show = "self.workingState")
+    TCooler = F.Quantity('Temperature', default = (0., 'degC'), 
+        label = 'temperature', description = 'temperature', show = "self.workingState")
     
-    FG = F.FieldGroup([workingState, epsilon, THeater], label = 'Parameters')
+    FG = F.FieldGroup([workingState, epsilon, TCooler], label = 'Parameters')
     
     modelBlocks = []
     
@@ -108,22 +107,18 @@ class Tank(NumericalModel):
         label = 'wall area', description = 'wall area')
     volume = F.Quantity('Volume', default = (0., 'L'), maxValue = (1e6, 'L'),
         label = 'volume', description = 'volume')
-    TInit = F.Quantity('Temperature', default = (0., 'K'), 
+    TInit = F.Quantity('Temperature', default = (0., 'degC'), 
         label = 'initial temperature', description = 'initial temperature')
     pInit = F.Quantity('Pressure', default = (0., 'bar'), 
         label = 'initial pressure', description = 'initial pressure')
     
     linerMaterial = F.ObjectReference(Solids, default = 'StainlessSteel304', 
         label = 'liner material', description = 'liner material')
-    linerMass = F.Quantity('Mass', default = (0., 'kg'), 
-        label = 'liner mass', description = 'liner mass')
     linerThickness = F.Quantity('Length', default = (0., 'm'), minValue = (0, 'm'),
         label = 'liner thickness', description = 'liner thickness')
     
     compositeMaterial = F.ObjectReference(Solids, default = 'StainlessSteel304', 
         label = 'composite material', description = 'composite material')
-    compositeMass = F.Quantity('Mass', default = (0., 'kg'), 
-        label = 'composite mass', description = 'composite mass')
     compositeThickness = F.Quantity('Length', default = (0., 'm'), minValue = (0, 'm'),
         label = 'composite thickness', description = 'composite thickness')
     
@@ -141,9 +136,9 @@ class Tank(NumericalModel):
         label = 'Initial values')
     convectionFG = F.FieldGroup([hConvExternal, hConvInternalWaiting, hConvInternalExtraction, hConvInternalFueling], 
         label = 'Convection')
-    linerFG = F.FieldGroup([linerMaterial, linerMass, linerThickness], 
+    linerFG = F.FieldGroup([linerMaterial, linerThickness], 
         label = 'Liner')
-    compositeFG = F.FieldGroup([compositeMaterial, compositeMass, compositeThickness],
+    compositeFG = F.FieldGroup([compositeMaterial, compositeThickness],
         label = 'Composite')
         
     SG = F.SuperGroup([initialValuesFG, convectionFG, linerFG, compositeFG], label = "Parameters")
