@@ -171,6 +171,7 @@ class CryogenicPipe(NumericalModel):
 		* ambient radiation to the pipe surface
 	"""
 	label = "Cryogenic Pipe"
+	figure = ModelFigure(src="ThermoFluids/img/ModuleImages/CryogenicPipe.svg")
 	description = ModelDescription("1D thermal solver for heat flow of an insulated cryogenic \
 	pipe in vacuum. Accounts for conduction along the pipe and ambient radiation to the \
 	pipe surface. The material can have temperature dependent  properties", show = True)

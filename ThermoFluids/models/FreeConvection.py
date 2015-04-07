@@ -44,6 +44,7 @@ SurfaceShapes = OrderedDict((
 class FreeConvection_External(NumericalModel):
 	name = "FreeConvection_External"
 	label = "Free Convection External"
+	figure = ModelFigure(src="ThermoFluids/img/ModuleImages/Convection_External.svg")
 	description = ModelDescription("Heat exchange due to natural convection for external surfaces", show = True)
 
 	############# Inputs ###############
@@ -221,6 +222,7 @@ class FreeConvection_External(NumericalModel):
 class FreeConvection_Internal(NumericalModel):
 	name = "FreeConvection_Internal"
 	label = "Free Convection Internal"
+	figure = ModelFigure(src="ThermoFluids/img/ModuleImages/Convection_Internal.svg")
 	description = ModelDescription("Heat exchange due to natural convection for closed volumes", show = True)
 
 	############# Inputs ###############

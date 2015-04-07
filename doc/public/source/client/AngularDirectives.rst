@@ -119,6 +119,7 @@ on the left for switching among its fields::
 
 .. figure:: img/viewgroup.png
    :align: center
+   :width: 800
   
 
    View-group

@@ -312,6 +312,8 @@ class NumericalModel(object):
 		jsonObject['name'] = group.name
 		if (group.label is not None):			
 			jsonObject['label'] = group.label
+		if (group.show is not None):
+			jsonObject['show'] = group.show
 		jsonObject['dataSourceRoot'] = group.name
 		fieldValues[group.name] = subFieldValues
 		return jsonObject

@@ -1280,7 +1280,6 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 			modelName: '@modelName'
 		},
 		link : function(scope, element, attr) {
-
 			// Passing values from dataSourceRoot if such property exists in a view-group
 			if (typeof scope.smoViewGroup.dataSourceRoot !== 'undefined') {
 				scope.smoDataSource = scope.dataSource[scope.smoViewGroup.dataSourceRoot];
@@ -1305,6 +1304,7 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 					if (typeof field.show !== "undefined"){
 						showCode = 'ng-show="' + field.show.replace(/self/g, 'smoDataSource') + '"';
 					}
+					console.log(showCode);
 					
 					if (i==0){
 						navPills.push('<li class="active"><a id="' + field.name + 'Tab" data-target="#' + field.name + '" role="tab" data-toggle="tab"><div data-toggle="tooltip" data-placement="right" data-viewport="[smo-view-group]" title="' + field.description + '" tooltip>' + field.label + '</div></a></li>');
@@ -1340,6 +1340,8 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 				if (typeof field.show !== "undefined"){
 					showCode = 'ng-show="' + field.show.replace(/self/g, 'smoDataSource') + '"';
 				}
+				
+				console.log(showCode);
 				
 				template += '\
 					<div style="white-space: nowrap; background-color: white; padding :10px; text-align: center;">';
@@ -1377,13 +1379,18 @@ smoModule.directive('smoSuperGroup', ['$compile', function($compile) {
 				} else {
 					scope.smoDataSource = scope.dataSource;
 				}
-			
-				var template = '';
+				
+				var template = "";
 				for (var j = 0; j < scope.smoSuperGroup.groups.length; j++) {
-					if (scope.smoSuperGroup.groups[j].type == 'FieldGroup') {
-						template += '<div smo-field-group="smoSuperGroup.groups[' + j + ']" view-type="' + scope.viewType + '" smo-data-source="smoDataSource"></div>';
-					} else if (scope.smoSuperGroup.groups[j].type == 'ViewGroup') {
-						template += '<div smo-view-group="smoSuperGroup.groups[' + j + ']" model-name="' + scope.modelName + '" smo-data-source="smoDataSource"></div>';
+					var group = scope.smoSuperGroup.groups[j];
+					var showCode = "";
+					if (typeof group.show !== "undefined") {
+						showCode = 'ng-show="' + group.show.replace(/self/g, 'smoDataSource') + '"';
+					}
+					if (group.type == 'FieldGroup') {
+						template += '<div ' + showCode + ' smo-field-group="smoSuperGroup.groups[' + j + ']" view-type="' + scope.viewType + '" smo-data-source="smoDataSource"></div>';
+					} else if (group.type == 'ViewGroup') {
+						template += '<div ' + showCode + ' smo-view-group="smoSuperGroup.groups[' + j + ']" model-name="' + scope.modelName + '" smo-data-source="smoDataSource"></div>';
 					}					
 				}
 			
@@ -1794,7 +1801,7 @@ smoModule.directive('smoModelView', ['$compile', '$location', 'ModelCommunicator
 							<button type="button" class="close" data-dismiss="alert" aria-label="Close">\
 								<span aria-hidden="true">&times;</span></button>\
 							<span>{{communicator.saveFeedbackMsg}}</span>\
-							URL: <a ng-href={{communicator.savedRecordUrl}}>{{communicator.savedRecordUrl}}</a>\
+							URL: <a ng-href={{communicator.savedRecordUrl}} target="_blank">{{communicator.savedRecordUrl}}</a>\
 						</div>\
 						<div ng-if="!communicator.saveSuccess">\
 							<div class="alert alert-danger alert-dismissible" role="alert">\

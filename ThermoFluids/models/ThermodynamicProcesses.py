@@ -1,215 +1,182 @@
-from smo.media.CoolProp.CoolProp import FluidState
-from smo.model.model import NumericalModel
 from smo.model.actions import ServerAction, ActionBar
-from smo.model.fields import *
-from smo.media.MaterialData import Fluids
+import smo.model.fields as F
+import lib.ThermodynamicComponents as TC
 from collections import OrderedDict
-from smo.media.diagrams.StateDiagrams import PHDiagram
+from lib.CycleBases import ThermodynamicalCycle
+from smo.media.CoolProp.CoolProp import Fluid
 
-StateVariableOptions = OrderedDict((
-	('P', 'pressure (P)'),
-	('T', 'temperature (T)'),
-	('D', 'density (D)'),
-	('H', 'specific enthalpy (H)'),
-	('S', 'specific entropy (S)'),
-	('Q', 'vapor quality (Q)'),
-))
-
-TransitionType = OrderedDict((
-	('T', 'isothermal (const. T)'),
-	('H', 'isenthalpic (const. h)'),
-	('S', 'isentropic (const. s)'),
-))
-
-
-from smo.media.calculators.ThermodynamicProcesses import IsentropicProcess, IsothermalProcess, IsobaricProcess, IsenthalpicExpansion
-class ThermodynamicProcess(NumericalModel):
-	############ Inputs ###############
-	fluidName = Choices(options = Fluids, default = 'Water', label = 'fluid')	
-	stateVariable1 = Choices(options = StateVariableOptions, default = 'P', label = 'first state variable')
-	p1 = Quantity('Pressure', default = (1, 'bar'), label = 'pressure', show="self.stateVariable1 == 'P'")
-	T1 = Quantity('Temperature', default = (300, 'K'), label = 'temperature', show="self.stateVariable1 == 'T'")
-	rho1 = Quantity('Density', default = (1, 'kg/m**3'), label = 'density', show="self.stateVariable1 == 'D'")
-	h1 = Quantity('SpecificEnthalpy', default = (1000, 'kJ/kg'), label = 'specific enthalpy', show="self.stateVariable1 == 'H'")
-	s1 = Quantity('SpecificEntropy', default = (100, 'kJ/kg-K'), label = 'specific entropy', show="self.stateVariable1 == 'S'")
-	q1 = Quantity('VaporQuality', default = (1, '-'), minValue = 0, maxValue = 1, label = 'vapour quality', show="self.stateVariable1 == 'Q'")
-	stateVariable2 = Choices(options = StateVariableOptions, default = 'T', label = 'second state variable')
-	p2 = Quantity('Pressure', default = (1, 'bar'), label = 'pressure', show="self.stateVariable2 == 'P'")
-	T2 = Quantity('Temperature', default = (300, 'K'), label = 'temperature', show="self.stateVariable2 == 'T'")
-	rho2 = Quantity('Density', default = (1, 'kg/m**3'), label = 'density', show="self.stateVariable2 == 'D'")
-	h2 = Quantity('SpecificEnthalpy', default = (1000, 'kJ/kg'), label = 'specific enthalpy', show="self.stateVariable2 == 'H'")
-	s2 = Quantity('SpecificEntropy', default = (100, 'kJ/kg-K'), label = 'specific entropy', show="self.stateVariable2 == 'S'")
-	q2 = Quantity('VaporQuality', default = (1, '-'), minValue = 0, maxValue = 1, label = 'vapour quality', show="self.stateVariable2 == 'Q'")
-	mDot = Quantity('MassFlowRate', default = (1, 'kg/h'), label = 'mass flow')
-	initialState = FieldGroup([fluidName, stateVariable1, p1, T1, rho1, h1, s1, q1, stateVariable2, p2, T2, rho2, h2, s2, q2, mDot], label = 'Initial state')
-
-	# Actions
+class ThermodynamicalProcess(ThermodynamicalCycle):
+	############# Inputs #############
+	fluidSource = F.SubModelGroup(TC.FluidSource, 'FG', label = 'Initial State')
+	fluidSink = F.SubModelGroup(TC.FluidSink, 'FG', label = 'Final State')
+	inputs = F.SuperGroup([fluidSource, fluidSink])
+	
 	computeAction = ServerAction("compute", label = "Compute", outputView = 'resultView')
 	inputActionBar = ActionBar([computeAction], save = True)
-
-	############# Results ###############
-	# Initial state
-	T_i = Quantity('Temperature', label = 'temperature')
-	p_i = Quantity('Pressure', label = 'pressure')
-	rho_i = Quantity('Density', label = 'density')
-	h_i = Quantity('SpecificEnthalpy', label = 'specific enthalpy')
-	s_i = Quantity('SpecificEntropy', label = 'specific entropy')
-	q_i = Quantity('VaporQuality', label = 'vapor quality')
-	u_i = Quantity('SpecificInternalEnergy', label = 'specific internal energy')	
-	initialStateResults = FieldGroup([T_i, p_i, rho_i, h_i, s_i, q_i, u_i], label = 'Initial state')
-
-	# Final state
-	T_f = Quantity('Temperature', label = 'temperature')
-	p_f = Quantity('Pressure', label = 'pressure')
-	rho_f = Quantity('Density', label = 'density')
-	h_f = Quantity('SpecificEnthalpy', label = 'specific enthalpy')
-	s_f = Quantity('SpecificEntropy', label = 'specific entropy')
-	q_f = Quantity('VaporQuality', label = 'vapor quality')
-	u_f = Quantity('SpecificInternalEnergy', label = 'specific internal energy')	
-	finalStateResults = FieldGroup([T_f, p_f, rho_f, h_f, s_f, q_f, u_f], label = 'Final state')
 	
-	stateResults = SuperGroup([initialStateResults, finalStateResults], label = "States")
-	# Specific enetry quantities
-	wIdeal = Quantity('SpecificEnergy', label = "ideal work")
-	wReal = Quantity('SpecificEnergy', label = "real work")
-	delta_h = Quantity('SpecificEnthalpy', label = 'enthalpy change (fluid)') 
-	qIn = Quantity('SpecificEnergy', label = "heat in")
-	specificEnergyResults = FieldGroup([wIdeal, wReal, delta_h, qIn], label = "Heat/work (specific quantities)")
+	# Model View
+	inputView = F.ModelView(ioType = "input", superGroups = [inputs], 
+		actionBar = inputActionBar, autoFetch = True)
+	
+	############# Results #############
+	w = F.Quantity('SpecificEnergy', default = (0, 'kJ/kg'), label = 'specific work')
+	qIn = F.Quantity('SpecificEnergy', default = (0, 'kJ/kg'), label = 'specific heat in')
+	delta_h = F.Quantity('SpecificEnthalpy', label = 'enthalpy change (fluid)')
+	WDot = F.Quantity('Power', default = (0, 'kW'), label = 'power')
+	QDotIn = F.Quantity('HeatFlowRate', default = (0, 'kW'), label = 'heat flow rate in')
+	deltaHDot = F.Quantity('Power', label = 'enthalpy change (fluid)') 
+	# Specific energy quantities
+	specificEnergyResults = F.FieldGroup([w, delta_h, qIn], label = "Heat/work (specific quantities)")
 	# Energy flow quantities
-	wDotIdeal = Quantity('Power', label = "ideal work")
-	wDotReal = Quantity('Power', label = "real work")
-	deltaHDot = Quantity('Power', label = 'enthalpy change (fluid)') 
-	qDotIn = Quantity('HeatFlowRate', label = "heat in")
-	energyFlowResults = FieldGroup([wDotIdeal, wDotReal, deltaHDot, qDotIn], label = "Heat/work flows")
-
-	energyBalanceResults = SuperGroup([specificEnergyResults, energyFlowResults], label = "Energy balance")
+	energyFlowResults = F.FieldGroup([WDot, deltaHDot, QDotIn], label = "Heat/work flows")
+	energyBalanceResults = F.SuperGroup([specificEnergyResults, energyFlowResults], label = "Energy balance")
 	
-	diagram = Image(default='', width=880, height=550)
-	diagramViewGroup = ViewGroup([diagram], label = "P-H Diagram")
-	diagramSuperGroup = SuperGroup([diagramViewGroup], label = "Diagram")
-
 	# Model View
-	resultView = ModelView(ioType = "output", superGroups = [stateResults, energyBalanceResults, diagramSuperGroup])
-
+	resultView = F.ModelView(ioType = "output", superGroups = ['resultDiagrams', 'resultStates', energyBalanceResults])
+	
 	############# Page structure ########
-	modelBlocks = []
-
+	modelBlocks = [inputView, resultView]
+	
 	############# Methods ###############
-	def getStateValue(self, sVar, prefix = "", suffix=""):
-		sVarDict = {'P': 'p', 'T': 'T', 'D': 'rho', 'H': 'h', 'S': 's', 'Q': 'q'}
-		return self.__dict__[prefix + sVarDict[sVar] + suffix]
+	def postProcess(self, component):
+		super(ThermodynamicalProcess, self).postProcess(300)
+		component.postProcess()
+		self.w = component.w
+		self.qIn = component.qIn
+		self.delta_h = component.delta_h
+		self.WDot = component.WDot
+		self.QDotIn = component.QDotIn
+		self.deltaHDot = component.deltaHDot	
 
+class Compression(ThermodynamicalProcess):
+	label = "Compression"
+	description = F.ModelDescription("Parameteric model for compression process: isentropic and isothermal", show = True)
+	figure = F.ModelFigure(src="ThermoFluids/img/ModuleImages/Compression.svg")	
+	compressor = F.SubModelGroup(TC.Compressor, 'FG', label  = 'Compressor')
+	inputs = F.SuperGroup(['fluidSource', 'fluidSink', compressor])
+	
 	def compute(self):
-		process = self.computeProcess()
-		self.T_i = process.initialState.T
-		self.p_i = process.initialState.p
-		self.rho_i = process.initialState.rho
-		self.h_i = process.initialState.h
-		self.s_i = process.initialState.s
-		self.q_i = process.initialState.q
-		self.u_i = process.initialState.u
+		self.initCompute(self.fluidSource.fluidName)
+		# Connect components
+		self.connectPorts(self.fluidSource.outlet, self.compressor.inlet)
+		self.connectPorts(self.compressor.outlet, self.fluidSink.inlet)
+		self.fluidSource.compute()
+		self.compressor.compute(self.fluidSink.p)	
+		self.postProcess(self.compressor)
 		
-		
-		self.T_f = process.finalState.T
-		self.p_f = process.finalState.p
-		self.rho_f = process.finalState.rho
-		self.h_f = process.finalState.h
-		self.s_f = process.finalState.s
-		self.q_f = process.finalState.q
-		self.u_f = process.finalState.u
-		
-		self.wIdeal = process.chars.wIdeal
-		self.wReal = process.chars.wReal
-		self.delta_h = process.chars.delta_h
-		self.qIn = process.chars.qIn
-
-		self.wDotIdeal = process.flows.wDotIdeal
-		self.wDotReal = process.flows.wDotReal
-		self.deltaHDot = process.flows.deltaHDot
-		self.qDotIn = process.flows.qDotIn
-
-		diagram = PHDiagram(self.fluidName)
-		diagram.setLimits()
-		diagramFig  = diagram.draw()
-		processFig = process.draw(fig = diagramFig)
-		fHandle, resourcePath  = diagram.export(processFig)
-		self.diagram = resourcePath
-		os.close(fHandle)
-		
-		
-class CompressionExpansion(ThermodynamicProcess):
-	label = "Compression / Expansion"
-	description = ModelDescription("Parameteric models for compression/expansion processes: isobaric, isothermal and isenthalpic", show = True)
-
-	transitionType = Choices(options = TransitionType, default = 'S', label = "process type")
-	p_final = Quantity('Pressure', default = (10, 'bar'), label = 'pressure')
-	eta = Quantity(default = 1, minValue = 0, maxValue = 1, label = 'efficiency', show = "self.transitionType != 'H'")
-	fQ_S = Quantity(default = 0, minValue = 0, maxValue = 1, label = 'heat loss factor', show="self.transitionType == 'S'")
-	fQ_T = Quantity(default = 1, minValue = 0, maxValue = 1, label = 'heat loss factor', show="self.transitionType == 'T'")
-	finalState = FieldGroup([transitionType, p_final, eta, fQ_S, fQ_T], label = 'Final state')
-
-	inputs = SuperGroup(['initialState', finalState])
+class Expansion(ThermodynamicalProcess):
+	label = "Expansion"
+	description = F.ModelDescription("Parameteric model for expansion process: isentropic and isenthalpic", show = True)
+	figure = F.ModelFigure(src="ThermoFluids/img/ModuleImages/Expansion.svg")
+	turbine = F.SubModelGroup(TC.Turbine, 'FG', label = 'Turbine', show="self.processType == 'S'")
+	throttleValve = F.SubModelGroup(TC.ThrottleValve, 'FG', show="false")
+	processType = F.Choices(options = OrderedDict((
+														('S', 'isentropic'),
+														('H', 'isenthalpic'),
+													)), default = 'S', label = "process type")
+	processTypeFG = F.FieldGroup([processType], label = "Process type")
+	inputs = F.SuperGroup(['fluidSource', 'fluidSink', processTypeFG, turbine, throttleValve])
 	
-	# Model View
-	inputView = ModelView(ioType = "input", superGroups = [inputs], 
-		actionBar = ThermodynamicProcess.inputActionBar, autoFetch = True)
+	def compute(self):
+		if (self.processType == 'S'):
+			component = self.turbine
+		elif (self.processType == 'H'):
+			component = self.throttleValve
+		self.initCompute(self.fluidSource.fluidName)
+		# Connect components
+		self.connectPorts(self.fluidSource.outlet, component.inlet)
+		self.connectPorts(component.outlet, self.fluidSink.inlet)
+		self.fluidSource.compute()
+		component.compute(self.fluidSink.p)	
+		self.postProcess(component)
 
-	############# Page structure ########
-	modelBlocks = [inputView, 'resultView']
+class Heating(ThermodynamicalProcess):
+	label = "Heating"
+	description = F.ModelDescription("Heating process at constant pressure", show = True)
+	figure = F.ModelFigure(src="ThermoFluids/img/ModuleImages/Heating.svg")
+	evaporator = F.SubModelGroup(TC.Evaporator, 'FG', label = 'Evaporator')
+	inputs = F.SuperGroup(['fluidSource', evaporator])
 
 	############# Methods ###############
-
-	def computeProcess(self):
-		# Create process
-		if self.transitionType == 'S':
-			process = IsentropicProcess(self.fluidName, self.eta, self.fQ_S)
-		elif self.transitionType == 'H':
-			process = IsenthalpicExpansion(self.fluidName)
-		elif self.transitionType == 'T':
-			process = IsothermalProcess(self.fluidName, self.eta, self.fQ_T)
-		# Compute initial state
-		process.initialState.update(
-				self.stateVariable1, self.getStateValue(self.stateVariable1, suffix = "1"), 
-				self.stateVariable2, self.getStateValue(self.stateVariable2, suffix = "2")
-		)
-		# Compute process
-		process.compute(stateVar = 'P', stateVal = self.p_final, mDot = self.mDot)
-		return process
-		
-class HeatingCooling(ThermodynamicProcess):
-	label = "Heating / Cooling"
-	description = ModelDescription("Heating/cooling process at constant pressure", show = True)
-
-	stateVariable_final = Choices(options = OrderedDict((('T', 'temperature (T)'), ('Q', 'vapor quality (Q)'))), 
-									default = 'T', label = 'state variable')	
-	T_final = Quantity('Temperature', default = (350, 'K'), label = 'temperature', 
-					   show="self.stateVariable_final == 'T'")
-	q_final = Quantity('VaporQuality', default = (1, '-'), minValue = 0, maxValue = 1, label = 'vapour quality', 
-					  show="self.stateVariable_final == 'Q'")
-	finalState = FieldGroup([stateVariable_final, T_final, q_final], label = 'Final state')
+	def compute(self):
+		self.initCompute(self.fluidSource.fluidName)
+		# Connect components
+		self.connectPorts(self.fluidSource.outlet, self.evaporator.inlet)
+		self.connectPorts(self.evaporator.outlet, self.fluidSink.inlet)
+		self.fluidSource.compute()
+		self.evaporator.compute()	
+		self.postProcess(self.evaporator)
 	
-	inputs = SuperGroup(['initialState', finalState])
-	
-	# Model View
-	inputView = ModelView(ioType = "input", superGroups = [inputs], 
-		actionBar = ThermodynamicProcess.inputActionBar, autoFetch = True)
-
-	############# Page structure ########
-	modelBlocks = [inputView, 'resultView']
+class Cooling(ThermodynamicalProcess):
+	label = "Cooling"
+	description = F.ModelDescription("Cooling process at constant pressure", show = True)
+	figure = F.ModelFigure(src="ThermoFluids/img/ModuleImages/Cooling.svg")
+	condenser = F.SubModelGroup(TC.Condenser, 'FG', label = 'Condenser')
+	inputs = F.SuperGroup(['fluidSource', condenser])
 
 	############# Methods ###############
+	def compute(self):
+		self.initCompute(self.fluidSource.fluidName)
+		# Connect components
+		self.connectPorts(self.fluidSource.outlet, self.condenser.inlet)
+		self.connectPorts(self.condenser.outlet, self.fluidSink.inlet)
+		self.fluidSource.compute()
+		self.condenser.compute()	
+		self.postProcess(self.condenser)
 
-	def computeProcess(self):
-		# Create process
-		process = IsobaricProcess(self.fluidName)
-		# Compute initial state
-		process.initialState.update(
-				self.stateVariable1, self.getStateValue(self.stateVariable1, suffix = "1"), 
-				self.stateVariable2, self.getStateValue(self.stateVariable2, suffix = "2")
-		)
-		# Compute process
-		if (self.stateVariable_final == 'T'):
-			process.compute(stateVar = 'T', stateVal = self.T_final, mDot = self.mDot)
-		else:
-			process.compute(stateVar = 'Q', stateVal = self.q_final, mDot = self.mDot)
-		return process
+class ThermodynamicalProcessTwoStreams(ThermodynamicalCycle):
+	############# Inputs #############
+	fluidSource1 = F.SubModelGroup(TC.FluidSource, 'FG', label = 'Inlet 1')
+	fluidSource2 = F.SubModelGroup(TC.FluidSource, 'FG', label = 'Inlet 2')
+	fluidSink1 = F.SubModelGroup(TC.FluidSink, 'FG', label = 'Outlet 1')
+	fluidSink2 = F.SubModelGroup(TC.FluidSink, 'FG', label = 'Outlet 2')
+	inputs = F.SuperGroup([fluidSource1, fluidSource2, fluidSink1, fluidSink2])
+	
+	computeAction = ServerAction("compute", label = "Compute", outputView = 'resultView')
+	inputActionBar = ActionBar([computeAction], save = True)
+	
+	# Model View
+	inputView = F.ModelView(ioType = "input", superGroups = [inputs], 
+		actionBar = inputActionBar, autoFetch = True)
+	
+	############# Results #############
+	QDot = F.Quantity('HeatFlowRate', default = (0, 'kW'), label = 'heat flow rate in')
+	NTU = F.Quantity(label = 'NTU')
+	Cr = F.Quantity(label = 'capacity ratio')
+	energyResults = F.FieldGroup([QDot, NTU, Cr], label = "Energy")
+	energyBalanceResults = F.SuperGroup([energyResults], label = "Energy balance")
+	
+	# Model View
+	resultView = F.ModelView(ioType = "output", superGroups = ['resultStates', energyBalanceResults])
+	
+	############# Page structure ########
+	modelBlocks = [inputView, resultView]
+	
+	############# Methods ###############
+	def postProcess(self, component):
+		super(ThermodynamicalProcessTwoStreams, self).postProcess(300)
+		self.QDot = component.QDot
+		self.NTU = component.NTU
+		self.Cr = component.Cr
+
+class HeatExchangerTwoStreams(ThermodynamicalProcessTwoStreams):
+	label = "Heat Exchanger (two streams)"
+	description = F.ModelDescription("Parameteric model for heat exchange between two streams", show = True)
+	figure = F.ModelFigure(src="ThermoFluids/img/ModuleImages/HeatExchanger.svg")	
+	heatExchanger = F.SubModelGroup(TC.HeatExchangerTwoStreams, 'FG', label  = 'Heat exchanger')
+	inputs = F.SuperGroup(['fluidSource1', 'fluidSource2', heatExchanger])
+	
+	def compute(self):
+		self.cycleDiagram.enable = False
+		self.initCompute(self.fluidSource1.fluidName)
+		# Connect components
+		self.connectPorts(self.fluidSource1.outlet, self.heatExchanger.inlet1)
+		self.connectPorts(self.heatExchanger.outlet1, self.fluidSink1.inlet)
+		self.connectPorts(self.fluidSource2.outlet, self.heatExchanger.inlet2, fluid = self.fluidSource2.fluidName)
+		self.connectPorts(self.heatExchanger.outlet2, self.fluidSink2.inlet, fluid = self.fluidSource2.fluidName)
+		self.fluidSource1.compute()
+		self.fluidSource2.compute()
+		self.heatExchanger.compute()
+		self.heatExchanger.computeStream1()
+		self.heatExchanger.computeStream2()	
+		self.postProcess(self.heatExchanger)
