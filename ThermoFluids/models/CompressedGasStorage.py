@@ -33,9 +33,10 @@ class CompressedGasStorage(NumericalModel):
     controller = F.SubModelGroup(GSC.Controller, 'SG', label  = 'Controller')
     fuelingSource = F.SubModelGroup(GSC.FluidStateSource, 'FG', label = 'Fueling source')
     compressor = F.SubModelGroup(GSC.Compressor, 'FG', label = 'Compressor')
+    conditioner = F.SubModelGroup(GSC.Conditioner, 'FG', label = 'Conditioner')
     tank = F.SubModelGroup(GSC.Tank, 'SG', label = 'Pressure vessel')
     
-    parametersSG = F.SuperGroup([globalParams, fuelingSource, compressor], label = "Parameters")
+    parametersSG = F.SuperGroup([globalParams, fuelingSource, compressor, conditioner], label = "Parameters")
 
     #1.2 Fields - Settings
     tFinal = F.Quantity('Time', default = (2000, 's'), minValue = (0, 's'), maxValue=(1.e9, 's'), label = 'simulation time')
@@ -105,6 +106,10 @@ class CompressedGasStorage(NumericalModel):
         self.compressor.fQ = (0.1, '-')
         self.compressor.V = (0.25, 'L')
         
+        self.conditioner.workingState = 0
+        self.conditioner.epsilon = 1.
+        self.conditioner.THeater = 300.
+        
         self.tank.wallArea = (2., 'm**2')
         self.tank.volume = (100., 'L')
         self.tank.TInit = (300., 'K')
@@ -120,7 +125,7 @@ class CompressedGasStorage(NumericalModel):
         self.tank.hConvInternalExtraction = (20., 'W/m**2-K')
         self.tank.hConvInternalFueling = (100., 'W/m**2-K')
         
-    def compute(self):
+    def compute(self):        
         # Initialize the fluids
         self.fluid = CP.Fluid(self.fluidName)
         self.ambientFluid = CP.Fluid(self.fluidAmbientName)

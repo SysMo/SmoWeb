@@ -68,7 +68,7 @@ class FluidStateSource(NumericalModel):
     q = F.Quantity('VaporQuality', default = (0., '-'), minValue = 0, maxValue = 1, 
         label = 'vapour quality', description = 'vapour quality', show = "self.sourceTypeTxt == 'TQ' || self.sourceTypeTxt == 'PQ'")
     
-    FG = F.FieldGroup([sourceTypeTxt, T, p, q], label = 'Initial values')
+    FG = F.FieldGroup([sourceTypeTxt, T, p, q], label = 'Parameters')
         
     modelBlocks = []
     
@@ -80,7 +80,26 @@ class Compressor(NumericalModel):
     V = F.Quantity('Volume', default = (0., 'L'), maxValue = (1e6, 'L'),
         label = 'displacement volume', description = 'displacement volume')
     
-    FG = F.FieldGroup([etaS, fQ, V], label = 'Initial values')
+    FG = F.FieldGroup([etaS, fQ, V], label = 'Parameters')
+    
+    modelBlocks = []
+    
+class Conditioner(NumericalModel):
+    #useConditioner = F.Boolean(default = False, label = 'use conditioner', description = 'use conditioner')
+    workingState = F.Choices(
+        OrderedDict((
+            (0, 'off'),
+            (1, 'on'),
+        )), 
+        label = 'state',
+        description = 'working state of the conditioner')
+    
+    epsilon = F.Quantity('Efficiency', default = (0., '-'),
+        label = 'effectiveness', description = 'effectiveness', show = "self.workingState")
+    THeater = F.Quantity('Temperature', default = (0., 'K'), 
+        label = 'heater temperature', description = 'heater temperature', show = "self.workingState")
+    
+    FG = F.FieldGroup([workingState, epsilon, THeater], label = 'Parameters')
     
     modelBlocks = []
     

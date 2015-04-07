@@ -10,6 +10,7 @@ import pylab as plt
 import smo.media.CoolProp as CP
 import smo.dynamical_models.core as DMC
 import smo.dynamical_models.thermofluids as DM
+from smo.dynamical_models.thermofluids import Structures as DMS
 from TankController import TankController as TC
 from TankController import TankController
 from smo.util import AttributeDict 
@@ -26,7 +27,7 @@ dataStorageFilePath =  os.path.join(tmpFolderPath, 'TankSimulations_SimulationRe
 dataStorageDatasetPath = '/TankModel'
 
 
-class TankModel(DMC.Simulation): #:TODO: rename TankModel to Tank
+class TankModel(DMC.Simulation):
 	name = 'Model of a tank fueling and extraction'
 	
 	def __init__(self, params = None, **kwargs):
@@ -46,7 +47,7 @@ class TankModel(DMC.Simulation): #:TODO: rename TankModel to Tank
 			datasetPath = dataStorageDatasetPath)
 		if (kwargs.get('initDataStorage', True)):
 			self.resultStorage.initializeWriting(
-				varList = ['t'] + stateVarNames + ['pTank', 'TCompressorOut'],
+				varList = ['t'] + stateVarNames + ['pTank', 'TCompressorOut', 'TConditionerOut'],
 				chunkSize = 10000)
 
 		# Fueling source
@@ -58,11 +59,20 @@ class TankModel(DMC.Simulation): #:TODO: rename TankModel to Tank
 		# Connect the compressor to the fluid source
 		self.compressor.portIn.connect(self.fuelingSource.port1)
 		
+		# Conditioner
+		self.conditioner = DM.FluidHeater(params.conditioner)
+		self.conditioner.setEffectivnessModel(epsilon = params.conditioner.epsilon)
+		# Connect the conditioner to the compressor
+		self.conditioner.portIn.connect(self.compressor.portOut)
+		# Connect the conditioner to the heater (i.e. temperature source)
+		self.conditionerHeater = DMS.ThermalPort('C', DMS.ThermalState(T = params.conditionerHeater.T))
+		self.conditioner.thermalPort.connect(self.conditionerHeater)
+		
 		# Tank chamber
 		self.tank = DM.FluidChamber(params.tank)
 		self.tank.initialize(params.tank.TInit, params.tank.pInit)
-		# Connect the tank to the compressor
-		self.tank.fluidPort.connect(self.compressor.portOut)
+		# Connect the tank to the conditioner
+		self.tank.fluidPort.connect(self.conditioner.portOut)
 		
 		# Extraction sink
 		self.extractionSink = DM.FlowSource(params.extractionSink)
@@ -136,15 +146,19 @@ class TankModel(DMC.Simulation): #:TODO: rename TankModel to Tank
 			# Set the values (from the Solver) of the state variables
 			self.y.set(y)
 			
-			# Set states of the components			
+			# Set states of the components		
 			self.tank.setState(self.y.TTank, self.y.rhoTank)
 			self.liner.setState([self.y.TLiner_1, self.y.TLiner_2])
 			self.composite.setState([self.y.TComp_1, self.y.TComp_2, self.y.TComp_3, self.y.TComp_4])
+			self.conditioner.setState()
+			
 
 			# Compute derivatives of the state variables 
 			# Compressor
 			self.compressor.n = self.controller.outputs.nCompressor
 			self.compressor.compute()
+			# Conditioner
+			self.conditioner.compute()
 			# Extraction sink
 			self.extractionSink.mDot = self.controller.outputs.mDotExtr
 			self.extractionSink.compute()
@@ -213,7 +227,7 @@ class TankModel(DMC.Simulation): #:TODO: rename TankModel to Tank
 			self.y.TTank, self.y.rhoTank, 
 			self.y.TLiner_1, self.y.TLiner_2, 
 			self.y.TComp_1, self.y.TComp_2, self.y.TComp_3, self.y.TComp_4, 
-			self.tank.fState.p, self.compressor.TOut)
+			self.tank.fState.p, self.compressor.TOut, self.conditioner.TOut)
 		self.resultStorage.saveTimeStep()
 		
 	def loadResult(self, simIndex):
@@ -231,7 +245,8 @@ class TankModel(DMC.Simulation): #:TODO: rename TankModel to Tank
 		plt.plot(xData, data['TComp_4'], 'b', label = 'tank composite temperature [K]')	
 		#plt.plot(xData, data['rhoTank'] * self.tank.V, 'm', label = 'tank mass [kg]')
 		plt.plot(xData, data['TCompressorOut'], 'y', label = 'compressor outlet temperature of fluid [K]')
-		plt.plot(xData, data['WRealCompressor']/1e3, 'y--', label = 'compressor real work [KW]')
+		plt.plot(xData, data['TConditionerOut'], 'm--', label = 'conditioner outlet temperature of fluid [K]')
+		#plt.plot(xData, data['WRealCompressor']/1e3, 'y--', label = 'compressor real work [KW]')
 		
 		plt.gca().set_xlim([0, len(xData)])
 		plt.legend()
@@ -242,6 +257,9 @@ class TankModelFactory():
 	def create(params = None, **kwargs):
 		if params == None:
 			params = AttributeDict(kwargs)
+		
+		if params.conditioner.workingState == 0:
+			params.conditioner.epsilon = 0.
 		
 		tankModel = TankModel(
 			initDataStorage = True, 
@@ -270,6 +288,15 @@ class TankModelFactory():
 				fQ = params.compressor.fQ,
 				V = params.compressor.V,
 			),
+							
+			conditioner = AttributeDict(
+				fluid = params.fluid,
+				epsilon = params.conditioner.epsilon,
+			),
+			conditionerHeater = AttributeDict(
+				T = params.conditioner.THeater,
+			),
+							
 			tank = AttributeDict(
 				fluid = params.fluid, 
 				V = params.tank.volume,
@@ -321,7 +348,7 @@ class TankModelFactory():
 def testTankModel():
 	print "=== BEGIN: testTankModel ==="
 	# Settings
-	simulate = True #True - run simulation; False - plot an old results #:TODO: MILEN
+	simulate = True #True - run simulation; False - plot an old results
 	
 	# Create the model
 	tankModel = TankModelFactory.create(
@@ -351,17 +378,23 @@ def testTankModel():
 			fQ = 0.,
 			V = 0.5e-3,
 		),
-		
+
+		conditioner = AttributeDict(
+			workingState = 1,
+			epsilon = 1.0,
+			THeater = 300,
+		),
+
 		tank = AttributeDict(
  			wallArea = 1.8,
  			volume = 0.1,
  			TInit = 300.,
 			pInit = 20e5,
 			linerMaterial = 'Aluminium6061',
-			linerMass = 24.,
+			linerMass = 24., #:TODO: calculate from wall area and thickness
 		    linerThickness = 0.004,
 		    compositeMaterial = 'CarbonFiberComposite',
-		    compositeMass = 34.,
+		    compositeMass = 34., #:TODO: calculate from wall area and thickness
 			compositeThickness = 0.0105,
 			hConvExternal = 100.,
 			hConvInternalWaiting = 10.,
