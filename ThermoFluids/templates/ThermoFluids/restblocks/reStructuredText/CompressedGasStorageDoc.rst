@@ -5,4 +5,6 @@
 Compressed Gas Storage
 ======================
 
-:TODO:
+.. figure:: /static/ThermoFluids/img/ModuleImages/CompressedGasStorage.svg
+   :width: 500px
+   :align: center

@@ -18,7 +18,7 @@ from smo.web.modules import RestModule
 class CompressedGasStorage(NumericalModel):
     label = "Compressed Gas Storage"
     description = F.ModelDescription("Compressed gas storage model with fueling and extraction", show = True)
-    figure = F.ModelFigure(src="ThermoFluids/img/ModuleImages/CompressedGasStorage.svg", show = False) #:TODO: change the image
+    figure = F.ModelFigure(src="ThermoFluids/img/ModuleImages/CompressedGasStorage.svg") 
     
     #1. ############ Inputs ###############
     #1.1 Fields - Input values
