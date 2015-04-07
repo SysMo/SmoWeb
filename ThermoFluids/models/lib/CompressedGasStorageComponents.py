@@ -87,16 +87,16 @@ class Compressor(NumericalModel):
 class Cooler(NumericalModel):
     workingState = F.Choices(
         OrderedDict((
-            (0, 'off'),
-            (1, 'on'),
+            (0, 'no'),
+            (1, 'yes'),
         )), 
-        label = 'state',
-        description = 'working state of the cooler')
+        label = 'enable cooler',
+        description = 'enable cooler')
     
     epsilon = F.Quantity('Efficiency', default = (0., '-'),
         label = 'effectiveness', description = 'effectiveness', show = "self.workingState")
     TCooler = F.Quantity('Temperature', default = (0., 'degC'), 
-        label = 'temperature', description = 'temperature', show = "self.workingState")
+        label = 'coolant temperature', description = 'coolant temperature', show = "self.workingState")
     
     FG = F.FieldGroup([workingState, epsilon, TCooler], label = 'Parameters')
     
@@ -142,5 +142,16 @@ class Tank(NumericalModel):
         label = 'Composite')
         
     SG = F.SuperGroup([initialValuesFG, convectionFG, linerFG, compositeFG], label = "Parameters")
+    
+    modelBlocks = []
+    
+    
+class TankRes(NumericalModel):
+    compositeMass = F.Quantity('Mass', default = (0., 'kg'), 
+        label = 'composite mass', description = 'composite mass')
+    linerMass = F.Quantity('Mass', default = (0., 'kg'), 
+        label = 'liner mass', description = 'liner mass')
+    
+    FG = F.FieldGroup([linerMass, compositeMass], label = 'Pressure vessel')
     
     modelBlocks = []

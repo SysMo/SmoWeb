@@ -37,11 +37,12 @@ class Compressor(DMC.DynamicalModel):
 		
 		delta_hOut = wReal * (1 - self.fQ)
 		self.fStateOut.update_ph(self.portOut.state.p, self.portIn.state.h + delta_hOut)
-		self.TOut = self.fStateOut.T
 		self.HDot = self.mDot * self.fStateOut.h
 		self.flow.mDot = self.mDot
-		self.flow.HDot = self.HDot
-
+		self.flow.HDot = self.HDot		
+		
+		if self.n > 0:
+			self.TOut = self.fStateOut.T
 
 class FluidHeater(DMC.DynamicalModel):
 	def __init__(self, params = None, **kwargs):
@@ -102,8 +103,8 @@ class FluidHeater(DMC.DynamicalModel):
 				self.HDotOut = self.mDot * self.fStateOut.h
 				self.QDot = self.portIn.flow.HDot - self.HDotOut
 		else:
-			self.Tin = 0
-			self.TOut = 0
+			self.Tin = 0 #:TRICKY: left the old value
+			#self.TOut = 0
 			self.QDot = 0
 			self.HDotOut = 0
 			

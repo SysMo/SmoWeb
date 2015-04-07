@@ -47,7 +47,7 @@ class TankModel(DMC.Simulation):
 			datasetPath = dataStorageDatasetPath)
 		if (kwargs.get('initDataStorage', True)):
 			self.resultStorage.initializeWriting(
-				varList = ['t'] + stateVarNames + ['pTank', 'TCompressorOut', 'TCoolerOut'],
+				varList = ['t'] + stateVarNames + ['pTank', 'mTank', 'TCompressorOut', 'TCoolerOut', 'QDotCooler', 'QDotComp', 'mDotFueling' ],
 				chunkSize = 10000)
 
 		# Fueling source
@@ -227,7 +227,13 @@ class TankModel(DMC.Simulation):
 			self.y.TTank, self.y.rhoTank, 
 			self.y.TLiner_1, self.y.TLiner_2, 
 			self.y.TComp_1, self.y.TComp_2, self.y.TComp_3, self.y.TComp_4, 
-			self.tank.fState.p, self.compressor.TOut, self.cooler.TOut)
+			self.tank.fState.p, 
+			self.tank.m,
+			self.compressor.TOut, 
+			self.cooler.TOut,
+			self.cooler.QDot,
+			-self.composite.port2.flow.QDot,
+			self.cooler.mDot)
 		self.resultStorage.saveTimeStep()
 		
 	def loadResult(self, simIndex):
@@ -246,7 +252,9 @@ class TankModel(DMC.Simulation):
 		#plt.plot(xData, data['rhoTank'] * self.tank.V, 'm', label = 'tank mass [kg]')
 		plt.plot(xData, data['TCompressorOut'], 'y', label = 'compressor outlet temperature of fluid [K]')
 		plt.plot(xData, data['TCoolerOut'], 'm--', label = 'cooler outlet temperature of fluid [K]')
-		#plt.plot(xData, data['WRealCompressor']/1e3, 'y--', label = 'compressor real work [KW]')
+		#plt.plot(xData, data['QDotCooler'], 'y--', label = 'cooler heat flow rate [W]')
+		plt.plot(xData, data['QDotComp'], 'y--', label = 'composite heat flow rate [W]')
+		#plt.plot(xData, data['WRealCompressor']/1e3, 'y--', label = 'compressor real work [kJ]')
 		
 		plt.gca().set_xlim([0, len(xData)])
 		plt.legend()
@@ -378,7 +386,7 @@ def testTankModel():
 		),
 
 		cooler = AttributeDict(
-			workingState = 0,
+			workingState = 1.,
 			epsilon = 1.0,
 			TCooler = 200,
 		),
