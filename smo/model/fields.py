@@ -794,7 +794,7 @@ class ModelDescription(object):
 	:param str text: the description text displayed on the model page
 	:param str asTooltip: custom tooltip description of the model. If ``None``, ``text`` is used instead.
 	"""
-	def __init__(self, text, asTooltip = None, show = False):
+	def __init__(self, text, asTooltip = None, show = True):
 		self.text = text
 		self.show = show
 		if (asTooltip is None):

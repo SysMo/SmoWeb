@@ -16,3 +16,5 @@ Welcome to SmoWeb internal documentation!
    Diagrams
    IE
    AcademicAreas 
+
+   DamageCalculator

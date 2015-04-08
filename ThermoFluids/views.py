@@ -77,6 +77,13 @@ class CompressedGasStorageView(ModularPageView):
 	requireJS = ['dygraph', 'dygraphExport']
 	requireGoogle = ['visualization']
 
+@registerView(router)
+class HeatExchangerDesignView(ModularPageView):
+	label = 'Heat exchanger design'
+	modules = [M.CylindricalBlockHeatExchanger]
+	requireJS = ['dygraph', 'dygraphExport']
+	requireGoogle = ['visualization']
+
 # from models.TestModule import ABC
 # @registerView(router)
 # class TestPage(ModularPageView):
