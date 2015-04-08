@@ -382,7 +382,7 @@ div.tooltip-inner {
     text-align: left;
 }
 
-@media (max-width: 991px) {
+@media (max-width: 992px) {
 	.col-sm-10 {
 	    width: 100%;
 	}

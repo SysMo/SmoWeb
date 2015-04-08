@@ -40,7 +40,7 @@
 			      $(this).attr('src', $(this).attr('src').replace('.svg', '.png'));
 			  });
 			}
-		 	if (window.innerWidth < 992) {
+		 	if (window.innerWidth <= 992) {
 		 		$('#sideBarDiv').collapse('hide');
 		 		$('#sideBarButton').collapse('show');
 		 	} else {
@@ -48,7 +48,7 @@
 		 		$('#sideBarButton').collapse('hide');
 		 	}
 		 	$(window).resize(function(){
-		 		if (window.innerWidth < 992) {
+		 		if (window.innerWidth <= 992) {
 			 		$('#sideBarDiv').collapse('hide');
 			 		$('#sideBarButton').collapse('show');
 			 	} else {
