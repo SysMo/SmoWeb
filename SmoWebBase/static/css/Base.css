@@ -250,7 +250,8 @@ body {
 
 .presentation > .description {
 	margin-top: 10px;
-	width: 500px;
+	padding-left: 20%;
+	padding-right: 20%;
 }
 
 /* Model Thumbnail */
