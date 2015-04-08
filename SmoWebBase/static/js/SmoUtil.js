@@ -1326,10 +1326,10 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 				
 				template += '\
 					<div class="view-group-container">\
-						<div style="vertical-align: top; cursor: pointer; min-width: 15%; display: inline-block;">\
+						<div style="vertical-align: top; cursor: pointer; min-width: 10%; display: inline-block;">\
 							<ul class="nav nav-pills nav-stacked">' + navPills.join("") + '</ul>\
 						</div>\
-						<div class="tab-content" style="padding-left: 7px; max-width: 85%; overflow-x:auto; display: inline-block;">'
+						<div class="tab-content" style="overflow-x:auto; display: inline-block;">'
 							+ navPillPanes.join("") + 
 						'</div>\
 					</div>';

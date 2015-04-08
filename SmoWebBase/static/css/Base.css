@@ -200,7 +200,7 @@ body {
   overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
   background-image: url("/static/img/GreyStripes.png");
   background-repeat: repeat;
-  border-right: 1px solid #eee;
+  border-right: 7px solid #BABABA;
   width: 180px;
   padding-top: 20px;
   padding-left: 10px;
@@ -382,8 +382,27 @@ div.tooltip-inner {
     text-align: left;
 }
 
-@media (max-width: 992px) {
+@media (max-width: 1024px) {
 	.col-sm-10 {
 	    width: 100%;
 	}
+}
+
+@media (max-width: 1222px) {
+	.view-group-container .nav-stacked > li {
+    	display: inline-block;
+ 	}
+ 	.view-group-container .tab-content {
+ 		max-width: 100%;
+ 	}
+}
+
+@media (min-width: 1223px) {
+ 	.view-group-container .tab-content {
+ 		max-width: 83%;
+ 	}
+ 	
+ 	.view-group-container .ul {
+ 		margin-bottom: 10px;
+ 	}
 }

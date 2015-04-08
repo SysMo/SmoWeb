@@ -62,9 +62,10 @@
 }
 
 /* View group TableView */
-/* .google-visualization-table.content > .top-level { */
+.google-visualization-table.content > .top-level {
 /* 	margin-right: 100px; */
-/* } */
+max-width: 80%;
+}
 
 
 /* Super group */
