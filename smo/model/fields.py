@@ -608,15 +608,18 @@ class Image(Field):
 		else:
 			self.default = default
 		
-		if width is None:
-			self.width = 700
-		else:
-			self.width = width
-			
-		if height is None:
-			self.height = 400
-		else:
-			self.height = height
+		self.width = width
+		self.height = height
+		
+# 		if width is None:
+# 			self.width = 700
+# 		else:
+# 			self.width = width
+# 			
+# 		if height is None:
+# 			self.height = 400
+# 		else:
+# 			self.height = height
 	
 	def parseValue(self, value):
 		return value

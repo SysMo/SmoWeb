@@ -582,7 +582,7 @@ smoModule.directive('smoImg', ['$compile', function($compile) {
 			var el_id = scope.modelName + '_' + scope.fieldVar.name;
 			var template;
 			if (scope.fieldVar.width == null || scope.fieldVar.height == null) {
-				template = '<img class="img-responsive" id="' + el_id + '" style="cursor: pointer;" src="/' + scope.smoDataSource[scope.fieldVar.name] + '">';
+				template = '<img class="img-responsive" id="' + el_id + '" style="cursor: pointer; width=100%; height=100%;" src="/' + scope.smoDataSource[scope.fieldVar.name] + '">';
 			} else {
 				template = '<img class="img-responsive" id="' + el_id + '" width=' + scope.fieldVar.width + ' height=' + scope.fieldVar.height +
 				' style="cursor: pointer;" src="/' + scope.smoDataSource[scope.fieldVar.name] + '">';
@@ -1304,7 +1304,7 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 					if (typeof field.show !== "undefined"){
 						showCode = 'ng-show="' + field.show.replace(/self/g, 'smoDataSource') + '"';
 					}
-					console.log(showCode);
+					
 					
 					if (i==0){
 						navPills.push('<li class="active"><a id="' + field.name + 'Tab" data-target="#' + field.name + '" role="tab" data-toggle="tab"><div data-toggle="tooltip" data-placement="right" data-viewport="[smo-view-group]" title="' + field.description + '" tooltip>' + field.label + '</div></a></li>');
@@ -1315,9 +1315,9 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 					}
 					
 					if (field.type == 'TableView' || field.type == 'PlotView') {
-						navPillPanes.push('<div ' + showCode + ' smo-data-series-view field-var="fields.' + field.name + '" model-name="' + scope.modelName + '" smo-data-source="smoDataSource" style="width: 840px; max-height: 650px; overflow: auto;"></div>');
+						navPillPanes.push('<div ' + showCode + ' smo-data-series-view field-var="fields.' + field.name + '" model-name="' + scope.modelName + '" smo-data-source="smoDataSource"></div>');
 					} else if (field.type == 'Image') {
-						navPillPanes.push('<div ' + showCode + ' smo-img field-var="fields.' + field.name + '" model-name="' + scope.modelName + '" smo-data-source="smoDataSource" style="max-width: 840px; overflow: auto;"></div>');
+						navPillPanes.push('<div ' + showCode + ' smo-img field-var="fields.' + field.name + '" model-name="' + scope.modelName + '" smo-data-source="smoDataSource"></div>');
 					}
 					
 					navPillPanes.push('</div>'); 
@@ -1325,11 +1325,11 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 				}
 				
 				template += '\
-					<div class="view-group-container" style="white-space: nowrap;">\
-						<div style="display: inline-block; vertical-align: top; cursor: pointer;">\
+					<div class="view-group-container">\
+						<div style="vertical-align: top; cursor: pointer; min-width: 15%; display: inline-block;">\
 							<ul class="nav nav-pills nav-stacked">' + navPills.join("") + '</ul>\
 						</div>\
-						<div class="tab-content" style="display: inline-block; padding-left: 7px;">'
+						<div class="tab-content" style="padding-left: 7px; max-width: 85%; overflow-x:auto; display: inline-block;">'
 							+ navPillPanes.join("") + 
 						'</div>\
 					</div>';
@@ -1341,15 +1341,14 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 					showCode = 'ng-show="' + field.show.replace(/self/g, 'smoDataSource') + '"';
 				}
 				
-				console.log(showCode);
 				
 				template += '\
-					<div style="white-space: nowrap; background-color: white; padding :10px; text-align: center;">';
+					<div style="background-color: white; padding :10px; text-align: center;">';
 				
 				if (field.type == 'TableView' || field.type == 'PlotView') {
-					template += '<div ' + showCode + ' smo-data-series-view field-var="smoViewGroup.fields[0]" model-name="' + scope.modelName + '" smo-data-source="smoDataSource" style="max-width: 840px; max-height: 650px; overflow: auto;"></div>';
+					template += '<div ' + showCode + ' smo-data-series-view field-var="smoViewGroup.fields[0]" model-name="' + scope.modelName + '" smo-data-source="smoDataSource"></div>';
 				} else if (field.type == 'Image') {
-					template += '<div ' + showCode + ' smo-img field-var="smoViewGroup.fields[0]" model-name="' + scope.modelName + '" smo-data-source="smoDataSource" style="max-width: 840px; overflow: auto;"></div>';
+					template += '<div ' + showCode + ' smo-img field-var="smoViewGroup.fields[0]" model-name="' + scope.modelName + '" smo-data-source="smoDataSource"></div>';
 				}
 				
 				template += '</div>';					

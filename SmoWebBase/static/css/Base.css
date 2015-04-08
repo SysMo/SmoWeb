@@ -269,7 +269,7 @@ body {
 	background-color: white;
 }
 
-.thumb:focus, .thumb:hover{
+.thumb:focus, .thumb:hover {
 	border: solid 3px #0875CA;
 }
 

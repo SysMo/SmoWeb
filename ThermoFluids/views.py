@@ -45,13 +45,15 @@ class FreeConvectionView(ModularPageView):
 @registerView(router)
 class HeatingCoolingCyces(ModularPageView):
 	label = "Heating/cooling cycles"
-	modules = [M.VaporCompressionCycle, M.VaporCompressionCycleWithRecuperator, M.HeatPumpCyclesDoc]	
+	modules = [M.VaporCompressionCycle, M.VaporCompressionCycleWithRecuperator, M.HeatPumpCyclesDoc]
+	requireJS = ['dygraph', 'dygraphExport']	
 	requireGoogle = ['visualization']
 
 @registerView(router)
 class PowerGenerationCycles(ModularPageView):
 	label = "Power generation cycles"
 	modules = [M.RankineCycle, M.RegenerativeRankineCycle, M.HeatEngineCyclesDoc]
+	requireJS = ['dygraph', 'dygraphExport']
 	requireGoogle = ['visualization']
 	
 @registerView(router)
