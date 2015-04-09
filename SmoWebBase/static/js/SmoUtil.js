@@ -1531,9 +1531,10 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 				for (var row=0; row<$scope.arrValue.length; row++){
 					$scope.arrDisplayValue[row][col]
 						= util.formatNumber(($scope.arrValue[row][col] - offset) / field.dispUnitDef.mult);
-					$scope.defaultDisplayRow[col]
-						= util.formatNumber(($scope.smoRecordArray.defaultRow[col] - offset) / field.dispUnitDef.mult);
 				}
+				
+				$scope.defaultDisplayRow[col]
+					= util.formatNumber(($scope.smoRecordArray.defaultRow[col] - offset) / field.dispUnitDef.mult);
 				
 				field.minDisplayValue = (field.minValue - offset) / field.dispUnitDef.mult;
 				field.maxDisplayValue = (field.maxValue - offset) / field.dispUnitDef.mult;
@@ -1543,18 +1544,12 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 				if (row == -1) {
 					$scope.smoDataSource[$scope.smoRecordArray.name].unshift(angular.copy($scope.smoRecordArray.defaultRow));
 					$scope.arrDisplayValue.unshift(angular.copy($scope.defaultDisplayRow));
-					console.log('add, result:');
-					console.log($scope.smoDataSource[$scope.smoRecordArray.name]);
-					console.log($scope.arrDisplayValue);
 					return;
 				}
 				$scope.smoDataSource[$scope.smoRecordArray.name].splice(row, 0, 
 						angular.copy($scope.smoDataSource[$scope.smoRecordArray.name][row]));
 				$scope.arrDisplayValue.splice(row, 0, 
 						angular.copy($scope.arrDisplayValue[row]));
-				console.log('add, result:');
-				console.log($scope.smoDataSource[$scope.smoRecordArray.name]);
-				console.log($scope.arrDisplayValue);
 			}
 			
 			$scope.delRow = function(row) {
@@ -1565,9 +1560,6 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 				}
 				$scope.smoDataSource[$scope.smoRecordArray.name].splice(row, 1);
 				$scope.arrDisplayValue.splice(row, 1);
-				console.log('del, result:');
-				console.log($scope.smoDataSource[$scope.smoRecordArray.name]);
-				console.log($scope.arrDisplayValue);
 			}
 			
 		},
