@@ -2,8 +2,8 @@
 <h1 class="title">The SmoWeb platform</h1>
 <div class="section" id="overview">
 <h1>Overview</h1>
-<p>SmoWeb is an <em>open source web computational platform</em> written in <em>Python</em> (in combination with C/C++).
-It also includes a library of <em>application modules</em> built on top of this platform.</p>
+<p>SmoWeb is an <em>open source web computational platform</em> developed in <em>Python</em>
+and a library of <em>applications</em> built on top of this platform.</p>
 <div class="section" id="computational-platform">
 <h2><strong>Computational Platform</strong></h2>
 <p>It provides the infastructure for rapid development of scientific
@@ -32,8 +32,8 @@ abundance of open source python libraries and interfaces to major
 software tools. Cython is a Python extension, allowing to speed up critical parts
 of the software and providing easy interfacing to C/C++/Fortran libraries.</p>
 </div>
-<div class="section" id="smoweb-application-modules">
-<h2><strong>SmoWeb application modules</strong></h2>
+<div class="section" id="smoweb-applications">
+<h2><strong>SmoWeb Applications</strong></h2>
 <p>A number of applications have already been developed and are continously
 being developed on top of the fucntionality provided by the platform. Currently
 these are mostly in the fields of thermodynamics, heat and fluid flow, and
@@ -43,7 +43,7 @@ engieering.</p>
 <div class="line-block">
 <div class="line"><br /></div>
 </div>
-<p>If you want to learn more about the implementation of SmoWeb, check out the project's <a class="reference external" href="/static/doc/html/index.html" target="_self">documentation</a></p>
+<p>If you are curious about the implementation of SmoWeb, check out the project's <a class="reference external" href="/static/doc/html/index.html" target="_self">documentation</a></p>
 </div>
 </div>
 <div class="section" id="smoweb-1-0">
@@ -62,28 +62,28 @@ and uses the full power of Python language and all installed libraries</li>
 </li>
 <li>Automatic <strong>graphical user interface</strong> for the web browser<ul>
 <li>no html, javascript or css necessary; comes out of the box with the model definition</li>
-<li>a model contains <em>model views</em> with data, which are sent to the browser</li>
+<li>a model can send model views with data to the browser</li>
 <li>hierarchical representation of the model with dialog groups and tabs</li>
 <li>numerical, boolean, text fields; choice selections from dropdown menus</li>
-<li>physical quantity editors have built-in unit conversion</li>
 <li>advanced editors for complex data structures (e.g. record array)</li>
 <li>the user interacts with the browser to edit the model values</li>
-<li>at the click of a button, the user sends data back and request the server to
-perform a number of predefined model actions/computations</li>
+<li>physical quantity editors have built-in unit conversion</li>
+<li>at the click of a button, the user can send data back and request the server to
+perform a number of predefined model actions</li>
 <li>results from calculations are sent to the user for inspection</li>
 <li>simple fields, plots, tables and diagrams in the results</li>
 </ul>
 </li>
 <li>Advanced <strong>data storage</strong>:<ul>
-<li>model values can be saved and retrieved from a database (no extra code necessary)</li>
+<li>model values can be automatically saved and retrieved from a database</li>
 <li>a unique link is generated for a saved model, and can be used to share model data</li>
 <li>schema-less Mongo database: automatic storage for any data structure defined</li>
 <li>HDF5/Pandas storage for time series and other array data</li>
 </ul>
 </li>
 <li>Integration of numerous <strong>computational libraries and frameworks</strong>:<ul>
-<li><a class="reference external" href="http://www.numpy.org/" target="_self">NumPy</a>, SciPy and <a class="reference external" href="http://matplotlib.org/" target="_self">MatPlotLib</a>, the standard python libraries for numerical computation and
-visualization, which give the user much of the functionality present in Matlab.</li>
+<li><a class="reference external" href="http://www.numpy.org/" target="_self">NumPy</a>, SciPy and MatPlotLib, the standard python libraries for numerical computation and
+visualization, with much of the basic functionality present in Matlab.</li>
 <li><a class="reference external" href="http://www.coolprop.org/" target="_self">CoolProp</a>: <em>property database</em> with wide range of common and refrigerant fluids including
 gas, liquid and two-phase properties</li>
 <li><a class="reference external" href="http://www.jmodelica.org/assimulo" target="_self">Assimulo</a> + <a class="reference external" href="https://computation.llnl.gov/casc/sundials/description/description.html" target="_self">CVODE</a>: library for simulating <em>dynamical system models</em> (models based on hybrid
@@ -103,7 +103,7 @@ on the Finite Volume Method</li>
 <li>Property calculators</li>
 <li>Pipe flow</li>
 <li>Convectional heat exchange</li>
-<li>Thermodynamic cycles: refrigerators, liquefiers, power plants</li>
+<li>Thermodynamic cycles</li>
 <li>1D heat exchange examples</li>
 </ul>
 </li>
@@ -116,9 +116,8 @@ on the Finite Volume Method</li>
 </div>
 <div class="section" id="smoweb-2-0">
 <h1>SmoWeb 2.0</h1>
-<p>This is the current development plan for the next version of SmoWeb. We have planned
-more things than we will be able to implement, and will later select a subset of them
-based on the available resources, funding and collaborators.</p>
+<p>This is the current development plan for the next version of SmoWeb. We have deliberately planned
+more things than we will be able to implement, and will later select a subset of them based on the available resources</p>
 <div class="section" id="id1">
 <h2>Platform</h2>
 <ul class="simple">
@@ -129,7 +128,7 @@ based on the available resources, funding and collaborators.</p>
 </li>
 <li>Dynamical simulation environment<ul>
 <li>component and system model definitions in python</li>
-<li>generation and compilation of C/C++ code for simulation speed-up</li>
+<li>generation of C/C++ code for simulation speed-up</li>
 <li>graphical system editor (like Simulink, or the Modelica-based GUI tools Dymola and SimulationX)</li>
 <li>(?) Modelica integration</li>
 <li>advanced result viewer</li>

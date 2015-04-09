@@ -6,8 +6,8 @@ The SmoWeb platform
 Overview
 --------
 
-SmoWeb is an *open source web computational platform* written in *Python* (in combination with C/C++).
-It also includes a library of *application modules* built on top of this platform.
+SmoWeb is an *open source web computational platform* developed in *Python* 
+and a library of *applications* built on top of this platform.
 
 **Computational Platform**
 --------------------------
@@ -37,8 +37,8 @@ abundance of open source python libraries and interfaces to major
 software tools. Cython is a Python extension, allowing to speed up critical parts
 of the software and providing easy interfacing to C/C++/Fortran libraries.
 
-**SmoWeb application modules**
-------------------------------
+**SmoWeb Applications**
+-----------------------
 
 A number of applications have already been developed and are continously
 being developed on top of the fucntionality provided by the platform. Currently
@@ -49,7 +49,7 @@ engieering.
    
 |
 
-If you want to learn more about the implementation of SmoWeb, check out the project's `documentation </static/doc/html/index.html>`_
+If you are curious about the implementation of SmoWeb, check out the project's `documentation </static/doc/html/index.html>`_
 
 ----------
 SmoWeb 1.0
@@ -70,28 +70,28 @@ Platform
 * Automatic **graphical user interface** for the web browser
    
   * no html, javascript or css necessary; comes out of the box with the model definition
-  * a model contains *model views* with data, which are sent to the browser
+  * a model can send model views with data to the browser
   * hierarchical representation of the model with dialog groups and tabs
   * numerical, boolean, text fields; choice selections from dropdown menus
-  * physical quantity editors have built-in unit conversion  
   * advanced editors for complex data structures (e.g. record array)
   * the user interacts with the browser to edit the model values
-  * at the click of a button, the user sends data back and request the server to 
-    perform a number of predefined model actions/computations
+  * physical quantity editors have built-in unit conversion  
+  * at the click of a button, the user can send data back and request the server to 
+    perform a number of predefined model actions
   * results from calculations are sent to the user for inspection
   * simple fields, plots, tables and diagrams in the results
    
 * Advanced **data storage**:
 
-  * model values can be saved and retrieved from a database (no extra code necessary)
+  * model values can be automatically saved and retrieved from a database
   * a unique link is generated for a saved model, and can be used to share model data
   * schema-less Mongo database: automatic storage for any data structure defined 
   * HDF5/Pandas storage for time series and other array data
 
 * Integration of numerous **computational libraries and frameworks**:
 
-  * NumPy_, SciPy and MatPlotLib_, the standard python libraries for numerical computation and 
-    visualization, which give the user much of the functionality present in Matlab.
+  * NumPy_, SciPy and MatPlotLib, the standard python libraries for numerical computation and 
+    visualization, with much of the basic functionality present in Matlab.
   * CoolProp_: *property database* with wide range of common and refrigerant fluids including 
     gas, liquid and two-phase properties  
   * Assimulo_ + CVODE_: library for simulating *dynamical system models* (models based on hybrid 
@@ -109,7 +109,7 @@ Models and applications
   * Property calculators
   * Pipe flow
   * Convectional heat exchange
-  * Thermodynamic cycles: refrigerators, liquefiers, power plants
+  * Thermodynamic cycles
   * 1D heat exchange examples
 
 * Bio-reactors
@@ -120,9 +120,8 @@ Models and applications
 ----------
 SmoWeb 2.0
 ----------
-This is the current development plan for the next version of SmoWeb. We have planned
-more things than we will be able to implement, and will later select a subset of them
-based on the available resources, funding and collaborators.
+This is the current development plan for the next version of SmoWeb. We have deliberately planned
+more things than we will be able to implement, and will later select a subset of them based on the available resources
 
 
 Platform
@@ -136,7 +135,7 @@ Platform
 * Dynamical simulation environment
 
   * component and system model definitions in python
-  * generation and compilation of C/C++ code for simulation speed-up
+  * generation of C/C++ code for simulation speed-up
   * graphical system editor (like Simulink, or the Modelica-based GUI tools Dymola and SimulationX)
   * (?) Modelica integration
   * advanced result viewer 
@@ -168,7 +167,6 @@ Models and applications
 * Renewable energy modules (solar heating etc.)
 
 .. _NumPy: http://www.numpy.org/
-.. _MatPlotLib: http://matplotlib.org/
 .. _CoolProp: http://www.coolprop.org/
 .. _Assimulo: http://www.jmodelica.org/assimulo
 .. _CVODE: https://computation.llnl.gov/casc/sundials/description/description.html

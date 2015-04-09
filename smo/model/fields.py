@@ -608,15 +608,18 @@ class Image(Field):
 		else:
 			self.default = default
 		
-		if width is None:
-			self.width = 700
-		else:
-			self.width = width
-			
-		if height is None:
-			self.height = 400
-		else:
-			self.height = height
+		self.width = width
+		self.height = height
+		
+# 		if width is None:
+# 			self.width = 700
+# 		else:
+# 			self.width = width
+# 			
+# 		if height is None:
+# 			self.height = 400
+# 		else:
+# 			self.height = height
 	
 	def parseValue(self, value):
 		return value
@@ -791,7 +794,7 @@ class ModelDescription(object):
 	:param str text: the description text displayed on the model page
 	:param str asTooltip: custom tooltip description of the model. If ``None``, ``text`` is used instead.
 	"""
-	def __init__(self, text, asTooltip = None, show = False):
+	def __init__(self, text, asTooltip = None, show = True):
 		self.text = text
 		self.show = show
 		if (asTooltip is None):

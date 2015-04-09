@@ -91,7 +91,7 @@ class ThermodynamicalCycle(NumericalModel):
 	cycleStates = F.ViewGroup([cycleStatesTable], label = "States")
 	resultStates = F.SuperGroup([cycleStates], label="States")
 	#---------------- Cycle diagram -----------#
-	phDiagram = F.Image(default='', width=880, height=550)
+	phDiagram = F.Image(default='')
 	cycleDiagramVG = F.ViewGroup([phDiagram], label = "P-H Diagram")
 	resultDiagrams = F.SuperGroup([cycleDiagramVG], label = "Diagrams")
 	#---------------- Convergence parameters -----------#

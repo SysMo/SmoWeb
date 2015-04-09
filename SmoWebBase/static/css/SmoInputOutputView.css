@@ -16,6 +16,10 @@
 	vertical-align:top;
 }
 
+[smo-view-group] {
+	width: 95%;
+}
+
 
 /* Variants:
  - original blue color: #0875CA
@@ -53,13 +57,14 @@
 /* View group content */
 .view-group-container {
 	background-color: #FFFFFF;
-	width: 900px;
-	overflow: hidden;	
+/*	width: 900px; */
+/* 	overflow: hidden;	 */
 }
 
 /* View group TableView */
 .google-visualization-table.content > .top-level {
-	margin-right: 100px;
+/* 	margin-right: 100px; */
+max-width: 80%;
 }
 
 
@@ -67,12 +72,17 @@
 .nav-tabs.super-group {
 }
 .super-group {
-	overflow: auto;
+/* 	overflow: auto; */
 }
 
 [smo-super-group-set] {
 	margin-top: 20px;
 }
+
+/* .view-group-container .nav-stacked div { */
+/* 	overflow: hidden; */
+/* 	text-overflow: ellipsis; */
+/* } */
 
 [smo-super-group-set] > .nav-tabs, #FluidPointTabs.nav-tabs {
 	/* Put a line under the nav tabs */

@@ -24,7 +24,7 @@ class CryogenicPipeSolver(object):
 		self.BCs = (None, None)
 		self.TAmb = TAmb
 		self.conduction = {
-			'params': thermalConductivityModel
+			'model': thermalConductivityModel
 		}
 		self.radiation = {
 			'active' : False,
