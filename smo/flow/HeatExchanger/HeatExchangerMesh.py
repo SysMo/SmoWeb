@@ -40,10 +40,12 @@ class HeatExchangerMesh():
         pointId4 = self.pointId
         self.addPoint2D(0, -radius, cellSize)
         
-        sMesh.write("Translate {{ {0}, 0, 0 }} {{ Point{{ {1}, {2}, {3}, {4}, {5} }}; }};".format(
-            radialPosition, centerPointId, pointId1, pointId2, pointId3, pointId4))
-        sMesh.write("Rotate {{ {{0, 0, 1}}, {{0, 0, 0}}, {0} }} {{ Point{{ {1}, {2}, {3}, {4}, {5} }}; }};".format(
-            angularPosition, centerPointId, pointId1, pointId2, pointId3, pointId4))
+        if radialPosition != 0.0:
+            sMesh.write("Translate {{ {0}, 0, 0 }} {{ Point{{ {1}, {2}, {3}, {4}, {5} }}; }}\n".format(
+                radialPosition, centerPointId, pointId1, pointId2, pointId3, pointId4))
+        if angularPosition != 0.0:
+            sMesh.write("Rotate {{ {{0, 0, 1}}, {{0, 0, 0}}, {0} }} {{ Point{{ {1}, {2}, {3}, {4}, {5} }}; }}\n".format(
+                angularPosition, centerPointId, pointId1, pointId2, pointId3, pointId4))
         
         circleArcId1 = self.circleArcId 
         sMesh.write("Circle({0}) = {{ {1}, {2}, {3} }};\n".format(
@@ -106,21 +108,48 @@ class HeatExchangerMesh():
         
         # Add the outer block circle
         self.addCircle2D(
-            radius = 1.0, 
+            radius = 1, 
             cellSize = 0.1, 
             radialPosition = 0, 
             angularPosition = 0,
             name = "OuterBoundary"
         )
-        
+          
         # Add the internal circles
         self.addCircle2D(
-            radius = 0.25, 
-            cellSize = 0.05, 
-            radialPosition = 0.5, 
-            angularPosition = 1.5,
-            name = "InnerBoundary",
+             radius = 0.125, 
+             cellSize = 0.05,
+             radialPosition = 0.5, 
+             angularPosition = 0. + 0.,
+             name = "PrimaryChannel_0",
         )
+         
+        # Add the internal circles
+        self.addCircle2D(
+             radius = 0.25, 
+             cellSize = 0.05,
+             radialPosition = 0.5, 
+             angularPosition = 2. + 0.,
+             name = "PrimaryChannel_1",
+        )
+        
+#         # Add the outer block circle
+#         self.addCircle2D(
+#             radius = params.blockDiameter / 2.0, 
+#             cellSize = params.blockCellSize, 
+#             radialPosition = 0, 
+#             angularPosition = 0,
+#             name = "OuterBoundary"
+#         )
+#          
+#         for i in range(len(params.primaryChannels)):
+#             self.addCircle2D(
+#                 radius = params.primaryChannels['diameter'][i] / 2.0, 
+#                 cellSize = params.primaryChannels['cellSize'][i],
+#                 radialPosition = params.primaryChannels['r'][i], 
+#                 angularPosition = params.primaryChannels['theta'][i],
+#                 name = "PrimaryChannel_{0}".format(i),
+#             )
 
         # Add the cross section surface 
         self.addSurface(beginId = 1, endId = self.circleId, name = "CrossSection")
@@ -130,8 +159,8 @@ class HeatExchangerMesh():
         self.sMesh.close()        
         
         #===== Generate the mesh =====#
-        self.mesh = FP.Gmsh2D(gmshScript)
         print gmshScript #:TODO: (Milen: TEST)
+        self.mesh = FP.Gmsh2D(gmshScript)
     
     def __delme_create__(self, params = None, **kwargs):
         gmsh = '''

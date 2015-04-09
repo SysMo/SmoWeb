@@ -91,7 +91,7 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 	
 	############# Methods ###############
 	def __init__(self):
-		self.blockRadius = self.blockDiameter / 2.
+		pass
 		
 	def compute(self):		
 		# Create the mesh
