@@ -8,6 +8,7 @@ Created on Apr 8, 2015
 from smo.model.actions import ServerAction, ActionBar
 from smo.model.model import NumericalModel
 from smo.media.MaterialData import Fluids
+from smo.flow.HeatExchanger import HeatExchangerMesh
 import smo.model.fields as F
 
 class CylindricalBlockHeatExchanger(NumericalModel):
@@ -23,19 +24,22 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 	#---------------- Fields ----------------#
 	# Field group: Block geometry	
 	blockDiameter = F.Quantity('Length', default = (100, 'mm'), label = 'block diameter')
+	blockCellSize = F.Quantity('Length', default = (10, 'mm'), label = 'block cell size (mesh)')
 	primaryChannels = F.RecordArray((
 		('diameter', F.Quantity('Length', default = (10, 'mm'), label = 'channel diameter')),
 		('r', F.Quantity('Length', default = (50, 'mm'), label = 'radial position')),		
-		('theta', F.Quantity('Angle', default = (0, 'deg'), label = 'angular position')),		
+		('theta', F.Quantity('Angle', default = (0, 'deg'), label = 'angular position')),
+		('cellSize', F.Quantity('Length', default = (1, 'mm'), label = 'cell size (mesh)')),
 	), label = 'primary channels')
 	
 	secondaryChannels = F.RecordArray((
 		('diameter', F.Quantity('Length', default = (10, 'mm'), label = 'channel diameter')),
 		('r', F.Quantity('Length', default = (50, 'mm'), label = 'radial position')),		
-		('theta', F.Quantity('Angle', default = (0, 'deg'), label = 'angular position')),		
+		('theta', F.Quantity('Angle', default = (0, 'deg'), label = 'angular position')),
+		('cellSize', F.Quantity('Length', default = (1, 'mm'), label = 'cell size (mesh)')),
 	), label = 'secondary channels')
 	
-	blockGeometryGroup = F.FieldGroup([blockDiameter, primaryChannels, secondaryChannels], label = 'Block geometry')
+	blockGeometryGroup = F.FieldGroup([blockDiameter, blockCellSize, primaryChannels, secondaryChannels], label = 'Block geometry')
 
 	# Field group: Flow
 	fluidPrim = F.Choices(Fluids, default = 'ParaHydrogen', label = 'fluid primary')
@@ -63,7 +67,8 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 
 	flowGroup = F.FieldGroup([fluidPrim, mDotPrim, TInPrim, pInPrim, fluidSec, mDotSec, TInSec, pInSec, 
 							mDotExt, TInExt, pInExt], label = 'Fluid flows')
-	inputValues = F.SuperGroup([blockGeometryGroup, flowGroup], label = 'Input values')
+	#inputValues = F.SuperGroup([blockGeometryGroup, flowGroup], label = 'Input values')
+	inputValues = F.SuperGroup([blockGeometryGroup], label = 'Input values') #:TEST:
 	
 	#---------------- Actions ----------------#
 	computeAction = ServerAction("compute", label = "Compute", outputView = 'resultView')
@@ -74,11 +79,26 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 		actionBar = inputActionBar, autoFetch = True)
 	
 	#================ Results ================#
-	resultView = F.ModelView(ioType = "output", superGroups = [])
+	meshImage = F.Image(default='')
+	meshImageVG = F.ViewGroup([meshImage], label = 'Heat exchanger cross section')
+	resultsSG = F.SuperGroup([meshImageVG], label = 'Mesh')
+	
+	resultView = F.ModelView(ioType = "output", superGroups = [resultsSG])
 
 	############# Page structure ########
 	modelBlocks = [inputView, resultView]
 	
+	
 	############# Methods ###############
-	def compute(self):
-		pass
+	def __init__(self):
+		self.blockRadius = self.blockDiameter / 2.
+		
+	def compute(self):		
+		# Create the mesh
+		mesh = HeatExchangerMesh()
+		mesh.create(self)
+		
+		# Show the mesh
+		tmpFilePath  = mesh.plotToTmpFile()
+		self.meshImage = tmpFilePath
+	
