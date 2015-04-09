@@ -1194,6 +1194,9 @@ smoModule.directive('smoDataSeriesView', ['$compile', function($compile) {
 	        $(".view-edit > table").bind('click', function(e){
                 e.stopPropagation();
             });
+	        $("#" + scope.fieldVar.name + "Tab").on('click', function(){
+	        	scope.draw();
+	        });
 	        scope.$watch(scope.smoDataSource[scope.fieldVar.name], function(value) {
 				scope.init();
 		});
@@ -1307,10 +1310,10 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 					
 					
 					if (i==0){
-						navPills.push('<li class="active"><a id="' + field.name + 'Tab" data-target="#' + field.name + '" role="tab" data-toggle="tab"><div data-toggle="tooltip" data-placement="right" data-viewport="[smo-view-group]" title="' + field.description + '" tooltip>' + field.label + '</div></a></li>');
+						navPills.push('<li class="active"><a id="' + field.name + 'Tab" data-target="#' + field.name + '" role="tab" data-toggle="tab"><div data-toggle="tooltip" data-viewport="[smo-view-group]" title="' + field.description + '" tooltip>' + field.label + '</div></a></li>');
 						navPillPanes.push('<div class="tab-pane active" id="' + field.name + '">');
 					} else {
-						navPills.push('<li><a id="' + field.name + 'Tab" data-target="#' + field.name + '" role="tab" data-toggle="tab"><div data-toggle="tooltip" data-placement="right" data-viewport="[smo-view-group]", title="' + field.description + '" tooltip>' + field.label + '</div></a></li>');
+						navPills.push('<li><a id="' + field.name + 'Tab" data-target="#' + field.name + '" role="tab" data-toggle="tab"><div data-toggle="tooltip" data-viewport="[smo-view-group]", title="' + field.description + '" tooltip>' + field.label + '</div></a></li>');
 						navPillPanes.push('<div class="tab-pane" id="' + field.name + '">');
 					}
 					
@@ -1326,10 +1329,10 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 				
 				template += '\
 					<div class="view-group-container">\
-						<div style="vertical-align: top; cursor: pointer; min-width: 10%; display: inline-block;">\
+						<div style="vertical-align: top; cursor: pointer; margin-bottom: 10px;">\
 							<ul class="nav nav-pills nav-stacked">' + navPills.join("") + '</ul>\
 						</div>\
-						<div class="tab-content" style="overflow-x:auto; display: inline-block;">'
+						<div class="tab-content" style="overflow-x:auto;">'
 							+ navPillPanes.join("") + 
 						'</div>\
 					</div>';
@@ -1506,7 +1509,6 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 				if ('offset' in field.dispUnitDef) {
 					offset = field.dispUnitDef.offset;
 				}
-				
 				$scope.arrValue[row][col] = Number($scope.arrDisplayValue[row][col]) * field.dispUnitDef.mult + offset;
 			}
 			
@@ -1534,17 +1536,33 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 			}
 			
 			$scope.addRow = function(row) {
+				if (row == -1) {
+					$scope.smoDataSource[$scope.smoRecordArray.name][0] = $scope.firstRow;
+					$scope.arrDisplayValue[0] = $scope.firstDisplayRow;
+					console.log('add, result:');
+					console.log($scope.smoDataSource[$scope.smoRecordArray.name]);
+					console.log($scope.arrDisplayValue);
+					return;
+				}
 				$scope.smoDataSource[$scope.smoRecordArray.name].splice(row, 0, 
 						angular.copy($scope.smoDataSource[$scope.smoRecordArray.name][row]));
 				$scope.arrDisplayValue.splice(row, 0, 
 						angular.copy($scope.arrDisplayValue[row]));
+				console.log('add, result:');
+				console.log($scope.smoDataSource[$scope.smoRecordArray.name]);
+				console.log($scope.arrDisplayValue);
 			}
 			
 			$scope.delRow = function(row) {
-				if ($scope.arrDisplayValue.length > 1) {
-					$scope.smoDataSource[$scope.smoRecordArray.name].splice(row, 1);
-					$scope.arrDisplayValue.splice(row, 1);
+				if (row == 0) {
+					$scope.firstRow = angular.copy($scope.smoDataSource[$scope.smoRecordArray.name][0]);
+					$scope.firstDisplayRow = angular.copy($scope.arrDisplayValue[0]);
 				}
+				$scope.smoDataSource[$scope.smoRecordArray.name].splice(row, 1);
+				$scope.arrDisplayValue.splice(row, 1);
+				console.log('del, left:');
+				console.log($scope.smoDataSource[$scope.smoRecordArray.name]);
+				console.log($scope.arrDisplayValue);
 			}
 			
 		},
@@ -1673,7 +1691,8 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 						<th style="min-width: 10px;">\
 						</th>' +
 							headerRowTemplate +
-						'<th style="min-width: 10px;">\
+						'<th style="min-width: 10px; cursor: pointer;">\
+							<smo-button action="addRow(-1)" icon="plus" tip="Add row"></smo-button>\
 						</th>\
 					</tr>\
 					<tr ng-repeat="row in arrValue track by $index" ng-init="i=$index">\

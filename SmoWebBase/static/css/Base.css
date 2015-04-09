@@ -388,21 +388,27 @@ div.tooltip-inner {
 	}
 }
 
-@media (max-width: 1222px) {
-	.view-group-container .nav-stacked > li {
+.view-group-container .nav-stacked > li {
     	display: inline-block;
- 	}
- 	.view-group-container .tab-content {
- 		max-width: 100%;
- 	}
 }
 
-@media (min-width: 1223px) {
- 	.view-group-container .tab-content {
- 		max-width: 83%;
- 	}
- 	
- 	.view-group-container .ul {
- 		margin-bottom: 10px;
- 	}
+.view-group-container .tab-content {
+	max-width: 100%;
 }
+
+/* @media (max-width: 1222px) { */
+	
+/*  	.view-group-container .tab-content { */
+/*  		max-width: 100%; */
+/*  	} */
+/* } */
+
+/* @media (min-width: 1223px) { */
+/*  	.view-group-container .tab-content { */
+/*  		max-width: 83%; */
+/*  	} */
+ 	
+/*  	.view-group-container .ul { */
+/*  		margin-bottom: 10px; */
+/*  	} */
+/* } */

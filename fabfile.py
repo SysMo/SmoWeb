@@ -16,7 +16,7 @@ env.virtualBinDir = os.path.abspath(os.path.join(env.installDir, '../VirtualEnv/
 env.activate = 'source ' + os.path.join(env.virtualBinDir, 'activate')
 env.projectModules = ['SmoWeb']
 env.applicationModules = [
-	'DataManagement',
+#	'DataManagement',
 	'ThermoFluids',
 	'SmoWebBase',
 	'BioReactors'
