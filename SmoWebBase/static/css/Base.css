@@ -83,7 +83,6 @@ blockquote {
 
 .navbar-fixed-top {
     border: none;
-    -webkit-backface-visibility: hidden;
 }
 
 .navbar-default {
@@ -201,14 +200,14 @@ body {
   overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
   background-image: url("/static/img/GreyStripes.png");
   background-repeat: repeat;
-  border-right: 7px solid #BABABA;
+  border-right: 7px solid #31708F /* #BABABA */;
   width: 180px;
   padding-top: 20px;
   padding-left: 10px;
   padding-right: 10px;
   padding-bottom: 5px;
-  -webkit-backface-visibility: hidden;
 }
+
 
 /* Sidebar navigation */
 
@@ -398,19 +397,10 @@ div.tooltip-inner {
 	max-width: 100%;
 }
 
-/* @media (max-width: 1222px) { */
-	
-/*  	.view-group-container .tab-content { */
-/*  		max-width: 100%; */
-/*  	} */
-/* } */
+.navbar-default .navbar-toggle:focus, .navbar-default .navbar-toggle:hover {
+    background-color: #DDD;
+}
 
-/* @media (min-width: 1223px) { */
-/*  	.view-group-container .tab-content { */
-/*  		max-width: 83%; */
-/*  	} */
- 	
-/*  	.view-group-container .ul { */
-/*  		margin-bottom: 10px; */
-/*  	} */
-/* } */
+.navbar-default .navbar-toggle {
+	background-color: black;
+}
