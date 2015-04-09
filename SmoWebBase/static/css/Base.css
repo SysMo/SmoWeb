@@ -174,9 +174,9 @@ blockquote {
 
 /* Logo */
 .logo {
-	padding-top: 10px; 
+	text-align: right; 
+	padding-top:10px; 
 	padding-bottom: 10px;
-	float: right;
 } 
 
 .logo img {

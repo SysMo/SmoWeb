@@ -22,7 +22,7 @@ class ChemostatSimple(NumericalModel):
                          ('time', F.Quantity('Bio_Time', default = (20, 'day'), minValue = (0, 'day'), label = 'Duration')),
                          ('D', F.Quantity('Bio_TimeRate', default = (1, '1/day'), minValue = (0, '1/day'), label = 'D')),
                          ), 
-                         label = 'D', description = 'dilution (or washout) rate', numRows=0, empty=True)  
+                         label = 'D', description = 'dilution (or washout) rate')  
     parametersFieldGroup = F.FieldGroup([S_in, X_in, m, K, gamma, D_vals], label = "Parameters")
     
     S0 = F.Quantity('Bio_MassConcentration', default = (0, 'g/L'), minValue = 0, label = 'S<sub>0</sub>', description = 'initial substrate concentration')
