@@ -208,6 +208,8 @@ def installAptPackages():
 		#libboost-dev libboost-test-dev libboost-program-options-dev libboost-system-dev libboost-filesystem-dev libevent-dev automake libtool flex bison pkg-config libssl-dev
 		# graph visualization
 		'libgraphviz-dev',
+		# mesh generator
+		'gmsh',
 	]
 	packageString = (" ").join(packageList)
 	sudo('apt-get install {0}'.format(packageString))
