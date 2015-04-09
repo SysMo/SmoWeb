@@ -286,7 +286,7 @@ class RecordArray(Field):
 	"""
 	Composite input field for representing a structured table (array of records)
 	"""
-	def __init__(self, structTuple = None, numRows = 1, *args, **kwargs):
+	def __init__(self, structTuple = None, numRows = 1, empty = False, *args, **kwargs):
 		"""
 		:param structTuple: tuple defining the structure of the 
 			record array. It consists of ``(name, type)`` pairs, 
@@ -307,6 +307,12 @@ class RecordArray(Field):
 		"""
 		super(RecordArray, self).__init__(*args, **kwargs)	
 		
+		if (empty == False):
+			if (numRows == 0):
+				raise ValueError('Array with 0 rows cannot be restricted to not be empty.')
+		
+		self.empty = empty
+		
 		if (structTuple is None):
 			raise ValueError('The structure of the array is not defined')
 		if (len(structTuple) == 0):
@@ -316,12 +322,12 @@ class RecordArray(Field):
 		
 		self.fieldList = []
 		typeList = []
-		defaultValueList = []
+		self.defaultValueList = []
 		
 		for name, field in structDict.items():
 			structField = field
 			structField.name = name
-			defaultValueList.append(field.default)
+			self.defaultValueList.append(field.default)
 			self.fieldList.append(structField)
 			if isinstance(field, Quantity):
 				typeList.append((field.name, np.float64))
@@ -330,12 +336,12 @@ class RecordArray(Field):
 			elif (isinstance(field, String) or isinstance(field, Choices)): 
 				typeList.append((field.name, np.dtype('S' + str(field.maxLength))))
 			
-		defaultValueList = tuple(defaultValueList)
+		defaultValues = tuple(self.defaultValueList)
 		self.dtype = np.dtype(typeList)	
 		self.default = np.zeros((numRows,), dtype = self.dtype)
 		
 		for i in range(numRows):
-			self.default[i] = defaultValueList
+			self.default[i] = defaultValues
 		
 	def parseValue(self, value):
 		if (isinstance(value, np.ndarray)):
@@ -363,6 +369,9 @@ class RecordArray(Field):
 		for field in self.fieldList:
 			jsonFieldList.append(field.toFormDict())
 		fieldDict['fields'] = jsonFieldList
+		print self.defaultValueList
+		fieldDict['defaultRow'] = self.defaultValueList
+		fieldDict['empty'] = self.empty
 		return fieldDict
 	
 class DataSeriesView(Field):

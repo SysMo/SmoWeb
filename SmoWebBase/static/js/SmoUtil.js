@@ -1194,9 +1194,11 @@ smoModule.directive('smoDataSeriesView', ['$compile', function($compile) {
 	        $(".view-edit > table").bind('click', function(e){
                 e.stopPropagation();
             });
-	        $("#" + scope.fieldVar.name + "Tab").on('click', function(){
-	        	scope.draw();
-	        });
+	        if (scope.fieldVar.type == 'PlotView') {
+	        	$("#" + scope.fieldVar.name + "Tab").on('click', function(){
+		        	scope.draw();
+		        });
+	        }
 	        scope.$watch(scope.smoDataSource[scope.fieldVar.name], function(value) {
 				scope.init();
 		});
@@ -1531,38 +1533,33 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 						= util.formatNumber(($scope.arrValue[row][col] - offset) / field.dispUnitDef.mult);
 				}
 				
+				$scope.defaultDisplayRow[col]
+					= util.formatNumber(($scope.smoRecordArray.defaultRow[col] - offset) / field.dispUnitDef.mult);
+				
 				field.minDisplayValue = (field.minValue - offset) / field.dispUnitDef.mult;
 				field.maxDisplayValue = (field.maxValue - offset) / field.dispUnitDef.mult;
 			}
 			
 			$scope.addRow = function(row) {
 				if (row == -1) {
-					$scope.smoDataSource[$scope.smoRecordArray.name][0] = $scope.firstRow;
-					$scope.arrDisplayValue[0] = $scope.firstDisplayRow;
-					console.log('add, result:');
-					console.log($scope.smoDataSource[$scope.smoRecordArray.name]);
-					console.log($scope.arrDisplayValue);
+					$scope.smoDataSource[$scope.smoRecordArray.name].unshift(angular.copy($scope.smoRecordArray.defaultRow));
+					$scope.arrDisplayValue.unshift(angular.copy($scope.defaultDisplayRow));
 					return;
 				}
 				$scope.smoDataSource[$scope.smoRecordArray.name].splice(row, 0, 
 						angular.copy($scope.smoDataSource[$scope.smoRecordArray.name][row]));
 				$scope.arrDisplayValue.splice(row, 0, 
 						angular.copy($scope.arrDisplayValue[row]));
-				console.log('add, result:');
-				console.log($scope.smoDataSource[$scope.smoRecordArray.name]);
-				console.log($scope.arrDisplayValue);
 			}
 			
 			$scope.delRow = function(row) {
-				if (row == 0) {
-					$scope.firstRow = angular.copy($scope.smoDataSource[$scope.smoRecordArray.name][0]);
-					$scope.firstDisplayRow = angular.copy($scope.arrDisplayValue[0]);
+				if ($scope.smoDataSource[$scope.smoRecordArray.name].length == 1) {
+					if ($scope.smoRecordArray.empty == false) {
+						return;
+					}
 				}
 				$scope.smoDataSource[$scope.smoRecordArray.name].splice(row, 1);
 				$scope.arrDisplayValue.splice(row, 1);
-				console.log('del, left:');
-				console.log($scope.smoDataSource[$scope.smoRecordArray.name]);
-				console.log($scope.arrDisplayValue);
 			}
 			
 		},
@@ -1574,13 +1571,13 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 			
 			scope.arrValue = scope.smoDataSource[scope.smoRecordArray.name];
 			scope.arrDisplayValue = angular.copy(scope.arrValue);
+			scope.defaultDisplayRow = angular.copy(scope.smoRecordArray.defaultRow);
 			
 			var headerRowTemplate = '';
 			var rowTemplate = '';
 			
 			for (var col=0; col<scope.smoRecordArray.fields.length; col++){
 				var field = scope.smoRecordArray.fields[col];
-				
 				if (field.type == 'Quantity') {
 					headerRowTemplate += '\
 							<th>\
@@ -1628,6 +1625,9 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 						
 						scope.arrDisplayValue[row][col] 
 							= util.formatNumber((scope.arrValue[row][col] - dispUnitOffset) / field.dispUnitDef.mult); 
+						
+						scope.defaultDisplayRow[col]
+							= util.formatNumber((scope.smoRecordArray.defaultRow[col] - dispUnitOffset) / field.dispUnitDef.mult);
 					}
 					
 					field.minDisplayValue = (field.minValue - dispUnitOffset) / field.dispUnitDef.mult;
