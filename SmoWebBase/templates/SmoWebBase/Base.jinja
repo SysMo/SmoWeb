@@ -72,11 +72,22 @@
 	</head>	
 	<body>	
 	{% csrf_token %}
+	<div data-role="header" data-position="fixed">
 	<div class="navbar navbar-default navbar-fixed-top" role="navigation">
       <div class="container-fluid">
         <div class="navbar-header">
-           <button id="sideBarButton" style="float: left;" type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".sidebar-collapse"><span style="color: white;" class="caret"></span></button>
-           <button type="button" style="float: left;" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse"><span style="color: white;" class="caret"></span></button>
+           <button id="sideBarButton" style="float: left; margin-left: 15px;" type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".sidebar-collapse">
+             <div style="width: 22px; height: 14px; position: relative;">
+               <span class="caret" style="color: white; position: absolute; left:6px; top: 4px;"></span>
+             </div>
+           </button>
+           <button type="button" style="float: left;" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+             <div style="width: 22px; height: 14px;">
+               <span class="icon-bar" style="background-color: white;"></span>
+               <span class="icon-bar" style="background-color: white;"></span>
+               <span class="icon-bar" style="background-color: white;"></span>
+             </div>   
+          </button>
            <a class="navbar-brand" href="/">SmoWeb</a>
         </div>
       	<div class="navbar-collapse collapse">
@@ -101,7 +112,8 @@
         	</div>
 		</div><!--/.nav-collapse -->
       </div>
-    </div>   
+    </div>  
+    </div> 
     <div class="container-fluid" id="content">
 		<div class="row">
 			<div class="col-sm-2">
