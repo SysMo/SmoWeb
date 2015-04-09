@@ -83,6 +83,7 @@ blockquote {
 
 .navbar-fixed-top {
     border: none;
+    -webkit-backface-visibility: hidden;
 }
 
 .navbar-default {
@@ -206,6 +207,7 @@ body {
   padding-left: 10px;
   padding-right: 10px;
   padding-bottom: 5px;
+  -webkit-backface-visibility: hidden;
 }
 
 /* Sidebar navigation */
