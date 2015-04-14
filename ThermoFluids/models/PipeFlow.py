@@ -3,7 +3,7 @@ from smo.model.actions import ServerAction, ActionBar
 from smo.model.fields import *
 from smo.web.modules import RestModule
 from smo.media.MaterialData import Solids, Fluids
-from smo.flow import FrictionFlow
+from smo.flow import FrictionFlowSingularComponents
 from smo.media.CoolProp.CoolProp import FluidState
 import math
 
@@ -150,7 +150,7 @@ class PipeFlow(NumericalModel):
         self.volumetricFlowRate = self.massFlowRate / self.inletDensity    
         self.flowVelocity = self.massFlowRate / (self.inletDensity * self.crossSectionalArea)
         self.Re = self.inletDensity * self.flowVelocity * self.internalDiameter / fStateFilm.mu
-        self.zeta = FrictionFlow.ChurchilCorrelation(self.Re, self.internalDiameter, self.surfaceRoughness)
+        self.zeta = FrictionFlowSingularComponents.ChurchilCorrelation(self.Re, self.internalDiameter, self.surfaceRoughness)
         self.dragCoefficient = self.zeta * self.length / self.internalDiameter
         self.pressureDrop = self.dragCoefficient * self.inletDensity * self.flowVelocity * self.flowVelocity / 2.
         self.outletPressure = self.inletPressure - self.pressureDrop
@@ -246,7 +246,7 @@ class PipeFlow(NumericalModel):
 #             self.Re = self.inletDensity * self.flowVelocity * self.internalDiameter / fStateMean.mu
 #             
 #             ### Pressure drop
-#             self.zeta = FrictionFlow.ChurchilCorrelation(self.Re, self.internalDiameter, self.surfaceRoughness)
+#             self.zeta = FrictionFlowSingularComponents.ChurchilCorrelation(self.Re, self.internalDiameter, self.surfaceRoughness)
 #             self.dragCoefficient = self.zeta * self.length / self.internalDiameter
 #             self.pressureDrop = self.dragCoefficient * self.inletDensity * self.flowVelocity * self.flowVelocity / 2
 #             self.outletPressure = self.inletPressure - self.pressureDrop
