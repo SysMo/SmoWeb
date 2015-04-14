@@ -120,16 +120,16 @@ class HeatExchangerMesh():
              radius = 0.125, 
              cellSize = 0.05,
              radialPosition = 0.5, 
-             angularPosition = 0. + 0.,
+             angularPosition = 0.,
              name = "PrimaryChannel_0",
         )
          
         # Add the internal circles
         self.addCircle2D(
-             radius = 0.25, 
+             radius = 0.125, 
              cellSize = 0.05,
              radialPosition = 0.5, 
-             angularPosition = 2. + 0.,
+             angularPosition = 2.,
              name = "PrimaryChannel_1",
         )
         
