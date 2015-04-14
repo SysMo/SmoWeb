@@ -71,9 +71,26 @@ class HeatExchangerMesh():
             sMesh.write('Physical Line("{0}") = {{ {1}, {2}, {3}, {4} }};\n'.format(
                 name, circleArcId1, circleArcId2, circleArcId3, circleArcId4))
 
-    def create(self, params = None, **kwargs):
-        if params == None:
-            params = AttributeDict(kwargs)
+    def addChannelGroup(self, channelGroup = None, **kwargs): 
+        if channelGroup == None:
+            channelGroup = AttributeDict(kwargs)
+
+        if (channelGroup.number <= 0):
+            return
+        
+        offsetAngle = 2 * np.pi / channelGroup.number
+        for i in range(int(channelGroup.number)):
+            self.addCircle2D(
+                 radius = channelGroup.channelGeom.externalDiameter / 2.,
+                 cellSize = channelGroup.cellSize,
+                 radialPosition = channelGroup.radialPosition, 
+                 angularPosition = channelGroup.startingAngle + i * offsetAngle,
+                 name = "{0}_{1}".format(channelGroup.channelName, i+1),
+            )
+
+    def create(self, heatExch = None, **kwargs): 
+        if heatExch == None:
+            heatExch = AttributeDict(kwargs)
 
         #===== Create the gmsh script =====#      
         # Geometry object IDs
@@ -87,32 +104,16 @@ class HeatExchangerMesh():
         
         # Add the outer block circle
         self.addCircle2D(
-            radius = params.blockDiameter / 2.0, 
-            cellSize = params.blockCellSize, 
+            radius = heatExch.blockGeom.diameter / 2.0, 
+            cellSize = heatExch.blockGeom.cellSize, 
             radialPosition = 0, 
             angularPosition = 0,
             name = "OuterBoundary"
         )
         
         # Add the Primary channels
-        for i in range(len(params.primaryChannels)):
-            self.addCircle2D(
-                radius = params.primaryChannels['diameter'][i] / 2.0, 
-                cellSize = params.primaryChannels['cellSize'][i],
-                radialPosition = params.primaryChannels['r'][i], 
-                angularPosition = params.primaryChannels['theta'][i],
-                name = "PrimaryChannel_{0}".format(i+1),
-            )
-            
-        # Add the Secondary channels
-        for i in range(len(params.secondaryChannels)):
-            self.addCircle2D(
-                radius = params.secondaryChannels['diameter'][i] / 2.0, 
-                cellSize = params.secondaryChannels['cellSize'][i],
-                radialPosition = params.secondaryChannels['r'][i], 
-                angularPosition = params.secondaryChannels['theta'][i],
-                name = "SecondaryChannels_{0}".format(i+1),
-            )
+        self.addChannelGroup(heatExch.primaryChannels)
+        self.addChannelGroup(heatExch.secondaryChannels)
 
         # Add the cross section surface 
         self.addSurface(beginId = 1, endId = self.circleId, name = "CrossSection")
