@@ -122,7 +122,6 @@ class HeatExchangerMesh():
         self.sMesh.close()        
         
         #===== Generate the mesh =====#
-        print gmshScript #:TODO: (Milen: TEST)
         self.mesh = FP.Gmsh2D(gmshScript)
     
     def plotToTmpFile(self):

@@ -24,20 +24,26 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 	#---------------- Fields ----------------#
 	# Field group: Block geometry	
 	blockDiameter = F.Quantity('Length', default = (100, 'mm'), label = 'block diameter')
-	blockCellSize = F.Quantity('Length', default = (10, 'mm'), label = 'block cell size (mesh)')
+	blockCellSize = F.Quantity('Length', default = (5, 'mm'), label = 'block cell size (mesh)')
 	primaryChannels = F.RecordArray((
-		('diameter', F.Quantity('Length', default = (10, 'mm'), label = 'channel diameter')),
-		('r', F.Quantity('Length', default = (30, 'mm'), label = 'radial position')),		
-		('theta', F.Quantity('Angle', default = (0, 'deg'), label = 'angular position', minValue = (-1e6, 'deg'))),
-		('cellSize', F.Quantity('Length', default = (1, 'mm'), label = 'cell size (mesh)')),
-	), label = 'primary channels')
+			('diameter', F.Quantity('Length', default = (10, 'mm'), label = 'channel diameter')),
+			('r', F.Quantity('Length', default = (30, 'mm'), label = 'radial position')),		
+			('theta', F.Quantity('Angle', default = (0, 'deg'), label = 'angular position', minValue = (-1e6, 'deg'))),
+			('cellSize', F.Quantity('Length', default = (1, 'mm'), label = 'cell size (mesh)')),
+		), 
+		label = 'primary channels',
+		empty = True,
+		numRows = 3,)
 	
 	secondaryChannels = F.RecordArray((
-		('diameter', F.Quantity('Length', default = (10, 'mm'), label = 'channel diameter')),
-		('r', F.Quantity('Length', default = (15, 'mm'), label = 'radial position')),		
-		('theta', F.Quantity('Angle', default = (0, 'deg'), label = 'angular position', minValue = (-1e6, 'deg'))),
-		('cellSize', F.Quantity('Length', default = (1, 'mm'), label = 'cell size (mesh)')),
-	), label = 'secondary channels')
+			('diameter', F.Quantity('Length', default = (10, 'mm'), label = 'channel diameter')),
+			('r', F.Quantity('Length', default = (15, 'mm'), label = 'radial position')),		
+			('theta', F.Quantity('Angle', default = (0, 'deg'), label = 'angular position', minValue = (-1e6, 'deg'))),
+			('cellSize', F.Quantity('Length', default = (1, 'mm'), label = 'cell size (mesh)')),
+		), 
+		label = 'secondary channels',
+		empty = True,
+		numRows = 3,)
 	
 	blockGeometryGroup = F.FieldGroup([blockDiameter, blockCellSize, primaryChannels, secondaryChannels], label = 'Block geometry')
 
@@ -67,8 +73,8 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 
 	flowGroup = F.FieldGroup([fluidPrim, mDotPrim, TInPrim, pInPrim, fluidSec, mDotSec, TInSec, pInSec, 
 							mDotExt, TInExt, pInExt], label = 'Fluid flows')
-	#inputValues = F.SuperGroup([blockGeometryGroup, flowGroup], label = 'Input values')
-	inputValues = F.SuperGroup([blockGeometryGroup], label = 'Input values') #:TEST:
+	inputValues = F.SuperGroup([blockGeometryGroup, flowGroup], label = 'Input values')
+	#inputValues = F.SuperGroup([blockGeometryGroup], label = 'Input values') #:TEST:
 	
 	#---------------- Actions ----------------#
 	computeAction = ServerAction("compute", label = "Compute", outputView = 'resultView')
@@ -91,7 +97,15 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 	
 	############# Methods ###############
 	def __init__(self):
-		pass
+		self.blockDiameter = (58.0, 'mm')
+		self.blockCellSize = (2.0, 'mm')
+		
+		d = (7.5, 'mm')
+		cellSize = (1, 'mm')
+		rPrimary = (7, 'mm')
+		rSecondar = (17.5, 'mm')
+		
+		#self.primaryChannels[0] = 
 		
 	def compute(self):		
 		# Create the mesh
