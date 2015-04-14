@@ -23,34 +23,6 @@ smoModule.factory('util', function util () {
 });
 
 smoModule.factory('smoJson', function () {
-	function dumpObject(obj, indent) {
-		var result = "";
-		if (indent == null)
-			indent = "";
-		for ( var property in obj) {
-			var value = obj[property];
-			if (typeof value == 'string')
-				value = "'" + value + "'";
-			else if (typeof value == 'object') {
-				if (value instanceof Array) {
-					// Just let JS convert the Array to a string!
-					value = "[ " + value + " ]";
-				} else {
-					// Recursive dump
-					// (replace " " by "\t" or something else if you prefer)
-					var od = dumpObject(value, indent + "  ");
-					// If you like { on the same line as the key
-					// value = "{\n" + od + "\n" + indent + "}";
-					// If you prefer { and } to be aligned
-					value = "\n" + indent + "{\n" + od + "\n" + indent
-							+ "}";
-				}
-			}
-			result += indent + "'" + property + "' : " + value + ",\n";
-		}
-		return '{' + result.replace(/,\n$/, "") + '}';
-	}
-	
 	// Adapted from Crockford's JSON.parse (see https://github.com/douglascrockford/JSON-js)
 	// This version adds support for NaN, -Infinity and Infinity.
 	var at;	 // The index of the current character
@@ -317,7 +289,7 @@ smoModule.factory('smoJson', function () {
         return data;
 	}
 	
-	return {'parse': parseJSON, 'transformResponse': transformResponse, 'dumpObject': dumpObject};
+	return {'parse': parseJSON, 'transformResponse': transformResponse};
 });
 
 smoModule.factory('ModelCommunicator', function($http, $window, $timeout, $location, smoJson) {
