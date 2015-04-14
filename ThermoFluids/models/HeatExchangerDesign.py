@@ -27,15 +27,15 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 	blockCellSize = F.Quantity('Length', default = (10, 'mm'), label = 'block cell size (mesh)')
 	primaryChannels = F.RecordArray((
 		('diameter', F.Quantity('Length', default = (10, 'mm'), label = 'channel diameter')),
-		('r', F.Quantity('Length', default = (50, 'mm'), label = 'radial position')),		
-		('theta', F.Quantity('Angle', default = (0, 'deg'), label = 'angular position')),
+		('r', F.Quantity('Length', default = (30, 'mm'), label = 'radial position')),		
+		('theta', F.Quantity('Angle', default = (0, 'deg'), label = 'angular position', minValue = (-1e6, 'deg'))),
 		('cellSize', F.Quantity('Length', default = (1, 'mm'), label = 'cell size (mesh)')),
 	), label = 'primary channels')
 	
 	secondaryChannels = F.RecordArray((
 		('diameter', F.Quantity('Length', default = (10, 'mm'), label = 'channel diameter')),
-		('r', F.Quantity('Length', default = (50, 'mm'), label = 'radial position')),		
-		('theta', F.Quantity('Angle', default = (0, 'deg'), label = 'angular position')),
+		('r', F.Quantity('Length', default = (15, 'mm'), label = 'radial position')),		
+		('theta', F.Quantity('Angle', default = (0, 'deg'), label = 'angular position', minValue = (-1e6, 'deg'))),
 		('cellSize', F.Quantity('Length', default = (1, 'mm'), label = 'cell size (mesh)')),
 	), label = 'secondary channels')
 	
