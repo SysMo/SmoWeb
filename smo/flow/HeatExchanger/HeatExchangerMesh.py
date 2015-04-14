@@ -87,6 +87,19 @@ class HeatExchangerMesh():
                  angularPosition = channelGroup.startingAngle + i * offsetAngle,
                  name = "{0}_{1}".format(channelGroup.channelName, i+1),
             )
+    
+    def addSurface(self, beginId, endId, name):
+        sMesh = self.sMesh
+        
+        circleIds = ', '.join(str(x) for x in range(beginId, endId))
+        sMesh.write("Plane Surface({0}) = {{ {1} }};\n".format(
+            self.planeSurfaceId, circleIds))
+        
+        if name:
+            sMesh.write('Physical Surface("{0}") = {{ {1} }};\n'.format(
+                name, self.planeSurfaceId))
+        
+        self.planeSurfaceId += 1
 
     def create(self, heatExch = None, **kwargs): 
         if heatExch == None:
@@ -112,8 +125,8 @@ class HeatExchangerMesh():
         )
         
         # Add the Primary channels
-        self.addChannelGroup(heatExch.primaryChannels)
-        self.addChannelGroup(heatExch.secondaryChannels)
+        self.addChannelGroup(heatExch.primaryChannelsGeom)
+        self.addChannelGroup(heatExch.secondaryChannelsGeom)
 
         # Add the cross section surface 
         self.addSurface(beginId = 1, endId = self.circleId, name = "CrossSection")
@@ -197,16 +210,3 @@ class HeatExchangerMesh():
         if name:
             sMesh.write('Physical Line("{0}") = {{ {1}, {2}, {3}, {4} }};\n'.format(
                 name, circleArcId1, circleArcId2, circleArcId3, circleArcId4))
-            
-    def addSurface(self, beginId, endId, name):
-        sMesh = self.sMesh
-        
-        circleIds = ', '.join(str(x) for x in range(beginId, endId))
-        sMesh.write("Plane Surface({0}) = {{ {1} }};\n".format(
-            self.planeSurfaceId, circleIds))
-        
-        if name:
-            sMesh.write('Physical Surface("{0}") = {{ {1} }};\n'.format(
-                name, self.planeSurfaceId))
-        
-        self.planeSurfaceId += 1
