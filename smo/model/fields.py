@@ -369,7 +369,7 @@ class RecordArray(Field):
 		for field in self.fieldList:
 			jsonFieldList.append(field.toFormDict())
 		fieldDict['fields'] = jsonFieldList
-		print self.defaultValueList
+		#print self.defaultValueList
 		fieldDict['defaultRow'] = self.defaultValueList
 		fieldDict['empty'] = self.empty
 		return fieldDict

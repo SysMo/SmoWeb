@@ -9,6 +9,7 @@ import numpy as np
 import pylab as plt
 import matplotlib.tri as tri
 import os, tempfile
+import smo.math.util as sm
 
 from smo.util import AttributeDict 
 from SmoWeb.settings import MEDIA_ROOT
@@ -29,6 +30,128 @@ class HeatExchangerMesh():
     def addCircle2D(self, radius, cellSize, radialPosition = 0, angularPosition = 0, name = None):
         sMesh = self.sMesh
         
+        (xc, yc) = sm.pol2cart(radialPosition, angularPosition) # get (x,y) coordinates of the center of the circle
+        
+        centerPointId = self.pointId
+        self.addPoint2D(xc, yc, cellSize)
+        pointId1 = self.pointId
+        self.addPoint2D(xc - radius, yc, cellSize)
+        pointId2 = self.pointId
+        self.addPoint2D(xc, yc + radius, cellSize)
+        pointId3 = self.pointId
+        self.addPoint2D(xc + radius, yc, cellSize)
+        pointId4 = self.pointId
+        self.addPoint2D(xc, yc - radius, cellSize)
+        
+        circleArcId1 = self.circleArcId 
+        sMesh.write("Circle({0}) = {{ {1}, {2}, {3} }};\n".format(
+            self.circleArcId, pointId1, centerPointId, pointId2))
+        self.circleArcId += 1
+        
+        circleArcId2 = self.circleArcId 
+        sMesh.write("Circle({0}) = {{ {1}, {2}, {3} }};\n".format(
+            self.circleArcId, pointId2, centerPointId, pointId3))
+        self.circleArcId += 1
+        
+        circleArcId3 = self.circleArcId 
+        sMesh.write("Circle({0}) = {{ {1}, {2}, {3} }};\n".format(
+            self.circleArcId, pointId3, centerPointId, pointId4))
+        self.circleArcId += 1
+        
+        circleArcId4 = self.circleArcId 
+        sMesh.write("Circle({0}) = {{ {1}, {2}, {3} }};\n".format(
+            self.circleArcId, pointId4, centerPointId, pointId1))
+        self.circleArcId += 1
+        
+        sMesh.write("Line Loop({0}) = {{{1}, {2}, {3}, {4}}};\n".format(
+            self.circleId, circleArcId1, circleArcId2, circleArcId3, circleArcId4))
+        self.circleId += 1
+        
+        if name:
+            sMesh.write('Physical Line("{0}") = {{ {1}, {2}, {3}, {4} }};\n'.format(
+                name, circleArcId1, circleArcId2, circleArcId3, circleArcId4))
+
+    def addChannelGroup(self, channelGroup = None, **kwargs): 
+        if channelGroup == None:
+            channelGroup = AttributeDict(kwargs)
+
+        if (channelGroup.number <= 0):
+            return
+        
+        offsetAngle = 2 * np.pi / channelGroup.number
+        for i in range(int(channelGroup.number)):
+            self.addCircle2D(
+                 radius = channelGroup.channelGeom.externalDiameter / 2.,
+                 cellSize = channelGroup.cellSize,
+                 radialPosition = channelGroup.radialPosition, 
+                 angularPosition = channelGroup.startingAngle + i * offsetAngle,
+                 name = "{0}_{1}".format(channelGroup.channelName, i+1),
+            )
+
+    def create(self, heatExch = None, **kwargs): 
+        if heatExch == None:
+            heatExch = AttributeDict(kwargs)
+
+        #===== Create the gmsh script =====#      
+        # Geometry object IDs
+        self.pointId = 1
+        self.circleArcId = 1
+        self.circleId = 1 #loop line
+        self.planeSurfaceId = 1
+
+        # Initialize gmsh script
+        self.sMesh = StringIO()
+        
+        # Add the outer block circle
+        self.addCircle2D(
+            radius = heatExch.blockGeom.diameter / 2.0, 
+            cellSize = heatExch.blockGeom.cellSize, 
+            radialPosition = 0, 
+            angularPosition = 0,
+            name = "OuterBoundary"
+        )
+        
+        # Add the Primary channels
+        self.addChannelGroup(heatExch.primaryChannels)
+        self.addChannelGroup(heatExch.secondaryChannels)
+
+        # Add the cross section surface 
+        self.addSurface(beginId = 1, endId = self.circleId, name = "CrossSection")
+        
+        # Get the gmsh script
+        gmshScript = self.sMesh.getvalue()
+        self.sMesh.close()        
+        
+        #===== Generate the mesh =====#
+        self.mesh = FP.Gmsh2D(gmshScript)
+    
+    def plotToTmpFile(self):
+        # Create a plot of the mesh 
+        vertexCoords = self.mesh.vertexCoords
+        vertexIDs = self.mesh._orderedCellVertexIDs
+    
+        fig = plt.Figure(figsize=(10, 10), facecolor='white')
+        ax = fig.add_subplot(1,1,1)
+        triPlotMesh = tri.Triangulation(vertexCoords[0], vertexCoords[1], np.transpose(vertexIDs))
+        ax.triplot(triPlotMesh)
+        
+        # Create the tmp file
+        fileHandler, absFilePath = tempfile.mkstemp('.png', dir = os.path.join(MEDIA_ROOT, 'tmp'))
+        tmpFilePath = os.path.join('media', os.path.relpath(absFilePath, MEDIA_ROOT))
+        
+        # Save the plot to the tmp file
+        canvas = FigureCanvas(fig)
+        canvas.print_png(absFilePath)
+        
+        # Close the tmp file
+        os.close(fileHandler)
+        
+        return tmpFilePath
+    
+    def addCircle2D_gmsh(self, radius, cellSize, radialPosition = 0, angularPosition = 0, name = None):
+        #:WARRANTY: sometimes this method doesn't work
+        sMesh = self.sMesh
+        
         centerPointId = self.pointId
         self.addPoint2D(0, 0, cellSize)
         pointId1 = self.pointId
@@ -40,10 +163,12 @@ class HeatExchangerMesh():
         pointId4 = self.pointId
         self.addPoint2D(0, -radius, cellSize)
         
-        sMesh.write("Translate {{ {0}, 0, 0 }} {{ Point{{ {1}, {2}, {3}, {4}, {5} }}; }};".format(
-            radialPosition, centerPointId, pointId1, pointId2, pointId3, pointId4))
-        sMesh.write("Rotate {{ {{0, 0, 1}}, {{0, 0, 0}}, {0} }} {{ Point{{ {1}, {2}, {3}, {4}, {5} }}; }};".format(
-            angularPosition, centerPointId, pointId1, pointId2, pointId3, pointId4))
+        if radialPosition != 0.0:
+            sMesh.write("Translate {{ {0}, 0, 0 }} {{ Point{{ {1}, {2}, {3}, {4}, {5} }}; }}\n".format(
+                radialPosition, centerPointId, pointId1, pointId2, pointId3, pointId4))
+        if angularPosition != 0.0:
+            sMesh.write("Rotate {{ {{0, 0, 1}}, {{0, 0, 0}}, {0} }} {{ Point{{ {1}, {2}, {3}, {4}, {5} }}; }}\n".format(
+                angularPosition, centerPointId, pointId1, pointId2, pointId3, pointId4))
         
         circleArcId1 = self.circleArcId 
         sMesh.write("Circle({0}) = {{ {1}, {2}, {3} }};\n".format(
@@ -85,108 +210,3 @@ class HeatExchangerMesh():
                 name, self.planeSurfaceId))
         
         self.planeSurfaceId += 1
-    
-    
-
-    def create(self, params = None, **kwargs):
-        #self.__delme_create__(params) #:TODO: (Milen: TEST)
-        #return
-        if params == None:
-            params = AttributeDict(kwargs)
-
-        #===== Create the mesh script =====#      
-        # Geometry object IDs
-        self.pointId = 1
-        self.circleArcId = 1
-        self.circleId = 1 #loop line
-        self.planeSurfaceId = 1
-
-        # Initialize gmsh script
-        self.sMesh = StringIO()
-        
-        # Add the outer block circle
-        self.addCircle2D(
-            radius = 1.0, 
-            cellSize = 0.1, 
-            radialPosition = 0, 
-            angularPosition = 0,
-            name = "OuterBoundary"
-        )
-        
-        # Add the internal circles
-        self.addCircle2D(
-            radius = 0.25, 
-            cellSize = 0.05, 
-            radialPosition = 0.5, 
-            angularPosition = 1.5,
-            name = "InnerBoundary",
-        )
-
-        # Add the cross section surface 
-        self.addSurface(beginId = 1, endId = self.circleId, name = "CrossSection")
-        
-        # Get the gmsh script
-        gmshScript = self.sMesh.getvalue()
-        self.sMesh.close()        
-        
-        #===== Generate the mesh =====#
-        self.mesh = FP.Gmsh2D(gmshScript)
-        print gmshScript #:TODO: (Milen: TEST)
-    
-    def __delme_create__(self, params = None, **kwargs):
-        gmsh = '''
-            cellSize = %(cellSize)g;
-            rOut = %(rOut)g;
-            rIn = %(rIn)g;
-            
-            Point(1) = {0, 0, 0, cellSize};
-            
-            Point(2) = {-rOut, 0, 0, cellSize};
-            Point(3) = {0, rOut, 0, cellSize};
-            Point(4) = {rOut, 0, 0, cellSize};
-            Point(5) = {0, -rOut, 0, cellSize};
-            Circle(1) = {2, 1, 3};
-            Circle(2) = {3, 1, 4};
-            Circle(3) = {4, 1, 5};
-            Circle(4) = {5, 1, 2};
-            Line Loop(1) = {1, 2, 3, 4};
-            Physical Line("OuterBoundary") = {1, 2, 3, 4};
-            
-            Point(6) = {-rIn, 0, 0, cellSize};
-            Point(7) = {0, rIn, 0, cellSize};
-            Point(8) = {rIn, 0, 0, cellSize};
-            Point(9) = {0, -rIn,  0, cellSize};
-            Circle(5) = {6, 1, 7};
-            Circle(6) = {7, 1, 8};
-            Circle(7) = {8, 1, 9};
-            Circle(8) = {9, 1, 6};
-            Line Loop(2) = {5, 6, 7, 8};
-            Physical Line("InnerBoundary") = {5, 6, 7, 8};
-            
-            Plane Surface(1) = {1, 2};
-            Physical Surface("Surface") = {1};
-            ''' % {'rOut' : 0.1, 'rIn' : 0.01, 'cellSize' : 0.01}
-        self.mesh = FP.Gmsh2D(gmsh)
-    
-    def plotToTmpFile(self):
-        # Create a plot of the mesh 
-        vertexCoords = self.mesh.vertexCoords
-        vertexIDs = self.mesh._orderedCellVertexIDs
-    
-        fig = plt.Figure(figsize=(10, 10), facecolor='white')
-        ax = fig.add_subplot(1,1,1)
-        triPlotMesh = tri.Triangulation(vertexCoords[0], vertexCoords[1], np.transpose(vertexIDs))
-        ax.triplot(triPlotMesh)
-        
-        # Create the tmp file
-        fileHandler, absFilePath = tempfile.mkstemp('.png', dir = os.path.join(MEDIA_ROOT, 'tmp'))
-        tmpFilePath = os.path.join('media', os.path.relpath(absFilePath, MEDIA_ROOT))
-        
-        # Save the plot to the tmp file
-        canvas = FigureCanvas(fig)
-        canvas.print_png(absFilePath)
-        
-        # Close the tmp file
-        os.close(fileHandler)
-        
-        return tmpFilePath
