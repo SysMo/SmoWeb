@@ -133,6 +133,10 @@ class Quantity(Field):
 		fieldDict['SIUnit'] = Quantities[self.type]['SIUnit']
 		return fieldDict
 
+class Integer(Quantity):
+	def __init__(self, default = None, minValue = None, maxValue = None, *args, **kwargs):
+		super(Integer, self).__init__(type = 'Dimensionless', default = default, minValue = minValue, maxValue = maxValue, *args, **kwargs)
+		
 class String(Field):
 	"""
 	Represents a string field
@@ -329,7 +333,9 @@ class RecordArray(Field):
 			structField.name = name
 			self.defaultValueList.append(field.default)
 			self.fieldList.append(structField)
-			if isinstance(field, Quantity):
+			if isinstance(field, Integer):
+				typeList.append((field.name, np.int))
+			elif isinstance(field, Quantity):
 				typeList.append((field.name, np.float64))
 			elif isinstance(field, Boolean): 
 				typeList.append((field.name, np.dtype(bool)))
@@ -642,6 +648,40 @@ class Image(Field):
 		fieldDict['width'] = self.width	
 		fieldDict['height'] = self.height			
 		return fieldDict
+
+class MPLPlot(Image):
+	"""
+	Field for displaying an image 
+	"""
+	def __init__(self, width = None, height = None, *args, **kwargs):
+		Field.__init__(self, *args, **kwargs)
+		self.width = width
+		self.height = height
+
+	@property
+	def default(self):
+		import pylab as plt
+		fig = plt.Figure(facecolor = 'white')
+		ax = fig.add_subplot(111)
+		return ax
+
+	def getValueRepr(self, value):
+		import os, tempfile
+		from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+		from SmoWeb.settings import MEDIA_ROOT		
+		# Create the tmp file
+		fileHandler, absFilePath = tempfile.mkstemp('.png', dir = os.path.join(MEDIA_ROOT, 'tmp'))
+		tmpFilePath = os.path.join('media', os.path.relpath(absFilePath, MEDIA_ROOT))
+		
+		# Save the plot to the tmp file
+		canvas = FigureCanvas(value.figure)
+		canvas.print_png(absFilePath)
+		
+		# Close the tmp file
+		os.close(fileHandler)
+		
+		return tmpFilePath
+	
 
 class Port(Field):
 	"""
