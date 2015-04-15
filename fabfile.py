@@ -76,6 +76,9 @@ def buildExtModules():
 		with lcd(os.path.join(env.projectRoot, 'smo', 'media', 'CoolProp')):
 			local('python setup.py build_ext --inplace', shell='bash')
 		print ("CoolProp module built successfully!") 
+		with lcd(os.path.join(env.projectRoot, 'smo', 'media', 'CoolProp5')):
+			local('python setup.py build_ext --inplace', shell='bash')
+		print ("CoolProp5 module built successfully!") 
 
 #######################################################################
 def syncVirtEnv():
