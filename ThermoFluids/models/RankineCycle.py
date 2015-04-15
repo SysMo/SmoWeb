@@ -23,15 +23,13 @@ class RankineCycle(HeatEngineCycle):
 	condenser = F.SubModelGroup(TC.Condenser, 'FG', label = 'Condenser')
 	inputs = F.SuperGroup(['workingFluidGroup', pump, boiler, turbine, condenser], label = 'Cycle definition')	
 	#---------------- Actions ----------------#
-	computeAction = ServerAction("compute", label = "Compute", outputView = 'resultView')
 	exampleAction = ServerAction("loadEg", label = "Examples", options = (
 			('SteamPlant', 'Typical steam power plant'),
 			('ORC1', 'Geothermal Organic Rankine Cycle with R134a'),
 	))
-	inputActionBar = ActionBar([computeAction, exampleAction], save = True)
 	#--------------- Model view ---------------#
 	inputView = F.ModelView(ioType = "input", superGroups = [inputs, 'cycleDiagram', 'solver'], 
-		actionBar = inputActionBar, autoFetch = True)
+		actionBar = ActionBar([exampleAction]), autoFetch = True)
 	#================ Results ================#
 	#---------------- Energy flows -----------#
 	pumpPower = F.Quantity('Power', default = (1, 'kW'), label = 'pump power')

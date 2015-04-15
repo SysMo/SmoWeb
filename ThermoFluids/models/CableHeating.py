@@ -144,8 +144,6 @@ class CableHeatingSolver(object):
 			else:
 				self.TSurface.setValue(self.TCore())
 
-
-from smo.model.actions import ServerAction, ActionBar
 from smo.model.model import NumericalModel
 from smo.model.fields import *
 from smo.media.MaterialData import Solids
@@ -222,13 +220,8 @@ class CableHeating1D(NumericalModel):
 	
 	settings = SuperGroup([s1, s2], label = 'Settings')
 	
-	# 1.3 Actions
-	computeAction = ServerAction("compute", label = "Compute", outputView = 'resultView')
-	inputActionBar = ActionBar([computeAction], save = True)
-
 	# 1.4 Model view
-	inputView = ModelView(ioType = "input", superGroups = [inputValues, settings], 
-		actionBar = inputActionBar, autoFetch = True)
+	inputView = ModelView(ioType = "input", superGroups = [inputValues, settings], autoFetch = True)
 	
 	# 2. ############ Results ###############
 	# 2.1 Values

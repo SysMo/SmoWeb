@@ -4,7 +4,6 @@ Created on Nov 05, 2014
 '''
 from collections import OrderedDict
 from smo.model.model import NumericalModel
-from smo.model.actions import ServerAction, ActionBar
 from smo.model.fields import *
 from smo.web.blocks import HtmlBlock
 from smo.web.modules import RestModule
@@ -13,7 +12,6 @@ from smo.media.MaterialData import Fluids
 from smo.media.CoolProp.CoolPropReferences import References
 import smo.media.diagrams.StateDiagrams as SD
 
-import os
 from pymongo import MongoClient
 from bson.objectid import ObjectId
 mongoClient = MongoClient()
@@ -72,13 +70,8 @@ class PropertyCalculatorCoolprop(NumericalModel):
 	stateGroup2 = FieldGroup([stateVariable1, p1, T1, rho1, h1, s1, q1, stateVariable2, p2, T2, rho2, h2, s2, q2], label = 'States')
 	inputs = SuperGroup([stateGroup1, stateGroup2], label = "Inputs")
 	
-	# Actions
-	computeAction = ServerAction("compute", label = "Compute", outputView = 'resultView')
-	inputActionBar = ActionBar([computeAction], save = True)
-	
 	# Model view
-	inputView = ModelView(ioType = "input", superGroups = [inputs], 
-		actionBar = inputActionBar, autoFetch = True)
+	inputView = ModelView(ioType = "input", superGroups = [inputs], autoFetch = True)
 	
 	############# Results ###############
 	# Fields
@@ -228,13 +221,8 @@ class FluidInfo(NumericalModel):
 	infoInput = FieldGroup([fluidName], label = 'Fluid')
 	inputs = SuperGroup([infoInput])
 	
-	# Actions
-	computeAction = ServerAction("compute", label = "Go", outputView = 'resultView')
-	inputActionBar = ActionBar([computeAction], save = False)
-	
 	# Model view
-	inputView = ModelView(ioType = "input", superGroups = [inputs], 
-		actionBar = inputActionBar, autoFetch = True)
+	inputView = ModelView(ioType = "input", superGroups = [inputs], autoFetch = True)
 	
 	############# Results ###############
 	# Fields
@@ -321,13 +309,8 @@ class SaturationData(NumericalModel):
 	satInput = FieldGroup([fluidName], label = 'Fluid')
 	inputs = SuperGroup([satInput])
 	
-	# Actions
-	computeAction = ServerAction("compute", label = "Go", outputView = 'resultView')
-	inputActionBar = ActionBar([computeAction], save = False)
-	
 	# Model view
-	inputView = ModelView(ioType = "input", superGroups = [inputs], 
-		actionBar = inputActionBar, autoFetch = True)
+	inputView = ModelView(ioType = "input", superGroups = [inputs], autoFetch = True)
 	
 	############# Results ###############
 	# Fields
@@ -443,13 +426,8 @@ class PHDiagram(NumericalModel):
 	
 	inputs = SuperGroup([diagramInputs, boundaryInputs])
 	
-	# Actions
-	computeAction = ServerAction("compute", label = "Go", outputView = 'resultView')
-	inputActionBar = ActionBar([computeAction], save = False)
-	
 	# Model view
-	inputView = ModelView(ioType = "input", superGroups = [inputs], 
-		actionBar = inputActionBar, autoFetch = True)
+	inputView = ModelView(ioType = "input", superGroups = [inputs], autoFetch = True)
 	
 	diagram = Image(default='')
 	diagramViewGroup = ViewGroup([diagram], label = "P-H Diagram")

@@ -12,7 +12,7 @@ class ServerAction(Action):
 		self.outputView = outputView
 		
 		self.type = 'ServerAction'
-		self.options = options	
+		self.options = options
 	def toJson(self):
 		optionList = []
 		if (self.options is not None):
@@ -34,15 +34,15 @@ class ActionBar(object):
 	to a `ModelView`. It also generates function handlers, called
 	when any of the buttons is pushed.
 	"""
-	def __init__(self, actionList = None, save = True):
+	def __init__(self, actionList = None):
 		"""
 		:param list actionList: the actions assigned to this bar
-		:param bool save: whether to display save button 
 		"""
-		if (actionList is None):
-			self.actionList = []
-		else:
-			self.actionList = actionList
-
-		if save:
-			self.actionList.append(ServerAction("save", label = "Save"))
+		self.actionList = []
+		self.actionList.append(ServerAction("compute", label = "Compute", outputView = 'resultView'))
+		self.actionList.append(ServerAction("save", label = "Save", options = (
+			('local', 'Save locally'),
+			('global', 'Save on server'),
+		)))
+		if (actionList is not None):
+			self.actionList.extend(actionList)

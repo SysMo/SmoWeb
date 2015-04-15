@@ -1,4 +1,3 @@
-from smo.model.actions import ServerAction, ActionBar
 import smo.model.fields as F
 import lib.ThermodynamicComponents as TC
 from collections import OrderedDict
@@ -11,12 +10,8 @@ class ThermodynamicalProcess(ThermodynamicalCycle):
 	fluidSink = F.SubModelGroup(TC.FluidSink, 'FG', label = 'Final State')
 	inputs = F.SuperGroup([fluidSource, fluidSink])
 	
-	computeAction = ServerAction("compute", label = "Compute", outputView = 'resultView')
-	inputActionBar = ActionBar([computeAction], save = True)
-	
 	# Model View
-	inputView = F.ModelView(ioType = "input", superGroups = [inputs], 
-		actionBar = inputActionBar, autoFetch = True)
+	inputView = F.ModelView(ioType = "input", superGroups = [inputs], autoFetch = True)
 	
 	############# Results #############
 	w = F.Quantity('SpecificEnergy', default = (0, 'kJ/kg'), label = 'specific work')
@@ -132,12 +127,8 @@ class ThermodynamicalProcessTwoStreams(ThermodynamicalCycle):
 	fluidSink2 = F.SubModelGroup(TC.FluidSink, 'FG', label = 'Outlet 2')
 	inputs = F.SuperGroup([fluidSource1, fluidSource2, fluidSink1, fluidSink2])
 	
-	computeAction = ServerAction("compute", label = "Compute", outputView = 'resultView')
-	inputActionBar = ActionBar([computeAction], save = True)
-	
 	# Model View
-	inputView = F.ModelView(ioType = "input", superGroups = [inputs], 
-		actionBar = inputActionBar, autoFetch = True)
+	inputView = F.ModelView(ioType = "input", superGroups = [inputs], autoFetch = True)
 	
 	############# Results #############
 	QDot = F.Quantity('HeatFlowRate', default = (0, 'kW'), label = 'heat flow rate in')

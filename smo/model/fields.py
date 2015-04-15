@@ -4,6 +4,7 @@ import copy
 import numpy as np
 from quantity import Quantities
 from smo.web.exceptions import *
+from smo.model.actions import ActionBar
 
 class Field(object):
 	"""
@@ -803,6 +804,8 @@ class ModelView(object):
 	def __init__(self, ioType, superGroups, actionBar = None, autoFetch = False):
 		self.ioType = ioType
 		self.superGroups = superGroups
+		if actionBar is None:
+			actionBar = ActionBar()
 		self.actionBar = actionBar
 		self.autoFetch = autoFetch
 		

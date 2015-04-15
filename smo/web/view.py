@@ -258,8 +258,8 @@ class ModularPageView(object):
 		db = mongoClient.SmoWeb
 		coll = db.savedViewData
 		recordId = coll.insert({'values' : parameters})
-		return {'model': model.__name__, 'view': view.name, 'id' : str(recordId)}	
-
+		return {'model': model.__name__, 'view': view.name, 'id' : str(recordId)}
+		
 	@action.post()
 	def compute(self, model, view, parameters):
 		"""

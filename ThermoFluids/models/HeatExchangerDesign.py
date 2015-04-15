@@ -5,7 +5,6 @@ Created on Apr 8, 2015
 @copyright: SysMo Ltd, Bulgaria
 '''
 
-from smo.model.actions import ServerAction, ActionBar
 from smo.model.model import NumericalModel
 from smo.media.MaterialData import Fluids
 from heat_exchangers.HeatExchangerMesher import HeatExchangerMesher
@@ -139,13 +138,9 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 	
 	externalChannelSG = F.SuperGroup([externalChannelGeom, externalFlow], label = 'External channel')
 	
-	#---------------- Actions ----------------#
-	computeAction = ServerAction("compute", label = "Compute", outputView = 'resultView')
-	inputActionBar = ActionBar([computeAction], save = True)
-	
 	#--------------- Model view ---------------#
 	inputView = F.ModelView(ioType = "input", superGroups = [geometrySG, flowSG, externalChannelSG], 
-		actionBar = inputActionBar, autoFetch = True)
+						autoFetch = True)
 	
 	#================ Results ================#
 	meshView = F.MPLPlot(label = 'Cross-section mesh')

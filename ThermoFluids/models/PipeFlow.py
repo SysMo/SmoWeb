@@ -1,5 +1,4 @@
 from smo.model.model import NumericalModel
-from smo.model.actions import ServerAction, ActionBar
 from smo.model.fields import *
 from smo.web.modules import RestModule
 from smo.media.MaterialData import Solids, Fluids
@@ -40,13 +39,8 @@ class PipeFlow(NumericalModel):
     #####    
     inputs = SuperGroup([pipeInput, flowInput])
     
-    # Actions
-    computeAction = ServerAction("compute", label = "Compute", outputView = 'resultView')
-    inputActionBar = ActionBar([computeAction], save = True)
-    
     # Model view
-    inputView = ModelView(ioType = "input", superGroups = [inputs], 
-        actionBar = inputActionBar, autoFetch = True)
+    inputView = ModelView(ioType = "input", superGroups = [inputs], autoFetch = True)
     
     ############# Results ###############
     # Fields

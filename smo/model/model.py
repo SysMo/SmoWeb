@@ -179,7 +179,7 @@ class NumericalModelMeta(type):
 				# Then resolve them to the ModelViews from the current model 
 				if (isinstance(klass.modelBlocks[i], basestring)):
 					klass.modelBlocks[i] = klass.declared_modelViews[klass.modelBlocks[i]]
-			print("NumericalModel class: {}, {}".format(name, [modelBlock.name for modelBlock in klass.modelBlocks])) 
+			#print("NumericalModel class: {}, {}".format(name, [modelBlock.name for modelBlock in klass.modelBlocks])) 
 		return klass
 
 class NumericalModel(object):
@@ -257,7 +257,7 @@ class NumericalModel(object):
 			definitions.append(groupContent)
 		if (modelView.actionBar is not None):
 			for action in modelView.actionBar.actionList:
-				actions.append(action.toJson()) 
+				actions.append(action.toJson())
 		return {'definitions': definitions, 'values': fieldValues, 'actions': actions}
 
 	def superGroup2Json(self, group, fieldValues):

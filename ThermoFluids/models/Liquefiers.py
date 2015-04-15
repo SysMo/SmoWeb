@@ -32,15 +32,13 @@ class LindeHampsonCycle(LiquefactionCycle):
 	inputs = F.SuperGroup(['workingFluidGroup', compressor, cooler, recuperator], label = 'Cycle definition')
 
 	#---------------- Actions ----------------#
-	computeAction = ServerAction("compute", label = "Compute", outputView = 'resultView')
 	exampleAction = ServerAction("loadEg", label = "Examples", options = (
 			('ArgonLiquefaction', 'Argon liquefaction cycle'),
 			('NitrogenLiquefaction', 'Nitrogen liquefacton cycle'),
 	))
-	inputActionBar = ActionBar([computeAction, exampleAction], save = True)
 	#--------------- Model view ---------------#
 	inputView = F.ModelView(ioType = "input", superGroups = [inputs, 'cycleDiagram', 'solver'], 
-		actionBar = inputActionBar, autoFetch = True)	
+		actionBar = ActionBar([exampleAction]), autoFetch = True)	
 
 	#================ Results ================#
 	compressorPower = F.Quantity('Power', default = (1, 'kW'), label = 'compressor power')
@@ -175,15 +173,13 @@ class ClaudeCycle(LindeHampsonCycle):
 	expanderJunction = F.SubModelGroup(TC.FlowJunction, 'FG')
 	inputs = F.SuperGroup(['workingFluidGroup', 'compressor', 'cooler', expanderFG, 'recuperator', recuperator2, recuperator3], label = 'Cycle definition')
 	#---------------- Actions ----------------#
-	computeAction = ServerAction("compute", label = "Compute", outputView = 'resultView')
 	exampleAction = ServerAction("loadEg", label = "Examples", options = (
 			('NitrogenMediumP', 'Nitrogen medium pressure (30 bar) liquefaction cycle'),
 			('NitrogenLowP', 'Nitrogen low pressure (8 bar) liquefacton cycle'),
 	))
-	inputActionBar = ActionBar([computeAction, exampleAction], save = True)
 	#--------------- Model view ---------------#
 	inputView = F.ModelView(ioType = "input", superGroups = [inputs, 'cycleDiagram', 'solver'], 
-		actionBar = inputActionBar, autoFetch = True)
+		actionBar = ActionBar([exampleAction]), autoFetch = True)
 	
 	#================ Results ================#
 	#---------------- Scheme -----------------#

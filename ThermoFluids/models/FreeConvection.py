@@ -4,7 +4,6 @@ Created on Nov 27, 2014
 @author: Atanas Pavlov
 '''
 from smo.model.model import NumericalModel
-from smo.model.actions import ServerAction, ActionBar
 from smo.model.fields import *
 from smo.web.modules import RestModule
 from smo.media.MaterialData import Fluids
@@ -84,13 +83,8 @@ class FreeConvection_External(NumericalModel):
 	
 	inputs = SuperGroup([thermalInputs, geometryInputs])
 	
-	# Actions
-	computeAction = ServerAction("compute", label = "Compute", outputView = 'resultView')
-	inputActionBar = ActionBar([computeAction], save = True)
-	
 	# Model view
-	inputView = ModelView(ioType = "input", superGroups = [inputs], 
-		actionBar = inputActionBar, autoFetch = True)
+	inputView = ModelView(ioType = "input", superGroups = [inputs], autoFetch = True)
 	
 	############# Results ###############
 	# Fields
@@ -264,13 +258,8 @@ class FreeConvection_Internal(NumericalModel):
 	
 	inputs = SuperGroup([thermalInputs, geometryInputs])
 	
-	# Actions
-	computeAction = ServerAction("compute", label = "Compute", outputView = 'resultView')
-	inputActionBar = ActionBar([computeAction], save = True)
-	
 	# Model view
-	inputView = ModelView(ioType = "input", superGroups = [inputs], 
-		actionBar = inputActionBar, autoFetch = True)
+	inputView = ModelView(ioType = "input", superGroups = [inputs], autoFetch = True)
 	
 	############# Results ###############
 	# Fields

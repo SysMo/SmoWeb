@@ -2,35 +2,6 @@ smoModule = angular.module('smo', []);
 
 smoModule.factory('util', function util () {
 	var functions = {};
-	function dumpObject(obj, indent) {
-		var result = "";
-		if (indent == null)
-			indent = "";
-		for ( var property in obj) {
-			var value = obj[property];
-			if (typeof value == 'string')
-				value = "'" + value + "'";
-			else if (typeof value == 'object') {
-				if (value instanceof Array) {
-					// Just let JS convert the Array to a string!
-					value = "[ " + value + " ]";
-				} else {
-					// Recursive dump
-					// (replace " " by "\t" or something else if you prefer)
-					var od = dumpObject(value, indent + "  ");
-					// If you like { on the same line as the key
-					// value = "{\n" + od + "\n" + indent + "}";
-					// If you prefer { and } to be aligned
-					value = "\n" + indent + "{\n" + od + "\n" + indent
-							+ "}";
-				}
-			}
-			result += indent + "'" + property + "' : " + value + ",\n";
-		}
-		return result.replace(/,\n$/, "");
-	}
-	functions.dumpObject = dumpObject;
-	
 	function formatNumber (n) {
 		if (n == 0) {
 			return "0";
@@ -52,7 +23,6 @@ smoModule.factory('util', function util () {
 });
 
 smoModule.factory('smoJson', function () {
-	
 	// Adapted from Crockford's JSON.parse (see https://github.com/douglascrockford/JSON-js)
 	// This version adds support for NaN, -Infinity and Infinity.
 	var at;	 // The index of the current character
@@ -277,7 +247,7 @@ smoModule.factory('smoJson', function () {
 		}
 	};
 	
-	function parseJSON(source, reviver){
+	function parseJSON(source, reviver) {
 		var result;
 		text = source;
 		at = 0;
@@ -407,85 +377,54 @@ smoModule.factory('ModelCommunicator', function($http, $window, $timeout, $locat
 			}
 	    });
 	}
-	ModelCommunicator.prototype.saveUserInput = function(action, parameters) {
+	ModelCommunicator.prototype.saveUserInput = function() {
 		var communicator = this;
 		this.saveFeedbackMsg = "";
 		this.saveSuccess = false;
-		
-		var parameters = parameters || this.data.values;
 		var postData = {
-			modelName: this.modelName,
-			viewName: this.viewName,
-			parameters: parameters
-		}
-		
-		$http({
-	        method  : 'POST',
-	        url     : this.url,
-	        data    : {action: action, data: postData},
-	        headers : { 'Content-Type': 'application/x-www-form-urlencoded' }, // set the headers so angular passing info as form data (not request payload)
-	        transformResponse: [smoJson.transformResponse]
-	    })
-	    .success(function(response) {
-			if (!response.errStatus) {
-				var addressToParams;
-				if ($location.$$html5){
-					addressToParams = $location.protocol() + '://' + $location.host() + ':' 
-					+ $location.port() + $location.path();
-				} else {
-					addressToParams = window.location;
-				}
-				
-//				communicator.savedRecordUrl = $location.protocol() + '://' + $location.host() + ':' 
-//					+ $location.port() + $location.path() 
-//					+ '?model=' + response.data.model + '&view=' + response.data.view + '&id=' + response.data.id;
-				
-				communicator.savedRecordUrl = addressToParams
-					+ '?model=' + response.data.model + '&view=' + response.data.view + '&id=' + response.data.id;
-				communicator.saveSuccess = true;
-				communicator.saveFeedbackMsg = "Input data saved.";
-				//$timeout($window.alert("Input data saved"));
-			} else {
-				//$timeout($window.alert("Failed to save input data"));
-				communicator.saveFeedbackMsg = "Failed to save input data";
+				modelName: this.modelName,
+				viewName: this.viewName,
+				parameters: this.data.values
 			}
-	    })
-	    .error(function(response) {
-	    	communicator.saveFeedbackMsg = "Failed to save input data";
-	    	//$timeout($window.alert("Failed to save input data"));
-	    });
-		
+			
+			$http({
+		        method  : 'POST',
+		        url     : this.url,
+		        data    : {action: 'save', data: postData},
+		        headers : { 'Content-Type': 'application/x-www-form-urlencoded' }, // set the headers so angular passing info as form data (not request payload)
+		        transformResponse: [smoJson.transformResponse]
+		    })
+		    .success(function(response) {
+				if (!response.errStatus) {
+					var addressToParams;
+					if ($location.$$html5){
+						addressToParams = $location.protocol() + '://' + $location.host() + ':' 
+						+ $location.port() + $location.path();
+					} else {
+						addressToParams = window.location;
+					}
+					
+					communicator.savedRecordUrl = addressToParams
+						+ '?model=' + response.data.model + '&view=' + response.data.view + '&id=' + response.data.id;
+					communicator.saveSuccess = true;
+					communicator.saveFeedbackMsg = "Input data saved.";
+					//$timeout($window.alert("Input data saved"));
+				} else {
+					//$timeout($window.alert("Failed to save input data"));
+					communicator.saveFeedbackMsg = "Failed to save input data";
+				}
+		    })
+		    .error(function(response) {
+		    	communicator.saveFeedbackMsg = "Failed to save input data";
+		    	//$timeout($window.alert("Failed to save input data"));
+		    });
 	}
 
 	return ModelCommunicator;
 })
 
-smoModule.directive('smoSingleClick', ['$parse', function($parse) {
-    return {
-        restrict: 'A',
-        link: function(scope, element, attr) {
-          var fn = $parse(attr['smoSingleClick']);
-          var delay = 200, clicks = 0, timer = null;
-          element.on('click', function (event) {
-            clicks++;  //count clicks
-            if(clicks === 1) {
-              timer = setTimeout(function() {
-                scope.$apply(function () {
-                    fn(scope, { $event: event });
-                }); 
-                clicks = 0;             //after action performed, reset counter
-              }, delay);
-              } else {
-                clearTimeout(timer);    //prevent single-click action
-                clicks = 0;             //after action performed, reset counter
-              }
-          });
-        }
-    };
-}]);
-
-smoModule.factory('variables', ['util', function(util) {
-	var variables = {};
+smoModule.factory('quantities', ['util', function(util) {
+	var quantities = {};
 	function Quantity(quantity, title, nominalValue, SIUnit, units) {
 		this.quantity = quantity;
 		this.title = title;
@@ -525,10 +464,33 @@ smoModule.factory('variables', ['util', function(util) {
 			}
 		}
 	}
-	variables.Quantity = Quantity;
-	return variables;
+	quantities.Quantity = Quantity;
+	return quantities;
 }]);
 
+smoModule.directive('smoSingleClick', ['$parse', function($parse) {
+    return {
+        restrict: 'A',
+        link: function(scope, element, attr) {
+          var fn = $parse(attr['smoSingleClick']);
+          var delay = 200, clicks = 0, timer = null;
+          element.on('click', function (event) {
+            clicks++;  //count clicks
+            if(clicks === 1) {
+              timer = setTimeout(function() {
+                scope.$apply(function () {
+                    fn(scope, { $event: event });
+                }); 
+                clicks = 0;             //after action performed, reset counter
+              }, delay);
+              } else {
+                clearTimeout(timer);    //prevent single-click action
+                clicks = 0;             //after action performed, reset counter
+              }
+          });
+        }
+    };
+}]);
 
 smoModule.directive('tooltip', function(){
     return {
@@ -1724,7 +1686,8 @@ smoModule.directive('smoViewToolbar', ['$compile', '$rootScope', function($compi
 		scope: {
 			model: "=",
 			viewName: "=",
-			actions: "="
+			actions: "=",
+			reader: "="
 		},
 		controller: function($scope) {
 			var formName = $scope.model.name + $scope.viewName + 'Form';
@@ -1739,19 +1702,37 @@ smoModule.directive('smoViewToolbar', ['$compile', '$rootScope', function($compi
 				var targetView = action.outputView || $scope.viewName;
 				var communicator = $scope.model[targetView + 'Communicator'];
 				
-				params = params || $scope.model[$scope.viewName + 'Communicator'].data.values;
-				
 				if (action.name == 'save') {
-					communicator.saveUserInput('save', 
-							params);
-				} else {
-					if (communicator.model.recordId) {
-						params.recordId =
-							communicator.model.recordId;
+					if (params == 'local') {
+					 	var blob = new Blob([JSON.stringify(communicator.data.values, undefined, 4)], {
+					 	  "type": "text/plain;charset=utf8;"			
+					 	});
+					 	var link = document.getElementById(communicator.modelName + '_' + communicator.viewName + 'Save');						
+					 	if(link.download !== undefined) {
+					 	  link.setAttribute("href", window.URL.createObjectURL(blob));
+					 	  link.setAttribute("download", communicator.modelName);
+					 	} else {
+					 		alert('The HTML5 download attribute is not supported in this browser.');
+					 	}
+					 	link.click();
+					} else if (params == 'global') {
+						communicator.saveUserInput();
 					}
-					communicator.fetchData(action.name,
-							params, onFetchSuccess);
+					return;
+				} else if (action.name == 'loadLocal') {
+					$scope.reader.readAsText(params);
+					return;
+				} else if (action.name == 'load') {
+					if (communicator.model.recordId) {
+						parameters = {'recordId' : communicator.model.recordId};
+					}
+				} else if (action.name == 'loadEg') {
+					parameters = params;
+				} else {
+					parameters = $scope.model[$scope.viewName + 'Communicator'].data.values;
 				}
+				communicator.fetchData(action.name,
+						parameters, onFetchSuccess);
 			}
 		},
 		link : function(scope, element, attr) {
@@ -1772,11 +1753,18 @@ smoModule.directive('smoViewToolbar', ['$compile', '$rootScope', function($compi
 					buttons.push('<button type="button" ng-disabled="!form.$valid" class="btn btn-primary" ng-click="actionHandler(actions[' + i + '])">' + scope.actions[i].label + '</button>');
 				}
 			}
-			var template = '<div style="margin-left: 20px;" class="btn-group" role="group">'+ buttons.join("") + '</div>';
+			
+			buttons.push('<span class="btn btn-primary btn-file">Load <input type="file" id="' + scope.model.name + '_' + scope.viewName + 'fileInput"></span>');
+			
+			var template = '<div style="margin-left: 20px;" class="btn-group" role="group">'+ buttons.join("") + '</div>\
+							<a id="' + scope.model.name + '_' + scope.viewName + 'Save" hidden></a>';
 			var el = angular.element(template);
 	        compiled = $compile(el);
 	        element.append(el);
 	        compiled(scope);
+	        $('#' + scope.model.name + '_' + scope.viewName + 'fileInput').on('change', function(evt) {
+	        	scope.actionHandler({name: 'loadLocal'}, evt.target.files[0]);
+	        });
 		
 		}		
 	}
@@ -1812,8 +1800,13 @@ smoModule.directive('smoModelView', ['$compile', '$location', 'ModelCommunicator
 				</div>\
 				<div ng-form name="' + scope.formName + '">\
 					<div ng-if="communicator.dataReceived">\
-						<div smo-super-group-set="communicator.data.definitions" model-name="' + scope.modelName + '" view-type="' + scope.viewType + '" smo-data-source="communicator.data.values"></div>\
-						<div smo-view-toolbar model="model" view-name="viewName" actions="communicator.data.actions"></div>\
+						<div smo-super-group-set="communicator.data.definitions" model-name="' + scope.modelName + '" view-type="' + scope.viewType + '" smo-data-source="communicator.data.values"></div>';
+						
+			if (scope.viewType == 'input') {
+				template +='\
+						<div smo-view-toolbar model="model" view-name="viewName" actions="communicator.data.actions" reader="reader"></div>';
+			}
+				template +='\
 						<div ng-if="communicator.saveSuccess">\
 							<div class="alert alert-success alert-dismissible" role="alert">\
 							<button type="button" class="close" data-dismiss="alert" aria-label="Close">\
@@ -1828,7 +1821,16 @@ smoModule.directive('smoModelView', ['$compile', '$location', 'ModelCommunicator
 							<span>{{communicator.saveFeedbackMsg}}</span>\
 						</div>\
 					</div>\
-				</div>'
+				</div>';
+			
+			scope.reader = new FileReader();
+			scope.reader.onloadend = function() {
+				scope.communicator.data.values = JSON.parse(scope.reader.result);
+				scope.communicator.dataReceived = false;
+				scope.$digest();
+				scope.communicator.dataReceived = true;
+				scope.$digest();
+			}
 
 			var el = angular.element(template);
 	        compiled = $compile(el);
@@ -1836,7 +1838,8 @@ smoModule.directive('smoModelView', ['$compile', '$location', 'ModelCommunicator
 	        compiled(scope);
 			scope.$watch(scope.formName + '.$valid', function(validity) {
 					scope.communicator.fieldsValid = validity;					
-			});	        
+			});
+			
 		}	
 	}
 }]);

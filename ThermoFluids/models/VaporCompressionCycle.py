@@ -23,15 +23,13 @@ class VaporCompressionCycle(HeatPumpCycle):
 	inputs = F.SuperGroup(['workingFluidGroup', compressor, condenser, evaporator], label = 'Cycle definition')
 
 	#---------------- Actions ----------------#
-	computeAction = ServerAction("compute", label = "Compute", outputView = 'resultView')
 	exampleAction = ServerAction("loadEg", label = "Examples", options = (
 			('R134aCycle', 'Typical fridge with R134a as a refrigerant'),
 			('CO2TranscriticalCycle', 'CO2 transcritial cycle'),
 	))
-	inputActionBar = ActionBar([computeAction, exampleAction], save = True)
 	#--------------- Model view ---------------#
 	inputView = F.ModelView(ioType = "input", superGroups = [inputs, 'cycleDiagram', 'solver'], 
-		actionBar = inputActionBar, autoFetch = True)	
+		actionBar = ActionBar([exampleAction]), autoFetch = True)	
 
 	#================ Results ================#
 	compressorPower = F.Quantity('Power', default = (1, 'kW'), label = 'compressor power')
