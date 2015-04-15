@@ -3,7 +3,7 @@ try:
     import pylab as plt
 except Exception: 
     pass
-import scipy.interpolate
+from smo.math.util import Interpolator1D
 from smo.media.CoolProp.CoolProp import FluidState
 
 class Orifice(object):
@@ -41,13 +41,13 @@ class Elbow(object):
     #r_d_90 = np.array([1, 1.5, 2, 3, 4, 6, 8, 10, 12, 14, 16, 20])
     #C_d_90 = np.array([20, 14, 12, 12, 14, 17, 24, 30, 34, 38, 42, 50])
     #interp90 = scipy.interpolate.interp1d(r_d_90, C_d_90)
-    A1 = scipy.interpolate.interp1d(
-            np.array([0, 20, 30, 45, 60, 75, 90, 110, 130, 150, 180]),
-            np.array([0, 0.31, 0.45, 0.60, 0.78, 0.90, 1.0, 1.13, 1.20, 1.28, 1.40])
+    A1 = Interpolator1D(
+            [0, 20, 30, 45, 60, 75, 90, 110, 130, 150, 180],
+            [0, 0.31, 0.45, 0.60, 0.78, 0.90, 1.0, 1.13, 1.20, 1.28, 1.40]
     )
-    B1 = scipy.interpolate.interp1d(
-            np.array([0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.25, 1.5, 2, 4, 6, 8, 10, 15, 20, 25, 30, 35, 40, 45, 50]),
-            np.array([1.18, 0.77, 0.51, 0.37, 0.28, 0.21, 0.19, 0.17, 0.15, 0.11, 0.09, 0.07, 0.07, 0.06, 0.05, 0.05, 0.04, 0.04, 0.03, 0.03, 0.03])
+    B1 = Interpolator1D(
+            [0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.25, 1.5, 2, 4, 6, 8, 10, 15, 20, 25, 30, 35, 40, 45, 50],
+            [1.18, 0.77, 0.51, 0.37, 0.28, 0.21, 0.19, 0.17, 0.15, 0.11, 0.09, 0.07, 0.07, 0.06, 0.05, 0.05, 0.04, 0.04, 0.03, 0.03, 0.03]
     )
     @staticmethod
     def kDelta(relRoughness):
@@ -120,4 +120,4 @@ def testChurchilCorrelation():
     for i in range(len(Re)):
         zeta[i] = ChurchilCorrelation(Re[i], d, epsilon)
     plt.loglog(Re, zeta)
-    plt.show()    
+    plt.show()

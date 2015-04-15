@@ -22,6 +22,22 @@ def formatNumber(n, sig = 6):
 	mult = math.pow(10, sig - math.floor(math.log10(abs(n))) - 1)
 	return str(round(n * mult) / mult)
 
+def cart2pol(x, y):
+	'''
+	Converts Cartesian coordinates (x,y) to Polar coordinates (rho, phi)
+	'''
+	rho = np.sqrt(x**2 + y**2)
+	phi = np.arctan2(y, x)
+	return (rho, phi)
+
+def pol2cart(rho, phi):
+	'''
+	Converts Polar coordinates (rho, phi) to Cartesian coordinates (x,y)
+	'''
+	x = rho * np.cos(phi)
+	y = rho * np.sin(phi)
+	return (x, y)
+
 class Interpolator1D(object):
 	"""
 	1D interpolator using numpy.interp. Allows the values to be
