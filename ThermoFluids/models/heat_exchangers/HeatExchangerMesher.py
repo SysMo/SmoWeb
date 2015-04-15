@@ -81,7 +81,7 @@ class HeatExchangerMesher():
         offsetAngle = 2 * np.pi / channelGroup.number
         for i in range(int(channelGroup.number)):
             self.addCircle2D(
-                 radius = channelGroup.channelGeom.externalDiameter / 2.,
+                 radius = channelGroup.externalDiameter / 2.,
                  cellSize = channelGroup.cellSize,
                  radialPosition = channelGroup.radialPosition, 
                  angularPosition = channelGroup.startingAngle + i * offsetAngle,
@@ -118,7 +118,7 @@ class HeatExchangerMesher():
         # Add the outer block circle
         self.addCircle2D(
             radius = heatExch.blockGeom.diameter / 2.0, 
-            cellSize = heatExch.blockGeom.cellSize, 
+            cellSize = heatExch.externalChannelGeom.cellSize, 
             radialPosition = 0, 
             angularPosition = 0,
             name = "OuterBoundary"
