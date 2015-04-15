@@ -345,22 +345,20 @@ class RecordArray(Field):
 				raise ValueError('Array with 0 rows cannot be restricted to not be empty.')
 		
 		self.empty = empty
+		self.numRows = numRows
 		
 		if (structTuple is None):
 			raise ValueError('The structure of the array is not defined')
 		if (len(structTuple) == 0):
 			raise ValueError('The structure of the array is not defined')
-		
 		structDict = OrderedDict(structTuple)
 		
 		self.fieldList = []
 		typeList = []
-		self.defaultValueList = []
 		
 		for name, field in structDict.items():
 			structField = field
 			structField.name = name
-			self.defaultValueList.append(field.default)
 			self.fieldList.append(structField)
 			if isinstance(field, Integer):
 				typeList.append((field.name, np.int))
@@ -370,13 +368,19 @@ class RecordArray(Field):
 				typeList.append((field.name, np.dtype(bool)))
 			elif (isinstance(field, String) or isinstance(field, Choices)): 
 				typeList.append((field.name, np.dtype('S' + str(field.maxLength))))
-			
-		defaultValues = tuple(self.defaultValueList)
-		self.dtype = np.dtype(typeList)	
-		self.default = np.zeros((numRows,), dtype = self.dtype)
-		
-		for i in range(numRows):
-			self.default[i] = defaultValues
+
+		self.dtype = np.dtype(typeList)
+	
+	@property
+	def default(self):
+		self.defaultRow = []
+		for field in self.fieldList:
+			self.defaultRow.append(field.default)
+		defaultRowTuple = tuple(self.defaultRow)
+		default = np.zeros((self.numRows,), dtype = self.dtype)
+		for i in range(self.numRows):
+			default[i] = defaultRowTuple
+		return default
 		
 	def parseValue(self, value):
 		if (isinstance(value, np.ndarray)):
@@ -404,8 +408,7 @@ class RecordArray(Field):
 		for field in self.fieldList:
 			jsonFieldList.append(field.toFormDict())
 		fieldDict['fields'] = jsonFieldList
-		#print self.defaultValueList
-		fieldDict['defaultRow'] = self.defaultValueList
+		fieldDict['defaultRow'] = self.defaultRow
 		fieldDict['empty'] = self.empty
 		return fieldDict
 	
@@ -427,44 +430,37 @@ class DataSeriesView(Field):
 		:param visibleColumns: list of integers specifying which columns are visible in the view
 		
 		"""
-		super(DataSeriesView, self).__init__(*args, **kwargs)	
-		
+		super(DataSeriesView, self).__init__(*args, **kwargs)
 		if (structTuple is None):
 			raise ValueError('The data structure is not defined.')
 		if (len(structTuple) == 0):
 			raise ValueError('The data structure is not defined.')
-		
 		structDict = OrderedDict(structTuple)
 		
 		self.fieldList = []
 		typeList = []
-		defaultValueList = []
 		self.dataLabels = []
 		
 		for name, field in structDict.items():
 			structField = field
 			structField.name = name
 			self.dataLabels.append(name)
-			defaultValueList.append(field.default)
 			self.fieldList.append(structField)
 			if isinstance(field, Quantity):
 				typeList.append((field.name, np.float64))
-			elif isinstance(field, Boolean): 
-				typeList.append((field.name, np.dtype(bool)))
-			elif (isinstance(field, String) or isinstance(field, Choices)): 
-				typeList.append((field.name, np.dtype('S' + str(field.maxLength))))
+			else:
+				raise ValueError('Unsupported type for a data series')
 			
-		defaultValueList = tuple(defaultValueList)
 		self.dtype = np.dtype(typeList)	
-		self.default = np.zeros((1,), dtype = self.dtype)
-		
-		for i in range(1):
-			self.default[i] = defaultValueList
 			
 		if (visibleColumns is None):
 			self.visibleColumns = [n for n in range(len(self.dataLabels))]
 		else:
 			self.visibleColumns = visibleColumns
+			
+	@property
+	def default(self):
+		return np.zeros((1,), dtype = self.dtype)
 		
 	def parseValue(self, value):
 		if (isinstance(value, np.ndarray)):

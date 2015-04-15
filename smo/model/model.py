@@ -208,10 +208,7 @@ class NumericalModel(object):
 		self = object.__new__(cls)
 		# Set default values to fields
 		for name, field in self.declared_fields.iteritems():
-			if (isinstance(field, (fields.RecordArray, fields.DataSeriesView))):
-				self.__setattr__(name, field.default.copy())
-			else:
-				self.__setattr__(name, field.default)
+			self.__setattr__(name, field.default)
 		# Create submodel instances
 		for name, submodel in self.declared_submodels.iteritems():
 			if name in kwargs:
