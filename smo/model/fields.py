@@ -134,15 +134,37 @@ class Quantity(Field):
 		fieldDict['SIUnit'] = Quantities[self.type]['SIUnit']
 		return fieldDict
 
-class Integer(Quantity):
+class Integer(Field):
 	"""
 	Integer field
 	"""
 	def __init__(self, default = None, minValue = None, maxValue = None, *args, **kwargs):
-		super(Integer, self).__init__(type = 'Dimensionless', default = default, minValue = minValue, maxValue = maxValue, *args, **kwargs)
+		super(Integer, self).__init__(*args, **kwargs)
+		
+		if (minValue is None):
+			minValue = 0
+		self.minValue = self.parseValue(minValue)		
+		
+		if (maxValue is None):
+			maxValue = 1e6
+		self.maxValue = self.parseValue(maxValue)
+		
+		if (default is None):
+			default = 1
+		self.default = self.parseValue(default)
 
 	def parseValue(self, value):
 		return int(value)
+	
+	def getValueRepr(self, value):
+		return value
+	
+	def toFormDict(self):
+		fieldDict = super(Integer, self).toFormDict()			
+		fieldDict['type'] = 'Integer'
+		fieldDict['minValue'] = self.minValue
+		fieldDict['maxValue'] = self.maxValue
+		return fieldDict
 		
 class String(Field):
 	"""
@@ -632,16 +654,6 @@ class Image(Field):
 		
 		self.width = width
 		self.height = height
-		
-# 		if width is None:
-# 			self.width = 700
-# 		else:
-# 			self.width = width
-# 			
-# 		if height is None:
-# 			self.height = 400
-# 		else:
-# 			self.height = height
 	
 	def parseValue(self, value):
 		return value
