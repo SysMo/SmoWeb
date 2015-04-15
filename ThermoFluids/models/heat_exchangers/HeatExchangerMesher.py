@@ -16,7 +16,7 @@ from SmoWeb.settings import MEDIA_ROOT
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from cStringIO import StringIO
         
-class HeatExchangerMesh():    
+class HeatExchangerMesher():    
     def __init__(self):
         self.mesh = None
         
@@ -133,12 +133,13 @@ class HeatExchangerMesh():
         
         # Get the gmsh script
         gmshScript = self.sMesh.getvalue()
-        self.sMesh.close()        
-        
+        self.sMesh.close()
+        print gmshScript
         #===== Generate the mesh =====#
         self.mesh = FP.Gmsh2D(gmshScript)
     
     def plotToTmpFile(self):
+    	# TODO: REWRITE or remove
         # Create a plot of the mesh 
         vertexCoords = self.mesh.vertexCoords
         vertexIDs = self.mesh._orderedCellVertexIDs

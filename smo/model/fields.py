@@ -136,6 +136,9 @@ class Quantity(Field):
 class Integer(Quantity):
 	def __init__(self, default = None, minValue = None, maxValue = None, *args, **kwargs):
 		super(Integer, self).__init__(type = 'Dimensionless', default = default, minValue = minValue, maxValue = maxValue, *args, **kwargs)
+
+	def parseValue(self, value):
+		return int(value)
 		
 class String(Field):
 	"""
@@ -653,7 +656,7 @@ class MPLPlot(Image):
 	"""
 	Field for displaying an image 
 	"""
-	def __init__(self, width = None, height = None, *args, **kwargs):
+	def __init__(self, width = 800, height = 600, *args, **kwargs):
 		Field.__init__(self, *args, **kwargs)
 		self.width = width
 		self.height = height
@@ -662,6 +665,7 @@ class MPLPlot(Image):
 	def default(self):
 		import pylab as plt
 		fig = plt.Figure(facecolor = 'white')
+		fig.set_size_inches(self.width / float(fig.dpi), self.height / float(fig.dpi))
 		ax = fig.add_subplot(111)
 		return ax
 

@@ -8,10 +8,11 @@ Created on Apr 8, 2015
 from smo.model.actions import ServerAction, ActionBar
 from smo.model.model import NumericalModel
 from smo.media.MaterialData import Fluids
-from smo.flow.HeatExchanger import HeatExchangerMesh
+from heat_exchangers.HeatExchangerMesher import HeatExchangerMesher
+from heat_exchangers.HeatExchangerSolver import HeatExchangerSolver
 import smo.model.fields as F
-from smo.flow.FrictionHeatExchange import FluidChannelSection, FluidChannel
 import matplotlib.tri as tri
+import matplotlib.ticker as ticker
 import numpy as np
 import smo.media.CoolProp as CP
 
@@ -56,7 +57,7 @@ class ExternalChannelGeometry(NumericalModel):
 	modelBlocks = []
 	
 class ChannelGroupGeometry(NumericalModel):
-	number = F.Quantity('Dimensionless', default = (0, '-'), minValue = (0, '-'),
+	number = F.Integer(default = 0, minValue = 0,
 		label = 'number', description = 'number of channels')
 	radialPosition = F.Quantity('Length', default = (0., 'mm'), minValue = (0, 'mm'), 
 		label = 'radial position', description = 'radial position of the channels')
@@ -204,6 +205,7 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 		
 	def compute(self):
 		# Initialize
+		# TODO Do we need that?
 		self.primaryChannelsGeom.channelGeom = self.channelGeom
 		self.secondaryChannelsGeom.channelGeom = self.channelGeom
 		
@@ -212,38 +214,30 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 		self.externalFlow.init()
 		
 		# Create the mesh
-		mesh = HeatExchangerMesh()
-		mesh.create(self)
+		mesher = HeatExchangerMesher()
+		mesher.create(self)
 		
 		# Create channel calculator objects
-		self.primChannelCalc = FluidChannel('ParaHydrogen')
-		xStart = 0
-		for geomSection in self.channelGeom.sections:
-			dx = geomSection['length'] / geomSection['numDivisions']
-			for i in range(geomSection['numDivisions']):
-				section = FluidChannelSection(xStart + i * dx, xStart + (i + 1) * dx)
-				section.setAnnularGeometry(geomSection['internalDiameter'], self.channelGeom.externalDiameter)
-				self.primChannelCalc.addSection(section)
-			xStart += geomSection['length']
-		self.primChannelCalc.plotGeometry(self.channelProfileView)
-		self.channelProfileView.set_xlabel('[m]')
-		self.channelProfileView.set_ylabel('[m]')
+		solver = HeatExchangerSolver(mesher.mesh, 
+				self.primaryChannelsGeom.number, 
+				self.secondaryChannelsGeom.number)
+		solver.createChannelCalculators(self.channelGeom)
 		
-		self.secChannelCalc = FluidChannel('ParaHydrogen')
-		xStart = 0
-		for geomSection in self.channelGeom.sections:
-			dx = geomSection['length'] / geomSection['numDivisions']
-			for i in range(geomSection['numDivisions']):
-				section = FluidChannelSection(xStart + i * dx, xStart + (i + 1) * dx)
-				section.setAnnularGeometry(geomSection['internalDiameter'], self.channelGeom.externalDiameter)
-				self.secChannelCalc.addSection(section)
-			xStart += geomSection['length']
-		
-		# Show the mesh
-		vertexCoords = mesh.mesh.vertexCoords
-		vertexIDs = mesh.mesh._orderedCellVertexIDs
+		self.postProcess(mesher, solver)
+	
+	def postProcess(self, mesher, solver):
+		# Draw the mesh
+		vertexCoords = mesher.mesh.vertexCoords
+		vertexIDs = mesher.mesh._orderedCellVertexIDs
 		triPlotMesh = tri.Triangulation(vertexCoords[0], vertexCoords[1], np.transpose(vertexIDs))
 		self.meshView.triplot(triPlotMesh)
 		self.meshView.set_aspect('equal')
-		#tmpFilePath  = mesh.plotToTmpFile()
-		#self.meshImage = tmpFilePath
+
+		# Draw the channel Profile
+		solver.primChannelCalc.plotGeometry(self.channelProfileView)
+		self.channelProfileView.set_xlabel('[m]')
+		self.channelProfileView.set_ylabel('[mm]')
+		ticks = ticker.FuncFormatter(lambda x, pos: '{0:g}'.format(x*1e3))                                                                                                                                                                                                           
+		self.channelProfileView.yaxis.set_major_formatter(ticks)  
+
+		

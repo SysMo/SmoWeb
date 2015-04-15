@@ -1,1 +1,1 @@
-from HeatExchangerMesh import HeatExchangerMesh
+from ThermoFluids.models.heat_exchangers import HeatExchangerMesher

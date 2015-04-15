@@ -3,9 +3,10 @@ import numpy as np
 from smo.media.MaterialData import Solids
 from smo.math.util import Interpolator1D
 from fipy.solvers.pysparse import LinearLUSolver
+from smo.flow.FrictionHeatExchange import FluidChannelSection, FluidChannel
 
 class HeatExchangerSolver(object):
-	def __init__(self, mesh):
+	def __init__(self, mesh, numPrimChannels, numSecChannels):
 		self.blockMaterial= Solids['Aluminium6061']
 		self.thermCondModel = Interpolator1D(
 			self.blockMaterial['thermalCond_T']['T'], 
@@ -20,9 +21,34 @@ class HeatExchangerSolver(object):
 		# Set the mesh
 		self.mesh = mesh
 		# Select the boundaries
-		self.primChannels = self.mesh.physicalFaces['PrimaryChannel']
-		self.secChannels = self.mesh.physicalFaces['SecondaryChannel']
+		self.primChannels = self.mesh.physicalFaces['PrimaryChannel_1']
+		for i in range(numPrimChannels - 1):
+			self.primChannels |= self.mesh.physicalFaces['PrimaryChannel_%d'%(i + 2)]
+		self.secChannels = self.mesh.physicalFaces['SecondaryChannel_1']
+		for i in range(numSecChannels - 1):
+			self.secChannels |= self.mesh.physicalFaces['SecondaryChannel_%d'%(i + 2)]
 		self.extChannel = self.mesh.physicalFaces['OuterBoundary']
+	
+	def createChannelCalculators(self, channelGeom):
+		self.primChannelCalc = FluidChannel('ParaHydrogen')
+		xStart = 0
+		for geomSection in channelGeom.sections:
+			dx = geomSection['length'] / geomSection['numDivisions']
+			for i in range(geomSection['numDivisions']):
+				section = FluidChannelSection(xStart + i * dx, xStart + (i + 1) * dx)
+				section.setAnnularGeometry(geomSection['internalDiameter'], channelGeom.externalDiameter)
+				self.primChannelCalc.addSection(section)
+			xStart += geomSection['length']
+		
+		self.secChannelCalc = FluidChannel('ParaHydrogen')
+		xStart = 0
+		for geomSection in channelGeom.sections:
+			dx = geomSection['length'] / geomSection['numDivisions']
+			for i in range(geomSection['numDivisions']):
+				section = FluidChannelSection(xStart + i * dx, xStart + (i + 1) * dx)
+				section.setAnnularGeometry(geomSection['internalDiameter'], channelGeom.externalDiameter)
+				self.secChannelCalc.addSection(section)
+			xStart += geomSection['length']
 		
 	def solve(self):
 		TExt = 300
@@ -144,13 +170,7 @@ class HeatExchangerSolver(object):
 # 		value = np.sum(np.abs(comp))
 # 		return value
 		
-class FluidChannel(object):
-	def __init__(self):
-		pass
-	
-	def computeHeatExchange(self):
-		self.v = 0
-	
+
 if __name__ == '__main__':
 	mesh1 = FP.Gmsh2D(open('CylindricalHeatExchanger1.geo').read())
 	solver = HeatExchangerSolver(mesh = mesh1)
