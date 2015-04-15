@@ -561,6 +561,39 @@ smoModule.directive('smoImg', ['$compile', function($compile) {
 	}
 }]);
 
+smoModule.directive('smoInt', ['$compile', function($compile) {
+	return {
+		restrict : 'A',
+		scope : {
+			fieldVar: '=',
+			viewType: '@viewType',
+			smoDataSource : '='
+		},
+		link : function(scope, element, attr) {
+			var template = '\
+				<div class="field-label"><div style="display: inline-block;" data-toggle="tooltip" title="' + scope.fieldVar.description + '" tooltip>' + scope.fieldVar.label + '</div></div>';
+			if (scope.viewType == 'input') {
+				template += '\
+					<div class="field-input"> \
+						<div ng-form name="' + scope.fieldVar.name + 'Form">\
+							<input name="input" required type="number" ng-model="smoDataSource.' + scope.fieldVar.name + '" min="' + scope.fieldVar.minValue + '" max="' + scope.fieldVar.maxValue + '">\
+						</div>\
+					</div>';
+			}
+			else if (scope.viewType == 'output') {
+				template += '\
+					<div class="field-output"> \
+						<div class="output" ng-bind="smoDataSource.' + scope.fieldVar.name + '"></div>\
+					</div>';		
+			}	
+	        var el = angular.element(template);
+	        compiled = $compile(el);
+	        element.append(el);
+	        compiled(scope);
+		}
+	}
+}]);
+
 smoModule.directive('smoQuantity', ['$compile', 'util', function($compile, util) {
 	return {
 		restrict : 'A',
@@ -1202,6 +1235,11 @@ smoModule.directive('smoFieldGroup', ['$compile', 'util', function($compile, uti
 						groupFields.push('<div ' + showCode + ' smo-quantity view-type="input" field-var="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
 					if (scope.viewType == 'output')
 						groupFields.push('<div ' + showCode + ' smo-quantity view-type="output" field-var="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
+				} else if (field.type == 'Integer') {
+					if (scope.viewType == 'input') 
+						groupFields.push('<div ' + showCode + ' smo-int view-type="input" field-var="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
+					if (scope.viewType == 'output')
+						groupFields.push('<div ' + showCode + ' smo-int view-type="output" field-var="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
 				} else if (field.type == 'Choices') {
 					if (scope.viewType == 'input')
 						groupFields.push('<div ' + showCode + ' smo-choice field-var="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
@@ -1283,7 +1321,7 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 					
 					if (field.type == 'TableView' || field.type == 'PlotView') {
 						navPillPanes.push('<div ' + showCode + ' smo-data-series-view field-var="fields.' + field.name + '" model-name="' + scope.modelName + '" smo-data-source="smoDataSource"></div>');
-					} else if (field.type == 'Image') {
+					} else if (field.type == 'Image' || field.type == 'MPLPlot') {
 						navPillPanes.push('<div ' + showCode + ' smo-img field-var="fields.' + field.name + '" model-name="' + scope.modelName + '" smo-data-source="smoDataSource"></div>');
 					}
 					
@@ -1314,7 +1352,7 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 				
 				if (field.type == 'TableView' || field.type == 'PlotView') {
 					template += '<div ' + showCode + ' smo-data-series-view field-var="smoViewGroup.fields[0]" model-name="' + scope.modelName + '" smo-data-source="smoDataSource"></div>';
-				} else if (field.type == 'Image') {
+				} else if (field.type == 'Image' || field.type == 'MPLPlot') {
 					template += '<div ' + showCode + ' smo-img field-var="smoViewGroup.fields[0]" model-name="' + scope.modelName + '" smo-data-source="smoDataSource"></div>';
 				}
 				
@@ -1609,6 +1647,17 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 							<div style="margin-left: 5px; color:red;" ng-show="' + scope.smoRecordArray.name + '_{{i}}_' + String(col) + 'Form.input.$error.maxVal">Value should be below ' + util.formatNumber(scope.smoRecordArray.fields[col].maxDisplayValue) + ' ' + scope.smoRecordArray.fields[col].displayUnit + '</div>\
 						</td>';
 					
+				} else if (field.type == 'Integer') {
+					rowTemplate += '\
+						<td>\
+							<div class="field-input">\
+								<div ng-form name="' + scope.smoRecordArray.name + '_{{i}}_' + String(col) + 'Form">\
+									<input name="input" required type="number" \
+										ng-model="arrValue[i][' + String(col) + ']" \
+										min="' + scope.smoRecordArray.fields[col].minValue + '" max="' + scope.smoRecordArray.fields[col].maxValue + '">\
+								</div>\
+							</div>\
+						</td>';
 				} else if (field.type == 'Boolean') {
 					rowTemplate += '\
 						<td>\
