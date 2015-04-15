@@ -1321,7 +1321,7 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 					
 					if (field.type == 'TableView' || field.type == 'PlotView') {
 						navPillPanes.push('<div ' + showCode + ' smo-data-series-view field-var="fields.' + field.name + '" model-name="' + scope.modelName + '" smo-data-source="smoDataSource"></div>');
-					} else if (field.type == 'Image') {
+					} else if (field.type == 'Image' || field.type == 'MPLPlot') {
 						navPillPanes.push('<div ' + showCode + ' smo-img field-var="fields.' + field.name + '" model-name="' + scope.modelName + '" smo-data-source="smoDataSource"></div>');
 					}
 					
@@ -1352,7 +1352,7 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 				
 				if (field.type == 'TableView' || field.type == 'PlotView') {
 					template += '<div ' + showCode + ' smo-data-series-view field-var="smoViewGroup.fields[0]" model-name="' + scope.modelName + '" smo-data-source="smoDataSource"></div>';
-				} else if (field.type == 'Image') {
+				} else if (field.type == 'Image' || field.type == 'MPLPlot') {
 					template += '<div ' + showCode + ' smo-img field-var="smoViewGroup.fields[0]" model-name="' + scope.modelName + '" smo-data-source="smoDataSource"></div>';
 				}
 				

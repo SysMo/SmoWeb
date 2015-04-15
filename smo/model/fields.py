@@ -668,12 +668,12 @@ class Image(Field):
 		fieldDict['height'] = self.height			
 		return fieldDict
 
-class MPLPlot(Image):
+class MPLPlot(Field):
 	"""
 	Field for displaying an image 
 	"""
 	def __init__(self, width = None, height = None, *args, **kwargs):
-		Field.__init__(self, *args, **kwargs)
+		super(MPLPlot, self).__init__(*args, **kwargs)
 		self.width = width
 		self.height = height
 
@@ -702,6 +702,15 @@ class MPLPlot(Image):
 		
 		return imagePath
 	
+	def parseValue(self, value):
+		return value
+	
+	def toFormDict(self):
+		fieldDict = super(MPLPlot, self).toFormDict()
+		fieldDict['type'] = 'MPLPlot'
+		fieldDict['width'] = self.width	
+		fieldDict['height'] = self.height			
+		return fieldDict
 
 class Port(Field):
 	"""
