@@ -3,7 +3,11 @@ from distutils.extension import Extension
 from Cython.Build import cythonize
 import os
 
-coolPropSrcFolder = '/data/Workspace/Projects/SysMo/SmoWeb/coolprop' 
+print __file__
+coolPropSrcFolder = os.path.dirname(os.path.realpath(__file__)) + '/../../../../../coolprop'
+print coolPropSrcFolder
+coolPropSrcFolder = os.path.abspath(coolPropSrcFolder)
+print coolPropSrcFolder
 CXXFLAGS = ["-I/" + coolPropSrcFolder + '/include']
 LDFLAGS = ["-L/data/Workspace/Projects/SysMo/SmoWeb/coolprop/build/release/"]
 

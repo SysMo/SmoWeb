@@ -29,8 +29,10 @@ class HeatExchangerSolver(object):
 			self.secChannels |= self.mesh.physicalFaces['SecondaryChannel_%d'%(i + 2)]
 		self.extChannel = self.mesh.physicalFaces['OuterBoundary']
 	
-	def createChannelCalculators(self, channelGeom):
-		self.primChannelCalc = FluidChannel('ParaHydrogen')
+	def createChannelCalculators(self, heatExch):
+		channelGeom = heatExch.channelGeom
+		
+		self.primChannelCalc = FluidChannel(heatExch.primaryFlow.fluidName)
 		xStart = 0
 		for geomSection in channelGeom.sections:
 			dx = geomSection['length'] / geomSection['numDivisions']
@@ -40,7 +42,7 @@ class HeatExchangerSolver(object):
 				self.primChannelCalc.addSection(section)
 			xStart += geomSection['length']
 		
-		self.secChannelCalc = FluidChannel('ParaHydrogen')
+		self.secChannelCalc = FluidChannel(heatExch.secondaryFlow.fluidName)
 		xStart = 0
 		for geomSection in channelGeom.sections:
 			dx = geomSection['length'] / geomSection['numDivisions']
@@ -50,8 +52,8 @@ class HeatExchangerSolver(object):
 				self.secChannelCalc.addSection(section)
 			xStart += geomSection['length']
 		
-	def solve(self):
-		TExt = 300
+	def solve(self, heatExch):
+		#TExt = 300
 		# Create variables for temperature and thermal conductivity
 		self.T = FP.CellVariable(name = 'T', mesh = self.mesh)
 		self.thermCond = FP.FaceVariable(name = 'lambda', mesh = self.mesh)
@@ -61,12 +63,13 @@ class HeatExchangerSolver(object):
 		self.cExtCoeff = (self.extChannel * self.mesh.faceNormals ).divergence
 
 		# Initial guess
-		self.T.setValue(TExt)
+		self.T.setValue(heatExch.externalFlow.TIn)
 		# Solve for a single cross section
-		self.solveSectionThermal(
-			TPrim = 100, hConvPrim = 2000, 
-			TSec = 100, hConvSec = 0, 
-			TExt = 300, hConvExt = 2000)
+		for i in len(range(self.primChannelCalc.sections)):
+			self.solveSectionThermal(
+				TPrim = 100, hConvPrim = 2000, 
+				TSec = 100, hConvSec = 0, 
+				TExt = 300, hConvExt = 2000)
 		self.checkResults(
 			TPrim = 100, hConvPrim = 2000, 
 			TSec = 100, hConvSec = 0, 
