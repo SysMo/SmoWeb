@@ -34,10 +34,9 @@ class ActionBar(object):
 	to a `ModelView`. It also generates function handlers, called
 	when any of the buttons is pushed.
 	"""
-	def __init__(self, actionList = None, save = True):
+	def __init__(self, actionList = None):
 		"""
 		:param list actionList: the actions assigned to this bar
-		:param bool save: whether to display save button 
 		"""
 		self.actionList = []
 		self.actionList.append(ServerAction("compute", label = "Compute", outputView = 'resultView'))

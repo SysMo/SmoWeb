@@ -273,7 +273,6 @@ class ModularPageView(object):
 	@action.post()
 	def loadEg(self, model, view, parameters):
 		instance = model()
-		print parameters
 		getattr(instance, parameters)()
 		return instance.modelView2Json(view)
 				

@@ -404,10 +404,6 @@ smoModule.factory('ModelCommunicator', function($http, $window, $timeout, $locat
 						addressToParams = window.location;
 					}
 					
-//						communicator.savedRecordUrl = $location.protocol() + '://' + $location.host() + ':' 
-//							+ $location.port() + $location.path() 
-//							+ '?model=' + response.data.model + '&view=' + response.data.view + '&id=' + response.data.id;
-					
 					communicator.savedRecordUrl = addressToParams
 						+ '?model=' + response.data.model + '&view=' + response.data.view + '&id=' + response.data.id;
 					communicator.saveSuccess = true;
@@ -427,32 +423,8 @@ smoModule.factory('ModelCommunicator', function($http, $window, $timeout, $locat
 	return ModelCommunicator;
 })
 
-smoModule.directive('smoSingleClick', ['$parse', function($parse) {
-    return {
-        restrict: 'A',
-        link: function(scope, element, attr) {
-          var fn = $parse(attr['smoSingleClick']);
-          var delay = 200, clicks = 0, timer = null;
-          element.on('click', function (event) {
-            clicks++;  //count clicks
-            if(clicks === 1) {
-              timer = setTimeout(function() {
-                scope.$apply(function () {
-                    fn(scope, { $event: event });
-                }); 
-                clicks = 0;             //after action performed, reset counter
-              }, delay);
-              } else {
-                clearTimeout(timer);    //prevent single-click action
-                clicks = 0;             //after action performed, reset counter
-              }
-          });
-        }
-    };
-}]);
-
-smoModule.factory('variables', ['util', function(util) {
-	var variables = {};
+smoModule.factory('quantities', ['util', function(util) {
+	var quantities = {};
 	function Quantity(quantity, title, nominalValue, SIUnit, units) {
 		this.quantity = quantity;
 		this.title = title;
@@ -492,10 +464,33 @@ smoModule.factory('variables', ['util', function(util) {
 			}
 		}
 	}
-	variables.Quantity = Quantity;
-	return variables;
+	quantities.Quantity = Quantity;
+	return quantities;
 }]);
 
+smoModule.directive('smoSingleClick', ['$parse', function($parse) {
+    return {
+        restrict: 'A',
+        link: function(scope, element, attr) {
+          var fn = $parse(attr['smoSingleClick']);
+          var delay = 200, clicks = 0, timer = null;
+          element.on('click', function (event) {
+            clicks++;  //count clicks
+            if(clicks === 1) {
+              timer = setTimeout(function() {
+                scope.$apply(function () {
+                    fn(scope, { $event: event });
+                }); 
+                clicks = 0;             //after action performed, reset counter
+              }, delay);
+              } else {
+                clearTimeout(timer);    //prevent single-click action
+                clicks = 0;             //after action performed, reset counter
+              }
+          });
+        }
+    };
+}]);
 
 smoModule.directive('tooltip', function(){
     return {
@@ -1713,8 +1708,7 @@ smoModule.directive('smoViewToolbar', ['$compile', '$rootScope', function($compi
 					 	  "type": "text/plain;charset=utf8;"			
 					 	});
 					 	var link = document.getElementById(communicator.modelName + '_' + communicator.viewName + 'Save');						
-					 	if(link.download !== undefined) { // feature detection
-					 	  // Browsers that support HTML5 download attribute
+					 	if(link.download !== undefined) {
 					 	  link.setAttribute("href", window.URL.createObjectURL(blob));
 					 	  link.setAttribute("download", communicator.modelName);
 					 	} else {
@@ -1759,9 +1753,8 @@ smoModule.directive('smoViewToolbar', ['$compile', '$rootScope', function($compi
 					buttons.push('<button type="button" ng-disabled="!form.$valid" class="btn btn-primary" ng-click="actionHandler(actions[' + i + '])">' + scope.actions[i].label + '</button>');
 				}
 			}
-			if (scope.actions.length > 0) {
-				buttons.push('<span class="btn btn-primary btn-file">Load <input type="file" id="' + scope.model.name + '_' + scope.viewName + 'fileInput"></span>');
-			}
+			
+			buttons.push('<span class="btn btn-primary btn-file">Load <input type="file" id="' + scope.model.name + '_' + scope.viewName + 'fileInput"></span>');
 			
 			var template = '<div style="margin-left: 20px;" class="btn-group" role="group">'+ buttons.join("") + '</div>\
 							<a id="' + scope.model.name + '_' + scope.viewName + 'Save" hidden></a>';
@@ -1799,7 +1792,7 @@ smoModule.directive('smoModelView', ['$compile', '$location', 'ModelCommunicator
 			}
 		},
 		link : function(scope, element, attr) {
-			scope.template = '\
+			var template = '\
 				<div ng-if="communicator.loading" class="alert alert-info" role="alert">Loading... (may well take a few moments)</div>\
 				<div ng-if="communicator.commError" class="alert alert-danger" role="alert">Communication error: <span ng-bind="communicator.errorMsg"></span></div>\
 				<div ng-if="communicator.serverError" class="alert alert-danger" role="alert">Server error: <span ng-bind="communicator.errorMsg"></span>\
@@ -1807,8 +1800,13 @@ smoModule.directive('smoModelView', ['$compile', '$location', 'ModelCommunicator
 				</div>\
 				<div ng-form name="' + scope.formName + '">\
 					<div ng-if="communicator.dataReceived">\
-						<div smo-super-group-set="communicator.data.definitions" model-name="' + scope.modelName + '" view-type="' + scope.viewType + '" smo-data-source="communicator.data.values"></div>\
-						<div smo-view-toolbar model="model" view-name="viewName" actions="communicator.data.actions" reader="reader"></div>\
+						<div smo-super-group-set="communicator.data.definitions" model-name="' + scope.modelName + '" view-type="' + scope.viewType + '" smo-data-source="communicator.data.values"></div>';
+						
+			if (scope.viewType == 'input') {
+				template +='\
+						<div smo-view-toolbar model="model" view-name="viewName" actions="communicator.data.actions" reader="reader"></div>';
+			}
+				template +='\
 						<div ng-if="communicator.saveSuccess">\
 							<div class="alert alert-success alert-dismissible" role="alert">\
 							<button type="button" class="close" data-dismiss="alert" aria-label="Close">\
@@ -1828,14 +1826,13 @@ smoModule.directive('smoModelView', ['$compile', '$location', 'ModelCommunicator
 			scope.reader = new FileReader();
 			scope.reader.onloadend = function() {
 				scope.communicator.data.values = JSON.parse(scope.reader.result);
-				console.log(scope.communicator.data.values);
 				scope.communicator.dataReceived = false;
 				scope.$digest();
 				scope.communicator.dataReceived = true;
 				scope.$digest();
 			}
 
-			var el = angular.element(scope.template);
+			var el = angular.element(template);
 	        compiled = $compile(el);
 	        element.append(el);
 	        compiled(scope);

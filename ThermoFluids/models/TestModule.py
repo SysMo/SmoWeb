@@ -7,16 +7,12 @@ Created on Apr 2, 2015
 import smo.model.fields as F
 import lib.ThermodynamicComponents as TC
 from smo.model.model import NumericalModel
-from smo.model.actions import ServerAction, ActionBar
 
 class ABC(NumericalModel):
 	label = 'ABC'
 	compressor = F.SubModelGroup(TC.Compressor, ['etaS', 'fQ', 'modelType'], label = 'Compressor') #fields = )
 	inputs = F.SuperGroup([compressor])
-	computeAction = ServerAction("compute", label = "Compute", outputView = 'resultView')
-	inputActionBar = ActionBar([computeAction], save = True)
-	inputView = F.ModelView(ioType = "input", superGroups = [inputs], 
-		actionBar = inputActionBar, autoFetch = True)
+	inputView = F.ModelView(ioType = "input", superGroups = [inputs], autoFetch = True)
 	resultView = F.ModelView(ioType = "output", superGroups = [])
 	modelBlocks = [inputView, resultView]
 	

@@ -17,7 +17,7 @@ $scope.renderConverter = function() {
 		if (value.SIUnit == '-')
 			continue
 		else {
-			$scope.quantities[value.title] = new variables.Quantity(name, value.title, value.nominalValue, value.SIUnit, value.units);
+			$scope.quantities[value.title] = new quantities.Quantity(name, value.title, value.nominalValue, value.SIUnit, value.units);
 		}
 	}
 	$scope.choiceVar = $scope.quantities[Object.keys($scope.quantities)[0]];

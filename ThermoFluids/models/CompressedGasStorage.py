@@ -6,7 +6,6 @@ Created on April 01, 2015
 '''
 import numpy as np
 import smo.model.fields as F
-import smo.model.actions as A
 import lib.CompressedGasStorageComponents as GSC
 import smo.media.CoolProp as CP
 import smo.dynamical_models.tank as DM
@@ -45,12 +44,8 @@ class CompressedGasStorage(NumericalModel):
     
     settingsSG = F.SuperGroup([solverFG], label = 'Settings')
     
-    #1.3 Actions
-    computeAction = A.ServerAction("compute", label = "Compute", outputView = 'resultView')
-    inputActionBar = A.ActionBar([computeAction], save = True)
-    
     #1.4 Model view
-    inputView = F.ModelView(ioType = "input", superGroups = [parametersSG, tank, controller, settingsSG], actionBar = inputActionBar, autoFetch = True)
+    inputView = F.ModelView(ioType = "input", superGroups = [parametersSG, tank, controller, settingsSG], autoFetch = True)
     
     #2. ############ Results ###############
     #2.1 Tank results

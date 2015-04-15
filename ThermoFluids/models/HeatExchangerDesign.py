@@ -5,7 +5,6 @@ Created on Apr 8, 2015
 @copyright: SysMo Ltd, Bulgaria
 '''
 
-from smo.model.actions import ServerAction, ActionBar
 from smo.model.model import NumericalModel
 from smo.media.MaterialData import Fluids
 from smo.flow.HeatExchanger import HeatExchangerMesh
@@ -70,13 +69,8 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 	#inputValues = F.SuperGroup([blockGeometryGroup, flowGroup], label = 'Input values')
 	inputValues = F.SuperGroup([blockGeometryGroup], label = 'Input values') #:TEST:
 	
-	#---------------- Actions ----------------#
-	computeAction = ServerAction("compute", label = "Compute", outputView = 'resultView')
-	inputActionBar = ActionBar([computeAction], save = True)
-	
 	#--------------- Model view ---------------#
-	inputView = F.ModelView(ioType = "input", superGroups = [inputValues], 
-		actionBar = inputActionBar, autoFetch = True)
+	inputView = F.ModelView(ioType = "input", superGroups = [inputValues], autoFetch = True)
 	
 	#================ Results ================#
 	meshImage = F.Image(default='')
