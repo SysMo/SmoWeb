@@ -205,7 +205,6 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 		
 	def compute(self):
 		# Initialize
-		# TODO Do we need that?
 		self.primaryChannelsGeom.channelGeom = self.channelGeom
 		self.secondaryChannelsGeom.channelGeom = self.channelGeom
 		

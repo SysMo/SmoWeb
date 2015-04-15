@@ -134,6 +134,9 @@ class Quantity(Field):
 		return fieldDict
 
 class Integer(Quantity):
+	"""
+	Integer field
+	"""
 	def __init__(self, default = None, minValue = None, maxValue = None, *args, **kwargs):
 		super(Integer, self).__init__(type = 'Dimensionless', default = default, minValue = minValue, maxValue = maxValue, *args, **kwargs)
 
@@ -656,7 +659,7 @@ class MPLPlot(Image):
 	"""
 	Field for displaying an image 
 	"""
-	def __init__(self, width = 800, height = 600, *args, **kwargs):
+	def __init__(self, width = None, height = None, *args, **kwargs):
 		Field.__init__(self, *args, **kwargs)
 		self.width = width
 		self.height = height
@@ -665,7 +668,7 @@ class MPLPlot(Image):
 	def default(self):
 		import pylab as plt
 		fig = plt.Figure(facecolor = 'white')
-		fig.set_size_inches(self.width / float(fig.dpi), self.height / float(fig.dpi))
+		#fig.set_size_inches(self.width / float(fig.dpi), self.height / float(fig.dpi))
 		ax = fig.add_subplot(111)
 		return ax
 
@@ -675,7 +678,7 @@ class MPLPlot(Image):
 		from SmoWeb.settings import MEDIA_ROOT		
 		# Create the tmp file
 		fileHandler, absFilePath = tempfile.mkstemp('.png', dir = os.path.join(MEDIA_ROOT, 'tmp'))
-		tmpFilePath = os.path.join('media', os.path.relpath(absFilePath, MEDIA_ROOT))
+		imagePath = os.path.join('media', os.path.relpath(absFilePath, MEDIA_ROOT))
 		
 		# Save the plot to the tmp file
 		canvas = FigureCanvas(value.figure)
@@ -684,7 +687,7 @@ class MPLPlot(Image):
 		# Close the tmp file
 		os.close(fileHandler)
 		
-		return tmpFilePath
+		return imagePath
 	
 
 class Port(Field):

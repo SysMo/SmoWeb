@@ -137,31 +137,7 @@ class HeatExchangerMesher():
         print gmshScript
         #===== Generate the mesh =====#
         self.mesh = FP.Gmsh2D(gmshScript)
-    
-    def plotToTmpFile(self):
-    	# TODO: REWRITE or remove
-        # Create a plot of the mesh 
-        vertexCoords = self.mesh.vertexCoords
-        vertexIDs = self.mesh._orderedCellVertexIDs
-    
-        fig = plt.Figure(figsize=(10, 10), facecolor='white')
-        ax = fig.add_subplot(1,1,1)
-        triPlotMesh = tri.Triangulation(vertexCoords[0], vertexCoords[1], np.transpose(vertexIDs))
-        ax.triplot(triPlotMesh)
         
-        # Create the tmp file
-        fileHandler, absFilePath = tempfile.mkstemp('.png', dir = os.path.join(MEDIA_ROOT, 'tmp'))
-        tmpFilePath = os.path.join('media', os.path.relpath(absFilePath, MEDIA_ROOT))
-        
-        # Save the plot to the tmp file
-        canvas = FigureCanvas(fig)
-        canvas.print_png(absFilePath)
-        
-        # Close the tmp file
-        os.close(fileHandler)
-        
-        return tmpFilePath
-    
     def addCircle2D_gmsh(self, radius, cellSize, radialPosition = 0, angularPosition = 0, name = None):
         #:WARRANTY: sometimes this method doesn't work
         sMesh = self.sMesh
