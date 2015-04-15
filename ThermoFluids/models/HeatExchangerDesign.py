@@ -220,7 +220,7 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 		solver = HeatExchangerSolver(mesher.mesh, 
 				self.primaryChannelsGeom.number, 
 				self.secondaryChannelsGeom.number)
-		solver.createChannelCalculators(self.channelGeom)
+		solver.createChannelCalculators(self)
 		
 		self.postProcess(mesher, solver)
 	
