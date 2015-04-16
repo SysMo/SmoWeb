@@ -6,13 +6,14 @@ Created on Apr 8, 2015
 '''
 
 from smo.model.model import NumericalModel
-from smo.media.MaterialData import Fluids, Solids
+from smo.media.MaterialData import Fluids, Solids, IncompressibleSolutions
 from heat_exchangers.HeatExchangerMesher import HeatExchangerMesher
 from heat_exchangers.HeatExchangerSolver import HeatExchangerSolver
 import smo.model.fields as F
 import matplotlib.tri as tri
 import numpy as np
 import smo.media.CoolProp as CP
+import smo.media.CoolProp5 as CP5
 
 class BlockProperties(NumericalModel):
 	material = F.ObjectReference(Solids, default = 'Aluminium6061', 
@@ -105,7 +106,10 @@ class MassFlow(NumericalModel):
 		self.fluid = CP.Fluid(self.fluidName)
 	
 class VolumeFlow(NumericalModel):
-	fluidName = F.Choices(Fluids, default = 'ParaHydrogen', label = 'fluid')
+	fluidName = F.Choices(IncompressibleSolutions, default = 'MEG', 
+		label = 'fluid (name)', description = 'fluid (incompressible solutions)')
+	fluidMassFraction = F.Quantity('Fraction', default = (0, '%'),
+		label = 'fluid (mass fraction)', description = 'mass fraction of the substance other than water')
 	vDot = F.Quantity('VolumetricFlowRate', default = (0., 'm**3/h'),
 		label = 'volume flow', description = 'volume flow rate of the channels')
 	TIn = F.Quantity('Temperature', default = (0., 'degC'), 
@@ -113,16 +117,16 @@ class VolumeFlow(NumericalModel):
 	pIn = F.Quantity('Pressure', default = (0., 'bar'), 
 		label = 'inlet pressure', description = 'inlet pressure of the channels')
 	
-	FG = F.FieldGroup([fluidName, vDot, TIn, pIn], label = 'Parameters')
+	FG = F.FieldGroup([fluidName, fluidMassFraction, vDot, TIn, pIn], label = 'Parameters')
 	
 	modelBlocks = []
 	
 	def init(self):
-		self.fluid = CP.Fluid(self.fluidName)
-		
-		self.fState = CP.FluidState(self.fluid)
-		self.fState.update_Tp(self.TIn, self.pIn)
-		self.mDot = self.vDot * self.fState.rho
+		#:TODO: (MILEN:TEST:DELME)
+		#self.fState = CP5.FluidStateFactory.createIncompressibleSolution(self.fluidName, self.fluidMassFraction)
+		#self.fState.update_Tp(self.TIn, self.pIn)
+		#print "rho = ", self.fState.rho
+		pass
 		
 class CylindricalBlockHeatExchanger(NumericalModel):
 	label = "Cylindrical heat exchanger"
@@ -211,7 +215,8 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 		self.secondaryFlow.TIn = (100, 'K')
 		self.secondaryFlow.pIn = (1, 'bar') 
 		
-		self.externalFlow.fluidName = 'Water'
+		self.externalFlow.fluidName = 'MEG'
+		self.externalFlow.fluidMassFraction = (50, '%')
 		self.externalFlow.vDot = (3, 'm**3/h')
 		self.externalFlow.TIn = (80, 'degC')
 		self.externalFlow.pIn = (1, 'bar') 
