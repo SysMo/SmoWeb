@@ -636,17 +636,17 @@ class Image(Field):
 	"""
 	Field for displaying an image 
 	"""
-	def __init__(self, default = None, width = None, height = None, *args, **kwargs):
+	def __init__(self, default = "", width = None, height = None, *args, **kwargs):
 		"""
 		:param str src: path to image source
 		:param int width: image width in pixels
 		:param int height: image height in pixels
 		"""
 		super(Image, self).__init__(*args, **kwargs)
-		if default is None:
-			raise ArgumentError("Image field constructor must be passed string argument 'default' specifying image source path.")
-		else:
-			self.default = default
+		#if default is None:
+		#	raise ArgumentError("Image field constructor must be passed string argument 'default' specifying image source path.")
+		#else:
+		self.default = default
 		
 		self.width = width
 		self.height = height

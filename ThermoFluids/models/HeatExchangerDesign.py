@@ -11,8 +11,11 @@ from heat_exchangers.HeatExchangerMesher import HeatExchangerMesher
 from heat_exchangers.HeatExchangerSolver import HeatExchangerSolver
 import smo.model.fields as F
 import matplotlib.tri as tri
+import matplotlib.ticker as ticker
 import numpy as np
+from collections import OrderedDict
 import smo.media.CoolProp as CP
+import smo.media.CoolProp5 as CP5
 
 class BlockProperties(NumericalModel):
 	material = F.ObjectReference(Solids, default = 'Aluminium6061', 
@@ -27,7 +30,6 @@ class BlockProperties(NumericalModel):
 class BlockGeometry(NumericalModel):
 	diameter = F.Quantity('Length', default = (0., 'mm'),
 		label = 'diameter', description = 'block diameter')
-	
 	length = F.Quantity('Length', default = (0., 'm'), #:TODO: (MILEN:WORK) Add Validation
 		label = 'length', description = 'block length')
 	
@@ -55,7 +57,7 @@ class ExternalChannelGeometry(NumericalModel):
 		
 	modelBlocks = []
 	
-	def init(self):
+	def compute(self):
 		self.cellSize = self.averageCoilDiameter / (self.meshFineness * 10.)
 	
 class ChannelGroupGeometry(NumericalModel):
@@ -86,47 +88,60 @@ class ChannelGroupGeometry(NumericalModel):
 	
 	modelBlocks = []
 	
-	def init(self):
+	def compute(self):
 		self.cellSize = self.externalDiameter / (self.meshFineness * 2.5)
 	
-class MassFlow(NumericalModel):
+class FluidFlowInput(NumericalModel):
 	fluidName = F.Choices(Fluids, default = 'ParaHydrogen', label = 'fluid')
-	mDot = F.Quantity('MassFlowRate', default = (0., 'kg/h'), 
-		label = 'mass flow', description = 'mass flow rate of the channels')
-	TIn = F.Quantity('Temperature', default = (0., 'K'), 
-		label = 'inlet temperature', description = 'inlet temperature of the channels')
-	pIn = F.Quantity('Pressure', default = (0., 'bar'), 
-		label = 'inlet pressure', description = 'inlet pressure of the channels')
-	FG = F.FieldGroup([fluidName, mDot, TIn, pIn], label = 'Parameters')
+	flowRateChoice = F.Choices(OrderedDict((
+		('V', 'volume'),
+		('m', 'mass'),
+	)), label = 'flow rate based on')
+	mDot = F.Quantity('MassFlowRate', minValue = (0, 'kg/h'), default = (1., 'kg/h'), 
+		label = 'mass flow', description = 'mass flow rate', show = 'self.flowRateChoice == "m"')
+	VDot = F.Quantity('VolumetricFlowRate', minValue = (0., 'm**3/h'), default = (1., 'm**3/h'),
+		label = 'volume flow', description = 'volume flow rate', show = 'self.flowRateChoice == "V"')
+	T = F.Quantity('Temperature', default = (300., 'K'), label = 'temperature')
+	p = F.Quantity('Pressure', default = (1., 'bar'), label = 'pressure')
+	FG = F.FieldGroup([fluidName, flowRateChoice, mDot, VDot, T, p], label = 'Parameters')
 		
 	modelBlocks = []
 	
-	def init(self):
-		self.fluid = CP.Fluid(self.fluidName)
-	
-class VolumeFlow(NumericalModel):
-	fluidName = F.Choices(IncompressibleSolutions, default = 'MEG', 
-		label = 'fluid (name)', description = 'fluid (incompressible solutions)')
-	fluidMassFraction = F.Quantity('Fraction', default = (0, '%'),
-		label = 'fluid (mass fraction)', description = 'mass fraction of the substance other than water')
-	vDot = F.Quantity('VolumetricFlowRate', default = (0., 'm**3/h'),
-		label = 'volume flow', description = 'volume flow rate of the channels')
-	TIn = F.Quantity('Temperature', default = (0., 'degC'), 
-		label = 'inlet temperature', description = 'inlet temperature of the channels')
-	pIn = F.Quantity('Pressure', default = (0., 'bar'), 
-		label = 'inlet pressure', description = 'inlet pressure of the channels')
-	
-	FG = F.FieldGroup([fluidName, fluidMassFraction, vDot, TIn, pIn], label = 'Parameters')
-	
+	def compute(self):
+		fState = CP.FluidState(self.fluidName)
+		fState.update_Tp(self.T, self.p)
+		if (self.flowRateChoice == 'm'):
+			self.VDot = self.mDot / fState.rho
+		else:
+			self.mDot = self.VDot * fState.rho
+		
+class FluidFlowOutput(NumericalModel):
+	VDot = F.Quantity('VolumetricFlowRate', minValue = (0., 'm**3/h'), default = (1., 'm**3/h'),
+		label = 'volume flow', description = 'volume flow rate')
+	mDot = F.Quantity('MassFlowRate', minValue = (0, 'kg/h'), default = (1., 'kg/h'), 
+		label = 'mass flow', description = 'mass flow rate')
+	T = F.Quantity('Temperature', default = (300., 'K'), label = 'temperature')
+	p = F.Quantity('Pressure', default = (1., 'bar'),  label = 'pressure')
+	FG = F.FieldGroup([mDot, VDot, T, p], label = 'Parameters')
+		
 	modelBlocks = []
 	
-	def init(self):
-		#:TODO: (MILEN:TEST:DELME)
-		#self.fState = CP5.FluidStateFactory.createIncompressibleSolution(self.fluidName, self.fluidMassFraction)
-		#self.fState.update_Tp(self.TIn, self.pIn)
-		#print "rho = ", self.fState.rho
-		pass
-		
+	def compute(self, fState, mDot):
+		self.T = fState.T
+		self.p = fState.p
+		self.mDot = mDot
+		self.VDot = mDot / fState.rho
+
+
+class FiniteVolumeSolverSettings(NumericalModel):
+	tolerance = F.Quantity(default = 1e-6, label = 'tolerance')
+	maxNumIterations = F.Integer(default = 100, label = 'max number iterations')
+	relaxationFactor = F.Quantity(default = 1.0, label = 'relaxation factor')
+	
+	FG = F.FieldGroup([tolerance, maxNumIterations, relaxationFactor], label = 'Settings')
+
+	modelBlocks = []
+	
 class CylindricalBlockHeatExchanger(NumericalModel):
 	label = "Cylindrical heat exchanger"
 	#figure = F.ModelFigure()
@@ -143,28 +158,71 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 	blockProps = F.SubModelGroup(BlockProperties, 'FG', 'Properties')
 	blockSG = F.SuperGroup([blockGeom, blockProps], label = 'Block')
 	
+	# Fields: internal channels
 	primaryChannelsGeom = F.SubModelGroup(ChannelGroupGeometry, 'FG', label  = 'Primary channels')
 	secondaryChannelsGeom = F.SubModelGroup(ChannelGroupGeometry, 'FG', label  = 'Secondary channels')
-	primaryFlow = F.SubModelGroup(MassFlow, 'FG', label = 'Primary flow')
-	secondaryFlow = F.SubModelGroup(MassFlow, 'FG', label = 'Secondary flow')
-	internalChannelSG = F.SuperGroup([primaryChannelsGeom, secondaryChannelsGeom, primaryFlow, secondaryFlow], label = 'Channels')
+	primaryFlowIn = F.SubModelGroup(FluidFlowInput, 'FG', label = 'Primary flow inlet')
+	secondaryFlowIn = F.SubModelGroup(FluidFlowInput, 'FG', label = 'Secondary flow inlet')
+	internalChannelSG = F.SuperGroup([primaryChannelsGeom, secondaryChannelsGeom, primaryFlowIn, secondaryFlowIn], label = 'Channels')
 	
 	# Fields: external channel
 	externalChannelGeom = F.SubModelGroup(ExternalChannelGeometry, 'FG', label = 'Geometry')
-	externalFlow = F.SubModelGroup(VolumeFlow, 'FG', label = 'Flow')
-	externalChannelSG = F.SuperGroup([externalChannelGeom, externalFlow], label = 'External channel')
+	externalFlowIn = F.SubModelGroup(FluidFlowInput, 'FG', label = 'Inlet flow')
+	externalChannelSG = F.SuperGroup([externalChannelGeom, externalFlowIn], label = 'External channel')
+	
+	# Fields: thermal solver settings
+	fvSolverSettings = F.SubModelGroup(FiniteVolumeSolverSettings, 'FG', label = 'Finite volume solver') 
+	solverSettingsSG = F.SuperGroup([fvSolverSettings], label = 'Solver settings')
 	
 	#--------------- Model view ---------------#
-	inputView = F.ModelView(ioType = "input", superGroups = [blockSG, internalChannelSG, externalChannelSG], 
+	inputView = F.ModelView(ioType = "input", superGroups = [blockSG, internalChannelSG, externalChannelSG, solverSettingsSG], 
 						autoFetch = True)
 	
 	#================ Results ================#
 	meshView = F.MPLPlot(label = 'Cross-section mesh')
-	channelProfileView = F.MPLPlot(label = 'Channel profile')
-	geometryVG = F.ViewGroup([meshView, channelProfileView], label = 'Geometry')
-	resultsSG = F.SuperGroup([geometryVG], label = 'Geometry')
+	primaryChannelProfileView = F.MPLPlot(label = 'Primary channel profile')
+	secondaryChannelProfileView = F.MPLPlot(label = 'Secondary channel profile')
+	geometryVG = F.ViewGroup([meshView, primaryChannelProfileView, secondaryChannelProfileView], label = 'Geometry/Mesh')
+	geometrySG = F.SuperGroup([geometryVG], label = 'Geometry/mesh')
 	
-	resultView = F.ModelView(ioType = "output", superGroups = [resultsSG])
+	primaryFlowOut = F.SubModelGroup(FluidFlowOutput, 'FG', label = 'Primary flow outlet')
+	secondaryFlowOut = F.SubModelGroup(FluidFlowOutput, 'FG', label = 'Secondary flow outlet')
+	externalFlowOut = F.SubModelGroup(FluidFlowOutput, 'FG', label = 'External flow outlet')
+	resultSG = F.SuperGroup([primaryFlowOut, secondaryFlowOut, externalFlowOut], label = 'Results')
+	
+	resultTable = F.TableView((
+		('xStart', F.Quantity('Length', default = (1, 'm'))),
+		('xEnd', F.Quantity('Length', default = (1, 'm'))),		
+		('TPrimFluid', F.Quantity('Temperature', default = (1, 'degC'))),
+		('TPrimWall', F.Quantity('Temperature', default = (1, 'degC'))),
+		('RePrim', F.Quantity()),
+		('hConvPrim', F.Quantity('HeatTransferCoefficient', default = (1, 'W/m**2-K'))),
+		('TSecFluid', F.Quantity('Temperature', default = (1, 'degC'))),
+		('TSecWall', F.Quantity('Temperature', default = (1, 'degC'))),
+		('hConvSec', F.Quantity('HeatTransferCoefficient', default = (1, 'W/m**2-K'))),
+		('ReSec', F.Quantity()),
+	), label = 'Detailed results')
+	resultTPlot = F.PlotView((
+		('x', F.Quantity('Length', default = (1, 'm'))),
+		('TPrimFluid', F.Quantity('Temperature', default = (1, 'degC'))),
+		('TPrimWall', F.Quantity('Temperature', default = (1, 'degC'))),
+		('TSecFluid', F.Quantity('Temperature', default = (1, 'degC'))),
+		('TSecWall', F.Quantity('Temperature', default = (1, 'degC'))),
+	), label = 'Temperature plots')
+	
+	detailedResultVG = F.ViewGroup([resultTable, resultTPlot], label = 'Detailed results')
+	detailedResultSG = F.SuperGroup([detailedResultVG], label = 'Detailed results')
+	
+	sectionPlot1 = F.MPLPlot(label = 'Section 1')
+	sectionPlot2 = F.MPLPlot(label = 'Section 2')
+	sectionPlot3 = F.MPLPlot(label = 'Section 3')
+	sectionPlot4 = F.MPLPlot(label = 'Section 4')
+	sectionPlot5 = F.MPLPlot(label = 'Section 5')
+	sectionResultsVG = F.ViewGroup([sectionPlot1, sectionPlot2, sectionPlot3, sectionPlot4, sectionPlot5],
+		label = 'Section temperatures')
+	sectionResultsSG = F.SuperGroup([sectionResultsVG], label = 'Section results')
+	
+	resultView = F.ModelView(ioType = "output", superGroups = [geometrySG, resultSG, detailedResultSG, sectionResultsSG])
 
 	############# Page structure ########
 	modelBlocks = [inputView, resultView]
@@ -174,9 +232,8 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 	def __init__(self):
 		self.blockGeom.diameter = (58.0, 'mm')
 		self.blockGeom.length = (0.8, 'm')
-		
+		self.blockProps.divisionStep = (0.1, 'm')
 		self.blockProps.material = 'Aluminium6061'
-		self.blockProps.divisionStep = (0.02, 'm')
 		
 		self.primaryChannelsGeom.number = 3
 		self.primaryChannelsGeom.radialPosition = (7, 'mm')
@@ -204,40 +261,59 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 		self.secondaryChannelsGeom.sections[3] = (0.0065, 0.1)
 		self.secondaryChannelsGeom.sections[4] = (0.007, 0.3)
 		
-		self.primaryFlow.fluidName = 'ParaHydrogen'
-		self.primaryFlow.mDot = (1, 'kg/h')
-		self.primaryFlow.TIn = (100, 'K')
-		self.primaryFlow.pIn = (1, 'bar') 
+		self.primaryFlowIn.fluidName = 'ParaHydrogen'
+		self.primaryFlowIn.flowRateChoice = 'm'
+		self.primaryFlowIn.mDot = (1, 'kg/h')
+		self.primaryFlowIn.T = (100, 'K')
+		self.primaryFlowIn.p = (1, 'bar') 
 		
-		self.secondaryFlow.fluidName = 'ParaHydrogen'
-		self.secondaryFlow.mDot = (1, 'kg/h')
-		self.secondaryFlow.TIn = (100, 'K')
-		self.secondaryFlow.pIn = (1, 'bar') 
+		self.secondaryFlowIn.fluidName = 'ParaHydrogen'
+		self.secondaryFlowIn.flowRateChoice = 'm'
+		self.secondaryFlowIn.mDot = (1, 'kg/h')
+		self.secondaryFlowIn.T = (100, 'K')
+		self.secondaryFlowIn.p = (1, 'bar') 
 		
-		self.externalFlow.fluidName = 'MEG'
-		self.externalFlow.fluidMassFraction = (50, '%')
-		self.externalFlow.vDot = (3, 'm**3/h')
-		self.externalFlow.TIn = (80, 'degC')
-		self.externalFlow.pIn = (1, 'bar') 
+		self.externalFlowIn.fluidName = 'Water'
+		self.externalFlowIn.flowRateChoice = 'V'
+		self.externalFlowIn.vDot = (3, 'm**3/h')
+		self.externalFlowIn.T = (80, 'degC')
+		self.externalFlowIn.p = (1, 'bar') 
 		
 		self.externalChannelGeom.widthAxial = (30, 'mm')
 		self.externalChannelGeom.heightRadial = (12, 'mm')
 		self.externalChannelGeom.coilPitch = (32, 'mm')
 		self.externalChannelGeom.averageCoilDiameter = (70, 'mm')
-		self.externalChannelGeom.meshFineness = 4
-	
-	def preProcess(self):	
-		# Initialize flows	
-		self.primaryFlow.init()
-		self.secondaryFlow.init()
-		self.externalFlow.init()
+		self.externalChannelGeom.meshFineness = 4		
 		
-		# Initialize geometries
-		self.primaryChannelsGeom.init()
-		self.secondaryChannelsGeom.init()
-		self.externalChannelGeom.init()
+	def compute(self):
+		# Validation
+		self.validateInputs()
 		
-	def preValidation(self):
+		# PreComputation
+		self.externalChannelGeom.compute()
+		self.primaryChannelsGeom.compute()
+		self.secondaryChannelsGeom.compute()
+		
+		self.primaryFlowIn.compute()
+		self.secondaryFlowIn.compute()
+		self.externalFlowIn.compute()
+		
+		# Create the mesh
+		mesher = HeatExchangerMesher()
+		mesher.create(self)
+		
+		# Create channel calculator objects
+		solver = HeatExchangerSolver(self, mesher)
+		solver.createChannelCalculators(self)
+		solver.solve(self)
+		
+		# Produce geometry/mesh drawings
+		self.drawGeometry(mesher, solver)
+		
+		# Produce results		
+		self.postProcess(mesher, solver)
+		
+	def validateInputs(self):
 		if self.blockGeom.diameter <= self.primaryChannelsGeom.externalDiameter:
 			raise ValueError('The block diameter is less than the external diameter of the primary channels.')
 		
@@ -250,25 +326,8 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 		if self.blockGeom.diameter/2. <= (self.secondaryChannelsGeom.radialPosition + self.secondaryChannelsGeom.externalDiameter/2.):
 			raise ValueError('The radial position of the secondary channels is too big (the channels are outside of the block).')
 		
-		
-		
-	def compute(self):
-		self.preProcess()
-		self.preValidation()
-		
-		# Create the mesh
-		mesher = HeatExchangerMesher()
-		mesher.create(self)
-		
-		# Create channel calculator objects
-		solver = HeatExchangerSolver(mesher.mesh, 
-				self.primaryChannelsGeom.number, 
-				self.secondaryChannelsGeom.number)
-		#solver.createChannelCalculators(self)
-		
-		self.postProcess(mesher, solver)
 	
-	def postProcess(self, mesher, solver):
+	def drawGeometry(self, mesher, solver):
 		# Draw the mesh
 		vertexCoords = mesher.mesh.vertexCoords
 		vertexIDs = mesher.mesh._orderedCellVertexIDs
@@ -276,12 +335,45 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 		self.meshView.triplot(triPlotMesh)
 		self.meshView.set_aspect('equal')
 
-		# Draw the channel Profile
-# 		solver.primChannelCalc.plotGeometry(self.channelProfileView)
-# 		self.channelProfileView.set_xlabel('[m]')
-# 		self.channelProfileView.set_ylabel('[mm]')
-# 		ticks = ticker.FuncFormatter(lambda x, pos: '{0:g}'.format(x*1e3))                                                                                                                                                                                                           
-# 		self.channelProfileView.yaxis.set_major_formatter(ticks)  
+		# Draw the channels profiles
+		ticks = ticker.FuncFormatter(lambda x, pos: '{0:g}'.format(x*1e3))                                                                                                                                                                                                           
 
+		solver.primChannelCalc.plotGeometry(self.primaryChannelProfileView)
+		self.primaryChannelProfileView.set_xlabel('[m]')
+		self.primaryChannelProfileView.set_ylabel('[mm]')
+		self.primaryChannelProfileView.yaxis.set_major_formatter(ticks)  
+
+		solver.secChannelCalc.plotGeometry(self.secondaryChannelProfileView)
+		self.secondaryChannelProfileView.set_xlabel('[m]')
+		self.secondaryChannelProfileView.set_ylabel('[mm]')
+		self.secondaryChannelProfileView.yaxis.set_major_formatter(ticks)  
 		
-
+	def postProcess(self, mesher, solver):
+		# Get the value for the outlet conditions
+		self.primaryFlowOut.compute(fState = solver.primChannelStateOut, mDot = self.primaryFlowIn.mDot) 
+		self.secondaryFlowOut.compute(fState = solver.secChannelStateOut, mDot = self.secondaryFlowIn.mDot)
+		#self.externalFlowOut.compute(fState = ..., mDot = self.externalFlowIn.mDot)
+		# Fill the table with values
+		self.resultTable.resize(solver.numSectionSteps)
+		self.resultTPlot.resize(solver.numSectionSteps)
+		for i in range(solver.numSectionSteps):
+			self.resultTable[i] = (
+				solver.primChannelCalc.sections[i].xStart,
+				solver.primChannelCalc.sections[i].xEnd,
+				solver.primChannelCalc.sections[i].fState.T,
+				solver.primChannelCalc.sections[i].TWall,
+				solver.primChannelCalc.sections[i].Re,
+				solver.primChannelCalc.sections[i].hConv,
+				solver.secChannelCalc.sections[i].fState.T,
+				solver.secChannelCalc.sections[i].TWall,
+				solver.secChannelCalc.sections[i].hConv,
+				solver.secChannelCalc.sections[i].Re,
+			)
+			self.resultTPlot[i] = (
+				(solver.primChannelCalc.sections[i].xStart + 
+				solver.primChannelCalc.sections[i].xEnd) / 2,
+				solver.primChannelCalc.sections[i].fState.T,
+				solver.primChannelCalc.sections[i].TWall,
+				solver.secChannelCalc.sections[i].fState.T,
+				solver.secChannelCalc.sections[i].TWall,
+			)
