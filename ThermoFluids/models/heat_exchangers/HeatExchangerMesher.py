@@ -134,7 +134,6 @@ class HeatExchangerMesher():
         # Get the gmsh script
         gmshScript = self.sMesh.getvalue()
         self.sMesh.close()
-        print gmshScript
         #===== Generate the mesh =====#
         self.mesh = FP.Gmsh2D(gmshScript)
         

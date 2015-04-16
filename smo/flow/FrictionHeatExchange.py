@@ -41,11 +41,28 @@ class FluidChannelSection(object):
 		self.plotTemperature = plotTemperature
 		
 	def computeConvectionCoefficient(self):
-		self.vFlow = self.mDot / self.fState.rho / self.flowArea
-		self.Re = self.fState.rho * self.vFlow * self.charLength
-		self.Pr = self.fState.Pr
-		self.Nu = self.NusseltCorrelation(self.Re, self.Pr)
-		self.hConv = self.Nu * self.fState.cond / self.charLength
+		if (self.mDot > 1e-12):
+			self.vFlow = self.mDot / self.fState.rho / self.flowArea
+			self.Re = self.fState.rho * self.vFlow * self.charLength / self.fState.mu
+			self.Pr = self.fState.Pr
+			self.Nu = self.NusseltCorrelation(self.Re, self.Pr)
+			self.hConv = self.Nu * self.fState.cond / self.charLength
+		else:
+			self.vFlow = 0
+			self.Re = 0
+			self.Pr = 0
+			self.Nu = 0
+			self.hConv = 0			
+
+	def computeExitState(self, fStateOut):
+		fStateOut.update_Tp(self.TWall, self.fState.p)
+		dhMax = fStateOut.h - self.fState.h
+		self.QDotWall = self.mDot * dhMax
+		QDot = self.extWallArea * self.hConv * (self.TWall - self.fState.T)
+		if (self.mDot > 1e-12):
+			if (abs(QDot / self.mDot) < dhMax):				
+				fStateOut.update_ph(self.fState.p, self.fState.h + QDot / self.mDot)
+				self.QDotWall = QDot				 
 
 class FluidChannel(object):
 	def __init__(self, fluid):
@@ -56,8 +73,10 @@ class FluidChannel(object):
 		section.setFluid(self.fluid)
 		self.sections.append(section)
 	
-	def computeNextSection(self, i, qDotIn):
-		pass
+	def setMDot(self, mDot):
+		for section in self.sections:
+			section.mDot = mDot
+	
 		
 	def plotGeometry(self, ax = None, dy = 0):
 		from matplotlib.collections import PatchCollection
