@@ -21,7 +21,7 @@ import smo.media.CoolProp5 as CP5
 class BlockProperties(NumericalModel):
 	material = F.ObjectReference(Solids, default = 'Aluminium6061', 
 		label = 'material', description = 'block material')
-	divisionStep = F.Quantity('Length', default = (0., 'm'), #:TODO: (MILEN:WORK) Add Validation
+	divisionStep = F.Quantity('Length', default = (0., 'm'), minValue = (1, 'mm'),
 		label = 'division step (axial)', description = 'axial division step')
 	
 	FG = F.FieldGroup([material, divisionStep], label = 'Block properties')
@@ -31,7 +31,7 @@ class BlockProperties(NumericalModel):
 class BlockGeometry(NumericalModel):
 	diameter = F.Quantity('Length', default = (0., 'mm'),
 		label = 'diameter', description = 'block diameter')
-	length = F.Quantity('Length', default = (0., 'm'), #:TODO: (MILEN:WORK) Add Validation
+	length = F.Quantity('Length', default = (0., 'm'), 
 		label = 'length', description = 'block length')
 	
 	FG = F.FieldGroup([diameter, length], label = 'Block geometry')
@@ -90,6 +90,8 @@ class ChannelGroupGeometry(NumericalModel):
 	
 	def compute(self):
 		self.cellSize = self.externalDiameter / (self.meshFineness * 2.5)
+		self.length = np.sum(self.sections['length'])
+		print self.length
 	
 class FluidFlowInput(NumericalModel):
 	fluidName = F.Choices(Fluids, default = 'ParaHydrogen', label = 'fluid')
@@ -331,9 +333,6 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 		self.sectionResultsSettings.Tmax = (380, 'K')
 		
 	def compute(self):
-		# Validation
-		self.validateInputs()
-		
 		# PreComputation
 		self.externalChannelGeom.compute(self.blockGeom.diameter)
 		self.primaryChannelsGeom.compute()
@@ -342,6 +341,9 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 		self.primaryFlowIn.compute()
 		self.secondaryFlowIn.compute()
 		self.externalFlowIn.compute()
+		
+		# Validation
+		self.validateInputs()
 		
 		# Create the mesh
 		mesher = HeatExchangerMesher()
@@ -358,20 +360,6 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 		# Produce results		
 		self.postProcess(mesher, solver)
 		
-	def validateInputs(self):
-		if self.blockGeom.diameter <= self.primaryChannelsGeom.externalDiameter:
-			raise ValueError('The block diameter is less than the external diameter of the primary channels.')
-		
-		if self.blockGeom.diameter <= self.secondaryChannelsGeom.externalDiameter:
-			raise ValueError('The block diameter is less than the external diameter of the secondary channels.')
-		
-		if self.blockGeom.diameter/2. <= (self.primaryChannelsGeom.radialPosition + self.primaryChannelsGeom.externalDiameter/2.):
-			raise ValueError('The radial position of the primary channels is too big (the channels are outside of the block).')
-		
-		if self.blockGeom.diameter/2. <= (self.secondaryChannelsGeom.radialPosition + self.secondaryChannelsGeom.externalDiameter/2.):
-			raise ValueError('The radial position of the secondary channels is too big (the channels are outside of the block).')
-		
-	
 	def drawGeometry(self, mesher, solver):
 		# Draw the mesh
 		vertexCoords = mesher.mesh.vertexCoords
@@ -429,3 +417,34 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 				solver.secChannelCalc.sections[i].fState.T,
 				solver.secChannelCalc.sections[i].TWall,
 			)
+	
+	def validateInputs(self):
+		self.validateChannels(self.primaryChannelsGeom, "primary")
+		self.validateChannels(self.secondaryChannelsGeom, "secondary")
+		
+		if self.externalChannelGeom.widthAxial > self.externalChannelGeom.coilPitch:
+			raise ValueError('The coil pitch of the external channel is less than the axial width.')
+			
+	def validateChannels(self, channelsGeom, channelsName):
+		if self.blockGeom.diameter <= channelsGeom.externalDiameter:
+			raise ValueError('The block diameter is less than the external diameter of the {0} channels.'.format(channelsName))
+		
+		if self.blockGeom.diameter/2. <= (channelsGeom.radialPosition + channelsGeom.externalDiameter/2.):
+			raise ValueError('The radial position of the {0} channels is too big (the channels are outside of the block).'.format(channelsName))
+			
+		if self.blockGeom.length != channelsGeom.length:
+			raise ValueError('The length of the block is different from the length of the {0} channels.'.format(channelsName))
+	
+		i = 0
+		for section in channelsGeom.sections:
+			if (section['length'] < self.blockProps.divisionStep):
+				raise ValueError('The axial division step of the block is greater than the {0}-th section of the {1} channels'.format(i, channelsName))
+			
+			if self.isDividedExactly(section['length'], self.blockProps.divisionStep) == False:
+				print  self.blockProps.divisionStep, section['length']
+				raise ValueError('The axial division step of the block does not divide the {0}-th section of the {1} channels on the equal parts.'.format(i, channelsName))
+			i += 1
+		
+	def isDividedExactly(self, a, b):
+		bigE = 1e12
+		return int(a*bigE) % int(b*bigE) == 0
