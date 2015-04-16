@@ -159,7 +159,7 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 	#================ Results ================#
 	meshView = F.MPLPlot(label = 'Cross-section mesh')
 	channelProfileView = F.MPLPlot(label = 'Channel profile')
-	crossSectionProfileView = F.MPLPlot(label = 'Cross section profile')
+	crossSectionProfileView = F.MPLPlot(label = 'Cross-section profile')
 	geometryVG = F.ViewGroup([meshView, channelProfileView, crossSectionProfileView], label = 'Geometry')
 	resultsSG = F.SuperGroup([geometryVG], label = 'Geometry')
 	
@@ -177,10 +177,10 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 		self.blockProps.material = 'Aluminium6061'
 		self.blockProps.divisionStep = (0.02, 'm')
 		
-		self.primaryChannelsGeom.number = 3
+		self.primaryChannelsGeom.number = 4
 		self.primaryChannelsGeom.radialPosition = (7, 'mm')
 		self.primaryChannelsGeom.startingAngle = (0, 'deg')
-		self.primaryChannelsGeom.meshFineness = 4
+		self.primaryChannelsGeom.meshFineness = 3
 		self.primaryChannelsGeom.channelName = "PrimaryChannel"
 		
 		self.primaryChannelsGeom.externalDiameter = (7.5, 'mm')
@@ -265,13 +265,12 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 # 		ticks = ticker.FuncFormatter(lambda x, pos: '{0:g}'.format(x*1e3))                                                                                                                                                                                                           
 # 		self.channelProfileView.yaxis.set_major_formatter(ticks) 
 
-		#Draw heat exchanger scheme
-# 		crossSectionProfile = HeatExchangerCrossSectionProfile()
-# 		crossSectionProfile.addBlock(self.blockGeom)
-# 		crossSectionProfile.addChannels(self.primaryChannelsGeomGeom)
-# 		crossSectionProfile.addChannels(self.secondaryChannelsGeom)
-# 		
-# 		crossSectionProfile.plotGeometry(self.crossSectionProfileView)
+		#Draw heat exchanger cross-section profile
+		crossSectionProfile = HeatExchangerCrossSectionProfile()
+		crossSectionProfile.addBlock(self.blockGeom)
+		crossSectionProfile.addChannels(self.primaryChannelsGeom)
+		crossSectionProfile.addChannels(self.secondaryChannelsGeom)
+		crossSectionProfile.plotGeometry(self.crossSectionProfileView)
 		
 
 		
