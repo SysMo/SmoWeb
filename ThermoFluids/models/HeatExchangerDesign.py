@@ -13,7 +13,6 @@ import smo.model.fields as F
 import matplotlib.tri as tri
 import numpy as np
 import smo.media.CoolProp as CP
-import smo.media.CoolProp5 as CP5
 
 class BlockProperties(NumericalModel):
 	material = F.ObjectReference(Solids, default = 'Aluminium6061', 
@@ -238,8 +237,24 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 		self.secondaryChannelsGeom.init()
 		self.externalChannelGeom.init()
 		
+	def preValidation(self):
+		if self.blockGeom.diameter <= self.primaryChannelsGeom.externalDiameter:
+			raise ValueError('The block diameter is less than the external diameter of the primary channels.')
+		
+		if self.blockGeom.diameter <= self.secondaryChannelsGeom.externalDiameter:
+			raise ValueError('The block diameter is less than the external diameter of the secondary channels.')
+		
+		if self.blockGeom.diameter/2. <= (self.primaryChannelsGeom.radialPosition + self.primaryChannelsGeom.externalDiameter/2.):
+			raise ValueError('The radial position of the primary channels is too big (the channels are outside of the block).')
+		
+		if self.blockGeom.diameter/2. <= (self.secondaryChannelsGeom.radialPosition + self.secondaryChannelsGeom.externalDiameter/2.):
+			raise ValueError('The radial position of the secondary channels is too big (the channels are outside of the block).')
+		
+		
+		
 	def compute(self):
 		self.preProcess()
+		self.preValidation()
 		
 		# Create the mesh
 		mesher = HeatExchangerMesher()
