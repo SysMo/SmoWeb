@@ -165,6 +165,32 @@ class Integer(Field):
 		fieldDict['minValue'] = self.minValue
 		fieldDict['maxValue'] = self.maxValue
 		return fieldDict
+
+class Complex(Field):
+	"""
+	Complex number field
+	"""
+	def __init__(self, default = None, *args, **kwargs):
+		super(Complex, self).__init__(*args, **kwargs)		
+		if (default is None):
+			default = (0+1j)
+		self.default = self.parseValue(default)
+
+	def parseValue(self, value):
+		if type(value) == list:
+			sign = ''
+			if float(value[1]) >= 0:
+				sign = '+'
+			value = '(' + str(value[0]) + sign + str(value[1]) + 'j)'
+		return complex(value)
+	
+	def getValueRepr(self, value):
+		return [value.real, value.imag]
+	
+	def toFormDict(self):
+		fieldDict = super(Complex, self).toFormDict()			
+		fieldDict['type'] = 'Complex'
+		return fieldDict
 		
 class String(Field):
 	"""

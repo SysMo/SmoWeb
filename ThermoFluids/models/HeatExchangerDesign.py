@@ -9,6 +9,7 @@ from smo.model.model import NumericalModel
 from smo.media.MaterialData import Fluids, Solids
 from heat_exchangers.HeatExchangerMesher import HeatExchangerMesher
 from heat_exchangers.HeatExchangerSolver import HeatExchangerSolver
+from heat_exchangers.HeatExchangerCrossSectionProfile import HeatExchangerCrossSectionProfile
 import smo.model.fields as F
 import matplotlib.tri as tri
 import numpy as np
@@ -158,7 +159,8 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 	#================ Results ================#
 	meshView = F.MPLPlot(label = 'Cross-section mesh')
 	channelProfileView = F.MPLPlot(label = 'Channel profile')
-	geometryVG = F.ViewGroup([meshView, channelProfileView], label = 'Geometry')
+	crossSectionProfileView = F.MPLPlot(label = 'Cross section profile')
+	geometryVG = F.ViewGroup([meshView, channelProfileView, crossSectionProfileView], label = 'Geometry')
 	resultsSG = F.SuperGroup([geometryVG], label = 'Geometry')
 	
 	resultView = F.ModelView(ioType = "output", superGroups = [resultsSG])
@@ -261,7 +263,16 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 # 		self.channelProfileView.set_xlabel('[m]')
 # 		self.channelProfileView.set_ylabel('[mm]')
 # 		ticks = ticker.FuncFormatter(lambda x, pos: '{0:g}'.format(x*1e3))                                                                                                                                                                                                           
-# 		self.channelProfileView.yaxis.set_major_formatter(ticks)  
+# 		self.channelProfileView.yaxis.set_major_formatter(ticks) 
+
+		#Draw heat exchanger scheme
+# 		crossSectionProfile = HeatExchangerCrossSectionProfile()
+# 		crossSectionProfile.addBlock(self.blockGeom)
+# 		crossSectionProfile.addChannels(self.primaryChannelsGeomGeom)
+# 		crossSectionProfile.addChannels(self.secondaryChannelsGeom)
+# 		
+# 		crossSectionProfile.plotGeometry(self.crossSectionProfileView)
+		
 
 		
 
