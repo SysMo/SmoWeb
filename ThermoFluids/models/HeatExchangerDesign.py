@@ -45,7 +45,7 @@ class ExternalChannelGeometry(NumericalModel):
 		label = 'radial height', description = 'radial height of the spiral rectangular channel')
 	coilPitch = F.Quantity('Length', default = (0., 'mm'),
 		label = 'coil pitch', description = 'coil pitch of the spiral rectangular channel')
-	averageCoilDiameter = F.Quantity('Length', default = (0., 'mm'),
+	averageCoilDiameter = F.Quantity('Length', default = (0., 'mm'), #:TODO: (MILEN:WORK) hide from WebUI
 		label = 'average coil diameter', description = 'average coil diameter of the spiral rectangular channel')
 	
 	cellSize = F.Quantity('Length', default = (0., 'mm'), 
@@ -137,6 +137,7 @@ class FluidFlowOutput(NumericalModel):
 		label = 'mass flow', description = 'mass flow rate')
 	T = F.Quantity('Temperature', default = (300., 'K'), label = 'temperature')
 	p = F.Quantity('Pressure', default = (1., 'bar'),  label = 'pressure')
+	
 	FG = F.FieldGroup([mDot, VDot, T, p], label = 'Parameters')
 		
 	modelBlocks = []
@@ -147,6 +148,17 @@ class FluidFlowOutput(NumericalModel):
 		self.mDot = mDot
 		self.VDot = mDot / fState.rho
 
+class HeatFlowChannels(NumericalModel):
+	QDotPrimaryChannels = F.Quantity('HeatFlowRate', default = (1.0, 'kW'),
+ 		label = 'Primary channels', description = 'heat flow rate to the primary channels')
+	QDotSecondaryChannels = F.Quantity('HeatFlowRate', default = (1.0, 'kW'),
+ 		label = 'Secondary channels', description = 'heat flow rate to the secondary channels')
+	QDotExternalChannel = F.Quantity('HeatFlowRate', default = (1.0, 'kW'),
+ 		label = 'External channel', description = 'heat flow rate from the external channel')
+		
+	FG = F.FieldGroup([QDotPrimaryChannels, QDotSecondaryChannels, QDotExternalChannel], label = 'Parameters')
+		
+	modelBlocks = []
 
 class FiniteVolumeSolverSettings(NumericalModel):
 	tolerance = F.Quantity(default = 1e-6, label = 'tolerance')
@@ -154,6 +166,17 @@ class FiniteVolumeSolverSettings(NumericalModel):
 	relaxationFactor = F.Quantity(default = 1.0, label = 'relaxation factor')
 	
 	FG = F.FieldGroup([tolerance, maxNumIterations, relaxationFactor], label = 'Settings')
+
+	modelBlocks = []
+	
+class SectionResultsSettings(NumericalModel):
+	setTRange = F.Boolean(False, label = 'set temperature range', description = 'set temperature range (Tmin, Tmax) of the section results plots')
+	Tmin = F.Quantity('Temperature', default = (0, 'K'),
+		label = 'min temperature', description = 'minimum temperature', show = 'self.setTRange')
+	Tmax = F.Quantity('Temperature', default = (0, 'K'),
+		label = 'max temperature', description = 'maximum temperature', show = 'self.setTRange')
+	
+	FG = F.FieldGroup([setTRange, Tmin, Tmax], label = 'Settings')
 
 	modelBlocks = []
 	
@@ -185,12 +208,14 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 	externalFlowIn = F.SubModelGroup(IncompressibleSolutionFlowInput, 'incomSolFG', label = 'Inlet flow')
 	externalChannelSG = F.SuperGroup([externalChannelGeom, externalFlowIn], label = 'External channel')
 	
-	# Fields: thermal solver settings
-	fvSolverSettings = F.SubModelGroup(FiniteVolumeSolverSettings, 'FG', label = 'Finite volume solver') 
-	solverSettingsSG = F.SuperGroup([fvSolverSettings], label = 'Solver settings')
+	# Fields: settings
+	fvSolverSettings = F.SubModelGroup(FiniteVolumeSolverSettings, 'FG', label = 'Finite volume solver')
+	sectionResultsSettings = F.SubModelGroup(SectionResultsSettings, 'FG', label = 'Section results plots') #:TODO: (NASKO:WORK) 
+	settingsSG = F.SuperGroup([fvSolverSettings, sectionResultsSettings], label = 'Settings')
 	
+
 	#--------------- Model view ---------------#
-	inputView = F.ModelView(ioType = "input", superGroups = [blockSG, internalChannelSG, externalChannelSG, solverSettingsSG], 
+	inputView = F.ModelView(ioType = "input", superGroups = [blockSG, internalChannelSG, externalChannelSG, settingsSG], 
 						autoFetch = True)
 	
 	#================ Results ================#
@@ -204,7 +229,8 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 	primaryFlowOut = F.SubModelGroup(FluidFlowOutput, 'FG', label = 'Primary flow outlet')
 	secondaryFlowOut = F.SubModelGroup(FluidFlowOutput, 'FG', label = 'Secondary flow outlet')
 	externalFlowOut = F.SubModelGroup(FluidFlowOutput, 'FG', label = 'External flow outlet')
-	resultSG = F.SuperGroup([primaryFlowOut, secondaryFlowOut, externalFlowOut], label = 'Results')
+	QDotChannels = F.SubModelGroup(HeatFlowChannels, 'FG', label = 'Heat flow') #:TODO: (NASKO:WORK)
+	resultSG = F.SuperGroup([primaryFlowOut, secondaryFlowOut, externalFlowOut, QDotChannels], label = 'Results')
 	
 	resultTable = F.TableView((
 		('xStart', F.Quantity('Length', default = (1, 'm'))),
@@ -300,7 +326,11 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 		self.externalChannelGeom.heightRadial = (12, 'mm')
 		self.externalChannelGeom.coilPitch = (32, 'mm')
 		self.externalChannelGeom.averageCoilDiameter = (70, 'mm')
-		self.externalChannelGeom.meshFineness = 4		
+		self.externalChannelGeom.meshFineness = 4
+		
+		self.sectionResultsSettings.setTRange = False
+		self.sectionResultsSettings.Tmin = (100, 'K')
+		self.sectionResultsSettings.Tmax = (380, 'K')
 		
 	def compute(self):
 		# Validation
