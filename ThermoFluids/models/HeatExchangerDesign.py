@@ -107,13 +107,27 @@ class FluidFlowInput(NumericalModel):
 		
 	modelBlocks = []
 	
+	def createFluidState(self):
+		return CP.FluidState(self.fluidName)
+	
 	def compute(self):
-		fState = CP.FluidState(self.fluidName)
+		fState = self.createFluidState()
 		fState.update_Tp(self.T, self.p)
 		if (self.flowRateChoice == 'm'):
 			self.VDot = self.mDot / fState.rho
 		else:
 			self.mDot = self.VDot * fState.rho
+			
+class IncompressibleSolutionFlowInput(FluidFlowInput):
+	solName = F.Choices(IncompressibleSolutions, default = 'MEG', 
+		label = 'fluid (name)', description = 'fluid (incompressible solutions)')
+	solMassFraction = F.Quantity('Fraction', default = (0, '%'),
+		label = 'fluid (mass fraction)', description = 'mass fraction of the substance other than water')
+	
+	incomSolFG = F.FieldGroup([solName, solMassFraction, 'flowRateChoice', 'mDot', 'VDot', 'T', 'p'], label = 'Parameters')
+	
+	def createFluidState(self):
+		return CP5.FluidStateFactory.createIncompressibleSolution(self.solName, self.solMassFraction)
 		
 class FluidFlowOutput(NumericalModel):
 	VDot = F.Quantity('VolumetricFlowRate', minValue = (0., 'm**3/h'), default = (1., 'm**3/h'),
@@ -167,7 +181,7 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 	
 	# Fields: external channel
 	externalChannelGeom = F.SubModelGroup(ExternalChannelGeometry, 'FG', label = 'Geometry')
-	externalFlowIn = F.SubModelGroup(FluidFlowInput, 'FG', label = 'Inlet flow')
+	externalFlowIn = F.SubModelGroup(IncompressibleSolutionFlowInput, 'incomSolFG', label = 'Inlet flow')
 	externalChannelSG = F.SuperGroup([externalChannelGeom, externalFlowIn], label = 'External channel')
 	
 	# Fields: thermal solver settings
@@ -273,7 +287,8 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 		self.secondaryFlowIn.T = (100, 'K')
 		self.secondaryFlowIn.p = (1, 'bar') 
 		
-		self.externalFlowIn.fluidName = 'Water'
+		self.externalFlowIn.solName = 'MEG'
+		self.externalFlowIn.solMassFraction = (50, '%')
 		self.externalFlowIn.flowRateChoice = 'V'
 		self.externalFlowIn.vDot = (3, 'm**3/h')
 		self.externalFlowIn.T = (80, 'degC')
