@@ -6,7 +6,7 @@ Created on Apr 8, 2015
 '''
 
 from smo.model.model import NumericalModel
-from smo.media.MaterialData import Fluids
+from smo.media.MaterialData import Fluids, Solids
 from heat_exchangers.HeatExchangerMesher import HeatExchangerMesher
 from heat_exchangers.HeatExchangerSolver import HeatExchangerSolver
 import smo.model.fields as F
@@ -17,17 +17,24 @@ import smo.media.CoolProp as CP
 from collections import OrderedDict
 from smo.media.CoolProp.CoolProp import FluidState
 
+class BlockProperties(NumericalModel):
+	material = F.ObjectReference(Solids, default = 'Aluminium6061', 
+		label = 'material', description = 'block material')
+	divisionStep = F.Quantity('Length', default = (0., 'm'), #:TODO: (MILEN:WORK) Add Validation
+		label = 'division step (axial)', description = 'axial division step')
+	
+	FG = F.FieldGroup([material, divisionStep], label = 'Block properties')
+	
+	modelBlocks = []
+
 class BlockGeometry(NumericalModel):
 	diameter = F.Quantity('Length', default = (0., 'mm'),
 		label = 'diameter', description = 'block diameter')
 	
-	length = F.Quantity('Length', default = (0., 'm'),
+	length = F.Quantity('Length', default = (0., 'm'), #:TODO: (MILEN:WORK) Add Validation
 		label = 'length', description = 'block length')
 	
-	divisionStep = F.Quantity('Length', default = (0., 'm'),
-		label = 'division step', description = 'axial division step')
-	
-	FG = F.FieldGroup([diameter, length, divisionStep], label = 'Block geometry')
+	FG = F.FieldGroup([diameter, length], label = 'Block geometry')
 	
 	modelBlocks = []
 	
@@ -40,39 +47,50 @@ class ExternalChannelGeometry(NumericalModel):
 		label = 'coil pitch', description = 'coil pitch of the spiral rectangular channel')
 	averageCoilDiameter = F.Quantity('Length', default = (0., 'mm'),
 		label = 'average coil diameter', description = 'average coil diameter of the spiral rectangular channel')
+	
 	cellSize = F.Quantity('Length', default = (0., 'mm'), 
 		label = 'mesh cell size', description = 'mesh cell size near the outer block circle')
-	
-	FG = F.FieldGroup([widthAxial, heightRadial, coilPitch, averageCoilDiameter, cellSize], 
+	meshFineness = F.Integer(default = 1, minValue = 1, maxValue = 10,
+		label = 'mesh fineness', description = 'mesh fineness near the outer side of the block')
+		
+	FG = F.FieldGroup([widthAxial, heightRadial, coilPitch, averageCoilDiameter, meshFineness], 
 		label = 'Channel geometry')
 		
 	modelBlocks = []
 	
+	def init(self):
+		self.cellSize = self.averageCoilDiameter / (self.meshFineness * 10.)
+	
 class ChannelGroupGeometry(NumericalModel):
-	number = F.Integer(default = 0, minValue = 0,
+	number = F.Integer(default = 0, minValue = 0, maxValue = 30,
 		label = 'number', description = 'number of channels')
 	radialPosition = F.Quantity('Length', default = (0., 'mm'), minValue = (0, 'mm'), 
 		label = 'radial position', description = 'radial position of the channels')
 	startingAngle = F.Quantity('Angle', default = (0., 'deg'), minValue = (-1e6, 'deg'),
 		label = 'starting angle', description = 'starting angle of the first')
+	
 	cellSize = F.Quantity('Length', default = (0., 'mm'), 
 		label = 'mesh cell size', description = 'mesh cell size near the channels')
+	meshFineness = F.Integer(default = 1, minValue = 1, maxValue = 10,
+		label = 'mesh fineness', description = 'mesh fineness near the channels')
 	
 	externalDiameter = F.Quantity('Length', default = (0., 'mm'),
 		label = 'external diameter', description = 'external diameter of the channels')
 	sections = F.RecordArray((
 			('internalDiameter', F.Quantity('Length', default = (0, 'mm'), label = 'internal diameter')),
-			('length', F.Quantity('Length', default = (0.2, 'm'), label = 'length')),		
-			('numDivisions', F.Integer(default = 5, label = 'number divisions')),
+			('length', F.Quantity('Length', default = (0.2, 'm'), label = 'length')),
 		), 
 		label = 'sections',
 		numRows = 5)
 	
 	channelName = F.String()
 	
-	FG = F.FieldGroup([number, radialPosition, startingAngle, externalDiameter, sections, cellSize], label = 'Parameters')
+	FG = F.FieldGroup([number, radialPosition, startingAngle, externalDiameter, sections, meshFineness], label = 'Parameters')
 	
 	modelBlocks = []
+	
+	def init(self):
+		self.cellSize = self.externalDiameter / (self.meshFineness * 2.5)
 	
 class FluidFlowInput(NumericalModel):
 	fluidName = F.Choices(Fluids, default = 'ParaHydrogen', label = 'fluid')
@@ -138,7 +156,8 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 	#---------------- Fields ----------------#
 	# Fields: geometry	
 	blockGeom = F.SubModelGroup(BlockGeometry, 'FG', 'Geometry')
-	blockSG = F.SuperGroup([blockGeom], label = 'Block')
+	blockProps = F.SubModelGroup(BlockProperties, 'FG', 'Properties')
+	blockSG = F.SuperGroup([blockGeom, blockProps], label = 'Block')
 	
 	# Fields: internal channels
 	primaryChannelsGeom = F.SubModelGroup(ChannelGroupGeometry, 'FG', label  = 'Primary channels')
@@ -215,32 +234,33 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 		self.blockGeom.diameter = (58.0, 'mm')
 		self.blockGeom.length = (0.8, 'm')
 		self.blockGeom.divisionStep = (0.1, 'm')
+		self.blockProps.material = 'Aluminium6061'
 		
 		self.primaryChannelsGeom.number = 3
 		self.primaryChannelsGeom.radialPosition = (7, 'mm')
 		self.primaryChannelsGeom.startingAngle = (0, 'deg')
-		self.primaryChannelsGeom.cellSize = (1, 'mm')
+		self.primaryChannelsGeom.meshFineness = 4
 		self.primaryChannelsGeom.channelName = "PrimaryChannel"
 		
 		self.primaryChannelsGeom.externalDiameter = (7.5, 'mm')
-		self.primaryChannelsGeom.sections[0] = (0.002, 0.2, 5)
-		self.primaryChannelsGeom.sections[1] = (0.004, 0.1, 5)
-		self.primaryChannelsGeom.sections[2] = (0.006, 0.1, 5)
-		self.primaryChannelsGeom.sections[3] = (0.0065, 0.1, 5)
-		self.primaryChannelsGeom.sections[4] = (0.007, 0.3, 5)
+		self.primaryChannelsGeom.sections[0] = (0.002, 0.2)
+		self.primaryChannelsGeom.sections[1] = (0.004, 0.1)
+		self.primaryChannelsGeom.sections[2] = (0.006, 0.1)
+		self.primaryChannelsGeom.sections[3] = (0.0065, 0.1)
+		self.primaryChannelsGeom.sections[4] = (0.007, 0.3)
 		
 		self.secondaryChannelsGeom.number = 3
 		self.secondaryChannelsGeom.radialPosition = (17.5, 'mm')
 		self.secondaryChannelsGeom.startingAngle = (60, 'deg')
-		self.secondaryChannelsGeom.cellSize = (1, 'mm')
+		self.secondaryChannelsGeom.meshFineness = 4
 		self.secondaryChannelsGeom.channelName = "SecondaryChannel"
 		
 		self.secondaryChannelsGeom.externalDiameter = (7.5, 'mm')
-		self.secondaryChannelsGeom.sections[0] = (0.002, 0.2, 5)
-		self.secondaryChannelsGeom.sections[1] = (0.004, 0.1, 5)
-		self.secondaryChannelsGeom.sections[2] = (0.006, 0.1, 5)
-		self.secondaryChannelsGeom.sections[3] = (0.0065, 0.1, 5)
-		self.secondaryChannelsGeom.sections[4] = (0.007, 0.3, 5)
+		self.secondaryChannelsGeom.sections[0] = (0.002, 0.2)
+		self.secondaryChannelsGeom.sections[1] = (0.004, 0.1)
+		self.secondaryChannelsGeom.sections[2] = (0.006, 0.1)
+		self.secondaryChannelsGeom.sections[3] = (0.0065, 0.1)
+		self.secondaryChannelsGeom.sections[4] = (0.007, 0.3)
 		
 		self.primaryFlowIn.fluidName = 'ParaHydrogen'
 		self.primaryFlowIn.flowRateChoice = 'm'
@@ -264,14 +284,19 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 		self.externalChannelGeom.heightRadial = (12, 'mm')
 		self.externalChannelGeom.coilPitch = (32, 'mm')
 		self.externalChannelGeom.averageCoilDiameter = (70, 'mm')
-		self.externalChannelGeom.cellSize = (2.0, 'mm')
-		
+		self.externalChannelGeom.meshFineness = 4		
+	
 	def compute(self):
 		# Initialize		
 		self.primaryFlowIn.compute()
 		self.secondaryFlowIn.compute()
 		self.externalFlowIn.compute()
-		
+			
+		# Initialize geometries
+		self.primaryChannelsGeom.init()
+		self.secondaryChannelsGeom.init()
+		self.externalChannelGeom.init()
+				
 		# Create the mesh
 		mesher = HeatExchangerMesher()
 		mesher.create(self)
@@ -308,6 +333,7 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 		self.secondaryChannelProfileView.set_ylabel('[mm]')
 		self.secondaryChannelProfileView.yaxis.set_major_formatter(ticks)  
 		
+<<<<<<< HEAD
 	def postProcess(self, mesher, solver):
 		# Get the value for the outlet conditions
 		self.primaryFlowOut.compute(fState = solver.primChannelStateOut, mDot = self.primaryFlowIn.mDot) 
@@ -337,3 +363,6 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 				solver.secChannelCalc.sections[i].fState.T,
 				solver.secChannelCalc.sections[i].TWall,
 			)
+=======
+
+>>>>>>> refs/remotes/origin/milen

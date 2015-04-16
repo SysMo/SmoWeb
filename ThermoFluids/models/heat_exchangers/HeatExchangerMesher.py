@@ -6,14 +6,9 @@ Created on Apr 9, 2015
 '''
 import fipy as FP
 import numpy as np
-import pylab as plt
-import matplotlib.tri as tri
-import os, tempfile
 import smo.math.util as sm
 
 from smo.util import AttributeDict 
-from SmoWeb.settings import MEDIA_ROOT
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from cStringIO import StringIO
         
 class HeatExchangerMesher():    
