@@ -45,20 +45,19 @@ class ExternalChannelGeometry(NumericalModel):
 		label = 'radial height', description = 'radial height of the spiral rectangular channel')
 	coilPitch = F.Quantity('Length', default = (0., 'mm'),
 		label = 'coil pitch', description = 'coil pitch of the spiral rectangular channel')
-	averageCoilDiameter = F.Quantity('Length', default = (0., 'mm'), #:TODO: (MILEN:WORK) hide from WebUI
-		label = 'average coil diameter', description = 'average coil diameter of the spiral rectangular channel')
-	
+
 	cellSize = F.Quantity('Length', default = (0., 'mm'), 
 		label = 'mesh cell size', description = 'mesh cell size near the outer block circle')
 	meshFineness = F.Integer(default = 1, minValue = 1, maxValue = 10,
 		label = 'mesh fineness', description = 'mesh fineness near the outer side of the block')
 		
-	FG = F.FieldGroup([widthAxial, heightRadial, coilPitch, averageCoilDiameter, meshFineness], 
+	FG = F.FieldGroup([widthAxial, heightRadial, coilPitch, meshFineness], 
 		label = 'Channel geometry')
 		
 	modelBlocks = []
 	
-	def compute(self):
+	def compute(self, blockDiameter):
+		self.averageCoilDiameter = blockDiameter + self.heightRadial
 		self.cellSize = self.averageCoilDiameter / (self.meshFineness * 10.)
 	
 class ChannelGroupGeometry(NumericalModel):
@@ -325,7 +324,6 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 		self.externalChannelGeom.widthAxial = (30, 'mm')
 		self.externalChannelGeom.heightRadial = (12, 'mm')
 		self.externalChannelGeom.coilPitch = (32, 'mm')
-		self.externalChannelGeom.averageCoilDiameter = (70, 'mm')
 		self.externalChannelGeom.meshFineness = 4
 		
 		self.sectionResultsSettings.setTRange = False
@@ -337,7 +335,7 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 		self.validateInputs()
 		
 		# PreComputation
-		self.externalChannelGeom.compute()
+		self.externalChannelGeom.compute(self.blockGeom.diameter)
 		self.primaryChannelsGeom.compute()
 		self.secondaryChannelsGeom.compute()
 		
