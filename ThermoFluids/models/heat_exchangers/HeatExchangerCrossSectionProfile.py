@@ -7,7 +7,7 @@ class HeatExchangerCrossSectionProfile():
     def __init__(self, originX = 0, originY = 0):
         self.originX = originX
         self.originY = originY
-        self.patches = []
+        self.channelPatches = []
         self.dimensionLines = []
         self.dimensionLabels = []
         self.dimensionLabelAngles = []
@@ -19,7 +19,7 @@ class HeatExchangerCrossSectionProfile():
     
     def addBlock(self, blockGeom):
         self.blockRadius = blockGeom.diameter / 2.
-        self.patches.append(Circle((self.originX, self.originY), self.blockRadius))
+        self.blockPatch = Circle((self.originX, self.originY), self.blockRadius)
         self.addDimension([[self.originX - self.blockRadius, self.originX + self.blockRadius], [self.originY - 1.1 * self.blockRadius, self.originY - 1.1 * self.blockRadius]],
                           self.blockRadius * 2, 0)
     
@@ -31,7 +31,7 @@ class HeatExchangerCrossSectionProfile():
             channelCenterY = self.originY + \
                 channelsGeom.radialPosition * math.sin(math.radians(angle))
             channelRadius = channelsGeom.externalDiameter / 2.
-            self.patches.append(Circle((channelCenterX, channelCenterY), channelRadius))
+            self.channelPatches.append(Circle((channelCenterX, channelCenterY), channelRadius))
             if (i == 0):
                 self.addDimension([[self.originX, channelCenterX], [self.originY, channelCenterY]],
                                   channelsGeom.radialPosition, angle)
@@ -42,11 +42,18 @@ class HeatExchangerCrossSectionProfile():
         if (ax is None):
             fig = plt.figure()
             ax = fig.add_subplot(111)
-        ax.set_aspect(1)   
-        pc = PatchCollection(self.patches, match_original = True)
+        ax.set_aspect(1)
+        
+        self.blockPatch.set_facecolor('#F0F0F0')
+        self.blockPatch.set_edgecolor('k')
+        ax.add_patch(self.blockPatch)    
+        
+        pc = PatchCollection(self.channelPatches, match_original = True)
         pc.set_facecolor('w')
         pc.set_edgecolor('k')
-        ax.add_collection(pc)    
+        pc.set_zorder(2)
+        ax.add_collection(pc)
+           
         self.plotDimensions(ax)
         ax.set_xlim(-1.05 * self.blockRadius, 1.05 * self.blockRadius)
         ax.set_ylim(-1.15 * self.blockRadius, 1.05 * self.blockRadius)
@@ -57,7 +64,7 @@ class HeatExchangerCrossSectionProfile():
         for i in range(len(self.dimensionLines)):
             x1, x2 = self.dimensionLines[i][0]
             y1, y2 = self.dimensionLines[i][1]
-            ax.plot([x1, x2], [y1, y2], 'r')
+            ax.plot([x1, x2], [y1, y2], 'r', zorder=3)
             ax.annotate('', xy = (x1, y1), xycoords='data',
                         xytext=(x2, y2), textcoords='data',
                         arrowprops={'arrowstyle': '<->', 'color': 'r'})
