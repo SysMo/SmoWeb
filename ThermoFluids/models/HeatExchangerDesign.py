@@ -9,6 +9,7 @@ from smo.model.model import NumericalModel
 from smo.media.MaterialData import Fluids, Solids, IncompressibleSolutions
 from heat_exchangers.HeatExchangerMesher import HeatExchangerMesher
 from heat_exchangers.HeatExchangerSolver import HeatExchangerSolver
+from heat_exchangers.HeatExchangerCrossSectionProfile import HeatExchangerCrossSectionProfile
 import smo.model.fields as F
 import matplotlib.tri as tri
 import matplotlib.ticker as ticker
@@ -194,9 +195,10 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 	
 	#================ Results ================#
 	meshView = F.MPLPlot(label = 'Cross-section mesh')
+	crossSectionProfileView = F.MPLPlot(label = 'Cross-section profile')
 	primaryChannelProfileView = F.MPLPlot(label = 'Primary channel profile')
 	secondaryChannelProfileView = F.MPLPlot(label = 'Secondary channel profile')
-	geometryVG = F.ViewGroup([meshView, primaryChannelProfileView, secondaryChannelProfileView], label = 'Geometry/Mesh')
+	geometryVG = F.ViewGroup([meshView, crossSectionProfileView, primaryChannelProfileView, secondaryChannelProfileView], label = 'Geometry/Mesh')
 	geometrySG = F.SuperGroup([geometryVG], label = 'Geometry/mesh')
 	
 	primaryFlowOut = F.SubModelGroup(FluidFlowOutput, 'FG', label = 'Primary flow outlet')
@@ -349,6 +351,13 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 		triPlotMesh = tri.Triangulation(vertexCoords[0], vertexCoords[1], np.transpose(vertexIDs))
 		self.meshView.triplot(triPlotMesh)
 		self.meshView.set_aspect('equal')
+		
+		#Draw heat exchanger cross-section profile
+		crossSectionProfile = HeatExchangerCrossSectionProfile()
+		crossSectionProfile.addBlock(self.blockGeom)
+		crossSectionProfile.addChannels(self.primaryChannelsGeom)
+		crossSectionProfile.addChannels(self.secondaryChannelsGeom)
+		crossSectionProfile.plotGeometry(self.crossSectionProfileView)
 
 		# Draw the channels profiles
 		ticks = ticker.FuncFormatter(lambda x, pos: '{0:g}'.format(x*1e3))                                                                                                                                                                                                           

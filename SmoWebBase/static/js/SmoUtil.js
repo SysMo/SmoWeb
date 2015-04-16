@@ -594,6 +594,69 @@ smoModule.directive('smoInt', ['$compile', function($compile) {
 	}
 }]);
 
+smoModule.directive('smoComplex', ['$compile', function($compile) {
+	return {
+		restrict : 'A',
+		scope : {
+			fieldVar: '=',
+			viewType: '@viewType',
+			smoDataSource : '='
+		},
+		controller: function($scope) {
+			$scope.Math = window.Math;
+		},
+		link : function(scope, element, attr) {
+			var template = '\
+				<div class="field-label"><div style="display: inline-block;" data-toggle="tooltip" title="' + scope.fieldVar.description + '" tooltip>' + scope.fieldVar.label + '</div></div>';
+			if (scope.viewType == 'input') {
+				template += '\
+					<div style="margin-left: 5px; display:inline-block;"> \
+						<div style ="width:5px; height: 30px; text-align: center; font-size: 120%; display: inline-block;" >(</div>\
+						<div style="display: inline-block;" ng-form name="' + scope.fieldVar.name + 'RealForm">\
+							<input style="width:90px; height: 30px; name="input" required type="text" \
+								ng-pattern="/^[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$/" \
+								ng-model="smoDataSource.' + scope.fieldVar.name + '[0]"> \
+						</div>\
+					</div>\
+					<div style="display:inline-block;"> \
+						<div style="display: inline-block;" ng-form name="' + scope.fieldVar.name + 'ImagForm">\
+							<input style="width:90px; height: 30px; name="input" required type="text" \
+								ng-pattern="/^[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$/" \
+								ng-model="smoDataSource.' + scope.fieldVar.name + '[1]"> \
+						</div>\
+						<div style ="width:10px; height: 30px; text-align: center; display: inline-block;"><span>j</span><span style="margin-left: 2px; font-size: 120%;">)</span></div>\
+					</div>';
+			}
+			else if (scope.viewType == 'output') {
+				template += '\
+					<div class="field-output"> \
+						<div class="output">\
+							<span>(</span>\
+							<span ng-bind="smoDataSource.' + scope.fieldVar.name + '[0]"></span>\
+							<span ng-show="smoDataSource.' + scope.fieldVar.name + '[1]>=0">+</span>\
+							<span ng-show="smoDataSource.' + scope.fieldVar.name + '[1]<0">-</span>\
+							<span>{{Math.abs(smoDataSource.' + scope.fieldVar.name + '[1])}}j</span>\
+							<span>)</span>\
+						</div>\
+					</div>';		
+			}
+			
+			if (scope.viewType == 'input') {
+				template += '\
+					<div class="input-validity-error" ng-show="' + scope.fieldVar.name + 'RealForm.input.$error.pattern">Enter a number</div>\
+					<div class="input-validity-error" ng-show="' + scope.fieldVar.name + 'RealForm.input.$error.required">Required value</div>\
+					<div class="input-validity-error" ng-show="' + scope.fieldVar.name + 'ImagForm.input.$error.pattern">Enter a number</div>\
+					<div class="input-validity-error" ng-show="' + scope.fieldVar.name + 'ImagForm.input.$error.required">Required value</div>';
+			}
+			
+	        var el = angular.element(template);
+	        compiled = $compile(el);
+	        element.append(el);
+	        compiled(scope);
+		}
+	}
+}]);
+
 smoModule.directive('smoQuantity', ['$compile', 'util', function($compile, util) {
 	return {
 		restrict : 'A',
@@ -1255,7 +1318,12 @@ smoModule.directive('smoFieldGroup', ['$compile', 'util', function($compile, uti
 						groupFields.push('<div ' + showCode + ' smo-bool view-type="output" field-var="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
 				} else if (field.type == 'RecordArray') {
 						groupFields.push('<div ' + showCode + ' smo-record-array="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
-				}	
+				} else if (field.type == 'Complex') {
+					if (scope.viewType == 'input') 
+						groupFields.push('<div ' + showCode + ' smo-complex view-type="input" field-var="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
+					if (scope.viewType == 'output')
+						groupFields.push('<div ' + showCode + ' smo-complex view-type="output" field-var="fields.' + field.name + '" smo-data-source="smoDataSource"></div>');
+				} 	
 			}
 			
 			var template = "";
@@ -1759,7 +1827,7 @@ smoModule.directive('smoViewToolbar', ['$compile', '$rootScope', function($compi
 					 	var link = document.getElementById(communicator.modelName + '_' + communicator.viewName + 'Save');						
 					 	if(link.download !== undefined) {
 					 	  link.setAttribute("href", window.URL.createObjectURL(blob));
-					 	  link.setAttribute("download", communicator.modelName);
+					 	  link.setAttribute("download", communicator.modelName + ".dat");
 					 	} else {
 					 		alert('The HTML5 download attribute is not supported in this browser.');
 					 	}
