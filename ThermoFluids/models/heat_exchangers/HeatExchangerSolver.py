@@ -10,7 +10,7 @@ import uuid
 import os
 from SmoWeb.settings import MEDIA_ROOT
 from matplotlib.colors import Normalize
-from matplotlib.colorbar import Colorbar 
+import matplotlib.colorbar as colorbar 
 import matplotlib.cm as cm
 
 class HeatExchangerSolver(object):
@@ -149,12 +149,17 @@ class HeatExchangerSolver(object):
 					ax = heatExch.__getattr__('sectionPlot%d'%self.currPlot)
 					ax.set_aspect('equal')
 					ax.set_title('Section at x=%g' % primSection.xStart)
-					self.plotSolution(heatExch, ax, self.T, zmin = 250, zmax = 300)
+					if (heatExch.sectionResultsSettings.setTRange):
+						self.plotSolution(heatExch, ax, self.T, 
+							zmin = heatExch.sectionResultsSettings.Tmin,
+							zmax = heatExch.sectionResultsSettings.Tmax)
+					else:
+						self.plotSolution(heatExch, ax, self.T)
 					self.currPlot += 1
 					self.lastPlotPos = i
 			
 			
-	def plotSolution(self, heatExch, axes, var, zmin = None, zmax = None):
+	def plotSolution(self, heatExch, axes, var, zmin = None, zmax = None, cmap = cm.jet):
 		vertexIDs = self.mesh._orderedCellVertexIDs
 		vertexCoords = self.mesh.vertexCoords
 		xCoords = np.take(vertexCoords[0], vertexIDs)
@@ -176,29 +181,22 @@ class HeatExchangerSolver(object):
 		axes.set_xlim(xmin=xmin, xmax=xmax)
 		axes.set_ylim(ymin=ymin, ymax=ymax)
 		Z = var.value
-		if (zmin is not None):
+		if (zmin is None):
 			zmin = np.min(Z)
-		if (zmax is not None):
+		if (zmax is None):
 			zmax = np.max(Z)
 
-		collection = PolyCollection(polys, cmap = cm.jet)
-		collection.set_linewidth(0.5)
+		norm = Normalize(zmin, zmax)
+		collection = PolyCollection(polys, cmap = cmap, norm = norm)
+		collection.set_linewidth(0.)
 		axes.add_collection(collection)
 
-		#if heatExch.sectionResultsSettings.setTRange:
-		#	norm = Normalize(heatExch.sectionResultsSettings.Tmin, heatExch.sectionResultsSettings.Tmax)
-		#else:
-		#	norm = Normalize(zmin, zmax)	
+		cbax, _ = colorbar.make_axes(axes)
+		cb = colorbar.ColorbarBase(cbax, cmap=cmap,
+			norm = norm)
+		cb.set_label('Temperature [K]')
+ 		collection.set_array(np.array(Z))
 		
-		norm = Normalize(zmin, zmax)
-		rgba = cm.jet(norm(Z))
-		#collection.set_facecolors(rgba)
-		collection.set_edgecolors(rgba)
-		collection.set_array(np.array(Z))
-		collection.set_clim(zmin, zmax)
-		colorbar = axes.figure.colorbar(collection, ax = axes)
-		#colorbar.plot()	
-
 	def solveSectionThermal(self, TPrim, hConvPrim, TSec, hConvSec, TExt, hConvExt):				
 		# Initialize convergence criteria
 		res = 1e10
