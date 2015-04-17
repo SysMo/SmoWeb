@@ -107,20 +107,12 @@ class HeatExchangerLongitudinalProfile():
         self.dimensionLabelAngles.append(labelAngle)
     
     def addBlock(self, blockGeom):
-#         if (blockX is None):
-#             blockX = self.originX
-#         self.blockX = blockX
-#         
-#         if (blockY is None):
-#             blockY = self.originY
-#         self.blockY = blockY
-        
         self.blockDiameter = blockGeom.diameter
         
     def addExternalChannel(self, externalChannelGeom, numCoils = 3):
         self.blockLength = numCoils * externalChannelGeom.coilPitch
-        self.blockX = self.originX + 0.5 * externalChannelGeom.widthAxial
-        self.blockY = self.originY + 1.5 * externalChannelGeom.heightRadial
+        self.blockX = self.originX + 0.02
+        self.blockY = self.originY + externalChannelGeom.heightRadial + 0.02
         
         #Adding patches and dimensions
         #Block patch
@@ -137,7 +129,7 @@ class HeatExchangerLongitudinalProfile():
                  ]
         path = Path(verts, codes)
         self.blockPatch = PathPatch(path)
-        self.addDimension([[self.blockX - 0.25 * externalChannelGeom.widthAxial, self.blockX - 0.25 * externalChannelGeom.widthAxial], [self.blockY, self.blockY + self.blockDiameter]],
+        self.addDimension([[0.01, 0.01], [self.blockY, self.blockY + self.blockDiameter]],
                           self.blockDiameter, 90)
         
         #External channel patches
@@ -148,7 +140,7 @@ class HeatExchangerLongitudinalProfile():
                 self.addDimension([[self.blockX, self.blockX + externalChannelGeom.widthAxial],[self.blockY + self.blockDiameter + 0.5 * externalChannelGeom.heightRadial, self.blockY + self.blockDiameter + 0.5 * externalChannelGeom.heightRadial]], 
                                   externalChannelGeom.widthAxial, 0)
             if (i == 1):
-                self.addDimension([[self.blockX + externalChannelGeom.coilPitch + 0.5 * externalChannelGeom.widthAxial, self.blockX + 2 * externalChannelGeom.coilPitch + 0.5 * externalChannelGeom.widthAxial], [self.blockY + self.blockDiameter + 1.25 * externalChannelGeom.heightRadial, self.blockY + self.blockDiameter + 1.25 * externalChannelGeom.heightRadial]], 
+                self.addDimension([[self.blockX + externalChannelGeom.coilPitch + 0.5 * externalChannelGeom.widthAxial, self.blockX + 2 * externalChannelGeom.coilPitch + 0.5 * externalChannelGeom.widthAxial], [self.blockY + self.blockDiameter + externalChannelGeom.heightRadial + 0.005, self.blockY + self.blockDiameter + externalChannelGeom.heightRadial + 0.005]], 
                                   externalChannelGeom.coilPitch, 0)
                 self.addDimension([[self.blockX + externalChannelGeom.coilPitch + 0.5 * externalChannelGeom.widthAxial, self.blockX + externalChannelGeom.coilPitch + 0.5 * externalChannelGeom.widthAxial], [self.blockY + self.blockDiameter, self.blockY + self.blockDiameter + externalChannelGeom.heightRadial]],
                           externalChannelGeom.heightRadial, 90)
@@ -157,12 +149,10 @@ class HeatExchangerLongitudinalProfile():
                                                  externalChannelGeom.widthAxial, externalChannelGeom.heightRadial))
         
         #Setting axes limits
-        #self.yMin = self.blockY - 1.5 * externalChannelGeom.heightRadial
-        self.yMin = self.originY
-        self.yMax = self.blockY + self.blockDiameter + 1.75 * externalChannelGeom.heightRadial
-        #self.xMin = self.blockX - 0.5 * externalChannelGeom.widthAxial
         self.xMin = self.originX
-        self.xMax = self.blockX + self.blockLength + 0.5 * externalChannelGeom.widthAxial
+        self.yMin = self.originY
+        self.xMax = self.blockX + self.blockLength + 0.02
+        self.yMax = self.blockY + self.blockDiameter + externalChannelGeom.heightRadial + 0.02
         
     def plotGeometry(self, ax = None):
         if (ax is None):
