@@ -9,7 +9,7 @@ from smo.model.model import NumericalModel
 from smo.media.MaterialData import Fluids, Solids, IncompressibleSolutions
 from heat_exchangers.HeatExchangerMesher import HeatExchangerMesher
 from heat_exchangers.HeatExchangerSolver import HeatExchangerSolver
-from heat_exchangers.HeatExchangerCrossSectionProfile import HeatExchangerCrossSectionProfile
+from ThermoFluids.models.heat_exchangers.HeatExchangerProfilePlots import HeatExchangerCrossSectionProfile, HeatExchangerLongitudinalProfile
 import smo.model.fields as F
 import matplotlib.tri as tri
 import matplotlib.ticker as ticker
@@ -222,9 +222,10 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 	#================ Results ================#
 	meshView = F.MPLPlot(label = 'Cross-section mesh')
 	crossSectionProfileView = F.MPLPlot(label = 'Cross-section profile')
+	longitudinalProfileView = F.MPLPlot(label = 'Longitudinal profile')
 	primaryChannelProfileView = F.MPLPlot(label = 'Primary channel profile')
 	secondaryChannelProfileView = F.MPLPlot(label = 'Secondary channel profile')
-	geometryVG = F.ViewGroup([meshView, crossSectionProfileView, primaryChannelProfileView, secondaryChannelProfileView], label = 'Geometry/Mesh')
+	geometryVG = F.ViewGroup([meshView, crossSectionProfileView, longitudinalProfileView, primaryChannelProfileView, secondaryChannelProfileView], label = 'Geometry/Mesh')
 	geometrySG = F.SuperGroup([geometryVG], label = 'Geometry/mesh')
 	
 	primaryFlowOut = F.SubModelGroup(FluidFlowOutput, 'FG', label = 'Primary flow outlet')
@@ -437,14 +438,7 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 		triPlotMesh = tri.Triangulation(vertexCoords[0], vertexCoords[1], np.transpose(vertexIDs))
 		self.meshView.triplot(triPlotMesh)
 		self.meshView.set_aspect('equal')
-		self.meshView.set_title('%d elemenents'%len(mesher.mesh.cellCenters[0]))
-		
-		#Draw heat exchanger cross-section profile
-		crossSectionProfile = HeatExchangerCrossSectionProfile()
-		crossSectionProfile.addBlock(self.blockGeom)
-		crossSectionProfile.addChannels(self.primaryChannelsGeom)
-		crossSectionProfile.addChannels(self.secondaryChannelsGeom)
-		crossSectionProfile.plotGeometry(self.crossSectionProfileView)
+		self.meshView.set_title('%d elements'%len(mesher.mesh.cellCenters[0]))
 
 		# Draw the channels profiles
 		ticks = ticker.FuncFormatter(lambda x, pos: '{0:g}'.format(x*1e3))                                                                                                                                                                                                           
@@ -457,7 +451,30 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 		solver.secChannelCalc.plotGeometry(self.secondaryChannelProfileView)
 		self.secondaryChannelProfileView.set_xlabel('[m]')
 		self.secondaryChannelProfileView.set_ylabel('[mm]')
-		self.secondaryChannelProfileView.yaxis.set_major_formatter(ticks)  
+		self.secondaryChannelProfileView.yaxis.set_major_formatter(ticks)
+		
+		#Draw the cross-section profile
+		crossSectionProfile = HeatExchangerCrossSectionProfile()
+		crossSectionProfile.addBlock(self.blockGeom)
+		crossSectionProfile.addChannels(self.primaryChannelsGeom)
+		crossSectionProfile.addChannels(self.secondaryChannelsGeom)
+		crossSectionProfile.plotGeometry(self.crossSectionProfileView)
+		
+		self.crossSectionProfileView.set_xlabel('[mm]')
+		self.crossSectionProfileView.set_ylabel('[mm]')
+		self.crossSectionProfileView.xaxis.set_major_formatter(ticks)
+		self.crossSectionProfileView.yaxis.set_major_formatter(ticks)
+		
+		#Draw the longitudinal profile
+		longitudinalProfile = HeatExchangerLongitudinalProfile()
+		longitudinalProfile.addBlock(self.blockGeom)
+		longitudinalProfile.addExternalChannel(self.externalChannelGeom)
+		longitudinalProfile.plotGeometry(self.longitudinalProfileView) 
+		
+		self.longitudinalProfileView.set_xlabel('[mm]')
+		self.longitudinalProfileView.set_ylabel('[mm]')
+		self.longitudinalProfileView.xaxis.set_major_formatter(ticks)
+		self.longitudinalProfileView.yaxis.set_major_formatter(ticks) 
 		
 	def postProcess(self, mesher, solver):
 		# Get the value for the outlet conditions
@@ -528,7 +545,7 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 				raise ValueError('The axial division step of the block is greater than the {0}-th section of the {1} channels'.format(i, channelsName))
 			
 			if self.isDividedExactly(section['length'], self.blockProps.divisionStep) == False:
-				raise ValueError('The axial division step of the block does not divide the {0}-th section of the {1} channels on the equal parts.'.format(i, channelsName))
+				raise ValueError('The axial division step of the block does not divide the {0}-th section of the {1} channels in equal parts.'.format(i, channelsName))
 			i += 1
 		
 	def isDividedExactly(self, a, b):
