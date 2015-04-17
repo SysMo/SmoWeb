@@ -9,7 +9,7 @@ from smo.model.model import NumericalModel
 from smo.media.MaterialData import Fluids, Solids, IncompressibleSolutions
 from heat_exchangers.HeatExchangerMesher import HeatExchangerMesher
 from heat_exchangers.HeatExchangerSolver import HeatExchangerSolver
-from heat_exchangers.HeatExchangerCrossSectionProfile import HeatExchangerCrossSectionProfile
+from ThermoFluids.models.heat_exchangers.HeatExchangerProfilePlots import HeatExchangerCrossSectionProfile, HeatExchangerLongitudinalProfile
 import smo.model.fields as F
 import matplotlib.tri as tri
 import matplotlib.ticker as ticker
@@ -76,7 +76,7 @@ class ChannelGroupGeometry(NumericalModel):
 	externalDiameter = F.Quantity('Length', default = (0., 'mm'),
 		label = 'external diameter', description = 'external diameter of the channels')
 	sections = F.RecordArray((
-			('internalDiameter', F.Quantity('Length', default = (0, 'mm'), label = 'internal diameter')),
+			('internalDiameter', F.Quantity('Length', default = (0, 'mm'), minValue = (0, 'mm'), label = 'internal diameter')),
 			('length', F.Quantity('Length', default = (0.2, 'm'), label = 'length')),
 		), 
 		label = 'sections',
@@ -183,7 +183,7 @@ class SectionResultsSettings(NumericalModel):
 	
 class CylindricalBlockHeatExchanger(NumericalModel):
 	label = "Cylindrical heat exchanger"
-	#figure = F.ModelFigure()
+	figure = F.ModelFigure(src="ThermoFluids/img/ModuleImages/HeatExchangerDesign.png", show = False)
 	description = F.ModelDescription(
 	"""Model of heat exchanger made out of a solid cylindrical block, with
 	central channels for one of the fluids and a spiraling
@@ -211,7 +211,7 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 	
 	# Fields: settings
 	fvSolverSettings = F.SubModelGroup(FiniteVolumeSolverSettings, 'FG', label = 'Finite volume solver')
-	sectionResultsSettings = F.SubModelGroup(SectionResultsSettings, 'FG', label = 'Section results plots') #:TODO: (NASKO:WORK) 
+	sectionResultsSettings = F.SubModelGroup(SectionResultsSettings, 'FG', label = 'Section results plots') 
 	settingsSG = F.SuperGroup([fvSolverSettings, sectionResultsSettings], label = 'Settings')
 	
 
@@ -222,15 +222,16 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 	#================ Results ================#
 	meshView = F.MPLPlot(label = 'Cross-section mesh')
 	crossSectionProfileView = F.MPLPlot(label = 'Cross-section profile')
+	longitudinalProfileView = F.MPLPlot(label = 'Longitudinal profile')
 	primaryChannelProfileView = F.MPLPlot(label = 'Primary channel profile')
 	secondaryChannelProfileView = F.MPLPlot(label = 'Secondary channel profile')
-	geometryVG = F.ViewGroup([meshView, crossSectionProfileView, primaryChannelProfileView, secondaryChannelProfileView], label = 'Geometry/Mesh')
+	geometryVG = F.ViewGroup([meshView, crossSectionProfileView, longitudinalProfileView, primaryChannelProfileView, secondaryChannelProfileView], label = 'Geometry/Mesh')
 	geometrySG = F.SuperGroup([geometryVG], label = 'Geometry/mesh')
 	
 	primaryFlowOut = F.SubModelGroup(FluidFlowOutput, 'FG', label = 'Primary flow outlet')
 	secondaryFlowOut = F.SubModelGroup(FluidFlowOutput, 'FG', label = 'Secondary flow outlet')
 	externalFlowOut = F.SubModelGroup(FluidFlowOutput, 'FG', label = 'External flow outlet')
-	QDotChannels = F.SubModelGroup(HeatFlowChannels, 'FG', label = 'Heat flow') #:TODO: (NASKO:WORK)
+	QDotChannels = F.SubModelGroup(HeatFlowChannels, 'FG', label = 'Heat flow')
 	resultSG = F.SuperGroup([primaryFlowOut, secondaryFlowOut, externalFlowOut, QDotChannels], label = 'Results')
 	
 	resultTable = F.TableView((
@@ -287,7 +288,7 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 	
 	
 	############# Methods ###############
-	def __init__(self):
+	def __init__Internal(self):
 		self.blockGeom.diameter = (58.0, 'mm')
 		self.blockGeom.length = (0.8, 'm')
 		self.blockProps.divisionStep = (0.1, 'm')
@@ -334,7 +335,7 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 		self.externalFlowIn.solName = 'MEG'
 		self.externalFlowIn.solMassFraction = (50, '%')
 		self.externalFlowIn.flowRateChoice = 'V'
-		self.externalFlowIn.vDot = (3, 'm**3/h')
+		self.externalFlowIn.VDot = (3, 'm**3/h')
 		self.externalFlowIn.T = (80, 'degC')
 		self.externalFlowIn.p = (1, 'bar') 
 		
@@ -346,6 +347,66 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 		self.sectionResultsSettings.setTRange = False
 		self.sectionResultsSettings.Tmin = (100, 'K')
 		self.sectionResultsSettings.Tmax = (380, 'K')
+		
+	def __init__(self):
+		self.blockGeom.diameter = (60.0, 'mm')
+		self.blockGeom.length = (1.0, 'm')
+		self.blockProps.divisionStep = (0.1, 'm')
+		self.blockProps.material = 'Aluminium6061'
+		
+		self.primaryChannelsGeom.number = 4
+		self.primaryChannelsGeom.radialPosition = (10, 'mm')
+		self.primaryChannelsGeom.startingAngle = (0, 'deg')
+		self.primaryChannelsGeom.meshFineness = 4
+		self.primaryChannelsGeom.channelName = "PrimaryChannel"
+		
+		self.primaryChannelsGeom.externalDiameter = (10, 'mm')
+		self.primaryChannelsGeom.sections[0] = (0.000, 0.2)
+		self.primaryChannelsGeom.sections[1] = (0.002, 0.2)
+		self.primaryChannelsGeom.sections[2] = (0.004, 0.2)
+		self.primaryChannelsGeom.sections[3] = (0.006, 0.2)
+		self.primaryChannelsGeom.sections[4] = (0.008, 0.2)
+		
+		self.secondaryChannelsGeom.number = 6
+		self.secondaryChannelsGeom.radialPosition = (22.5, 'mm')
+		self.secondaryChannelsGeom.startingAngle = (60, 'deg')
+		self.secondaryChannelsGeom.meshFineness = 4
+		self.secondaryChannelsGeom.channelName = "SecondaryChannel"
+		
+		self.secondaryChannelsGeom.externalDiameter = (7, 'mm')
+		self.secondaryChannelsGeom.sections[0] = (0.002, 0.2)
+		self.secondaryChannelsGeom.sections[1] = (0.003, 0.2)
+		self.secondaryChannelsGeom.sections[2] = (0.004, 0.2)
+		self.secondaryChannelsGeom.sections[3] = (0.005, 0.2)
+		self.secondaryChannelsGeom.sections[4] = (0.006, 0.2)
+		
+		self.primaryFlowIn.fluidName = 'Ammonia'
+		self.primaryFlowIn.flowRateChoice = 'm'
+		self.primaryFlowIn.mDot = (50, 'kg/h')
+		self.primaryFlowIn.T = (400, 'K')
+		self.primaryFlowIn.p = (20, 'bar') 
+		
+		self.secondaryFlowIn.fluidName = 'Ammonia'
+		self.secondaryFlowIn.flowRateChoice = 'm'
+		self.secondaryFlowIn.mDot = (50, 'kg/h')
+		self.secondaryFlowIn.T = (400, 'K')
+		self.secondaryFlowIn.p = (20, 'bar') 
+		
+		self.externalFlowIn.solName = 'MPG'
+		self.externalFlowIn.solMassFraction = (50, '%')
+		self.externalFlowIn.flowRateChoice = 'V'
+		self.externalFlowIn.VDot = (0.5, 'm**3/h')
+		self.externalFlowIn.T = (20, 'degC')
+		self.externalFlowIn.p = (1, 'bar') 
+		
+		self.externalChannelGeom.widthAxial = (40, 'mm')
+		self.externalChannelGeom.heightRadial = (10, 'mm')
+		self.externalChannelGeom.coilPitch = (43, 'mm')
+		self.externalChannelGeom.meshFineness = 4
+		
+		self.sectionResultsSettings.setTRange = False
+		self.sectionResultsSettings.Tmin = (200, 'K')
+		self.sectionResultsSettings.Tmax = (350, 'K')
 		
 	def compute(self):
 		# PreComputation
@@ -383,14 +444,7 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 		triPlotMesh = tri.Triangulation(vertexCoords[0], vertexCoords[1], np.transpose(vertexIDs))
 		self.meshView.triplot(triPlotMesh)
 		self.meshView.set_aspect('equal')
-		self.meshView.set_title('%d elemenents'%len(mesher.mesh.cellCenters[0]))
-		
-		#Draw heat exchanger cross-section profile
-		crossSectionProfile = HeatExchangerCrossSectionProfile()
-		crossSectionProfile.addBlock(self.blockGeom)
-		crossSectionProfile.addChannels(self.primaryChannelsGeom)
-		crossSectionProfile.addChannels(self.secondaryChannelsGeom)
-		crossSectionProfile.plotGeometry(self.crossSectionProfileView)
+		self.meshView.set_title('%d elements'%len(mesher.mesh.cellCenters[0]))
 
 		# Draw the channels profiles
 		ticks = ticker.FuncFormatter(lambda x, pos: '{0:g}'.format(x*1e3))                                                                                                                                                                                                           
@@ -403,7 +457,30 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 		solver.secChannelCalc.plotGeometry(self.secondaryChannelProfileView)
 		self.secondaryChannelProfileView.set_xlabel('[m]')
 		self.secondaryChannelProfileView.set_ylabel('[mm]')
-		self.secondaryChannelProfileView.yaxis.set_major_formatter(ticks)  
+		self.secondaryChannelProfileView.yaxis.set_major_formatter(ticks)
+		
+		#Draw the cross-section profile
+		crossSectionProfile = HeatExchangerCrossSectionProfile()
+		crossSectionProfile.addBlock(self.blockGeom)
+		crossSectionProfile.addChannels(self.primaryChannelsGeom)
+		crossSectionProfile.addChannels(self.secondaryChannelsGeom)
+		crossSectionProfile.plotGeometry(self.crossSectionProfileView)
+		
+		self.crossSectionProfileView.set_xlabel('[mm]')
+		self.crossSectionProfileView.set_ylabel('[mm]')
+		self.crossSectionProfileView.xaxis.set_major_formatter(ticks)
+		self.crossSectionProfileView.yaxis.set_major_formatter(ticks)
+		
+		#Draw the longitudinal profile
+		longitudinalProfile = HeatExchangerLongitudinalProfile()
+		longitudinalProfile.addBlock(self.blockGeom)
+		longitudinalProfile.addExternalChannel(self.externalChannelGeom)
+		longitudinalProfile.plotGeometry(self.longitudinalProfileView) 
+		
+		self.longitudinalProfileView.set_xlabel('[mm]')
+		self.longitudinalProfileView.set_ylabel('[mm]')
+		self.longitudinalProfileView.xaxis.set_major_formatter(ticks)
+		self.longitudinalProfileView.yaxis.set_major_formatter(ticks) 
 		
 	def postProcess(self, mesher, solver):
 		# Get the value for the outlet conditions
@@ -485,7 +562,7 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 				raise ValueError('The axial division step of the block is greater than the {0}-th section of the {1} channels'.format(i, channelsName))
 			
 			if self.isDividedExactly(section['length'], self.blockProps.divisionStep) == False:
-				raise ValueError('The axial division step of the block does not divide the {0}-th section of the {1} channels on the equal parts.'.format(i, channelsName))
+				raise ValueError('The axial division step of the block does not divide the {0}-th section of the {1} channels in equal parts.'.format(i, channelsName))
 			i += 1
 		
 	def isDividedExactly(self, a, b):
