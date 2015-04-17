@@ -39,3 +39,40 @@ def ChurchilCorrelation(Re, d, epsilon):
 	theta2 = m.pow(37530.0 / Re, 16)
 	zeta = 8 * m.pow(m.pow((8.0 / Re), 12) + 1 / m.pow((theta1 + theta2), 1.5) , 1./12)
 	return zeta
+
+def Nusselt_HelicalChannel_Laminar(Re, Pr, d_D):
+	"""VDI Heat Atlas, page 710, Eq. (12)"""
+	m = 0.5 + 0.2903 * m.pow(d_D, 0.194);
+	Nu = 3.66 + 0.08 * (1 + 0.8 * m.pow(d_D, 0.9)) * m.pow(Re, m) * m.pow (Pr, 1/3.)
+	return Nu
+
+def Nusselt_HelicalChannel_Turbulent(Re, Pr, d_D):
+	#@see VDI Heat Atlas, page 710, Eq. (14)
+	xi = 0.3164 / m.pow(Re, 0.25) + 0.03 * m.pow(d_D, 0.5)
+	#@see VDI Heat Atlas, page 710, Eq. (13)				
+	NuNum = (xi / 8) * Re * Pr;
+	NuDenom = 1 + 12.7 * m.sqrt(xi / 8) * (m.pow(Pr, 2./3) - 1);
+	return NuNum/NuDenom;
+	
+def Nusselt_HelicalChannel(Re, Pr, d_D):
+	#@see VDI Heat Atlas, page 709, Eq. (4)
+	ReL = 2300.* (1 + 8.6 * pow(d_D, 0.45))
+	ReH = 2.2e4
+	if (Re < ReL):
+		#VDI Heat Atlas, page 693, Eq. (1)
+		Nu = Nusselt_HelicalChannel_Laminar(Re, Pr, d_D)
+	elif (Re > ReH):
+		Nu = Nusselt_HelicalChannel_Turbulent(Re, Pr, d_D)
+	else:
+		# Interpolation coefficient
+		gamma = (Re - ReL) / (ReH - ReL);
+		Nu = (1 - gamma) * Nusselt_HelicalChannel_Laminar(ReL, Pr, d_D)\
+			 + gamma * Nusselt_HelicalChannel_Turbulent(ReH, Pr, d_D);
+	return Nu;
+
+def frictionFactor_HelicalChannel(Re, d_D):
+	#@see VDI Heat Atlas, page 1062, Eq. (12)
+	zeta = 0.3164 / m.pow(Re, 0.25) \
+			+ 0.03 * m.pow(d_D, 0.5);
+	# This is in turbulent, what about laminar?
+	return zeta

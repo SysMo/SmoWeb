@@ -18,15 +18,14 @@ class FluidChannelSection(object):
 		self.L = self.xEnd - self.xStart
 		if (fluid is not None):
 			self.setFluid(fluid)
-	
-	def setFluid(self, fluid):
-		self.fState = FluidState(fluid)
-	
+		
 	def setAnnularGeometry(self, dIn, dOut):
 		self.flowArea = m.pi / 4 * (dOut**2 - dIn**2)
 		self.charLength = dOut - dIn
 		self.extWallArea = m.pi * dOut * self.L
 		self.NusseltCorrelation = CR.Nusselt_StraightPipe
+		epsilon = 0.025
+		self.frictionCorrelation = lambda Re: CR.ChurchilCorrelation(Re, dOut - dIn, epsilon)
 		def plotGeometry(patches, dy = 0, dx = 0):
 			from matplotlib.patches import Rectangle
 			p1 = Rectangle(xy = (self.xStart + dx, dy - dOut / 2), width = self.L, height = dOut, color = '0.3')
@@ -39,6 +38,14 @@ class FluidChannelSection(object):
 			colors.append(self.fState.T)
 		self.plotGeometry = plotGeometry
 		self.plotTemperature = plotTemperature
+		
+	def setHelicalGeometry_RectChannel(self, axialWidth, radialHeight, Dw, pitch):
+		self.flowArea = axialWidth * radialHeight
+		self.charLength = 2 * self.flowArea / (axialWidth + radialHeight)
+		self.extWallArea =  (self.L / pitch) * m.pi * Dw * axialWidth
+		d_D = self.charLength / Dw
+		self.NusseltCorrelation = lambda Re, Pr: CR.Nusselt_HelicalChannel(Re, Pr, d_D)
+		self.frictionCorrelation = lambda Re: CR.frictionFactor_HelicalChannel(Re, d_D)
 		
 	def computeConvectionCoefficient(self):
 		if (self.mDot > 1e-12):
@@ -53,7 +60,16 @@ class FluidChannelSection(object):
 			self.Pr = 0
 			self.Nu = 0
 			self.hConv = 0			
-
+	
+	def computePressureDrop(self):
+		if (self.mDot > 1e-12):
+			self.vFlow = self.mDot / self.fState.rho / self.flowArea
+			self.Re = self.fState.rho * self.vFlow * self.charLength / self.fState.mu
+			self.zeta = self.frictionCorrelation(self.Re)
+		else:
+			pass
+			
+			
 	def computeExitState(self, fStateOut):
 		fStateOut.update_Tp(self.TWall, self.fState.p)
 		dhMax = fStateOut.h - self.fState.h
@@ -65,12 +81,12 @@ class FluidChannelSection(object):
 				self.QDotWall = QDot				 
 
 class FluidChannel(object):
-	def __init__(self, fluid):
-		self.fluid = fluid
+	def __init__(self, fFactory):
+		self.fFactory = fFactory
 		self.sections = []
 	
 	def addSection(self, section):
-		section.setFluid(self.fluid)
+		section.fState = self.fFactory()
 		self.sections.append(section)
 	
 	def setMDot(self, mDot):
