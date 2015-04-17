@@ -979,10 +979,10 @@ smoModule.directive('smoDataSeriesView', ['$compile', function($compile) {
 				} else {
 					for (var i=0; i < $scope.numCols; i++){
 						try {
-							formatter = new google.visualization.NumberFormat({pattern: $scope.fieldVar.options.formats[i]});
+							formatter = new google.visualization.NumberFormat({pattern: $scope.fieldVar.options.formats[i], groupingSymbol : ''});
 						}
 						catch(err) {
-							formatter = new google.visualization.NumberFormat();
+							formatter = new google.visualization.NumberFormat({groupingSymbol : ''});
 						}
 						
 						formatter.format($scope.dataTable, i);
