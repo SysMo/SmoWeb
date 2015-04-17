@@ -183,7 +183,7 @@ class SectionResultsSettings(NumericalModel):
 	
 class CylindricalBlockHeatExchanger(NumericalModel):
 	label = "Cylindrical heat exchanger"
-	#figure = F.ModelFigure()
+	figure = F.ModelFigure(src="ThermoFluids/img/ModuleImages/HeatExchangerDesign.png", show = False)
 	description = F.ModelDescription(
 	"""Model of heat exchanger made out of a solid cylindrical block, with
 	central channels for one of the fluids and a spiraling
