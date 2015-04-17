@@ -76,7 +76,7 @@ class ChannelGroupGeometry(NumericalModel):
 	externalDiameter = F.Quantity('Length', default = (0., 'mm'),
 		label = 'external diameter', description = 'external diameter of the channels')
 	sections = F.RecordArray((
-			('internalDiameter', F.Quantity('Length', default = (0, 'mm'), label = 'internal diameter')),
+			('internalDiameter', F.Quantity('Length', default = (0, 'mm'), minValue = (0, 'mm'), label = 'internal diameter')),
 			('length', F.Quantity('Length', default = (0.2, 'm'), label = 'length')),
 		), 
 		label = 'sections',
