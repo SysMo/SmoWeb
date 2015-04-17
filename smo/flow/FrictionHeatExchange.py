@@ -48,6 +48,7 @@ class FluidChannelSection(object):
 		d_D = self.charLength / Dw
 		self.NusseltCorrelation = lambda Re, Pr: CR.Nusselt_HelicalChannel(Re, Pr, d_D)
 		self.frictionCorrelation = lambda Re: CR.frictionFactor_HelicalChannel(Re, d_D)
+		self.flowFactor = (self.L / pitch) * m.pi * Dw / self.charLength
 		
 	def computeConvectionCoefficient(self):
 		if (self.mDot > 1e-12):
@@ -68,20 +69,25 @@ class FluidChannelSection(object):
 			self.vFlow = self.mDot / self.fState.rho / self.flowArea
 			self.Re = self.fState.rho * self.vFlow * self.charLength / self.fState.mu
 			self.zeta = self.frictionCorrelation(self.Re)
-			
+			self.dp = self.zeta * self.flowFactor * self.fState.rho * self.vFlow**2 / 2
 		else:
-			pass
+			self.vFlow = 0
+			self.Re = 0
+			self.zeta = 0
+			self.dp = 0
 			
 			
 	def computeExitState(self, fStateOut):
-		fStateOut.update_Tp(self.TWall, self.fState.p)
+		self.computePressureDrop()
+		pOut = self.fState.p - self.dp
+		fStateOut.update_Tp(self.TWall, pOut)
 		dhMax = fStateOut.h - self.fState.h
 		self.QDotWall = self.mDot * dhMax
 		QDot = self.extWallArea * self.hConv * (self.TWall - self.fState.T)
 		dh = QDot / self.mDot
 		if (self.mDot > 1e-12):
 			if (abs(dh) < abs(dhMax)):
-				fStateOut.update_ph(self.fState.p, self.fState.h + dh)
+				fStateOut.update_ph(pOut, self.fState.h + dh)
 				self.QDotWall = QDot				 
 
 class FluidChannel(object):
