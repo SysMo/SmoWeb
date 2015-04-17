@@ -262,7 +262,13 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 		('TExtWall', F.Quantity('Temperature', default = (1, 'degC'))),
 	), label = 'Temperature plots')
 	
-	detailedResultVG = F.ViewGroup([resultTable, resultTPlot], label = 'Detailed results')
+	resultQPlot = F.PlotView((
+		('x', F.Quantity('Length', default = (1, 'm'))),
+		('QDotPrim', F.Quantity('HeatFlowRate', default = (1, 'W'))),
+		('QDotSec', F.Quantity('HeatFlowRate', default = (1, 'W'))),
+		('QDotExt', F.Quantity('HeatFlowRate', default = (1, 'W'))),
+	), label = 'Heat flow plots')
+	detailedResultVG = F.ViewGroup([resultTable, resultTPlot, resultQPlot], label = 'Detailed results')
 	detailedResultSG = F.SuperGroup([detailedResultVG], label = 'Detailed results')
 	
 	sectionPlot1 = F.MPLPlot(label = 'Section 1')
@@ -414,6 +420,8 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 		# Fill the table with values
 		self.resultTable.resize(solver.numSectionSteps)
 		self.resultTPlot.resize(solver.numSectionSteps)
+		self.resultQPlot.resize(solver.numSectionSteps)
+
 		for i in range(solver.numSectionSteps):
 			self.resultTable[i] = (
 				solver.primChannelCalc.sections[i].xStart,
@@ -432,8 +440,9 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 				solver.extChannelCalc.sections[i].TWall,
 				solver.extChannelCalc.sections[i].Re,
 				solver.extChannelCalc.sections[i].hConv,
-				solver.extChannelCalc.sections[i].QDotWall,
+				-solver.extChannelCalc.sections[i].QDotWall,
 			)
+			
 			self.resultTPlot[i] = (
 				(solver.primChannelCalc.sections[i].xStart + 
 				solver.primChannelCalc.sections[i].xEnd) / 2,
@@ -444,7 +453,15 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 				solver.extChannelCalc.sections[i].fState.T,
 				solver.extChannelCalc.sections[i].TWall,
 			)
-	
+			
+			self.resultQPlot[i] = (
+				(solver.primChannelCalc.sections[i].xStart + 
+				solver.primChannelCalc.sections[i].xEnd) / 2,
+				solver.primChannelCalc.sections[i].QDotWall,
+				solver.secChannelCalc.sections[i].QDotWall,
+				-solver.extChannelCalc.sections[i].QDotWall,
+			)
+
 	def validateInputs(self):
 		self.validateChannels(self.primaryChannelsGeom, "primary")
 		self.validateChannels(self.secondaryChannelsGeom, "secondary")
