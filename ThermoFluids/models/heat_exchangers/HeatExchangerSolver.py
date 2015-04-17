@@ -40,8 +40,10 @@ class HeatExchangerSolver(object):
 		# Setup the two calculators for each set of channels
 		self.primChannelCalc = FluidChannel(heatExch.primaryFlowIn.createFluidState)
 		self.secChannelCalc = FluidChannel(heatExch.secondaryFlowIn.createFluidState)
+		self.extChannelCalc = FluidChannel(heatExch.externalFlowIn.createFluidState)
 		self.primChannelStateOut = heatExch.primaryFlowIn.createFluidState()
 		self.secChannelStateOut = heatExch.secondaryFlowIn.createFluidState()
+		self.extChannelStateOut = heatExch.externalFlowIn.createFluidState()
 		# Starting position of sections
 		primChannelSectionsX = np.cumsum(heatExch.primaryChannelsGeom.sections['length'])
 		secChannelSectionsX = np.cumsum(heatExch.secondaryChannelsGeom.sections['length'])
@@ -75,8 +77,19 @@ class HeatExchangerSolver(object):
 					dIn = heatExch.secondaryChannelsGeom.sections[secSectionIndex]['internalDiameter'], 
 					dOut = heatExch.secondaryChannelsGeom.externalDiameter)
 			self.secChannelCalc.addSection(secSection)
+			# external
+			extSection = FluidChannelSection(x, x + self.stepX)
+			extSection.setHelicalGeometry_RectChannel(
+					axialWidth = heatExch.externalChannelGeom.widthAxial, 
+					radialHeight = heatExch.externalChannelGeom.heightRadial, 
+					Dw = heatExch.externalChannelGeom.averageCoilDiameter,
+					pitch = heatExch.externalChannelGeom.coilPitch
+			)
+			self.extChannelCalc.addSection(extSection)
+			
 		self.primChannelCalc.setMDot(heatExch.primaryFlowIn.mDot / heatExch.primaryChannelsGeom.number)
 		self.secChannelCalc.setMDot(heatExch.secondaryFlowIn.mDot / heatExch.secondaryChannelsGeom.number)
+		self.extChannelCalc.setMDot(heatExch.externalFlowIn.mDot)
 
 	def solve(self, heatExch):
 		# Create variables for temperature and thermal conductivity
@@ -91,22 +104,24 @@ class HeatExchangerSolver(object):
 		self.T.setValue(heatExch.externalFlowIn.T)
 		self.primChannelCalc.sections[0].fState.update_Tp(heatExch.primaryFlowIn.T, heatExch.primaryFlowIn.p)
 		self.secChannelCalc.sections[0].fState.update_Tp(heatExch.secondaryFlowIn.T, heatExch.secondaryFlowIn.p)
+		self.extChannelCalc.sections[0].fState.update_Tp(heatExch.externalFlowIn.T, heatExch.externalFlowIn.p)
 		# Solve for a single cross section
 		for i in range(self.numSectionSteps):
 			primSection = self.primChannelCalc.sections[i]
 			secSection = self.secChannelCalc.sections[i]
+			extSection = self.extChannelCalc.sections[i]
 			# Compute convection coefficients
 			primSection.computeConvectionCoefficient()
 			secSection.computeConvectionCoefficient()
+			extSection.computeConvectionCoefficient()
 			# Run FV solver
 			TPrim = primSection.fState.T 
-			TSec = secSection.fState.T
-			hConvExt = 2000
-			TExt = 300
+			TSec = secSection.fState.T			
+			TExt = extSection.fState.T
 			self.solveSectionThermal(
 				TPrim = TPrim, hConvPrim = primSection.hConv, 
 				TSec = secSection.fState.T, hConvSec = secSection.hConv, 
-				TExt = TExt, hConvExt = hConvExt)			
+				TExt = TExt, hConvExt = extSection.hConv)			
 			# Compute average channel wall temperatures
 			TFaces = self.T.arithmeticFaceValue()
 			TPrimWall = self.getFaceAverage(TFaces, self.primChannels)
@@ -114,14 +129,16 @@ class HeatExchangerSolver(object):
 			TExtWall = self.getFaceAverage(TFaces, self.extChannel)
 			primSection.TWall = TPrimWall
 			secSection.TWall = TSecWall
-			QDotExt = self.getFaceArea(self.extChannel) * hConvExt * (TExtWall - TExt)
+			extSection.TWall = TExtWall
 			# Compute heat fluxes and new temperatures
 			if (i < self.numSectionSteps - 1):
 				primSection.computeExitState(self.primChannelCalc.sections[i + 1].fState)
 				secSection.computeExitState(self.secChannelCalc.sections[i + 1].fState)
+				extSection.computeExitState(self.extChannelCalc.sections[i + 1].fState)
 			else:
 				primSection.computeExitState(self.primChannelStateOut)
 				secSection.computeExitState(self.secChannelStateOut)
+				extSection.computeExitState(self.extChannelStateOut)
 			# Make a section result plot
 			if (i == 0 or (i - self.lastPlotPos) >= float(self.numSectionSteps) / self.numPlots or i == self.numSectionSteps - 1):
 				if (self.currPlot <= self.numPlots):

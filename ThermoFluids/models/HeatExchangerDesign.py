@@ -217,6 +217,10 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 		('TSecWall', F.Quantity('Temperature', default = (1, 'degC'))),
 		('hConvSec', F.Quantity('HeatTransferCoefficient', default = (1, 'W/m**2-K'))),
 		('ReSec', F.Quantity()),
+		('TExtFluid', F.Quantity('Temperature', default = (1, 'degC'))),
+		('TExtWall', F.Quantity('Temperature', default = (1, 'degC'))),
+		('hConvExt', F.Quantity('HeatTransferCoefficient', default = (1, 'W/m**2-K'))),
+		('ReExt', F.Quantity()),
 	), label = 'Detailed results')
 	resultTPlot = F.PlotView((
 		('x', F.Quantity('Length', default = (1, 'm'))),
@@ -224,6 +228,8 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 		('TPrimWall', F.Quantity('Temperature', default = (1, 'degC'))),
 		('TSecFluid', F.Quantity('Temperature', default = (1, 'degC'))),
 		('TSecWall', F.Quantity('Temperature', default = (1, 'degC'))),
+		('TExtFluid', F.Quantity('Temperature', default = (1, 'degC'))),
+		('TExtWall', F.Quantity('Temperature', default = (1, 'degC'))),
 	), label = 'Temperature plots')
 	
 	detailedResultVG = F.ViewGroup([resultTable, resultTPlot], label = 'Detailed results')
@@ -377,6 +383,7 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 		# Get the value for the outlet conditions
 		self.primaryFlowOut.compute(fState = solver.primChannelStateOut, mDot = self.primaryFlowIn.mDot) 
 		self.secondaryFlowOut.compute(fState = solver.secChannelStateOut, mDot = self.secondaryFlowIn.mDot)
+		self.externalFlowOut.compute(fState = solver.extChannelStateOut, mDot = self.externalFlowIn.mDot)
 		#self.externalFlowOut.compute(fState = ..., mDot = self.externalFlowIn.mDot)
 		# Fill the table with values
 		self.resultTable.resize(solver.numSectionSteps)
@@ -393,6 +400,10 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 				solver.secChannelCalc.sections[i].TWall,
 				solver.secChannelCalc.sections[i].hConv,
 				solver.secChannelCalc.sections[i].Re,
+				solver.extChannelCalc.sections[i].fState.T,
+				solver.extChannelCalc.sections[i].TWall,
+				solver.extChannelCalc.sections[i].hConv,
+				solver.extChannelCalc.sections[i].Re,
 			)
 			self.resultTPlot[i] = (
 				(solver.primChannelCalc.sections[i].xStart + 
@@ -401,4 +412,6 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 				solver.primChannelCalc.sections[i].TWall,
 				solver.secChannelCalc.sections[i].fState.T,
 				solver.secChannelCalc.sections[i].TWall,
+				solver.extChannelCalc.sections[i].fState.T,
+				solver.extChannelCalc.sections[i].TWall,
 			)

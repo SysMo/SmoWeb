@@ -42,7 +42,7 @@ class FluidChannelSection(object):
 	def setHelicalGeometry_RectChannel(self, axialWidth, radialHeight, Dw, pitch):
 		self.flowArea = axialWidth * radialHeight
 		self.charLength = 2 * self.flowArea / (axialWidth + radialHeight)
-		self.extWallArea =  (self.L / pitch) * m.pi * Dw * axialWidth
+		self.extWallArea =  (self.L / pitch) * m.pi * (Dw - radialHeight) * axialWidth
 		d_D = self.charLength / Dw
 		self.NusseltCorrelation = lambda Re, Pr: CR.Nusselt_HelicalChannel(Re, Pr, d_D)
 		self.frictionCorrelation = lambda Re: CR.frictionFactor_HelicalChannel(Re, d_D)

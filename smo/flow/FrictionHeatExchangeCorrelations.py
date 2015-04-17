@@ -42,8 +42,8 @@ def ChurchilCorrelation(Re, d, epsilon):
 
 def Nusselt_HelicalChannel_Laminar(Re, Pr, d_D):
 	"""VDI Heat Atlas, page 710, Eq. (12)"""
-	m = 0.5 + 0.2903 * m.pow(d_D, 0.194);
-	Nu = 3.66 + 0.08 * (1 + 0.8 * m.pow(d_D, 0.9)) * m.pow(Re, m) * m.pow (Pr, 1/3.)
+	n = 0.5 + 0.2903 * m.pow(d_D, 0.194);
+	Nu = 3.66 + 0.08 * (1 + 0.8 * m.pow(d_D, 0.9)) * m.pow(Re, n) * m.pow (Pr, 1/3.)
 	return Nu
 
 def Nusselt_HelicalChannel_Turbulent(Re, Pr, d_D):
