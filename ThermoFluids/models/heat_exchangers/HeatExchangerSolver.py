@@ -15,7 +15,7 @@ import matplotlib.cm as cm
 
 class HeatExchangerSolver(object):
 	def __init__(self, heatExch, mesher):
-		self.blockMaterial= Solids['Aluminium6061']
+		self.blockMaterial= heatExch.blockProps.material
 		self.thermCondModel = Interpolator1D(
 			self.blockMaterial['thermalCond_T']['T'], 
 			self.blockMaterial['thermalCond_T']['cond'])
@@ -38,10 +38,10 @@ class HeatExchangerSolver(object):
 		
 	def createChannelCalculators(self, heatExch):		
 		# Setup the two calculators for each set of channels
-		self.primChannelCalc = FluidChannel(heatExch.primaryFlowIn.fluidName)
-		self.secChannelCalc = FluidChannel(heatExch.secondaryFlowIn.fluidName)
-		self.primChannelStateOut = FluidState(heatExch.primaryFlowIn.fluidName)
-		self.secChannelStateOut = FluidState(heatExch.secondaryFlowIn.fluidName)
+		self.primChannelCalc = FluidChannel(heatExch.primaryFlowIn.createFluidState)
+		self.secChannelCalc = FluidChannel(heatExch.secondaryFlowIn.createFluidState)
+		self.primChannelStateOut = heatExch.primaryFlowIn.createFluidState()
+		self.secChannelStateOut = heatExch.secondaryFlowIn.createFluidState()
 		# Starting position of sections
 		primChannelSectionsX = np.cumsum(heatExch.primaryChannelsGeom.sections['length'])
 		secChannelSectionsX = np.cumsum(heatExch.secondaryChannelsGeom.sections['length'])
@@ -123,17 +123,15 @@ class HeatExchangerSolver(object):
 				primSection.computeExitState(self.primChannelStateOut)
 				secSection.computeExitState(self.secChannelStateOut)
 			# Make a section result plot
-			if (i == 0 or (i - self.lastPlotPos) >= float(self.numSectionSteps) / self.numPlots):
-				ax = heatExch.__getattr__('sectionPlot%d'%self.currPlot)
-				ax.set_aspect('equal')
-				#imgFileName = str(uuid.uuid4()) + '.png'
-				#imgFilePath = os.path.join(MEDIA_ROOT, 'tmp')
-				#viewer = Matplotlib2DViewer(vars = self.T)
-				#viewer.plot(filename = imgFilePath)
-				#heatExch.__setattr__('sectionPlot%d'%self.currPlot, 'media/tmp/' + imgFileName)
-				self.plotSolution(ax, self.T)
-				self.currPlot += 1
-				self.lastPlotPos = i
+			if (i == 0 or (i - self.lastPlotPos) >= float(self.numSectionSteps) / self.numPlots or i == self.numSectionSteps - 1):
+				if (self.currPlot <= self.numPlots):
+					ax = heatExch.__getattr__('sectionPlot%d'%self.currPlot)
+					ax.set_aspect('equal')
+					ax.set_title('Section at x=%g' % primSection.xStart)
+					self.plotSolution(ax, self.T)
+					self.currPlot += 1
+					self.lastPlotPos = i
+			
 			
 	def plotSolution(self, axes, var):
 		vertexIDs = self.mesh._orderedCellVertexIDs
@@ -246,14 +244,4 @@ class HeatExchangerSolver(object):
 # 		comp = (faceSelector * self.mesh.scaledFaceAreas *  self.thermCond).value * np.sum(self.mesh.faceNormals * self.T.faceGrad, axis = 0)
 # 		value = np.sum(np.abs(comp))
 # 		return value
-		
 
-if __name__ == '__main__':
-	mesh1 = FP.Gmsh2D(open('CylindricalHeatExchanger1.geo').read())
-	solver = HeatExchangerSolver(mesh = mesh1)
-	print "Num cells: %d"%len(solver.mesh.cellCenters()[0])
-
-	solver.solve()
-	#solver.plotMesh()
-	solver.showResult()
-	print solver.T

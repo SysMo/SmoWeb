@@ -352,10 +352,11 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 		# Create channel calculator objects
 		solver = HeatExchangerSolver(self, mesher)
 		solver.createChannelCalculators(self)
-		solver.solve(self)
-		
+
 		# Produce geometry/mesh drawings
 		self.drawGeometry(mesher, solver)
+		
+		solver.solve(self)
 		
 		# Produce results		
 		self.postProcess(mesher, solver)
@@ -367,7 +368,7 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 		triPlotMesh = tri.Triangulation(vertexCoords[0], vertexCoords[1], np.transpose(vertexIDs))
 		self.meshView.triplot(triPlotMesh)
 		self.meshView.set_aspect('equal')
-		
+		self.meshView.set_title('%d elemenents'%len(mesher.mesh.cellCenters[0]))
 		#Draw heat exchanger cross-section profile
 		crossSectionProfile = HeatExchangerCrossSectionProfile()
 		crossSectionProfile.addBlock(self.blockGeom)
