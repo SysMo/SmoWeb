@@ -211,7 +211,7 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 	
 	# Fields: settings
 	fvSolverSettings = F.SubModelGroup(FiniteVolumeSolverSettings, 'FG', label = 'Finite volume solver')
-	sectionResultsSettings = F.SubModelGroup(SectionResultsSettings, 'FG', label = 'Section results plots') #:TODO: (NASKO:WORK) 
+	sectionResultsSettings = F.SubModelGroup(SectionResultsSettings, 'FG', label = 'Section results plots') 
 	settingsSG = F.SuperGroup([fvSolverSettings, sectionResultsSettings], label = 'Settings')
 	
 
@@ -230,7 +230,7 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 	primaryFlowOut = F.SubModelGroup(FluidFlowOutput, 'FG', label = 'Primary flow outlet')
 	secondaryFlowOut = F.SubModelGroup(FluidFlowOutput, 'FG', label = 'Secondary flow outlet')
 	externalFlowOut = F.SubModelGroup(FluidFlowOutput, 'FG', label = 'External flow outlet')
-	QDotChannels = F.SubModelGroup(HeatFlowChannels, 'FG', label = 'Heat flow') #:TODO: (NASKO:WORK)
+	QDotChannels = F.SubModelGroup(HeatFlowChannels, 'FG', label = 'Heat flow')
 	resultSG = F.SuperGroup([primaryFlowOut, secondaryFlowOut, externalFlowOut, QDotChannels], label = 'Results')
 	
 	resultTable = F.TableView((
@@ -281,7 +281,7 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 	
 	
 	############# Methods ###############
-	def __init__(self):
+	def __init__Internal(self):
 		self.blockGeom.diameter = (58.0, 'mm')
 		self.blockGeom.length = (0.8, 'm')
 		self.blockProps.divisionStep = (0.1, 'm')
@@ -328,7 +328,7 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 		self.externalFlowIn.solName = 'MEG'
 		self.externalFlowIn.solMassFraction = (50, '%')
 		self.externalFlowIn.flowRateChoice = 'V'
-		self.externalFlowIn.vDot = (3, 'm**3/h')
+		self.externalFlowIn.VDot = (3, 'm**3/h')
 		self.externalFlowIn.T = (80, 'degC')
 		self.externalFlowIn.p = (1, 'bar') 
 		
@@ -340,6 +340,66 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 		self.sectionResultsSettings.setTRange = False
 		self.sectionResultsSettings.Tmin = (100, 'K')
 		self.sectionResultsSettings.Tmax = (380, 'K')
+		
+	def __init__(self):
+		self.blockGeom.diameter = (60.0, 'mm')
+		self.blockGeom.length = (1.0, 'm')
+		self.blockProps.divisionStep = (0.1, 'm')
+		self.blockProps.material = 'Aluminium6061'
+		
+		self.primaryChannelsGeom.number = 4
+		self.primaryChannelsGeom.radialPosition = (10, 'mm')
+		self.primaryChannelsGeom.startingAngle = (0, 'deg')
+		self.primaryChannelsGeom.meshFineness = 4
+		self.primaryChannelsGeom.channelName = "PrimaryChannel"
+		
+		self.primaryChannelsGeom.externalDiameter = (10, 'mm')
+		self.primaryChannelsGeom.sections[0] = (0.000, 0.2)
+		self.primaryChannelsGeom.sections[1] = (0.002, 0.2)
+		self.primaryChannelsGeom.sections[2] = (0.004, 0.2)
+		self.primaryChannelsGeom.sections[3] = (0.006, 0.2)
+		self.primaryChannelsGeom.sections[4] = (0.008, 0.2)
+		
+		self.secondaryChannelsGeom.number = 6
+		self.secondaryChannelsGeom.radialPosition = (22.5, 'mm')
+		self.secondaryChannelsGeom.startingAngle = (60, 'deg')
+		self.secondaryChannelsGeom.meshFineness = 4
+		self.secondaryChannelsGeom.channelName = "SecondaryChannel"
+		
+		self.secondaryChannelsGeom.externalDiameter = (7, 'mm')
+		self.secondaryChannelsGeom.sections[0] = (0.002, 0.2)
+		self.secondaryChannelsGeom.sections[1] = (0.003, 0.2)
+		self.secondaryChannelsGeom.sections[2] = (0.004, 0.2)
+		self.secondaryChannelsGeom.sections[3] = (0.005, 0.2)
+		self.secondaryChannelsGeom.sections[4] = (0.006, 0.2)
+		
+		self.primaryFlowIn.fluidName = 'Nitrogen'
+		self.primaryFlowIn.flowRateChoice = 'm'
+		self.primaryFlowIn.mDot = (10, 'kg/h')
+		self.primaryFlowIn.T = (200, 'K')
+		self.primaryFlowIn.p = (20, 'bar') 
+		
+		self.secondaryFlowIn.fluidName = 'Nitrogen'
+		self.secondaryFlowIn.flowRateChoice = 'm'
+		self.secondaryFlowIn.mDot = (10, 'kg/h')
+		self.secondaryFlowIn.T = (200, 'K')
+		self.secondaryFlowIn.p = (20, 'bar') 
+		
+		self.externalFlowIn.solName = 'MPG'
+		self.externalFlowIn.solMassFraction = (50, '%')
+		self.externalFlowIn.flowRateChoice = 'V'
+		self.externalFlowIn.VDot = (1, 'm**3/h')
+		self.externalFlowIn.T = (350, 'K')
+		self.externalFlowIn.p = (1, 'bar') 
+		
+		self.externalChannelGeom.widthAxial = (40, 'mm')
+		self.externalChannelGeom.heightRadial = (10, 'mm')
+		self.externalChannelGeom.coilPitch = (43, 'mm')
+		self.externalChannelGeom.meshFineness = 4
+		
+		self.sectionResultsSettings.setTRange = False
+		self.sectionResultsSettings.Tmin = (200, 'K')
+		self.sectionResultsSettings.Tmax = (350, 'K')
 		
 	def compute(self):
 		# PreComputation
