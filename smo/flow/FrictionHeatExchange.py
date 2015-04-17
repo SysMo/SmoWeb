@@ -26,6 +26,7 @@ class FluidChannelSection(object):
 		self.NusseltCorrelation = CR.Nusselt_StraightPipe
 		epsilon = 0.025
 		self.frictionCorrelation = lambda Re: CR.ChurchilCorrelation(Re, dOut - dIn, epsilon)
+		self.flowFactor = self.L / self.charLength
 		def plotGeometry(patches, dy = 0, dx = 0):
 			from matplotlib.patches import Rectangle
 			p1 = Rectangle(xy = (self.xStart + dx, dy - dOut / 2), width = self.L, height = dOut, color = '0.3')
@@ -42,7 +43,8 @@ class FluidChannelSection(object):
 	def setHelicalGeometry_RectChannel(self, axialWidth, radialHeight, Dw, pitch):
 		self.flowArea = axialWidth * radialHeight
 		self.charLength = 2 * self.flowArea / (axialWidth + radialHeight)
-		self.extWallArea =  (self.L / pitch) * m.pi * (Dw - radialHeight) * axialWidth
+		#self.extWallArea =  (self.L / pitch) * m.pi * (Dw - radialHeight) * axialWidth
+		self.extWallArea = m.pi * self.L * (Dw - radialHeight)
 		d_D = self.charLength / Dw
 		self.NusseltCorrelation = lambda Re, Pr: CR.Nusselt_HelicalChannel(Re, Pr, d_D)
 		self.frictionCorrelation = lambda Re: CR.frictionFactor_HelicalChannel(Re, d_D)
@@ -66,6 +68,7 @@ class FluidChannelSection(object):
 			self.vFlow = self.mDot / self.fState.rho / self.flowArea
 			self.Re = self.fState.rho * self.vFlow * self.charLength / self.fState.mu
 			self.zeta = self.frictionCorrelation(self.Re)
+			
 		else:
 			pass
 			
@@ -75,9 +78,10 @@ class FluidChannelSection(object):
 		dhMax = fStateOut.h - self.fState.h
 		self.QDotWall = self.mDot * dhMax
 		QDot = self.extWallArea * self.hConv * (self.TWall - self.fState.T)
+		dh = QDot / self.mDot
 		if (self.mDot > 1e-12):
-			if (abs(QDot / self.mDot) < dhMax):				
-				fStateOut.update_ph(self.fState.p, self.fState.h + QDot / self.mDot)
+			if (abs(dh) < abs(dhMax)):
+				fStateOut.update_ph(self.fState.p, self.fState.h + dh)
 				self.QDotWall = QDot				 
 
 class FluidChannel(object):

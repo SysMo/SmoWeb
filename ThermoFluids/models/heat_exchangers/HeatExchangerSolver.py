@@ -120,8 +120,12 @@ class HeatExchangerSolver(object):
 			TExt = extSection.fState.T
 			self.solveSectionThermal(
 				TPrim = TPrim, hConvPrim = primSection.hConv, 
-				TSec = secSection.fState.T, hConvSec = secSection.hConv, 
-				TExt = TExt, hConvExt = extSection.hConv)			
+				TSec = TSec, hConvSec = secSection.hConv, 
+				TExt = TExt, hConvExt = extSection.hConv)
+# 			self.checkResults(
+# 				TPrim = TPrim, hConvPrim = primSection.hConv, 
+# 				TSec = TSec, hConvSec = secSection.hConv, 
+# 				TExt = TExt, hConvExt = extSection.hConv)			
 			# Compute average channel wall temperatures
 			TFaces = self.T.arithmeticFaceValue()
 			TPrimWall = self.getFaceAverage(TFaces, self.primChannels)
@@ -145,12 +149,12 @@ class HeatExchangerSolver(object):
 					ax = heatExch.__getattr__('sectionPlot%d'%self.currPlot)
 					ax.set_aspect('equal')
 					ax.set_title('Section at x=%g' % primSection.xStart)
-					self.plotSolution(ax, self.T)
+					self.plotSolution(heatExch, ax, self.T, zmin = 250, zmax = 300)
 					self.currPlot += 1
 					self.lastPlotPos = i
 			
 			
-	def plotSolution(self, axes, var):
+	def plotSolution(self, heatExch, axes, var, zmin = None, zmax = None):
 		vertexIDs = self.mesh._orderedCellVertexIDs
 		vertexCoords = self.mesh.vertexCoords
 		xCoords = np.take(vertexCoords[0], vertexIDs)
@@ -162,10 +166,9 @@ class HeatExchangerSolver(object):
 			if hasattr(y, 'mask'):
 				y = y.compressed()
 			polys.append(zip(x,y))
+			
 		from matplotlib.collections import PolyCollection
-		collection = PolyCollection(polys, cmap = cm.jet)
-		collection.set_linewidth(0.5)
-		axes.add_collection(collection)
+		# Set limits
 		xmin = xCoords.min()
 		xmax = xCoords.max()
 		ymin = yCoords.min()
@@ -173,13 +176,26 @@ class HeatExchangerSolver(object):
 		axes.set_xlim(xmin=xmin, xmax=xmax)
 		axes.set_ylim(ymin=ymin, ymax=ymax)
 		Z = var.value
-		zmin = np.min(Z)
-		zmax = np.max(Z)
+		if (zmin is not None):
+			zmin = np.min(Z)
+		if (zmax is not None):
+			zmax = np.max(Z)
+
+		collection = PolyCollection(polys, cmap = cm.jet)
+		collection.set_linewidth(0.5)
+		axes.add_collection(collection)
+
+		#if heatExch.sectionResultsSettings.setTRange:
+		#	norm = Normalize(heatExch.sectionResultsSettings.Tmin, heatExch.sectionResultsSettings.Tmax)
+		#else:
+		#	norm = Normalize(zmin, zmax)	
+		
 		norm = Normalize(zmin, zmax)
 		rgba = cm.jet(norm(Z))
 		#collection.set_facecolors(rgba)
 		collection.set_edgecolors(rgba)
 		collection.set_array(np.array(Z))
+		collection.set_clim(zmin, zmax)
 		colorbar = axes.figure.colorbar(collection, ax = axes)
 		#colorbar.plot()	
 
@@ -215,18 +231,15 @@ class HeatExchangerSolver(object):
 		QDotPrim = self.getFaceArea(self.primChannels) * hConvPrim * (TPrim - TPrimWall) 
 		QDotSec = self.getFaceArea(self.secChannels) * hConvSec * (TSec - TSecWall) 
 		QDotExt = self.getFaceArea(self.extChannel) * hConvExt * (TExt - TExtWall)
-		
-		print QDotPrim
-		print QDotSec
-		print QDotExt
-		
+				
 		Q1 = np.sum((hConvPrim * (self.T - TPrim) * self.cPrimCoeff * self.mesh.cellVolumes).value)
 		Q2 = np.sum((hConvSec * (self.T - TSec) * self.cSecCoeff * self.mesh.cellVolumes).value)
 		QExt = np.sum((hConvExt * (self.T - TExt) * self.cExtCoeff * self.mesh.cellVolumes).value)
 		
-		print Q1
-		print Q2
-		print QExt
+		print QDotPrim, Q1
+		print QDotSec, Q2
+		print QDotExt, QExt
+		print
 	
 	def showResult(self):
 		viewer = FP.Viewer(vars = [self.T], FIPY_VIEWER = 'mayavi')

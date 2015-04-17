@@ -21,7 +21,7 @@ import smo.media.CoolProp5 as CP5
 class BlockProperties(NumericalModel):
 	material = F.ObjectReference(Solids, default = 'Aluminium6061', 
 		label = 'material', description = 'block material')
-	divisionStep = F.Quantity('Length', default = (0., 'm'), #:TODO: (MILEN:WORK) Add Validation
+	divisionStep = F.Quantity('Length', default = (0., 'm'), minValue = (1, 'mm'),
 		label = 'division step (axial)', description = 'axial division step')
 	
 	FG = F.FieldGroup([material, divisionStep], label = 'Block properties')
@@ -31,7 +31,7 @@ class BlockProperties(NumericalModel):
 class BlockGeometry(NumericalModel):
 	diameter = F.Quantity('Length', default = (0., 'mm'),
 		label = 'diameter', description = 'block diameter')
-	length = F.Quantity('Length', default = (0., 'm'), #:TODO: (MILEN:WORK) Add Validation
+	length = F.Quantity('Length', default = (0., 'm'), 
 		label = 'length', description = 'block length')
 	
 	FG = F.FieldGroup([diameter, length], label = 'Block geometry')
@@ -45,20 +45,19 @@ class ExternalChannelGeometry(NumericalModel):
 		label = 'radial height', description = 'radial height of the spiral rectangular channel')
 	coilPitch = F.Quantity('Length', default = (0., 'mm'),
 		label = 'coil pitch', description = 'coil pitch of the spiral rectangular channel')
-	averageCoilDiameter = F.Quantity('Length', default = (0., 'mm'),
-		label = 'average coil diameter', description = 'average coil diameter of the spiral rectangular channel')
-	
+
 	cellSize = F.Quantity('Length', default = (0., 'mm'), 
 		label = 'mesh cell size', description = 'mesh cell size near the outer block circle')
 	meshFineness = F.Integer(default = 1, minValue = 1, maxValue = 10,
 		label = 'mesh fineness', description = 'mesh fineness near the outer side of the block')
 		
-	FG = F.FieldGroup([widthAxial, heightRadial, coilPitch, averageCoilDiameter, meshFineness], 
+	FG = F.FieldGroup([widthAxial, heightRadial, coilPitch, meshFineness], 
 		label = 'Channel geometry')
 		
 	modelBlocks = []
 	
-	def compute(self):
+	def compute(self, blockDiameter):
+		self.averageCoilDiameter = blockDiameter + self.heightRadial
 		self.cellSize = self.averageCoilDiameter / (self.meshFineness * 10.)
 	
 class ChannelGroupGeometry(NumericalModel):
@@ -91,6 +90,7 @@ class ChannelGroupGeometry(NumericalModel):
 	
 	def compute(self):
 		self.cellSize = self.externalDiameter / (self.meshFineness * 2.5)
+		self.length = np.sum(self.sections['length'])
 	
 class FluidFlowInput(NumericalModel):
 	fluidName = F.Choices(Fluids, default = 'ParaHydrogen', label = 'fluid')
@@ -112,12 +112,12 @@ class FluidFlowInput(NumericalModel):
 		return CP.FluidState(self.fluidName)
 	
 	def compute(self):
-		fState = self.createFluidState()
-		fState.update_Tp(self.T, self.p)
+		self.fState = self.createFluidState()
+		self.fState.update_Tp(self.T, self.p)
 		if (self.flowRateChoice == 'm'):
-			self.VDot = self.mDot / fState.rho
+			self.VDot = self.mDot / self.fState.rho
 		else:
-			self.mDot = self.VDot * fState.rho
+			self.mDot = self.VDot * self.fState.rho
 			
 class IncompressibleSolutionFlowInput(FluidFlowInput):
 	solName = F.Choices(IncompressibleSolutions, default = 'MEG', 
@@ -137,16 +137,29 @@ class FluidFlowOutput(NumericalModel):
 		label = 'mass flow', description = 'mass flow rate')
 	T = F.Quantity('Temperature', default = (300., 'K'), label = 'temperature')
 	p = F.Quantity('Pressure', default = (1., 'bar'),  label = 'pressure')
+	
 	FG = F.FieldGroup([mDot, VDot, T, p], label = 'Parameters')
 		
 	modelBlocks = []
 	
 	def compute(self, fState, mDot):
+		self.fState = fState
 		self.T = fState.T
 		self.p = fState.p
 		self.mDot = mDot
 		self.VDot = mDot / fState.rho
 
+class HeatFlowChannels(NumericalModel):
+	QDotPrimaryChannels = F.Quantity('HeatFlowRate', default = (1.0, 'kW'),
+ 		label = 'Primary channels', description = 'heat flow rate to the primary channels')
+	QDotSecondaryChannels = F.Quantity('HeatFlowRate', default = (1.0, 'kW'),
+ 		label = 'Secondary channels', description = 'heat flow rate to the secondary channels')
+	QDotExternalChannel = F.Quantity('HeatFlowRate', default = (1.0, 'kW'),
+ 		label = 'External channel', description = 'heat flow rate from the external channel')
+		
+	FG = F.FieldGroup([QDotPrimaryChannels, QDotSecondaryChannels, QDotExternalChannel], label = 'Parameters')
+		
+	modelBlocks = []
 
 class FiniteVolumeSolverSettings(NumericalModel):
 	tolerance = F.Quantity(default = 1e-6, label = 'tolerance')
@@ -154,6 +167,17 @@ class FiniteVolumeSolverSettings(NumericalModel):
 	relaxationFactor = F.Quantity(default = 1.0, label = 'relaxation factor')
 	
 	FG = F.FieldGroup([tolerance, maxNumIterations, relaxationFactor], label = 'Settings')
+
+	modelBlocks = []
+	
+class SectionResultsSettings(NumericalModel):
+	setTRange = F.Boolean(False, label = 'set temperature range', description = 'set temperature range (Tmin, Tmax) of the section results plots')
+	Tmin = F.Quantity('Temperature', default = (0, 'K'),
+		label = 'min temperature', description = 'minimum temperature', show = 'self.setTRange')
+	Tmax = F.Quantity('Temperature', default = (0, 'K'),
+		label = 'max temperature', description = 'maximum temperature', show = 'self.setTRange')
+	
+	FG = F.FieldGroup([setTRange, Tmin, Tmax], label = 'Settings')
 
 	modelBlocks = []
 	
@@ -185,12 +209,14 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 	externalFlowIn = F.SubModelGroup(IncompressibleSolutionFlowInput, 'incomSolFG', label = 'Inlet flow')
 	externalChannelSG = F.SuperGroup([externalChannelGeom, externalFlowIn], label = 'External channel')
 	
-	# Fields: thermal solver settings
-	fvSolverSettings = F.SubModelGroup(FiniteVolumeSolverSettings, 'FG', label = 'Finite volume solver') 
-	solverSettingsSG = F.SuperGroup([fvSolverSettings], label = 'Solver settings')
+	# Fields: settings
+	fvSolverSettings = F.SubModelGroup(FiniteVolumeSolverSettings, 'FG', label = 'Finite volume solver')
+	sectionResultsSettings = F.SubModelGroup(SectionResultsSettings, 'FG', label = 'Section results plots') #:TODO: (NASKO:WORK) 
+	settingsSG = F.SuperGroup([fvSolverSettings, sectionResultsSettings], label = 'Settings')
 	
+
 	#--------------- Model view ---------------#
-	inputView = F.ModelView(ioType = "input", superGroups = [blockSG, internalChannelSG, externalChannelSG, solverSettingsSG], 
+	inputView = F.ModelView(ioType = "input", superGroups = [blockSG, internalChannelSG, externalChannelSG, settingsSG], 
 						autoFetch = True)
 	
 	#================ Results ================#
@@ -204,7 +230,8 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 	primaryFlowOut = F.SubModelGroup(FluidFlowOutput, 'FG', label = 'Primary flow outlet')
 	secondaryFlowOut = F.SubModelGroup(FluidFlowOutput, 'FG', label = 'Secondary flow outlet')
 	externalFlowOut = F.SubModelGroup(FluidFlowOutput, 'FG', label = 'External flow outlet')
-	resultSG = F.SuperGroup([primaryFlowOut, secondaryFlowOut, externalFlowOut], label = 'Results')
+	QDotChannels = F.SubModelGroup(HeatFlowChannels, 'FG', label = 'Heat flow') #:TODO: (NASKO:WORK)
+	resultSG = F.SuperGroup([primaryFlowOut, secondaryFlowOut, externalFlowOut, QDotChannels], label = 'Results')
 	
 	resultTable = F.TableView((
 		('xStart', F.Quantity('Length', default = (1, 'm'))),
@@ -213,14 +240,17 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 		('TPrimWall', F.Quantity('Temperature', default = (1, 'degC'))),
 		('RePrim', F.Quantity()),
 		('hConvPrim', F.Quantity('HeatTransferCoefficient', default = (1, 'W/m**2-K'))),
+		('QDotPrim', F.Quantity('HeatFlowRate', default = (1, 'W'))),
 		('TSecFluid', F.Quantity('Temperature', default = (1, 'degC'))),
 		('TSecWall', F.Quantity('Temperature', default = (1, 'degC'))),
-		('hConvSec', F.Quantity('HeatTransferCoefficient', default = (1, 'W/m**2-K'))),
 		('ReSec', F.Quantity()),
+		('hConvSec', F.Quantity('HeatTransferCoefficient', default = (1, 'W/m**2-K'))),
+		('QDotSec', F.Quantity('HeatFlowRate', default = (1, 'W'))),
 		('TExtFluid', F.Quantity('Temperature', default = (1, 'degC'))),
 		('TExtWall', F.Quantity('Temperature', default = (1, 'degC'))),
-		('hConvExt', F.Quantity('HeatTransferCoefficient', default = (1, 'W/m**2-K'))),
 		('ReExt', F.Quantity()),
+		('hConvExt', F.Quantity('HeatTransferCoefficient', default = (1, 'W/m**2-K'))),
+		('QDotExt', F.Quantity('HeatFlowRate', default = (1, 'W'))),
 	), label = 'Detailed results')
 	resultTPlot = F.PlotView((
 		('x', F.Quantity('Length', default = (1, 'm'))),
@@ -305,21 +335,24 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 		self.externalChannelGeom.widthAxial = (30, 'mm')
 		self.externalChannelGeom.heightRadial = (12, 'mm')
 		self.externalChannelGeom.coilPitch = (32, 'mm')
-		self.externalChannelGeom.averageCoilDiameter = (70, 'mm')
-		self.externalChannelGeom.meshFineness = 4		
+		self.externalChannelGeom.meshFineness = 4
+		
+		self.sectionResultsSettings.setTRange = False
+		self.sectionResultsSettings.Tmin = (100, 'K')
+		self.sectionResultsSettings.Tmax = (380, 'K')
 		
 	def compute(self):
-		# Validation
-		self.validateInputs()
-		
 		# PreComputation
-		self.externalChannelGeom.compute()
+		self.externalChannelGeom.compute(self.blockGeom.diameter)
 		self.primaryChannelsGeom.compute()
 		self.secondaryChannelsGeom.compute()
 		
 		self.primaryFlowIn.compute()
 		self.secondaryFlowIn.compute()
 		self.externalFlowIn.compute()
+		
+		# Validation
+		self.validateInputs()
 		
 		# Create the mesh
 		mesher = HeatExchangerMesher()
@@ -337,20 +370,6 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 		# Produce results		
 		self.postProcess(mesher, solver)
 		
-	def validateInputs(self):
-		if self.blockGeom.diameter <= self.primaryChannelsGeom.externalDiameter:
-			raise ValueError('The block diameter is less than the external diameter of the primary channels.')
-		
-		if self.blockGeom.diameter <= self.secondaryChannelsGeom.externalDiameter:
-			raise ValueError('The block diameter is less than the external diameter of the secondary channels.')
-		
-		if self.blockGeom.diameter/2. <= (self.primaryChannelsGeom.radialPosition + self.primaryChannelsGeom.externalDiameter/2.):
-			raise ValueError('The radial position of the primary channels is too big (the channels are outside of the block).')
-		
-		if self.blockGeom.diameter/2. <= (self.secondaryChannelsGeom.radialPosition + self.secondaryChannelsGeom.externalDiameter/2.):
-			raise ValueError('The radial position of the secondary channels is too big (the channels are outside of the block).')
-		
-	
 	def drawGeometry(self, mesher, solver):
 		# Draw the mesh
 		vertexCoords = mesher.mesh.vertexCoords
@@ -359,6 +378,7 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 		self.meshView.triplot(triPlotMesh)
 		self.meshView.set_aspect('equal')
 		self.meshView.set_title('%d elemenents'%len(mesher.mesh.cellCenters[0]))
+		
 		#Draw heat exchanger cross-section profile
 		crossSectionProfile = HeatExchangerCrossSectionProfile()
 		crossSectionProfile.addBlock(self.blockGeom)
@@ -384,7 +404,13 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 		self.primaryFlowOut.compute(fState = solver.primChannelStateOut, mDot = self.primaryFlowIn.mDot) 
 		self.secondaryFlowOut.compute(fState = solver.secChannelStateOut, mDot = self.secondaryFlowIn.mDot)
 		self.externalFlowOut.compute(fState = solver.extChannelStateOut, mDot = self.externalFlowIn.mDot)
-		#self.externalFlowOut.compute(fState = ..., mDot = self.externalFlowIn.mDot)
+		
+		self.QDotChannels.QDotPrimaryChannels = self.primaryFlowIn.mDot * \
+			(self.primaryFlowOut.fState.h - self.primaryFlowIn.fState.h)
+		self.QDotChannels.QDotSecondaryChannels = self.secondaryFlowIn.mDot * \
+			(self.secondaryFlowOut.fState.h - self.secondaryFlowIn.fState.h)
+		self.QDotChannels.QDotExternalChannel = self.externalFlowIn.mDot * \
+			(self.externalFlowOut.fState.h - self.externalFlowIn.fState.h)
 		# Fill the table with values
 		self.resultTable.resize(solver.numSectionSteps)
 		self.resultTPlot.resize(solver.numSectionSteps)
@@ -396,14 +422,17 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 				solver.primChannelCalc.sections[i].TWall,
 				solver.primChannelCalc.sections[i].Re,
 				solver.primChannelCalc.sections[i].hConv,
+				solver.primChannelCalc.sections[i].QDotWall,
 				solver.secChannelCalc.sections[i].fState.T,
 				solver.secChannelCalc.sections[i].TWall,
-				solver.secChannelCalc.sections[i].hConv,
 				solver.secChannelCalc.sections[i].Re,
+				solver.secChannelCalc.sections[i].hConv,
+				solver.secChannelCalc.sections[i].QDotWall,
 				solver.extChannelCalc.sections[i].fState.T,
 				solver.extChannelCalc.sections[i].TWall,
-				solver.extChannelCalc.sections[i].hConv,
 				solver.extChannelCalc.sections[i].Re,
+				solver.extChannelCalc.sections[i].hConv,
+				solver.extChannelCalc.sections[i].QDotWall,
 			)
 			self.resultTPlot[i] = (
 				(solver.primChannelCalc.sections[i].xStart + 
@@ -415,3 +444,33 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 				solver.extChannelCalc.sections[i].fState.T,
 				solver.extChannelCalc.sections[i].TWall,
 			)
+	
+	def validateInputs(self):
+		self.validateChannels(self.primaryChannelsGeom, "primary")
+		self.validateChannels(self.secondaryChannelsGeom, "secondary")
+		
+		if self.externalChannelGeom.widthAxial > self.externalChannelGeom.coilPitch:
+			raise ValueError('The coil pitch of the external channel is less than the axial width.')
+			
+	def validateChannels(self, channelsGeom, channelsName):
+		if self.blockGeom.diameter <= channelsGeom.externalDiameter:
+			raise ValueError('The block diameter is less than the external diameter of the {0} channels.'.format(channelsName))
+		
+		if self.blockGeom.diameter/2. <= (channelsGeom.radialPosition + channelsGeom.externalDiameter/2.):
+			raise ValueError('The radial position of the {0} channels is too big (the channels are outside of the block).'.format(channelsName))
+			
+		if self.blockGeom.length != channelsGeom.length:
+			raise ValueError('The length of the block is different from the length of the {0} channels.'.format(channelsName))
+	
+		i = 0
+		for section in channelsGeom.sections:
+			if (section['length'] < self.blockProps.divisionStep):
+				raise ValueError('The axial division step of the block is greater than the {0}-th section of the {1} channels'.format(i, channelsName))
+			
+			if self.isDividedExactly(section['length'], self.blockProps.divisionStep) == False:
+				raise ValueError('The axial division step of the block does not divide the {0}-th section of the {1} channels on the equal parts.'.format(i, channelsName))
+			i += 1
+		
+	def isDividedExactly(self, a, b):
+		bigE = 1e6
+		return int(a*bigE) % int(b*bigE) == 0
