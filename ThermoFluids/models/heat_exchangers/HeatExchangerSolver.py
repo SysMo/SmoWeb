@@ -128,12 +128,12 @@ class HeatExchangerSolver(object):
 					ax = heatExch.__getattr__('sectionPlot%d'%self.currPlot)
 					ax.set_aspect('equal')
 					ax.set_title('Section at x=%g' % primSection.xStart)
-					self.plotSolution(ax, self.T)
+					self.plotSolution(heatExch, ax, self.T)
 					self.currPlot += 1
 					self.lastPlotPos = i
 			
 			
-	def plotSolution(self, axes, var):
+	def plotSolution(self, heatExch, axes, var):
 		vertexIDs = self.mesh._orderedCellVertexIDs
 		vertexCoords = self.mesh.vertexCoords
 		xCoords = np.take(vertexCoords[0], vertexIDs)
@@ -158,6 +158,12 @@ class HeatExchangerSolver(object):
 		Z = var.value
 		zmin = np.min(Z)
 		zmax = np.max(Z)
+		
+		#if heatExch.sectionResultsSettings.setTRange:
+		#	norm = Normalize(heatExch.sectionResultsSettings.Tmin, heatExch.sectionResultsSettings.Tmax)
+		#else:
+		#	norm = Normalize(zmin, zmax)	
+		
 		norm = Normalize(zmin, zmax)
 		rgba = cm.jet(norm(Z))
 		#collection.set_facecolors(rgba)

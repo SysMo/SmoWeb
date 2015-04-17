@@ -369,6 +369,7 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 		self.meshView.triplot(triPlotMesh)
 		self.meshView.set_aspect('equal')
 		self.meshView.set_title('%d elemenents'%len(mesher.mesh.cellCenters[0]))
+		
 		#Draw heat exchanger cross-section profile
 		crossSectionProfile = HeatExchangerCrossSectionProfile()
 		crossSectionProfile.addBlock(self.blockGeom)
