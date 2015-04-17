@@ -368,7 +368,7 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 		triPlotMesh = tri.Triangulation(vertexCoords[0], vertexCoords[1], np.transpose(vertexIDs))
 		self.meshView.triplot(triPlotMesh)
 		self.meshView.set_aspect('equal')
-		self.meshView.set_title('%d elemenents'%len(mesher.mesh.cellCenters[0]))
+		self.meshView.set_title('%d elements'%len(mesher.mesh.cellCenters[0]))
 		#Draw heat exchanger cross-section profile
 		crossSectionProfile = HeatExchangerCrossSectionProfile()
 		crossSectionProfile.addBlock(self.blockGeom)
@@ -443,7 +443,7 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 			
 			if self.isDividedExactly(section['length'], self.blockProps.divisionStep) == False:
 				print  self.blockProps.divisionStep, section['length']
-				raise ValueError('The axial division step of the block does not divide the {0}-th section of the {1} channels on the equal parts.'.format(i, channelsName))
+				raise ValueError('The axial division step of the block does not divide the {0}-th section of the {1} channels in equal parts.'.format(i, channelsName))
 			i += 1
 		
 	def isDividedExactly(self, a, b):
