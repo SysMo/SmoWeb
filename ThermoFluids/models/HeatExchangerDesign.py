@@ -316,21 +316,21 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 		
 		self.primaryFlowIn.fluidName = 'ParaHydrogen'
 		self.primaryFlowIn.flowRateChoice = 'm'
-		self.primaryFlowIn.mDot = (1, 'kg/h')
-		self.primaryFlowIn.T = (100, 'K')
-		self.primaryFlowIn.p = (1, 'bar') 
+		self.primaryFlowIn.mDot = (4, 'kg/h')
+		self.primaryFlowIn.T = (35, 'K')
+		self.primaryFlowIn.p = (45, 'bar') 
 		
 		self.secondaryFlowIn.fluidName = 'ParaHydrogen'
 		self.secondaryFlowIn.flowRateChoice = 'm'
-		self.secondaryFlowIn.mDot = (1, 'kg/h')
-		self.secondaryFlowIn.T = (100, 'K')
-		self.secondaryFlowIn.p = (1, 'bar') 
+		self.secondaryFlowIn.mDot = (4, 'kg/h')
+		self.secondaryFlowIn.T = (35, 'K')
+		self.secondaryFlowIn.p = (45, 'bar') 
 		
 		self.externalFlowIn.solName = 'MEG'
 		self.externalFlowIn.solMassFraction = (50, '%')
 		self.externalFlowIn.flowRateChoice = 'V'
-		self.externalFlowIn.VDot = (3, 'm**3/h')
-		self.externalFlowIn.T = (80, 'degC')
+		self.externalFlowIn.VDot = (2, 'm**3/h')
+		self.externalFlowIn.T = (60, 'degC')
 		self.externalFlowIn.p = (1, 'bar') 
 		
 		self.externalChannelGeom.widthAxial = (30, 'mm')
@@ -343,6 +343,8 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 		self.sectionResultsSettings.Tmax = (380, 'K')
 		
 	def __init__(self):
+		#self.__init__Internal()
+		#return
 		self.blockGeom.diameter = (60.0, 'mm')
 		self.blockGeom.length = (1.0, 'm')
 		self.blockProps.divisionStep = (0.1, 'm')
