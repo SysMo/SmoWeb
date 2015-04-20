@@ -80,7 +80,6 @@ class FluidStateSource(DMC.DynamicalModel):
 	
 	def compute(self):
 		if (self.sourceType == self.TP):
-			print self.T, self.p
 			self.fState.update_Tp(self.T, self.p)
 		elif (self.sourceType == self.PQ):
 			self.fState.update_pq(self.p, self.q)

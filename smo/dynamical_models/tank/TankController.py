@@ -36,10 +36,18 @@ class TankController(ControllerBase):
 			params = AttributeDict(kwargs)
 			
 		self.state = params.initialState
+		self.pTankInit = params.pTankInit
 		self.inputs = self.Inputs()
 		self.outputs = self.Outputs()
 		self.parameters = self.Parameters(params)
 		
+		# :TRICKY: change the initial state of the controler
+		if (self.pTankInit >= self.parameters.pMax and self.state == self.FUELING):
+			self.state = self.EXTRACTION
+			
+		if (self.pTankInit <= self.parameters.pMin and self.state == self.EXTRACTION):
+			self.state = self.FUELING
+			
 		self.executeEntryActions()
 	
 	def setInputs(self, **kwargs):

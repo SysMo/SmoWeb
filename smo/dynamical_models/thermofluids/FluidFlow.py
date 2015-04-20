@@ -43,6 +43,8 @@ class Compressor(DMC.DynamicalModel):
 		
 		if self.n > 0:
 			self.TOut = self.fStateOut.T
+		else:
+			self.TOut = 0.0
 
 class FluidHeater(DMC.DynamicalModel):
 	def __init__(self, params = None, **kwargs):
@@ -104,7 +106,7 @@ class FluidHeater(DMC.DynamicalModel):
 				self.QDot = self.portIn.flow.HDot - self.HDotOut
 		else:
 			self.Tin = 0 #:TRICKY: left the old value
-			#self.TOut = 0
+			self.TOut = 0
 			self.QDot = 0
 			self.HDotOut = 0
 			
