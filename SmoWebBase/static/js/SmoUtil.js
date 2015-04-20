@@ -1018,7 +1018,19 @@ smoModule.directive('smoDataSeriesView', ['$compile', 'communicator', function($
 				tableView.draw($scope.dataView, drawOptions);
 			}
 			
-			var exportCSV = function(){				
+			var exportCSV = function() {
+//				var exportTable = $scope.dataView.toDataTable();			
+//				var dataTableCSV = google.visualization.dataTableToCsv(exportTable);
+//				var dataArr = dataTableCSV.split("\n");
+//				for (var i=0; i<dataArr.length; i++) {
+//					dataArr[i] = dataArr[i].split(",");
+//				}
+//				var labels = [];
+//				for (var i=0; i<exportTable.getNumberOfColumns(); i++){
+//					labels.push(exportTable.getColumnLabel(i));
+//				}
+//				dataArr.unshift(labels);
+				
 				var exportTable = $scope.dataView.toDataTable();		
 				var labels = [];
 				for (var i=0; i<exportTable.getNumberOfColumns(); i++){
@@ -1032,25 +1044,53 @@ smoModule.directive('smoDataSeriesView', ['$compile', 'communicator', function($
 				var dataTableCSV = google.visualization.dataTableToCsv(exportTable);
 				
 				csvString += dataTableCSV;
+				var csrftoken = document.getElementsByName('csrfmiddlewaretoken')[0].value;
 				
-				// download stuff
-			 	var blob = new Blob([csvString], {
-			 	  "type": "text/csv;charset=utf8;"			
-			 	});
-			 	var link = document.getElementById($scope.modelName + '_' + $scope.fieldVar.name + 'CsvElem');
-							
-			 	if(link.download !== undefined) { // feature detection
-			 	  // Browsers that support HTML5 download attribute
-			 	  link.setAttribute("href", window.URL.createObjectURL(blob));
-			 	  link.setAttribute("download", $scope.fileName);
-			 	 } else {
-			 		// it needs to implement server side export
-					//link.setAttribute("href", "http://www.example.com/export");
-			 		  alert("Needs to implement server side export");
-			 		  return;
-			 	}
-//	 		 	document.body.appendChild(link);
-			 	link.click();
+				
+				 var form = $('<form action="/SmoWebBase/ExportCSV" method="POST">' + 
+					'<input type="hidden" name="csrfmiddlewaretoken" value="' + csrftoken + '">' +
+				    '<input type="hidden" name="parameters" value="' + csvString + '">' +
+				    '</form>');
+				 $('body').append(form);
+				 form.submit();
+					
+				
+				
+	
+				
+				
+//				var exportTable = $scope.dataView.toDataTable();		
+//				var labels = [];
+//				for (var i=0; i<exportTable.getNumberOfColumns(); i++){
+//					labels.push(exportTable.getColumnLabel(i));
+//				}
+//				
+//				var labelsString = labels.join(",");
+//				var csvString = labelsString + "\n";
+//				
+////				var dataTable = google.visualization.arrayToDataTable($scope.smoDataSource[$scope.fieldVar.name]);
+//				var dataTableCSV = google.visualization.dataTableToCsv(exportTable);
+//				
+//				csvString += dataTableCSV;
+//				
+//				// download stuff
+//			 	var blob = new Blob([csvString], {
+//			 	  "type": "text/csv;charset=utf8;"			
+//			 	});
+//			 	var link = document.getElementById($scope.modelName + '_' + $scope.fieldVar.name + 'CsvElem');
+//							
+//			 	if(link.download !== undefined) { // feature detection
+//			 	  // Browsers that support HTML5 download attribute
+//			 	  link.setAttribute("href", window.URL.createObjectURL(blob));
+//			 	  link.setAttribute("download", $scope.fileName);
+//			 	 } else {
+//			 		// it needs to implement server side export
+//					//link.setAttribute("href", "http://www.example.com/export");
+//			 		  alert("Needs to implement server side export");
+//			 		  return;
+//			 	}
+////	 		 	document.body.appendChild(link);
+//			 	link.click();
 			} 
 			
 			var exportPNG = function(){
