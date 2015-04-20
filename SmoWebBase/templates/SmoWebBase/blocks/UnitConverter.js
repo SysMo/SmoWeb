@@ -1,7 +1,7 @@
 $scope.inputPattern = /^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$/;
 	//$scope.inputPattern = /^[0-9]$/;
 		
-$scope.UnitConverter.communicator = new ModelCommunicator();
+$scope.UnitConverter.communicator = new communicator.ModelCommunicator();
 	
 $scope.UnitConverter.communicator.fetchData(
 	'getQuantities', {}, function(comm){

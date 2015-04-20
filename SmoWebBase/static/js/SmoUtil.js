@@ -292,12 +292,9 @@ smoModule.factory('smoJson', function () {
 	return {'parse': parseJSON, 'transformResponse': transformResponse};
 });
 
-smoModule.factory('ModelCommunicator', function($http, $window, $timeout, $location, smoJson) {
-	function ModelCommunicator(model, modelName, viewName, url){		
-		this.model = model;
-		this.modelName = modelName;
-		this.viewName = viewName;
-		// Communication URL. Can be left empty if the same as the current page URL
+smoModule.factory('communicator', function($http, $window, $timeout, $location, smoJson) {
+	
+	function Communicator(url) {
 		this.url = url || '';
 		// true if waiting to load from the server
 		this.loading = false;
@@ -310,13 +307,16 @@ smoModule.factory('ModelCommunicator', function($http, $window, $timeout, $locat
 		// true if data has arrived from the server
 		this.dataReceived = false;
 	}
-	ModelCommunicator.prototype.fetchData = function(action, parameters, onSuccess, onFailure) {		
-		var postData = {
-			modelName: this.modelName,
-			viewName: this.viewName,
-			parameters: parameters
-		}
-		
+	Communicator.prototype.setPostData = function(parameters) {
+		this.postData = {
+			parameters: parameters	
+		};
+	}
+	Communicator.prototype.setResponseData = function(responseData) {
+		this.data = responseData;
+	}
+	Communicator.prototype.fetchData = function(action, parameters, onSuccess, onFailure) {
+		this.setPostData(parameters);
 		this.loading = true;
 		this.commError = false;
 		this.serverError = false;
@@ -337,7 +337,7 @@ smoModule.factory('ModelCommunicator', function($http, $window, $timeout, $locat
 		$http({
 	        method  : 'POST',
 	        url     : this.url,
-	        data    : {action : action, data: postData},
+	        data    : {action : action, data: this.postData},
 	        headers : { 'Content-Type': 'application/x-www-form-urlencoded' }, // set the headers so angular passing info as form data (not request payload)
 	        transformResponse: [smoJson.transformResponse]
 	    })
@@ -346,13 +346,7 @@ smoModule.factory('ModelCommunicator', function($http, $window, $timeout, $locat
 			communicator.commError = false;
 			if (!response.errStatus) {
 				communicator.serverError = false;
-				communicator.dataReceived = true;
-				// If the communicator has received the definitions once, just the values are updated
-				if (communicator.data.definitions) {
-					communicator.data.values = response.data.values;
-				} else {
-					communicator.data = response.data;
-				}
+				communicator.setResponseData(response.data);
 				communicator.dataReceived = true;
 				if (!(typeof onSuccess === 'undefined')) {
 					communicator.onSuccess(communicator);
@@ -377,51 +371,77 @@ smoModule.factory('ModelCommunicator', function($http, $window, $timeout, $locat
 			}
 	    });
 	}
+	
+	ModelCommunicator.prototype = new Communicator();
+	
+	function ModelCommunicator(model, modelName, viewName, url) {
+			Communicator.apply(this, url);	
+			this.model = model;
+			this.modelName = modelName;
+			this.viewName = viewName;
+	}
+
+	ModelCommunicator.prototype.setPostData = function(parameters) {
+		this.postData = {
+			modelName: this.modelName,
+			viewName: this.viewName,
+			parameters: parameters
+		};
+	}
+	
+	ModelCommunicator.prototype.setResponseData = function(responseData) {
+		// If the communicator has received the definitions once, just the values are updated
+		if (this.data.definitions) {
+			this.data.values = responseData.values;
+		} else {
+			this.data = responseData;
+		}
+	}
+
 	ModelCommunicator.prototype.saveUserInput = function() {
 		var communicator = this;
 		this.saveFeedbackMsg = "";
 		this.saveSuccess = false;
-		var postData = {
-				modelName: this.modelName,
-				viewName: this.viewName,
-				parameters: this.data.values
-			}
-			
-			$http({
-		        method  : 'POST',
-		        url     : this.url,
-		        data    : {action: 'save', data: postData},
-		        headers : { 'Content-Type': 'application/x-www-form-urlencoded' }, // set the headers so angular passing info as form data (not request payload)
-		        transformResponse: [smoJson.transformResponse]
-		    })
-		    .success(function(response) {
-				if (!response.errStatus) {
-					var addressToParams;
-					if ($location.$$html5){
-						addressToParams = $location.protocol() + '://' + $location.host() + ':' 
-						+ $location.port() + $location.path();
-					} else {
-						addressToParams = window.location;
-					}
-					
-					communicator.savedRecordUrl = addressToParams
-						+ '?model=' + response.data.model + '&view=' + response.data.view + '&id=' + response.data.id;
-					communicator.saveSuccess = true;
-					communicator.saveFeedbackMsg = "Input data saved.";
-					//$timeout($window.alert("Input data saved"));
+		this.setPostData(this.data.values);	
+		$http({
+	        method  : 'POST',
+	        url     : this.url,
+	        data    : {action: 'save', data: this.postData},
+	        headers : { 'Content-Type': 'application/x-www-form-urlencoded' }, // set the headers so angular passing info as form data (not request payload)
+	        transformResponse: [smoJson.transformResponse]
+	    })
+	    .success(function(response) {
+			if (!response.errStatus) {
+				var addressToParams;
+				if ($location.$$html5){
+					addressToParams = $location.protocol() + '://' + $location.host() + ':' 
+					+ $location.port() + $location.path();
 				} else {
-					//$timeout($window.alert("Failed to save input data"));
-					communicator.saveFeedbackMsg = "Failed to save input data";
+					addressToParams = window.location;
 				}
-		    })
-		    .error(function(response) {
-		    	communicator.saveFeedbackMsg = "Failed to save input data";
-		    	//$timeout($window.alert("Failed to save input data"));
-		    });
+				
+				communicator.savedRecordUrl = addressToParams
+					+ '?model=' + response.data.model + '&view=' + response.data.view + '&id=' + response.data.id;
+				communicator.saveSuccess = true;
+				communicator.saveFeedbackMsg = "Input data saved.";
+				//$timeout($window.alert("Input data saved"));
+			} else {
+				//$timeout($window.alert("Failed to save input data"));
+				communicator.saveFeedbackMsg = "Failed to save input data";
+			}
+	    })
+	    .error(function(response) {
+	    	communicator.saveFeedbackMsg = "Failed to save input data";
+	    	//$timeout($window.alert("Failed to save input data"));
+	    });
 	}
 
-	return ModelCommunicator;
+	return {
+			"Communicator": Communicator,
+			"ModelCommunicator": ModelCommunicator
+			}
 })
+
 
 smoModule.factory('quantities', ['util', function(util) {
 	var quantities = {};
@@ -712,7 +732,6 @@ smoModule.directive('smoQuantity', ['$compile', 'util', function($compile, util)
 				$scope.fieldVar.minDisplayValue = ($scope.fieldVar.minValue - offset) / $scope.fieldVar.dispUnitDef.mult;
 				$scope.fieldVar.maxDisplayValue = ($scope.fieldVar.maxValue - offset) / $scope.fieldVar.dispUnitDef.mult;
 			}
-			
 			$scope.fieldVar.unit = $scope.fieldVar.unit || $scope.fieldVar.SIUnit;
 			$scope.fieldVar.displayUnit = $scope.fieldVar.displayUnit || $scope.fieldVar.defaultDispUnit || $scope.fieldVar.unit;
 			for (var i=0; i < $scope.fieldVar.units.length; i++) {
@@ -903,7 +922,7 @@ smoModule.directive('smoBool', ['$compile', function($compile) {
 	}
 }]);
 
-smoModule.directive('smoDataSeriesView', ['$compile', function($compile) {
+smoModule.directive('smoDataSeriesView', ['$compile', 'communicator', function($compile, communicator) {
 	return {
 		restrict : 'A',
 		scope : {
@@ -999,7 +1018,7 @@ smoModule.directive('smoDataSeriesView', ['$compile', function($compile) {
 				tableView.draw($scope.dataView, drawOptions);
 			}
 			
-			var exportCSV = function(){
+			var exportCSV = function(){				
 				var exportTable = $scope.dataView.toDataTable();		
 				var labels = [];
 				for (var i=0; i<exportTable.getNumberOfColumns(); i++){
@@ -1888,8 +1907,8 @@ smoModule.directive('smoViewToolbar', ['$compile', '$rootScope', function($compi
 }]);
                                      
 
-smoModule.directive('smoModelView', ['$compile', '$location', 'ModelCommunicator', 
-         function($compile, $location, ModelCommunicator) {
+smoModule.directive('smoModelView', ['$compile', '$location', 'communicator', 
+         function($compile, $location, communicator) {
 	return {
 		restrict : 'A',
 		scope : {
@@ -1902,7 +1921,7 @@ smoModule.directive('smoModelView', ['$compile', '$location', 'ModelCommunicator
 		controller: function($scope) {
 			$scope.formName = $scope.modelName + $scope.viewName + 'Form';
 			$scope.model = $scope.$parent[$scope.modelName];
-			$scope.communicator = new ModelCommunicator($scope.model, $scope.modelName, $scope.viewName);
+			$scope.communicator = new communicator.ModelCommunicator($scope.model, $scope.modelName, $scope.viewName);
 			$scope.model[$scope.viewName + 'Communicator'] = $scope.communicator;
 			if ($scope.autoFetch) {
 				$scope.communicator.fetchData("load", {viewRecordId: $scope.viewRecordId});				

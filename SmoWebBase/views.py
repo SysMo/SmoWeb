@@ -43,7 +43,7 @@ class Disclaimer(HtmlModule):
 @registerView(router)
 class HomeView(ModularPageView):
     label = "Home View"
-    injectVariables = ['ModelCommunicator', 'quantities']
+    injectVariables = ['communicator', 'quantities']
     modules = [HomeModule, UnitConverter, Platform, License, Company, Team, Testimonials, Disclaimer]
     
     @action.post()
