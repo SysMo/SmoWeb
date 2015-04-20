@@ -374,23 +374,23 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 		self.secondaryChannelsGeom.sections[3] = (0.005, 0.2)
 		self.secondaryChannelsGeom.sections[4] = (0.006, 0.2)
 		
-		self.primaryFlowIn.fluidName = 'Nitrogen'
+		self.primaryFlowIn.fluidName = 'Ammonia'
 		self.primaryFlowIn.flowRateChoice = 'm'
-		self.primaryFlowIn.mDot = (10, 'kg/h')
-		self.primaryFlowIn.T = (200, 'K')
+		self.primaryFlowIn.mDot = (50, 'kg/h')
+		self.primaryFlowIn.T = (400, 'K')
 		self.primaryFlowIn.p = (20, 'bar') 
 		
-		self.secondaryFlowIn.fluidName = 'Nitrogen'
+		self.secondaryFlowIn.fluidName = 'Ammonia'
 		self.secondaryFlowIn.flowRateChoice = 'm'
-		self.secondaryFlowIn.mDot = (10, 'kg/h')
-		self.secondaryFlowIn.T = (200, 'K')
+		self.secondaryFlowIn.mDot = (50, 'kg/h')
+		self.secondaryFlowIn.T = (400, 'K')
 		self.secondaryFlowIn.p = (20, 'bar') 
 		
 		self.externalFlowIn.solName = 'MPG'
 		self.externalFlowIn.solMassFraction = (50, '%')
 		self.externalFlowIn.flowRateChoice = 'V'
-		self.externalFlowIn.VDot = (1, 'm**3/h')
-		self.externalFlowIn.T = (350, 'K')
+		self.externalFlowIn.VDot = (0.5, 'm**3/h')
+		self.externalFlowIn.T = (20, 'degC')
 		self.externalFlowIn.p = (1, 'bar') 
 		
 		self.externalChannelGeom.widthAxial = (40, 'mm')
