@@ -65,16 +65,18 @@ class SysmoView(ModularPageView):
     label = "SysMo Ltd"
     modules = [Products, Services, Industries]
 
-import csv, json
-from django.http import HttpResponse, HttpResponseRedirect
-def exportCSV(request):
-    requestStr = request.POST["parameters"]
-    arr = requestStr.split("\n")
-    # Create the HttpResponse object with the appropriate CSV header.
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="table.csv"'
-  
-    writer = csv.writer(response)
-    for row in arr:
-        writer.writerow(row.split(','))
+from django.http import HttpResponse
+def export(request):
+    data = request.POST["data"]
+    option = request.POST["exportOption"]
+    
+    if (option == 'csv'):
+        import csv
+        arr = data.split("\n")
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="table.csv"'
+        writer = csv.writer(response)
+        for row in arr:
+            writer.writerow(row.split(','))
+    
     return response

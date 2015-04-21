@@ -17,8 +17,22 @@ smoModule.factory('util', function util () {
 				sig - Math.floor(Math.log(Math.abs(n)) / Math.LN10) - 1);
 		return String(Math.round(n * mult) / mult);
 	}
+	
+	
+	function serverExport (obj) {
+		var csrftoken = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+ 		var form = $('<form action="' + obj.url + '" method="POST">' + 
+						'<input type="hidden" name="csrfmiddlewaretoken" value="' + csrftoken + '">' +
+						'<input type="hidden" name="exportOption" value="' + obj.exportOption + '">' +
+						'<input type="hidden" name="data" value="' + obj.data + '">' +
+					 '</form>');
+		$('#' + obj.divID).append(form);
+		form.submit();
+		$('#' + obj.divID).empty();	
+	}
+	
 	functions.formatNumber = formatNumber;
-
+	functions.serverExport = serverExport;
 	return functions;
 });
 
@@ -922,7 +936,7 @@ smoModule.directive('smoBool', ['$compile', function($compile) {
 	}
 }]);
 
-smoModule.directive('smoDataSeriesView', ['$compile', 'communicator', function($compile, communicator) {
+smoModule.directive('smoDataSeriesView', ['$compile', 'communicator', 'util', function($compile, communicator, util) {
 	return {
 		restrict : 'A',
 		scope : {
@@ -1034,14 +1048,14 @@ smoModule.directive('smoDataSeriesView', ['$compile', 'communicator', function($
 			 	if (link.download === undefined) { 
 			 		//if HTML5 download attribute is not supported, 
 			 		//perform server-side export
-			 		var csrftoken = document.getElementsByName('csrfmiddlewaretoken')[0].value;
-			 		var form = $('<form action="/SmoWebBase/ExportCSV" method="POST">' + 
-									'<input type="hidden" name="csrfmiddlewaretoken" value="' + csrftoken + '">' +
-									'<input type="hidden" name="parameters" value="' + csvString + '">' +
-								 '</form>');
-					$('#' + $scope.modelName + '_' + $scope.fieldVar.name + 'FormDiv').append(form);
-					form.submit();
-					$('#' + $scope.modelName + '_' + $scope.fieldVar.name + 'FormDiv').empty();
+			 		obj = {
+			 				url: "/SmoWebBase/Export",
+			 				exportOption: "csv",
+			 				data: csvString,
+			 				divID: $scope.modelName + '_' + $scope.fieldVar.name + 'FormDiv'
+			 		}
+			 		util.serverExport(obj);
+			 		
 			 	} else {
 			 		// download stuff
 				 	var blob = new Blob([csvString], {
@@ -1056,21 +1070,7 @@ smoModule.directive('smoDataSeriesView', ['$compile', 'communicator', function($
 			var exportPNG = function(){
 				var img = document.getElementById($scope.modelName + '_' + $scope.fieldVar.name + 'Img');
 				Dygraph.Export.asPNG($scope.chart, img);
-				
-				var link = document.getElementById($scope.modelName + '_' + $scope.fieldVar.name + 'PngElem');
-				
-			 	if(link.download !== undefined) { // feature detection
-			 	  // Browsers that support HTML5 download attribute
-			 	  link.setAttribute("href", img.src);
-			 	  link.setAttribute("download", $scope.fileName);
-			 	 } else {
-			 		// it needs to implement server side export
-					//link.setAttribute("href", "http://www.example.com/export");
-			 		  alert("Needs to implement server side export");
-			 		  return;
-			 	}
-			 	
-			 	link.click();
+			 	window.open(img.src, '_blank');
 			}
 			
 			if ($scope.fieldVar.type == 'TableView') {
