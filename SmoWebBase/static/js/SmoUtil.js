@@ -1872,14 +1872,14 @@ smoModule.directive('smoViewToolbar', ['$compile', '$rootScope', 'util', functio
 				} else if (action.name == 'loadLocal') {
 					$scope.reader.readAsText(params);
 					return;
-				} else if (action.name == 'load') {
-					if (communicator.model.recordId) {
-						parameters = {'recordId' : communicator.model.recordId};
-					}
 				} else if (action.name == 'loadEg') {
 					parameters = params;
-				} else {
+				} else if (action.name == 'compute') {
 					parameters = $scope.model[$scope.viewName + 'Communicator'].data.values;
+					if (communicator.model.recordId) {
+						parameters['recordId'] =
+							communicator.model.recordId;
+					}
 				}
 				communicator.fetchData(action.name,
 						parameters, onFetchSuccess);
