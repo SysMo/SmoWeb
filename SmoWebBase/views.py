@@ -70,19 +70,9 @@ from django.http import HttpResponse, HttpResponseRedirect
 def exportCSV(request):
     requestStr = request.POST["parameters"]
     arr = requestStr.split("\n")
-    print arr[0]
-    print arr[1]
-#     for row in arr:
-#         row = row.split(',')
-    
-#     postData = json.loads(request.body)
-#     print postData
-#     action = postData['action']
-#     data = postData['data']
-#     arr = data["parameters"]
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="somefilename.csv"'
+    response['Content-Disposition'] = 'attachment; filename="table.csv"'
   
     writer = csv.writer(response)
     for row in arr:
