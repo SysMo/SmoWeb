@@ -78,5 +78,11 @@ def export(request):
         writer = csv.writer(response)
         for row in arr:
             writer.writerow(row.split(','))
+    elif (option == 'json'):
+        data = data.replace("'", '"')
+        response = HttpResponse(data, content_type='text/plain')
+        response['Content-Disposition'] = 'attachment; filename="inputs.dat"'
+    else:
+        raise ValueError('Unimplemented export option')
     
     return response

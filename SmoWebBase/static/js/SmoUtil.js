@@ -1818,7 +1818,7 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 	}
 }]);
 
-smoModule.directive('smoViewToolbar', ['$compile', '$rootScope', function($compile, $rootScope) {
+smoModule.directive('smoViewToolbar', ['$compile', '$rootScope', 'util', function($compile, $rootScope, util) {
 	return {
 		scope: {
 			model: "=",
@@ -1841,17 +1841,28 @@ smoModule.directive('smoViewToolbar', ['$compile', '$rootScope', function($compi
 				
 				if (action.name == 'save') {
 					if (params == 'local') {
-					 	var blob = new Blob([JSON.stringify(communicator.data.values, undefined, 4)], {
-					 	  "type": "text/plain;charset=utf8;"			
-					 	});
-					 	var link = document.getElementById(communicator.modelName + '_' + communicator.viewName + 'Save');						
-					 	if(link.download !== undefined) {
+						data = JSON.stringify(communicator.data.values, undefined, 4);
+						var link = document.getElementById(communicator.modelName + '_' + communicator.viewName + 'Save');
+					 	if (link.download === undefined) { 
+					 		//if HTML5 download attribute is not supported, 
+					 		//perform server-side export
+					 		obj = {
+					 				url: "/SmoWebBase/Export",
+					 				exportOption: "json",
+					 				data: data.replace(/"/g, "'"),
+					 				divID: communicator.modelName + '_' + communicator.viewName + 'SaveDiv'
+					 		}
+					 		util.serverExport(obj);
+					 		
+					 	} else {
+					 	  // download stuff
+						  var blob = new Blob([data], {
+						 	  "type": "text/plain;charset=utf8;"			
+						 	});
 					 	  link.setAttribute("href", window.URL.createObjectURL(blob));
 					 	  link.setAttribute("download", communicator.modelName + ".dat");
-					 	} else {
-					 		alert('The HTML5 download attribute is not supported in this browser.');
+					 	  link.click();
 					 	}
-					 	link.click();
 					} else if (params == 'global') {
 						communicator.saveUserInput();
 					}
@@ -1894,7 +1905,8 @@ smoModule.directive('smoViewToolbar', ['$compile', '$rootScope', function($compi
 			buttons.push('<span class="btn btn-primary btn-file">Load <input type="file" id="' + scope.model.name + '_' + scope.viewName + 'fileInput"></span>');
 			
 			var template = '<div style="margin-left: 20px;" class="btn-group" role="group">'+ buttons.join("") + '</div>\
-							<a id="' + scope.model.name + '_' + scope.viewName + 'Save" hidden></a>';
+							<a id="' + scope.model.name + '_' + scope.viewName + 'Save" hidden></a>\
+							<div id="' + scope.model.name + '_' + scope.viewName + 'SaveDiv" hidden></div>';
 			var el = angular.element(template);
 	        compiled = $compile(el);
 	        element.append(el);
