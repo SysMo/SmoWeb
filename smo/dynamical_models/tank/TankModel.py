@@ -273,6 +273,7 @@ class TankModelFactory():
 			initDataStorage = True, 
 			controller = TankController(
 				initialState = params.controller.initialState, 
+				pTankInit = params.tank.pInit,
 				tWaitBeforeExtraction = params.controller.tWaitBeforeExtraction, 
 				tWaitBeforeFueling = params.controller.tWaitBeforeFueling,
 				pMin = params.controller.pMin,
@@ -363,7 +364,8 @@ def testTankModel():
 		TAmbient = 288.15,
 		
 		controller = AttributeDict(
-			initialState = TC.FUELING, 
+			#initialState = TC.FUELING, 
+			initialState = TC.EXTRACTION,
 			tWaitBeforeExtraction = 150., 
 			tWaitBeforeFueling = 150.,
 			pMin = 20e5,

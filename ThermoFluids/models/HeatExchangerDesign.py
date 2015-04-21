@@ -263,7 +263,13 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 		('TExtWall', F.Quantity('Temperature', default = (1, 'degC'))),
 	), label = 'Temperature plots')
 	
-	detailedResultVG = F.ViewGroup([resultTable, resultTPlot], label = 'Detailed results')
+	resultQPlot = F.PlotView((
+		('x', F.Quantity('Length', default = (1, 'm'))),
+		('QDotPrim', F.Quantity('HeatFlowRate', default = (1, 'W'))),
+		('QDotSec', F.Quantity('HeatFlowRate', default = (1, 'W'))),
+		('QDotExt', F.Quantity('HeatFlowRate', default = (1, 'W'))),
+	), label = 'Heat flow plots')
+	detailedResultVG = F.ViewGroup([resultTable, resultTPlot, resultQPlot], label = 'Detailed results')
 	detailedResultSG = F.SuperGroup([detailedResultVG], label = 'Detailed results')
 	
 	sectionPlot1 = F.MPLPlot(label = 'Section 1')
@@ -483,14 +489,16 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 		self.externalFlowOut.compute(fState = solver.extChannelStateOut, mDot = self.externalFlowIn.mDot)
 		
 		self.QDotChannels.QDotPrimaryChannels = self.primaryFlowIn.mDot * \
-			(self.primaryFlowOut.fState.h - self.primaryFlowIn.fState.h)
+			abs(self.primaryFlowOut.fState.h - self.primaryFlowIn.fState.h)
 		self.QDotChannels.QDotSecondaryChannels = self.secondaryFlowIn.mDot * \
-			(self.secondaryFlowOut.fState.h - self.secondaryFlowIn.fState.h)
+			abs(self.secondaryFlowOut.fState.h - self.secondaryFlowIn.fState.h)
 		self.QDotChannels.QDotExternalChannel = self.externalFlowIn.mDot * \
-			(self.externalFlowOut.fState.h - self.externalFlowIn.fState.h)
+			abs(self.externalFlowOut.fState.h - self.externalFlowIn.fState.h)
 		# Fill the table with values
 		self.resultTable.resize(solver.numSectionSteps)
 		self.resultTPlot.resize(solver.numSectionSteps)
+		self.resultQPlot.resize(solver.numSectionSteps)
+
 		for i in range(solver.numSectionSteps):
 			self.resultTable[i] = (
 				solver.primChannelCalc.sections[i].xStart,
@@ -499,18 +507,19 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 				solver.primChannelCalc.sections[i].TWall,
 				solver.primChannelCalc.sections[i].Re,
 				solver.primChannelCalc.sections[i].hConv,
-				solver.primChannelCalc.sections[i].QDotWall,
+				abs(solver.primChannelCalc.sections[i].QDotWall),
 				solver.secChannelCalc.sections[i].fState.T,
 				solver.secChannelCalc.sections[i].TWall,
 				solver.secChannelCalc.sections[i].Re,
 				solver.secChannelCalc.sections[i].hConv,
-				solver.secChannelCalc.sections[i].QDotWall,
+				abs(solver.secChannelCalc.sections[i].QDotWall),
 				solver.extChannelCalc.sections[i].fState.T,
 				solver.extChannelCalc.sections[i].TWall,
 				solver.extChannelCalc.sections[i].Re,
 				solver.extChannelCalc.sections[i].hConv,
-				solver.extChannelCalc.sections[i].QDotWall,
+				abs(solver.extChannelCalc.sections[i].QDotWall),
 			)
+			
 			self.resultTPlot[i] = (
 				(solver.primChannelCalc.sections[i].xStart + 
 				solver.primChannelCalc.sections[i].xEnd) / 2,
@@ -521,7 +530,15 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 				solver.extChannelCalc.sections[i].fState.T,
 				solver.extChannelCalc.sections[i].TWall,
 			)
-	
+			
+			self.resultQPlot[i] = (
+				(solver.primChannelCalc.sections[i].xStart + 
+				solver.primChannelCalc.sections[i].xEnd) / 2,
+				abs(solver.primChannelCalc.sections[i].QDotWall),
+				abs(solver.secChannelCalc.sections[i].QDotWall),
+				abs(solver.extChannelCalc.sections[i].QDotWall),
+			)
+
 	def validateInputs(self):
 		self.validateChannels(self.primaryChannelsGeom, "primary")
 		self.validateChannels(self.secondaryChannelsGeom, "secondary")
