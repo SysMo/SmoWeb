@@ -18,3 +18,4 @@ app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
 
 # If you want to manually start a worker use the command
 # celery -A SmoWeb worker -l info
+

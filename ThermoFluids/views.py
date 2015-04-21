@@ -84,11 +84,11 @@ class HeatExchangerDesignView(ModularPageView):
 	requireJS = ['dygraph', 'dygraphExport']
 	requireGoogle = ['visualization']
 
-# from models.TestModule import ABC
-# @registerView(router)
-# class TestPage(ModularPageView):
-# 	label = 'Test'
-# 	modules = [ABC]
-# 	requireJS = ['dygraph', 'dygraphExport']
-# 	requireGoogle = ['visualization']
-# 	
+from models.TestModule import ABC
+@registerView(router)
+class TestPage(ModularPageView):
+	label = 'Test'
+	modules = [ABC]
+	requireJS = ['dygraph', 'dygraphExport']
+	requireGoogle = ['visualization']
+ 	

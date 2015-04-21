@@ -994,6 +994,8 @@ smoModule.directive('smoDataSeriesView', ['$compile', 'communicator', 'util', fu
 			
 			var plotData = function() {
 				$scope.options.labelsDiv = $scope.modelName + '_' + $scope.fieldVar.name + 'LegendDiv';
+				$scope.options.legend = 'always';
+				$scope.options.hideOverlayOnMouseOut = false;
 				$scope.chart = new Dygraph(document.getElementById($scope.modelName + '_' + $scope.fieldVar.name + 'PlotDiv'), 
 						$scope.viewData,
 						$scope.options);

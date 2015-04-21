@@ -7,6 +7,7 @@ Created on Apr 2, 2015
 import smo.model.fields as F
 import lib.ThermodynamicComponents as TC
 from smo.model.model import NumericalModel
+from ThermoFluids.tasks import doSomething 
 
 class ABC(NumericalModel):
 	label = 'ABC'
@@ -21,6 +22,11 @@ class ABC(NumericalModel):
 		self.compressor.declared_fields['modelType'].show = 'false'
 		
 	def compute(self):
-		print self.compressor.modelType
-		print self.compressor.etaS
-		print self.compressor.fQ
+		print("Trying to start task")
+		result = doSomething.delay('ivcho')
+		print("Suceeded to start task")
+		#r = result.ready()
+		#print("Finished: {}".format(r))
+		r = result.get(timeout=4)
+		print(r)
+		print(result.ready())

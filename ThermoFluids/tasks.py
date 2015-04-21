@@ -15,3 +15,8 @@ def Celery_compute(self, cls, parameters):
 	self.fieldValuesFromJson(parameters)
 	self.compute()
 	return self.superGroupList2Json(self.results)
+
+@shared_task
+def doSomething(blah):
+	print("Task running " + blah)
+	return 3.141522
