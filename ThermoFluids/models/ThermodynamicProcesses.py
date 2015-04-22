@@ -72,6 +72,12 @@ class Expansion(ThermodynamicalProcess):
 	processTypeFG = F.FieldGroup([processType], label = "Process type")
 	inputs = F.SuperGroup(['fluidSource', 'fluidSink', processTypeFG, turbine, throttleValve])
 	
+	def __init__(self):
+		self.fluidSource.p1 = (10, 'bar')
+		self.fluidSource.p2 = (10, 'bar')
+		self.fluidSink.p = (1, 'bar')
+		
+	
 	def compute(self):
 		if (self.processType == 'S'):
 			component = self.turbine
