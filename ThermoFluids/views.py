@@ -87,6 +87,7 @@ class HeatExchangerDesignView(ModularPageView):
 from models.TestModule import ABC
 @registerView(router)
 class TestPage(ModularPageView):
+	showInMenu = False
 	label = 'Test'
 	modules = [ABC]
 	requireJS = ['dygraph', 'dygraphExport']

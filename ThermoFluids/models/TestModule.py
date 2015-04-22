@@ -10,6 +10,7 @@ from smo.model.model import NumericalModel
 from ThermoFluids.tasks import doSomething 
 
 class ABC(NumericalModel):
+	showOnHome = False
 	label = 'ABC'
 	compressor = F.SubModelGroup(TC.Compressor, ['etaS', 'fQ', 'modelType'], label = 'Compressor') #fields = )
 	inputs = F.SuperGroup([compressor])

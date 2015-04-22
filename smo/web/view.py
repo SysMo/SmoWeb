@@ -46,6 +46,8 @@ class ModularPageViewMeta(type):
 		# Label
 		if ('label' not in attrs):
 			attrs['label'] = name
+		if ('showInMenu' not in attrs):
+			attrs['showInMenu'] = True
 		if ('controllerName' not in attrs):
 			attrs['controllerName'] = name + 'Controller'
 		# Containers to collect actions, library and module names
