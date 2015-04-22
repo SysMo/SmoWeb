@@ -154,6 +154,18 @@ the field. This attribute is crated in the constructor of :class:`~smo.model.mod
 .. autoclass:: Image
    :show-inheritance:
    
+:class:`MPLPlot`
+----------------
+
+.. autoclass:: MPLPlot
+   :show-inheritance:
+   
+:class:`Port`
+-------------
+
+.. autoclass:: Port
+   :show-inheritance:
+   
 :class:`SubModelGroup`
 ----------------------
 

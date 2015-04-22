@@ -352,6 +352,7 @@ class RecordArray(Field):
 			where ``name`` is the column name, and ``type`` is one of the basic
 			field types (:class:`Quantity`, :class:`String`, :class:`Boolean` etc.)
 		:param int numRows: the initial number of rows in the table
+		:param bool empty: indicates whether the record array can be emptied
 		
 		Example::
 		
@@ -664,7 +665,7 @@ class Image(Field):
 	"""
 	def __init__(self, default = "", width = None, height = None, *args, **kwargs):
 		"""
-		:param str src: path to image source
+		:param str default: path to image source
 		:param int width: image width in pixels
 		:param int height: image height in pixels
 		"""
@@ -692,9 +693,13 @@ class Image(Field):
 
 class MPLPlot(Field):
 	"""
-	Field for displaying an image 
+	Field for displaying a matplotlib plot 
 	"""
 	def __init__(self, width = None, height = None, *args, **kwargs):
+		"""
+		:param int width: image width in pixels
+		:param int height: image height in pixels
+		"""
 		super(MPLPlot, self).__init__(*args, **kwargs)
 		self.width = width
 		self.height = height

@@ -95,6 +95,7 @@ class ModularPageView(object):
 	Class attributes:
 		* :attr:`label`: label for the page view class (default is the page view class name)
 		* :attr:`controllerName`: name of the AngularJS contoller for the page view (default is the page view class name + 'Controller')
+		* :attr:`showInMenu`: used to specify if the page is to show in the navigation bar menus
 		* :attr:`modules`: modules making up the page view
 		* :attr:`injectVariables`: list of names of AngularJS dependencies required for the page view
 		* :attr:`jsLibraries`: registry of common Java Script libraries used in the applicaions
