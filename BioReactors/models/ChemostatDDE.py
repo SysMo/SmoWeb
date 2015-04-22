@@ -65,7 +65,9 @@ class ChemostatDDE(NumericalModel):
     #1.2 Fields - Settings
     tFinal = F.Quantity('Bio_Time', default = (100, 'day'), minValue = (0, 'day'), maxValue=(1000, 'day'), label = 'simulation time')
     tPrint = F.Quantity('Bio_Time', default = (0.1, 'day'), minValue = (1e-5, 'day'), maxValue = (100, 'day'), label = 'print interval')
-    solverFG = F.FieldGroup([tFinal, tPrint], label = 'Solver')
+    absTol = F.Quantity('Bio_Time', default = (1e-6, 'day'), minValue = (1e-16, 'day'), maxValue = (1e-5, 'day'), label = 'absolute tolerance')
+    relTol = F.Quantity('Bio_Time', default = (1e-6, 'day'), minValue = (1e-16, 'day'), maxValue = (1e-3, 'day'), label = 'relative tolerance')
+    solverFG = F.FieldGroup([tFinal, tPrint, absTol, relTol], label = 'Solver')
     
     settingsSG = F.SuperGroup([solverFG], label = 'Settings')
     
