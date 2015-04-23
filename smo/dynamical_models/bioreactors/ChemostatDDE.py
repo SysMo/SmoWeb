@@ -1,7 +1,8 @@
 '''
-Created on March 23, 2015
+Created on Mar 23, 2015
 
 @author: Milen Borisov
+@copyright: SysMo Ltd, Bulgaria
 '''
 import pylab as plt
 from pydelay import dde23

@@ -1,7 +1,8 @@
 '''
-Created on March 08, 2015
+Created on Mar 08, 2015
 
 @author: Milen Borisov
+@copyright: SysMo Ltd, Bulgaria
 '''
 import numpy as np
 import pylab as plt
