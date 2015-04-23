@@ -17,6 +17,9 @@ def Celery_compute(self, cls, parameters):
 	return self.superGroupList2Json(self.results)
 
 @shared_task
-def doSomething(blah):
-	print("Task running " + blah)
-	return 123
+def compute1():
+	i = 0
+	print "Computing"
+	for i in range(1000000):
+		i += 1
+	return i

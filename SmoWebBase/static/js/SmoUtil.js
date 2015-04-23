@@ -1562,12 +1562,12 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 			smoDataSource : '='
 		},
 		controller: function($scope){
-			
-			$scope.expanded = false;
-			$scope.toggle = function(){
-				$scope.expanded = !$scope.expanded;
+			if ($scope.smoRecordArray.toggle == true) {
+				$scope.expanded = false;
+				$scope.toggle = function(){
+					$scope.expanded = !$scope.expanded;
+				}
 			}
-			
 			
 			$scope.checkValueValidity = function(row, col, form){
 				var field = $scope.smoRecordArray.fields[col];
@@ -1780,13 +1780,20 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 				}
 			}
 			
-			var template = '\
-			<div class="field-label"><div style="display: inline-block;" data-toggle="tooltip" title="' + scope.smoRecordArray.description + '" tooltip>' + scope.smoRecordArray.label + '</div></div>\
-			<div class="field-input"><smo-button action="toggle()" icon="edit" tip="Edit" size="md"></smo-button></div>';
-			//			<div class="field-input"><button class="btn btn-primary" style="height: 30px;" ng-click="toggle()">Edit</button></div>';
+			var template = '';
 			
-			template += '\
-			<div class="record-array" ng-show="expanded" ng-click="toggle()">\
+			if (scope.smoRecordArray.toggle == true) {
+				template += '\
+				<div class="field-label"><div style="display: inline-block;" data-toggle="tooltip" title="' + scope.smoRecordArray.description + '" tooltip>' + scope.smoRecordArray.label + '</div></div>\
+				<div class="field-input"><smo-button action="toggle()" icon="edit" tip="Edit" size="md"></smo-button></div>';
+			}
+			
+			if (scope.smoRecordArray.toggle == true) {
+				template += '\
+					<div class="record-array" ng-show="expanded" ng-click="toggle()">';
+			}
+			
+			editModeTemplate = '\
 				<table class="nice-table">\
 					<tr>\
 						<th style="min-width: 10px;">\
@@ -1806,8 +1813,13 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 							<div><smo-button action="delRow(i)" icon="minus" tip="Remove row"></smo-button></div>\
 						</td>\
 					</tr>\
-				</table>\
-			</div>';
+				</table>';
+			
+			template += editModeTemplate;
+			
+			if (scope.smoRecordArray.toggle == true) {
+				template += '</div>';
+			}
 			
 	        var el = angular.element(template);
 	        compiled = $compile(el);

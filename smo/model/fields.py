@@ -345,7 +345,7 @@ class RecordArray(Field):
 	"""
 	Composite input field for representing a structured table (array of records)
 	"""
-	def __init__(self, structTuple = None, numRows = 1, empty = False, *args, **kwargs):
+	def __init__(self, structTuple = None, numRows = 1, empty = False, toggle = True, *args, **kwargs):
 		"""
 		:param structTuple: tuple defining the structure of the 
 			record array. It consists of ``(name, type)`` pairs, 
@@ -353,6 +353,7 @@ class RecordArray(Field):
 			field types (:class:`Quantity`, :class:`String`, :class:`Boolean` etc.)
 		:param int numRows: the initial number of rows in the table
 		:param bool empty: indicates whether the record array can be emptied
+		:param bool toggle: indicates if the array can be toggled in edit mode
 		
 		Example::
 		
@@ -373,6 +374,7 @@ class RecordArray(Field):
 		
 		self.empty = empty
 		self.numRows = numRows
+		self.toggle = toggle
 		
 		if (structTuple is None):
 			raise ValueError('The structure of the array is not defined')
@@ -437,6 +439,7 @@ class RecordArray(Field):
 		fieldDict['fields'] = jsonFieldList
 		fieldDict['defaultRow'] = self.defaultRow
 		fieldDict['empty'] = self.empty
+		fieldDict['toggle'] = self.toggle
 		return fieldDict
 	
 class DataSeriesView(Field):
