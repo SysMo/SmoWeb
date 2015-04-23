@@ -19,4 +19,4 @@ def Celery_compute(self, cls, parameters):
 @shared_task
 def doSomething(blah):
 	print("Task running " + blah)
-	return 3.141522
+	return 123

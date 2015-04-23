@@ -28,6 +28,6 @@ class ABC(NumericalModel):
 		print("Suceeded to start task")
 		#r = result.ready()
 		#print("Finished: {}".format(r))
-		r = result.get(timeout=4)
+		r = result.get(timeout=5)
 		print(r)
 		print(result.ready())
