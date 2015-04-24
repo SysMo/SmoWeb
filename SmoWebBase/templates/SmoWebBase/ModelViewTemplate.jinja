@@ -37,11 +37,11 @@ angular.module('{{pageView.__class__.__name__}}', ['smo'])
 	 	}	 	
 	}])
 	.controller('{{pageView.controllerName}}', 
-		[ '$scope', '$location'
+		[ '$scope', '$location', 'communicator'
 			{% for injectVar in pageView.injectVariables %}
 				,'{{injectVar}}'
 			{% endfor %},
-		function($scope, $location 
+		function($scope, $location, communicator 
 			{% for injectVar in pageView.injectVariables %}
 				,{{injectVar}}
 			{% endfor %}
@@ -61,6 +61,8 @@ angular.module('{{pageView.__class__.__name__}}', ['smo'])
 					{% for block in module.modelBlocks %}
 						{% if isinstance(block, smo.model.fields.ModelView) %}
 							$scope.{{module.__name__}}.views.{{block.name}} = {name: "{{block.name}}", type: "{{block.ioType}}"};
+						{% elif isinstance(block, smo.web.blocks.JsBlock) %}
+							{% include 'SmoWebBase/blocks/Block.jinja' %}
 						{% endif %}
 					{% endfor %}
 				{% elif issubclass(module, smo.web.modules.HtmlModule) %}

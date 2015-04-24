@@ -801,12 +801,13 @@ class Group(object):
 
 class BasicGroup(Group):
 	"""Abstract class for group of fields"""
-	def __init__(self, fields = None, *args, **kwargs):
+	def __init__(self, fields = None, hideContainer = False, *args, **kwargs):
 		super(BasicGroup, self).__init__(*args, **kwargs)
 		self.fields = []
 		if (fields is not None):
 			for field in fields:
 				self.fields.append(field)
+		self.hideContainer = hideContainer
 	
 	def copyByName(self):
 		newObject = copy.copy(self)

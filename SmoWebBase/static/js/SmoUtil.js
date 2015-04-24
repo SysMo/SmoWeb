@@ -1351,12 +1351,18 @@ smoModule.directive('smoFieldGroup', ['$compile', 'util', function($compile, uti
 			var template = "";
 			
 			if (scope.smoFieldGroup.label) {
-				template += '<div class="field-group-label" style="margin-top: 25px;">' + scope.smoFieldGroup.label + '</div>';
+				template += '<div ng-hide="' + scope.smoFieldGroup.hideContainer + '" class="field-group-label" style="margin-top: 25px;">' + scope.smoFieldGroup.label + '</div>';	
 			} 
 			
-			template += '<div class="field-group-container">' +
-							groupFields.join("") +
-						'</div>';
+			if (scope.smoFieldGroup.hideContainer) {
+				var style = "background-color: transparent; border: none;";
+			} else {
+				style = "";
+			}
+			
+			template += '<div style="' + style + '" class="field-group-container">';
+			
+			template += groupFields.join("") + '</div>';
 
 			var el = angular.element(template);
 	        compiled = $compile(el);
@@ -1384,8 +1390,9 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 			
 			var template = "";
 			if (scope.smoViewGroup.label) {
-				template += '<div class="field-group-label" style="margin-top: 25px;">' + scope.smoViewGroup.label + '</div>';
+				template += '<div ng-hide="' + scope.smoViewGroup.hideContainer + '" class="field-group-label" style="margin-top: 25px;">' + scope.smoViewGroup.label + '</div>';
 			}
+			
 			
 			if (scope.smoViewGroup.fields.length > 1) {
 				var navPills = [];
@@ -1419,15 +1426,21 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 					
 				}
 				
+				if (scope.smoViewGroup.hideContainer) {
+					var style = "background-color: transparent; border: none;";
+				} else {
+					style = "";
+				}
+				
 				template += '\
-					<div class="view-group-container">\
-						<div style="vertical-align: top; cursor: pointer; margin-bottom: 10px;">\
-							<ul class="nav nav-pills nav-stacked">' + navPills.join("") + '</ul>\
-						</div>\
-						<div class="tab-content" style="overflow-x:auto;">'
-							+ navPillPanes.join("") + 
-						'</div>\
-					</div>';
+						<div class="view-group-container" style="' + style + '">\
+							<div style="vertical-align: top; cursor: pointer; margin-bottom: 10px;">\
+								<ul class="nav nav-pills nav-stacked">' + navPills.join("") + '</ul>\
+							</div>\
+							<div class="tab-content" style="overflow-x:auto;">'
+								+ navPillPanes.join("") + 
+							'</div>\
+						</div>';
 				
 			} else if (scope.smoViewGroup.fields.length == 1) {
 				var field = scope.smoViewGroup.fields[0];
@@ -1437,8 +1450,13 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 				}
 				
 				
-				template += '\
-					<div style="background-color: white; padding :10px; text-align: center;">';
+				if (scope.smoViewGroup.hideContainer) {
+					var style = "background-color: transparent; border: none;";
+				} else {
+					style = "background-color: white; padding :10px; text-align: center;";
+				}
+				
+				template += '<div style="' + style + '">';
 				
 				if (field.type == 'TableView' || field.type == 'PlotView') {
 					template += '<div ' + showCode + ' smo-data-series-view field-var="smoViewGroup.fields[0]" model-name="' + scope.modelName + '" smo-data-source="smoDataSource"></div>';

@@ -283,6 +283,7 @@ class NumericalModel(object):
 		jsonObject = {'name': group.name, 'label': group.label}
 		if (group.show is not None):
 			jsonObject['show'] = group.show
+		jsonObject['hideContainer'] = group.hideContainer
 		if (isinstance(group, FieldGroup)):
 			jsonObject['type'] = 'FieldGroup'
 		else:

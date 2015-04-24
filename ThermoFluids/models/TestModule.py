@@ -7,8 +7,9 @@ Created on Apr 2, 2015
 import smo.model.fields as F
 import lib.ThermodynamicComponents as TC
 from smo.model.model import NumericalModel
-from ThermoFluids.tasks import compute1
+from ThermoFluids.tasks import do_work
 
+from smo.web.blocks import HtmlBlock, JsBlock
 class ABC(NumericalModel):
 	showOnHome = False
 	label = 'ABC'
@@ -16,13 +17,17 @@ class ABC(NumericalModel):
 	inputs = F.SuperGroup([compressor])
 	inputView = F.ModelView(ioType = "input", superGroups = [inputs], autoFetch = True)
 	resultView = F.ModelView(ioType = "output", superGroups = [])
-	modelBlocks = [inputView, resultView]
+	testJs = JsBlock(srcType="file", src="TestPage.js")
+	testHtml = HtmlBlock(srcType="file", src="TestPage.html")
+	modelBlocks = [inputView, resultView, testJs, testHtml]
 	
 	def __init__(self):
 		self.compressor.modelType = 'S'
 		self.compressor.declared_fields['modelType'].show = 'false'
 		
 	def compute(self):
-		res1 = compute1.delay()
-		print res1.id
+		pass
+# 		res1 = do_work.delay()
+# 		print res1.state
+# 		print res1.id
 		
