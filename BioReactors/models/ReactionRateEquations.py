@@ -19,7 +19,7 @@ class ReactionRateEquations(NumericalModel):
     #1. ############ Inputs ###############
     #1.1 Fields - Input values
     equations = F.RecordArray((     
-            ('equstion', F.String('E + S -> ES', label = 'Equation', inputBoxSize = 200)),           
+            ('equstion', F.String('E + S -> ES', label = 'Equation', inputBoxWidth = 200)),           
             ('kForward', F.Quantity('Dimensionless', default = (1.0, '-'), minValue = (0, '-'), label = 'rate constant (forward ->)')),
             ('kBackward', F.Quantity('Dimensionless', default = (0.0, '-'), minValue = (0, '-'), label = 'rate constant (backward <-)')),
         ),
