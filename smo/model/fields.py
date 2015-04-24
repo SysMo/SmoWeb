@@ -196,7 +196,7 @@ class String(Field):
 	"""
 	Represents a string field
 	"""
-	def __init__(self, default = None, maxLength = None, multiline = None, *args, **kwargs):
+	def __init__(self, default = None, maxLength = None, multiline = None, inputBoxSize = None, *args, **kwargs):
 		"""
 		:param str default: default value
 		:param int maxLength: the maximum number of characters in the string
@@ -217,6 +217,10 @@ class String(Field):
 			self.maxLength = 100
 		else:
 			self.maxLength = maxLength
+			
+		if (inputBoxSize is None):
+			inputBoxSize = 120
+		self.inputBoxSize = inputBoxSize
 
 	def parseValue(self, value):
 		return value	
@@ -238,6 +242,7 @@ class String(Field):
 	def toFormDict(self):
 		fieldDict = super(String, self).toFormDict()
 		fieldDict['type'] = 'String'
+		fieldDict['inputBoxSize'] = self.inputBoxSize
 		fieldDict['multiline'] = self.multiline
 		return fieldDict
 
