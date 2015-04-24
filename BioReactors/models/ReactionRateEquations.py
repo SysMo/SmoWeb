@@ -14,14 +14,14 @@ from smo.web.modules import RestModule
 class ReactionRateEquations(NumericalModel):
     label = "Enzyme kinetic equations"
     description = F.ModelDescription("Solver for enzyme kinetic equations", show = True)
-    figure = F.ModelFigure(src="BioReactors/img/ModuleImages/SimpleChemostat.png", show=False) #:TODO: (MILEN) 
+    figure = F.ModelFigure(src="BioReactors/img/ModuleImages/SimpleChemostat.png", show = False) #:TODO: (MILEN) 
     
     #1. ############ Inputs ###############
     #1.1 Fields - Input values
     equations = F.RecordArray((     
-            ('equstions', F.String('E + S -> ES', label = 'Equations', inputBoxSize = 200)),           
-            ('kForward', F.Quantity('Dimensionless', default = (1.0, '-'), minValue = (0, '-'), label = 'rate constant (forward)')),
-            ('kBackward', F.Quantity('Dimensionless', default = (0.0, '-'), minValue = (0, '-'), label = 'rate constant (backward)')),
+            ('equstion', F.String('E + S -> ES', label = 'Equation', inputBoxSize = 200)),           
+            ('kForward', F.Quantity('Dimensionless', default = (1.0, '-'), minValue = (0, '-'), label = 'rate constant -> (forward)')),
+            ('kBackward', F.Quantity('Dimensionless', default = (0.0, '-'), minValue = (0, '-'), label = 'rate constant <- (backward)')),
         ),
         toggle = False, 
         label = 'equations',
@@ -32,7 +32,7 @@ class ReactionRateEquations(NumericalModel):
     equationsSG = F.SuperGroup([equationsFG], label = "Equations")
     
     variables = F.RecordArray((                
-            ('variable', F.String('E', label = 'Variable')),
+            ('variable', F.String('E', label = 'State variable')),
             ('initValue', F.Quantity('Bio_MassConcentration', default = (1, 'g/L'), minValue = (0, 'g/L'), label = 'Initial value')),
         ),
         toggle = False, 
@@ -53,7 +53,8 @@ class ReactionRateEquations(NumericalModel):
     #1.4 Model view
     inputView = F.ModelView(ioType = "input", superGroups = [variablesSG, equationsSG, settingsSG], autoFetch = True)
     
-    #2. ############ Results ###############    
+    #2. ############ Results ###############
+    # 2.1 Results 
     plot = F.PlotView((
                         ('time', F.Quantity('Bio_Time', default=(1, 'day'))),
                         ('E', F.Quantity('Bio_MassConcentration', default=(1, 'g/L'))),
@@ -75,10 +76,20 @@ class ReactionRateEquations(NumericalModel):
 
     
     resultsVG = F.ViewGroup([plot, table], label = 'Results')
-    resultsSG = F.SuperGroup([resultsVG])
+    resultsSG = F.SuperGroup([resultsVG], label = 'Results')
+    
+    # 2.2 ODEs plot
+    odesPlot = F.MPLPlot(label = 'ODEs')
+    odesVG = F.ViewGroup([odesPlot], label = 'Ordinary differential equations')
+    odesSG = F.SuperGroup([odesVG], label = 'ODEs')
+    
+    # 2.3 Results plot
+    chartPlot = F.MPLPlot(label = 'Chart')
+    chartPlotVG = F.ViewGroup([chartPlot], label = 'Chart')
+    chartPlotSG = F.SuperGroup([chartPlotVG], label = 'Chart')
     
     #2.1 Model view
-    resultView = F.ModelView(ioType = "output", superGroups = [resultsSG])
+    resultView = F.ModelView(ioType = "output", superGroups = [resultsSG, odesSG, chartPlotSG], keepDefaultDefs = True)
     
     ############# Page structure ########
     modelBlocks = [inputView, resultView]
@@ -93,15 +104,40 @@ class ReactionRateEquations(NumericalModel):
         self.equations[1] = ("ES -> E + P", 1.1, 0.0)
     
     def compute(self):
+        #:TODO: Test
+        plotTuples = (('time', F.Quantity('Bio_Time', default=(1, 'day'))),)
+        for var in self.variables:
+            X = var[0]
+            varTuple = (('%s'%X, F.Quantity('Bio_MassConcentration', default=(1, 'g/L'))),)
+            plotTuples += varTuple
+        
+        plot = F.PlotView(
+            plotTuples,
+            label='Plot', 
+            options = {'ylabel' : None})
+        
+        plot.name = 'plot'
+        plot.default
+        i = self.declared_basicGroups['resultsVG'].fields.index(self.declared_fields['plot'])
+        self.declared_basicGroups['resultsVG'].fields[i] = plot
+        self.declared_fields['plot'] = plot
+        
+        # Create the model
         model = DM.ReactionRateEquations(self)
          
+        # Run simulations 
         model.prepareSimulation()
         model.run(self)
          
+        # Show results
         res = model.getResults()
         results = np.array(res)
         self.plot = results
         self.table = results
+        
+        # Plot results
+        model.plotODEsTxt(self.odesPlot)
+        model.plotHDFResults(self.chartPlot)
         
 
 class ReactionRateEquationsDoc(RestModule):
