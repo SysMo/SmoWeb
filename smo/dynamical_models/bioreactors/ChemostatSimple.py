@@ -58,8 +58,9 @@ class ChemostatSimple(Simulation):
 		self.yDot = NamedStateVector(stateVarNames)
 
 		# Initialize data storage
-		self.resultStorage = ResultStorage(filePath = dataStorageFilePath,
-										datasetPath = dataStorageDatasetPath)
+		self.resultStorage = ResultStorage(
+			filePath = dataStorageFilePath,
+			datasetPath = dataStorageDatasetPath)
 		if (kwargs.get('initDataStorage', True)):
 			self.resultStorage.initializeWriting(
 				varList = ['t'] + stateVarNames + ['D'],
@@ -154,7 +155,7 @@ class ChemostatSimple(Simulation):
 		plt.plot(xData, data['X'], 'b', label = 'X')
 		plt.plot(xData, data['D'], 'g', label = 'D')
 		
-		plt.gca().set_xlim([0, len(xData) - 1])
+		plt.gca().set_xlim([0, xData[-1]])
 		plt.legend()
 		plt.show()
 
@@ -167,8 +168,8 @@ def TestChemostatSimple():
 	
 	# Initialize simulation parameters
 	solverParams = AttributeDict({
-		'tFinal' : 500., 
-		'tPrint' : 1.0
+		'tFinal' : 10., 
+		'tPrint' : 0.1
 	})
 		
 	# Initialize model parameters
