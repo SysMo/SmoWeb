@@ -6,7 +6,8 @@ Created on Dec 29, 2014
 
 from __future__ import absolute_import
 
-from celery import shared_task
+from celery import shared_task, task, current_task
+
 
 
 @shared_task(bind = True)
@@ -16,7 +17,10 @@ def Celery_compute(self, cls, parameters):
 	self.compute()
 	return self.superGroupList2Json(self.results)
 
-@shared_task
-def doSomething(blah):
-	print("Task running " + blah)
-	return 3.141522
+from time import sleep
+@task(track_started=True, bind = True) # or CELERY_TRACK_STARTED=True
+def do_work(self):
+	for i in range(100):
+		sleep(0.1)
+		self.update_state(state='PROGRESS', 
+									meta={'current': i, 'total': 99.})

@@ -1351,12 +1351,18 @@ smoModule.directive('smoFieldGroup', ['$compile', 'util', function($compile, uti
 			var template = "";
 			
 			if (scope.smoFieldGroup.label) {
-				template += '<div class="field-group-label" style="margin-top: 25px;">' + scope.smoFieldGroup.label + '</div>';
+				template += '<div ng-hide="' + scope.smoFieldGroup.hideContainer + '" class="field-group-label" style="margin-top: 25px;">' + scope.smoFieldGroup.label + '</div>';	
 			} 
 			
-			template += '<div class="field-group-container">' +
-							groupFields.join("") +
-						'</div>';
+			if (scope.smoFieldGroup.hideContainer) {
+				var style = "background-color: transparent; border: none;";
+			} else {
+				style = "";
+			}
+			
+			template += '<div style="' + style + '" class="field-group-container">';
+			
+			template += groupFields.join("") + '</div>';
 
 			var el = angular.element(template);
 	        compiled = $compile(el);
@@ -1384,8 +1390,9 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 			
 			var template = "";
 			if (scope.smoViewGroup.label) {
-				template += '<div class="field-group-label" style="margin-top: 25px;">' + scope.smoViewGroup.label + '</div>';
+				template += '<div ng-hide="' + scope.smoViewGroup.hideContainer + '" class="field-group-label" style="margin-top: 25px;">' + scope.smoViewGroup.label + '</div>';
 			}
+			
 			
 			if (scope.smoViewGroup.fields.length > 1) {
 				var navPills = [];
@@ -1419,15 +1426,21 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 					
 				}
 				
+				if (scope.smoViewGroup.hideContainer) {
+					var style = "background-color: transparent; border: none;";
+				} else {
+					style = "";
+				}
+				
 				template += '\
-					<div class="view-group-container">\
-						<div style="vertical-align: top; cursor: pointer; margin-bottom: 10px;">\
-							<ul class="nav nav-pills nav-stacked">' + navPills.join("") + '</ul>\
-						</div>\
-						<div class="tab-content" style="overflow-x:auto;">'
-							+ navPillPanes.join("") + 
-						'</div>\
-					</div>';
+						<div class="view-group-container" style="' + style + '">\
+							<div style="vertical-align: top; cursor: pointer; margin-bottom: 10px;">\
+								<ul class="nav nav-pills nav-stacked">' + navPills.join("") + '</ul>\
+							</div>\
+							<div class="tab-content" style="overflow-x:auto;">'
+								+ navPillPanes.join("") + 
+							'</div>\
+						</div>';
 				
 			} else if (scope.smoViewGroup.fields.length == 1) {
 				var field = scope.smoViewGroup.fields[0];
@@ -1437,8 +1450,13 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 				}
 				
 				
-				template += '\
-					<div style="background-color: white; padding :10px; text-align: center;">';
+				if (scope.smoViewGroup.hideContainer) {
+					var style = "background-color: transparent; border: none;";
+				} else {
+					style = "background-color: white; padding :10px; text-align: center;";
+				}
+				
+				template += '<div style="' + style + '">';
 				
 				if (field.type == 'TableView' || field.type == 'PlotView') {
 					template += '<div ' + showCode + ' smo-data-series-view field-var="smoViewGroup.fields[0]" model-name="' + scope.modelName + '" smo-data-source="smoDataSource"></div>';
@@ -1562,12 +1580,12 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 			smoDataSource : '='
 		},
 		controller: function($scope){
-			
-			$scope.expanded = false;
-			$scope.toggle = function(){
-				$scope.expanded = !$scope.expanded;
+			if ($scope.smoRecordArray.toggle == true) {
+				$scope.expanded = false;
+				$scope.toggle = function(){
+					$scope.expanded = !$scope.expanded;
+				}
 			}
-			
 			
 			$scope.checkValueValidity = function(row, col, form){
 				var field = $scope.smoRecordArray.fields[col];
@@ -1780,13 +1798,20 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 				}
 			}
 			
-			var template = '\
-			<div class="field-label"><div style="display: inline-block;" data-toggle="tooltip" title="' + scope.smoRecordArray.description + '" tooltip>' + scope.smoRecordArray.label + '</div></div>\
-			<div class="field-input"><smo-button action="toggle()" icon="edit" tip="Edit" size="md"></smo-button></div>';
-			//			<div class="field-input"><button class="btn btn-primary" style="height: 30px;" ng-click="toggle()">Edit</button></div>';
+			var template = '';
 			
-			template += '\
-			<div class="record-array" ng-show="expanded" ng-click="toggle()">\
+			if (scope.smoRecordArray.toggle == true) {
+				template += '\
+				<div class="field-label"><div style="display: inline-block;" data-toggle="tooltip" title="' + scope.smoRecordArray.description + '" tooltip>' + scope.smoRecordArray.label + '</div></div>\
+				<div class="field-input"><smo-button action="toggle()" icon="edit" tip="Edit" size="md"></smo-button></div>';
+			}
+			
+			if (scope.smoRecordArray.toggle == true) {
+				template += '\
+					<div class="record-array" ng-show="expanded" ng-click="toggle()">';
+			}
+			
+			editModeTemplate = '\
 				<table class="nice-table">\
 					<tr>\
 						<th style="min-width: 10px;">\
@@ -1806,8 +1831,13 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 							<div><smo-button action="delRow(i)" icon="minus" tip="Remove row"></smo-button></div>\
 						</td>\
 					</tr>\
-				</table>\
-			</div>';
+				</table>';
+			
+			template += editModeTemplate;
+			
+			if (scope.smoRecordArray.toggle == true) {
+				template += '</div>';
+			}
 			
 	        var el = angular.element(template);
 	        compiled = $compile(el);
