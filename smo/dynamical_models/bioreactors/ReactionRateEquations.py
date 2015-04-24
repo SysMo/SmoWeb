@@ -38,8 +38,11 @@ class ReactionRateEquations(Simulation):
             params = AttributeDict(kwargs)
         
         # Get the variables Xs = [X1, X2, ..., Xn] 
-        self.Xs = params.variables[:,0]
-        self.X0s = params.variables[:,1]
+        self.Xs = np.empty(len(params.variables), dtype=(np.str_, 256))
+        self.X0s = np.zeros(len(params.variables))
+        for i, var in enumerate(params.variables):
+            self.Xs[i] = var[0]
+            self.X0s[i] = var[1]
         
         # Get the equations = [[left Xs, right Xs, k, ss, rs, f], ...], where: 
         # left Xs - the variables of reactants (i.e. the variables of the left parts of the equations)
@@ -314,13 +317,14 @@ def TestReactionRateEquations():
         #("ES <= E + P", 0.0, 2.2),
     ], dtype = dt)
     
+    dt_vars = np.dtype([('variables', np.str_, 256), ('initValue', np.float64, (1))])
     variables = np.array([
-        ['E', 0.1],
-        ['S', 0.2],
-        ['ES', 0.0],
-        ['P', 0.0],
-    ])
-    
+        ('E', 0.1),
+        ('S', 0.2),
+        ('ES', 0.0),
+        ('P', 0.0),
+    ], dtype = dt_vars)
+        
     modelParams = AttributeDict({
         'equations' : equations,
         'variables' : variables,

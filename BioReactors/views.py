@@ -12,3 +12,10 @@ class ChemostatView(ModularPageView):
     modules = [M.ChemostatSimple, M.ChemostatSimpleDoc, M.ChemostatDDE, M.ChemostatDDEDoc]
     requireJS = ['dygraph', 'dygraphExport']
     requireGoogle = ['visualization']
+    
+@registerView(router)
+class ChemicalReactionsView(ModularPageView):
+    label = 'Chemical Reactions'
+    modules = [M.ReactionRateEquations, M.ReactionRateEquationsDoc]
+    requireJS = ['dygraph', 'dygraphExport']
+    requireGoogle = ['visualization']

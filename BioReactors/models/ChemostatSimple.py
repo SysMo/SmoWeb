@@ -82,9 +82,7 @@ class ChemostatSimple(NumericalModel):
         chemostat.run(self)
         
         res = chemostat.getResults()
-        print res
         results = np.array(res)
-        print results
         self.plot = results
         self.table = results
         

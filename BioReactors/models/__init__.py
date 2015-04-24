@@ -1,2 +1,3 @@
 from ChemostatSimple import ChemostatSimple, ChemostatSimpleDoc
 from ChemostatDDE import ChemostatDDE, ChemostatDDEDoc
+from ReactionRateEquations import ReactionRateEquations, ReactionRateEquationsDoc

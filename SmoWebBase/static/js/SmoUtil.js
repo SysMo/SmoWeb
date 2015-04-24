@@ -867,7 +867,7 @@ smoModule.directive('smoString', ['$compile', function($compile) {
 				template += '\
 					<div class="field-input"> \
 						<div ng-form name="' + scope.fieldVar.name + 'Form">\
-							<input name="input" required type="text" ng-model="fieldVar.value" ng-change="updateValue()">\
+							<input style="width:' + scope.fieldVar.inputBoxSize + 'px" name="input" required type="text" ng-model="fieldVar.value" ng-change="updateValue()">\
 						</div>\
 					</div>';
 			else if (scope.viewType == 'output'){
@@ -1779,7 +1779,7 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 						<td>\
 							<div class="field-input">\
 								<div ng-form name="' + scope.smoRecordArray.name + '_{{i}}_' + String(col) + 'Form">\
-									<input name="input" required type="text" \
+									<input style="width:' + field.inputBoxSize + 'px" name="input" required type="text" \
 										ng-model="arrValue[i][' + String(col) + ']">\
 								</div>\
 							</div>\
