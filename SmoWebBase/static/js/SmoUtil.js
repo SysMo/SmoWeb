@@ -404,12 +404,16 @@ smoModule.factory('communicator', function($http, $window, $timeout, $location, 
 	}
 	
 	ModelCommunicator.prototype.setResponseData = function(responseData) {
-		// If the communicator has received the definitions once, just the values are updated
-		if (this.data.definitions) {
-			this.data.values = responseData.values;
-		} else {
+		if (this.data.keepDefaultDefs) {
 			this.data = responseData;
-		}
+		} else {
+			// If the communicator has received the definitions once, just the values are updated
+			if (this.data.definitions) {
+				this.data.values = responseData.values;
+			} else {
+				this.data = responseData;
+			}
+		}	
 	}
 
 	ModelCommunicator.prototype.saveUserInput = function() {

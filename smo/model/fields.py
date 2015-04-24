@@ -858,13 +858,14 @@ class ModelView(object):
 	:param ActionBar actionBar: an ``ActionBar`` object	
 	:param bool autoFetch: used to specify whether the view should be loaded automatically at the client
 	"""
-	def __init__(self, ioType, superGroups, actionBar = None, autoFetch = False):
+	def __init__(self, ioType, superGroups, actionBar = None, autoFetch = False, keepDefaultDefs = False):
 		self.ioType = ioType
 		self.superGroups = superGroups
 		if actionBar is None:
 			actionBar = ActionBar()
 		self.actionBar = actionBar
 		self.autoFetch = autoFetch
+		self.keepDefaultDefs = keepDefaultDefs
 		
 	def copyByName(self):
 		newObject = copy.copy(self)
