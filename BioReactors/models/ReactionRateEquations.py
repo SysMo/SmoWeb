@@ -14,14 +14,14 @@ from smo.web.modules import RestModule
 class ReactionRateEquations(NumericalModel):
     label = "Enzyme kinetic equations"
     description = F.ModelDescription("Solver for enzyme kinetic equations", show = True)
-    figure = F.ModelFigure(src="BioReactors/img/ModuleImages/SimpleChemostat.png", show=False) #:TODO: (MILEN) 
+    figure = F.ModelFigure(src="BioReactors/img/ModuleImages/SimpleChemostat.png", show = False) #:TODO: (MILEN) 
     
     #1. ############ Inputs ###############
     #1.1 Fields - Input values
     equations = F.RecordArray((     
             ('equstions', F.String('E + S -> ES', label = 'Equations', inputBoxWidth = 200)),           
-            ('kForward', F.Quantity('Dimensionless', default = (1.0, '-'), minValue = (0, '-'), label = 'rate constant (forward)')),
-            ('kBackward', F.Quantity('Dimensionless', default = (0.0, '-'), minValue = (0, '-'), label = 'rate constant (backward)')),
+            ('kForward', F.Quantity('Dimensionless', default = (1.0, '-'), minValue = (0, '-'), label = 'rate constants -> (forward)')),
+            ('kBackward', F.Quantity('Dimensionless', default = (0.0, '-'), minValue = (0, '-'), label = 'rate constants <- (backward)')),
         ),
         toggle = False, 
         label = 'equations',
@@ -32,8 +32,8 @@ class ReactionRateEquations(NumericalModel):
     equationsSG = F.SuperGroup([equationsFG], label = "Equations")
     
     variables = F.RecordArray((                
-            ('variable', F.String('E', label = 'Variable')),
-            ('initValue', F.Quantity('Bio_MassConcentration', default = (1, 'g/L'), minValue = (0, 'g/L'), label = 'Initial value')),
+            ('variable', F.String('E', label = 'State variables')),
+            ('initValue', F.Quantity('Bio_MolarConcentration', default = (1, 'M'), minValue = (0, 'M'), label = 'Initial values')),
         ),
         toggle = False, 
         label = 'equations', 
@@ -44,7 +44,7 @@ class ReactionRateEquations(NumericalModel):
     variablesSG = F.SuperGroup([variablesFG], label = "Variables")
 
     #1.2 Fields - Settings
-    tFinal = F.Quantity('Bio_Time', default = (20, 'day'), minValue = (0, 'day'), maxValue=(1000, 'day'), label = 'simulation time')
+    tFinal = F.Quantity('Bio_Time', default = (20, 'day'), minValue = (0, 'day'), maxValue=(1000, 'day'), label = 'simulation time') #:TODO: (MILEN) time unit: day or s
     tPrint = F.Quantity('Bio_Time', default = (0.1, 'day'), minValue = (1e-5, 'day'), maxValue = (100, 'day'), label = 'print interval')
     solverFG = F.FieldGroup([tFinal, tPrint], label = 'Solver')
     
@@ -54,31 +54,40 @@ class ReactionRateEquations(NumericalModel):
     inputView = F.ModelView(ioType = "input", superGroups = [variablesSG, equationsSG, settingsSG], autoFetch = True)
     
     #2. ############ Results ###############    
-    plot = F.PlotView((
-                        ('time', F.Quantity('Bio_Time', default=(1, 'day'))),
-                        ('E', F.Quantity('Bio_MassConcentration', default=(1, 'g/L'))),
-                        ('S', F.Quantity('Bio_MassConcentration', default=(1, 'g/L'))),
-                        ('ES', F.Quantity('Bio_MassConcentration', default=(1, 'g/L'))),
-                        ('P', F.Quantity('Bio_MassConcentration', default=(1, 'g/L'))),
-                    ),
-                    label='Plot', 
-                    options = {'ylabel' : None})
-    table = F.TableView((
-                        ('time', F.Quantity('Bio_Time', default=(1, 'day'))),
-                        ('E', F.Quantity('Bio_MassConcentration', default=(1, 'g/L'))),
-                        ('S', F.Quantity('Bio_MassConcentration', default=(1, 'g/L'))),
-                        ('ES', F.Quantity('Bio_MassConcentration', default=(1, 'g/L'))),
-                        ('P', F.Quantity('Bio_MassConcentration', default=(1, 'g/L'))),
-                      ),
-                      label='Table', 
-                      options = {'title': 'Simple Chemostat', 'formats': ['0.000', '0.000', '0.000', '0.000']})
+    plot = F.PlotView(
+        (
+            ('time', F.Quantity('Bio_Time', default=(1, 'day'))),
+            ('E', F.Quantity('Bio_MolarConcentration', default=(1, 'M'))),
+        ),
+        label = 'Plot'
+    )
+    
+    table = F.TableView(
+        (
+            ('time', F.Quantity('Bio_Time', default=(1, 'day'))),
+            ('E', F.Quantity('Bio_MolarConcentration', default=(1, 'M'))),
+        ),
+        label = 'Table', 
+        options = {'formats': ['0.000', '0.000', '0.000', '0.000']}
+    )
 
     
     resultsVG = F.ViewGroup([plot, table], label = 'Results')
-    resultsSG = F.SuperGroup([resultsVG])
+    resultsSG = F.SuperGroup([resultsVG], label = 'Results')
+    
+    # 2.2 ODEs plot
+    odesPlot = F.MPLPlot(label = 'ODEs')
+    odesVG = F.ViewGroup([odesPlot], label = 'Ordinary differential equations')
+    odesSG = F.SuperGroup([odesVG], label = 'ODEs')
+    
+    # 2.3 Results plot
+    chartPlot = F.MPLPlot(label = 'Chart')
+    chartPlotVG = F.ViewGroup([chartPlot], label = 'Chart')
+    chartPlotSG = F.SuperGroup([chartPlotVG], label = 'Chart')
     
     #2.1 Model view
-    resultView = F.ModelView(ioType = "output", superGroups = [resultsSG], keepDefaultDefs = True)
+    resultView = F.ModelView(ioType = "output", superGroups = [resultsSG, odesSG, chartPlotSG], keepDefaultDefs = True)
+    
     
     ############# Page structure ########
     modelBlocks = [inputView, resultView]
@@ -92,33 +101,43 @@ class ReactionRateEquations(NumericalModel):
         self.equations[0] = ("E + S = ES", 10.1, 1.1)
         self.equations[1] = ("ES -> E + P", 1.1, 0.0)
     
-    def compute(self):
-        #:TODO: Test
-        plotTuples = (('time', F.Quantity('Bio_Time', default=(1, 'day'))),)
+    def redefineFileds(self):
+        # Create tuples for variables
+        varTuples = (('time', F.Quantity('Bio_Time', default=(1, 'day'))),)
         for var in self.variables:
             X = var[0]
-            varTuple = (('%s'%X, F.Quantity('Bio_MassConcentration', default=(1, 'g/L'))),)
-            plotTuples += varTuple
-        
-        redefinedPlot = F.PlotView(
-            plotTuples,
-            label='Plot', 
-            options = {'ylabel' : None})
-        
+            varTuple = (('%s'%X, F.Quantity('Bio_MolarConcentration', default=(1, 'M'))),)
+            varTuples += varTuple
+            
+        # Redefine Files
+        redefinedPlot = F.PlotView(varTuples, 
+            label = 'Plot', options = {'ylabel' : 'concentration', 'title' : 'Change in concentrations over time'})
         self.redefineField('plot', 'resultsVG', redefinedPlot)
         
+        redefinedTable = F.TableView(varTuples,
+            label = 'Table', options = {'formats': ['0.000', '0.000', '0.000', '0.000']})
+        self.redefineField('table', 'resultsVG', redefinedTable)
+         
+    def compute(self):
+        # Redefine some fields
+        self.redefineFileds()
         
-        
+        # Create the model
         model = DM.ReactionRateEquations(self)
          
+        # Run simulations 
         model.prepareSimulation()
         model.run(self)
          
+        # Show results
         res = model.getResults()
         results = np.array(res)
         self.plot = results
         self.table = results
         
+        # Plot results
+        model.plotODEsTxt(self.odesPlot)
+        model.plotHDFResults(self.chartPlot)
 
 class ReactionRateEquationsDoc(RestModule):
     label = 'Enzyme kinetic equations (Doc)'

@@ -118,5 +118,5 @@ Quantities = {
 	'Bio_CODConcentration' : {'title' : 'bio: COD concentration', 'nominalValue' : 1.0, 'minValue' : 0.0, 'SIUnit' : 'kgCOD/m**3', 
 		'units' : OrderedDict((('kgCOD/m**3', {'mult' : 1}), ('gCOD/L', {'mult' : 1}), ('gCOD/cm**3', {'mult' : 1e3}),))},
 	'Bio_MolarConcentration' : {'title' : 'bio: molar concentration', 'nominalValue' : 1.0, 'minValue' : 0.0, 'SIUnit' : 'kmol/m**3', 
-		'units' : OrderedDict((('kmol/m**3', {'mult' : 1}), ('mol/m**3', {'mult' : 1./1e3}), ('mol/L', {'mult' : 1}), ('mol/cm**3', {'mult' : 1e3}),))},
+		'units' : OrderedDict((('kmol/m**3', {'mult' : 1}), ('mol/m**3', {'mult' : 1./1e3}), ('mol/L', {'mult' : 1}), ('M', {'mult' : 1}), ('mol/cm**3', {'mult' : 1e3}),))},
 }

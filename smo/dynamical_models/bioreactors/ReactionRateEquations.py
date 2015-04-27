@@ -207,21 +207,23 @@ class ReactionRateEquations(Simulation):
     def loadResult(self, simIndex):
         self.resultStorage.loadResult(simIndex)
         
-    def plotHDFResults(self):
+    def plotHDFResults(self, ax = None):
+        if (ax is None):
+            fig = plt.figure()
+            ax = fig.add_subplot(111)
+        
         # Get results
         data = self.resultStorage.data
         
         # Plot results
         xData = data['t']
-        plt.plot(xData, data['E'], 'r', label = 'E')
-        plt.plot(xData, data['S'], 'b', label = 'S')
-        plt.plot(xData, data['ES'], 'g', label = 'ES')
-        plt.plot(xData, data['P'], 'm', label = 'P')
-        
-        plt.gca().set_xlim([0, xData[-1]])
+        colors = self.getColors()
+        for i, X in enumerate(self.Xs):
+            ax.plot(xData, data[X], '%s'%colors[i%len(colors)], label = X)
+    
+        ax.set_xlim([0, xData[-1]])
         
         # Shrink current axis by 20%
-        ax = plt.gca()
         box = ax.get_position()
         ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
 
@@ -230,21 +232,33 @@ class ReactionRateEquations(Simulation):
         
         # Set lables and titles
         ax.set_xlabel('Time [day]')
-        ax.set_ylabel('Variables [g/L]')
+        ax.set_ylabel('Variables [M]')
         
-        plt.title('Reaction rate equations')
+        #plt.title('Reaction rate equations')
         
         plt.show()
         
-    def plotODEsTxt(self):
+    def getColors(self):
+        colors_base = ['r-', 'b-', 'g-', 'm-', 'y-', 'c-', 'k-']
+        colors = []
+        colors += colors_base
+        colors += ['%s-'%c for c in colors_base]
+        colors += ['%s.'%c for c in colors_base]
+        return colors
+        
+    def plotODEsTxt(self, ax = None):
+        if (ax is None):
+            fig = plt.figure()
+            ax = fig.add_subplot(111)
+        ax.set_frame_on(False)
+        ax.get_xaxis().set_visible(False)
+        ax.get_yaxis().set_visible(False)
+        
         # Plot settings
-        xCoord = 0.05
+        xCoord = 0.0
         yCoord = 0.9  
         yCoordOffset = -0.1
         fontsize = 24  
-        
-        # Get the figure 
-        fig = plt.figure()
         
         # Plot ODEs
         for i, X in enumerate(self.Xs):
@@ -263,12 +277,11 @@ class ReactionRateEquations(Simulation):
                     else:
                         odeTxt += r" + {0}".format(f)
             odeTxt += "$"
-            fig.text(xCoord, yCoord, odeTxt, fontsize=fontsize)
-            yCoord += yCoordOffset   
-             
+            ax.text(xCoord, yCoord, odeTxt, fontsize=fontsize)
+            yCoord += yCoordOffset  
+
         # Show plot
         plt.show()
-
  
     def getODEsTxt(self):
         resTxt = ""
@@ -333,7 +346,10 @@ def TestReactionRateEquations():
     # Create the model
     model = ReactionRateEquations(modelParams)
     print model.getODEsTxt()
-    model.plotODEsTxt()
+    
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    model.plotODEsTxt(ax)
     
     # Run simulation or load old results
     if (simulate == True):
@@ -346,7 +362,9 @@ def TestReactionRateEquations():
     #model.resultStorage.exportToCsv(fileName = csvFileName)
     
     # Plot results
-    model.plotHDFResults()
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    model.plotHDFResults(ax)
     
     print "=== END: TestReactionRateEquations ==="
     
