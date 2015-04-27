@@ -19,7 +19,7 @@ class ReactionRateEquations(NumericalModel):
     #1. ############ Inputs ###############
     #1.1 Fields - Input values
     equations = F.RecordArray((     
-            ('equstions', F.String('E + S -> ES', label = 'Equations', inputBoxSize = 200)),           
+            ('equstions', F.String('E + S -> ES', label = 'Equations', inputBoxWidth = 200)),           
             ('kForward', F.Quantity('Dimensionless', default = (1.0, '-'), minValue = (0, '-'), label = 'rate constant (forward)')),
             ('kBackward', F.Quantity('Dimensionless', default = (0.0, '-'), minValue = (0, '-'), label = 'rate constant (backward)')),
         ),
@@ -78,7 +78,7 @@ class ReactionRateEquations(NumericalModel):
     resultsSG = F.SuperGroup([resultsVG])
     
     #2.1 Model view
-    resultView = F.ModelView(ioType = "output", superGroups = [resultsSG])
+    resultView = F.ModelView(ioType = "output", superGroups = [resultsSG], keepDefaultDefs = True)
     
     ############# Page structure ########
     modelBlocks = [inputView, resultView]
@@ -93,6 +93,22 @@ class ReactionRateEquations(NumericalModel):
         self.equations[1] = ("ES -> E + P", 1.1, 0.0)
     
     def compute(self):
+        #:TODO: Test
+        plotTuples = (('time', F.Quantity('Bio_Time', default=(1, 'day'))),)
+        for var in self.variables:
+            X = var[0]
+            varTuple = (('%s'%X, F.Quantity('Bio_MassConcentration', default=(1, 'g/L'))),)
+            plotTuples += varTuple
+        
+        redefinedPlot = F.PlotView(
+            plotTuples,
+            label='Plot', 
+            options = {'ylabel' : None})
+        
+        self.redefineField('plot', 'resultsVG', redefinedPlot)
+        
+        
+        
         model = DM.ReactionRateEquations(self)
          
         model.prepareSimulation()
