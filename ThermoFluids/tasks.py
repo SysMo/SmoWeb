@@ -21,6 +21,6 @@ from time import sleep
 @task(track_started=True, bind = True) # or CELERY_TRACK_STARTED=True
 def do_work(self):
 	for i in range(100):
-		sleep(0.1)
+		sleep(0.2)
 		self.update_state(state='PROGRESS', 
 									meta={'current': i, 'total': 99.})

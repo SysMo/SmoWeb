@@ -110,5 +110,8 @@ def check_progress(request):
 	job = AsyncResult(job_id)
 	resp = {'data': {}}
 	resp['data']['job'] = job_id
-	resp['data']['progressValue'] = job.info['current']/job.info['total'] * 100
+	try:
+		resp['data']['progressValue'] = round(job.info['current']/job.info['total'] * 100, 0)
+	except:
+		resp['data']['progressValue'] = 100
 	return HttpResponse(json.dumps(resp), content_type='text/plain')

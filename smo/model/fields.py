@@ -65,7 +65,7 @@ class Quantity(Field):
 	Represents a physical quantity (e.g. Length, Time, Mass etc.). Allows values to 
 	be set using units e.g. (2, 'km')  
 	'''
-	def __init__(self, type = 'Dimensionless', default = None, minValue = None, maxValue = None, *args, **kwargs):
+	def __init__(self, type = 'Dimensionless', default = None, minValue = None, maxValue = None, inputBoxWidth = None, *args, **kwargs):
 		"""
 		:param str type: the quantity type (Length, Mass, Time etc.)
 		:param default: default value for the field. Could be value in SI unit or tuple (value, unit) like (2, 'mm').
@@ -84,6 +84,10 @@ class Quantity(Field):
 			self.maxValue = Quantities[self.type].get('maxValue', 1e99)
 		else:
 			self.maxValue = self.parseValue(maxValue)
+		
+		if (inputBoxWidth is None):
+			inputBoxWidth = 120
+		self.inputBoxWidth = inputBoxWidth
 		
 		if (default is None):
 			self.default = 1.0
@@ -132,13 +136,14 @@ class Quantity(Field):
 		fieldDict['title'] = Quantities[self.type]['title']
 		fieldDict['nominalValue'] = Quantities[self.type]['nominalValue']
 		fieldDict['SIUnit'] = Quantities[self.type]['SIUnit']
+		fieldDict['inputBoxWidth'] = self.inputBoxWidth
 		return fieldDict
 
 class Integer(Field):
 	"""
 	Integer field
 	"""
-	def __init__(self, default = None, minValue = None, maxValue = None, *args, **kwargs):
+	def __init__(self, default = None, minValue = None, maxValue = None, inputBoxWidth = None, *args, **kwargs):
 		super(Integer, self).__init__(*args, **kwargs)
 		
 		if (minValue is None):
@@ -148,6 +153,10 @@ class Integer(Field):
 		if (maxValue is None):
 			maxValue = 1e6
 		self.maxValue = self.parseValue(maxValue)
+		
+		if (inputBoxWidth is None):
+			inputBoxWidth = 120
+		self.inputBoxWidth = inputBoxWidth
 		
 		if (default is None):
 			default = 1
@@ -164,6 +173,7 @@ class Integer(Field):
 		fieldDict['type'] = 'Integer'
 		fieldDict['minValue'] = self.minValue
 		fieldDict['maxValue'] = self.maxValue
+		fieldDict['inputBoxWidth'] = self.inputBoxWidth
 		return fieldDict
 
 class Complex(Field):
@@ -196,7 +206,7 @@ class String(Field):
 	"""
 	Represents a string field
 	"""
-	def __init__(self, default = None, maxLength = None, multiline = None, inputBoxSize = None, *args, **kwargs):
+	def __init__(self, default = None, maxLength = None, multiline = None, inputBoxWidth = None, *args, **kwargs):
 		"""
 		:param str default: default value
 		:param int maxLength: the maximum number of characters in the string
@@ -218,9 +228,9 @@ class String(Field):
 		else:
 			self.maxLength = maxLength
 			
-		if (inputBoxSize is None):
-			inputBoxSize = 120
-		self.inputBoxSize = inputBoxSize
+		if (inputBoxWidth is None):
+			inputBoxWidth = 120
+		self.inputBoxWidth = inputBoxWidth
 
 	def parseValue(self, value):
 		return value	
@@ -242,7 +252,7 @@ class String(Field):
 	def toFormDict(self):
 		fieldDict = super(String, self).toFormDict()
 		fieldDict['type'] = 'String'
-		fieldDict['inputBoxSize'] = self.inputBoxSize
+		fieldDict['inputBoxWidth'] = self.inputBoxWidth
 		fieldDict['multiline'] = self.multiline
 		return fieldDict
 
@@ -404,16 +414,16 @@ class RecordArray(Field):
 				typeList.append((field.name, np.dtype('S' + str(field.maxLength))))
 
 		self.dtype = np.dtype(typeList)
-	
-	@property
-	def default(self):
 		self.defaultRow = []
 		for field in self.fieldList:
 			self.defaultRow.append(field.default)
-		defaultRowTuple = tuple(self.defaultRow)
+		self.defaultRow = tuple(self.defaultRow)
+	
+	@property
+	def default(self):
 		default = np.zeros((self.numRows,), dtype = self.dtype)
 		for i in range(self.numRows):
-			default[i] = defaultRowTuple
+			default[i] = self.defaultRow
 		return default
 		
 	def parseValue(self, value):

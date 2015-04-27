@@ -614,7 +614,7 @@ smoModule.directive('smoInt', ['$compile', function($compile) {
 				template += '\
 					<div class="field-input"> \
 						<div ng-form name="' + scope.fieldVar.name + 'Form">\
-							<input name="input" required type="number" ng-model="smoDataSource.' + scope.fieldVar.name + '" min="' + scope.fieldVar.minValue + '" max="' + scope.fieldVar.maxValue + '">\
+							<input style="width:' + scope.fieldVar.inputBoxWidth + 'px" name="input" required type="number" ng-model="smoDataSource.' + scope.fieldVar.name + '" min="' + scope.fieldVar.minValue + '" max="' + scope.fieldVar.maxValue + '">\
 						</div>\
 					</div>';
 			}
@@ -777,7 +777,7 @@ smoModule.directive('smoQuantity', ['$compile', 'util', function($compile, util)
 				template += '\
 					<div class="field-input"> \
 						<div ng-form name="' + scope.fieldVar.name + 'Form">\
-							<input name="input" required type="text" ng-pattern="/^[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$/" ng-model="fieldVar.displayValue" ng-change="checkValueValidity();">\
+							<input name="input" style="width:' + scope.fieldVar.inputBoxWidth + 'px" required type="text" ng-pattern="/^[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$/" ng-model="fieldVar.displayValue" ng-change="checkValueValidity();">\
 						</div>\
 					</div>';
 				template += '\
@@ -871,7 +871,7 @@ smoModule.directive('smoString', ['$compile', function($compile) {
 				template += '\
 					<div class="field-input"> \
 						<div ng-form name="' + scope.fieldVar.name + 'Form">\
-							<input style="width:' + scope.fieldVar.inputBoxSize + 'px" name="input" required type="text" ng-model="fieldVar.value" ng-change="updateValue()">\
+							<input style="width:' + scope.fieldVar.inputBoxWidth + 'px" name="input" required type="text" ng-model="fieldVar.value" ng-change="updateValue()">\
 						</div>\
 					</div>';
 			else if (scope.viewType == 'output'){
@@ -1749,7 +1749,7 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 						<td>\
 							<div class="field-input">\
 								<div ng-form name="' + scope.smoRecordArray.name + '_{{i}}_' + String(col) + 'Form">\
-									<input name="input" required type="text" ng-pattern="/^[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$/" \
+									<input style="width:' + field.inputBoxWidth + 'px" name="input" required type="text" ng-pattern="/^[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$/" \
 										ng-model="arrDisplayValue[i][' + String(col) + ']" ng-change="checkValueValidity(i,' + String(col) + ', ' + scope.smoRecordArray.name + '_{{i}}_' + String(col) + 'Form)">\
 								</div>\
 							</div>\
@@ -1764,7 +1764,7 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 						<td>\
 							<div class="field-input">\
 								<div ng-form name="' + scope.smoRecordArray.name + '_{{i}}_' + String(col) + 'Form">\
-									<input name="input" required type="number" \
+									<input style="width:' + field.inputBoxWidth + 'px" name="input" required type="number" \
 										ng-model="arrValue[i][' + String(col) + ']" \
 										min="' + scope.smoRecordArray.fields[col].minValue + '" max="' + scope.smoRecordArray.fields[col].maxValue + '">\
 								</div>\
@@ -1783,7 +1783,7 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 						<td>\
 							<div class="field-input">\
 								<div ng-form name="' + scope.smoRecordArray.name + '_{{i}}_' + String(col) + 'Form">\
-									<input style="width:' + field.inputBoxSize + 'px" name="input" required type="text" \
+									<input style="width:' + field.inputBoxWidth + 'px" name="input" required type="text" \
 										ng-model="arrValue[i][' + String(col) + ']">\
 								</div>\
 							</div>\
