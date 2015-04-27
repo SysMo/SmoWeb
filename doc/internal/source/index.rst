@@ -12,6 +12,7 @@ Welcome to SmoWeb internal documentation!
    :numbered:
    
    Setup
+   Debugging
    CoolProp
    Diagrams
    IE

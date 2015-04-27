@@ -24,7 +24,7 @@ class FluidChannelSection(object):
 		self.charLength = dOut - dIn
 		self.extWallArea = m.pi * dOut * self.L
 		self.NusseltCorrelation = CR.Nusselt_StraightPipe
-		epsilon = 0.025
+		epsilon = 25e-6 # 25 um default surface roughness
 		self.frictionCorrelation = lambda Re: CR.ChurchilCorrelation(Re, dOut - dIn, epsilon)
 		self.flowFactor = self.L / self.charLength
 		def plotGeometry(patches, dy = 0, dx = 0):
@@ -84,8 +84,8 @@ class FluidChannelSection(object):
 		dhMax = fStateOut.h - self.fState.h
 		self.QDotWall = self.mDot * dhMax
 		QDot = self.extWallArea * self.hConv * (self.TWall - self.fState.T)
-		dh = QDot / self.mDot
 		if (self.mDot > 1e-12):
+			dh = QDot / self.mDot
 			if (abs(dh) < abs(dhMax)):
 				fStateOut.update_ph(pOut, self.fState.h + dh)
 				self.QDotWall = QDot				 
