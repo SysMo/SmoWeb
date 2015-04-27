@@ -236,6 +236,12 @@ class NumericalModel(object):
 	def __getattr__(self, name):
 		return object.__getattribute__(self, name)
 	
+	def redefineField(self, fieldName, basicGroupName, newField):
+		newField.name = fieldName
+		i = self.declared_basicGroups[basicGroupName].fields.index(self.declared_fields[fieldName])
+		self.declared_basicGroups[basicGroupName].fields[i] = newField
+		self.declared_fields[fieldName] = newField
+	
 	def modelView2Json(self, modelView):
 		"""Creates JSON representation of the modelView including 
 		field definitions, field values and actions"""

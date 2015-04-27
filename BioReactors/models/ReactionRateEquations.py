@@ -111,16 +111,12 @@ class ReactionRateEquations(NumericalModel):
             varTuple = (('%s'%X, F.Quantity('Bio_MassConcentration', default=(1, 'g/L'))),)
             plotTuples += varTuple
         
-        plot = F.PlotView(
+        redefinedPlot = F.PlotView(
             plotTuples,
             label='Plot', 
             options = {'ylabel' : None})
         
-        plot.name = 'plot'
-        plot.default
-        i = self.declared_basicGroups['resultsVG'].fields.index(self.declared_fields['plot'])
-        self.declared_basicGroups['resultsVG'].fields[i] = plot
-        self.declared_fields['plot'] = plot
+        self.redefineField('plot', 'resultsVG', redefinedPlot)
         
         # Create the model
         model = DM.ReactionRateEquations(self)

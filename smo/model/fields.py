@@ -414,16 +414,16 @@ class RecordArray(Field):
 				typeList.append((field.name, np.dtype('S' + str(field.maxLength))))
 
 		self.dtype = np.dtype(typeList)
-	
-	@property
-	def default(self):
 		self.defaultRow = []
 		for field in self.fieldList:
 			self.defaultRow.append(field.default)
-		defaultRowTuple = tuple(self.defaultRow)
+		self.defaultRow = tuple(self.defaultRow)
+	
+	@property
+	def default(self):
 		default = np.zeros((self.numRows,), dtype = self.dtype)
 		for i in range(self.numRows):
-			default[i] = defaultRowTuple
+			default[i] = self.defaultRow
 		return default
 		
 	def parseValue(self, value):
