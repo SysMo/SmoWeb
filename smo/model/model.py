@@ -14,6 +14,8 @@ class NumericalModelMeta(type):
 			attrs['label'] = name
 		if ('showOnHome' not in attrs):
 			attrs['showOnHome'] = True
+		if ('computeAsync' not in attrs):
+			attrs['computeAsync'] = False
 		if ('abstract' not in attrs):
 			attrs['abstract'] = False
 		# Collect fields from current class.
@@ -261,7 +263,8 @@ class NumericalModel(object):
 		if (modelView.actionBar is not None):
 			for action in modelView.actionBar.actionList:
 				actions.append(action.toJson())
-		return {'definitions': definitions, 'values': fieldValues, 'actions': actions, 'keepDefaultDefs': modelView.keepDefaultDefs}
+		return {'definitions': definitions, 'values': fieldValues, 'actions': actions, 
+					'keepDefaultDefs': modelView.keepDefaultDefs, 'computeAsync' : self.computeAsync}
 
 	def superGroup2Json(self, group, fieldValues):
 		"""

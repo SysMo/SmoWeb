@@ -404,18 +404,46 @@ smoModule.factory('communicator', function($http, $window, $timeout, $location, 
 	}
 	
 	ModelCommunicator.prototype.setResponseData = function(responseData) {
-		if (this.data.keepDefaultDefs) {
-			this.data = responseData;
-		} else {
-			// If the communicator has received the definitions once, just the values are updated
+		if (!responseData.keepDefaultDefs) {
+			//If the definitions have been received once, on next occasions they are discarded
 			if (this.data.definitions) {
-				this.data.values = responseData.values;
-			} else {
-				this.data = responseData;
+				responseData.definitions = this.data.definitions;
 			}
-		}	
+		}
+		this.data = responseData;
+		this.model.computeAsync = this.data.computeAsync;
 	}
-
+	
+	ModelCommunicator.prototype.computeAsync = function(parameters) {
+		var modelComm = this;
+		var progressBarDivID = this.modelName + '_' + this.viewName + 'ProgressBar';
+		var onCheckSuccess = function(comm) {
+			comm.progressValue = comm.data.progressValue;
+			if (Number(comm.progressValue) == 100) {
+				modelComm.data = comm.data;
+				modelComm.dataReceived = comm.dataReceived;
+			} else {
+				modelComm.progressValue = comm.data.progressValue;
+				checkProgress(comm);
+			}
+			$('#' + progressBarDivID).css('width', modelComm.progressValue + "%");
+		}
+		var checkProgress = function(comm) {
+ 			setTimeout(function(){
+ 				comm.fetchData('checkProgress', {"jobID" : comm.jobID}, onCheckSuccess);
+ 			}, 50);
+		}
+		var onStartSuccess = function(comm) {
+			comm.jobID = comm.data.jobID;
+			comm.progressValue = 0;
+			modelComm.jobID = comm.data.jobID;
+			modelComm.progressValue = 0;
+			checkProgress(comm);
+		}
+		startJobComm = new ModelCommunicator(this.model, this.modelName, this.viewName);
+		startJobComm.fetchData('startCompute', parameters, onStartSuccess);
+	}
+	
 	ModelCommunicator.prototype.saveUserInput = function() {
 		var communicator = this;
 		this.saveFeedbackMsg = "";
@@ -1914,6 +1942,10 @@ smoModule.directive('smoViewToolbar', ['$compile', '$rootScope', 'util', functio
 						parameters['recordId'] =
 							communicator.model.recordId;
 					}
+					if ($scope.model.computeAsync) {
+						communicator.computeAsync(parameters);
+						return;
+					}
 				}
 				communicator.fetchData(action.name,
 						parameters, onFetchSuccess);
@@ -1978,7 +2010,14 @@ smoModule.directive('smoModelView', ['$compile', '$location', 'communicator',
 		},
 		link : function(scope, element, attr) {
 			var template = '\
-				<div ng-if="communicator.loading" class="alert alert-info" role="alert">Loading... (may well take a few moments)</div>\
+				<div ng-if="communicator.loading" class="alert alert-info" role="alert">\
+					Loading... (may well take a few moments)\
+					<div ng-if="model.computeAsync" class="progress" style="margin-top: 10px; margin-bottom: 0px;">\
+					  <div id="' + scope.modelName + '_' + scope.viewName + 'ProgressBar" class="progress-bar progress-bar-info" role="progressbar"\
+					  		aria-valuenow="{{communicator.progressValue}}" ng-bind="communicator.progressValue" aria-valuemin="0" aria-valuemax="100" style="background-color: #31708F;">\
+					  </div>\
+					</div>\
+				</div>\
 				<div ng-if="communicator.commError" class="alert alert-danger" role="alert">Communication error: <span ng-bind="communicator.errorMsg"></span></div>\
 				<div ng-if="communicator.serverError" class="alert alert-danger" role="alert">Server error: <span ng-bind="communicator.errorMsg"></span>\
 					<div>Stack trace:</div><pre><div ng-bind="communicator.stackTrace"></div></pre>\

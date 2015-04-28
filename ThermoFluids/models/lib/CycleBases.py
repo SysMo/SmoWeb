@@ -236,7 +236,7 @@ class HeatPumpCycle(ThermodynamicalCycle):
 	TAmbient = F.Quantity('Temperature', default = (15, 'degC'), label = 'ambient temperature', description = 'used as reference temperature to calculate exergy')	
 	workingFluidGroup = F.FieldGroup(['fluidName', 'mDot', 
 		pHighMethod, TCondensation, pHigh, 
-		pLowMethod, TEvaporation, pLow, TAmbient], 'Cycle parameters')
+		pLowMethod, TEvaporation, pLow, TAmbient], label = 'Cycle parameters')
 	#================ Results ================#
 	COPCooling = F.Quantity(label = 'COP (cooling)')
 	COPHeating = F.Quantity(label = 'COP (heating)')
@@ -350,7 +350,7 @@ class LiquefactionCycle(ThermodynamicalCycle):
 	pLiquid = F.Quantity('Pressure', default = (2, 'bar'), label = 'liquid pressure')
 	TAmbient = F.Quantity('Temperature', default = (15, 'degC'), label = 'ambient temperature', description = 'used as reference temperature to calculate exergy')	
 	workingFluidGroup = F.FieldGroup(['fluidName', 'mDot', pIn, TIn, 
-		pHigh, pLiquid, TAmbient], 'Cycle parameters')
+		pHigh, pLiquid, TAmbient], label = 'Cycle parameters')
 	#================ Results ================#
 	liqEnergy = F.Quantity('SpecificEnergy', default = (1, 'kJ/kg'), label = 'liquefaction energy')
 	minLiqEnergy = F.Quantity('SpecificEnergy', default = (1, 'kJ/kg'), label = 'min. liquefaction energy', 
