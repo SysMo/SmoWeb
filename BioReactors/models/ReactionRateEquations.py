@@ -14,7 +14,7 @@ from smo.web.modules import RestModule
 class ReactionRateEquations(NumericalModel):
     label = "Enzyme kinetic equations"
     description = F.ModelDescription("Solver for enzyme kinetic equations", show = True)
-    figure = F.ModelFigure(src="BioReactors/img/ModuleImages/SimpleChemostat.png", show = False) #:TODO: (MILEN) 
+    figure = F.ModelFigure(src="BioReactors/img/ModuleImages/ReactionRateEquations.png", show = False) #:TODO: (MILEN) 
     
     #1. ############ Inputs ###############
     #1.1 Fields - Input values

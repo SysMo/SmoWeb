@@ -14,7 +14,7 @@ from smo.web.modules import RestModule
 class ChemostatSimple(NumericalModel):
     label = "Simple Chemostat"
     description = F.ModelDescription("Simple chemostat model with ordinary differential equations (ODE)", show = True)
-    figure = F.ModelFigure(src="BioReactors/img/ModuleImages/SimpleChemostat.png", show=False)
+    figure = F.ModelFigure(src="BioReactors/img/ModuleImages/SimpleChemostat.png", show = False)
     
     #1. ############ Inputs ###############
     #1.1 Fields - Input values
