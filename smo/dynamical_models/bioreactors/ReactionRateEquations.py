@@ -116,14 +116,14 @@ class ReactionRateEquations(Simulation):
             leftXs = leftPartEq.split('+')
             for X in leftXs:
                 if not X in Xs:
-                    raise ValueError("\nInvalid equation '{0}'.\nThe invalid variable"
+                    raise ValueError("\nInvalid equation '{0}'.\nInvalid variable "
                         "'{1}', use one of {2}".format(txtEq_orig, X, Xs))
             
             rightPartEq = partsEq[1]
             rightXs = rightPartEq.split('+')
             for X in rightXs:
                 if not X in Xs:
-                    raise ValueError("\nInvalid equation '{0}'.\nThe invalid variable"
+                    raise ValueError("\nInvalid equation '{0}'.\nInvalid variable "
                         "'{1}', use one of {2}".format(txtEq_orig, X, Xs))
             
             # Add to the equations
@@ -231,8 +231,8 @@ class ReactionRateEquations(Simulation):
         ax.legend(loc='center left', bbox_to_anchor=(1, 0.875))
         
         # Set lables and titles
-        ax.set_xlabel('Time [day]')
-        ax.set_ylabel('Variables [M]')
+        ax.set_xlabel('Time')
+        ax.set_ylabel('Concentration')
         
         #plt.title('Reaction rate equations')
         
