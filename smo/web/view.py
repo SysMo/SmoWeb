@@ -285,7 +285,7 @@ class ModularPageView(object):
 	def startCompute(self, model, view, parameters):
 		from ThermoFluids.tasks import celeryCompute
 		job = celeryCompute.delay(model, view, parameters)
-		return {'jobID': job.id}
+		return {'jobID': job.id, 'progressValue': 0}
 	
 	@action.post()
 	def checkProgress(self, model, view, parameters):
@@ -296,7 +296,7 @@ class ModularPageView(object):
 			responseDict['progressValue'] = 100
 			return responseDict
 		else:
-			return {'progressValue': job.info['progress']}
+			return {'jobID': job.id, 'progressValue': job.info['progress']}
 				
 	@classmethod
 	def asView(cls):
