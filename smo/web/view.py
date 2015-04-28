@@ -4,6 +4,7 @@ from SmoWeb.settings import JINJA_TEMPLATE_IMPORTS
 import json
 import traceback
 import logging
+from SmoWebBase.tasks import celeryCompute
 from celery.result import AsyncResult
 logger = logging.getLogger('django.request.smo.view')
 
@@ -280,23 +281,20 @@ class ModularPageView(object):
 		getattr(instance, parameters)()
 		return instance.modelView2Json(view)
 	
-	
 	@action.post()
 	def startCompute(self, model, view, parameters):
-		from ThermoFluids.tasks import celeryCompute
 		job = celeryCompute.delay(model, view, parameters)
-		return {'jobID': job.id, 'progressValue': 0}
+		return {'jobID': job.id, 'progress': 0}
 	
 	@action.post()
 	def checkProgress(self, model, view, parameters):
-		from celery.result import AsyncResult
 		job = AsyncResult(parameters['jobID'])
 		if (job.ready()):
 			responseDict = job.result
-			responseDict['progressValue'] = 100
+			responseDict['progress'] = 100
 			return responseDict
 		else:
-			return {'jobID': job.id, 'progressValue': job.info['progress']}
+			return {'jobID': job.id, 'progress': job.info['progress']}
 				
 	@classmethod
 	def asView(cls):

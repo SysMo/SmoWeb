@@ -57,7 +57,7 @@ angular.module('{{pageView.__class__.__name__}}', ['smo'])
   		});
 			{% for module in pageView.modules %}
 				{% if issubclass(module, smo.model.model.NumericalModel) %}
-					$scope.{{module.__name__}} = { name: "{{module.__name__}}", views: {} };
+					$scope.{{module.__name__}} = { name: "{{module.__name__}}", computeAsync: {{module.computeAsync|lower}}, views: {} };
 					{% for block in module.modelBlocks %}
 						{% if isinstance(block, smo.model.fields.ModelView) %}
 							$scope.{{module.__name__}}.views.{{block.name}} = {name: "{{block.name}}", type: "{{block.ioType}}"};

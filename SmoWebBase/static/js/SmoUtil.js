@@ -308,6 +308,7 @@ smoModule.factory('smoJson', function () {
 
 smoModule.factory('communicator', function($http, $window, $timeout, $location, smoJson) {
 	
+	// Generic communicator
 	function Communicator(url) {
 		this.url = url || '';
 		// true if waiting to load from the server
@@ -341,13 +342,10 @@ smoModule.factory('communicator', function($http, $window, $timeout, $location, 
 		if (typeof this.data === 'undefined') {
 			this.data = {};
 		}
-		
-		this.dataReceived = false;
 		// Variable introduced so that success and error functions can access this object
 		var communicator = this;
 		this.onSuccess = onSuccess;
 		this.onFailure = onFailure;
-		//this.action = action;
 		$http({
 	        method  : 'POST',
 	        url     : this.url,
@@ -362,7 +360,7 @@ smoModule.factory('communicator', function($http, $window, $timeout, $location, 
 				communicator.serverError = false;
 				communicator.setResponseData(response.data);
 				communicator.dataReceived = true;
-				if (!(typeof onSuccess === 'undefined')) {
+				if (typeof onSuccess !== 'undefined') {
 					communicator.onSuccess(communicator);
 				}
 			} else {
@@ -386,6 +384,7 @@ smoModule.factory('communicator', function($http, $window, $timeout, $location, 
 	    });
 	}
 	
+	// Model communicator
 	function ModelCommunicator(model, modelName, viewName, url) {
 			this.model = model;
 			this.modelName = modelName;
@@ -410,7 +409,7 @@ smoModule.factory('communicator', function($http, $window, $timeout, $location, 
 				responseData.definitions = this.data.definitions;
 			}
 		}
-		this.data = responseData;
+		Communicator.prototype.setResponseData.call(this, responseData);
 	}
 	
 	ModelCommunicator.prototype.saveUserInput = function() {
@@ -439,18 +438,16 @@ smoModule.factory('communicator', function($http, $window, $timeout, $location, 
 					+ '?model=' + response.data.model + '&view=' + response.data.view + '&id=' + response.data.id;
 				communicator.saveSuccess = true;
 				communicator.saveFeedbackMsg = "Input data saved.";
-				//$timeout($window.alert("Input data saved"));
 			} else {
-				//$timeout($window.alert("Failed to save input data"));
 				communicator.saveFeedbackMsg = "Failed to save input data";
 			}
 	    })
 	    .error(function(response) {
 	    	communicator.saveFeedbackMsg = "Failed to save input data";
-	    	//$timeout($window.alert("Failed to save input data"));
 	    });
 	}
 	
+	// Asynchronous model communicator
 	function AsyncModelCommunicator(model, modelName, viewName, url) {
 		this.progressBarDivID = modelName + '_' + viewName + 'ProgressBar';
 		this.onFetchSuccess = function(comm) {
@@ -470,65 +467,23 @@ smoModule.factory('communicator', function($http, $window, $timeout, $location, 
 		var comm = this;
 		setTimeout(function(){
 			comm.fetchData('checkProgress', {"jobID" : comm.jobID}, comm.onFetchSuccess);
-		}, 50);
+		}, 10);
 	}
 	
 	AsyncModelCommunicator.prototype.setResponseData = function(responseData) {
 		this.jobID = responseData.jobID;
-		this.progressValue = responseData.progressValue;
-		$('#' + this.progressBarDivID).css('width', this.progressValue + "%");
-		if (this.progressValue < 100) {
+		this.progress = responseData.progress;
+		$('#' + this.progressBarDivID).css('width', this.progress + "%");
+		if (this.progress < 100) {
 			this.checkProgress();
 		} else {
+			this.onSuccess = function(comm) {};
 			ModelCommunicator.prototype.setResponseData.call(this, responseData);
-			this.loading = false;
-			this.dataReceived = true;
 		}
 	}
-	
-//	AsyncModelCommunicator.prototype.startJob = function(parameters) {
-//		var onFetchSuccess = function(comm) {
-//			comm.loading = true;
-//			comm.dataReceived = false;
-//		}
-//		startJobComm.fetchData('startCompute', parameters, onFetchSuccess);
-//	}
-	
-//	AsyncModelCommunicator.prototype.computeAsync = function(parameters) {
-//		var modelComm = this;
-//		var progressBarDivID = this.modelName + '_' + this.viewName + 'ProgressBar';
-//		var onCheckSuccess = function(comm) {
-//			comm.progressValue = comm.data.progressValue;
-//			if (Number(comm.progressValue) == 100) {
-//				modelComm.data = comm.data;
-//				modelComm.dataReceived = comm.dataReceived;
-//			} else {
-//				modelComm.progressValue = comm.data.progressValue;
-//				checkProgress(comm);
-//			}
-//			$('#' + progressBarDivID).css('width', modelComm.progressValue + "%");
-//		}
-//		var checkProgress = function(comm) {
-// 			setTimeout(function(){
-// 				comm.fetchData('checkProgress', {"jobID" : comm.jobID}, onCheckSuccess);
-// 			}, 50);
-//		}
-//		var onStartSuccess = function(comm) {
-//			comm.jobID = comm.data.jobID;
-//			comm.progressValue = 0;
-//			modelComm.jobID = comm.data.jobID;
-//			modelComm.progressValue = 0;
-//			checkProgress(comm);
-//		}
-//		startJobComm = new ModelCommunicator(this.model, this.modelName, this.viewName);
-//		startJobComm.fetchData('startCompute', parameters);
-//	}
 
-	return {
-			"Communicator": Communicator,
-			"ModelCommunicator": ModelCommunicator,
-			"AsyncModelCommunicator": AsyncModelCommunicator
-			}
+	return {"Communicator": Communicator, "ModelCommunicator": ModelCommunicator, 
+			"AsyncModelCommunicator": AsyncModelCommunicator}
 })
 
 
@@ -1985,10 +1940,10 @@ smoModule.directive('smoViewToolbar', ['$compile', '$rootScope', 'util', functio
 						parameters['recordId'] =
 							communicator.model.recordId;
 					}
-					//if ($scope.model.computeAsync) {
+					if ($scope.model.computeAsync) {
 						communicator.computeAsync(parameters);
 						return;
-					//}
+					}
 				}
 				communicator.fetchData(action.name,
 						parameters, onFetchSuccess);
@@ -2045,19 +2000,31 @@ smoModule.directive('smoModelView', ['$compile', '$location', 'communicator',
 		controller: function($scope) {
 			$scope.formName = $scope.modelName + $scope.viewName + 'Form';
 			$scope.model = $scope.$parent[$scope.modelName];
-			$scope.communicator = new communicator.AsyncModelCommunicator($scope.model, $scope.modelName, $scope.viewName);
+			if ($scope.model.computeAsync) {
+				$scope.communicator = new communicator.AsyncModelCommunicator($scope.model, $scope.modelName, $scope.viewName);
+			} else {
+				$scope.communicator = new communicator.ModelCommunicator($scope.model, $scope.modelName, $scope.viewName);
+			}
 			$scope.model[$scope.viewName + 'Communicator'] = $scope.communicator;
 			if ($scope.autoFetch) {
 				$scope.communicator.fetchData("load", {viewRecordId: $scope.viewRecordId});				
 			}
+			
+			$scope.showProgress = false;
+			if ($scope.model.computeAsync) {
+				if ($scope.viewType == 'output') {
+					$scope.showProgress = true;
+				}
+			} 
 		},
 		link : function(scope, element, attr) {
 			var template = '\
 				<div ng-if="communicator.loading" class="alert alert-info" role="alert">\
 					Loading... (may well take a few moments)\
-					<div class="progress" style="margin-top: 10px; margin-bottom: 0px;">\
+					<div ng-if="showProgress" class="progress" style="margin-top: 10px; margin-bottom: 0px;">\
 					  <div id="' + scope.modelName + '_' + scope.viewName + 'ProgressBar" class="progress-bar progress-bar-info" role="progressbar"\
-					  		aria-valuenow="{{communicator.progressValue}}" ng-bind="communicator.progressValue" aria-valuemin="0" aria-valuemax="100" style="background-color: #31708F;">\
+					  		aria-valuenow="{{communicator.progress}}" aria-valuemin="0" aria-valuemax="100" style="background-color: #31708F;">\
+					  			{{communicator.progress}}%\
 					  </div>\
 					</div>\
 				</div>\
