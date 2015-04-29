@@ -6,17 +6,16 @@ Created on Mar 4, 2015
 '''
 import numpy as np
 import smo.model.fields as F
-import smo.dynamical_models.bioreactors.ReactionRateEquations as DM
+import smo.dynamical_models.bioreactors.BiochemicalReactions as DM
 
 from smo.model.model import NumericalModel
 from smo.web.modules import RestModule
 
-class ReactionRateEquations(NumericalModel):
-    label = "Enzyme kinetic equations"
-    description = F.ModelDescription("Solver for elementary biochemical reactions.", show = True)
-    figure = F.ModelFigure(src="BioReactors/img/ModuleImages/ReactionRateEquations.png", show = False)
+class BiochemicalReactions(NumericalModel):
+    label = "Biochemical reactions"
+    description = F.ModelDescription("Solver for elementary biochemical reactions", show = True)
+    figure = F.ModelFigure(src="BioReactors/img/ModuleImages/BiochemicalReactions.png", show = False)
     #:TODO: (MILEN) Rename:
-    # ReactionRateEquations -> BiochemicalReactions
     # equations -> reactions
     # variables -> species
     
@@ -24,29 +23,29 @@ class ReactionRateEquations(NumericalModel):
     #1. ############ Inputs ###############
     #1.1 Fields - Input values
     equations = F.RecordArray((     
-            ('equstions', F.String('E + S -> ES', label = 'Equations', inputBoxWidth = 200)),           
-            ('kForward', F.Quantity('Dimensionless', default = (1.0, '-'), minValue = (0, '-'), label = 'rate constants -> (forward)')),
-            ('kBackward', F.Quantity('Dimensionless', default = (0.0, '-'), minValue = (0, '-'), label = 'rate constants <- (backward)')),
+            ('reaction', F.String('E + S -> ES', label = 'Reactions', inputBoxWidth = 200)),           
+            ('kForward', F.Quantity('Dimensionless', default = (1.0, '-'), minValue = (0, '-'), label = 'rate constants ->')),
+            ('kBackward', F.Quantity('Dimensionless', default = (0.0, '-'), minValue = (0, '-'), label = 'rate constants <-')),
         ),
         toggle = False, 
-        label = 'equations',
+        label = 'Reactions',
         numRows = 2,
-        description = 'Enzyme kinetic equations',
+        description = 'Biochemical reactions',
     )
-    equationsFG = F.FieldGroup([equations], hideContainer = True, label = "Enzyme kinetic equations")
-    equationsSG = F.SuperGroup([equationsFG], label = "Equations")
+    equationsFG = F.FieldGroup([equations], hideContainer = True, label = "Reactions")
+    equationsSG = F.SuperGroup([equationsFG], label = "Reactions")
     
     variables = F.RecordArray((                
-            ('variable', F.String('E', label = 'State variables')),
-            ('initValue', F.Quantity('Bio_MolarConcentration', default = (1, 'M'), minValue = (0, 'M'), label = 'Initial values')),
+            ('variableName', F.String('E', label = 'Species (variables)')),
+            ('initialValue', F.Quantity('Bio_MolarConcentration', default = (1, 'M'), minValue = (0, 'M'), label = 'Initial values')),
         ),
         toggle = False, 
-        label = 'equations', 
+        label = 'variables', 
         numRows = 4,
-        description = 'Variables of the enzyme kinetic equations',
+        description = 'Species of the reactions',
     ) 
-    variablesFG = F.FieldGroup([variables], hideContainer = True, label = "Variables")
-    variablesSG = F.SuperGroup([variablesFG], label = "Variables")
+    variablesFG = F.FieldGroup([variables], hideContainer = True, label = "Species")
+    variablesSG = F.SuperGroup([variablesFG], label = "Species")
 
     #1.2 Fields - Settings
     tFinal = F.Quantity('Time', default = (20, 's'), minValue = (0, 's'), maxValue=(1000, 's'), label = 'simulation time') #:TODO: (MILEN) time unit: day or s
@@ -116,7 +115,7 @@ class ReactionRateEquations(NumericalModel):
             
         # Redefine Files
         redefinedPlot = F.PlotView(varTuples, 
-            label = 'Plot', options = {'ylabel' : 'concentration', 'title' : 'Change in concentrations over time'})
+            label = 'Plot', options = {'ylabel' : 'concentration', 'title' : ''})
         self.redefineField('plot', 'resultsVG', redefinedPlot)
         
         redefinedTable = F.TableView(varTuples,
@@ -128,7 +127,7 @@ class ReactionRateEquations(NumericalModel):
         self.redefineFileds()
         
         # Create the model
-        model = DM.ReactionRateEquations(self)
+        model = DM.BiochemicalReactions(self)
          
         # Run simulations 
         model.prepareSimulation()
@@ -144,7 +143,7 @@ class ReactionRateEquations(NumericalModel):
         model.plotODEsTxt(self.odesPlot)
         model.plotHDFResults(self.chartPlot)
 
-class ReactionRateEquationsDoc(RestModule):
-    label = 'Enzyme kinetic equations (Doc)'
+class BiochemicalReactionsDoc(RestModule):
+    label = 'Biochemical reactions (Doc)'
     
     

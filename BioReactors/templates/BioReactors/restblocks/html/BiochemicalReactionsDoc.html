@@ -1,0 +1,135 @@
+<div class="document" id="biochemical-reactions">
+<h1 class="title">Biochemical reactions</h1>
+<div class="section" id="chemical-reactions-and-equations">
+<h1>1.&nbsp;&nbsp;&nbsp;Chemical reactions and equations</h1>
+<p><a class="citation-reference" href="#wiki-chr" id="id1">[Wiki-ChR]</a>
+A <strong>chemical reaction</strong> is a process that leads to the transformation of one set of chemical substances to another.
+<strong>Chemical equations</strong> are used to graphically illustrate chemical reactions. They consist of chemical or structural
+formulas of the reactants on the left and those of the products on the right. They are separated by an arrow
+(<span class="math">\(\rightarrow\)</span>) which indicates the direction and type of the reaction; the arrow is read as the word &quot;yields&quot;.
+The tip of the arrow points in the direction in which the reaction proceeds. A double arrow (<span class="math">\(\rightleftharpoons\)</span>)
+pointing in opposite directions is used for equilibrium reactions. Equations should be balanced according to the
+stoichiometry, the number of atoms of each species should be the same on both sides of the equation. This is achieved
+by scaling the number of involved molecules (<span class="math">\(A\)</span>, <span class="math">\(B\)</span>, <span class="math">\(C\)</span> and <span class="math">\(D\)</span> in a schematic example below)
+by the appropriate integers <span class="math">\(a\)</span>, <span class="math">\(b\)</span>, <span class="math">\(c\)</span> and <span class="math">\(d\)</span>.</p>
+<div class="math">
+\begin{equation*}
+a\ A + b\ B \rightarrow c\ C + d\ D
+\end{equation*}
+</div>
+<p>An example of chemical equation:</p>
+<div class="math">
+\begin{equation*}
+CH_{4} + 2O_{2} \rightarrow CO_{2} + 2H_{2}0
+\end{equation*}
+</div>
+<p>a coefficient of <span class="math">\(2\)</span> must be placed before the oxygen gas on the reactants side and before the water on the products
+side in order for, as per the law of conservation of mass, the quantity of each element does not change during the reaction.</p>
+</div>
+<div class="section" id="reaction-rate">
+<h1>2.&nbsp;&nbsp;&nbsp;Reaction rate</h1>
+<p><a class="citation-reference" href="#wiki-rr" id="id2">[Wiki-RR]</a>, <a class="citation-reference" href="#wiki-re" id="id3">[Wiki-RE]</a>
+The <strong>reaction rate</strong> (<strong>rate of reaction</strong>) or speed of reaction for a reactant or product in a particular reaction is intuitively
+defined as how fast or slow a reaction takes place. The <strong>rate law</strong> or <strong>rate equation</strong> for a chemical reaction is an equation
+that links the reaction rate with concentrations or pressures of reactants and constant parameters
+(normally rate coefficients and partial reaction orders).</p>
+<p>For a generic chemical reaction</p>
+<div class="math">
+\begin{equation*}
+a\ A + b\ B \rightarrow c\ C,
+\end{equation*}
+</div>
+<p>the rate is given by</p>
+<div class="math">
+\begin{equation*}
+r\; =\; k[\mathrm{A}]^x[\mathrm{B}]^y,
+\end{equation*}
+</div>
+<p>where <span class="math">\([\mathrm{A}]\)</span> and <span class="math">\([\mathrm{B}]\)</span> express the concentration of the reactants A and B, usually in moles
+per liter (molarity, <span class="math">\(M\)</span>); <span class="math">\(x\)</span>  and <span class="math">\(y\)</span> must be determined experimentally (a common mistake is assuming they
+represent stoichiometric coefficients, i.e. <span class="math">\(a\)</span> and <span class="math">\(b\)</span> but this is not the case). <span class="math">\(k\)</span> is the rate
+coefficient or rate constant of the reaction. The value of this coefficient <span class="math">\(k\)</span> depends on conditions such as temperature,
+ionic strength, surface area of the adsorbent, light irradiation or others.</p>
+<p>The exponents <span class="math">\(x\)</span>  and <span class="math">\(y\)</span> are called reaction orders and depend on the reaction mechanism. For elementary (single-step)
+reaction (i.e. for reaction with no intermediate steps in its reaction mechanism) the order in each reactant is equal to its stoichiometric
+coefficient (for our example if the reaction is elementary then <span class="math">\(x=a\)</span> and <span class="math">\(y=b\)</span>). For complex (multistep) reactions, however, as we note above, this is not true.</p>
+<p>By using the mass balance for the system in which the reaction occurs, expressions (ordinary differential equations) for the rate of
+change of the concentration of the reactants and products can be derived. For our example:</p>
+<div class="math">
+\begin{equation*}
+\frac{d[\mathrm{A}]}{dt} = -k[\mathrm{A}]^{x}[\mathrm{B}]^{y}; \hspace{5mm}
+\frac{d[\mathrm{B}]}{dt} = -k[\mathrm{A}]^{x}[\mathrm{B}]^{y}; \hspace{5mm}
+\frac{d[\mathrm{C}]}{dt} = k[\mathrm{A}]^{x}[\mathrm{B}]^{y}
+\end{equation*}
+</div>
+</div>
+<div class="section" id="solver-for-biochemical-reactions">
+<h1>3.&nbsp;&nbsp;&nbsp;Solver for biochemical reactions</h1>
+<p>A <strong>biochemical reaction</strong> is the transformation of one molecule to a different molecule inside a cell. Biochemical reactions
+are mediated by enzymes, which are biological catalysts that can alter the rate and specificity of chemical reactions inside cells.</p>
+<p>Our solver for biochemical reactions suppose that:</p>
+<ul class="simple">
+<li>the reactions are elementary, i.e. the rate of each reaction is proportional to the product of the concentrations of its reactants</li>
+<li>the stoichiometric coefficients of reactants and products are 1 (e.g.  <span class="math">\(a = b = ... = 1\)</span>).</li>
+</ul>
+</div>
+<div class="section" id="example-michaelismenten-kinetics">
+<h1>4.&nbsp;&nbsp;&nbsp;Example: Michaelis–Menten kinetics</h1>
+<p><a class="citation-reference" href="#wiki-mmk" id="id4">[Wiki-MMK]</a>
+In 1903, French physical chemist Victor Henri found that enzyme reactions were
+initiated by a bond (more generally, a binding interaction) between the enzyme and the substrate. His work was taken up by German
+biochemist Leonor Michaelis and Canadian physician Maud Menten, who investigated the kinetics of an enzymatic reaction mechanism,
+invertase, that catalyzes the hydrolysis of sucrose into glucose and fructose. In 1913, they proposed a mathematical model of the reaction.
+It involves an enzyme <span class="math">\(E\)</span> binding to a substrate <span class="math">\(S\)</span> to form a complex <span class="math">\(ES\)</span>, which in turn is converted into a product
+<span class="math">\(P\)</span> and the enzyme. This may be represented schematically by a chemical equations as</p>
+<div class="math">
+\begin{equation*}
+E + S \, \overset{k_f}{\underset{k_r} \rightleftharpoons} \, ES \, \overset{k_\mathrm{cat}} {\longrightarrow} \, E + P
+\end{equation*}
+</div>
+<p>where <span class="math">\(k_f\)</span>, <span class="math">\(k_r\)</span>, and <span class="math">\(k_\mathrm{cat}\)</span> denote the rate constants, and the double arrows between <span class="math">\(S\)</span>
+and <span class="math">\(ES\)</span> represent the fact that enzyme-substrate binding is a reversible process.</p>
+<p>Applying the law of mass action gives a system of four non-linear ordinary differential equations (ODEs) that define the rate of change of
+reactants and products with time <span class="math">\(t\)</span>:</p>
+<blockquote>
+<p><span class="math">\(\frac{d[\mathrm{E}]}{dt} = -k_f[\mathrm{E}][\mathrm{S}] + k_r[\mathrm{ES}] + k_\mathrm{cat}[\mathrm{ES}]\)</span></p>
+<p><span class="math">\(\frac{d[\mathrm{S}]}{dt} = -k_f[\mathrm{E}][\mathrm{S}] + k_r[\mathrm{ES}]\)</span></p>
+<p><span class="math">\(\frac{d[\mathrm{ES}]}{dt} = k_f[\mathrm{E}][\mathrm{S}] - k_r[\mathrm{ES}] - k_\mathrm{cat}[\mathrm{ES}]\)</span></p>
+<p><span class="math">\(\frac{d[\mathrm{P}]}{dt} = k_\mathrm{cat}[\mathrm{ES}]\)</span></p>
+</blockquote>
+<p>One solution of the system is shown on the <a class="reference internal" href="#figure" target="_self">figure</a> below.</p>
+<div class="figure align-center" id="figure">
+<img alt="/static/BioReactors/img/ModuleImages/ReactionRateEquations.png" src="/static/BioReactors/img/ModuleImages/ReactionRateEquations.png" />
+<p class="caption">Michaelis–Menten kinetics: change in concentrations over time for enzyme E, substrate S, complex ES and product P
+with initial concentrations <span class="math">\([E]_0 = 0.1, [S]_0 = 0.2, [ES]_0 = [P]_0 = 0\)</span> and
+rate constants <span class="math">\(k_f = 10.1, k_r = 1.1, k_\mathrm{cat} = 1.1\)</span>.</p>
+</div>
+</div>
+<div class="section" id="references">
+<h1>5.&nbsp;&nbsp;&nbsp;References</h1>
+<table class="docutils citation" frame="void" id="wiki-chr" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[Wiki-ChR]</a></td><td><a class="reference external" href="http://en.wikipedia.org/wiki/Chemical_reaction" target="_self">http://en.wikipedia.org/wiki/Chemical_reaction</a></td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="wiki-rr" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[Wiki-RR]</a></td><td><a class="reference external" href="http://en.wikipedia.org/wiki/Reaction_rate" target="_self">http://en.wikipedia.org/wiki/Reaction_rate</a></td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="wiki-re" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id3">[Wiki-RE]</a></td><td><a class="reference external" href="http://en.wikipedia.org/wiki/Rate_equation#cite_note-3" target="_self">http://en.wikipedia.org/wiki/Rate_equation#cite_note-3</a></td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="wiki-mmk" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id4">[Wiki-MMK]</a></td><td><a class="reference external" href="http://en.wikipedia.org/wiki/Michaelis%E2%80%93Menten_kinetics" target="_self">http://en.wikipedia.org/wiki/Michaelis%E2%80%93Menten_kinetics</a></td></tr>
+</tbody>
+</table>
+</div>
+</div>

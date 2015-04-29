@@ -14,8 +14,8 @@ class ChemostatView(ModularPageView):
     requireGoogle = ['visualization']
     
 @registerView(router)
-class ChemicalReactionsView(ModularPageView):
-    label = 'Chemical Reactions'
-    modules = [M.ReactionRateEquations, M.ReactionRateEquationsDoc]
+class BiochemicalReactionsView(ModularPageView):
+    label = 'Biochemical Reactions'
+    modules = [M.BiochemicalReactions, M.BiochemicalReactionsDoc]
     requireJS = ['dygraph', 'dygraphExport']
     requireGoogle = ['visualization']

@@ -15,25 +15,25 @@ from smo.util import AttributeDict
 import os
 from SmoWeb.settings import MEDIA_ROOT
 tmpFolderPath = os.path.join (MEDIA_ROOT, 'tmp')
-csvFileName = os.path.join(tmpFolderPath, 'BioReactors_ReactionRateEquations_SimulationResults.csv')
+csvFileName = os.path.join(tmpFolderPath, 'BioReactors_BiochemicalReactions_SimulationResults.csv')
 dataStorageFilePath =  os.path.join(tmpFolderPath, 'BioReactors_SimulationResults.h5')
-dataStorageDatasetPath = '/ReactionRateEquations'
+dataStorageDatasetPath = '/BiochemicalReactions'
 
 """ Settings """
 forwardReactionDiractions = list(['=', '<=>', '<->', '=>', '->'])
 backwardReactionDiractions = list(['=', '<=>', '<->', '<=', '<-'])
 validReactionDiractions = list(set(forwardReactionDiractions + backwardReactionDiractions))
 
-class ReactionRateEquations(Simulation):
+class BiochemicalReactions(Simulation):
     """
-    Class for implementation the model of reaction rate equations @see http://en.wikipedia.org/wiki/Rate_equation#Stoichiometric_reaction_networks
+    Class for implementation the model of biochemical reactions @see http://en.wikipedia.org/wiki/Rate_equation#Stoichiometric_reaction_networks
     """
     def __init__(self, params = None, **kwargs):
         """
         #params.equations = [Eqs, kForward, kBackward]
         #params.variables = [Xs, X0s]
         """
-        super(ReactionRateEquations, self).__init__(**kwargs)
+        super(BiochemicalReactions, self).__init__(**kwargs)
         if params == None:
             params = AttributeDict(kwargs)
         
@@ -50,16 +50,12 @@ class ReactionRateEquations(Simulation):
         # k - the rate constant of the reaction
         # ss - the stoichiometric coefficients of reactants  (e.g. [0,1,1,0,...,1])
         # rs - the stoichiometric coefficients of products (e.g. [1,0,...,0])
-        # f - the fluxs (e.g. k*X2*X3*Xn)
+        # f - the fluxs (e.g. k*X2*X3*...*Xn)
         self.equations = self.readEquations(params.equations, self.Xs)
         #for eq in self.equations: print eq
         
-        # Create state vector and derivative vector
+        # Create a vector with state variable names
         stateVarNames = list(self.Xs) 
-        #self.y = NamedStateVector(stateVarNames)
-        #self.yRes = NamedStateVector(stateVarNames)
-        #self.yDot = NamedStateVector(stateVarNames)
-        
 
         # Initialize data storage
         self.resultStorage = ResultStorage(
@@ -196,7 +192,7 @@ class ReactionRateEquations(Simulation):
         pass
     
     def handle_result(self, solver, t, y):
-        super(ReactionRateEquations, self).handle_result(solver, t, y)
+        super(BiochemicalReactions, self).handle_result(solver, t, y)
         
         self.resultStorage.record[:] = (t,) + tuple(y)
         self.resultStorage.saveTimeStep()
@@ -306,8 +302,8 @@ class ReactionRateEquations(Simulation):
     def splitEquation(self, eq):
         return (eq[0], eq[1], eq[2], eq[3], eq[4], eq[5])
     
-def TestReactionRateEquations():
-    print "=== BEGIN: TestReactionRateEquations ==="
+def TestBiochemicalReactions():
+    print "=== BEGIN: TestBiochemicalReactions ==="
     
     # Settings
     simulate = True #True - run simulation; False - plot an old results
@@ -344,7 +340,7 @@ def TestReactionRateEquations():
     })
     
     # Create the model
-    model = ReactionRateEquations(modelParams)
+    model = BiochemicalReactions(modelParams)
     print model.getODEsTxt()
     
     fig = plt.figure()
@@ -366,9 +362,9 @@ def TestReactionRateEquations():
     ax = fig.add_subplot(111)
     model.plotHDFResults(ax)
     
-    print "=== END: TestReactionRateEquations ==="
+    print "=== END: TestBiochemicalReactions ==="
     
     
 if __name__ == '__main__':
-    TestReactionRateEquations()
+    TestBiochemicalReactions()
     
