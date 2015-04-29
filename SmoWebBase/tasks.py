@@ -6,5 +6,5 @@ from celery import shared_task, task
 def celeryCompute(self, model, view, parameters):
     instance = model()
     instance.fieldValuesFromJson(parameters)
-    instance.computeAsynchronously(self)
+    instance.computeAsync(self)
     return instance.modelView2Json(view)

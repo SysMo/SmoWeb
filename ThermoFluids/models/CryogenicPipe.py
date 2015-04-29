@@ -169,7 +169,7 @@ class CryogenicPipe(NumericalModel):
 		* conduction along the pipe
 		* ambient radiation to the pipe surface
 	"""
-	computeAsync = True
+	async = True
 	label = "Cryogenic Pipe"
 	figure = ModelFigure(src="ThermoFluids/img/ModuleImages/CryogenicPipe.svg")
 	description = ModelDescription("1D thermal solver for heat flow of an insulated cryogenic \
@@ -308,7 +308,7 @@ class CryogenicPipe(NumericalModel):
 	modelBlocks = [inputView, resultView]
 	
 	############# Methods ###############
-	def computeAsynchronously(self, task):
+	def computeAsync(self, task):
 		task.update_state(state='PROGRESS', 
 									meta={'progress': 10})
 		# Initial checks
