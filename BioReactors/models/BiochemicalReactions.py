@@ -21,8 +21,8 @@ class BiochemicalReactions(NumericalModel):
     #1.1 Fields - Input values
     reactions = F.RecordArray((     
             ('reaction', F.String('E + S -> ES', label = 'Reactions', inputBoxWidth = 200)),           
-            ('kForward', F.Quantity('Dimensionless', default = (1.0, '-'), minValue = (0, '-'), label = 'rate constants ->')),
-            ('kBackward', F.Quantity('Dimensionless', default = (0.0, '-'), minValue = (0, '-'), label = 'rate constants <-')),
+            ('kForward', F.Quantity('Float', default = (1.0, '-'), minValue = (0, '-'), label = 'rate constants ->')),
+            ('kBackward', F.Quantity('Float', default = (0.0, '-'), minValue = (0, '-'), label = 'rate constants <-')),
         ),
         toggle = False, 
         label = 'Reactions',
