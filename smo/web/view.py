@@ -4,6 +4,8 @@ from SmoWeb.settings import JINJA_TEMPLATE_IMPORTS
 import json
 import traceback
 import logging
+from SmoWebBase.tasks import celeryCompute
+from celery.result import AsyncResult
 logger = logging.getLogger('django.request.smo.view')
 
 from pymongo import MongoClient
@@ -278,6 +280,32 @@ class ModularPageView(object):
 		instance = model()
 		getattr(instance, parameters)()
 		return instance.modelView2Json(view)
+	
+	@action.post()
+	def startCompute(self, model, view, parameters):
+		job = celeryCompute.delay(model, view, parameters)
+		return {'ready': False,
+				'current': 0,  
+				'jobID': job.id, 
+				'total': model.progressOptions['total'], 
+				'fractionOutput': model.progressOptions['fractionOutput'], 
+				'suffix': model.progressOptions['suffix']}
+	
+	@action.post()
+	def checkProgress(self, model, view, parameters):
+		job = AsyncResult(parameters['jobID'])
+		responseDict = {}
+		if (job.ready()):
+			responseDict['ready'] = True
+			responseDict['current'] = model.progressOptions['total']
+			responseDict.update(job.result)
+		else:
+			responseDict['ready'] = False
+			try:
+				responseDict.update({'current': job.info['current']})
+			except:
+				responseDict.update({'current': 0})
+		return responseDict
 				
 	@classmethod
 	def asView(cls):

@@ -236,11 +236,11 @@ class HeatPumpCycle(ThermodynamicalCycle):
 	TAmbient = F.Quantity('Temperature', default = (15, 'degC'), label = 'ambient temperature', description = 'used as reference temperature to calculate exergy')	
 	workingFluidGroup = F.FieldGroup(['fluidName', 'mDot', 
 		pHighMethod, TCondensation, pHigh, 
-		pLowMethod, TEvaporation, pLow, TAmbient], 'Cycle parameters')
+		pLowMethod, TEvaporation, pLow, TAmbient], label = 'Cycle parameters')
 	#================ Results ================#
 	COPCooling = F.Quantity(label = 'COP (cooling)')
 	COPHeating = F.Quantity(label = 'COP (heating)')
-	efficiencyFieldGroup = F.FieldGroup([COPCooling, COPHeating], 'Efficiency')
+	efficiencyFieldGroup = F.FieldGroup([COPCooling, COPHeating], label = 'Efficiency')
 
 	def setTCondensation(self, T):
 		if (self.fluid.tripple['T'] < T < self.fluid.critical['T']):
@@ -298,12 +298,12 @@ class HeatEngineCycle(ThermodynamicalCycle):
 	TAmbient = F.Quantity('Temperature', default = (15, 'degC'), label = 'ambient temperature', description = 'used as reference temperature to calculate exergy')	
 	workingFluidGroup = F.FieldGroup(['fluidName', 'mDot', 
 		pHighMethod, TEvaporation, pHigh, 
-		pLowMethod, TCondensation, pLow, TAmbient], 'Cycle parameters')
+		pLowMethod, TCondensation, pLow, TAmbient], label = 'Cycle parameters')
 	#================ Results ================#
 	eta = F.Quantity('Efficiency', label = 'cycle efficiency')
 	etaCarnot = F.Quantity('Efficiency', label = 'Carnot efficiency', description = 'efficiency of Carnot cycle between the high (boiler out) temperature and the low (condenser out) tempreature')
 	etaSecondLaw = F.Quantity('Efficiency', label = 'second law efficiency', description = 'ratio or real cycle efficiency over Carnot efficiency')
-	efficiencyFieldGroup = F.FieldGroup([eta, etaCarnot, etaSecondLaw], 'Efficiency')
+	efficiencyFieldGroup = F.FieldGroup([eta, etaCarnot, etaSecondLaw], label = 'Efficiency')
 
 	def setTCondensation(self, T):
 		if (self.fluid.tripple['T'] < T < self.fluid.critical['T']):
@@ -350,7 +350,7 @@ class LiquefactionCycle(ThermodynamicalCycle):
 	pLiquid = F.Quantity('Pressure', default = (2, 'bar'), label = 'liquid pressure')
 	TAmbient = F.Quantity('Temperature', default = (15, 'degC'), label = 'ambient temperature', description = 'used as reference temperature to calculate exergy')	
 	workingFluidGroup = F.FieldGroup(['fluidName', 'mDot', pIn, TIn, 
-		pHigh, pLiquid, TAmbient], 'Cycle parameters')
+		pHigh, pLiquid, TAmbient], label = 'Cycle parameters')
 	#================ Results ================#
 	liqEnergy = F.Quantity('SpecificEnergy', default = (1, 'kJ/kg'), label = 'liquefaction energy')
 	minLiqEnergy = F.Quantity('SpecificEnergy', default = (1, 'kJ/kg'), label = 'min. liquefaction energy', 

@@ -308,6 +308,7 @@ smoModule.factory('smoJson', function () {
 
 smoModule.factory('communicator', function($http, $window, $timeout, $location, smoJson) {
 	
+	// Generic communicator
 	function Communicator(url) {
 		this.url = url || '';
 		// true if waiting to load from the server
@@ -341,13 +342,10 @@ smoModule.factory('communicator', function($http, $window, $timeout, $location, 
 		if (typeof this.data === 'undefined') {
 			this.data = {};
 		}
-		
-		this.dataReceived = false;
 		// Variable introduced so that success and error functions can access this object
 		var communicator = this;
 		this.onSuccess = onSuccess;
 		this.onFailure = onFailure;
-		//this.action = action;
 		$http({
 	        method  : 'POST',
 	        url     : this.url,
@@ -362,7 +360,7 @@ smoModule.factory('communicator', function($http, $window, $timeout, $location, 
 				communicator.serverError = false;
 				communicator.setResponseData(response.data);
 				communicator.dataReceived = true;
-				if (!(typeof onSuccess === 'undefined')) {
+				if (typeof onSuccess !== 'undefined') {
 					communicator.onSuccess(communicator);
 				}
 			} else {
@@ -386,14 +384,15 @@ smoModule.factory('communicator', function($http, $window, $timeout, $location, 
 	    });
 	}
 	
-	ModelCommunicator.prototype = new Communicator();
-	
+	// Model communicator
 	function ModelCommunicator(model, modelName, viewName, url) {
-			Communicator.apply(this, url);	
 			this.model = model;
 			this.modelName = modelName;
 			this.viewName = viewName;
+			Communicator.call(this, url);	
 	}
+	
+	ModelCommunicator.prototype = Object.create(Communicator.prototype);
 
 	ModelCommunicator.prototype.setPostData = function(parameters) {
 		this.postData = {
@@ -404,18 +403,15 @@ smoModule.factory('communicator', function($http, $window, $timeout, $location, 
 	}
 	
 	ModelCommunicator.prototype.setResponseData = function(responseData) {
-		if (this.data.keepDefaultDefs) {
-			this.data = responseData;
-		} else {
-			// If the communicator has received the definitions once, just the values are updated
+		if (responseData.keepDefaultDefs == false) {
+			//If the definitions have been received once, on next occasions they are discarded
 			if (this.data.definitions) {
-				this.data.values = responseData.values;
-			} else {
-				this.data = responseData;
+				responseData.definitions = this.data.definitions;
 			}
-		}	
+		}
+		Communicator.prototype.setResponseData.call(this, responseData);
 	}
-
+	
 	ModelCommunicator.prototype.saveUserInput = function() {
 		var communicator = this;
 		this.saveFeedbackMsg = "";
@@ -442,22 +438,63 @@ smoModule.factory('communicator', function($http, $window, $timeout, $location, 
 					+ '?model=' + response.data.model + '&view=' + response.data.view + '&id=' + response.data.id;
 				communicator.saveSuccess = true;
 				communicator.saveFeedbackMsg = "Input data saved.";
-				//$timeout($window.alert("Input data saved"));
 			} else {
-				//$timeout($window.alert("Failed to save input data"));
 				communicator.saveFeedbackMsg = "Failed to save input data";
 			}
 	    })
 	    .error(function(response) {
 	    	communicator.saveFeedbackMsg = "Failed to save input data";
-	    	//$timeout($window.alert("Failed to save input data"));
 	    });
 	}
+	
+	// Asynchronous model communicator
+	function AsyncModelCommunicator(model, modelName, viewName, url) {
+		this.progressBarDivID = modelName + '_' + viewName + 'ProgressBar';
+		this.onFetchSuccess = function(comm) {
+			comm.loading = true;
+			comm.dataReceived = false;
+		}
+		ModelCommunicator.call(this, model, modelName, viewName, url);
+	}
+	
+	AsyncModelCommunicator.prototype = Object.create(ModelCommunicator.prototype);
+	
+	AsyncModelCommunicator.prototype.computeAsync = function(parameters) {
+		this.current = 0;
+		this.fetchData('startCompute', parameters, this.onFetchSuccess);
+	}
+	
+	AsyncModelCommunicator.prototype.checkProgress = function() {
+		var comm = this;
+		setTimeout(function(){
+			comm.fetchData('checkProgress', {"jobID" : comm.jobID}, comm.onFetchSuccess);
+		}, 1000);
+	}
+	
+	AsyncModelCommunicator.prototype.setResponseData = function(responseData) {
+		if (responseData.jobID) {
+			this.jobID = responseData.jobID;
+		}
+		if (responseData.total) {
+			this.total = responseData.total;
+		}
+		if (responseData.fractionOutput) {
+			this.fractionOutput = responseData.fractionOutput;
+		}
+		if (responseData.suffix) {
+			this.suffix = responseData.suffix;
+		}
+		this.current = responseData.current;
+		if (responseData.ready == false) {
+			this.checkProgress();
+		} else {
+			this.onSuccess = function(comm) {};
+			ModelCommunicator.prototype.setResponseData.call(this, responseData);
+		}
+	}
 
-	return {
-			"Communicator": Communicator,
-			"ModelCommunicator": ModelCommunicator
-			}
+	return {"Communicator": Communicator, "ModelCommunicator": ModelCommunicator, 
+			"AsyncModelCommunicator": AsyncModelCommunicator}
 })
 
 
@@ -781,7 +818,7 @@ smoModule.directive('smoQuantity', ['$compile', 'util', function($compile, util)
 						</div>\
 					</div>';
 				template += '\
-					<div class="field-select quantity"> \
+					<div ng-hide="fieldVar.quantity==\'Float\'" class="field-select quantity"> \
 						<select ng-disabled="!' + scope.fieldVar.name + 'Form.$valid" ng-model="fieldVar.displayUnit" ng-options="pair[0] as pair[0] for pair in fieldVar.units" ng-change="changeUnit()"></select> \
 					</div>';
 				
@@ -792,7 +829,7 @@ smoModule.directive('smoQuantity', ['$compile', 'util', function($compile, util)
 						<div class="output" ng-bind="fieldVar.displayValue"></div>\
 					</div>';
 				template += '\
-					<div class="field-select quantity"> \
+					<div ng-hide="fieldVar.quantity==\'Float\'" class="field-select quantity"> \
 						<select ng-model="fieldVar.displayUnit" ng-options="pair[0] as pair[0] for pair in fieldVar.units" ng-change="changeUnit()"></select> \
 					</div>';
 				
@@ -1696,7 +1733,7 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 								<div style="margin-bottom: 5px;">\
 									{{smoRecordArray.fields[' + String(col) + '].label}}\
 								</div>\
-								<div class="field-select quantity"> \
+								<div ng-hide="smoRecordArray.fields[' + String(col) + '].quantity==\'Float\'" class="field-select quantity"> \
 									<select ng-model="smoRecordArray.fields[' + String(col) + '].displayUnit" \
 										ng-options="pair[0] as pair[0] for pair in smoRecordArray.fields[' + String(col) + '].units" \
 										ng-change="changeUnit(' + String(col) + ')"></select>\
@@ -1914,6 +1951,10 @@ smoModule.directive('smoViewToolbar', ['$compile', '$rootScope', 'util', functio
 						parameters['recordId'] =
 							communicator.model.recordId;
 					}
+					if ($scope.model.computeAsync) {
+						communicator.computeAsync(parameters);
+						return;
+					}
 				}
 				communicator.fetchData(action.name,
 						parameters, onFetchSuccess);
@@ -1968,17 +2009,38 @@ smoModule.directive('smoModelView', ['$compile', '$location', 'communicator',
 			viewRecordId: '@viewRecordId'
 		},
 		controller: function($scope) {
+			$scope.Math = window.Math
 			$scope.formName = $scope.modelName + $scope.viewName + 'Form';
 			$scope.model = $scope.$parent[$scope.modelName];
-			$scope.communicator = new communicator.ModelCommunicator($scope.model, $scope.modelName, $scope.viewName);
+			if ($scope.model.computeAsync) {
+				$scope.communicator = new communicator.AsyncModelCommunicator($scope.model, $scope.modelName, $scope.viewName);
+			} else {
+				$scope.communicator = new communicator.ModelCommunicator($scope.model, $scope.modelName, $scope.viewName);
+			}
 			$scope.model[$scope.viewName + 'Communicator'] = $scope.communicator;
 			if ($scope.autoFetch) {
 				$scope.communicator.fetchData("load", {viewRecordId: $scope.viewRecordId});				
 			}
+			
+			$scope.showProgress = false;
+			if ($scope.model.computeAsync) {
+				if ($scope.viewType == 'output') {
+					$scope.showProgress = true;
+				}
+			} 
 		},
 		link : function(scope, element, attr) {
 			var template = '\
-				<div ng-if="communicator.loading" class="alert alert-info" role="alert">Loading... (may well take a few moments)</div>\
+				<div ng-if="communicator.loading" class="alert alert-info" role="alert">\
+					Loading... (may well take a few moments)\
+					<div ng-if="showProgress" class="progress" style="margin-top: 10px; margin-bottom: 0px;">\
+					  <div id="' + scope.modelName + '_' + scope.viewName + 'ProgressBar" class="progress-bar progress-bar-info" role="progressbar"\
+					  		aria-valuenow="{{communicator.current}}" aria-valuemin="0" aria-valuemax="{{communicator.total}}" style="background-color: #31708F; width: {{communicator.current/communicator.total*100}}%; min-width: 5%;">\
+					  			<span ng-if="communicator.fractionOutput">{{communicator.current}}/{{communicator.total}}&nbsp{{communicator.suffix}}</span>\
+					  			<span ng-if="!communicator.fractionOutput">{{Math.round(communicator.current/communicator.total*100)}}{{communicator.suffix}}</span>\
+					  </div>\
+					</div>\
+				</div>\
 				<div ng-if="communicator.commError" class="alert alert-danger" role="alert">Communication error: <span ng-bind="communicator.errorMsg"></span></div>\
 				<div ng-if="communicator.serverError" class="alert alert-danger" role="alert">Server error: <span ng-bind="communicator.errorMsg"></span>\
 					<div>Stack trace:</div><pre><div ng-bind="communicator.stackTrace"></div></pre>\

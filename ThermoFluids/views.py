@@ -36,12 +36,6 @@ class FreeConvectionView(ModularPageView):
 	label = "Free convection"
 	modules = [FreeConvection_External, FreeConvection_Internal, FreeConvectionDoc]
 
-# @registerView(router)
-# class ThermodynamicComponents(ModularPageView):
-# 	label = "Thermodynamic components (Doc)"
-# 	modules = [ThermodynamicComponentsDoc]
-# 	
-
 @registerView(router)
 class HeatingCoolingCyces(ModularPageView):
 	label = "Heating/cooling cycles"
@@ -92,26 +86,3 @@ class TestPage(ModularPageView):
 	requireJS = ['dygraph', 'dygraphExport']
 	requireGoogle = ['visualization']
 	modules = [ABC]
-
-from django.http import HttpResponseRedirect, HttpResponse
-from celery.result import AsyncResult
-import json
-from ThermoFluids.tasks import do_work
-
-def start_job(request):
-	job = do_work.delay()
-	#return HttpResponseRedirect('ThermoFluids/CheckProgress' + '?job=' + job.id)
-	return HttpResponse(json.dumps({'data' : {'job': job.id}}))
-
-def check_progress(request):
-	postData = json.loads(request.body)
-	job_id = postData['data']['parameters']
-	
-	job = AsyncResult(job_id)
-	resp = {'data': {}}
-	resp['data']['job'] = job_id
-	try:
-		resp['data']['progressValue'] = round(job.info['current']/job.info['total'] * 100, 0)
-	except:
-		resp['data']['progressValue'] = 100
-	return HttpResponse(json.dumps(resp), content_type='text/plain')
