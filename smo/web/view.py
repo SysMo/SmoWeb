@@ -284,6 +284,8 @@ class ModularPageView(object):
 	@action.post()
 	def startCompute(self, model, view, parameters):
 		job = celeryCompute.delay(model, view, parameters)
+		if (job.failed()):
+			raise job.result
 		return {'ready': False,
 				'current': 0,  
 				'jobID': job.id, 
@@ -294,6 +296,8 @@ class ModularPageView(object):
 	@action.post()
 	def checkProgress(self, model, view, parameters):
 		job = AsyncResult(parameters['jobID'])
+		if (job.failed()):
+			raise job.result
 		responseDict = {}
 		if (job.ready()):
 			responseDict['ready'] = True
