@@ -460,6 +460,7 @@ smoModule.factory('communicator', function($http, $window, $timeout, $location, 
 	AsyncModelCommunicator.prototype = Object.create(ModelCommunicator.prototype);
 	
 	AsyncModelCommunicator.prototype.computeAsync = function(parameters) {
+		this.current = 0;
 		this.fetchData('startCompute', parameters, this.onFetchSuccess);
 	}
 	
@@ -467,13 +468,23 @@ smoModule.factory('communicator', function($http, $window, $timeout, $location, 
 		var comm = this;
 		setTimeout(function(){
 			comm.fetchData('checkProgress', {"jobID" : comm.jobID}, comm.onFetchSuccess);
-		}, 10);
+		}, 1000);
 	}
 	
 	AsyncModelCommunicator.prototype.setResponseData = function(responseData) {
-		this.jobID = responseData.jobID;
-		this.progress = responseData.progress;
-		$('#' + this.progressBarDivID).css('width', this.progress + "%");
+		if (responseData.jobID) {
+			this.jobID = responseData.jobID;
+		}
+		if (responseData.total) {
+			this.total = responseData.total;
+		}
+		if (responseData.fractionOutput) {
+			this.fractionOutput = responseData.fractionOutput;
+		}
+		if (responseData.suffix) {
+			this.suffix = responseData.suffix;
+		}
+		this.current = responseData.current;
 		if (responseData.ready == false) {
 			this.checkProgress();
 		} else {
@@ -1998,6 +2009,7 @@ smoModule.directive('smoModelView', ['$compile', '$location', 'communicator',
 			viewRecordId: '@viewRecordId'
 		},
 		controller: function($scope) {
+			$scope.Math = window.Math
 			$scope.formName = $scope.modelName + $scope.viewName + 'Form';
 			$scope.model = $scope.$parent[$scope.modelName];
 			if ($scope.model.computeAsync) {
@@ -2023,8 +2035,9 @@ smoModule.directive('smoModelView', ['$compile', '$location', 'communicator',
 					Loading... (may well take a few moments)\
 					<div ng-if="showProgress" class="progress" style="margin-top: 10px; margin-bottom: 0px;">\
 					  <div id="' + scope.modelName + '_' + scope.viewName + 'ProgressBar" class="progress-bar progress-bar-info" role="progressbar"\
-					  		aria-valuenow="{{communicator.progress}}" aria-valuemin="0" aria-valuemax="100" style="background-color: #31708F;">\
-					  			{{communicator.progress}}%\
+					  		aria-valuenow="{{communicator.current}}" aria-valuemin="0" aria-valuemax="{{communicator.total}}" style="background-color: #31708F; width: {{communicator.current/communicator.total*100}}%; min-width: 5%;">\
+					  			<span ng-if="communicator.fractionOutput">{{communicator.current}}/{{communicator.total}}&nbsp{{communicator.suffix}}</span>\
+					  			<span ng-if="!communicator.fractionOutput">{{Math.round(communicator.current/communicator.total*100)}}{{communicator.suffix}}</span>\
 					  </div>\
 					</div>\
 				</div>\

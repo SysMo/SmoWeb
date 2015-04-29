@@ -182,6 +182,9 @@ class SectionResultsSettings(NumericalModel):
 	modelBlocks = []
 	
 class CylindricalBlockHeatExchanger(NumericalModel):
+	async = True
+	progressOptions = {'total': 1., 'suffix': '%', 'fractionOutput': False}
+	
 	label = "Cylindrical heat exchanger"
 	figure = F.ModelFigure(src="ThermoFluids/img/ModuleImages/HeatExchangerDesign.png", show = False)
 	description = F.ModelDescription(
@@ -408,7 +411,7 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 		self.sectionResultsSettings.Tmin = (200, 'K')
 		self.sectionResultsSettings.Tmax = (350, 'K')
 		
-	def compute(self):
+	def computeAsync(self):
 		# PreComputation
 		self.externalChannelGeom.compute(self.blockGeom.diameter)
 		self.primaryChannelsGeom.compute()

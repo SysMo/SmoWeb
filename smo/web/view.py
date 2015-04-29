@@ -284,18 +284,28 @@ class ModularPageView(object):
 	@action.post()
 	def startCompute(self, model, view, parameters):
 		job = celeryCompute.delay(model, view, parameters)
-		return {'jobID': job.id, 'progress': 0, 'ready': False}
+		return {'ready': False,
+				'current': 0,  
+				'jobID': job.id, 
+				'total': model.progressOptions['total'], 
+				'fractionOutput': model.progressOptions['fractionOutput'], 
+				'suffix': model.progressOptions['suffix']}
 	
 	@action.post()
 	def checkProgress(self, model, view, parameters):
 		job = AsyncResult(parameters['jobID'])
+		responseDict = {}
 		if (job.ready()):
-			responseDict = job.result
-			responseDict['progress'] = 100
 			responseDict['ready'] = True
-			return responseDict
+			responseDict['current'] = model.progressOptions['total']
+			responseDict.update(job.result)
 		else:
-			return {'jobID': job.id, 'progress': job.info['progress'], 'ready': False}
+			responseDict['ready'] = False
+			try:
+				responseDict.update({'current': job.info['current']})
+			except:
+				responseDict.update({'current': 0})
+		return responseDict
 				
 	@classmethod
 	def asView(cls):

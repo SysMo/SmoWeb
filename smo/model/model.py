@@ -16,6 +16,9 @@ class NumericalModelMeta(type):
 			attrs['showOnHome'] = True
 		if ('async' not in attrs):
 			attrs['async'] = False
+		if (attrs['async'] == True):
+			if ('progressOptions' not in attrs):
+				attrs['progressOptions'] = {'total': 100., 'suffix': '%', 'fractionOutput': False}
 		if ('abstract' not in attrs):
 			attrs['abstract'] = False
 		# Collect fields from current class.
@@ -336,4 +339,8 @@ class NumericalModel(object):
 			elif (key in self.declared_submodels):
 				self.__getattr__(key).fieldValuesFromJson(value)
 			else:
-				raise E.FieldError('No field with name {} in model {}'.format(key, self.name)) 
+				raise E.FieldError('No field with name {} in model {}'.format(key, self.name))
+	
+	def updateProgress(self, current): 
+		self.task.update_state(state='PROGRESS', 
+									meta={'current': current})

@@ -169,7 +169,6 @@ class CryogenicPipe(NumericalModel):
 		* conduction along the pipe
 		* ambient radiation to the pipe surface
 	"""
-	async = True
 	label = "Cryogenic Pipe"
 	figure = ModelFigure(src="ThermoFluids/img/ModuleImages/CryogenicPipe.svg")
 	description = ModelDescription("1D thermal solver for heat flow of an insulated cryogenic \
@@ -307,10 +306,9 @@ class CryogenicPipe(NumericalModel):
 	############# Page structure ########
 	modelBlocks = [inputView, resultView]
 	
+	
 	############# Methods ###############
-	def computeAsync(self, task):
-		task.update_state(state='PROGRESS', 
-									meta={'progress': 10})
+	def compute(self):
 		# Initial checks
 		if ('thermalCond_T' not in Solids[self.pipeMaterial['_key']]):
 			raise ValueError("Material {0} doesn't have a model for temperature-dependent conductivity".format(self.pipeMaterial['label']))
@@ -318,14 +316,10 @@ class CryogenicPipe(NumericalModel):
 		self.AcsMult = np.pi/4 * (self.d_ext * self.d_ext - self.d_int * self.d_int)
 		self.As = np.pi * self.d_ext
 		
-		task.update_state(state='PROGRESS', 
-									meta={'progress': 40})
 		# Create the thermal solver object and set the object calculating thermal conductivity
 		model = CryogenicPipeSolver(self.TAmb, 
 			thermalConductivityModel = interp1d(self.pipeMaterial['thermalCond_T']['T'], self.pipeMaterial['thermalCond_T']['cond'])
 		)
-		task.update_state(state='PROGRESS', 
-									meta={'progress': 70})
 		# Create mesh
 		model.createLinearMesh(sections = self.sections, Acs = self.AcsMult, As = self.As)
 		# Set boundary conditions
@@ -412,8 +406,6 @@ class CryogenicPipe(NumericalModel):
 		self.residualTable[:, 0] = model.resVector
 		self.residualTable[:, 1] = model.TLeft
 		self.residualTable[:, 2] = model.TRight
-		task.update_state(state='PROGRESS', 
-									meta={'progress': 100})
 	
 	@staticmethod
 	def test():
