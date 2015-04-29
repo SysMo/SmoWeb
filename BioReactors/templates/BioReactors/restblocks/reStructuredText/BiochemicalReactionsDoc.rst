@@ -109,13 +109,13 @@ One solution of the system is shown on the `figure`_ below.
 
 .. _figure:
 
-.. figure:: /static/BioReactors/img/ModuleImages/ReactionRateEquations.png
+.. figure:: /static/BioReactors/img/ModuleImages/BiochemicalReactions.png
    :align: center
  
    
    Michaelis–Menten kinetics: change in concentrations over time for enzyme E, substrate S, complex ES and product P 
-   with initial concentrations :math:`[E]_0 = 0.1, [S]_0 = 0.2, [ES]_0 = [P]_0 = 0` and 
-   rate constants :math:`k_f = 10.1, k_r = 1.1, k_\mathrm{cat} = 1.1`.
+   with initial concentrations :math:`[E]_0 = 4.0, [S]_0 = 8.0, [ES]_0 = [P]_0 = 0.0` and 
+   rate constants :math:`k_f = 2.0, k_r = 1.0, k_\mathrm{cat} = 1.5`.
 
 
 

@@ -30,29 +30,29 @@ class BiochemicalReactions(Simulation):
     """
     def __init__(self, params = None, **kwargs):
         """
-        #params.equations = [Eqs, kForward, kBackward]
-        #params.variables = [Xs, X0s]
+        #params.reactions = [reactions, kForward, kBackward]
+        #params.variables = [variableName, initialValue]
         """
         super(BiochemicalReactions, self).__init__(**kwargs)
         if params == None:
             params = AttributeDict(kwargs)
         
-        # Get the variables Xs = [X1, X2, ..., Xn] 
+        # Get the variables Xs = [X1, X2, ..., Xn] and their initial values
         self.Xs = np.empty(len(params.variables), dtype=(np.str_, 256))
         self.X0s = np.zeros(len(params.variables))
         for i, var in enumerate(params.variables):
             self.Xs[i] = var[0]
             self.X0s[i] = var[1]
         
-        # Get the equations = [[left Xs, right Xs, k, ss, rs, f], ...], where: 
-        # left Xs - the variables of reactants (i.e. the variables of the left parts of the equations)
-        # rigth Xs - the variables of products (i.e. the variables of the right parts of the equations)
+        # Get the reactions = [[left Xs, right Xs, k, ss, rs, f], ...], where: 
+        # left Xs - the variables of reactants (i.e. the variables of the left parts of the reactions)
+        # rigth Xs - the variables of products (i.e. the variables of the right parts of the reactions)
         # k - the rate constant of the reaction
         # ss - the stoichiometric coefficients of reactants  (e.g. [0,1,1,0,...,1])
         # rs - the stoichiometric coefficients of products (e.g. [1,0,...,0])
         # f - the fluxs (e.g. k*X2*X3*...*Xn)
-        self.equations = self.readEquations(params.equations, self.Xs)
-        #for eq in self.equations: print eq
+        self.reactions = self.readReactions(params.reactions, self.Xs)
+        #for reaction in self.reactions: print reaction
         
         # Create a vector with state variable names
         stateVarNames = list(self.Xs) 
@@ -72,58 +72,58 @@ class BiochemicalReactions(Simulation):
         # Set the initial flags
         self.sw0 = [True]
         
-    def readEquations(self, equations, Xs):
-        resEquations = []
-        for rowEq in equations:
-            txtEq = rowEq[0]
-            txtEq_orig = txtEq
-            txtEq = txtEq.replace(" ", "")           
+    def readReactions(self, reactions, Xs):
+        resReactions = []
+        for reaction in reactions:
+            txtReaction = reaction[0]
+            txtReaction_orig = txtReaction
+            txtReaction = txtReaction.replace(" ", "")           
             
-            # Get and check the direction of the equation
-            dirEq =  re.findall("[-=<>]+", txtEq)
-            if len(dirEq) == 0:
-                raise ValueError("\nInvalid equation '{0}'.\nThe direction of the reaction is missing" 
-                    ", use one of {1}".format(txtEq_orig, validReactionDiractions))
-            if len(dirEq) > 1:
-                raise ValueError("\nInvalid equation '{0}'.\nToo many directions of the reaction.".format(txtEq_orig))
+            # Get and check the direction of the reaction
+            dirReaction =  re.findall("[-=<>]+", txtReaction)
+            if len(dirReaction) == 0:
+                raise ValueError("\nInvalid reaction '{0}'.\nThe direction of the reaction is missing" 
+                    ", use one of {1}".format(txtReaction_orig, validReactionDiractions))
+            if len(dirReaction) > 1:
+                raise ValueError("\nInvalid reaction '{0}'.\nToo many directions of the reaction.".format(txtReaction_orig))
             
-            dirEq = dirEq[0]
-            if not (dirEq in validReactionDiractions):
-                raise ValueError("\nInvalid equation '{0}'.\nThe direction of the reaction '{1}' is wrong" 
-                    ", use one of {2}".format(txtEq_orig, dirEq, validReactionDiractions))
+            dirReaction = dirReaction[0]
+            if not (dirReaction in validReactionDiractions):
+                raise ValueError("\nInvalid reaction '{0}'.\nThe direction of the reaction '{1}' is wrong" 
+                    ", use one of {2}".format(txtReaction_orig, dirReaction, validReactionDiractions))
                 
-            kForward = rowEq[1]
-            if kForward == 0.0 and dirEq in forwardReactionDiractions:
-                raise ValueError("\nInvalid equation '{0}'.\nThe direction of the reaction is '{1}', " 
-                    "but the forward rate constant is {2}".format(txtEq_orig, dirEq, kForward))
+            kForward = reaction[1]
+            if kForward == 0.0 and dirReaction in forwardReactionDiractions:
+                raise ValueError("\nInvalid reaction '{0}'.\nThe direction of the reaction is '{1}', " 
+                    "but the forward rate constant is {2}".format(txtReaction_orig, dirReaction, kForward))
                  
-            kBackward = rowEq[2]
-            if kBackward == 0.0 and dirEq in backwardReactionDiractions:
-                raise ValueError("\nInvalid equation '{0}'.\nThe direction of the reaction is '{1}', " 
-                    "but the backward rate constant is {2}".format(txtEq_orig, dirEq, kBackward))
+            kBackward = reaction[2]
+            if kBackward == 0.0 and dirReaction in backwardReactionDiractions:
+                raise ValueError("\nInvalid reaction '{0}'.\nThe direction of the reaction is '{1}', " 
+                    "but the backward rate constant is {2}".format(txtReaction_orig, dirReaction, kBackward))
             
-            # Get and check the equation parts
-            partsEq = re.split("[-=<>]+", txtEq)
-            if len(partsEq) <> 2:
-                raise ValueError("\nInvalid equation '{0}'.".format(txtEq_orig))
+            # Get and check the reaction parts
+            partsReaction = re.split("[-=<>]+", txtReaction)
+            if len(partsReaction) <> 2:
+                raise ValueError("\nInvalid reaction '{0}'.".format(txtReaction_orig))
             
-            # Get and check the Xs of the leftPart of the equation
-            leftPartEq = partsEq[0]
+            # Get and check the Xs of the leftPart of the reaction
+            leftPartEq = partsReaction[0]
             leftXs = leftPartEq.split('+')
             for X in leftXs:
                 if not X in Xs:
-                    raise ValueError("\nInvalid equation '{0}'.\nInvalid variable "
-                        "'{1}', use one of {2}".format(txtEq_orig, X, Xs))
+                    raise ValueError("\nInvalid reaction '{0}'.\nInvalid variable "
+                        "'{1}', use one of {2}".format(txtReaction_orig, X, Xs))
             
-            rightPartEq = partsEq[1]
+            rightPartEq = partsReaction[1]
             rightXs = rightPartEq.split('+')
             for X in rightXs:
                 if not X in Xs:
-                    raise ValueError("\nInvalid equation '{0}'.\nInvalid variable "
-                        "'{1}', use one of {2}".format(txtEq_orig, X, Xs))
+                    raise ValueError("\nInvalid reaction '{0}'.\nInvalid variable "
+                        "'{1}', use one of {2}".format(txtReaction_orig, X, Xs))
             
-            # Add to the equations
-            if dirEq in forwardReactionDiractions:
+            # Add to the reactions
+            if dirReaction in forwardReactionDiractions:
                 f = ""
                 ss = np.zeros(len(Xs))
                 for X in leftXs:
@@ -136,9 +136,9 @@ class BiochemicalReactions(Simulation):
                 for X in rightXs:
                     i = np.where(Xs == X)
                     rs[i] = 1             
-                resEquations.append([leftXs, rightXs, kForward, ss, rs, f])
+                resReactions.append([leftXs, rightXs, kForward, ss, rs, f])
                 
-            if dirEq in backwardReactionDiractions:
+            if dirReaction in backwardReactionDiractions:
                 f = ""
                 ss = np.zeros(len(Xs))
                 for X in rightXs:
@@ -151,25 +151,25 @@ class BiochemicalReactions(Simulation):
                 for X in leftXs:
                     i = np.where(Xs == X)
                     rs[i] = 1          
-                resEquations.append([rightXs, leftXs, kBackward, ss, rs, f])
+                resReactions.append([rightXs, leftXs, kBackward, ss, rs, f])
                 
-        return resEquations
+        return resReactions
     
     def rhs(self, t, y, sw):
         yDot = np.zeros(len(y))           
         try:
             # Compute fluxes
-            fs = np.ones(len(self.equations))
-            for j, eq in enumerate(self.equations):
-                (_leftXs, _rightXs, k, ss, _rs, _f) = self.splitEquation(eq)
+            fs = np.ones(len(self.reactions))
+            for j, eq in enumerate(self.reactions):
+                (_leftXs, _rightXs, k, ss, _rs, _f) = self.splitReaction(eq)
                 fs[j] = k
                 for i in range(len(y)):
                     fs[j] *= np.power(y[i], ss[i])
             
             # Compute state derivatives
             for i in range(len(y)):
-                for j, eq in enumerate(self.equations):
-                    (_leftXs, _rightXs, _k, ss, rs, _f) = self.splitEquation(eq)
+                for j, eq in enumerate(self.reactions):
+                    (_leftXs, _rightXs, _k, ss, rs, _f) = self.splitReaction(eq)
                     S = rs[i] - ss[i]
                     yDot[i] += S*fs[j]
                 
@@ -230,8 +230,6 @@ class BiochemicalReactions(Simulation):
         ax.set_xlabel('Time')
         ax.set_ylabel('Concentration')
         
-        #plt.title('Reaction rate equations')
-        
         plt.show()
         
     def getColors(self):
@@ -259,8 +257,8 @@ class BiochemicalReactions(Simulation):
         # Plot ODEs
         for i, X in enumerate(self.Xs):
             odeTxt = r"${%s}\mathtt{\/}' = "%X
-            for eq in self.equations:
-                (_leftXs, _rightXs, _k, ss, rs, f) = self.splitEquation(eq)
+            for eq in self.reactions:
+                (_leftXs, _rightXs, _k, ss, rs, f) = self.splitReaction(eq)
                 S = rs[i] - ss[i]
                 if S < 0.0:
                     if odeTxt.endswith("= "):
@@ -283,8 +281,8 @@ class BiochemicalReactions(Simulation):
         resTxt = ""
         for i, X in enumerate(self.Xs):
             resTxt += "{0}' = ".format(X)
-            for eq in self.equations:
-                (_leftXs, _rightXs, _k, ss, rs, f) = self.splitEquation(eq)
+            for eq in self.reactions:
+                (_leftXs, _rightXs, _k, ss, rs, f) = self.splitReaction(eq)
                 S = rs[i] - ss[i]
                 if S < 0.0:
                     if resTxt.endswith("= "):
@@ -299,7 +297,7 @@ class BiochemicalReactions(Simulation):
             resTxt += "\n"
         return resTxt
     
-    def splitEquation(self, eq):
+    def splitReaction(self, eq):
         return (eq[0], eq[1], eq[2], eq[3], eq[4], eq[5])
     
 def TestBiochemicalReactions():
@@ -315,8 +313,8 @@ def TestBiochemicalReactions():
     })
     
     # Initialize model parameters
-    dt = np.dtype([('equations', np.str_, 256), ('kForward', np.float64, (1)), ('kBackward', np.float64, (1))])
-    equations = np.array([
+    dt = np.dtype([('reaction', np.str_, 256), ('kForward', np.float64, (1)), ('kBackward', np.float64, (1))])
+    reactions = np.array([
         ("E + S = ES", 10.1, 1.1),
         #("E + S <=> ES", 1.1, 2.2),
         #("E + S <-> ES", 1.1, 2.2),  
@@ -326,7 +324,7 @@ def TestBiochemicalReactions():
         #("ES <= E + P", 0.0, 2.2),
     ], dtype = dt)
     
-    dt_vars = np.dtype([('variables', np.str_, 256), ('initValue', np.float64, (1))])
+    dt_vars = np.dtype([('variableName', np.str_, 256), ('initialValue', np.float64, (1))])
     variables = np.array([
         ('E', 0.1),
         ('S', 0.2),
@@ -335,7 +333,7 @@ def TestBiochemicalReactions():
     ], dtype = dt_vars)
         
     modelParams = AttributeDict({
-        'equations' : equations,
+        'reactions' : reactions,
         'variables' : variables,
     })
     

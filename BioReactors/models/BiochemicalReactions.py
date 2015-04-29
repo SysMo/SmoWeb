@@ -14,15 +14,11 @@ from smo.web.modules import RestModule
 class BiochemicalReactions(NumericalModel):
     label = "Biochemical reactions"
     description = F.ModelDescription("Solver for elementary biochemical reactions", show = True)
-    figure = F.ModelFigure(src="BioReactors/img/ModuleImages/BiochemicalReactions.png", show = False)
-    #:TODO: (MILEN) Rename:
-    # equations -> reactions
-    # variables -> species
-    
+    figure = F.ModelFigure(src="BioReactors/img/ModuleImages/BiochemicalReactions.png", show = False)   
     
     #1. ############ Inputs ###############
     #1.1 Fields - Input values
-    equations = F.RecordArray((     
+    reactions = F.RecordArray((     
             ('reaction', F.String('E + S -> ES', label = 'Reactions', inputBoxWidth = 200)),           
             ('kForward', F.Quantity('Dimensionless', default = (1.0, '-'), minValue = (0, '-'), label = 'rate constants ->')),
             ('kBackward', F.Quantity('Dimensionless', default = (0.0, '-'), minValue = (0, '-'), label = 'rate constants <-')),
@@ -32,8 +28,8 @@ class BiochemicalReactions(NumericalModel):
         numRows = 2,
         description = 'Biochemical reactions',
     )
-    equationsFG = F.FieldGroup([equations], hideContainer = True, label = "Reactions")
-    equationsSG = F.SuperGroup([equationsFG], label = "Reactions")
+    reactionsFG = F.FieldGroup([reactions], hideContainer = True, label = "Reactions")
+    reactionsSG = F.SuperGroup([reactionsFG], label = "Reactions")
     
     variables = F.RecordArray((                
             ('variableName', F.String('E', label = 'Species (variables)')),
@@ -48,14 +44,14 @@ class BiochemicalReactions(NumericalModel):
     variablesSG = F.SuperGroup([variablesFG], label = "Species")
 
     #1.2 Fields - Settings
-    tFinal = F.Quantity('Time', default = (20, 's'), minValue = (0, 's'), maxValue=(1000, 's'), label = 'simulation time') #:TODO: (MILEN) time unit: day or s
-    tPrint = F.Quantity('Time', default = (0.1, 's'), minValue = (1e-5, 's'), maxValue = (100, 's'), label = 'print interval')
+    tFinal = F.Quantity('Time', default = (0.0, 's'), minValue = (0, 's'), maxValue=(1000, 's'), label = 'simulation time')
+    tPrint = F.Quantity('Time', default = (0.0, 's'), minValue = (1e-5, 's'), maxValue = (100, 's'), label = 'print interval')
     solverFG = F.FieldGroup([tFinal, tPrint], label = 'Solver')
     
     settingsSG = F.SuperGroup([solverFG], label = 'Settings')
     
     #1.4 Model view
-    inputView = F.ModelView(ioType = "input", superGroups = [variablesSG, equationsSG, settingsSG], autoFetch = True)
+    inputView = F.ModelView(ioType = "input", superGroups = [reactionsSG, variablesSG, settingsSG], autoFetch = True)
     
     #2. ############ Results ###############    
     plot = F.PlotView(
@@ -97,13 +93,16 @@ class BiochemicalReactions(NumericalModel):
     modelBlocks = [inputView, resultView]
     
     def __init__(self):
-        self.variables[0] = ('E', 0.1)
-        self.variables[1] = ('S', 0.2)
+        self.variables[0] = ('E', 4.0)
+        self.variables[1] = ('S', 8.0)
         self.variables[2] = ('ES', 0.0)
         self.variables[3] = ('P', 0.0)
         
-        self.equations[0] = ("E + S = ES", 10.1, 1.1)
-        self.equations[1] = ("ES -> E + P", 1.1, 0.0)
+        self.reactions[0] = ("E + S = ES", 2.0, 1.0)
+        self.reactions[1] = ("ES -> E + P", 1.5, 0.0)
+        
+        self.tFinal = 10.0
+        self.tPrint = 0.01
     
     def redefineFileds(self):
         # Create tuples for variables
