@@ -46,24 +46,22 @@ the rate is given by
 
 .. math:: r\; =\; k[\mathrm{A}]^x[\mathrm{B}]^y,
  
-where :math:`[\mathrm{A}]` and :math:`[\mathrm{B}]` express the concentration of the reactants A and B, respectively (usually in moles 
-per liter (molarity, :math:`M`)); :math:`x`  and :math:`y` must be determined experimentally (a common mistake is assuming they 
+where :math:`[\mathrm{A}]` and :math:`[\mathrm{B}]` express the concentration of the reactants A and B, usually in moles 
+per liter (molarity, :math:`M`); :math:`x`  and :math:`y` must be determined experimentally (a common mistake is assuming they 
 represent stoichiometric coefficients, i.e. :math:`a` and :math:`b` but this is not the case). :math:`k` is the rate 
 coefficient or rate constant of the reaction. The value of this coefficient :math:`k` depends on conditions such as temperature, 
-ionic strength, surface area of the adsorbent or light irradiation. 
+ionic strength, surface area of the adsorbent, light irradiation or others. 
 
 The exponents :math:`x`  and :math:`y` are called reaction orders and depend on the reaction mechanism. For elementary (single-step) 
-reactions (i.e. for reactions with no intermediate steps in its reaction mechanism) the order in each reactant is equal to its stoichiometric 
-coefficient (i.e. :math:`x=a` and :math:`y=b`). For complex (multistep) reactions, however, as we note above, this is not true.
+reaction (i.e. for reaction with no intermediate steps in its reaction mechanism) the order in each reactant is equal to its stoichiometric 
+coefficient (for our example if the reaction is elementary then :math:`x=a` and :math:`y=b`). For complex (multistep) reactions, however, as we note above, this is not true.
 
-By using the mass balance for the system in which the reaction occurs, expressions (ordinary differential equations - ODEs) for the rate of 
+By using the mass balance for the system in which the reaction occurs, expressions (ordinary differential equations) for the rate of 
 change of the concentration of the reactants and products can be derived. For our example:
 
-.. math:: \frac{d[\mathrm{A}]}{dt} = -k[\mathrm{A}]^{x}[\mathrm{B}]^{y}
-
-.. math:: \frac{d[\mathrm{B}]}{dt} = -k[\mathrm{A}]^{x}[\mathrm{B}]^{y} 
-
-.. math:: \frac{d[\mathrm{C}]}{dt} = k[\mathrm{A}]^{x}[\mathrm{B}]^{y} 
+.. math:: \frac{d[\mathrm{A}]}{dt} = -k[\mathrm{A}]^{x}[\mathrm{B}]^{y}; \hspace{5mm}  
+          \frac{d[\mathrm{B}]}{dt} = -k[\mathrm{A}]^{x}[\mathrm{B}]^{y}; \hspace{5mm} 
+          \frac{d[\mathrm{C}]}{dt} = k[\mathrm{A}]^{x}[\mathrm{B}]^{y} 
 
     
 
@@ -77,7 +75,7 @@ Our solver for biochemical reactions suppose that:
 
 - the reactions are elementary, i.e. the rate of each reaction is proportional to the product of the concentrations of its reactants
 
-- the stoichiometric coefficients of reactants and products are 1 (e.g.  :math:`a = b = c = d = 1`).
+- the stoichiometric coefficients of reactants and products are 1 (e.g.  :math:`a = b = ... = 1`).
 
 
 Example: Michaelis–Menten kinetics
@@ -107,13 +105,17 @@ reactants and products with time :math:`t`:
    
    :math:`\frac{d[\mathrm{P}]}{dt} = k_\mathrm{cat}[\mathrm{ES}]`
 
-Solving the ODE system with initial concentrations :math:`[E]_0 = 0.1, [S]_0 = 0.2, [ES]_0 = [P]_0 = 0` and rate constants 
-:math:`k_f = 10.1, k_r = 1.1, k_\mathrm{cat} = 1.1` we have the results on figure:
+One solution of the system is shown on the `figure`_ below.
+
+.. _figure:
 
 .. figure:: /static/BioReactors/img/ModuleImages/ReactionRateEquations.png
    :align: center
+ 
    
-   Michaelis–Menten kinetics: change in concentrations over time for enzyme E, substrate S, complex ES and product P.
+   Michaelis–Menten kinetics: change in concentrations over time for enzyme E, substrate S, complex ES and product P 
+   with initial concentrations :math:`[E]_0 = 0.1, [S]_0 = 0.2, [ES]_0 = [P]_0 = 0` and 
+   rate constants :math:`k_f = 10.1, k_r = 1.1, k_\mathrm{cat} = 1.1`.
 
 
 

@@ -14,7 +14,12 @@ from smo.web.modules import RestModule
 class ReactionRateEquations(NumericalModel):
     label = "Enzyme kinetic equations"
     description = F.ModelDescription("Solver for elementary biochemical reactions.", show = True)
-    figure = F.ModelFigure(src="BioReactors/img/ModuleImages/ReactionRateEquations.png", show = False) #:TODO: (MILEN) Rename ReactionRateEquations to BiochemicalReactions
+    figure = F.ModelFigure(src="BioReactors/img/ModuleImages/ReactionRateEquations.png", show = False)
+    #:TODO: (MILEN) Rename:
+    # ReactionRateEquations -> BiochemicalReactions
+    # equations -> reactions
+    # variables -> species
+    
     
     #1. ############ Inputs ###############
     #1.1 Fields - Input values
@@ -44,8 +49,8 @@ class ReactionRateEquations(NumericalModel):
     variablesSG = F.SuperGroup([variablesFG], label = "Variables")
 
     #1.2 Fields - Settings
-    tFinal = F.Quantity('Bio_Time', default = (20, 'day'), minValue = (0, 'day'), maxValue=(1000, 'day'), label = 'simulation time') #:TODO: (MILEN) time unit: day or s
-    tPrint = F.Quantity('Bio_Time', default = (0.1, 'day'), minValue = (1e-5, 'day'), maxValue = (100, 'day'), label = 'print interval')
+    tFinal = F.Quantity('Time', default = (20, 's'), minValue = (0, 's'), maxValue=(1000, 's'), label = 'simulation time') #:TODO: (MILEN) time unit: day or s
+    tPrint = F.Quantity('Time', default = (0.1, 's'), minValue = (1e-5, 's'), maxValue = (100, 's'), label = 'print interval')
     solverFG = F.FieldGroup([tFinal, tPrint], label = 'Solver')
     
     settingsSG = F.SuperGroup([solverFG], label = 'Settings')
@@ -56,7 +61,7 @@ class ReactionRateEquations(NumericalModel):
     #2. ############ Results ###############    
     plot = F.PlotView(
         (
-            ('time', F.Quantity('Bio_Time', default=(1, 'day'))),
+            ('time', F.Quantity('Time', default=(1, 's'))),
             ('E', F.Quantity('Bio_MolarConcentration', default=(1, 'M'))),
         ),
         label = 'Plot'
@@ -64,7 +69,7 @@ class ReactionRateEquations(NumericalModel):
     
     table = F.TableView(
         (
-            ('time', F.Quantity('Bio_Time', default=(1, 'day'))),
+            ('time', F.Quantity('Time', default=(1, 's'))),
             ('E', F.Quantity('Bio_MolarConcentration', default=(1, 'M'))),
         ),
         label = 'Table', 
@@ -103,7 +108,7 @@ class ReactionRateEquations(NumericalModel):
     
     def redefineFileds(self):
         # Create tuples for variables
-        varTuples = (('time', F.Quantity('Bio_Time', default=(1, 'day'))),)
+        varTuples = (('time', F.Quantity('Time', default=(1, 's'))),)
         for var in self.variables:
             X = var[0]
             varTuple = (('%s'%X, F.Quantity('Bio_MolarConcentration', default=(1, 'M'))),)
