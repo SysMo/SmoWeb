@@ -274,7 +274,9 @@ def installPipPackages():
 		# IPC
 		'thrift',
 		# graph visualization
-		'pygraphviz'
+		'pygraphviz',
+		# Flower: Real-time Celery web-monitor
+		'flower'
 	]
 	with virtualenv():
 		with shell_env(CFLAGS="-I/usr/lib/openmpi/include/"): # Necessary for HDF5 based packages
