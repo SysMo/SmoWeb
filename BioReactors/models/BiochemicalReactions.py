@@ -6,6 +6,7 @@ Created on Mar 4, 2015
 '''
 import numpy as np
 import smo.model.fields as F
+import smo.model.actions as A 
 import smo.dynamical_models.bioreactors.BiochemicalReactions as DM
 
 from smo.model.model import NumericalModel
@@ -51,7 +52,17 @@ class BiochemicalReactions(NumericalModel):
     settingsSG = F.SuperGroup([solverFG], label = 'Settings')
     
     #1.4 Model view
-    inputView = F.ModelView(ioType = "input", superGroups = [reactionsSG, variablesSG, settingsSG], autoFetch = True)
+    exampleAction = A.ServerAction("loadEg", label = "Examples", options = (
+            ('exampleMMK', 'Michaelis-Menten kinetics'),
+            #('exampleMMKI', 'Michaelis-Menten kinetics with inhibition'),
+    ))
+    
+    inputView = F.ModelView(
+        ioType = "input", 
+        superGroups = [reactionsSG, variablesSG, settingsSG], 
+        autoFetch = True,
+        actionBar = A.ActionBar([exampleAction]),
+    )
     
     #2. ############ Results ###############    
     plot = F.PlotView(
@@ -93,6 +104,9 @@ class BiochemicalReactions(NumericalModel):
     modelBlocks = [inputView, resultView]
     
     def __init__(self):
+        self.exampleMMK()
+        
+    def exampleMMK(self):
         self.variables[0] = ('E', 4.0)
         self.variables[1] = ('S', 8.0)
         self.variables[2] = ('ES', 0.0)
@@ -103,23 +117,24 @@ class BiochemicalReactions(NumericalModel):
         
         self.tFinal = 10.0
         self.tPrint = 0.01
-    
-    def redefineFileds(self):
-        # Create tuples for variables
-        varTuples = (('time', F.Quantity('Time', default=(1, 's'))),)
-        for var in self.variables:
-            X = var[0]
-            varTuple = (('%s'%X, F.Quantity('Bio_MolarConcentration', default=(1, 'M'))),)
-            varTuples += varTuple
-            
-        # Redefine Files
-        redefinedPlot = F.PlotView(varTuples, 
-            label = 'Plot', options = {'ylabel' : 'concentration', 'title' : ''})
-        self.redefineField('plot', 'resultsVG', redefinedPlot)
         
-        redefinedTable = F.TableView(varTuples,
-            label = 'Table', options = {'formats': ['0.000', '0.000', '0.000', '0.000']})
-        self.redefineField('table', 'resultsVG', redefinedTable)
+    def exampleMMKI(self):
+        #:TODO: (MILEN) exampleMMKI 
+        #@see http://en.wikipedia.org/wiki/Enzyme_kinetics 
+        #     Michaelis-Menten kinetics with intermediate
+        #     Multi-substrate reactions
+        #     Enzyme inhibition and activation 
+        #@see others
+        self.variables[0] = ('E', 4.0)
+        self.variables[1] = ('S', 8.0)
+        self.variables[2] = ('ES', 0.0)
+        self.variables[3] = ('P', 0.0)
+        
+        self.reactions[0] = ("E + S = ES", 2.0, 1.0)
+        self.reactions[1] = ("ES <-> E + P", 1.5, 0.5)
+        
+        self.tFinal = 10.0
+        self.tPrint = 0.01
          
     def compute(self):
         # Redefine some fields
@@ -141,6 +156,23 @@ class BiochemicalReactions(NumericalModel):
         # Plot results
         model.plotODEsTxt(self.odesPlot)
         model.plotHDFResults(self.chartPlot)
+        
+    def redefineFileds(self):
+        # Create tuples for variables
+        varTuples = (('time', F.Quantity('Time', default=(1, 's'))),)
+        for var in self.variables:
+            X = var[0]
+            varTuple = (('%s'%X, F.Quantity('Bio_MolarConcentration', default=(1, 'M'))),)
+            varTuples += varTuple
+            
+        # Redefine Files
+        redefinedPlot = F.PlotView(varTuples, 
+            label = 'Plot', options = {'ylabel' : 'concentration', 'title' : ''})
+        self.redefineField('plot', 'resultsVG', redefinedPlot)
+        
+        redefinedTable = F.TableView(varTuples,
+            label = 'Table', options = {'formats': ['0.000', '0.000', '0.000', '0.000']})
+        self.redefineField('table', 'resultsVG', redefinedTable)
 
 class BiochemicalReactionsDoc(RestModule):
     label = 'Biochemical reactions (Doc)'
