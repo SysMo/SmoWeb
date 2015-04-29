@@ -2,6 +2,8 @@ import numpy
 
 from collections import OrderedDict
 Quantities = {
+	'Float' : {'title' : 'dimensionless quantity', 'nominalValue' : 1.0, 'SIUnit' : '-', 
+			'units' : OrderedDict((('-', {'mult' : 1}),))},
 	'Dimensionless' : {'title' : 'dimensionless quantity', 'nominalValue' : 1.0, 'SIUnit' : '-', 
 			'units' : OrderedDict((('-', {'mult' : 1}),))},
 			

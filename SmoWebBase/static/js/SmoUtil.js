@@ -818,7 +818,7 @@ smoModule.directive('smoQuantity', ['$compile', 'util', function($compile, util)
 						</div>\
 					</div>';
 				template += '\
-					<div class="field-select quantity"> \
+					<div ng-hide="fieldVar.quantity==\'Float\'" class="field-select quantity"> \
 						<select ng-disabled="!' + scope.fieldVar.name + 'Form.$valid" ng-model="fieldVar.displayUnit" ng-options="pair[0] as pair[0] for pair in fieldVar.units" ng-change="changeUnit()"></select> \
 					</div>';
 				
@@ -829,7 +829,7 @@ smoModule.directive('smoQuantity', ['$compile', 'util', function($compile, util)
 						<div class="output" ng-bind="fieldVar.displayValue"></div>\
 					</div>';
 				template += '\
-					<div class="field-select quantity"> \
+					<div ng-hide="fieldVar.quantity==\'Float\'" class="field-select quantity"> \
 						<select ng-model="fieldVar.displayUnit" ng-options="pair[0] as pair[0] for pair in fieldVar.units" ng-change="changeUnit()"></select> \
 					</div>';
 				
@@ -1733,7 +1733,7 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 								<div style="margin-bottom: 5px;">\
 									{{smoRecordArray.fields[' + String(col) + '].label}}\
 								</div>\
-								<div class="field-select quantity"> \
+								<div ng-hide="smoRecordArray.fields[' + String(col) + '].quantity==\'Float\'" class="field-select quantity"> \
 									<select ng-model="smoRecordArray.fields[' + String(col) + '].displayUnit" \
 										ng-options="pair[0] as pair[0] for pair in smoRecordArray.fields[' + String(col) + '].units" \
 										ng-change="changeUnit(' + String(col) + ')"></select>\
