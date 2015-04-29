@@ -284,7 +284,7 @@ class ModularPageView(object):
 	@action.post()
 	def startCompute(self, model, view, parameters):
 		job = celeryCompute.delay(model, view, parameters)
-		return {'jobID': job.id, 'progress': 0}
+		return {'jobID': job.id, 'progress': 0, 'ready': False}
 	
 	@action.post()
 	def checkProgress(self, model, view, parameters):
@@ -292,9 +292,10 @@ class ModularPageView(object):
 		if (job.ready()):
 			responseDict = job.result
 			responseDict['progress'] = 100
+			responseDict['ready'] = True
 			return responseDict
 		else:
-			return {'jobID': job.id, 'progress': job.info['progress']}
+			return {'jobID': job.id, 'progress': job.info['progress'], 'ready': False}
 				
 	@classmethod
 	def asView(cls):

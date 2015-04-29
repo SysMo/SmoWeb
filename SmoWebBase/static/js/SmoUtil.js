@@ -403,7 +403,7 @@ smoModule.factory('communicator', function($http, $window, $timeout, $location, 
 	}
 	
 	ModelCommunicator.prototype.setResponseData = function(responseData) {
-		if (!responseData.keepDefaultDefs) {
+		if (responseData.keepDefaultDefs == false) {
 			//If the definitions have been received once, on next occasions they are discarded
 			if (this.data.definitions) {
 				responseData.definitions = this.data.definitions;
@@ -474,7 +474,7 @@ smoModule.factory('communicator', function($http, $window, $timeout, $location, 
 		this.jobID = responseData.jobID;
 		this.progress = responseData.progress;
 		$('#' + this.progressBarDivID).css('width', this.progress + "%");
-		if (this.progress < 100) {
+		if (responseData.ready == false) {
 			this.checkProgress();
 		} else {
 			this.onSuccess = function(comm) {};
