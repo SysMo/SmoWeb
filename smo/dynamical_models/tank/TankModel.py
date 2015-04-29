@@ -34,6 +34,9 @@ class TankModel(DMC.Simulation):
 		super(TankModel, self).__init__(**kwargs)
 		if params == None:
 			params = AttributeDict(kwargs)
+			
+		# Initialize update progress function
+		self.updateProgress = params.updateProgress
 
 		# Create state vector and derivative vector
 		stateVarNames = ['WRealCompressor', 'TTank', 'rhoTank', 'TLiner_1', 'TLiner_2', 'TComp_1', 'TComp_2', 'TComp_3', 'TComp_4'] 
@@ -221,6 +224,8 @@ class TankModel(DMC.Simulation):
 	def handle_result(self, solver, t, y):
 		super(TankModel, self).handle_result(solver, t, y)
 		
+		self.updateProgress(t/self.tFinal)
+		
 		self.compute(t, y)		
 		self.resultStorage.record[:] = (
 			t, self.y.WRealCompressor,
@@ -270,6 +275,7 @@ class TankModelFactory():
 			params.cooler.epsilon = 0.
 		
 		tankModel = TankModel(
+			updateProgress = params.updateProgress,
 			initDataStorage = True, 
 			controller = TankController(
 				initialState = params.controller.initialState, 
@@ -359,6 +365,7 @@ def testTankModel():
 	
 	# Create the model
 	tankModel = TankModelFactory.create(
+		updateProgress = lambda x : x,
 		fluid = CP.Fluid('ParaHydrogen'),
 		ambientFluid = CP.Fluid('Air'),
 		TAmbient = 288.15,

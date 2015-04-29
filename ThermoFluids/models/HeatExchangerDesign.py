@@ -181,10 +181,7 @@ class SectionResultsSettings(NumericalModel):
 
 	modelBlocks = []
 	
-class CylindricalBlockHeatExchanger(NumericalModel):
-	async = True
-	progressOptions = {'total': 1., 'suffix': '%', 'fractionOutput': False}
-	
+class CylindricalBlockHeatExchanger(NumericalModel):	
 	label = "Cylindrical heat exchanger"
 	figure = F.ModelFigure(src="ThermoFluids/img/ModuleImages/HeatExchangerDesign.png", show = False)
 	description = F.ModelDescription(
@@ -192,6 +189,9 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 	central channels for one of the fluids and a spiraling
 	channel around the block for the other fluid
 	""")
+	
+	async = True
+	progressOptions = {'total': 1., 'suffix': '%', 'fractionOutput': False}
 
 	#================ Inputs ================#
 	#---------------- Fields ----------------#

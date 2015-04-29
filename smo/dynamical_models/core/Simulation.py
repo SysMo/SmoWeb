@@ -157,7 +157,11 @@ class Simulation(Explicit_Problem):
 	def run(self, params = None, **kwargs):
 		if params == None:
 			params = AttributeDict(kwargs)
-			
+		
+		# Remember the final time
+		self.tFinal = params.tFinal
+		
+		# Run simulation		
 		self.simSolver.simulate(
 			tfinal = params.tFinal, 
 			ncp = np.floor(params.tFinal/params.tPrint)

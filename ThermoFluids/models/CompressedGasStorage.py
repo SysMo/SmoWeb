@@ -17,7 +17,10 @@ from smo.web.modules import RestModule
 class CompressedGasStorage(NumericalModel):
     label = "Compressed Gas Storage"
     description = F.ModelDescription("Compressed gas storage model with fueling and extraction", show = True)
-    figure = F.ModelFigure(src="ThermoFluids/img/ModuleImages/CompressedGasStorage.svg") 
+    figure = F.ModelFigure(src="ThermoFluids/img/ModuleImages/CompressedGasStorage.svg")
+    
+    async = True
+    progressOptions = {'total': 1., 'suffix': '%', 'fractionOutput': False}
     
     #1. ############ Inputs ###############
     #1.1 Fields - Input values
@@ -158,8 +161,10 @@ class CompressedGasStorage(NumericalModel):
         self.tank.hConvInternalWaiting = (50., 'W/m**2-K')
         self.tank.hConvInternalExtraction = (100., 'W/m**2-K')
         self.tank.hConvInternalFueling = (500., 'W/m**2-K')
+              
+    def computeAsync(self):
+        #self.updateProgress = lambda x : x
         
-    def compute(self):        
         # Initialize the fluids
         self.fluid = CP.Fluid(self.fluidName)
         self.ambientFluid = CP.Fluid(self.fluidAmbientName)
@@ -207,4 +212,3 @@ class CompressedGasStorage(NumericalModel):
 
 class CompressedGasStorageDoc(RestModule):
     label = 'Compressed Gas Storage (Doc)'
-        
