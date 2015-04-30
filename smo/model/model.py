@@ -3,6 +3,7 @@ from collections import OrderedDict
 from smo.model.fields import FieldGroup, BasicGroup, ModelView, SuperGroup
 from smo.web.blocks import HtmlBlock, JsBlock
 import smo.web.exceptions as E
+from smo.model.actions import ServerAction
 
 class NumericalModelMeta(type):
 	"""Metaclass facilitating the creation of a numerical

@@ -40,6 +40,7 @@ class ActionBar(object):
 		"""
 		self.actionList = []
 		self.actionList.append(ServerAction("compute", label = "Compute", outputView = 'resultView'))
+		self.actionList.append(ServerAction("abort", label = "Abort", outputView = 'resultView'))
 		self.actionList.append(ServerAction("save", label = "Save", options = (
 			('local', 'Save locally'),
 			('global', 'Save on server'),
