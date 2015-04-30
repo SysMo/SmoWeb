@@ -475,16 +475,22 @@ smoModule.factory('communicator', function($http, $window, $timeout, $location, 
 		if (responseData.jobID) {
 			this.jobID = responseData.jobID;
 		}
-		if (responseData.total) {
-			this.total = responseData.total;
-		}
 		if (responseData.fractionOutput) {
 			this.fractionOutput = responseData.fractionOutput;
 		}
 		if (responseData.suffix) {
 			this.suffix = responseData.suffix;
 		}
-		this.current = responseData.current;
+		if (responseData.current) {
+			this.current = responseData.current;
+		} else if (responseData.ready == false) {
+			this.current = 0;
+		}
+		if (responseData.total) {
+			this.total = responseData.total;
+		} else if (responseData.ready == false) {
+			this.total = 1.;
+		}
 		if (responseData.ready == false) {
 			this.checkProgress();
 		} else {

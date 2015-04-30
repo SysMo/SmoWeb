@@ -286,12 +286,11 @@ class ModularPageView(object):
 		job = celeryCompute.delay(model, view, parameters)
 		if (job.failed()):
 			raise job.result
-		return {'ready': False,
-				'current': 0,  
-				'jobID': job.id, 
-				'total': model.progressOptions['total'], 
+		return {'jobID': job.id,
 				'fractionOutput': model.progressOptions['fractionOutput'], 
-				'suffix': model.progressOptions['suffix']}
+				'suffix': model.progressOptions['suffix'],
+				'ready': False
+				}
 	
 	@action.post()
 	def checkProgress(self, model, view, parameters):
@@ -301,14 +300,13 @@ class ModularPageView(object):
 		responseDict = {}
 		if (job.ready()):
 			responseDict['ready'] = True
-			responseDict['current'] = model.progressOptions['total']
 			responseDict.update(job.result)
 		else:
-			responseDict['ready'] = False
+			responseDict['ready'] = False	
 			try:
-				responseDict.update({'current': job.info['current']})
-			except:
-				responseDict.update({'current': 0})
+				responseDict.update({'current': job.info['current'], 'total': job.info['total']})
+			except: # if job hasn't been started yet or progress state hasn't been updated
+				pass
 		return responseDict
 				
 	@classmethod

@@ -183,7 +183,7 @@ class SectionResultsSettings(NumericalModel):
 	
 class CylindricalBlockHeatExchanger(NumericalModel):
 	async = True
-	progressOptions = {'total': 1., 'suffix': '%', 'fractionOutput': False}
+	progressOptions = {'suffix': '%', 'fractionOutput': False}
 	
 	label = "Cylindrical heat exchanger"
 	figure = F.ModelFigure(src="ThermoFluids/img/ModuleImages/HeatExchangerDesign.png", show = False)
