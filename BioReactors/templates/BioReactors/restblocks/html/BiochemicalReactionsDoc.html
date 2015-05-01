@@ -1,7 +1,17 @@
 <div class="document" id="biochemical-reactions">
 <h1 class="title">Biochemical reactions</h1>
+<div class="contents topic" id="table-of-contents">
+<p class="topic-title first">Table of Contents</p>
+<ul class="auto-toc simple">
+<li><a class="reference internal" href="#chemical-reactions-and-equations" id="id6" target="_self">1.&nbsp;&nbsp;&nbsp;Chemical reactions and equations</a></li>
+<li><a class="reference internal" href="#reaction-rate" id="id7" target="_self">2.&nbsp;&nbsp;&nbsp;Reaction rate</a></li>
+<li><a class="reference internal" href="#solver-for-biochemical-reactions" id="id8" target="_self">3.&nbsp;&nbsp;&nbsp;Solver for biochemical reactions</a></li>
+<li><a class="reference internal" href="#example-michaelismenten-kinetics" id="id9" target="_self">4.&nbsp;&nbsp;&nbsp;Example: Michaelis–Menten kinetics</a></li>
+<li><a class="reference internal" href="#references" id="id10" target="_self">5.&nbsp;&nbsp;&nbsp;References</a></li>
+</ul>
+</div>
 <div class="section" id="chemical-reactions-and-equations">
-<h1>1.&nbsp;&nbsp;&nbsp;Chemical reactions and equations</h1>
+<h1><a class="toc-backref" href="#id6">1.&nbsp;&nbsp;&nbsp;Chemical reactions and equations</a></h1>
 <p><a class="citation-reference" href="#wiki-chr" id="id1">[Wiki-ChR]</a>
 A <strong>chemical reaction</strong> is a process that leads to the transformation of one set of chemical substances to another.
 <strong>Chemical equations</strong> are used to graphically illustrate chemical reactions. They consist of chemical or structural
@@ -27,7 +37,7 @@ CH_{4} + 2O_{2} \rightarrow CO_{2} + 2H_{2}0
 side in order for, as per the law of conservation of mass, the quantity of each element does not change during the reaction.</p>
 </div>
 <div class="section" id="reaction-rate">
-<h1>2.&nbsp;&nbsp;&nbsp;Reaction rate</h1>
+<h1><a class="toc-backref" href="#id7">2.&nbsp;&nbsp;&nbsp;Reaction rate</a></h1>
 <p><a class="citation-reference" href="#wiki-rr" id="id2">[Wiki-RR]</a>, <a class="citation-reference" href="#wiki-re" id="id3">[Wiki-RE]</a>
 The <strong>reaction rate</strong> (<strong>rate of reaction</strong>) or speed of reaction for a reactant or product in a particular reaction is intuitively
 defined as how fast or slow a reaction takes place. The <strong>rate law</strong> or <strong>rate equation</strong> for a chemical reaction is an equation
@@ -50,9 +60,10 @@ per liter (molarity, <span class="math">\(M\)</span>); <span class="math">\(x\)<
 represent stoichiometric coefficients, i.e. <span class="math">\(a\)</span> and <span class="math">\(b\)</span> but this is not the case). <span class="math">\(k\)</span> is the rate
 coefficient or rate constant of the reaction. The value of this coefficient <span class="math">\(k\)</span> depends on conditions such as temperature,
 ionic strength, surface area of the adsorbent, light irradiation or others.</p>
-<p>The exponents <span class="math">\(x\)</span>  and <span class="math">\(y\)</span> are called reaction orders and depend on the reaction mechanism. For elementary (single-step)
-reaction (i.e. for reaction with no intermediate steps in its reaction mechanism) the order in each reactant is equal to its stoichiometric
-coefficient (for our example if the reaction is elementary then <span class="math">\(x=a\)</span> and <span class="math">\(y=b\)</span>). For complex (multistep) reactions, however, as we note above, this is not true.</p>
+<p>The exponents <span class="math">\(x\)</span>  and <span class="math">\(y\)</span> are called reaction orders and depend on the reaction mechanism. According the law of mass action <a class="citation-reference" href="#br2009" id="id4">[BR2009]</a>
+for elementary (single-step) reaction (i.e. for reaction with no intermediate steps in its reaction mechanism) the order in each reactant
+is equal to its stoichiometric coefficient (for our example if the reaction is elementary then <span class="math">\(x=a\)</span> and <span class="math">\(y=b\)</span>).
+For complex (multistep) reactions, however, as we note above, this is not true.</p>
 <p>By using the mass balance for the system in which the reaction occurs, expressions (ordinary differential equations) for the rate of
 change of the concentration of the reactants and products can be derived. For our example:</p>
 <div class="math">
@@ -64,7 +75,7 @@ change of the concentration of the reactants and products can be derived. For ou
 </div>
 </div>
 <div class="section" id="solver-for-biochemical-reactions">
-<h1>3.&nbsp;&nbsp;&nbsp;Solver for biochemical reactions</h1>
+<h1><a class="toc-backref" href="#id8">3.&nbsp;&nbsp;&nbsp;Solver for biochemical reactions</a></h1>
 <p>A <strong>biochemical reaction</strong> is the transformation of one molecule to a different molecule inside a cell. Biochemical reactions
 are mediated by enzymes, which are biological catalysts that can alter the rate and specificity of chemical reactions inside cells.</p>
 <p>Our solver for biochemical reactions suppose that:</p>
@@ -74,8 +85,8 @@ are mediated by enzymes, which are biological catalysts that can alter the rate 
 </ul>
 </div>
 <div class="section" id="example-michaelismenten-kinetics">
-<h1>4.&nbsp;&nbsp;&nbsp;Example: Michaelis–Menten kinetics</h1>
-<p><a class="citation-reference" href="#wiki-mmk" id="id4">[Wiki-MMK]</a>
+<h1><a class="toc-backref" href="#id9">4.&nbsp;&nbsp;&nbsp;Example: Michaelis–Menten kinetics</a></h1>
+<p><a class="citation-reference" href="#wiki-mmk" id="id5">[Wiki-MMK]</a>
 In 1903, French physical chemist Victor Henri found that enzyme reactions were
 initiated by a bond (more generally, a binding interaction) between the enzyme and the substrate. His work was taken up by German
 biochemist Leonor Michaelis and Canadian physician Maud Menten, who investigated the kinetics of an enzymatic reaction mechanism,
@@ -106,7 +117,7 @@ rate constants <span class="math">\(k_f = 2.0, k_r = 1.0, k_\mathrm{cat} = 1.5\)
 </div>
 </div>
 <div class="section" id="references">
-<h1>5.&nbsp;&nbsp;&nbsp;References</h1>
+<h1><a class="toc-backref" href="#id10">5.&nbsp;&nbsp;&nbsp;References</a></h1>
 <table class="docutils citation" frame="void" id="wiki-chr" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
@@ -128,7 +139,13 @@ rate constants <span class="math">\(k_f = 2.0, k_r = 1.0, k_\mathrm{cat} = 1.5\)
 <table class="docutils citation" frame="void" id="wiki-mmk" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
 <tbody valign="top">
-<tr><td class="label"><a class="fn-backref" href="#id4">[Wiki-MMK]</a></td><td><a class="reference external" href="http://en.wikipedia.org/wiki/Michaelis%E2%80%93Menten_kinetics" target="_self">http://en.wikipedia.org/wiki/Michaelis%E2%80%93Menten_kinetics</a></td></tr>
+<tr><td class="label"><a class="fn-backref" href="#id5">[Wiki-MMK]</a></td><td><a class="reference external" href="http://en.wikipedia.org/wiki/Michaelis%E2%80%93Menten_kinetics" target="_self">http://en.wikipedia.org/wiki/Michaelis%E2%80%93Menten_kinetics</a></td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="br2009" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id4">[BR2009]</a></td><td>James Keener, James Sneyd, Mathematical Physiology I: Cellular Physiology - Biochemical Reactions. Interdisciplinary Applied Mathematics, Volume 8/1 2009</td></tr>
 </tbody>
 </table>
 </div>

@@ -30,23 +30,23 @@ class BiochemicalReactions(Simulation):
     """
     def __init__(self, params = None, **kwargs):
         """
-        #params.reactions = [reactions, kForward, kBackward]
-        #params.variables = [variableName, initialValue]
+        #params.reactions = [reactionEquation, rateConstants]
+        #params.species = [speciesVariable, initialValue]
         """
         super(BiochemicalReactions, self).__init__(**kwargs)
         if params == None:
             params = AttributeDict(kwargs)
         
-        # Get the variables Xs = [X1, X2, ..., Xn] and their initial values
-        self.Xs = np.empty(len(params.variables), dtype=(np.str_, 256))
-        self.X0s = np.zeros(len(params.variables))
-        for i, var in enumerate(params.variables):
-            self.Xs[i] = var[0]
-            self.X0s[i] = var[1]
+        # Get the species variables Xs = [X1, X2, ..., Xn] and their initial values
+        self.Xs = np.empty(len(params.species), dtype=(np.str_, 256))
+        self.X0s = np.zeros(len(params.species))
+        for i, itSpecies in enumerate(params.species):
+            self.Xs[i] = itSpecies[0]
+            self.X0s[i] = itSpecies[1]
         
         # Get the reactions = [[left Xs, right Xs, k, ss, rs, f], ...], where: 
-        # left Xs - the variables of reactants (i.e. the variables of the left parts of the reactions)
-        # rigth Xs - the variables of products (i.e. the variables of the right parts of the reactions)
+        # left Xs - the species variables of reactants (i.e. the species variables of the left parts of the reactions)
+        # rigth Xs - the species variables of products (i.e. the species variables of the right parts of the reactions)
         # k - the rate constant of the reaction
         # ss - the stoichiometric coefficients of reactants  (e.g. [0,1,1,0,...,1])
         # rs - the stoichiometric coefficients of products (e.g. [1,0,...,0])
@@ -91,13 +91,15 @@ class BiochemicalReactions(Simulation):
             if not (dirReaction in validReactionDiractions):
                 raise ValueError("\nInvalid reaction '{0}'.\nThe direction of the reaction '{1}' is wrong" 
                     ", use one of {2}".format(txtReaction_orig, dirReaction, validReactionDiractions))
-                
-            kForward = reaction[1]
+            
+            # Get and check the rate constants of the reaction
+            txtRateConstants = reaction[1]
+            kForward, kBackward = self.readReactionRateConstants(txtReaction_orig, txtRateConstants)
+            
             if kForward == 0.0 and dirReaction in forwardReactionDiractions:
                 raise ValueError("\nInvalid reaction '{0}'.\nThe direction of the reaction is '{1}', " 
                     "but the forward rate constant is {2}".format(txtReaction_orig, dirReaction, kForward))
-                 
-            kBackward = reaction[2]
+            
             if kBackward == 0.0 and dirReaction in backwardReactionDiractions:
                 raise ValueError("\nInvalid reaction '{0}'.\nThe direction of the reaction is '{1}', " 
                     "but the backward rate constant is {2}".format(txtReaction_orig, dirReaction, kBackward))
@@ -112,14 +114,14 @@ class BiochemicalReactions(Simulation):
             leftXs = leftPartEq.split('+')
             for X in leftXs:
                 if not X in Xs:
-                    raise ValueError("\nInvalid reaction '{0}'.\nInvalid variable "
+                    raise ValueError("\nInvalid reaction '{0}'.\nInvalid species variable "
                         "'{1}', use one of {2}".format(txtReaction_orig, X, Xs))
             
             rightPartEq = partsReaction[1]
             rightXs = rightPartEq.split('+')
             for X in rightXs:
                 if not X in Xs:
-                    raise ValueError("\nInvalid reaction '{0}'.\nInvalid variable "
+                    raise ValueError("\nInvalid reaction '{0}'.\nInvalid species variable "
                         "'{1}', use one of {2}".format(txtReaction_orig, X, Xs))
             
             # Add to the reactions
@@ -129,7 +131,7 @@ class BiochemicalReactions(Simulation):
                 for X in leftXs:
                     i = np.where(Xs == X)
                     ss[i] = 1
-                    f += "*{0}".format(X)
+                    f += "[{0}]".format(X)
                 f = "{0}".format(kForward) + f
                 
                 rs = np.zeros(len(Xs))
@@ -144,7 +146,7 @@ class BiochemicalReactions(Simulation):
                 for X in rightXs:
                     i = np.where(Xs == X)
                     ss[i] = 1
-                    f += "*{0}".format(X)
+                    f += "[{0}]".format(X)
                 f = "{0}".format(kBackward) + f
                 
                 rs = np.zeros(len(Xs))
@@ -154,6 +156,37 @@ class BiochemicalReactions(Simulation):
                 resReactions.append([rightXs, leftXs, kBackward, ss, rs, f])
                 
         return resReactions
+    
+    def readReactionRateConstants(self, txtReaction, txtRateConstants):
+        partsRate = re.split("[,;]+", txtRateConstants)
+        
+        if len(partsRate) == 0:
+            raise ValueError("The rate constants of the reaction '{0}' are not set.\n"
+                "Enter one or two rate constants with a delimiter , or ;"
+                .format(txtReaction))
+            
+        if len(partsRate) > 2:
+            raise ValueError("\Invalid rate constants '{0}' of the reaction '{1}'.\n"
+                "Enter one or two rate constants with a delimiter , or ;"
+                .format(txtRateConstants, txtReaction))
+        
+        try:
+            kForward = float(partsRate[0])
+        except ValueError:
+            raise ValueError("\Invalid rate constants '{0}' of the reaction '{1}', \n"
+                "the forward rate constant '{2}' is not valid real number."
+                .format(txtRateConstants, txtReaction, partsRate[0]))
+        
+        kBackward = 0.0
+        if len(partsRate) == 2:
+            try:
+                kBackward = float(partsRate[1])
+            except ValueError:
+                raise ValueError("\Invalid rate constants '{0}' of the reaction '{1}', \n"
+                    "the backward rate constant '{2}' is not valid real number."
+                    .format(txtRateConstants, txtReaction, partsRate[1]))
+        
+        return (kForward, kBackward)
     
     def rhs(self, t, y, sw):
         yDot = np.zeros(len(y))           
@@ -256,7 +289,7 @@ class BiochemicalReactions(Simulation):
         
         # Plot ODEs
         for i, X in enumerate(self.Xs):
-            odeTxt = r"${%s}\mathtt{\/}' = "%X
+            odeTxt = r"$[{%s}]' = "%X
             for eq in self.reactions:
                 (_leftXs, _rightXs, _k, ss, rs, f) = self.splitReaction(eq)
                 S = rs[i] - ss[i]
@@ -313,19 +346,14 @@ def TestBiochemicalReactions():
     })
     
     # Initialize model parameters
-    dt = np.dtype([('reaction', np.str_, 256), ('kForward', np.float64, (1)), ('kBackward', np.float64, (1))])
+    dt = np.dtype([('reactionEquation', np.str_, 256), ('rateConstants', np.str_, 256)])
     reactions = np.array([
-        ("E + S = ES", 10.1, 1.1),
-        #("E + S <=> ES", 1.1, 2.2),
-        #("E + S <-> ES", 1.1, 2.2),  
-        ("ES -> E + P", 1.1, 0.0),
-        #("ES => E + P", 1.1, 0.0),
-        #("ES <- E + P", 0.0, 2.2),
-        #("ES <= E + P", 0.0, 2.2),
+        ("E + S = ES", "10.1, 1.1"),  
+        ("ES -> E + P", "2.1"),
     ], dtype = dt)
     
-    dt_vars = np.dtype([('variableName', np.str_, 256), ('initialValue', np.float64, (1))])
-    variables = np.array([
+    dt_vars = np.dtype([('speciesVariable', np.str_, 256), ('initialValue', np.float64, (1))])
+    species = np.array([
         ('E', 0.1),
         ('S', 0.2),
         ('ES', 0.0),
@@ -334,7 +362,7 @@ def TestBiochemicalReactions():
         
     modelParams = AttributeDict({
         'reactions' : reactions,
-        'variables' : variables,
+        'species' : species,
     })
     
     # Create the model

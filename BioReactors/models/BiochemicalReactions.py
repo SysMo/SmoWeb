@@ -20,9 +20,9 @@ class BiochemicalReactions(NumericalModel):
     #1. ############ Inputs ###############
     #1.1 Fields - Input values
     reactions = F.RecordArray((     
-            ('reaction', F.String('E + S -> ES', label = 'Reactions', inputBoxWidth = 200)),           
-            ('kForward', F.Quantity('Float', default = (1.0, '-'), minValue = (0, '-'), label = 'rate constants ->')),
-            ('kBackward', F.Quantity('Float', default = (0.0, '-'), minValue = (0, '-'), label = 'rate constants <-')),
+            ('reactionEquation', F.String('E + S -> ES', label = 'Equation', inputBoxWidth = 160)),           
+            ('rateConstnats', F.String('1.0, 2.0', label = 'Rate constants', inputBoxWidth = 100)),
+            ('reactionName', F.String('enzyme binding to a substrate', label = 'Name', inputBoxWidth = 400)),
         ),
         toggle = False, 
         label = 'Reactions',
@@ -32,21 +32,24 @@ class BiochemicalReactions(NumericalModel):
     reactionsFG = F.FieldGroup([reactions], hideContainer = True, label = "Reactions")
     reactionsSG = F.SuperGroup([reactionsFG], label = "Reactions")
     
-    variables = F.RecordArray((                
-            ('variableName', F.String('E', label = 'Species (variables)')),
-            ('initialValue', F.Quantity('Bio_MolarConcentration', default = (1, 'M'), minValue = (0, 'M'), label = 'Initial values')),
+    species = F.RecordArray((                
+            ('speciesVariable', F.String('E', label = 'Variable', inputBoxWidth = 70)),
+            ('initialValue', F.Quantity('Bio_MolarConcentration', default = (1, 'M'), minValue = (0, 'M'), 
+                label = 'Initial value', inputBoxWidth = 75)
+            ),
+            ('speciesName', F.String('enzyme', label = 'Name', inputBoxWidth = 270)),
         ),
         toggle = False, 
-        label = 'variables', 
+        label = 'species', 
         numRows = 4,
         description = 'Species of the reactions',
     ) 
-    variablesFG = F.FieldGroup([variables], hideContainer = True, label = "Species")
-    variablesSG = F.SuperGroup([variablesFG], label = "Species")
+    speciesFG = F.FieldGroup([species], hideContainer = True, label = "Species")
+    speciesSG = F.SuperGroup([speciesFG], label = "Species")
 
     #1.2 Fields - Settings
     tFinal = F.Quantity('Time', default = (0.0, 's'), minValue = (0, 's'), maxValue=(1000, 's'), label = 'simulation time')
-    tPrint = F.Quantity('Time', default = (0.0, 's'), minValue = (1e-5, 's'), maxValue = (100, 's'), label = 'print interval')
+    tPrint = F.Quantity('Time', default = (0.0, 's'), minValue = (1e-3, 's'), maxValue = (100, 's'), label = 'print interval')
     solverFG = F.FieldGroup([tFinal, tPrint], label = 'Solver')
     
     settingsSG = F.SuperGroup([solverFG], label = 'Settings')
@@ -59,7 +62,7 @@ class BiochemicalReactions(NumericalModel):
     
     inputView = F.ModelView(
         ioType = "input", 
-        superGroups = [reactionsSG, variablesSG, settingsSG], 
+        superGroups = [reactionsSG, speciesSG, settingsSG], 
         autoFetch = True,
         actionBar = A.ActionBar([exampleAction]),
     )
@@ -107,13 +110,13 @@ class BiochemicalReactions(NumericalModel):
         self.exampleMMK()
         
     def exampleMMK(self):
-        self.variables[0] = ('E', 4.0)
-        self.variables[1] = ('S', 8.0)
-        self.variables[2] = ('ES', 0.0)
-        self.variables[3] = ('P', 0.0)
+        self.species[0] = ('E', 4.0, 'enzyme')
+        self.species[1] = ('S', 8.0, 'substrate')
+        self.species[2] = ('ES', 0.0, 'complex')
+        self.species[3] = ('P', 0.0, 'product')
         
-        self.reactions[0] = ("E + S = ES", 2.0, 1.0)
-        self.reactions[1] = ("ES -> E + P", 1.5, 0.0)
+        self.reactions[0] = ('E + S = ES', '2.0, 1.0', 'an enzyme binding to a substrate form a complex (reversible process)')
+        self.reactions[1] = ('ES -> E + P', '1.5', 'a complex decomposition to a product and the enzyme')
         
         self.tFinal = 10.0
         self.tPrint = 0.01
@@ -125,10 +128,10 @@ class BiochemicalReactions(NumericalModel):
         #     Multi-substrate reactions
         #     Enzyme inhibition and activation 
         #@see others
-        self.variables[0] = ('E', 4.0)
-        self.variables[1] = ('S', 8.0)
-        self.variables[2] = ('ES', 0.0)
-        self.variables[3] = ('P', 0.0)
+        self.species[0] = ('E', 4.0)
+        self.species[1] = ('S', 8.0)
+        self.species[2] = ('ES', 0.0)
+        self.species[3] = ('P', 0.0)
         
         self.reactions[0] = ("E + S = ES", 2.0, 1.0)
         self.reactions[1] = ("ES <-> E + P", 1.5, 0.5)
@@ -158,19 +161,19 @@ class BiochemicalReactions(NumericalModel):
         model.plotHDFResults(self.chartPlot)
         
     def redefineFileds(self):
-        # Create tuples for variables
-        varTuples = (('time', F.Quantity('Time', default=(1, 's'))),)
-        for var in self.variables:
-            X = var[0]
-            varTuple = (('%s'%X, F.Quantity('Bio_MolarConcentration', default=(1, 'M'))),)
-            varTuples += varTuple
+        # Create tuples for species
+        speciesTuples = (('time', F.Quantity('Time', default=(1, 's'))),)
+        for itSpecies in self.species:
+            X = itSpecies[0] #species variable
+            speciesTuple = (('%s'%X, F.Quantity('Bio_MolarConcentration', default=(1, 'M'))),)
+            speciesTuples += speciesTuple
             
         # Redefine Files
-        redefinedPlot = F.PlotView(varTuples, 
+        redefinedPlot = F.PlotView(speciesTuples, 
             label = 'Plot', options = {'ylabel' : 'concentration', 'title' : ''})
         self.redefineField('plot', 'resultsVG', redefinedPlot)
         
-        redefinedTable = F.TableView(varTuples,
+        redefinedTable = F.TableView(speciesTuples,
             label = 'Table', options = {'formats': ['0.000', '0.000', '0.000', '0.000']})
         self.redefineField('table', 'resultsVG', redefinedTable)
 

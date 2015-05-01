@@ -5,10 +5,12 @@
 Biochemical reactions
 =====================
 
+.. contents:: Table of Contents
+
 Chemical reactions and equations
 --------------------------------
 [Wiki-ChR]_
-A **chemical reaction** is a process that leads to the transformation of one set of chemical substances to another.
+A **chemical reaction** is a process that leads to the transformation of one set of chemical substances to another. 
 **Chemical equations** are used to graphically illustrate chemical reactions. They consist of chemical or structural 
 formulas of the reactants on the left and those of the products on the right. They are separated by an arrow 
 (:math:`\rightarrow`) which indicates the direction and type of the reaction; the arrow is read as the word "yields". 
@@ -52,9 +54,10 @@ represent stoichiometric coefficients, i.e. :math:`a` and :math:`b` but this is 
 coefficient or rate constant of the reaction. The value of this coefficient :math:`k` depends on conditions such as temperature, 
 ionic strength, surface area of the adsorbent, light irradiation or others. 
 
-The exponents :math:`x`  and :math:`y` are called reaction orders and depend on the reaction mechanism. For elementary (single-step) 
-reaction (i.e. for reaction with no intermediate steps in its reaction mechanism) the order in each reactant is equal to its stoichiometric 
-coefficient (for our example if the reaction is elementary then :math:`x=a` and :math:`y=b`). For complex (multistep) reactions, however, as we note above, this is not true.
+The exponents :math:`x`  and :math:`y` are called reaction orders and depend on the reaction mechanism. According the law of mass action [BR2009]_
+for elementary (single-step) reaction (i.e. for reaction with no intermediate steps in its reaction mechanism) the order in each reactant 
+is equal to its stoichiometric coefficient (for our example if the reaction is elementary then :math:`x=a` and :math:`y=b`). 
+For complex (multistep) reactions, however, as we note above, this is not true.
 
 By using the mass balance for the system in which the reaction occurs, expressions (ordinary differential equations) for the rate of 
 change of the concentration of the reactants and products can be derived. For our example:
@@ -125,3 +128,6 @@ References
 .. [Wiki-RR] http://en.wikipedia.org/wiki/Reaction_rate
 .. [Wiki-RE] http://en.wikipedia.org/wiki/Rate_equation#cite_note-3
 .. [Wiki-MMK] http://en.wikipedia.org/wiki/Michaelis%E2%80%93Menten_kinetics
+.. [BR2009] James Keener, James Sneyd, Mathematical Physiology I: Cellular Physiology - Biochemical Reactions. Interdisciplinary Applied Mathematics, Volume 8/1 2009  
+
+ 
