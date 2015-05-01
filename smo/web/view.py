@@ -6,6 +6,7 @@ import traceback
 import logging
 from SmoWebBase.tasks import celeryCompute
 from celery.result import AsyncResult
+from celery.task.control import revoke
 logger = logging.getLogger('django.request.smo.view')
 
 from pymongo import MongoClient
@@ -286,30 +287,34 @@ class ModularPageView(object):
 		job = celeryCompute.delay(model, view, parameters)
 		if (job.failed()):
 			raise job.result
-		return {'ready': False,
-				'current': 0,  
-				'jobID': job.id, 
-				'total': model.progressOptions['total'], 
+		return {'jobID': job.id,
 				'fractionOutput': model.progressOptions['fractionOutput'], 
-				'suffix': model.progressOptions['suffix']}
+				'suffix': model.progressOptions['suffix'],
+				'state': job.state
+				}
 	
 	@action.post()
 	def checkProgress(self, model, view, parameters):
 		job = AsyncResult(parameters['jobID'])
-		if (job.failed()):
+		state = job.state
+		if (state == 'FAILURE'):
 			raise job.result
-		responseDict = {}
-		if (job.ready()):
-			responseDict['ready'] = True
-			responseDict['current'] = model.progressOptions['total']
+		responseDict = {'state': job.state}
+		if (state == 'SUCCESS'):
 			responseDict.update(job.result)
-		else:
-			responseDict['ready'] = False
-			try:
-				responseDict.update({'current': job.info['current']})
-			except:
-				responseDict.update({'current': 0})
+		elif (state == 'PROGRESS'):
+			responseDict.update({'current': job.info['current'], 'total': job.info['total']})
 		return responseDict
+	
+	@action.post()
+	def abort(self, model, view, parameters):
+		if (model.async == True):
+			job = AsyncResult(parameters['jobID'])
+			job.revoke(terminate=True)
+			return {'state': job.state}
+		else:
+			return {}
+		
 				
 	@classmethod
 	def asView(cls):

@@ -3,6 +3,7 @@ from collections import OrderedDict
 from smo.model.fields import FieldGroup, BasicGroup, ModelView, SuperGroup
 from smo.web.blocks import HtmlBlock, JsBlock
 import smo.web.exceptions as E
+from smo.model.actions import ServerAction
 
 class NumericalModelMeta(type):
 	"""Metaclass facilitating the creation of a numerical
@@ -18,7 +19,7 @@ class NumericalModelMeta(type):
 			attrs['async'] = False
 		if (attrs['async'] == True):
 			if ('progressOptions' not in attrs):
-				attrs['progressOptions'] = {'total': 100., 'suffix': '%', 'fractionOutput': False}
+				attrs['progressOptions'] = {'suffix': '%', 'fractionOutput': False}
 		if ('abstract' not in attrs):
 			attrs['abstract'] = False
 		# Collect fields from current class.
@@ -341,6 +342,6 @@ class NumericalModel(object):
 			else:
 				raise E.FieldError('No field with name {} in model {}'.format(key, self.name))
 	
-	def updateProgress(self, current): 
+	def updateProgress(self, current, total): 
 		self.task.update_state(state='PROGRESS', 
-									meta={'current': current})
+									meta={'current': current, 'total': total})

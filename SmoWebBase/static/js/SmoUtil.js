@@ -453,6 +453,7 @@ smoModule.factory('communicator', function($http, $window, $timeout, $location, 
 		this.onFetchSuccess = function(comm) {
 			comm.loading = true;
 			comm.dataReceived = false;
+			//angular.element('#' + this.modelName + '_abortButton').prop('disabled', true);
 		}
 		ModelCommunicator.call(this, model, modelName, viewName, url);
 	}
@@ -461,7 +462,19 @@ smoModule.factory('communicator', function($http, $window, $timeout, $location, 
 	
 	AsyncModelCommunicator.prototype.computeAsync = function(parameters) {
 		this.current = 0;
+		$('#' + this.modelName + '_computeButton').prop('disabled', true);
 		this.fetchData('startCompute', parameters, this.onFetchSuccess);
+	}
+	
+	AsyncModelCommunicator.prototype.abortAsync = function() {
+		var onFetchSuccess = function(comm) {
+			comm.loading = true;
+			comm.dataReceived = false;
+			$('#' + this.modelName + '_computeButton').prop('disabled', false);
+		}
+		if (this.jobID) {
+			this.fetchData('abort', {"jobID" : this.jobID}, onFetchSuccess);
+		}
 	}
 	
 	AsyncModelCommunicator.prototype.checkProgress = function() {
@@ -475,20 +488,34 @@ smoModule.factory('communicator', function($http, $window, $timeout, $location, 
 		if (responseData.jobID) {
 			this.jobID = responseData.jobID;
 		}
-		if (responseData.total) {
-			this.total = responseData.total;
-		}
 		if (responseData.fractionOutput) {
 			this.fractionOutput = responseData.fractionOutput;
 		}
 		if (responseData.suffix) {
 			this.suffix = responseData.suffix;
 		}
-		this.current = responseData.current;
-		if (responseData.ready == false) {
-			this.checkProgress();
+		
+		this.state = responseData.state;
+		if (typeof this.state !== 'undefined') {
+			if (this.state == 'PENDING') {
+				this.checkProgress();
+			}
+			if (this.state == 'STARTED') {
+				this.current = 0;
+				this.total = 1.;
+				this.checkProgress();
+			} else if (this.state =='PROGRESS') {
+				this.current = responseData.current;
+				this.total = responseData.total;
+				this.checkProgress();
+			} else if (this.state == 'SUCCESS') {
+				$('#' + this.modelName + '_computeButton').prop('disabled', false);
+				this.onSuccess = function(comm) {};
+				ModelCommunicator.prototype.setResponseData.call(this, responseData);
+			} else if (this.state == 'FAILURE') {
+			} else if (this.state == 'REVOKED') {
+			}
 		} else {
-			this.onSuccess = function(comm) {};
 			ModelCommunicator.prototype.setResponseData.call(this, responseData);
 		}
 	}
@@ -1955,6 +1982,9 @@ smoModule.directive('smoViewToolbar', ['$compile', '$rootScope', 'util', functio
 						communicator.computeAsync(parameters);
 						return;
 					}
+				} else if (action.name == 'abort') {
+					communicator.abortAsync();
+					return;	
 				}
 				communicator.fetchData(action.name,
 						parameters, onFetchSuccess);
@@ -1975,7 +2005,7 @@ smoModule.directive('smoViewToolbar', ['$compile', '$rootScope', 'util', functio
 					</div>');
 					
 				} else {
-					buttons.push('<button type="button" ng-disabled="!form.$valid" class="btn btn-primary" ng-click="actionHandler(actions[' + i + '])">' + scope.actions[i].label + '</button>');
+					buttons.push('<button type="button" ng-hide="actions[' + i + '].name==\'abort\' && !model.computeAsync" id="' + scope.model.name + '_' + scope.actions[i].name + 'Button" ng-disabled="!form.$valid" class="btn btn-primary" ng-click="actionHandler(actions[' + i + '])">' + scope.actions[i].label + '</button>');
 				}
 			}
 			
@@ -2032,13 +2062,22 @@ smoModule.directive('smoModelView', ['$compile', '$location', 'communicator',
 		link : function(scope, element, attr) {
 			var template = '\
 				<div ng-if="communicator.loading" class="alert alert-info" role="alert">\
-					Loading... (may well take a few moments)\
-					<div ng-if="showProgress" class="progress" style="margin-top: 10px; margin-bottom: 0px;">\
-					  <div id="' + scope.modelName + '_' + scope.viewName + 'ProgressBar" class="progress-bar progress-bar-info" role="progressbar"\
-					  		aria-valuenow="{{communicator.current}}" aria-valuemin="0" aria-valuemax="{{communicator.total}}" style="background-color: #31708F; width: {{communicator.current/communicator.total*100}}%; min-width: 5%;">\
-					  			<span ng-if="communicator.fractionOutput">{{communicator.current}}/{{communicator.total}}&nbsp{{communicator.suffix}}</span>\
-					  			<span ng-if="!communicator.fractionOutput">{{Math.round(communicator.current/communicator.total*100)}}{{communicator.suffix}}</span>\
+					<div ng-if="!showProgress">Loading... (may well take a few moments)</div>\
+					<div ng-if="showProgress">\
+				  	  <div ng-if="communicator.state==\'PENDING\'">Pending...</div>\
+					  <div ng-if="communicator.state==\'STARTED\' || communicator.state==\'PROGRESS\'">\
+						In progress...\
+						<div class="progress" style="margin-top: 10px; margin-bottom: 0px;">\
+						  <div id="' + scope.modelName + '_' + scope.viewName + 'ProgressBar" class="progress-bar progress-bar-info" role="progressbar"\
+						  		aria-valuenow="{{communicator.current}}" aria-valuemin="0" aria-valuemax="{{communicator.total}}" style="background-color: #31708F; width: {{communicator.current/communicator.total*100}}%; min-width: 5%;">\
+						  			<span ng-if="communicator.fractionOutput">{{communicator.current}}/{{communicator.total}}&nbsp{{communicator.suffix}}</span>\
+						  			<span ng-if="!communicator.fractionOutput">{{Math.round(communicator.current/communicator.total*100)}}{{communicator.suffix}}</span>\
+						  </div>\
+						</div>\
 					  </div>\
+					  <div ng-if="communicator.state==\'FAILURE\'">Failed</div>\
+					  <div ng-if="communicator.state==\'SUCCESS\'">Success</div>\
+					  <div ng-if="communicator.state==\'REVOKED\'">Aborted</div>\
 					</div>\
 				</div>\
 				<div ng-if="communicator.commError" class="alert alert-danger" role="alert">Communication error: <span ng-bind="communicator.errorMsg"></span></div>\
