@@ -1,7 +1,7 @@
 #ifndef _NR3_H_
 #define _NR3_H_
 
-//#define _CHECKBOUNDS_ 1
+#define _CHECKBOUNDS_ 1
 //#define _USESTDVECTOR_ 1
 //#define _USENRERRORCLASS_ 1
 //#define _TURNONFPES_ 1
@@ -23,74 +23,7 @@
 
 using namespace std;
 
-//// macro-like inline functions
-//
-//template<class T>
-//inline T SQR(const T a) {return a*a;}
-//
-//template<class T>
-//inline const T &MAX(const T &a, const T &b)
-//        {return b > a ? (b) : (a);}
-//
-//inline float MAX(const double &a, const float &b)
-//        {return b > a ? (b) : float(a);}
-//
-//inline float MAX(const float &a, const double &b)
-//        {return b > a ? float(b) : (a);}
-//
-//template<class T>
-//inline const T &MIN(const T &a, const T &b)
-//        {return b < a ? (b) : (a);}
-//
-//inline float MIN(const double &a, const float &b)
-//        {return b < a ? (b) : float(a);}
-//
-//inline float MIN(const float &a, const double &b)
-//        {return b < a ? float(b) : (a);}
-//
-//template<class T>
-//inline T SIGN(const T &a, const T &b)
-//	{return b >= 0 ? (a >= 0 ? a : -a) : (a >= 0 ? -a : a);}
-//
-//inline float SIGN(const float &a, const double &b)
-//	{return b >= 0 ? (a >= 0 ? a : -a) : (a >= 0 ? -a : a);}
-//
-//inline float SIGN(const double &a, const float &b)
-//	{return (float)(b >= 0 ? (a >= 0 ? a : -a) : (a >= 0 ? -a : a));}
-//
-//template<class T>
-//inline void SWAP(T &a, T &b)
-//	{T dum=a; a=b; b=dum;}
-
-// exception handling
-
-#ifndef _USENRERRORCLASS_
-#define throw(message) \
-{printf("ERROR: %s\n     in file %s at line %d\n", message,__FILE__,__LINE__); throw(1);}
-#else
-struct NRerror {
-	char *message;
-	char *file;
-	int line;
-	NRerror(char *m, char *f, int l) : message(m), file(f), line(l) {}
-};
-#define throw(message) throw(NRerror(message,__FILE__,__LINE__));
-void NRcatch(NRerror err) {
-	printf("ERROR: %s\n     in file %s at line %d\n",
-		err.message, err.file, err.line);
-	exit(1);
-}
-#endif
-
-// usage example:
-//
-//	try {
-//		somebadroutine();
-//	}
-//	catch(NRerror s) {NRcatch(s);}
-//
-// (You can of course substitute any other catch body for NRcatch(s).)
-
+#include "ArrayInterface.h"
 
 // Vector and Matrix Classes
 
@@ -234,6 +167,7 @@ public:
 	NRmatrix(int n, int m);			// Zero-based array
 	NRmatrix(int n, int m, const T &a);	//Initialize to constant
 	NRmatrix(int n, int m, const T *a);	// Initialize to array
+	NRmatrix(MemoryView2D<T>* view);	// Initialize to memory view content
 	NRmatrix(const NRmatrix &rhs);		// Copy constructor
 	NRmatrix & operator=(const NRmatrix &rhs);	//assignment
 	typedef T value_type; // make T available externally
@@ -273,6 +207,24 @@ NRmatrix<T>::NRmatrix(int n, int m, const T *a) : nn(n), mm(m), v(n>0 ? new T*[n
 	if (v) v[0] = nel>0 ? new T[nel] : NULL;
 	for (i=1; i< n; i++) v[i] = v[i-1] + m;
 	for (i=0; i< n; i++) for (j=0; j<m; j++) v[i][j] = *a++;
+}
+
+template <class T>
+NRmatrix<T>::NRmatrix(MemoryView2D<T>* view) : nn(view->shape(0)), mm(view->shape(1)),
+v(view->shape(0) > 0 ? new T*[view->shape(0)] : NULL)
+{
+	int n = view->shape(0);
+	int m = view->shape(1);
+	MemoryViewIterator<T> a = view->begin();
+	int i,j,nel=view->len();
+	if (v) v[0] = nel>0 ? new T[nel] : NULL;
+	for (i=1; i< n; i++) v[i] = v[i-1] + m;
+	for (i=0; i< n; i++) {
+		for (j=0; j<m; j++) {
+			v[i][j] = *a;;
+			++a;
+		}
+	}
 }
 
 template <class T>
@@ -535,6 +487,8 @@ typedef NRvector<Bool> VecBool, VecBool_O, VecBool_IO;
 
 typedef NRvector<double> VectorD;
 typedef NRvector<float> VectorF;
+typedef NRvector<int> VectorI;
+
 
 // matrix types
 
@@ -585,6 +539,20 @@ struct turn_on_floating_exceptions {
 turn_on_floating_exceptions yes_turn_on_floating_exceptions;
 #endif /* _MSC_VER */
 #endif /* _TURNONFPES */
+
+
+/**
+ * User defined functions
+ */
+
+template <class T>
+void copyResizeVector(NRvector<T>& v, int newSize) {
+	NRvector<T> tmp(newSize);
+	for (int i = 0; i < newSize; i++) {
+		tmp[i] = v[i];
+	}
+	v = tmp;
+}
 
 #endif /* _NR3_H_ */
 
