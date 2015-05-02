@@ -137,6 +137,22 @@ class NamedStateVector(object):
 		print('T = {}, p = {}, h = {}'.format(a.T, a.p, a.h))
 		print (a.get())
 
+class RecArrayManipulator(object):
+	@staticmethod
+	def removeNaN(a):
+		cols = a.dtype.fields.keys()
+		nanRows = np.zeros(shape = (a.shape[0],), dtype = np.bool)
+		for col in cols:
+			testNaN = np.isnan(a[col])
+			nanRows |= testNaN
+		numRowToRemove = len(a[nanRows])
+#		appLogger.info('%d rows with NaNs removed from %d rows total'%(numRowToRemove, len(a)))
+		newLen = len(a) - numRowToRemove
+		newArray = np.empty((newLen,), dtype=a.dtype)
+		for col in cols:
+			newArray[col] = a[col][~nanRows]
+		return newArray
+	
 if __name__ == '__main__':
 	SectionCalculator.test()
 	NamedStateVector.test()

@@ -22,7 +22,7 @@ LDFLAGS = []
 # MSVC options
 if sys.platform=='win32' or os.name=='nt':
 	CXXFLAGS += ['/EHsc']
-	commonIncludeDirs += [r'C:\Users\nasko\Miniconda\Lib\site-packages\numpy\core\include']
+	#commonIncludeDirs += [r'C:\Users\nasko\Miniconda\Lib\site-packages\numpy\core\include']
 else:
 	opt = "-Wall "
 	if DEBUG:
@@ -33,7 +33,7 @@ else:
 	os.environ['OPT'] = opt
 
 mathExtension = Extension(
-	'Math', sources = [	
+	'smo_ext.Math', sources = [	
 		'math/Interpolators.cpp',
 		'math/ArrayInterfaceTest.cpp',
 		'Math.pyx'
@@ -46,7 +46,7 @@ mathExtension = Extension(
 )
 
 mechExtension = Extension(
-	'Mechanical', sources = [	
+	'smo_ext.Mechanical', sources = [	
 		"mechanical/RainflowCounter.cpp",
 		"mechanical/StressTensorCalculator.cpp",
 		'Mechanical.pyx'
@@ -64,5 +64,7 @@ setup(
       description = "Cython extension modules for speeding up computation",
       author = "Atanas Pavlov",
       author_email="nasko.js@gmail.com",
+      package_dir={'smo_ext': ''},
+      packages = ['smo_ext'],
       ext_modules = cythonize([mathExtension, mechExtension])
 )
