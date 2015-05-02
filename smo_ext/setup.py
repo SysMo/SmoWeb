@@ -5,6 +5,7 @@ Created on Apr 7, 2015
 @copyright: SysMo Ltd, Bulgaria
 '''
 import os, sys
+import numpy as np
 from distutils.core import setup
 from distutils.extension import Extension
 from Cython.Build import cythonize
@@ -12,7 +13,7 @@ from Cython.Build import cythonize
 # Build with
 # python setup.py build_ext --inplace
 
-commonIncludeDirs = []
+commonIncludeDirs = ['.', np.get_include()]
 
 DEBUG = False
 CXXFLAGS = []
@@ -22,7 +23,6 @@ LDFLAGS = []
 # MSVC options
 if sys.platform=='win32' or os.name=='nt':
 	CXXFLAGS += ['/EHsc']
-	#commonIncludeDirs += [r'C:\Users\nasko\Miniconda\Lib\site-packages\numpy\core\include']
 else:
 	opt = "-Wall "
 	if DEBUG:
@@ -39,7 +39,7 @@ mathExtension = Extension(
 		'Math.pyx'
 	],
 	language = 'c++',
-	include_dirs = ['.'] + commonIncludeDirs,
+	include_dirs = commonIncludeDirs,
 	extra_compile_args = CXXFLAGS,
 	extra_link_args = LDFLAGS,
 	libraries = []
@@ -52,7 +52,7 @@ mechExtension = Extension(
 		'Mechanical.pyx'
 	],
 	language = 'c++',
-	include_dirs = ['.'] + commonIncludeDirs,
+	include_dirs = commonIncludeDirs,
 	extra_compile_args = CXXFLAGS,
 	extra_link_args = LDFLAGS,
 	libraries = []
