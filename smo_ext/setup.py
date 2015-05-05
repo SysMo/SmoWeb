@@ -4,8 +4,10 @@ Created on Apr 7, 2015
 @author:  Atanas Pavlov
 @copyright: SysMo Ltd, Bulgaria
 '''
+
 import os, sys
 import numpy as np
+import setuptools
 from distutils.core import setup
 from distutils.extension import Extension
 from Cython.Build import cythonize

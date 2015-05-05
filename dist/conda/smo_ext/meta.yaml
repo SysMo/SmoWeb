@@ -6,7 +6,7 @@ source:
   path: ../../../smo_ext
 
 build:
-  number: 2
+  number: 5
 
 requirements:
   # Packages required to build the package. python and numpy must be
