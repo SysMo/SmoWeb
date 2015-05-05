@@ -274,7 +274,9 @@ def installPipPackages():
 		# IPC
 		'thrift',
 		# graph visualization
-		'pygraphviz'
+		'pygraphviz',
+		# graph library
+		'networkx',
 	]
 	with virtualenv():
 		with shell_env(CFLAGS="-I/usr/lib/openmpi/include/"): # Necessary for HDF5 based packages

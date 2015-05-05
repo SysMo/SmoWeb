@@ -6,7 +6,6 @@ Created on May 2, 2015
 '''
 import setuptools
 from distutils.core import setup
-#import os, glob
 
 setup(
 	name = "smo",
@@ -16,7 +15,6 @@ setup(
 	author_email="nasko.js@gmail.com",
 	package_dir={'smo': ''},
 	packages = ['smo', 'smo.math', 'smo.mechanical', 'smo.util'],
-#	scripts = [s for s in glob.glob('scripts/*')]
 	entry_points = {'console_scripts': [
 			'damage = smo.mechanical.MultiaxialDamangeCalculator:main'
 		]

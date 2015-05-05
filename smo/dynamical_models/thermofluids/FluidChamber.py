@@ -10,13 +10,13 @@ from smo.dynamical_models.thermofluids import Structures as DMS
 from smo.util import AttributeDict
 
 class FluidChamber(DMC.DynamicalModel):
-	V = DMC.RealVariable(causality = DMC.Causality.parameter, variability = DMC.Variability.constant)
-	T = DMC.RealVariable(causality = DMC.Causality.input, variability = DMC.Variability.continuous)
-	rho = DMC.RealVariable(causality = DMC.Causality.input, variability = DMC.Variability.continuous)
-	TDot = DMC.RealVariable(causality = DMC.Causality.output, variability = DMC.Variability.continuous)
-	rhoDot = DMC.RealVariable(causality = DMC.Causality.output, variability = DMC.Variability.continuous)
-	p = DMC.RealVariable(causality = DMC.Causality.output, variability = DMC.Variability.continuous)
-	m = DMC.RealVariable(causality = DMC.Causality.output, variability = DMC.Variability.continuous)
+	V = DMC.RealVariable(causality = DMC.Causality.Parameter, variability = DMC.Variability.Constant)
+	T = DMC.RealVariable(causality = DMC.Causality.Input, variability = DMC.Variability.Continuous)
+	rho = DMC.RealVariable(causality = DMC.Causality.Input, variability = DMC.Variability.Continuous)
+	TDot = DMC.RealVariable(causality = DMC.Causality.Output, variability = DMC.Variability.Continuous)
+	rhoDot = DMC.RealVariable(causality = DMC.Causality.Output, variability = DMC.Variability.Continuous)
+	p = DMC.RealVariable(causality = DMC.Causality.Output, variability = DMC.Variability.Continuous)
+	m = DMC.RealVariable(causality = DMC.Causality.Output, variability = DMC.Variability.Continuous)
 	
 	def __init__(self, params = None, **kwargs):
 		if params == None:

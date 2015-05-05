@@ -133,14 +133,17 @@ class MultiaxialDamageCalculator(object):
 		maxDamage = np.max(self.damage)
 		ds.attrs['maxDamage'] = maxDamage		
 		appLogger.info('Critical plane damage: %e for "%s"'%(maxDamage, groupPath))
-		
+	
+def saveDamageCSV(filePath):
+	pass
+	
 def main():
 	_logConfigurator = SimpleAppLoggerConfgigurator('MultiaxialDamageCalculator')
 	import imp
 	try:
-		S = imp.load_source('Settings', 'Settings.py')
+		S = imp.load_source('Settings', 'AppData/Settings.py')
 	except:
-		raise RuntimeError('Cannot find settings file "Settings.py"')
+		raise RuntimeError('Cannot find settings file "Settings.py" in folder AppData')
 	
 	# Create stress calculator
 	stressCalculator = StressCalculator3D(S.stressTablesPath)
@@ -153,16 +156,26 @@ def main():
 	damageCalculator.computeRotationMatrices(numThetaSteps = 36, numPhiSteps = 36)
 
 	# Read each input file
-	for fileName in glob.glob(os.path.join(S.experimentSubfolder, '*.csv')):
+	for fileName in glob.glob(os.path.join(S.inputFolder, '*.csv')):
 		dataName, _ = os.path.splitext(os.path.basename(fileName))
-		appLogger.info('Reading input file "%s" with (pressure, temperature) data'%fileName)
+		appLogger.info('From input file "{}" reading columns ({}, {})'.format(fileName, S.pressureColumnName, S.temperatureColumnName))
+		appLogger.info('Temperature unit: {}'.format(S.temperatureUnit))
 		data = np.genfromtxt(fileName, delimiter = ',', names = True)
-		appLogger.info('Computing stresses')
+		pTData = data[[S.pressureColumnName, S.temperatureColumnName]].copy()
+		# Convert temperature unit if necessary
+		if (S.temperatureUnit == 'K'):
+			pass
+		elif (S.temperatureUnit == 'C'):
+			pTData[S.temperatureColumnName] += 273.15
+		else:
+			raise ValueError("Temperature unit must be either 'K' for Kelvin, or 'C' for degrees Celsius")
 		# Clean up the data
-		data = RecArrayManipulator.removeNaN(data)
+		pTData = RecArrayManipulator.removeNaN(pTData)
+
+		appLogger.info('Computing stresses')
 		stressCalculator.computeStresses(
-					pArr = data['Pressure'],
-					TArr = data['Temperature']
+					pData = pTData[S.pressureColumnName],
+					TData = pTData[S.temperatureColumnName]
 		)
 		# Write resulting stress
 		if (S.writeStressResultsToHdf5):
@@ -175,7 +188,7 @@ def main():
 			damageCalculator.computeDamage()
 			damageCalculator.saveDamage(
 				filePath = S.damageFile,
-				groupPath = 'Damage' + '/' + dataName + '/' + channel)
+				groupPath = '/' + dataName + '/' + channel)
 	
 def stat():
 	import pstats, cProfile

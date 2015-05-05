@@ -14,6 +14,8 @@ class SimpleAppLoggerConfgigurator(object):
 		formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
 		if (logFile is True):
 			logFile = appName + '.log'
+		if (logFile is False):
+			logFile = None
 		if (logFile is not None):
 			logFileHandler = logging.FileHandler(logFile)
 			logFileHandler.setFormatter(formatter)
