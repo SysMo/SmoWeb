@@ -360,7 +360,7 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 		self.primaryChannelsGeom.number = 4
 		self.primaryChannelsGeom.radialPosition = (10, 'mm')
 		self.primaryChannelsGeom.startingAngle = (0, 'deg')
-		self.primaryChannelsGeom.meshFineness = 4
+		self.primaryChannelsGeom.meshFineness = 3
 		self.primaryChannelsGeom.channelName = "PrimaryChannel"
 		
 		self.primaryChannelsGeom.externalDiameter = (10, 'mm')
@@ -373,7 +373,7 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 		self.secondaryChannelsGeom.number = 6
 		self.secondaryChannelsGeom.radialPosition = (22.5, 'mm')
 		self.secondaryChannelsGeom.startingAngle = (60, 'deg')
-		self.secondaryChannelsGeom.meshFineness = 4
+		self.secondaryChannelsGeom.meshFineness = 3
 		self.secondaryChannelsGeom.channelName = "SecondaryChannel"
 		
 		self.secondaryChannelsGeom.externalDiameter = (7, 'mm')
@@ -405,7 +405,7 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 		self.externalChannelGeom.widthAxial = (40, 'mm')
 		self.externalChannelGeom.heightRadial = (10, 'mm')
 		self.externalChannelGeom.coilPitch = (43, 'mm')
-		self.externalChannelGeom.meshFineness = 4
+		self.externalChannelGeom.meshFineness = 3
 		
 		self.sectionResultsSettings.setTRange = False
 		self.sectionResultsSettings.Tmin = (200, 'K')

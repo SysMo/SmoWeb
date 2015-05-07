@@ -1,0 +1,7 @@
+*.pyc
+*.prof
+*.so
+*.pyd
+Math.cpp
+Mechanical.cpp
+build

@@ -1,0 +1,4 @@
+recursive-include core *.h *.c *.cpp 
+recursive-include math *.h *.c *.cpp 
+recursive-include mechanical *.h *.c *.cpp 
+include * *.py *.pyx *.pxd

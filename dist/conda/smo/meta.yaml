@@ -1,0 +1,30 @@
+package:
+  name: smo
+  version: 1.0.0
+
+source:
+  path: ../../../smo
+
+build:
+  number: 5
+
+requirements:
+  # Packages required to build the package. python and numpy must be
+  # listed explicitly if they are required.
+  build:
+    - python
+  # Packages required to run the package. These are the dependencies that
+  # will be installed automatically whenever the package is installed.
+  # Package names should be any valid conda spec (see "Specifying versions
+  # in requirements" below).
+  run:
+    - python
+    - numpy
+    - scipy
+    - matplotlib
+    - h5py
+    - hdfview
+    
+about:
+  license: GPL3
+  summary: "Cython extension modules for speeding up computation"
