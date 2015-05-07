@@ -2069,8 +2069,8 @@ smoModule.directive('smoModelView', ['$compile', '$location', 'communicator',
 						In progress...\
 						<div class="progress" style="margin-top: 10px; margin-bottom: 0px;">\
 						  <div id="' + scope.modelName + '_' + scope.viewName + 'ProgressBar" class="progress-bar progress-bar-info" role="progressbar"\
-						  		aria-valuenow="{{communicator.current}}" aria-valuemin="0" aria-valuemax="{{communicator.total}}" style="background-color: #31708F; width: {{communicator.current/communicator.total*100}}%; min-width: 5%;">\
-						  			<span ng-if="communicator.fractionOutput">{{communicator.current}}/{{communicator.total}}&nbsp{{communicator.suffix}}</span>\
+						  		aria-valuenow="{{communicator.current}}" aria-valuemin="0" aria-valuemax="{{communicator.total}}" style="background-color: #31708F; width: {{communicator.current/communicator.total*100}}%; min-width: 10%;">\
+						  			<span ng-if="communicator.fractionOutput">{{Math.round(communicator.current)}} / {{Math.round(communicator.total)}}&nbsp{{communicator.suffix}}</span>\
 						  			<span ng-if="!communicator.fractionOutput">{{Math.round(communicator.current/communicator.total*100)}}{{communicator.suffix}}</span>\
 						  </div>\
 						</div>\

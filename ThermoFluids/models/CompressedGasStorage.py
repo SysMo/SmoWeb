@@ -20,7 +20,7 @@ class CompressedGasStorage(NumericalModel):
     figure = F.ModelFigure(src="ThermoFluids/img/ModuleImages/CompressedGasStorage.svg")
     
     async = True
-    progressOptions = {'total': 1., 'suffix': '%', 'fractionOutput': False}
+    progressOptions = {'suffix': 's', 'fractionOutput': True}
     
     #1. ############ Inputs ###############
     #1.1 Fields - Input values

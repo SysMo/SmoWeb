@@ -197,6 +197,8 @@ class NumericalModel(object):
 		* :attr:`showOnHome`: used to specify if a thumbnail of the model is to show on the home page (default is True)
 		* :attr:`figure`: ModelFigure object representing a figure, displayed on the page module of the model and on its thumbnail
 		* :attr:`description`: ModelDescription object representing a description for the model, also used as tooltip of the model's thumbnail
+		* :attr:`async`: Boolean value indicating if the computation is to be done asynchronously
+		* :attr:`progressOptions`: dictionary of progress display options in an asynchronous computation. Includes keys 'suffix', a string, and 'fractionOutput', boolean indicating if the progress value is to show in fraction format  
 		* :attr:`declared_fields`: OrderedDict containing the fields declared in the model
 		* :attr:`declared_submodels`: OrderedDict containing the submodels declared in the model
 		* :attr:`declared_attrs`: dictionary containing the declared fields and submodels
@@ -343,5 +345,11 @@ class NumericalModel(object):
 				raise E.FieldError('No field with name {} in model {}'.format(key, self.name))
 	
 	def updateProgress(self, current, total): 
+		"""
+		Updates the progress state of asynchronous computation
+		
+		:param current: the current progress value 
+		:param total: the total progress value
+		"""
 		self.task.update_state(state='PROGRESS', 
 									meta={'current': current, 'total': total})
