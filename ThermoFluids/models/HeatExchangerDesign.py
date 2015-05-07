@@ -191,7 +191,7 @@ class CylindricalBlockHeatExchanger(NumericalModel):
 	""")
 	
 	async = True
-	progressOptions = {'total': 1., 'suffix': '%', 'fractionOutput': False}
+	progressOptions = {'suffix': '%', 'fractionOutput': False}
 
 	#================ Inputs ================#
 	#---------------- Fields ----------------#
