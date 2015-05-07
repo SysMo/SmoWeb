@@ -11,8 +11,10 @@ import h5py
 from smo.util.log import SimpleAppLoggerConfgigurator
 from smo.math.util import RecArrayManipulator
 from smo.mechanical.StressCalculator3D import StressCalculator3D
+import smo.model.quantity as Q
 from StressTensorCalculator import StressTensorCalculator as STC
 import smo_ext.Mechanical as Mech
+from collections import OrderedDict
 
 import logging
 appLogger = logging.getLogger('AppLogger')
@@ -123,72 +125,164 @@ class MultiaxialDamageCalculator(object):
 		self.dataFile = h5py.File(filePath)
 		appLogger.info('Saving damage to %s in file %s'%(groupPath, filePath))
 		resGroupPath, datasetName = os.path.split(groupPath)
+		# Create result group
 		if resGroupPath not in self.dataFile:
 			self.dataFile.create_group(resGroupPath)
 		resGroup = self.dataFile[resGroupPath]
+		# Create  datasets for the angles
+		if ('theta' in resGroup):
+			savedThetaValues = resGroup['theta']
+			if (len(savedThetaValues) != len(self.thetaList)):
+				del resGroup['theta']
+				resGroup.create_dataset('theta', data = self.thetaList * 180. / np.pi)
+		else:
+			resGroup.create_dataset('theta', data = self.thetaList * 180. / np.pi)
+		if ('phi' in resGroup):
+			savedPhiValues = resGroup['phi']
+			if (len(savedPhiValues) != len(self.phiList)):
+				del resGroup['phi']
+				resGroup.create_dataset('phi', data = self.phiList * 180. / np.pi)
+		else:
+			resGroup.create_dataset('phi', data = self.phiList * 180. / np.pi)
+			
+		# Create damage dataset
 		if (datasetName in resGroup):
 			appLogger.warning('Overwriting result stress "%s"'%datasetName)
 			del resGroup[datasetName]
 		ds = resGroup.create_dataset(datasetName, data = self.damage)
-		maxDamage = np.max(self.damage)
+		ds.dims[0].label = 'theta'
+		ds.dims[1].label = 'phi'
+		critDamageIndex = np.unravel_index(self.damage.argmax(), self.damage.shape)		
+		maxDamage = self.damage[critDamageIndex[0], critDamageIndex[1]]
+		theta = self.thetaList[critDamageIndex[0]] * 180 / np.pi
+		phi = self.phiList[critDamageIndex[1]] * 180 / np.pi
 		ds.attrs['maxDamage'] = maxDamage		
-		appLogger.info('Critical plane damage: %e for "%s"'%(maxDamage, groupPath))
+		ds.attrs['theta'] = theta
+		ds.attrs['thetaIndex'] = critDamageIndex[0]
+		ds.attrs['phi'] = phi
+		ds.attrs['phiIndex'] = critDamageIndex[1]
+		appLogger.info('Critical plane damage: {:e} (theta = {}, phi = {}) for "{}"'.format(maxDamage, theta, phi, groupPath))
 	
-def saveDamageCSV(filePath):
-	pass
-	
-def main():
-	_logConfigurator = SimpleAppLoggerConfgigurator('MultiaxialDamageCalculator')
-	import imp
-	try:
-		S = imp.load_source('Settings', 'AppData/Settings.py')
-	except:
-		raise RuntimeError('Cannot find settings file "Settings.py" in folder AppData')
-	
-	# Create stress calculator
-	stressCalculator = StressCalculator3D(S.stressTablesPath)
-	
-	# Create damage calculator
-	damageCalculator = MultiaxialDamageCalculator(
-				SNCurveParameters=S.SNCurveParameters['Liner'], 
-				numStressBins = S.numStressBins, 
-				meanStressCorrectionFactor = S.meanStressCorrectionFactor)
-	damageCalculator.computeRotationMatrices(numThetaSteps = 36, numPhiSteps = 36)
-
-	# Read each input file
-	for fileName in glob.glob(os.path.join(S.inputFolder, '*.csv')):
-		dataName, _ = os.path.splitext(os.path.basename(fileName))
-		appLogger.info('From input file "{}" reading columns ({}, {})'.format(fileName, S.pressureColumnName, S.temperatureColumnName))
-		appLogger.info('Temperature unit: {}'.format(S.temperatureUnit))
-		data = np.genfromtxt(fileName, delimiter = ',', names = True)
-		pTData = data[[S.pressureColumnName, S.temperatureColumnName]].copy()
-		# Convert temperature unit if necessary
-		if (S.temperatureUnit == 'K'):
-			pass
-		elif (S.temperatureUnit == 'C'):
-			pTData[S.temperatureColumnName] += 273.15
-		else:
-			raise ValueError("Temperature unit must be either 'K' for Kelvin, or 'C' for degrees Celsius")
-		# Clean up the data
-		pTData = RecArrayManipulator.removeNaN(pTData)
-
+class DamageCalculationExecutor(object):
+	def __init__(self):
+		# Read settings
+		import imp
+		try:
+			self.S = imp.load_source('Settings', 'AppData/Settings.py')
+		except:
+			raise RuntimeError('Cannot find settings file "Settings.py" in folder AppData')
+		
+		# Create stress calculator
+		self.stressCalculator = StressCalculator3D(self.S.stressTablesPath)
+		
+		# Create damage calculator
+		self.damageCalculator = MultiaxialDamageCalculator(
+					SNCurveParameters=self.S.SNCurveParameters['Liner'], 
+					numStressBins = self.S.numStressBins, 
+					meanStressCorrectionFactor = self.S.meanStressCorrectionFactor)
+		# Set up plane orientations
+		self.damageCalculator.computeRotationMatrices(
+					numThetaSteps = self.S.numThetaSteps, 
+					numPhiSteps = self.S.numPhiSteps)		
+		
+		# Set-up result structure to critical plane damage
+		self.critPlaneDamage = []
+		
+	def compute(self, dataName, pData, TData):
 		appLogger.info('Computing stresses')
-		stressCalculator.computeStresses(
-					pData = pTData[S.pressureColumnName],
-					TData = pTData[S.temperatureColumnName]
+		self.stressCalculator.computeStresses(
+					pData = pData,
+					TData = TData
 		)
 		# Write resulting stress
-		if (S.writeStressResultsToHdf5):
-			stressCalculator.writeStresses(S.stressFile, dataName)
+		if (self.S.writeStressResultsToHdf5):
+			self.stressCalculator.writeStresses(self.S.stressResultFile, dataName)
 			
-		# Calculate damage
-		for channel in stressCalculator.channelNames:
-			damageCalculator.stressSeries = stressCalculator.stressData[channel]
-			damageCalculator.scaleStresses()
-			damageCalculator.computeDamage()
-			damageCalculator.saveDamage(
-				filePath = S.damageFile,
+		critPlaneDamage = [dataName]
+		self.critPlaneDamage.append(critPlaneDamage)
+		# Calculate damage		
+		for channel in self.stressCalculator.channelNames:
+			self.damageCalculator.stressSeries = self.stressCalculator.stressData[channel]
+			self.damageCalculator.scaleStresses()
+			self.damageCalculator.computeDamage()
+			self.damageCalculator.saveDamage(
+				filePath = self.S.damageHDFResultFile,
 				groupPath = '/' + dataName + '/' + channel)
+			critPlaneDamage.append(self.damageCalculator.damage.max())
+	
+	def saveDamageCSV(self):
+		resFile = open(self.S.damageCSVResultFile, 'w')
+		resFile.write('DataName,')
+		resFile.write(','.join(self.stressCalculator.channelNames))
+		resFile.write('\n')
+		for dataset in self.critPlaneDamage:
+			resFile.write(dataset[0])
+			resFile.write("".join([",%.3e"%d for d in dataset[1:]]))
+			resFile.write('\n')			
+		resFile.close()
+				
+	def processCSVInputFiles(self, filePattern = '*.csv'):
+		if (not self.S.readCSVFiles):
+			appLogger.info('Reading CSV input files disabled. You can enable it by setting "readCSVFiles = True" in Settings.py')
+			return
+		# Read each input file
+		for fileName in glob.glob(os.path.join(self.S.inputFolder, filePattern)):
+			dataName, _ = os.path.splitext(os.path.basename(fileName))
+			appLogger.info('From input file "{}" reading columns ({}, {}) ...'.format(
+						fileName, self.S.csvPressureChannel, self.S.csvTemperatureChannel))
+			#appLogger.info('Temperature unit: {}'.format(self.S.temperatureUnit))
+			data = np.genfromtxt(fileName, delimiter = ',', names = True)
+			appLogger.info('... {} values read'.format(len(data)))
+			pTData = data[[self.S.csvPressureChannel[0], self.S.csvTemperatureChannel[0]]].copy()
+			# Clean up the data
+			pTData, stat = RecArrayManipulator.removeNaN(pTData, maxConsecutiveNaNs = self.S.maxConsecutiveNaNs)
+			if (stat['numRemoved'] > 0):
+				appLogger.warning('{numRemoved} rows with NaN values removed from the input data, max NaN sequence length: {maxConsecutiveNaN}'.format(**stat))			
+			pData = pTData[self.S.csvPressureChannel[0]]
+			TData = pTData[self.S.csvTemperatureChannel[0]]
+			# Convert units if necessary
+			Q.convertUnit(pData, quantity = 'Pressure', 
+				fromUnit = self.S.csvPressureChannel[1], toUnit = 'bar')
+			Q.convertUnit(TData, quantity = 'Temperature', 
+				fromUnit = self.S.csvTemperatureChannel[1], toUnit = 'K')
+			# Compute damage
+			self.compute(dataName, 
+						pData = pData, TData = TData)
+
+	def processAMRInputFiles(self, filePattern = '*.amr'):
+		if (not self.S.readAMRFiles):
+			appLogger.info('Reading AMR input files disabled. You can enable it by setting "readAMRFiles = True" in Settings.py')
+			return
+		from smo.math.io import AMRFileReader
+		# Read each input file
+		for fileName in glob.glob(os.path.join(self.S.inputFolder, filePattern)):
+			dataName, _ = os.path.splitext(os.path.basename(fileName))
+			appLogger.info('From input file "{}" reading channels ({}, {}) ...'.format(
+						fileName, self.S.amrPressureChannel, self.S.amrTemperatureChannel))
+			# Read the AMR file
+			reader = AMRFileReader()
+			reader.openFile(fileName)
+			pChannel = reader.findChannel(*self.S.amrPressureChannel)
+			TChannel = reader.findChannel(*self.S.amrTemperatureChannel)
+			pData = reader.getChannelData(pChannel)['value'].copy()
+			TData = reader.getChannelData(TChannel)['value'].copy()
+			appLogger.info('... {} values read'.format(len(TData)))
+			# Convert units if necessary
+			Q.convertUnit(pData, quantity = 'Pressure', 
+				fromUnit = self.S.csvPressureChannel[1], toUnit = 'bar')
+			Q.convertUnit(TData, quantity = 'Temperature', 
+				fromUnit = self.S.csvTemperatureChannel[1], toUnit = 'K')
+			# Compute damage
+			self.compute(dataName, 
+					pData = pData, TData = TData)
+
+	
+def main():
+	_logConfigurator = SimpleAppLoggerConfgigurator('MultiaxialDamageCalculator', debug = True)
+	executor = DamageCalculationExecutor()
+	executor.processCSVInputFiles()
+	executor.processAMRInputFiles()
+	executor.saveDamageCSV()
 	
 def stat():
 	import pstats, cProfile

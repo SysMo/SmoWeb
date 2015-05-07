@@ -14,7 +14,7 @@ setup(
 	author = "Atanas Pavlov",
 	author_email="nasko.js@gmail.com",
 	package_dir={'smo': ''},
-	packages = ['smo', 'smo.math', 'smo.mechanical', 'smo.util'],
+	packages = ['smo', 'smo.math', 'smo.model', 'smo.mechanical', 'smo.util'],
 	entry_points = {'console_scripts': [
 			'damage = smo.mechanical.MultiaxialDamangeCalculator:main'
 		]

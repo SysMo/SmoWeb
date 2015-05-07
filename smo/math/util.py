@@ -139,19 +139,37 @@ class NamedStateVector(object):
 
 class RecArrayManipulator(object):
 	@staticmethod
-	def removeNaN(a):
+	def removeNaN(a, maxConsecutiveNaNs = -1):
 		cols = a.dtype.fields.keys()
+		stat = {}
 		nanRows = np.zeros(shape = (a.shape[0],), dtype = np.bool)
 		for col in cols:
 			testNaN = np.isnan(a[col])
-			nanRows |= testNaN
+			nanRows |= testNaN		
 		numRowToRemove = len(a[nanRows])
-#		appLogger.info('%d rows with NaNs removed from %d rows total'%(numRowToRemove, len(a)))
-		newLen = len(a) - numRowToRemove
-		newArray = np.empty((newLen,), dtype=a.dtype)
-		for col in cols:
-			newArray[col] = a[col][~nanRows]
-		return newArray
+		stat['numRemoved'] = numRowToRemove
+		if (numRowToRemove > 0):
+			# Check for the length of consequtive NaN sequences
+			if (maxConsecutiveNaNs > 0):
+				NaNLocs = np.diff(nanRows).nonzero()[0] + 1
+				NaNLocs = NaNLocs.tolist()
+				if (nanRows[0]):
+					NaNLocs.insert(0, 0)
+				if (nanRows[-1]):
+					NaNLocs.append(len(nanRows))
+				NaNLocs = np.array(NaNLocs)
+				NaNLens = NaNLocs[1::2] - NaNLocs[::2]
+				iMaxNanLen = NaNLens.argmax()
+				if (NaNLens[iMaxNanLen] > maxConsecutiveNaNs):
+					raise ValueError('NaN segment with length {}, higher than maxConsecutiveNaNs = {}, found starting at index {}'.format(NaNLens[iMaxNanLen], maxConsecutiveNaNs, NaNLocs[2 * iMaxNanLen]))
+				stat['maxConsecutiveNaN'] = NaNLens[iMaxNanLen] 	
+
+			newArray = np.empty((len(a) - numRowToRemove,), dtype=a.dtype)
+			for col in cols:
+				newArray[col] = a[col][~nanRows]
+		else:
+			newArray = a
+		return newArray, stat
 	
 if __name__ == '__main__':
 	SectionCalculator.test()

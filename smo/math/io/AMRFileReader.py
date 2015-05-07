@@ -6,29 +6,41 @@ import logging
 
 appLogger = logging.getLogger('AppLogger')
 
-#filename = '140923.amr'
-filename = '/data/Workspace/Django/SmoWeb/django-example/SmoWebExtra/python/140923.amr'
-initOffset = 346
-
 class ChannelInfo(object):
-	def __init__(self, name, unit, start, length):
+	def __init__(self, name, number, unit, start, length):
 		self.name = name
+		self.number = number
 		self.unit = unit
 		self.start = start
 		self.length = length
+		self.end = self.start + 16 * self.length
 	
 	def __str__(self):
-		return "{}(unit = {}, start = {}, length = {})".format(self.name, self.unit, self.start, self.length)
+		return "{}(# = {}, unit = {}, start = {}, end = {}, length = {})".format(self.name, self.number, self.unit, self.start, self.end, self.length)
 
 class AMRFileReader(object):
 	def openFile(self, filePath, offset = 0):
 		self.filePath = filePath
 		f = open(filePath, 'rb')
+		appLogger.info('AMRFileReader: Opened file "{}" for reading'.format(filePath))
 		self.fh = mmap.mmap(f.fileno(), 0, access = mmap.ACCESS_READ)
 		self.fh.seek(offset, 0)
 	
 	def __del__(self):
 		self.fh.close()
+	
+	def checkEOF(self):
+		isEOF = False
+		lookAhead = self.fh.read(30)
+		if (len(lookAhead) < 30):
+			isEOF = True
+		elif (lookAhead[:4] in ('\x00\x00\x00\xff', '\x00\x00\x00\x0f')):
+			isEOF = True
+		elif (lookAhead == 30*'\x00'):
+			isEOF = True
+		if (not isEOF):
+			self.fh.seek(-30, 1)
+		return isEOF
 	
 	def readUntilDelimiter(self, delim):
 		result = ''
@@ -48,19 +60,22 @@ class AMRFileReader(object):
 		return ":".join("{:02x}".format(ord(c)) for c in s)
 	
 	def readHeader(self):
+		self.fh.seek(0)
 		blah = self.readString()
-		appLogger.info(blah)
+		appLogger.debug(blah)
 		pos = self.fh.find('\x00\x04\x01\xFF')
 		self.fh.seek(pos + 4)
+		appLogger.debug('Header end position: {}'.format(self.fh.tell()))
 	
 	def getChannelInfo(self):
 		# This is something like
 		# 00:00:19:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:01:00:03:00:80:80:80:00:02:00:00:00
-		# byte 1 is 0 for measurements, 50 for calculations
-		# byte 3 is the channel number
+		# byte 0 is 0 for measurements, 50 for calculations
+		# byte 2 is the channel number
 		channelHeader = self.fh.read(30)
 		appLogger.debug('Pre: {}'.format(self.toHexString(channelHeader)))
 		name = self.readString()
+		#channelNumber = ord(channelHeader[2])
 		appLogger.debug('Channel: {}'.format(name))
 		unit = self.readString()
 		appLogger.debug('Unit: {}'.format(unit))
@@ -76,7 +91,7 @@ class AMRFileReader(object):
 		n, = struct.unpack('<i', self.fh.read(4))
 		appLogger.debug('Length: {}'.format(n))
 		# Create the channel info object
-		chInfo = ChannelInfo(name = name, unit = unit, start = self.fh.tell(), length = n)
+		chInfo = ChannelInfo(name = name, number = chanNum, unit = unit, start = self.fh.tell(), length = n)
 		chInfo.computed = (channelHeader[0] == chr(0x50))
 		
 		self.fh.seek(16 * n, 1)
@@ -91,18 +106,16 @@ class AMRFileReader(object):
 
 	def getChannelData(self, chInfo):
 		dtype = np.dtype([('time', np.uint32), ('value', '<f8'), ('f3', '<f4')])
-		#fp = np.memmap(filename, dtype=dtype, mode='r', shape = (length,), offset = self.fh.tell())
-		#return fp['f2'].copy()
 		arr = np.frombuffer(buffer(self.fh[chInfo.start: chInfo.start + 16 * chInfo.length]), dtype=dtype)
-		return arr #['f2']
+		return arr
 	
 	def findChannel(self, channelName, channelUnit):
+		self.fh.seek(0)
 		while True:
 			titleLoc = self.fh.find(channelName)
 			if (titleLoc == -1):
 				raise ValueError("Channel {}(unit = {}) not found".format(channelName, channelUnit))
 			self.fh.seek(titleLoc - 31)
-			print self.fh.tell()
 			chInfo = self.getChannelInfo()
 			if (chInfo.unit == channelUnit):
 				break
@@ -110,21 +123,36 @@ class AMRFileReader(object):
 				continue
 		return chInfo
 	
-	def readFile(self):
-		while self.fh.read(4) != '\x00\x00\x00\xFF':
-			self.fh.seek(-4, 1)
+	def getChannelList(self):
+		self.readHeader()
+		chList = []
+		while not self.checkEOF():
 			chInfo = self.getChannelInfo()
-			appLogger.info(chInfo)
-			
+			chList.append(chInfo)
+			appLogger.debug(chInfo)
+		return chList
+	
 def main():
-	_logConfigurator = SimpleAppLoggerConfgigurator('AMR Reader', logFile = False)
-	appLogger.info('Begin')
-	reader = AMRFileReader()
-	reader.openFile(filename, initOffset)
-	if True:
-		reader.readFile()
-	else:
-		chInfo = reader.findChannel('P-Y-408', 'bar')
-		r = reader.getChannelData(chInfo)
+	_logConfigurator = SimpleAppLoggerConfgigurator('AMR Reader', logFile = False, debug = False)
+	fileList = [
+			'/data/Workspace/Django/SmoWeb/smotools/FatigueCalculations/work/InputFiles/140923.amr',
+			'/data/Workspace/Django/SmoWeb/smotools/FatigueCalculations/work/InputFiles/150113hw_bg2.06+500+pt-zyklen_Liniendiagramm1_Zyklus223-228,6.amr',
+			'/data/Workspace/Django/SmoWeb/smotools/FatigueCalculations/work/InputFiles/Bisheriger_schneller_2015erZyklus_50kgLH2.amr',
+			'/data/Workspace/Django/SmoWeb/smotools/FatigueCalculations/work/InputFiles/Zyklenvariante_02_41kgLH2.amr',
+	]
+	for filePath in fileList:
+		reader = AMRFileReader()
+		reader.openFile(filePath)
+		if True:
+			try:
+				chList = reader.getChannelList()
+				for ch in chList:
+					appLogger.info(ch)
+			finally:
+				appLogger.debug("Location: ".format(reader.fh.tell()))
+		else:
+			chInfo = reader.findChannel('P-Y-408', 'bar')
+			r = reader.getChannelData(chInfo)
 
-main()
+if __name__ == '__main__':
+	main()
