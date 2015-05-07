@@ -27,8 +27,8 @@ An example of chemical equation:
 
 .. math:: CH_{4} + 2O_{2} \rightarrow CO_{2} + 2H_{2}0 
 
-a coefficient of :math:`2` must be placed before the oxygen gas on the reactants side and before the water on the products 
-side in order for, as per the law of conservation of mass, the quantity of each element does not change during the reaction.
+A coefficient of :math:`2` must be placed before the oxygen gas on the reactants side and before the water on the products 
+side in order for, as per the law of conservation of mass, the quantity of each element not to change during the reaction.
 
 
 
@@ -54,8 +54,8 @@ represent stoichiometric coefficients, i.e. :math:`a` and :math:`b` but this is 
 coefficient or rate constant of the reaction. The value of this coefficient :math:`k` depends on conditions such as temperature, 
 ionic strength, surface area of the adsorbent, light irradiation or others. 
 
-The exponents :math:`x`  and :math:`y` are called reaction orders and depend on the reaction mechanism. According the law of mass action [BR2009]_
-for elementary (single-step) reaction (i.e. for reaction with no intermediate steps in its reaction mechanism) the order in each reactant 
+The exponents :math:`x`  and :math:`y` are called reaction orders and depend on the reaction mechanism. According to the law of mass action [BR2009]_
+for elementary (single-step) reaction (i.e. for reaction with no intermediate steps in its reaction mechanism), the order in each reactant 
 is equal to its stoichiometric coefficient (for our example if the reaction is elementary then :math:`x=a` and :math:`y=b`). 
 For complex (multistep) reactions, however, as we note above, this is not true.
 
@@ -71,10 +71,10 @@ change of the concentration of the reactants and products can be derived. For ou
 
 Solver for biochemical reactions
 --------------------------------
-A **biochemical reaction** is the transformation of one molecule to a different molecule inside a cell. Biochemical reactions 
+A **biochemical reaction** is the transformation of one molecule into a different molecule inside a cell. Biochemical reactions 
 are mediated by enzymes, which are biological catalysts that can alter the rate and specificity of chemical reactions inside cells. 
 
-Our solver for biochemical reactions suppose that:
+Our solver for biochemical reactions assumes that:
 
 - the reactions are elementary, i.e. the rate of each reaction is proportional to the product of the concentrations of its reactants
 
@@ -89,7 +89,7 @@ initiated by a bond (more generally, a binding interaction) between the enzyme a
 biochemist Leonor Michaelis and Canadian physician Maud Menten, who investigated the kinetics of an enzymatic reaction mechanism, 
 invertase, that catalyzes the hydrolysis of sucrose into glucose and fructose. In 1913, they proposed a mathematical model of the reaction. 
 It involves an enzyme :math:`E` binding to a substrate :math:`S` to form a complex :math:`ES`, which in turn is converted into a product 
-:math:`P` and the enzyme. This may be represented schematically by a chemical equations as
+:math:`P` and the enzyme. This may be represented schematically by chemical equations as
 
 .. math:: E + S \, \overset{k_f}{\underset{k_r} \rightleftharpoons} \, ES \, \overset{k_\mathrm{cat}} {\longrightarrow} \, E + P 
 
@@ -108,7 +108,7 @@ reactants and products with time :math:`t`:
    
    :math:`\frac{d[\mathrm{P}]}{dt} = k_\mathrm{cat}[\mathrm{ES}]`
 
-One solution of the system is shown on the `figure`_ below.
+One solution of the system is shown in the `figure`_ below:
 
 .. _figure:
 
