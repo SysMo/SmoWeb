@@ -283,6 +283,12 @@ class ModularPageView(object):
 		return instance.modelView2Json(view)
 	
 	@action.post()
+	def loadHdfValues(self, model, view, parameters):
+# 		for elem in parameters:
+# 			print elem['name']
+		return {}
+	
+	@action.post()
 	def startCompute(self, model, view, parameters):
 		job = celeryCompute.delay(model, view, parameters)
 		if (job.failed()):

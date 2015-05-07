@@ -329,6 +329,7 @@ smoModule.factory('communicator', function($http, $window, $timeout, $location, 
 	}
 	Communicator.prototype.setResponseData = function(responseData) {
 		this.data = responseData;
+		this.dataReceived = true;
 	}
 	Communicator.prototype.fetchData = function(action, parameters, onSuccess, onFailure) {
 		this.setPostData(parameters);
@@ -359,7 +360,7 @@ smoModule.factory('communicator', function($http, $window, $timeout, $location, 
 			if (!response.errStatus) {
 				communicator.serverError = false;
 				communicator.setResponseData(response.data);
-				communicator.dataReceived = true;
+				//communicator.dataReceived = true;
 				if (typeof onSuccess !== 'undefined') {
 					communicator.onSuccess(communicator);
 				}
@@ -403,13 +404,56 @@ smoModule.factory('communicator', function($http, $window, $timeout, $location, 
 	}
 	
 	ModelCommunicator.prototype.setResponseData = function(responseData) {
+		var updateRecordId = function(comm) {
+			if (comm.data.values.recordId) {
+				comm.model.recordId = comm.data.values.recordId;
+			}
+		};
+		
 		if (responseData.keepDefaultDefs == false) {
 			//If the definitions have been received once, on next occasions they are discarded
 			if (this.data.definitions) {
 				responseData.definitions = this.data.definitions;
 			}
 		}
+		
+		if (this.viewName == 'resultView') {
+			var hdfDataFields = [];
+			for (var i=0; i<responseData.definitions.length; i++) {
+				for (var j=0; j<responseData.definitions[i].groups.length; j++) {
+					if (responseData.definitions[i].groups[j].type == "ViewGroup") {
+						for (var k=0; k<responseData.definitions[i].groups[j].fields.length; k++) {
+							if (responseData.definitions[i].groups[j].fields[k].type == 'TableView' ||
+								responseData.definitions[i].groups[j].fields[k].type == 'PlotView') {
+								var field = responseData.definitions[i].groups[j].fields[k];
+								if (field.useHdfData == false) {
+									hdfDataFields.push({"name": field.name,
+														"hdfFile": field.hdfFile, 
+														"hdfGroup": field.hdfGroup, 
+														"dataset": responseData.values[field.name]});
+								}
+							}
+						}
+					}
+				}
+			}
+			
+			//console.log(hdfDataFields);
+			
+			if (hdfDataFields.length > 0) {
+				var modelComm = this;
+				var onFetchSuccess = function() {
+					Communicator.prototype.setResponseData.call(modelComm, responseData);
+					updateRecordId(modelComm);
+				}
+				loadHdfComm = new Communicator();
+				loadHdfComm.fetchData('loadHdfValues', hdfDataFields, onFetchSuccess);
+				return;
+			}
+		}
+		
 		Communicator.prototype.setResponseData.call(this, responseData);
+		updateRecordId(this);	
 	}
 	
 	ModelCommunicator.prototype.saveUserInput = function() {
@@ -1929,11 +1973,11 @@ smoModule.directive('smoViewToolbar', ['$compile', '$rootScope', 'util', functio
 		controller: function($scope) {
 			var formName = $scope.model.name + $scope.viewName + 'Form';
 			$scope.form = $scope.$parent[formName];
-			var onFetchSuccess = function(comm){
-				if (comm.data.values.recordId){
-					comm.model.recordId = comm.data.values.recordId;
-				} 
-			}
+//			var onFetchSuccess = function(comm){
+//				if (comm.data.values.recordId){
+//					comm.model.recordId = comm.data.values.recordId;
+//				} 
+//			}
 			
 			$scope.actionHandler = function(action, params) {
 				var targetView = action.outputView || $scope.viewName;
@@ -1987,7 +2031,7 @@ smoModule.directive('smoViewToolbar', ['$compile', '$rootScope', 'util', functio
 					return;	
 				}
 				communicator.fetchData(action.name,
-						parameters, onFetchSuccess);
+						parameters);
 			}
 		},
 		link : function(scope, element, attr) {
