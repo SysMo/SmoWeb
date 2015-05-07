@@ -224,7 +224,7 @@ class TankModel(DMC.Simulation):
 	def handle_result(self, solver, t, y):
 		super(TankModel, self).handle_result(solver, t, y)
 		
-		self.updateProgress(t/self.tFinal, 1.)
+		self.updateProgress(t, self.tFinal)
 		
 		self.compute(t, y)		
 		self.resultStorage.record[:] = (
