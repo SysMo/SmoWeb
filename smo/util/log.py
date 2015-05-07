@@ -6,7 +6,7 @@ Created on May 2, 2015
 '''
 
 class SimpleAppLoggerConfgigurator(object):
-	def __init__(self, appName, logFile = True, logToConsole = True):
+	def __init__(self, appName, logFile = True, logToConsole = True, debug = False):
 		import logging
 		self.appName = appName
 		appLogger = logging.getLogger('AppLogger')
@@ -24,7 +24,10 @@ class SimpleAppLoggerConfgigurator(object):
 			logConsoleHandler = logging.StreamHandler()
 			logConsoleHandler.setFormatter(formatter)
 			appLogger.addHandler(logConsoleHandler)
-		appLogger.setLevel(logging.INFO)
+		if debug:
+			appLogger.setLevel(logging.DEBUG)
+		else:
+			appLogger.setLevel(logging.INFO)
 		appLogger.info('==========================================================')
 		appLogger.info('Starting ' + appName)
 	def __del__(self):
