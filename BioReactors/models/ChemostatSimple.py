@@ -32,8 +32,7 @@ class ChemostatSimple(NumericalModel):
     
     S0 = F.Quantity('Bio_MassConcentration', default = (0, 'g/L'), minValue = 0, label = 'S<sub>0</sub>', description = 'initial substrate concentration')
     X0 = F.Quantity('Bio_MassConcentration', default = (0.5, 'g/L'), minValue = 0, label = 'X<sub>0</sub>', description = 'initial microorganisms concentration')
-    stringg = F.String(default="", label="test str field")
-    initialValuesFieldGroup = F.FieldGroup([S0, X0, stringg], label = "Initial values")
+    initialValuesFieldGroup = F.FieldGroup([S0, X0], label = "Initial values")
         
     inputValuesSuperGroup = F.SuperGroup([parametersFieldGroup, initialValuesFieldGroup], label = "Input values")
 
