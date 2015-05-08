@@ -286,7 +286,7 @@ class ModularPageView(object):
 	def loadHdfValues(self, model, view, parameters):
 # 		for elem in parameters:
 # 			print elem['name']
-		return {}
+		return {'blah': 5, 'mwah': 6}
 	
 	@action.post()
 	def startCompute(self, model, view, parameters):

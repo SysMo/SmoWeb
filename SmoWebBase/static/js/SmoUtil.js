@@ -426,7 +426,7 @@ smoModule.factory('communicator', function($http, $window, $timeout, $location, 
 							if (responseData.definitions[i].groups[j].fields[k].type == 'TableView' ||
 								responseData.definitions[i].groups[j].fields[k].type == 'PlotView') {
 								var field = responseData.definitions[i].groups[j].fields[k];
-								if (field.useHdfData == false) {
+								if (field.useHdfData == true) {
 									hdfDataFields.push({"name": field.name,
 														"hdfFile": field.hdfFile, 
 														"hdfGroup": field.hdfGroup, 
@@ -438,11 +438,12 @@ smoModule.factory('communicator', function($http, $window, $timeout, $location, 
 				}
 			}
 			
-			//console.log(hdfDataFields);
-			
 			if (hdfDataFields.length > 0) {
 				var modelComm = this;
-				var onFetchSuccess = function() {
+				var onFetchSuccess = function(comm) {
+					for (var fieldName in comm.data) {
+						responseData.values[fieldName] = angular.copy(comm.data[fieldName]);
+					}
 					Communicator.prototype.setResponseData.call(modelComm, responseData);
 					updateRecordId(modelComm);
 				}
