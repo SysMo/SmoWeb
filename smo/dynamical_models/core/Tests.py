@@ -13,7 +13,7 @@ import networkx as nx
 
 class ThermalMass(DMC.DynamicalModel):
 	m = DMC.RealVariable(causality = C.Parameter, variability = V.Constant)
-	T = DMC.RealVariable(causality = C.Input, variability = V.Continuous)
+	T = DMC.RealState(der = 'TDot')
 	QDot = DMC.RealVariable(causality = C.Input, variability = V.Continuous)
 	TDot = DMC.RealVariable(causality = C.Output, variability = V.Continuous)
 
@@ -23,23 +23,18 @@ class ThermalConduction(DMC.DynamicalModel):
 	T2 = DMC.RealVariable(causality = C.Input, variability = V.Continuous)
 	QDot = DMC.RealVariable(causality = C.Output, variability = V.Continuous)
 
-class Integrator(DMC.DynamicalModel):
-	xDot = DMC.RealVariable(causality = C.Input, variability = V.Continuous)
-	x = DMC.RealVariable(causality = C.Output, variability = V.Continuous)
-
 class ExampleCircuit(DMC.DynamicalModel):
 	m1 = DMC.SubModel(ThermalMass)
 	m2 = DMC.SubModel(ThermalMass)
 	c = DMC.SubModel(ThermalConduction)
-	integrator = DMC.SubModel(Integrator)
 
 	def __init__(self):
+		self.m1.meta.T.connect(self.c.meta.T1)
+		self.c.meta.QDot.connect(self.m1.meta.QDot)
+		self.c.meta.QDot.connect(self.m2.meta.QDot)
+		self.m2.meta.T.connect(self.c.meta.T2)
 		self.createModelGraph()
 		self.plotModelGraph()
-# 		self.connect(self.m1.T, self.c.T1)
-# 		self.connect(self.c.QDot, self.m1.QDot)
-# 		self.connect(self.c.QDot, self.m2.QDot)
-# 		self.connect(self.m2.T, self.c.T2)
 	
 		
 if __name__ == '__main__':

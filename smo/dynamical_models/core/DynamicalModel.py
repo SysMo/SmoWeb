@@ -6,6 +6,7 @@ Created on Feb 25, 2015
 '''
 from collections import OrderedDict
 import StringIO
+from smo.web.exceptions import ConnectionError
 
 class Causality(object):
 	Parameter = 0
@@ -59,8 +60,10 @@ class RealVariable(ScalarVariable):
 		super(RealVariable, self).__init__(**kwargs)
 
 class RealState(RealVariable):
-	def __init__(self, **kwargs):
-		super(RealState, self).__init__(**kwargs)
+	def __init__(self, der, **kwargs):
+		super(RealState, self).__init__(causality = Causality.Output, 
+				variability = Variability.Continuous, **kwargs)
+		self.der = der
 
 class SubModel(ModelField):
 	def __init__(self, klass, **kwargs):
@@ -96,22 +99,86 @@ class DynamicalModelMeta(type):
 			.__new__(cls, name, bases, attrs))
 		
 		return new_class
+
+class InstanceVariable(object):
+	def __init__(self, instance, clsVar):
+		self.instance = instance
+		self.clsVar = clsVar
+		self.connectedVars = []
+		
+	@property
+	def name(self):
+		return self.clsVar.name
+	@property
+	def qPath(self):
+		return self.instance.qPath + [self.name]
+	@property
+	def qName(self):
+		return '.'.join(self.qPath)
 	
+	def connect(self, other, complement = True):
+		if (self.clsVar.causality == Causality.Input):
+			if (len(self.connectedVars) != 0):
+				raise ConnectionError(self, other, 'Cannot connect input to more than one variable')
+			elif (other.clsVar.causality == Causality.Output):
+				self.connectedVars.append(other)
+				if (complement):
+					other.connect(self, complement = False)
+			else:
+				raise ConnectionError(self, other, 'Can only connect input variable to an output variable')
+
+		elif (self.clsVar.causality == Causality.Output):
+			if (other.clsVar.causality == Causality.Input):
+				if(other not in self.connectedVars):
+					self.connectedVars.append(other)
+					if (complement):
+						other.connect(self, complement = False)
+				else:
+					pass
+			else:
+				raise ConnectionError(self, other, 'Can only connect output variable to an input variable')
+		else:
+			raise ConnectionError(self, other, 'Connected variables must have causality input or output')
+class InstanceMeta(object):
+	def __init__(self):
+		self.dm_variables = {}
+		
+	def addVariable(self, instanceVariable):
+		varName = instanceVariable.clsVar.name
+		self.dm_variables[varName] = instanceVariable
+		self.__setattr__(varName, instanceVariable)
+
 class DynamicalModel(object):
 	__metaclass__ = DynamicalModelMeta
 	
-	def __new__(cls, *args, **kwargs):
+	def __new__(cls, name = None, parent = None, *args, **kwargs):
 		"""Constructor for all dynamical models. 
 		Sets default values for all model fields"""
 		self = object.__new__(cls)
-		self.name = cls.__name__
+		if (name is None):
+			name = cls.__name__
+		self.name = name
+		self.parent = parent
+		if (self.parent is not None):
+			self.qPath = self.parent.qPath + [self.name]
+		else:
+			self.qPath = [self.name]
+		# Create instance meta
+		self.meta = InstanceMeta()
+		# Create instance variables
+		for name, clsVar in cls.dm_variables.iteritems():
+			self.meta.addVariable(InstanceVariable(self, clsVar))
+		# Create submodel instances
 		for name, submodel in cls.dm_submodels.iteritems():
-			instance = submodel.klass()
-			instance.name = name
+			instance = submodel.klass(name, self)
 			self.__dict__[name] = instance
 			
 		return self
 	
+	@property
+	def qName(self):
+		return '.'.join(self.qPath)
+			
 	def describeFields(self):
 		buf = StringIO.StringIO()
 		buf.write("=====================================\n")
@@ -133,13 +200,22 @@ class DynamicalModel(object):
 		import networkx as nx
 		if (graph is None):
 			graph = nx.DiGraph()
+			graph.add_node('stateVector')
+			graph.add_node('stateDerivativeVector')
+		else:
+			graph.add_node(self)
+		
 		self.dm_graph = graph 
-		self.dm_graph.add_node(self)
-		for k, v in self.__class__.dm_variables.iteritems():
-			if (v.causality == Causality.Input):
+		for k, v in self.meta.dm_variables.iteritems():
+			if isinstance(v.clsVar, RealState):
+				self.dm_graph.add_edge('stateVector', v)
+				print v
+			if (v.clsVar.causality == Causality.Input):
 				self.dm_graph.add_node(v)
 				self.dm_graph.add_edge(v, self)
-			elif (v.causality == Causality.Output):
+				if (len(v.connectedVars) > 0):
+					self.dm_graph.add_edge(v.connectedVars[0], v)
+			elif (v.clsVar.causality == Causality.Output):
 				self.dm_graph.add_node(v)
 				self.dm_graph.add_edge(self, v)
 		for k, v in self.__class__.dm_submodels.iteritems():
@@ -149,19 +225,16 @@ class DynamicalModel(object):
 		import networkx as nx
 		import pylab as plt
 		import numpy as np
-		pos = nx.spring_layout(self.dm_graph)
+		#pos = nx.spring_layout(self.dm_graph)
+		pos = nx.graphviz_layout(self.dm_graph, prog = 'neato', root = 'stateVector')
 		posLabels = {}
 		nx.draw_networkx_nodes(self.dm_graph, pos, node_size = 100)
 		labels = {}
 		for node in self.dm_graph.nodes_iter():
 			posLabels[node] = pos[node] + np.array([0, -0.05])
-			if (isinstance(node, ScalarVariable)):
-				labels[node] = node.name
-			else:
-				labels[node] = node.name
+			labels[node] = node if isinstance(node, basestring) else node.qName
 		nx.draw_networkx_labels(self.dm_graph, posLabels, labels)
 		nx.draw_networkx_edges(self.dm_graph, pos)
-		print pos
 		plt.show()
 				
 	def connect(self, n1, n2):
