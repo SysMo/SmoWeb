@@ -980,7 +980,7 @@ smoModule.directive('smoString', ['$compile', function($compile) {
 				template += '\
 					<div class="field-input"> \
 						<div ng-form name="' + scope.fieldVar.name + 'Form">\
-							<input style="width:' + scope.fieldVar.inputBoxWidth + 'px" name="input" required type="text" ng-model="fieldVar.value" ng-change="updateValue()">\
+							<input style="width:' + scope.fieldVar.inputBoxWidth + 'px" name="input" type="text" ng-model="fieldVar.value" ng-change="updateValue()" data-toggle="tooltip" title="{{fieldVar.value}}" tooltip>\
 						</div>\
 					</div>';
 			else if (scope.viewType == 'output'){
@@ -997,9 +997,9 @@ smoModule.directive('smoString', ['$compile', function($compile) {
 				}
 				
 			}
-			if (scope.viewType == 'input')
-				template += '\
-					<div class="input-validity-error" ng-show="' + scope.fieldVar.name + 'Form.input.$error.required">Required value</div>';
+//			if (scope.viewType == 'input')
+//				template += '\
+//					<div class="input-validity-error" ng-show="' + scope.fieldVar.name + 'Form.input.$error.required">Required value</div>';
 
 		var el = angular.element(template);
         compiled = $compile(el);
