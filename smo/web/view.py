@@ -4,6 +4,7 @@ from SmoWeb.settings import JINJA_TEMPLATE_IMPORTS
 import json
 import traceback
 import logging
+from smo.data.hdf import HDFInterface
 from SmoWebBase.tasks import celeryCompute
 from celery.result import AsyncResult
 from celery.task.control import revoke
@@ -284,9 +285,12 @@ class ModularPageView(object):
 	
 	@action.post()
 	def loadHdfValues(self, model, view, parameters):
-# 		for elem in parameters:
-# 			print elem['name']
-		return {'blah': 5, 'mwah': 6}
+		resultDict = {}
+		for field in parameters:
+			hi = HDFInterface(field['hdfFile'])
+			datasetPath = field['hdfGroup'] + '/' + field['dataset']
+			resultDict[field['name']] = json.loads(hi.getDatasetContent(datasetPath))['data']
+		return resultDict
 	
 	@action.post()
 	def startCompute(self, model, view, parameters):

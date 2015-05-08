@@ -418,7 +418,7 @@ smoModule.factory('communicator', function($http, $window, $timeout, $location, 
 		}
 		
 		if (this.viewName == 'resultView') {
-			var hdfDataFields = [];
+			var hdfFields = [];
 			for (var i=0; i<responseData.definitions.length; i++) {
 				for (var j=0; j<responseData.definitions[i].groups.length; j++) {
 					if (responseData.definitions[i].groups[j].type == "ViewGroup") {
@@ -427,7 +427,7 @@ smoModule.factory('communicator', function($http, $window, $timeout, $location, 
 								responseData.definitions[i].groups[j].fields[k].type == 'PlotView') {
 								var field = responseData.definitions[i].groups[j].fields[k];
 								if (field.useHdfData == true) {
-									hdfDataFields.push({"name": field.name,
+									hdfFields.push({"name": field.name,
 														"hdfFile": field.hdfFile, 
 														"hdfGroup": field.hdfGroup, 
 														"dataset": responseData.values[field.name]});
@@ -438,7 +438,7 @@ smoModule.factory('communicator', function($http, $window, $timeout, $location, 
 				}
 			}
 			
-			if (hdfDataFields.length > 0) {
+			if (hdfFields.length > 0) {
 				var modelComm = this;
 				var onFetchSuccess = function(comm) {
 					for (var fieldName in comm.data) {
@@ -447,8 +447,8 @@ smoModule.factory('communicator', function($http, $window, $timeout, $location, 
 					Communicator.prototype.setResponseData.call(modelComm, responseData);
 					updateRecordId(modelComm);
 				}
-				loadHdfComm = new Communicator();
-				loadHdfComm.fetchData('loadHdfValues', hdfDataFields, onFetchSuccess);
+				hdfDataComm = new Communicator();
+				hdfDataComm.fetchData('loadHdfValues', hdfFields, onFetchSuccess);
 				return;
 			}
 		}
