@@ -80,7 +80,7 @@ class MultiaxialDamageCalculator(object):
 		for i in range(len(self.thetaList)):
 			for j in range(len(self.phiList)):
 				rotMatrix = self.rotMatrices[i, j, ...]
-				r3 = rotMatrix[2, :]
+				r3 = rotMatrix[0, :]
 				# Compute the sigma33 component of the stress tensor in the rotated coordinate system
 				sv1 = np.tensordot(self.stressesScaled, r3, axes = ([2], [0]))
 				stressValues = np.tensordot(sv1, r3, axes = ([1], [0]))
@@ -163,6 +163,31 @@ class MultiaxialDamageCalculator(object):
 		ds.attrs['phiIndex'] = critDamageIndex[1]
 		appLogger.info('Critical plane damage: {:e} (theta = {}, phi = {}) for "{}"'.format(maxDamage, theta, phi, groupPath))
 	
+	def saveDamagePlot(self, folderPath, dataName, channelName, nLevels):
+		import pylab as plt
+		from matplotlib.colors import LogNorm
+		import matplotlib.colorbar as colorbar 
+		import matplotlib.cm as cm
+		
+		maxDamage = self.damage.max()
+		levels = np.logspace(np.log10(maxDamage / 100.), np.log10(maxDamage), nLevels )
+		norm = LogNorm(vmin = maxDamage / 100., vmax = maxDamage)
+		cmap = cm.get_cmap('jet', nLevels)
+		
+		fig = plt.figure()
+		axes = fig.add_subplot(111)
+		axes.contourf(self.damage, extent = (0, 180, 0, 180), 
+				norm = norm, cmap = cmap, levels = levels)
+		#axes.contourf(self.damage)
+		cbax, _ = colorbar.make_axes(axes)
+		cb = colorbar.ColorbarBase(cbax, cmap=cmap,	norm = norm)
+		cb.set_label('Damage [-]')
+		
+		axes.set_xlabel(r'$\theta$ [deg]')
+		axes.set_ylabel(r'$\varphi$ [deg]')
+		axes.set_title('Damage for {}, channel {}'.format(dataName, channelName))
+		fig.savefig(os.path.join(folderPath, '{}_{}.png'.format(dataName, channelName)))
+		
 class DamageCalculationExecutor(object):
 	def __init__(self):
 		# Read settings
@@ -208,6 +233,8 @@ class DamageCalculationExecutor(object):
 			self.damageCalculator.saveDamage(
 				filePath = self.S.damageHDFResultFile,
 				groupPath = '/' + dataName + '/' + channel)
+			if (self.S.saveDamagePlots):
+				self.damageCalculator.saveDamagePlot(self.S.damagePlotsFolder, dataName, channel, self.S.damagePlots_numContours)
 			critPlaneDamage.append(self.damageCalculator.damage.max())
 	
 	def saveDamageCSV(self):

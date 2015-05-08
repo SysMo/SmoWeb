@@ -7,8 +7,9 @@ import logging
 appLogger = logging.getLogger('AppLogger')
 
 class ChannelInfo(object):
-	def __init__(self, name, number, unit, start, length):
+	def __init__(self, name, group, number, unit, start, length):
 		self.name = name
+		self.group = group
 		self.number = number
 		self.unit = unit
 		self.start = start
@@ -16,7 +17,7 @@ class ChannelInfo(object):
 		self.end = self.start + 16 * self.length
 	
 	def __str__(self):
-		return "{}(# = {}, unit = {}, start = {}, end = {}, length = {})".format(self.name, self.number, self.unit, self.start, self.end, self.length)
+		return "{}(group = {}, # = {}, unit = {}, start = {}, end = {}, length = {})".format(self.name, self.group, self.number, self.unit, self.start, self.end, self.length)
 
 class AMRFileReader(object):
 	def openFile(self, filePath, offset = 0):
@@ -70,9 +71,11 @@ class AMRFileReader(object):
 	def getChannelInfo(self):
 		# This is something like
 		# 00:00:19:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:01:00:03:00:80:80:80:00:02:00:00:00
-		# byte 0 is 0 for measurements, 50 for calculations
+		# byte 0 is the channel group
 		# byte 2 is the channel number
 		channelHeader = self.fh.read(30)
+		chanGroup = ord(channelHeader[0])
+		chanNum = ord(channelHeader[2])
 		appLogger.debug('Pre: {}'.format(self.toHexString(channelHeader)))
 		name = self.readString()
 		#channelNumber = ord(channelHeader[2])
@@ -84,14 +87,16 @@ class AMRFileReader(object):
 		# What follows is actually either 00:05:50:00 or 00:00:01:00:00:05:50:00 or 00:00:01:00:00:05:00:00
 		# 00 or 50 indicates if the channel is calculated
 		blah = self.readUntilDelimiter(chr(0x05))
-		blah += self.fh.read(2)
+		blah += self.fh.read(4)
 		appLogger.debug('Blah2: {}'.format(self.toHexString(blah)))
-		chanNum, = struct.unpack('H', self.fh.read(2))
-		appLogger.debug('Channel number: {}'.format(chanNum))
+		
+		#chanNum, = struct.unpack('H', self.fh.read(2))
+		#appLogger.debug('Channel number: {}'.format(chanNum))
+
 		n, = struct.unpack('<i', self.fh.read(4))
 		appLogger.debug('Length: {}'.format(n))
 		# Create the channel info object
-		chInfo = ChannelInfo(name = name, number = chanNum, unit = unit, start = self.fh.tell(), length = n)
+		chInfo = ChannelInfo(name = name, group = chanGroup, number = chanNum, unit = unit, start = self.fh.tell(), length = n)
 		chInfo.computed = (channelHeader[0] == chr(0x50))
 		
 		self.fh.seek(16 * n, 1)
@@ -132,7 +137,7 @@ class AMRFileReader(object):
 			appLogger.debug(chInfo)
 		return chList
 	
-def main():
+def main1():
 	_logConfigurator = SimpleAppLoggerConfgigurator('AMR Reader', logFile = False, debug = False)
 	fileList = [
 			'/data/Workspace/Django/SmoWeb/smotools/FatigueCalculations/work/InputFiles/140923.amr',
@@ -153,6 +158,16 @@ def main():
 		else:
 			chInfo = reader.findChannel('P-Y-408', 'bar')
 			r = reader.getChannelData(chInfo)
-
+def main2():
+	filePath = '/data/Workspace/Django/SmoWeb/smotools/FatigueCalculations/work/InputFiles/Zyklenvariante_02_41kgLH2.amr'
+	reader = AMRFileReader()
+	reader.openFile(filePath)
+	chInfo1 = reader.findChannel('T_CFK_o_m', 'Ohm')
+	chInfo2 = reader.findChannel('T_CFK_o_m', 'K')
+	data1 = reader.getChannelData(chInfo1)
+	data2 = reader.getChannelData(chInfo2)
+	print data1[1800:2100]
+	print('--------------------')
+	print data2[0:300]
 if __name__ == '__main__':
-	main()
+	main2()
