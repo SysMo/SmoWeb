@@ -1,12 +1,12 @@
 package:
   name: smo_ext
-  version: 1.0.0
+  version: 1.0.1
 
 source:
   path: ../../../smo_ext
 
 build:
-  number: 5
+  number: 1
 
 requirements:
   # Packages required to build the package. python and numpy must be

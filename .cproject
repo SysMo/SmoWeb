@@ -61,7 +61,14 @@
 			<target name="build" path="smo_ext" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 				<buildCommand>python</buildCommand>
 				<buildArguments>setup.py build_ext --inplace --force</buildArguments>
-				<buildTarget/>
+				<stopOnError>true</stopOnError>
+				<useDefaultCommand>false</useDefaultCommand>
+				<runAllBuilders>false</runAllBuilders>
+			</target>
+			<target name="conda build" path="dist/conda" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+				<buildCommand>conda</buildCommand>
+				<buildArguments>build</buildArguments>
+				<buildTarget>smo smo_ext</buildTarget>
 				<stopOnError>true</stopOnError>
 				<useDefaultCommand>false</useDefaultCommand>
 				<runAllBuilders>false</runAllBuilders>
