@@ -122,3 +122,21 @@ Quantities = {
 	'Bio_MolarConcentration' : {'title' : 'bio: molar concentration', 'nominalValue' : 1.0, 'minValue' : 0.0, 'SIUnit' : 'kmol/m**3', 
 		'units' : OrderedDict((('kmol/m**3', {'mult' : 1}), ('mol/m**3', {'mult' : 1./1e3}), ('mol/L', {'mult' : 1}), ('M', {'mult' : 1}), ('mol/cm**3', {'mult' : 1e3}),))},
 }
+
+
+def convertUnit(data, quantity, fromUnit, toUnit):
+		if (fromUnit == toUnit):
+			return data
+		quantityUnits = Quantities[quantity]['units']
+		if (fromUnit not in quantityUnits):
+			raise ValueError('Incorrect value {} for parameter "fromUnit"'.format(fromUnit))
+		if (toUnit not in quantityUnits):
+			raise ValueError('Incorrect value {} for parameter "toUnit"'.format(toUnit))
+		fromUnitDef = quantityUnits[fromUnit]
+		toUnitDef = quantityUnits[toUnit]
+		inUnitOffset = fromUnitDef['offset'] if 'offset' in fromUnitDef else 0
+		outUnitOffset = toUnitDef['offset'] if 'offset' in toUnitDef else 0
+		data *= fromUnitDef['mult']
+		data += inUnitOffset - outUnitOffset
+		data /= toUnitDef['mult']
+		return data

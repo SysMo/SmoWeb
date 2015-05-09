@@ -35,6 +35,7 @@ Server side documentation
    server/WebServer
    server/TaskScheduler
    server/MathUtilities
+   server/PackageMechanical
 
 -------------------------
 Client side documentation

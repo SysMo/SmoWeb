@@ -37,19 +37,19 @@ class StressCalculator3D(object):
 				self.stressInterpolators[channelName][stressTypeName] = fInterp	
 		h5File.close()
 		
-	def computeStresses(self, pArr, TArr):
-		numbMeasurments = len(pArr) #number measurements
+	def computeStresses(self, pData, TData):
+		numbMeasurments = len(pData) #number measurements
 		stressDType = [(channel, np.float64, (3, 3)) for channel in self.channelNames]
 		self.stressData = np.zeros(shape = (numbMeasurments), dtype = stressDType)
 		
 		for channelName in self.channelNames:
 			channelData = self.stressData[channelName]
-			channelData[:, 0, 0] = self.stressInterpolators[channelName]['s11'](TArr, pArr)
-			channelData[:, 1, 1] = self.stressInterpolators[channelName]['s22'](TArr, pArr)
-			channelData[:, 2, 2] = self.stressInterpolators[channelName]['s33'](TArr, pArr)
-			channelData[:, 0, 1] = channelData[:, 1, 0] = self.stressInterpolators[channelName]['s12'](TArr, pArr)
-			channelData[:, 0, 2] = channelData[:, 2, 0] = self.stressInterpolators[channelName]['s13'](TArr, pArr)
-			channelData[:, 1, 2] = channelData[:, 2, 1] = self.stressInterpolators[channelName]['s23'](TArr, pArr)
+			channelData[:, 0, 0] = self.stressInterpolators[channelName]['s11'](TData, pData)
+			channelData[:, 1, 1] = self.stressInterpolators[channelName]['s22'](TData, pData)
+			channelData[:, 2, 2] = self.stressInterpolators[channelName]['s33'](TData, pData)
+			channelData[:, 0, 1] = channelData[:, 1, 0] = self.stressInterpolators[channelName]['s12'](TData, pData)
+			channelData[:, 0, 2] = channelData[:, 2, 0] = self.stressInterpolators[channelName]['s13'](TData, pData)
+			channelData[:, 1, 2] = channelData[:, 2, 1] = self.stressInterpolators[channelName]['s23'](TData, pData)
 		
 	def writeStresses(self, filePath, datasetName):
 		h5File = h5py.File(filePath)
@@ -57,5 +57,5 @@ class StressCalculator3D(object):
 		if datasetName in h5File:
 			appLogger.warning('Overwriting result stress "%s"'%datasetName)
 			del h5File[datasetName]
-		h5File.create_dataset(datasetName, data = self.stressData)
+		h5File.create_dataset(datasetName, data = self.stressData, chunks=True, compression="gzip")
 		h5File.close()
