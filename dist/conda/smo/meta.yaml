@@ -1,12 +1,12 @@
 package:
   name: smo
-  version: 1.0.0
+  version: 1.0.1
 
 source:
   path: ../../../smo
 
 build:
-  number: 5
+  number: 1
 
 requirements:
   # Packages required to build the package. python and numpy must be
