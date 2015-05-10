@@ -38,10 +38,8 @@ class ADM1H2Bioreactor(Simulation):
 	"""
 	name = 'Model of a bioreactor that produces hydrogen.'
 	
-	def __init__(self, params = None, **kwargs):
+	def __init__(self, params, concentrs, **kwargs):
 		super(ADM1H2Bioreactor, self).__init__(**kwargs)
-		if params == None:
-			params = AttributeDict(kwargs)
 					
 		# Initialize parameters		
 		self.params = params
@@ -54,7 +52,9 @@ class ADM1H2Bioreactor(Simulation):
 		for D_liq in self.D_liq_vals:
 			q_liq = D_liq[1]
 			D_liq[1] = q_liq / params.V_liq
-		print self.D_liq_vals
+			
+		# Initialize concentrations
+		self.concentrs = concentrs
 		
 		# Create state vector and derivative vector
 		stateVarNames = [
@@ -86,19 +86,19 @@ class ADM1H2Bioreactor(Simulation):
 			tChangedD += D_liq[0]
 		
 		# Set initial values of the states
-		self.y.S_su = self.params.S_su_0
-		self.y.S_aa = self.params.S_aa_0
-		self.y.S_fa = self.params.S_fa_0
-		self.y.S_ac = self.params.S_ac_0
-		self.y.S_h2 = self.params.S_h2_0
-		self.y.X_c = self.params.X_c_0
-		self.y.X_ch = self.params.X_ch_0
-		self.y.X_pr = self.params.X_pr_0
-		self.y.X_li = self.params.X_li_0
-		self.y.X_su = self.params.X_su_0
-		self.y.X_aa = self.params.X_aa_0
-		self.y.X_fa = self.params.X_fa_0
-		self.y.S_gas_h2 = self.params.S_gas_h2_0
+		self.y.S_su = concentrs.S_su_0
+		self.y.S_aa = concentrs.S_aa_0
+		self.y.S_fa = concentrs.S_fa_0
+		self.y.S_ac = concentrs.S_ac_0
+		self.y.S_h2 = concentrs.S_h2_0
+		self.y.X_c = concentrs.X_c_0
+		self.y.X_ch = concentrs.X_ch_0
+		self.y.X_pr = concentrs.X_pr_0
+		self.y.X_li = concentrs.X_li_0
+		self.y.X_su = concentrs.X_su_0
+		self.y.X_aa = concentrs.X_aa_0
+		self.y.X_fa = concentrs.X_fa_0
+		self.y.S_gas_h2 = concentrs.S_gas_h2_0
 		self.y.m_gas_h2 = 0.0		
 				
 		# Set all the initial state values
@@ -109,6 +109,7 @@ class ADM1H2Bioreactor(Simulation):
 		
 	def rhs(self, t, y, sw):
 		params = self.params
+		concentrs = self.concentrs
 		
 		# Set state values
 		self.y.set(y)
@@ -143,23 +144,23 @@ class ADM1H2Bioreactor(Simulation):
 			r_T_8 = params.kLa_h2 * (S_h2 - 16 * self.K_H_h2 * p_gas_h2)
 			
 			# Compute state derivatives		
-			S_su_dot = self.D*(params.S_su_in - S_su) + r2 + (1 - params.f_fa_li)*r4 - r5 #1.1
-			S_aa_dot = self.D*(params.S_aa_in - S_aa) + r3 - r6 #2.1
-			S_fa_dot = self.D*(params.S_fa_in - S_fa) + params.f_fa_li*r4 - r7 #3.1
-			S_ac_dot = self.D*(params.S_ac_in - S_ac) + (1 - params.Y_su)*params.f_ac_su*r5 \
+			S_su_dot = self.D*(concentrs.S_su_in - S_su) + r2 + (1 - params.f_fa_li)*r4 - r5 #1.1
+			S_aa_dot = self.D*(concentrs.S_aa_in - S_aa) + r3 - r6 #2.1
+			S_fa_dot = self.D*(concentrs.S_fa_in - S_fa) + params.f_fa_li*r4 - r7 #3.1
+			S_ac_dot = self.D*(concentrs.S_ac_in - S_ac) + (1 - params.Y_su)*params.f_ac_su*r5 \
 				+ (1 - params.Y_aa)*params.f_ac_aa*r6 \
 				+ (1 - params.Y_fa)*0.7*r7 #7.1
-			S_h2_dot = self.D*(params.S_h2_in - S_h2) + (1 - params.Y_su)*params.f_h2_su*r5 \
+			S_h2_dot = self.D*(concentrs.S_h2_in - S_h2) + (1 - params.Y_su)*params.f_h2_su*r5 \
 				+ (1 - params.Y_aa)*params.f_h2_aa*r6 \
 				+ (1 - params.Y_fa)*0.3*r7 \
 				- r_T_8 #8.1
-			X_c_dot = self.D*(params.X_c_in - X_c) - r1 #13.1
-			X_ch_dot = self.D*(params.X_ch_in - X_ch) + params.f_ch_xc*r1 - r2 #14.1
-			X_pr_dot = self.D*(params.X_pr_in - X_pr) + params.f_pr_xc*r1 - r3 #15.1
-			X_li_dot = self.D*(params.X_li_in - X_li) + params.f_li_xc*r1 - r4 #16.1
-			X_su_dot = self.D*(params.X_su_in - X_su) + params.Y_su*r5 #17.1
-			X_aa_dot = self.D*(params.X_aa_in - X_aa) + params.Y_aa*r6 #18.1
-			X_fa_dot = self.D*(params.X_aa_in - X_fa) + params.Y_fa*r7 #19.1
+			X_c_dot = self.D*(concentrs.X_c_in - X_c) - r1 #13.1
+			X_ch_dot = self.D*(concentrs.X_ch_in - X_ch) + params.f_ch_xc*r1 - r2 #14.1
+			X_pr_dot = self.D*(concentrs.X_pr_in - X_pr) + params.f_pr_xc*r1 - r3 #15.1
+			X_li_dot = self.D*(concentrs.X_li_in - X_li) + params.f_li_xc*r1 - r4 #16.1
+			X_su_dot = self.D*(concentrs.X_su_in - X_su) + params.Y_su*r5 #17.1
+			X_aa_dot = self.D*(concentrs.X_aa_in - X_aa) + params.Y_aa*r6 #18.1
+			X_fa_dot = self.D*(concentrs.X_aa_in - X_fa) + params.Y_fa*r7 #19.1
 			
 			S_gas_h2_dot = self.D_gas*(0. - S_gas_h2) + r_T_8 * params.V_liq / params.V_gas #1.1
 			m_gas_h2_dot = params.q_gas * S_gas_h2
@@ -308,7 +309,9 @@ def TestADM1H2Bioreactor():
 		# Controller - D = q/V
 		q_liq_vals = np.array([[100, 0.17], ]) #[day, L/day] (liquid)
 		q_gas = 3.0 #L/day
-				
+	modelParams = ModelParams()		
+		
+	class ModelConcentrs:
 		# Input concentrations 
 		S_su_in = 0 * 0.01 #kgCOD/m**3
 		S_aa_in = 0 * 0.001 #kgCOD/m**3
@@ -338,11 +341,11 @@ def TestADM1H2Bioreactor():
 		X_fa_0 = 0.01 #kgCOD/m**3
 		S_gas_h2_0 = 1e-5 #kgCOD/m**3
 		
-	modelParams = ModelParams()
+	modelConcentrs = ModelConcentrs()
 
 	
 	# Create the model
-	bioreactor = ADM1H2Bioreactor(params = modelParams, initDataStorage = simulate)
+	bioreactor = ADM1H2Bioreactor(params = modelParams, concentrs = modelConcentrs, initDataStorage = simulate)
 	
 	# Run simulation or load old results
 	if (simulate == True):

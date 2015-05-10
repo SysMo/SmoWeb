@@ -20,15 +20,8 @@ class SolverSettings(NumericalModel):
     SG = F.SuperGroup([FG], label = 'Settings')
     
     modelBlocks = []
-
-class ADM1H2CH4Bioreactors(NumericalModel):
-    label = "(H2,CH4) Bioreactors"
-    description = F.ModelDescription("A model of two separate contiguous bioreactors for producing of hydrogen and methane, respectively.", show = True)
-    figure = F.ModelFigure(src="BioReactors/img/ModuleImages/SimpleChemostat.png", show = False) #:TODO: (MILEN)
     
-    #1. ############ Inputs ###############
-    #1.1 Fields - Input values
-    
+class H2Bioreactor(NumericalModel):
     # Stoichiometric parameter values
     f_ch_xc = F.Quantity(default = 0.0, minValue = 0.0,
         label = 'f<sub>ch,xc</sub>', description = 'yield of carbohydrates on composites')
@@ -137,13 +130,13 @@ class ADM1H2CH4Bioreactors(NumericalModel):
             ('time', F.Quantity('Bio_Time', default = (10.0, 'day'), minValue = (0, 'day'), label = 'Duration')),
             ('q', F.Quantity('Bio_VolumetricFlowRate', default = (0.17, 'L/day'), minValue = (0, 'L/day'), label = 'Flow rate')),
         ), 
-        label = 'q<sub>liq</sub>', 
+        label = 'q<sub> liq</sub>', 
         description = 'liquid flow rate (dilution/wash-out)',
         toggle = True,
     ) 
     
     q_gas = F.Quantity('Bio_VolumetricFlowRate', default = (0.0, 'L/day'), minValue = (0, 'L/day'), 
-        label = 'q<sub>gas</sub>', description = 'gas flow rate (wash-out)')
+        label = 'q<sub> gas</sub>', description = 'gas flow rate (wash-out)')
 
     volumetricFlowRatesFG = F.FieldGroup([
             q_liq_vals, q_gas
@@ -257,11 +250,23 @@ class ADM1H2CH4Bioreactors(NumericalModel):
         ], 
         label = "Concentrations (R-H2)"
     )
+    
+    modelBlocks = []
 
+class ADM1H2CH4Bioreactors(NumericalModel):
+    label = "(H2,CH4) Bioreactors"
+    description = F.ModelDescription("A model of two separate contiguous bioreactors for producing of hydrogen and methane, respectively.", show = True)
+    figure = F.ModelFigure(src="BioReactors/img/ModuleImages/SimpleChemostat.png", show = False) #:TODO: (MILEN)
+    
+    #1. ############ Inputs ###############
+    #1.1 Fields - Input values
+    parametersRH2 = F.SubModelGroup(H2Bioreactor, 'parametersSG', label = 'Parameters (R-H2)')
+    concentrationsRH2 = F.SubModelGroup(H2Bioreactor, 'concentrationsSG', label = 'Concentrations (R-H2)')
+    
     #1.3 Fields - Settings
-    solverSettingsFG_RH2 = F.SubModelGroup(SolverSettings, 'FG', label = 'Bioreactor (R-H2)')
-    solverSettingsFG_RCH4 = F.SubModelGroup(SolverSettings, 'FG', label = 'Bioreactor (R-CH4)')
-    settingsSG = F.SuperGroup([solverSettingsFG_RH2, solverSettingsFG_RCH4], label = 'Solver settings')
+    solverSettingsRH2 = F.SubModelGroup(SolverSettings, 'FG', label = 'Bioreactor (R-H2)')
+    solverSettingsRCH4 = F.SubModelGroup(SolverSettings, 'FG', label = 'Bioreactor (R-CH4)')
+    settingsSG = F.SuperGroup([solverSettingsRH2, solverSettingsRCH4], label = 'Solver settings')
     
     #1.4 Model view
     exampleAction = A.ServerAction(
@@ -274,7 +279,7 @@ class ADM1H2CH4Bioreactors(NumericalModel):
      
     inputView = F.ModelView(
         ioType = "input", 
-        superGroups = [parametersSG, concentrationsSG, settingsSG], 
+        superGroups = [parametersRH2, concentrationsRH2, settingsSG], 
         autoFetch = True,
         actionBar = A.ActionBar([exampleAction]),
     )
@@ -325,95 +330,95 @@ class ADM1H2CH4Bioreactors(NumericalModel):
         
     def exampleDef(self):
         #Stoichiometric parameter values
-        self.f_ch_xc = 0.2 #-
-        self.f_pr_xc = 0.2 #-
-        self.f_li_xc = 0.3 #-
+        self.parametersRH2.f_ch_xc = 0.2 #-
+        self.parametersRH2.f_pr_xc = 0.2 #-
+        self.parametersRH2.f_li_xc = 0.3 #-
         
-        self.f_fa_li = 0.95 #-
+        self.parametersRH2.f_fa_li = 0.95 #-
         
-        self.f_ac_su = 0.41 #-
-        self.f_h2_su = 0.19 #-
+        self.parametersRH2.f_ac_su = 0.41 #-
+        self.parametersRH2.f_h2_su = 0.19 #-
         
-        self.f_ac_aa = 0.4 #-
-        self.f_h2_aa = 0.06 #-
+        self.parametersRH2.f_ac_aa = 0.4 #-
+        self.parametersRH2.f_h2_aa = 0.06 #-
         
-        self.Y_su = 0.1 #-
-        self.Y_aa = 0.08 #-
-        self.Y_fa = 0.06 #-
+        self.parametersRH2.Y_su = 0.1 #-
+        self.parametersRH2.Y_aa = 0.08 #-
+        self.parametersRH2.Y_fa = 0.06 #-
         
         #Biochemical parameter values
-        self.k_dis = (0.5, '1/day')
+        self.parametersRH2.k_dis = (0.5, '1/day')
         
-        self.k_hyd_ch = (10.0, '1/day')
-        self.k_hyd_pr = (10.0, '1/day')
-        self.k_hyd_li = (10.0, '1/day')
+        self.parametersRH2.k_hyd_ch = (10.0, '1/day')
+        self.parametersRH2.k_hyd_pr = (10.0, '1/day')
+        self.parametersRH2.k_hyd_li = (10.0, '1/day')
         
-        self.k_m_su = (30.0, '1/day')
-        self.K_S_su = (0.5, 'kgCOD/m**3')
+        self.parametersRH2.k_m_su = (30.0, '1/day')
+        self.parametersRH2.K_S_su = (0.5, 'kgCOD/m**3')
         
-        self.k_m_aa = (50.0, '1/day')
-        self.K_S_aa = (0.3, 'kgCOD/m**3') 
+        self.parametersRH2.k_m_aa = (50.0, '1/day')
+        self.parametersRH2.K_S_aa = (0.3, 'kgCOD/m**3') 
         
-        self.k_m_fa = (6.0, '1/day')
-        self.K_S_fa = (0.4, 'kgCOD/m**3')
+        self.parametersRH2.k_m_fa = (6.0, '1/day')
+        self.parametersRH2.K_S_fa = (0.4, 'kgCOD/m**3')
         
-        self.k_m_h2 = (35.0, '1/day')
-        self.K_S_h2 = (7.e-6, 'kgCOD/m**3')
+        self.parametersRH2.k_m_h2 = (35.0, '1/day')
+        self.parametersRH2.K_S_h2 = (7.e-6, 'kgCOD/m**3')
         
         # Physiochemical parameter values (Temperatures)
-        self.T_base = (15.0, 'degC')
-        self.T_op = (35.0, 'degC')
+        self.parametersRH2.T_base = (15.0, 'degC')
+        self.parametersRH2.T_op = (35.0, 'degC')
     
         # Physiochemical parameter values
-        self.kLa_h2 = (200, '1/day')
+        self.parametersRH2.kLa_h2 = (200, '1/day')
         
         # Physical parameter valures
-        self.V_liq = (34.0, 'L')
-        self.V_gas = ( 3.0, 'L')
+        self.parametersRH2.V_liq = (34.0, 'L')
+        self.parametersRH2.V_gas = ( 3.0, 'L')
         
         # Volumetric flow rate values
-        self.q_liq_vals[0] = (10, 1.7*1e-3) #(day, m**3/day)
-        self.q_gas = (30.0, 'L/day')
+        self.parametersRH2.q_liq_vals[0] = (10, 1.7*1e-3) #(day, m**3/day)
+        self.parametersRH2.q_gas = (30.0, 'L/day')
         
         # Input concentrations 
-        self.S_su_in = (0 * 0.01, 'kgCOD/m**3')
-        self.S_aa_in = (0 * 0.001, 'kgCOD/m**3')
-        self.S_fa_in = (0 * 0.001, 'kgCOD/m**3')
-        self.S_ac_in = (0 * 0.001, 'kgCOD/m**3')
-        self.S_h2_in = (0 * 1e-8, 'kgCOD/m**3')
-        self.X_c_in = (2.0, 'kgCOD/m**3')
-        self.X_ch_in = (5.0, 'kgCOD/m**3')
-        self.X_pr_in = (20.0, 'kgCOD/m**3')
-        self.X_li_in = (5.0, 'kgCOD/m**3')
-        self.X_su_in = (0 * 0.01, 'kgCOD/m**3')
-        self.X_aa_in = (0 * 0.01, 'kgCOD/m**3')
-        self.X_fa_in = (0 * 0.01, 'kgCOD/m**3')
-        self.S_gas_h2_in = (0 * 1e-5, 'kgCOD/m**3')
+        self.concentrationsRH2.S_su_in = (0 * 0.01, 'kgCOD/m**3')
+        self.concentrationsRH2.S_aa_in = (0 * 0.001, 'kgCOD/m**3')
+        self.concentrationsRH2.S_fa_in = (0 * 0.001, 'kgCOD/m**3')
+        self.concentrationsRH2.S_ac_in = (0 * 0.001, 'kgCOD/m**3')
+        self.concentrationsRH2.S_h2_in = (0 * 1e-8, 'kgCOD/m**3')
+        self.concentrationsRH2.X_c_in = (2.0, 'kgCOD/m**3')
+        self.concentrationsRH2.X_ch_in = (5.0, 'kgCOD/m**3')
+        self.concentrationsRH2.X_pr_in = (20.0, 'kgCOD/m**3')
+        self.concentrationsRH2.X_li_in = (5.0, 'kgCOD/m**3')
+        self.concentrationsRH2.X_su_in = (0 * 0.01, 'kgCOD/m**3')
+        self.concentrationsRH2.X_aa_in = (0 * 0.01, 'kgCOD/m**3')
+        self.concentrationsRH2.X_fa_in = (0 * 0.01, 'kgCOD/m**3')
+        self.concentrationsRH2.S_gas_h2_in = (0 * 1e-5, 'kgCOD/m**3')
         
         # Initial values of state variables 
-        self.S_su_0 = (0.012, 'kgCOD/m**3')
-        self.S_aa_0 = (0.005, 'kgCOD/m**3')
-        self.S_fa_0 = (0.099, 'kgCOD/m**3')
-        self.S_ac_0 = (0.20, 'kgCOD/m**3')
-        self.S_h2_0 = (2.4e-7, 'kgCOD/m**3')
-        self.X_c_0 = (0.31, 'kgCOD/m**3')
-        self.X_ch_0 = (0.028, 'kgCOD/m**3')
-        self.X_pr_0 = (0.10, 'kgCOD/m**3')
-        self.X_li_0 = (0.03, 'kgCOD/m**3')
-        self.X_su_0 = (0.42, 'kgCOD/m**3')
-        self.X_aa_0 = (1.18, 'kgCOD/m**3')
-        self.X_fa_0 = (0.24, 'kgCOD/m**3')
-        self.S_gas_h2_0 = (1e-5, 'kgCOD/m**3')
+        self.concentrationsRH2.S_su_0 = (0.012, 'kgCOD/m**3')
+        self.concentrationsRH2.S_aa_0 = (0.005, 'kgCOD/m**3')
+        self.concentrationsRH2.S_fa_0 = (0.099, 'kgCOD/m**3')
+        self.concentrationsRH2.S_ac_0 = (0.20, 'kgCOD/m**3')
+        self.concentrationsRH2.S_h2_0 = (2.4e-7, 'kgCOD/m**3')
+        self.concentrationsRH2.X_c_0 = (0.31, 'kgCOD/m**3')
+        self.concentrationsRH2.X_ch_0 = (0.028, 'kgCOD/m**3')
+        self.concentrationsRH2.X_pr_0 = (0.10, 'kgCOD/m**3')
+        self.concentrationsRH2.X_li_0 = (0.03, 'kgCOD/m**3')
+        self.concentrationsRH2.X_su_0 = (0.42, 'kgCOD/m**3')
+        self.concentrationsRH2.X_aa_0 = (1.18, 'kgCOD/m**3')
+        self.concentrationsRH2.X_fa_0 = (0.24, 'kgCOD/m**3')
+        self.concentrationsRH2.S_gas_h2_0 = (1e-5, 'kgCOD/m**3')
         
         # Solver settings
-        self.solverSettingsFG_RH2.tFinal = (50.0, 'day')
-        self.solverSettingsFG_RH2.tPrint = (0.01, 'day')
+        self.solverSettingsRH2.tFinal = (50.0, 'day')
+        self.solverSettingsRH2.tPrint = (0.025, 'day')
                         
     def compute(self):
-        bioreactor = DM.ADM1H2Bioreactor(self)
+        bioreactor = DM.ADM1H2Bioreactor(self.parametersRH2, self.concentrationsRH2)
         
         bioreactor.prepareSimulation()
-        bioreactor.run(self.solverSettingsFG_RH2)
+        bioreactor.run(self.solverSettingsRH2)
         
         res = bioreactor.getResults()
         results = np.array(res)
