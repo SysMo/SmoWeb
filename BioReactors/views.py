@@ -14,6 +14,13 @@ class ChemostatView(ModularPageView):
     requireGoogle = ['visualization']
     
 @registerView(router)
+class ADM1BioreactorsView(ModularPageView):
+    label = 'ADM1 Bioreactors'
+    modules = [M.ADM1H2CH4Bioreactors]
+    requireJS = ['dygraph', 'dygraphExport']
+    requireGoogle = ['visualization']
+    
+@registerView(router)
 class BiochemicalReactionsView(ModularPageView):
     label = 'Biochemical Reactions'
     modules = [M.BiochemicalReactions, M.BiochemicalReactionsDoc]

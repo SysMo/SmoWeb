@@ -1,3 +1,4 @@
 from ChemostatSimple import ChemostatSimple, ChemostatSimpleDoc
 from ChemostatDDE import ChemostatDDE, ChemostatDDEDoc
 from BiochemicalReactions import BiochemicalReactions, BiochemicalReactionsDoc
+from ADM1H2CH4Bioreactors import ADM1H2CH4Bioreactors

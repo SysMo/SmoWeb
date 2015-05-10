@@ -115,12 +115,17 @@ Quantities = {
 		'units' : OrderedDict((('s', {'mult' : 1/86400.}), ('min', {'mult' : 1/1440.}), ('h', {'mult' : 1/24.}), ('day', {'mult' : 1.0}), ('year', {'mult' : 365.}),))},
 	'Bio_TimeRate' : {'title' : 'bio: time rate', 'nominalValue' : 1.0, 'SIUnit' : '1/day',
 		'units' : OrderedDict((('1/s', {'mult' : 86400.}), ('1/min', {'mult' : 1440.}), ('1/h', {'mult' : 24.}), ('1/day', {'mult' : 1.0}),))},
+	'Bio_Mass' : {'title' : 'bio: mass', 'nominalValue' : 1.0, 'SIUnit' : 'kgCOD', 'minValue' : 0.0,
+		'units' : OrderedDict((('kgCOD', {'mult' : 1}), ('gCOD', {'mult' : 1e-3}), ('tonCOD', {'mult' : 1e3}),))},
 	'Bio_MassConcentration' : {'title' : 'bio: mass concentration', 'nominalValue' : 1.0, 'minValue' : 0.0, 'SIUnit' : 'kg/m**3', 
 		'units' : OrderedDict((('kg/m**3', {'mult' : 1}), ('g/L', {'mult' : 1}), ('g/cm**3', {'mult' : 1e3}),))},
 	'Bio_CODConcentration' : {'title' : 'bio: COD concentration', 'nominalValue' : 1.0, 'minValue' : 0.0, 'SIUnit' : 'kgCOD/m**3', 
 		'units' : OrderedDict((('kgCOD/m**3', {'mult' : 1}), ('gCOD/L', {'mult' : 1}), ('gCOD/cm**3', {'mult' : 1e3}),))},
 	'Bio_MolarConcentration' : {'title' : 'bio: molar concentration', 'nominalValue' : 1.0, 'minValue' : 0.0, 'SIUnit' : 'kmol/m**3', 
 		'units' : OrderedDict((('kmol/m**3', {'mult' : 1}), ('mol/m**3', {'mult' : 1./1e3}), ('mol/L', {'mult' : 1}), ('M', {'mult' : 1}), ('mol/cm**3', {'mult' : 1e3}),))},
+	'Bio_VolumetricFlowRate' : {'title' : 'bio: volumetric flow rate', 'nominalValue' : 1.0, 'SIUnit' : 'm**3/day', 
+		'units' : OrderedDict((('m**3/s', {'mult' : 86400.}), ('m**3/min', {'mult' : 1440.}), ('m**3/h', {'mult' : 24.}), ('m**3/day', {'mult' : 1.0}),
+							   ('L/s', {'mult' : 1e-3*86400.}), ('L/min', {'mult' : 1e-3*1440.}), ('L/h', {'mult' : 1e-3*24.}), ('L/day', {'mult' : 1e-3*1.0}),))},
 }
 
 
