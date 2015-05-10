@@ -6,7 +6,7 @@ Created on Feb 25, 2015
 '''
 from collections import OrderedDict
 import StringIO
-from smo.web.exceptions import ConnectionError
+from smo.web.exceptions import ConnectionError, FieldError
 
 class Causality(object):
 	Parameter = 0
@@ -15,6 +15,8 @@ class Causality(object):
 	Output = 3
 	Local = 4
 	Independent = 5
+	RealState = 6
+	TimeDerivative = 7
 	
 class Variability(object):
 	Constant = 0
@@ -60,11 +62,11 @@ class RealVariable(ScalarVariable):
 		super(RealVariable, self).__init__(**kwargs)
 
 class RealState(RealVariable):
-	def __init__(self, der, **kwargs):
-		super(RealState, self).__init__(causality = Causality.Output, 
+	def __init__(self, start, **kwargs):
+		super(RealState, self).__init__(causality = Causality.RealState, 
 				variability = Variability.Continuous, **kwargs)
-		self.der = der
-
+		self.start = start
+		
 class SubModel(ModelField):
 	def __init__(self, klass, **kwargs):
 		super(SubModel, self).__init__(**kwargs)
@@ -79,11 +81,14 @@ class DynamicalModelMeta(type):
 		# Collect fields from current class.
 		dm_variables = []
 		dm_submodels = []
+		dm_realStates = []
 		for key, value in attrs.items():
 			if isinstance(value, ScalarVariable):
 				dm_variables.append((key, value))
 				value.setName(key)
 				attrs.pop(key)
+				if (isinstance(value, RealState)):
+					dm_realStates.append((key, value))
 			elif isinstance(value, SubModel):
 				dm_submodels.append((key, value))
 				value.setName(key)
@@ -94,12 +99,27 @@ class DynamicalModelMeta(type):
 		attrs['dm_variables'] = OrderedDict(dm_variables)
 		dm_submodels.sort(key=lambda x: x[1].creation_counter)
 		attrs['dm_submodels'] = OrderedDict(dm_submodels)
+		dm_realStates.sort(key=lambda x: x[1].creation_counter)
+		attrs['dm_realStates'] = OrderedDict(dm_realStates)
 		
 		new_class = (super(DynamicalModelMeta, cls)
 			.__new__(cls, name, bases, attrs))
 		
 		return new_class
 
+class DerivativeVector(object):
+	def __init__(self, model):
+		object.__setattr__(self, 'model', model)
+		object.__setattr__(self, 'dm_realStates', model.__class__.dm_realStates)
+		for name in self.dm_realStates.keys():
+			object.__setattr__(self, name, 0)
+	
+	def __setattr__(self, name, value):
+		if (name in self.dm_realStates.keys()):			
+			object.__setattr__(self, name, value)
+		else:
+			raise FieldError('No state derivative with name {}'.format(name))
+		
 class InstanceVariable(object):
 	def __init__(self, instance, clsVar):
 		self.instance = instance
@@ -117,16 +137,18 @@ class InstanceVariable(object):
 		return '.'.join(self.qPath)
 	
 	def connect(self, other, complement = True):
+		# Input variables
 		if (self.clsVar.causality == Causality.Input):
 			if (len(self.connectedVars) != 0):
 				raise ConnectionError(self, other, 'Cannot connect input to more than one variable')
-			elif (other.clsVar.causality == Causality.Output):
+			elif (other.clsVar.causality == Causality.Output or other.clsVar.causality == Causality.RealState):
 				self.connectedVars.append(other)
 				if (complement):
 					other.connect(self, complement = False)
 			else:
-				raise ConnectionError(self, other, 'Can only connect input variable to an output variable')
-
+				raise ConnectionError(self, other, 'Can only connect Input variable to an Output variable or RealState')
+		
+		# Output variables
 		elif (self.clsVar.causality == Causality.Output):
 			if (other.clsVar.causality == Causality.Input):
 				if(other not in self.connectedVars):
@@ -136,18 +158,35 @@ class InstanceVariable(object):
 				else:
 					pass
 			else:
-				raise ConnectionError(self, other, 'Can only connect output variable to an input variable')
+				raise ConnectionError(self, other, 'Can only connect Output variable to an Input variable')
+		
+		# State variables
+		elif (self.clsVar.causality == Causality.RealState):
+			if (other.clsVar.causality == Causality.Input):
+				if(other not in self.connectedVars):
+					self.connectedVars.append(other)
+					if (complement):
+						other.connect(self, complement = False)
+				else:
+					pass
+			else:
+				raise ConnectionError(self, other, 'Can only connect RealState variable to an input variable')
+
+		# Other
 		else:
-			raise ConnectionError(self, other, 'Connected variables must have causality input or output')
+			raise ConnectionError(self, other, 'Connected variables must have causality Input, Output or RealState')
+		
 class InstanceMeta(object):
 	def __init__(self):
 		self.dm_variables = {}
+		self.dm_submodels = {}
 		
-	def addVariable(self, instanceVariable):
+	def addInstanceVariable(self, instanceVariable):
 		varName = instanceVariable.clsVar.name
 		self.dm_variables[varName] = instanceVariable
 		self.__setattr__(varName, instanceVariable)
-
+		
+		
 class DynamicalModel(object):
 	__metaclass__ = DynamicalModelMeta
 	
@@ -165,13 +204,16 @@ class DynamicalModel(object):
 			self.qPath = [self.name]
 		# Create instance meta
 		self.meta = InstanceMeta()
+		# Create derivative vector
+		self.der = DerivativeVector(self)
 		# Create instance variables
 		for name, clsVar in cls.dm_variables.iteritems():
-			self.meta.addVariable(InstanceVariable(self, clsVar))
+			self.meta.addInstanceVariable(InstanceVariable(self, clsVar))
 		# Create submodel instances
 		for name, submodel in cls.dm_submodels.iteritems():
 			instance = submodel.klass(name, self)
 			self.__dict__[name] = instance
+			self.meta.dm_submodels[name] = instance
 			
 		return self
 	
@@ -189,8 +231,9 @@ class DynamicalModel(object):
 			buf.write("\t{}: \n".format(k))
 		buf.write("-------------------------------------\n")		
 		buf.write("SubModels:\n")
-		for k, v in self.__class__.dm_submodels.iteritems():
+		for k, v in self.meta.dm_submodels.iteritems():
 			buf.write("{}: \n".format(k))
+			buf.write(v.describeFields())
 		buf.write("=====================================\n")
 		result = buf.getvalue()
 		buf.close()
@@ -209,7 +252,8 @@ class DynamicalModel(object):
 		for k, v in self.meta.dm_variables.iteritems():
 			if isinstance(v.clsVar, RealState):
 				self.dm_graph.add_edge('stateVector', v)
-				print v
+				self.dm_graph.add_edge(v.qName + '.der', 'stateDerivativeVector')
+				self.dm_graph.add_edge(self, v.qName + '.der')
 			if (v.clsVar.causality == Causality.Input):
 				self.dm_graph.add_node(v)
 				self.dm_graph.add_edge(v, self)
@@ -232,11 +276,13 @@ class DynamicalModel(object):
 		labels = {}
 		for node in self.dm_graph.nodes_iter():
 			posLabels[node] = pos[node] + np.array([0, -0.05])
-			labels[node] = node if isinstance(node, basestring) else node.qName
+			if (isinstance(node, basestring)):
+				labels[node] = node 
+			elif (isinstance(node, InstanceVariable)):
+				labels[node] = node.qName
+			elif (isinstance(node, DynamicalModel)):
+				labels[node] = node.qName + '.compute'
 		nx.draw_networkx_labels(self.dm_graph, posLabels, labels)
 		nx.draw_networkx_edges(self.dm_graph, pos)
 		plt.show()
-				
-	def connect(self, n1, n2):
-		self.dm_graph.add_edge(n1, n2)
 		

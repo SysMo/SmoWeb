@@ -14,7 +14,6 @@ from smo.mechanical.StressCalculator3D import StressCalculator3D
 import smo.model.quantity as Q
 from StressTensorCalculator import StressTensorCalculator as STC
 import smo_ext.Mechanical as Mech
-from collections import OrderedDict
 
 import logging
 appLogger = logging.getLogger('AppLogger')
