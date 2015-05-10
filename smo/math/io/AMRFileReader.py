@@ -110,7 +110,7 @@ class AMRFileReader(object):
 		return chInfo
 
 	def getChannelData(self, chInfo):
-		dtype = np.dtype([('time', np.uint32), ('value', '<f8'), ('f3', '<f4')])
+		dtype = np.dtype([('time', np.uint32), ('value', '<f8'), ('f3', np.uint16), ('f4', np.uint16)])
 		arr = np.frombuffer(buffer(self.fh[chInfo.start: chInfo.start + 16 * chInfo.length]), dtype=dtype)
 		return arr
 	
