@@ -217,7 +217,7 @@ class ThrottleValve(CycleComponent2FlowPorts):
 		self.delta_h = 0
 
 class IsobaricHeatExchanger(CycleComponent2FlowPorts):
-	etaThermal = F.Quantity(default = 0.9, label = 'thermal efficiency', minValue = 0, maxValue = 1, show = 'self.computeMethod == "eta"')
+	etaThermal = F.Quantity(default = 1.0, label = 'thermal efficiency', minValue = 0, maxValue = 1, show = 'self.computeMethod == "eta"')
 	TExt = F.Quantity('Temperature', default = (30, 'degC'), label = 'external temperature', show = 'self.computeMethod == "eta"')
 	qOutlet = F.Quantity(default = 0, minValue = 0, maxValue = 1, label = 'outlet vapor quality', show = 'self.computeMethod == "Q"')
 	TOutlet = F.Quantity('Temperature', default = (40, 'degC'), label = 'outlet temperature', show = 'self.computeMethod == "T"')
@@ -289,7 +289,7 @@ class HeatExchangerTwoStreams(CycleComponent):
 											)), default = 'CF', label = "flow configuration",
 						show = 'self.computeMethod == "EN"')
 	epsGiven = F.Quantity('Efficiency', default = 1, label = 'effectiveness', show = 'self.computeMethod == "EG"')
-	UA = F.Quantity('ThermalConductance', default = 1, label = 'UA', show = 'self.computeMethod == "EN"')
+	UA = F.Quantity('ThermalConductance', default = (1, 'kW/K'), label = 'UA', show = 'self.computeMethod == "EN"')
 	QDot = F.Quantity('HeatFlowRate', default = (0, 'kW'), label = 'heat flow rate in')
 	FG = F.FieldGroup([computeMethod, epsGiven, UA, type], label = 'Heat exchanger')
 	#================== Results =================#

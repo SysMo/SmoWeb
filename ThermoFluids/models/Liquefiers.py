@@ -81,13 +81,18 @@ class LindeHampsonCycle(LiquefactionCycle):
 		self.gasSource.mDot = self.mDot
 		self.gasSource.compute()
 		# Initial guess
-		liqFractionGuess = 0.2
-		self.compressor.inlet.flow.mDot = 1.0 / liqFractionGuess * self.gasSource.outlet.flow.mDot
-		self.liqSeparator.outletVapor.flow.mDot = liqFractionGuess * self.mDot
-
-		self.compressor.inlet.state.update_Tp(
-			self.gasSource.outlet.state.T, self.gasSource.outlet.state.p)
-		self.secThrottleValve.outlet.state.update_pq(self.pIn, 1)
+		liqFractionGuess = 0.5
+		for fl in self.flows:
+			fl.mDot = 1.0 / liqFractionGuess * self.mDot
+		for fp in self.fp:
+			fp.update_Tp(self.TAmbient, self.pIn)
+# 		liqFractionGuess = 0.2
+# 		self.compressor.inlet.flow.mDot = 1.0 / liqFractionGuess * self.gasSource.outlet.flow.mDot
+# 		self.liqSeparator.outletVapor.flow.mDot = liqFractionGuess * self.mDot
+# 
+# 		self.compressor.inlet.state.update_Tp(
+# 			self.gasSource.outlet.state.T, self.gasSource.outlet.state.p)
+# 		self.secThrottleValve.outlet.state.update_pq(self.pIn, 1)
 		# Run solver
 		self.solve()
 		# Results
@@ -128,10 +133,9 @@ class LindeHampsonCycle(LiquefactionCycle):
 	def ArgonLiquefaction(self):
 		self.fluidName = "Argon"
 		self.pIn = (1, 'bar')
-		self.TIn = 300
+		self.TIn = self.TAmbient
 		self.pHigh = (200, 'bar')
 		self.pLiquid = (1.2, 'bar')
-		self.TAmbient = 300
 		self.compressor.modelType = 'T'
 		self.compressor.etaT = 0.8
 		self.compressor.dT = 50.
@@ -142,10 +146,9 @@ class LindeHampsonCycle(LiquefactionCycle):
 	def NitrogenLiquefaction(self):
 		self.fluidName = "Nitrogen"
 		self.pIn = (1, 'bar')
-		self.TIn = 300
+		self.TIn = self.TAmbient
 		self.pHigh = (300, 'bar')
 		self.pLiquid = (1.2, 'bar')
-		self.TAmbient = 300
 		self.compressor.modelType = 'T'
 		self.compressor.etaT = 0.8
 		self.compressor.dT = 50.
@@ -267,10 +270,9 @@ class ClaudeCycle(LindeHampsonCycle):
 	def NitrogenLiquefaction(self):
 		self.fluidName = "Nitrogen"
 		self.pIn = (1, 'bar')
-		self.TIn = 300
+		self.TIn = self.TAmbient
 		self.pHigh = (30, 'bar')
 		self.pLiquid = (1.2, 'bar')
-		self.TAmbient = 300
 		self.compressor.modelType = 'T'
 		self.compressor.etaT = 0.8
 		self.compressor.dT = 50.
@@ -282,11 +284,10 @@ class ClaudeCycle(LindeHampsonCycle):
 	def NitrogenMediumP(self):
 		self.fluidName = "Nitrogen"
 		self.pIn = (1, 'bar')
-		self.TIn = (300, 'K')
+		self.TIn = self.TAmbient
 		self.mDot = (0.188, 'kg/s')
 		self.pHigh = (30, 'bar')
 		self.pLiquid = (1.2, 'bar')
-		self.TAmbient = (300, 'K')
 		self.compressor.modelType = 'T'
 		self.compressor.etaT = 0.8
 		self.compressor.dT = 50
