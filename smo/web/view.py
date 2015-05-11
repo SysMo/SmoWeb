@@ -4,10 +4,11 @@ from SmoWeb.settings import JINJA_TEMPLATE_IMPORTS
 import json
 import traceback
 import logging
-from smo.data.hdf import HDFInterface
+#from smo.data.hdf import HDFInterface
 from SmoWebBase.tasks import celeryCompute
 from celery.result import AsyncResult
 from celery.task.control import revoke
+import h5py
 logger = logging.getLogger('django.request.smo.view')
 
 from pymongo import MongoClient
@@ -287,9 +288,13 @@ class ModularPageView(object):
 	def loadHdfValues(self, model, view, parameters):
 		resultDict = {}
 		for field in parameters:
-			hi = HDFInterface(field['hdfFile'])
+			h5File = h5py.File(field['hdfFile'], 'r')
+			print h5File
 			datasetPath = field['hdfGroup'] + '/' + field['dataset']
-			resultDict[field['name']] = json.loads(hi.getDatasetContent(datasetPath))['data']
+			print datasetPath
+			for s in h5File:
+				print s
+			resultDict[field['name']] = h5File[datasetPath][...].tolist()
 		return resultDict
 	
 	@action.post()

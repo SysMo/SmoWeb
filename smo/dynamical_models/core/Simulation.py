@@ -24,7 +24,9 @@ class ResultStorage(object):
 		"""
 		Writes and reads simulation results from HDF file
 		"""
-		self.h5File = h5py.File(filePath)
+		print("=============================================")
+		print filePath
+		self.h5File = h5py.File(filePath, 'a')
 		self.datasetPath = datasetPath
 	
 	def __del__(self):
