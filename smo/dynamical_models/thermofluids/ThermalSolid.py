@@ -42,8 +42,8 @@ class SolidConductiveBody(DMC.DynamicalModel):
 			self.mass = params.mass
 		else:
 			rho = self.material['refValues']['density']
-			VR = params.thickness * params.conductionArea
-			self.mass = rho * VR
+			V = params.thickness * params.conductionArea
+			self.mass = rho * V
 		
 		self.numMassSegments = params.numMassSegments
 		self.segmentMass= self.mass / self.numMassSegments

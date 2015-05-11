@@ -249,7 +249,7 @@ class TankModel(DMC.Simulation):
 		plt.plot(xData, data['TTank'], 'r', label = 'tank temperature [K]')
 		plt.plot(xData, data['TLiner_2'], 'm', label = 'tank liner temperature [K]')
 		plt.plot(xData, data['TComp_4'], 'b', label = 'tank composite temperature [K]')	
-		#plt.plot(xData, data['rhoTank'] * self.tank.VR, 'm', label = 'tank mass [kg]')
+		#plt.plot(xData, data['rhoTank'] * self.tank.V, 'm', label = 'tank mass [kg]')
 		plt.plot(xData, data['TCompressorOut'], 'y', label = 'compressor outlet temperature of fluid [K]')
 		plt.plot(xData, data['TCoolerOut'], 'm--', label = 'cooler outlet temperature of fluid [K]')
 		#plt.plot(xData, data['QDotCooler'], 'y--', label = 'cooler heat flow rate [W]')
@@ -295,7 +295,7 @@ class TankModelFactory():
 				fluid = params.fluid,
 				etaS = params.compressor.etaS,
 				fQ = params.compressor.fQ,
-				VR = params.compressor.VR,
+				V = params.compressor.V,
 			),
 							
 			cooler = AttributeDict(
@@ -308,7 +308,7 @@ class TankModelFactory():
 							
 			tank = AttributeDict(
 				fluid = params.fluid, 
-				VR = params.tank.volume,
+				V = params.tank.volume,
 				TInit = params.tank.TInit,
 				pInit = params.tank.pInit,
 			),
@@ -384,7 +384,7 @@ def testTankModel():
 		compressor = AttributeDict(
 			etaS = 0.9,
 			fQ = 0.,
-			VR = 0.5e-3,
+			V = 0.5e-3,
 		),
 
 		cooler = AttributeDict(
