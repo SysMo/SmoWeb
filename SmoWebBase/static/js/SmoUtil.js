@@ -643,12 +643,20 @@ smoModule.directive('tooltip', function(){
     return {
         restrict: 'A',
         link: function(scope, element, attrs){
-            $(element).hover(function(){
+            var mouseIn;
+        	$(element).hover(function(){
                 // on mouseenter
+        		mouseIn = true;
                 $(element).tooltip('show');
             }, function(){
                 // on mouseleave
+            	mouseIn = false;
                 $(element).tooltip('hide');
+            });
+            $(element).keyup(function(){
+            	if (mouseIn) {
+            		$(element).tooltip('show');
+            	}
             });
         }
     };
@@ -980,7 +988,7 @@ smoModule.directive('smoString', ['$compile', function($compile) {
 				template += '\
 					<div class="field-input"> \
 						<div ng-form name="' + scope.fieldVar.name + 'Form">\
-							<input style="width:' + scope.fieldVar.inputBoxWidth + 'px" name="input" type="text" ng-model="fieldVar.value" ng-change="updateValue()" data-toggle="tooltip" title="{{fieldVar.value}}" tooltip>\
+							<input style="width:' + scope.fieldVar.inputBoxWidth + 'px" name="input" type="text" ng-model="fieldVar.value" ng-change="updateValue()" data-toggle="tooltip" data-original-title="{{fieldVar.value}}" tooltip>\
 						</div>\
 					</div>';
 			else if (scope.viewType == 'output'){
@@ -1893,7 +1901,7 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 							<div class="field-input">\
 								<div ng-form name="' + scope.smoRecordArray.name + '_{{i}}_' + String(col) + 'Form">\
 									<input style="width:' + field.inputBoxWidth + 'px" name="input" type="text" \
-										ng-model="arrValue[i][' + String(col) + ']">\
+										ng-model="arrValue[i][' + String(col) + ']" data-toggle="tooltip" data-original-title="{{arrValue[i][' + String(col) + ']}}" tooltip>\
 								</div>\
 							</div>';
 //							<div style="margin-left: 5px; color:red;" ng-show="' + scope.smoRecordArray.name + '_{{i}}_' + String(col) + 'Form.input.$error.required">Required value\
