@@ -130,7 +130,7 @@ class CompressedGasStorage(NumericalModel):
         hdfGroup = '/TankModel'
     )
     
-    plotsVG = F.ViewGroup([plotTank], label = 'Results')
+    plotsVG = F.ViewGroup([plotTank, plotTankFluidMass, plotFueling, plotQDot, plotCompressor], label = 'Results')
     plotsSG = F.SuperGroup([plotsVG], label = 'Plots')
     
     #2.3 Table 
