@@ -24,11 +24,8 @@ class ResultStorage(object):
 		"""
 		Writes and reads simulation results from HDF file
 		"""
-		self.h5File = h5py.File(filePath)
+		self.h5File = h5py.File(filePath, 'a')
 		self.datasetPath = datasetPath
-	
-	def __del__(self):
-		self.h5File.close()
 	
 	def initializeWriting(self, varList, chunkSize, datasetFamily = 'simulation_{:0>4d}'):
 		# Size of result chunks
@@ -88,6 +85,7 @@ class ResultStorage(object):
 		# Assign the new dataset to the data variable 
 		self.data = self.h5File[self.datasetPath][self.simulationName]
 		self.h5File.flush()
+		self.h5File.close()
 	
 	def loadResult(self, simIndex = None):
 		self.datasetFamily = self.h5File[self.datasetPath].attrs['family']

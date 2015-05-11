@@ -448,7 +448,10 @@ smoModule.factory('communicator', function($http, $window, $timeout, $location, 
 					updateRecordId(modelComm);
 				}
 				hdfDataComm = new Communicator();
-				hdfDataComm.fetchData('loadHdfValues', hdfFields, onFetchSuccess);
+				var onFail = function(comm) {
+					console.log(comm);
+				};
+				hdfDataComm.fetchData('loadHdfValues', hdfFields, onFetchSuccess, onFail);
 				return;
 			}
 		}
@@ -1270,9 +1273,11 @@ smoModule.directive('smoDataSeriesView', ['$compile', 'communicator', 'util', fu
 				$scope.numCols = $scope.values[0].length;
 				$scope.numRows = $scope.values.length;
 				
+				console.log($scope.values[0]);
+				console.log($scope.fieldVar.fields);
+				
 				for (var col=0; col<$scope.numCols; col++){
 					var field = $scope.fieldVar.fields[col];
-						
 					field.unit 
 						= field.unit || field.SIUnit;
 					field.displayUnit 

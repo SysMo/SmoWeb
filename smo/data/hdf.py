@@ -37,6 +37,7 @@ class HDFInterface(object):
 		return fileContent
 	
 	def getDatasetContent(self, datasetPath):
+		print self.filePath, datasetPath
 		hdfFile = h5py.File(self.filePath)
 		dataset = hdfFile[datasetPath]
 		

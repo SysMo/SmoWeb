@@ -542,6 +542,7 @@ class DataSeriesView(Field):
 				raise ArgumentTypeError('The value of View must be a numpy structured array or a list of lists')
 	
 	def getValueRepr(self, value):
+		print value
 		if (self.useHdfData == True):
 			return value
 		else:
