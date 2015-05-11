@@ -35,7 +35,7 @@ class MultiaxialDamageCalculator(object):
 			self.stressesScaled = self.stressSeries * 0
 			numSamples = self.stressSeries.shape[0]
 			# Min/max stress ratios
-			V = np.ones(numSamples)
+			VR = np.ones(numSamples)
 			for i in range(self.stressSeries.shape[0]):
 				if (np.max(np.abs(self.stressSeries[i, :])) > 1e-8):
 					#sPrincipal = np.zeros((3,), dtype = S.floatT)
@@ -49,15 +49,15 @@ class MultiaxialDamageCalculator(object):
 					#if ( err > 1e-8):
 					#	print ('Pricipal stresses calculation problem: err = {}, s1 = {}, s2 = {}'.format(err, sPrincipal, sPrincipalSeries[i, :]))
 					# Take the ratio of min/max stress
-					# V = -1: dominating shear stress
-					# V = 0: dominating tension/copression stress
-					# V = 1: hydro-static pressure
+					# VR = -1: dominating shear stress
+					# VR = 0: dominating tension/copression stress
+					# VR = 1: hydro-static pressure
 					if (abs(sPrincipal[0]) > abs(sPrincipal[2])):
-						V = sPrincipal[2] / sPrincipal[0]
+						VR = sPrincipal[2] / sPrincipal[0]
 					else:
-						V = sPrincipal[0] / sPrincipal[2]
+						VR = sPrincipal[0] / sPrincipal[2]
 					# Scale coefficient
-					f = 1 + (1 - k) * V
+					f = 1 + (1 - k) * VR
 				else:
 					f = 1.0
 				self.stressesScaled[i, :] = self.stressSeries[i, :] * f

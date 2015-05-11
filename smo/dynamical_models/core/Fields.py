@@ -50,7 +50,16 @@ class Function(ModelField):
 		self.inputs = inputs
 		self.outputs = outputs
 		# TODO: check causalities
-		
+
+class Port(ModelField):
+	def __init__(self, variables, subType = None, **kwargs):
+		super(Port, self).__init__(**kwargs)
+		self.variables = variables		
+		self.subType = subType		
+	def checkConnect(self, other):
+		if (len(self.variables) != len(other.variables)):
+			raise ConnectionError('Cannot connect ports with different number of variables')
+	
 class ScalarVariable(ModelField):
 	def __init__(self, causality, variability, **kwargs):
 		"""
@@ -62,8 +71,8 @@ class ScalarVariable(ModelField):
 		self.variability = variability
 
 class RealVariable(ScalarVariable):
-	def __init__(self, **kwargs):
-		super(RealVariable, self).__init__(**kwargs)
+	def __init__(self, causality = Causality.Local, variability = Variability.Continuous, **kwargs):
+		super(RealVariable, self).__init__(causality, variability, **kwargs)
 
 class RealState(RealVariable):
 	def __init__(self, start, **kwargs):
@@ -98,7 +107,7 @@ class InstanceVariable(InstanceField):
 		# Input variables
 		if (self.clsVar.causality == Causality.Input):
 			if (len(self.connectedVars) != 0):
-				raise ConnectionError(self, other, 'Cannot connect input to more than one variable')
+				raise ConnectionError(self, other, 'Cannot connect input {.qName} to more than one variable'.format(self))
 			elif (other.clsVar.causality == Causality.Output or other.clsVar.causality == Causality.RealState):
 				self.connectedVars.append(other)
 				if (complement):
@@ -143,6 +152,18 @@ class InstanceFunction(InstanceField):
 			self.inputs.append(instance.meta.dm_variables[inVar.name])
 		for outVar in clsVar.outputs:
 			self.outputs.append(instance.meta.dm_variables[outVar.name])
+
+class InstancePort(InstanceField):
+	def __init__(self, instance, clsVar):
+		super(InstancePort, self).__init__(instance, clsVar)
+		self.variables = []
+		for var in clsVar.variables:
+			self.variables.append(instance.meta.dm_variables[var.name])
+	
+	def connect(self, other):
+		self.clsVar.checkConnect(other.clsVar)
+		for (thisVar, otherVar) in zip(self.variables, other.variables):
+			thisVar.connect(otherVar)
 
 class DerivativeVector(object):
 	def __init__(self, model):

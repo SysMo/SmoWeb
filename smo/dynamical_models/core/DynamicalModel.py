@@ -24,6 +24,7 @@ class DynamicalModelMeta(type):
 		dm_submodels = []
 		dm_realStates = []
 		dm_functions = []
+		dm_ports = []
 		for key, value in attrs.items():
 			if isinstance(value, ScalarVariable):
 				dm_variables.append((key, value))
@@ -35,6 +36,10 @@ class DynamicalModelMeta(type):
 				dm_functions.append((key, value))
 				value.setName(key)
 				attrs.pop(key)
+			elif isinstance(value, Port):
+				dm_ports.append((key, value))
+				value.setName(key)
+				attrs.pop(key)
 			elif isinstance(value, SubModel):
 				dm_submodels.append((key, value))
 				value.setName(key)
@@ -43,12 +48,14 @@ class DynamicalModelMeta(type):
 		# Create special class variables with the collected fields
 		dm_variables.sort(key=lambda x: x[1].creation_counter)
 		attrs['dm_variables'] = OrderedDict(dm_variables)
-		dm_submodels.sort(key=lambda x: x[1].creation_counter)
-		attrs['dm_submodels'] = OrderedDict(dm_submodels)
 		dm_realStates.sort(key=lambda x: x[1].creation_counter)
 		attrs['dm_realStates'] = OrderedDict(dm_realStates)
 		dm_functions.sort(key=lambda x: x[1].creation_counter)
 		attrs['dm_functions'] = OrderedDict(dm_functions)
+		dm_ports.sort(key=lambda x: x[1].creation_counter)
+		attrs['dm_ports'] = OrderedDict(dm_ports)
+		dm_submodels.sort(key=lambda x: x[1].creation_counter)
+		attrs['dm_submodels'] = OrderedDict(dm_submodels)
 		
 		new_class = (super(DynamicalModelMeta, cls)
 			.__new__(cls, name, bases, attrs))
@@ -61,6 +68,7 @@ class InstanceMeta(object):
 		self.dm_variables = {}
 		self.dm_submodels = {}
 		self.dm_functions = {}
+		self.dm_ports = {}
 		
 	def addInstanceVariable(self, instanceVariable):
 		varName = instanceVariable.clsVar.name
@@ -72,6 +80,11 @@ class InstanceMeta(object):
 		self.dm_functions[funcName] = instanceFunction
 		self.__setattr__(funcName, instanceFunction)
 		
+	def addInstancePort(self, instancePort):
+		portName = instancePort.clsVar.name
+		self.dm_ports[portName] = instancePort
+		self.__setattr__(portName, instancePort)
+
 class DynamicalModel(object):
 	__metaclass__ = DynamicalModelMeta
 	
@@ -97,6 +110,9 @@ class DynamicalModel(object):
 		# Create instance functions
 		for name, clsVar in cls.dm_functions.iteritems():
 			self.meta.addInstanceFunction(InstanceFunction(self, clsVar))
+		# Create instance ports
+		for name, clsVar in cls.dm_ports.iteritems():
+			self.meta.addInstancePort(InstancePort(self, clsVar))
 		# Create submodel instances
 		for name, submodel in cls.dm_submodels.iteritems():
 			instance = submodel.klass(name, self)
@@ -169,19 +185,34 @@ class DynamicalModel(object):
 		#pos = nx.spring_layout(self.dm_graph)
 		pos = nx.graphviz_layout(self.dm_graph, prog = 'neato', root = 'stateVector')
 		posLabels = {}
-		nx.draw_networkx_nodes(self.dm_graph, pos, node_size = 200, node_color='r',alpha=0.4)
 		labels = {}
+		colors = np.zeros(shape = (len(self.dm_graph.nodes())), dtype = 'S')
+		colors.fill('r')
+		# Assign colors and labels to nodes
+		i = 0
 		for node in self.dm_graph.nodes_iter():
 			posLabels[node] = pos[node] + np.array([0, -0.05])
 			if (isinstance(node, basestring)):
-				labels[node] = node 
-			elif (isinstance(node, InstanceField)):
+				labels[node] = node
+			elif (isinstance(node, InstanceVariable)):
 				labels[node] = node.qName
+				colors[i] = 'b'
+			elif (isinstance(node, InstanceFunction)):
+				labels[node] = node.qName
+				colors[i] = 'g'
 			elif (isinstance(node, DynamicalModel)):
 				labels[node] = node.qName + '.compute'
-		draw_networkx_labels(self.dm_graph, posLabels, labels, 
-					horizontalalignment = 'left', rotation = 30.)
+				colors[i] = 'g'
+			i += 1
+
+		# Draw nodes
+		nx.draw_networkx_nodes(self.dm_graph, 
+				pos, node_size = 200, node_color= colors, alpha=0.5)
+		# Draw edges
 		nx.draw_networkx_edges(self.dm_graph, pos)
+		# Draw labels
+		draw_networkx_labels(self.dm_graph, posLabels, labels, 
+				horizontalalignment = 'left', rotation = 30.)
 		plt.show()
 		
 	def generateSimulationSequence(self):

@@ -10,7 +10,7 @@ from smo.dynamical_models.thermofluids import Structures as DMS
 from smo.util import AttributeDict
 
 class FluidChamber(DMC.DynamicalModel):
-	V = DMC.RealVariable(causality = DMC.Causality.Parameter, variability = DMC.Variability.Constant)
+	VR = DMC.RealVariable(causality = DMC.Causality.Parameter, variability = DMC.Variability.Constant)
 	T = DMC.RealVariable(causality = DMC.Causality.Input, variability = DMC.Variability.Continuous)
 	rho = DMC.RealVariable(causality = DMC.Causality.Input, variability = DMC.Variability.Continuous)
 	TDot = DMC.RealVariable(causality = DMC.Causality.Output, variability = DMC.Variability.Continuous)
@@ -22,7 +22,7 @@ class FluidChamber(DMC.DynamicalModel):
 		if params == None:
 			params = AttributeDict(kwargs)
 			
-		self.V = params.V
+		self.VR = params.VR
 		if (isinstance(params.fluid, CP.Fluid)):
 			self.fluid = params.fluid
 		else:
@@ -36,21 +36,21 @@ class FluidChamber(DMC.DynamicalModel):
 		self.p = p
 		self.fState.update_Tp(T, p)
 		self.rho = self.fState.rho
-		self.m = self.fState.rho * self.V
+		self.m = self.fState.rho * self.VR
 		
 	def setState(self, T, rho):
 		self.T = T
 		self.rho = rho
 		self.fState.update_Trho(T, rho)
 		self.p = self.fState.p
-		self.m = self.fState.rho * self.V
+		self.m = self.fState.rho * self.VR
 		
 	def compute(self):
 		QDot = 0
 		self.computeDerivatives(self.fluidPort.flow.mDot, self.fluidPort.flow.HDot, QDot)
 
 	def computeDerivatives(self, mDot = 0, HDot = 0, QDot = 0, VDot = 0):
-		c1 = mDot / self.m - VDot / self.V;
+		c1 = mDot / self.m - VDot / self.VR;
 		UDot = HDot + QDot - self.fState.p * VDot;
 		self.rhoDot = self.fState.rho * c1;
 		vDot = - self.rhoDot / (self.fState.rho * self.fState.rho);
@@ -81,7 +81,7 @@ def testFluidChamber_Fueling():
 	# Create tank
 	tank = FluidChamber(
 		fluid = fluid, 
-		V = 0.100 #[m**3] 100 L
+		VR = 0.100 #[m**3] 100 L
 	)
 	# Connect tank and flow source
 	tank.fluidPort.connect(fluidSource.port1)

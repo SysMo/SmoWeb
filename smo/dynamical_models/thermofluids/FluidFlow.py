@@ -17,7 +17,7 @@ class Compressor(DMC.DynamicalModel):
 		self.fluid = params.fluid #fluid
 		self.etaS = params.etaS #isentropic efficiency
 		self.fQ = params.fQ #fraction of heat loss to ambient
-		self.V = params.V #displacement volume
+		self.VR = params.VR #displacement volume
 		
 		self.n = 0.0 #number of revolutions per second
 		self.fStateOut = CP.FluidState(self.fluid)
@@ -27,7 +27,7 @@ class Compressor(DMC.DynamicalModel):
 		self.portIn = DMS.FluidPort('R', -self.flow)
 		
 	def compute(self):
-		self.VDot = self.n * self.V
+		self.VDot = self.n * self.VR
 		self.mDot = self.VDot * self.portIn.state.rho
 		
 		self.fStateOut.update_ps(self.portOut.state.p, self.portIn.state.s)

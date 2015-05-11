@@ -4,57 +4,77 @@ Created on May 3, 2015
 @author:  Atanas Pavlov
 @copyright: SysMo Ltd, Bulgaria
 '''
-import smo.dynamical_models.core as DMC
-from smo.dynamical_models.core import Causality as C
-from smo.dynamical_models.core import Variability as V
+from smo.dynamical_models.core.DynamicalModel import DynamicalModel
+from smo.dynamical_models.core.Fields import Variability as VR, Causality as CS
+import smo.dynamical_models.core.Fields as F 
+from smo.web.exceptions import ConnectionError
 #import networkx as nx
 
-class ThermalMass(DMC.DynamicalModel):
-	m = DMC.RealVariable(causality = C.Parameter, variability = V.Constant)
-	T = DMC.RealState(start = 300)
-	QDot1 = DMC.RealVariable(causality = C.Input, variability = V.Continuous)
-	QDot2 = DMC.RealVariable(causality = C.Input, variability = V.Continuous)
+class ThermalPort(F.Port):
+	def __init__(self, subType, TVar, QVar):
+		super(ThermalPort, self).__init__([TVar, QVar], subType)
+	def checkConnect(self, other):
+		if (isinstance(other, ThermalPort)):
+			if (self.subType == 'R' and other.subType == 'C'):
+				return True
+			elif (self.subType == 'C' and other.subType == 'R'):
+				return True
+			else:
+				raise ConnectionError('Only complementary ports can be connected')
+		else:
+			raise ConnectionError('Incompatible port types')
 
-class ThermalConduction(DMC.DynamicalModel):
-	k = DMC.RealVariable(causality = C.Parameter, variability = V.Constant)
-	T1 = DMC.RealVariable(causality = C.Input, variability = V.Continuous)
-	T2 = DMC.RealVariable(causality = C.Input, variability = V.Continuous)
-	QDot1 = DMC.RealVariable(causality = C.Output, variability = V.Continuous)
-	QDot2 = DMC.RealVariable(causality = C.Output, variability = V.Continuous)
+class ThermalMass(DynamicalModel):
+	m = F.RealVariable(causality = CS.Parameter, variability = VR.Constant)
+	T = F.RealState(start = 300)	
+	QDot1 = F.RealVariable(causality = CS.Input)
+	QDot2 = F.RealVariable(causality = CS.Input)
+	p1 = ThermalPort('C', TVar = T, QVar = QDot1)
+	p2 = ThermalPort('C', TVar = T, QVar = QDot2)
+	
 
-class FluidChamber(DMC.DynamicalModel):
-	VFluid = DMC.RealVariable(causality = C.Parameter, variability = V.Constant)
-	T = DMC.RealState(start = 300)
-	rho = DMC.RealState(start = 1)
-	p = DMC.RealVariable(causality = C.Output, variability = V.Continuous)
-	m = DMC.RealVariable(causality = C.Output, variability = V.Continuous)
-	QDotWall = DMC.RealVariable(causality = C.Input, variability = V.Continuous)
-	setState = DMC.Function(inputs = [T, rho], outputs = [p])
+class ThermalConduction(DynamicalModel):
+	k = F.RealVariable(causality = CS.Parameter, variability = VR.Constant)
+	T1 = F.RealVariable(causality = CS.Input)
+	QDot1 = F.RealVariable(causality = CS.Output)
+	T2 = F.RealVariable(causality = CS.Input)
+	QDot2 = F.RealVariable(causality = CS.Output)
+	p1 = ThermalPort('R', TVar = T1, QVar = QDot1)
+	p2 = ThermalPort('R', TVar = T2, QVar = QDot2)
 
-class Convection(DMC.DynamicalModel):
-	pFluid = DMC.RealVariable(causality = C.Input, variability = V.Continuous)
-	TFluid = DMC.RealVariable(causality = C.Input, variability = V.Continuous)
-	TWall = DMC.RealVariable(causality = C.Input, variability = V.Continuous)
-	QFluid = DMC.RealVariable(causality = C.Output, variability = V.Continuous)
-	QWall = DMC.RealVariable(causality = C.Output, variability = V.Continuous)
+class FluidChamber(DynamicalModel):
+	VFluid = F.RealVariable(causality = CS.Parameter)
+	T = F.RealState(start = 300)
+	rho = F.RealState(start = 1)
+	p = F.RealVariable(causality = CS.Output)
+	m = F.RealVariable(causality = CS.Output)
+	QDotWall = F.RealVariable(causality = CS.Input)
+	portWall = F.Port([p, T, QDotWall])
+	setState = F.Function(inputs = [T, rho], outputs = [p])
 
-class ExampleCircuit(DMC.DynamicalModel):
-	m1 = DMC.SubModel(ThermalMass)
-	m2 = DMC.SubModel(ThermalMass)
-	c = DMC.SubModel(ThermalConduction)
-	conv = DMC.SubModel(Convection)
-	ch = DMC.SubModel(FluidChamber)
+class Convection(DynamicalModel):
+	pFluid = F.RealVariable(causality = CS.Input)
+	TFluid = F.RealVariable(causality = CS.Input)
+	TWall = F.RealVariable(causality = CS.Input)
+	QFluid = F.RealVariable(causality = CS.Output)
+	QWall = F.RealVariable(causality = CS.Output)
+	portFluid = F.Port([pFluid, TFluid, QFluid])
+	portWall = ThermalPort('R', TVar = TWall, QVar = QWall)
+
+class ExampleCircuit(DynamicalModel):
+	m1 = F.SubModel(ThermalMass)
+	m2 = F.SubModel(ThermalMass)
+	c = F.SubModel(ThermalConduction)
+	conv = F.SubModel(Convection)
+	ch = F.SubModel(FluidChamber)
 
 	def __init__(self):
-		self.m1.meta.T.connect(self.c.meta.T1)
-		self.m1.meta.QDot2.connect(self.c.meta.QDot1)
-		self.m2.meta.T.connect(self.c.meta.T2)
-		self.m2.meta.QDot1.connect(self.c.meta.QDot2)
-		self.m2.meta.T.connect(self.conv.meta.TWall)
-		self.m2.meta.QDot2.connect(self.conv.meta.QWall)
-		self.ch.meta.T.connect(self.conv.meta.TFluid)
-		self.ch.meta.p.connect(self.conv.meta.pFluid)
-		self.ch.meta.QDotWall.connect(self.conv.meta.QFluid)
+		#self.m1.meta.T.connect(self.c.meta.T1)
+		#self.m1.meta.QDot2.connect(self.c.meta.QDot1)
+		self.m1.meta.p2.connect(self.c.meta.p1)
+		self.c.meta.p2.connect(self.m2.meta.p1)
+		self.m2.meta.p2.connect(self.conv.meta.portWall)
+		self.ch.meta.portWall.connect(self.conv.meta.portFluid)
 		
 		#print self.describeFields()
 		self.createModelGraph()
