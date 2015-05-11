@@ -81,7 +81,7 @@ class CompressedGasStorage(NumericalModel):
         options = {'ylabel' : None},
         visibleColumns = [0, 1, 4, 5, 6],
         datasetColumns = datasetColumns,
-        useHdfData = True,
+        useHdfStorage = True,
         hdfFile = 'TankSimulations_SimulationResults.h5',
         hdfGroup = '/TankModel'
     )
@@ -92,7 +92,7 @@ class CompressedGasStorage(NumericalModel):
         options = {'ylabel' : None},
         visibleColumns = [0, 3],
         datasetColumns = datasetColumns,
-        useHdfData = True,
+        useHdfStorage = True,
         hdfFile = 'TankSimulations_SimulationResults.h5',
         hdfGroup = '/TankModel'
     )
@@ -103,7 +103,7 @@ class CompressedGasStorage(NumericalModel):
         options = {'ylabel' : None},
         visibleColumns = [0, 4, 8, 11],
         datasetColumns = datasetColumns,
-        useHdfData = True,
+        useHdfStorage = True,
         hdfFile = 'TankSimulations_SimulationResults.h5',
         hdfGroup = '/TankModel'
     )
@@ -114,7 +114,7 @@ class CompressedGasStorage(NumericalModel):
         options = {'ylabel' : None},
         visibleColumns = [0, 9, 10],
         datasetColumns = datasetColumns,
-        useHdfData = True,
+        useHdfStorage = True,
         hdfFile = 'TankSimulations_SimulationResults.h5',
         hdfGroup = '/TankModel'
     )
@@ -125,7 +125,7 @@ class CompressedGasStorage(NumericalModel):
         options = {'ylabel' : None},
         visibleColumns = [0, 12],
         datasetColumns = datasetColumns,
-        useHdfData = True,
+        useHdfStorage = True,
         hdfFile = 'TankSimulations_SimulationResults.h5',
         hdfGroup = '/TankModel'
     )
@@ -139,7 +139,7 @@ class CompressedGasStorage(NumericalModel):
         label = 'Table', 
         options = {'title': 'Compressed gas storage fueling-extraction', 'formats': ['0.00']},
         datasetColumns = datasetColumns,
-        useHdfData = True,
+        useHdfStorage = True,
         hdfFile = 'TankSimulations_SimulationResults.h5',
         hdfGroup = '/TankModel'
     )

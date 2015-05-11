@@ -464,7 +464,7 @@ class DataSeriesView(Field):
 	"""
 	Composite output field for representing a table or plot
 	"""
-	def __init__(self, structTuple = None, visibleColumns = None, useHdfData = False, hdfFile = None,
+	def __init__(self, structTuple = None, visibleColumns = None, useHdfStorage = False, hdfFile = None,
 				hdfGroup = None, datasetColumns = None, *args, **kwargs):
 		"""
 		:param structTuple: tuple defining the structure of the 
@@ -511,8 +511,8 @@ class DataSeriesView(Field):
 		else:
 			self.visibleColumns = visibleColumns
 			
-		self.useHdfData = useHdfData
-		if (useHdfData == True):
+		self.useHdfStorage = useHdfStorage
+		if (useHdfStorage == True):
 			if (hdfFile is None or hdfGroup is None):
 				raise ValueError('Hdf file or hdf group is undefined')
 			hdfFile = os.path.join(tmpFolderPath, hdfFile)
@@ -526,13 +526,13 @@ class DataSeriesView(Field):
 			
 	@property
 	def default(self):
-		if (self.useHdfData == True):
+		if (self.useHdfStorage == True):
 			return ''
 		else:
 			return np.zeros((1,), dtype = self.dtype)
 		
 	def parseValue(self, value):
-		if (self.useHdfData == True):
+		if (self.useHdfStorage == True):
 			if (isinstance(value, str)):
 				return value
 			else:
@@ -555,7 +555,7 @@ class DataSeriesView(Field):
 	
 	def getValueRepr(self, value):
 		print value
-		if (self.useHdfData == True):
+		if (self.useHdfStorage == True):
 			return value
 		else:
 			return value.tolist()
@@ -569,7 +569,7 @@ class DataSeriesView(Field):
 		fieldDict['fields'] = jsonFieldList
 		fieldDict['labels'] = self.dataLabels
 		fieldDict['visibleColumns'] = self.visibleColumns
-		fieldDict['useHdfData'] = self.useHdfData
+		fieldDict['useHdfStorage'] = self.useHdfStorage
 		fieldDict['hdfFile'] = self.hdfFile
 		fieldDict['hdfGroup'] = self.hdfGroup
 		fieldDict['datasetColumns'] = self.datasetColumns

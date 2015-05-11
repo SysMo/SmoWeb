@@ -426,7 +426,7 @@ smoModule.factory('communicator', function($http, $window, $timeout, $location, 
 							if (responseData.definitions[i].groups[j].fields[k].type == 'TableView' ||
 								responseData.definitions[i].groups[j].fields[k].type == 'PlotView') {
 								var field = responseData.definitions[i].groups[j].fields[k];
-								if (field.useHdfData == true) {
+								if (field.useHdfStorage == true) {
 									hdfFields.push({"name": field.name,
 														"hdfFile": field.hdfFile, 
 														"hdfGroup": field.hdfGroup, 
