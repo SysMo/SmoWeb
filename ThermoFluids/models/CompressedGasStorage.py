@@ -72,31 +72,17 @@ class CompressedGasStorage(NumericalModel):
         ('WRealCompressor', F.Quantity('Energy', default = (1, 'kWh'), label = 'integrated compressor work')),
     )
     
-#         results = np.array([
-#             res['t'], 
-#             res['pTank'], 
-#             res['rhoTank'],
-#             res['mTank'],
-#             res['TTank'], 
-#             res['TLiner_2'], 
-#             res['TComp_4'],
-#             res['TCompressorOut'],
-#             res['TCoolerOut'],
-#             res['QDotCooler'],
-#             res['QDotComp'],
-#             res['mDotFueling'],
-#             res['WRealCompressor']
-#         ])
+    datasetColumns = ['t', 'pTank', 'rhoTank', 'mTank', 'TTank', 'TLiner_2', 'TComp_4', 'TCompressorOut', 'TCoolerOut',
+                          'QDotCooler', 'QDotComp', 'mDotFueling', 'WRealCompressor']
     
     plotTank = F.PlotView(
         resultColumns,
         label = 'Vessel state', 
         options = {'ylabel' : None},
         visibleColumns = [0, 1, 4, 5, 6],
-        datasetColumns = ['t', 'pTank', 'rhoTank', 'mTank', 'TTank', 'TLiner_2', 'TComp_4', 'TCompressorOut', 'TCoolerOut',
-                          'QDotCooler', 'QDotComp', 'mDotFueling', 'WRealCompressor'],
+        datasetColumns = datasetColumns,
         useHdfData = True,
-        hdfFile = '/data/Workspace/Django/django-example/SmoWeb/media/tmp/TankSimulations_SimulationResults.h5',
+        hdfFile = 'TankSimulations_SimulationResults.h5',
         hdfGroup = '/TankModel'
     )
     
@@ -105,6 +91,10 @@ class CompressedGasStorage(NumericalModel):
         label = 'Fill mass', 
         options = {'ylabel' : None},
         visibleColumns = [0, 3],
+        datasetColumns = datasetColumns,
+        useHdfData = True,
+        hdfFile = 'TankSimulations_SimulationResults.h5',
+        hdfGroup = '/TankModel'
     )
     
     plotFueling = F.PlotView(
@@ -112,6 +102,10 @@ class CompressedGasStorage(NumericalModel):
         label = 'Fueling', 
         options = {'ylabel' : None},
         visibleColumns = [0, 4, 8, 11],
+        datasetColumns = datasetColumns,
+        useHdfData = True,
+        hdfFile = 'TankSimulations_SimulationResults.h5',
+        hdfGroup = '/TankModel'
     )
     
     plotQDot = F.PlotView(
@@ -119,6 +113,10 @@ class CompressedGasStorage(NumericalModel):
         label = 'Heat flow rates', 
         options = {'ylabel' : None},
         visibleColumns = [0, 9, 10],
+        datasetColumns = datasetColumns,
+        useHdfData = True,
+        hdfFile = 'TankSimulations_SimulationResults.h5',
+        hdfGroup = '/TankModel'
     )
     
     plotCompressor = F.PlotView(
@@ -126,9 +124,13 @@ class CompressedGasStorage(NumericalModel):
         label = 'Compressor', 
         options = {'ylabel' : None},
         visibleColumns = [0, 12],
+        datasetColumns = datasetColumns,
+        useHdfData = True,
+        hdfFile = 'TankSimulations_SimulationResults.h5',
+        hdfGroup = '/TankModel'
     )
     
-    plotsVG = F.ViewGroup([plotTank], label = 'Results')
+    plotsVG = F.ViewGroup([plotTank, plotTankFluidMass, plotFueling, plotQDot, plotCompressor], label = 'Results')
     plotsSG = F.SuperGroup([plotsVG], label = 'Plots')
     
     #2.3 Table 
@@ -136,6 +138,10 @@ class CompressedGasStorage(NumericalModel):
         resultColumns,
         label = 'Table', 
         options = {'title': 'Compressed gas storage fueling-extraction', 'formats': ['0.00']},
+        datasetColumns = datasetColumns,
+        useHdfData = True,
+        hdfFile = 'TankSimulations_SimulationResults.h5',
+        hdfGroup = '/TankModel'
     )
     tableVG = F.ViewGroup([table], label = 'Results')
     tableSG = F.SuperGroup([tableVG], label = 'Table')
@@ -206,32 +212,14 @@ class CompressedGasStorage(NumericalModel):
         self.tankRes.compositeMass = tankModel.composite.mass
         
         # Show plots and table
-#         res = tankModel.getResults()
-#         results = np.array([
-#             res['t'], 
-#             res['pTank'], 
-#             res['rhoTank'],
-#             res['mTank'],
-#             res['TTank'], 
-#             res['TLiner_2'], 
-#             res['TComp_4'],
-#             res['TCompressorOut'],
-#             res['TCoolerOut'],
-#             res['QDotCooler'],
-#             res['QDotComp'],
-#             res['mDotFueling'],
-#             res['WRealCompressor']
-#         ])
-#         results = results.transpose()
         
-        self.plotTank = tankModel.resultStorage.simulationName
-        
-#         self.plotTank = results
-#         self.plotTankFluidMass = results
-#         self.plotFueling = results
-#         self.plotQDot = results
-#         self.plotCompressor = results
-#         self.table = results
+        simName = tankModel.resultStorage.simulationName
+        self.plotTank = simName
+        self.plotTankFluidMass = simName
+        self.plotFueling = simName
+        self.plotQDot = simName
+        self.plotCompressor = simName
+        self.table = simName
 
 class CompressedGasStorageDoc(RestModule):
     label = 'Compressed Gas Storage (Doc)'

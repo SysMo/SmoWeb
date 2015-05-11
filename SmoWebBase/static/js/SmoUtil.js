@@ -1274,9 +1274,6 @@ smoModule.directive('smoDataSeriesView', ['$compile', 'communicator', 'util', fu
 				$scope.numCols = $scope.values[0].length;
 				$scope.numRows = $scope.values.length;
 				
-				console.log($scope.values[0]);
-				console.log($scope.fieldVar.fields);
-				
 				for (var col=0; col<$scope.numCols; col++){
 					var field = $scope.fieldVar.fields[col];
 					field.unit 

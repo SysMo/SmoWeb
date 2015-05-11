@@ -5,6 +5,9 @@ import numpy as np
 from quantity import Quantities
 from smo.web.exceptions import *
 from smo.model.actions import ActionBar
+import os
+from SmoWeb.settings import MEDIA_ROOT
+tmpFolderPath = os.path.join (MEDIA_ROOT, 'tmp')
 
 class Field(object):
 	"""
@@ -512,7 +515,8 @@ class DataSeriesView(Field):
 		if (useHdfData == True):
 			if (hdfFile is None or hdfGroup is None):
 				raise ValueError('Hdf file or hdf group is undefined')
-			
+			hdfFile = os.path.join(tmpFolderPath, hdfFile)
+		
 		self.hdfFile = hdfFile
 		self.hdfGroup = hdfGroup
 		
@@ -569,10 +573,6 @@ class DataSeriesView(Field):
 		fieldDict['hdfFile'] = self.hdfFile
 		fieldDict['hdfGroup'] = self.hdfGroup
 		fieldDict['datasetColumns'] = self.datasetColumns
-# 		if (self.hdfFile is not None):
-# 			fieldDict['hdfFile'] = self.hdfFile
-# 		if (self.hdfGroup is not None):
-# 			fieldDict['hdfGroup'] = self.hdfGroup
 		return fieldDict
 	
 
