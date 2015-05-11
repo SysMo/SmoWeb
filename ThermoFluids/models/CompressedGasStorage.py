@@ -57,26 +57,44 @@ class CompressedGasStorage(NumericalModel):
     
     #2.2 Plots
     resultColumns = (
-        ('time', F.Quantity('Time', default = (1, 's'))),
-        ('vessel pressure', F.Quantity('Pressure', default = (1, 'bar'))),
-        ('vessel density', F.Quantity('Density', default = (1, 'kg/m**3'))),
-        ('mass', F.Quantity('Mass', default = (1, 'kg'))),
-        ('vessel temperature', F.Quantity('Temperature', default = (1, 'degC'))),
-        ('liner temperature', F.Quantity('Temperature', default = (1, 'degC'))),
-        ('composite surface temperature', F.Quantity('Temperature', default = (1, 'degC'))),
-        ('compressor outlet temperature', F.Quantity('Temperature', default = (1, 'degC'))),
-        ('cooler outlet temperature', F.Quantity('Temperature', default = (1, 'degC'))),
-        ('cooler heat flow', F.Quantity('HeatFlowRate', default = (1, 'kW'))),
-        ('vessel heat flow', F.Quantity('HeatFlowRate', default = (1, 'W'))),
-        ('fueling flow rate', F.Quantity('MassFlowRate', default = (1, 'kg/h'))),
-        ('integrated compressor work', F.Quantity('Energy', default = (1, 'kWh'))),
+        ('t', F.Quantity('Time', default = (1, 's'), label = 'time')),
+        ('pTank', F.Quantity('Pressure', default = (1, 'bar'), label = 'vessel pressure')),
+        ('rhoTank', F.Quantity('Density', default = (1, 'kg/m**3'), label = 'vessel density')),
+        ('mTank', F.Quantity('Mass', default = (1, 'kg'), label = 'mass')),
+        ('TTank', F.Quantity('Temperature', default = (1, 'degC'), label = 'vessel temperature')),
+        ('TLiner_2', F.Quantity('Temperature', default = (1, 'degC'), label = 'liner temperature')),
+        ('TComp_4', F.Quantity('Temperature', default = (1, 'degC'), label = 'composite surface temperature')),
+        ('TCompressorOut', F.Quantity('Temperature', default = (1, 'degC'), label = 'compressor outlet temperature')),
+        ('TCoolerOut', F.Quantity('Temperature', default = (1, 'degC'), label = 'cooler outlet temperature')),
+        ('QDotCooler', F.Quantity('HeatFlowRate', default = (1, 'kW'), label = 'cooler heat flow')),
+        ('QDotComp', F.Quantity('HeatFlowRate', default = (1, 'W'), label = 'vessel heat flow')),
+        ('mDotFueling', F.Quantity('MassFlowRate', default = (1, 'kg/h'), label = 'fueling flow rate')),
+        ('WRealCompressor', F.Quantity('Energy', default = (1, 'kWh'), label = 'integrated compressor work')),
     )
+    
+#         results = np.array([
+#             res['t'], 
+#             res['pTank'], 
+#             res['rhoTank'],
+#             res['mTank'],
+#             res['TTank'], 
+#             res['TLiner_2'], 
+#             res['TComp_4'],
+#             res['TCompressorOut'],
+#             res['TCoolerOut'],
+#             res['QDotCooler'],
+#             res['QDotComp'],
+#             res['mDotFueling'],
+#             res['WRealCompressor']
+#         ])
     
     plotTank = F.PlotView(
         resultColumns,
         label = 'Vessel state', 
         options = {'ylabel' : None},
         visibleColumns = [0, 1, 4, 5, 6],
+        datasetColumns = ['t', 'pTank', 'rhoTank', 'mTank', 'TTank', 'TLiner_2', 'TComp_4', 'TCompressorOut', 'TCoolerOut',
+                          'QDotCooler', 'QDotComp', 'mDotFueling', 'WRealCompressor'],
         useHdfData = True,
         hdfFile = '/data/Workspace/Django/django-example/SmoWeb/media/tmp/TankSimulations_SimulationResults.h5',
         hdfGroup = '/TankModel'

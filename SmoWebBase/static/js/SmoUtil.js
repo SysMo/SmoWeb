@@ -430,7 +430,8 @@ smoModule.factory('communicator', function($http, $window, $timeout, $location, 
 									hdfFields.push({"name": field.name,
 														"hdfFile": field.hdfFile, 
 														"hdfGroup": field.hdfGroup, 
-														"dataset": responseData.values[field.name]});
+														"dataset": responseData.values[field.name],
+														"datasetColumns": field.datasetColumns});
 								}
 							}
 						}

@@ -9,6 +9,7 @@ from SmoWebBase.tasks import celeryCompute
 from celery.result import AsyncResult
 from celery.task.control import revoke
 import h5py
+import numpy as np
 logger = logging.getLogger('django.request.smo.view')
 
 from pymongo import MongoClient
@@ -284,13 +285,18 @@ class ModularPageView(object):
 		getattr(instance, parameters)()
 		return instance.modelView2Json(view)
 	
+	
 	@action.post()
 	def loadHdfValues(self, model, view, parameters):
 		resultDict = {}
 		for field in parameters:
 			h5File = h5py.File(field['hdfFile'], 'r')
 			datasetPath = field['hdfGroup'] + '/' + field['dataset']
-			resultDict[field['name']] = h5File[datasetPath][...].tolist()
+			dataList = []
+			for column in field['datasetColumns']:
+				dataList.append(h5File[datasetPath][column])
+			resultDict[field['name']] = np.array(dataList).transpose().tolist()
+			#resultDict[field['name']] = h5File[datasetPath][...].tolist()
 			h5File.close()
 		return resultDict
 	
