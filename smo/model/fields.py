@@ -461,7 +461,8 @@ class DataSeriesView(Field):
 	"""
 	Composite output field for representing a table or plot
 	"""
-	def __init__(self, structTuple = None, visibleColumns = None, *args, **kwargs):
+	def __init__(self, structTuple = None, visibleColumns = None, useHdfData = False, hdfFile = None,
+				hdfGroup = None, *args, **kwargs):
 		"""
 		:param structTuple: tuple defining the structure of the 
 			view data. It consists of ``(name, type)`` pairs, 
@@ -503,28 +504,48 @@ class DataSeriesView(Field):
 		else:
 			self.visibleColumns = visibleColumns
 			
+		self.useHdfData = useHdfData
+		if (useHdfData == True):
+			if (hdfFile is None or hdfGroup is None):
+				raise ValueError('Hdf file or hdf group is undefined')
+			
+		self.hdfFile = hdfFile
+		self.hdfGroup = hdfGroup
+			
 	@property
 	def default(self):
-		return np.zeros((1,), dtype = self.dtype)
+		if (self.useHdfData == True):
+			return ''
+		else:
+			return np.zeros((1,), dtype = self.dtype)
 		
 	def parseValue(self, value):
-		if (isinstance(value, np.ndarray)):
-			return value
-		elif (isinstance(value, list)):
-			array = np.zeros((len(value),), dtype = self.dtype)
-			i = 0
-			for elem in value:
-				if isinstance(elem, list):
-					array[i] = tuple(elem)
-				else:
-					raise ArgumentTypeError('Trying to set row of View from non-list object')
-				i += 1
-			return array
+		if (self.useHdfData == True):
+			if (isinstance(value, str)):
+				return value
+			else:
+				raise ValueError('Dataset name must be a string')
 		else:
-			raise ArgumentTypeError('The value of View must be a numpy structured array or a list of lists')
+			if (isinstance(value, np.ndarray)):
+				return value
+			elif (isinstance(value, list)):
+				array = np.zeros((len(value),), dtype = self.dtype)
+				i = 0
+				for elem in value:
+					if isinstance(elem, list):
+						array[i] = tuple(elem)
+					else:
+						raise ArgumentTypeError('Trying to set row of View from non-list object')
+					i += 1
+				return array
+			else:
+				raise ArgumentTypeError('The value of View must be a numpy structured array or a list of lists')
 	
 	def getValueRepr(self, value):
-		return value.tolist()
+		if (self.useHdfData == True):
+			return value
+		else:
+			return value.tolist()
 
 	def toFormDict(self):
 		fieldDict = super(DataSeriesView, self).toFormDict()
@@ -535,7 +556,15 @@ class DataSeriesView(Field):
 		fieldDict['fields'] = jsonFieldList
 		fieldDict['labels'] = self.dataLabels
 		fieldDict['visibleColumns'] = self.visibleColumns
+		fieldDict['useHdfData'] = self.useHdfData
+		fieldDict['hdfFile'] = self.hdfFile
+		fieldDict['hdfGroup'] = self.hdfGroup
+# 		if (self.hdfFile is not None):
+# 			fieldDict['hdfFile'] = self.hdfFile
+# 		if (self.hdfGroup is not None):
+# 			fieldDict['hdfGroup'] = self.hdfGroup
 		return fieldDict
+	
 
 class TableView(DataSeriesView):
 	"""

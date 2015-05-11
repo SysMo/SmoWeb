@@ -122,8 +122,8 @@ class CH4Bioreactor(NumericalModel):
         label = 'S<sub>ac</sub> <sup>(0)</sup> = S<sub>ac</sub><sup>(R-H2)</sup>', description = 'take the inital acetate concentration from the H2 Bioreactor (R-H2)')
     
     S_ac_0 = F.Quantity('Bio_CODConcentration', default = (0.0, 'kgCOD/m**3'), minValue = (0, 'kgCOD/m**3'), 
-        label = 'S<sub>ac</sub><sup> (0)</sup>', description = 'initial concentration of acetate') 
-        #show = 'self.concentrationsRCH4.S_ac_from_RH2 == False')
+        label = 'S<sub>ac</sub><sup> (0)</sup>', description = 'initial concentration of acetate', 
+        show = 'self.S_ac_from_RH2 == false')
 
     S_ch4_0 = F.Quantity('Bio_CODConcentration', default = (0.0, 'kgCOD/m**3'), minValue = (0, 'kgCOD/m**3'), 
         label = 'S<sub>ch4</sub><sup> (0)</sup>', description = 'initial concentration of methane (liquid)')

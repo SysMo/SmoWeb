@@ -57,7 +57,7 @@ class BiochemicalReactions(NumericalModel):
     #1.4 Model view
     exampleAction = A.ServerAction("loadEg", label = "Examples", options = (
             ('exampleMMK', 'Michaelis-Menten kinetics'),
-            #('exampleMMKI', 'Michaelis-Menten kinetics with inhibition'),
+            ('exampleMMKI', 'Michaelis-Menten kinetics with inhibition'),
     ))
     
     inputView = F.ModelView(
@@ -128,13 +128,14 @@ class BiochemicalReactions(NumericalModel):
         #     Multi-substrate reactions
         #     Enzyme inhibition and activation 
         #@see others
-        self.species[0] = ('E', 4.0)
-        self.species[1] = ('S', 8.0)
-        self.species[2] = ('ES', 0.0)
-        self.species[3] = ('P', 0.0)
+        self.species.resize(3)
+        self.species[0] = ('E', 4.0, 'enzyme')
+        self.species[1] = ('S', 8.0, 'substrate')
+        self.species[2] = ('ES', 0.0, 'complex')
         
-        self.reactions[0] = ("E + S = ES", 2.0, 1.0)
-        self.reactions[1] = ("ES <-> E + P", 1.5, 0.5)
+        self.reactions.resize(1)
+        self.reactions[0] = ('E + S = ES', '2.0, 1.0', 'an enzyme binding to a substrate form a complex (reversible process)')
+        
         
         self.tFinal = 10.0
         self.tPrint = 0.01
