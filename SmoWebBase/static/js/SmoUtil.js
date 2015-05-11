@@ -1892,13 +1892,13 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 						<td>\
 							<div class="field-input">\
 								<div ng-form name="' + scope.smoRecordArray.name + '_{{i}}_' + String(col) + 'Form">\
-									<input style="width:' + field.inputBoxWidth + 'px" name="input" required type="text" \
+									<input style="width:' + field.inputBoxWidth + 'px" name="input" type="text" \
 										ng-model="arrValue[i][' + String(col) + ']">\
 								</div>\
-							</div>\
-							<div style="margin-left: 5px; color:red;" ng-show="' + scope.smoRecordArray.name + '_{{i}}_' + String(col) + 'Form.input.$error.required">Required value\
-							</div>\
-						</td>';
+							</div>';
+//							<div style="margin-left: 5px; color:red;" ng-show="' + scope.smoRecordArray.name + '_{{i}}_' + String(col) + 'Form.input.$error.required">Required value\
+//							</div>\
+					rowTemplate += '</td>';
 				} else if (field.type == 'Choices') {
 					rowTemplate += '\
 					<td>\
