@@ -25,7 +25,7 @@ class SolverSettings(NumericalModel):
 class CH4Bioreactor(NumericalModel):
     # Stoichiometric parameter values
     Y_ac = F.Quantity(default = 0.0, minValue = 0.0,
-        label = 'Y<sub>su</sub>', description = 'yield of sugar degraders on acetate')
+        label = 'Y<sub>ac</sub>', description = 'yield of acetate degraders on acetate')
     
     stoichiometricParametersFG = F.FieldGroup([
             Y_ac,
