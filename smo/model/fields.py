@@ -461,7 +461,15 @@ class RecordArray(Field):
 		return fieldDict
 
 class HdfStorage(Field):
+	"""
+	Field specifying HDF storage. Its value is dataset name
+	"""
 	def __init__(self, default = None, hdfFile = None, hdfGroup = None, datasetColumns = None, *args, **kwargs):
+		"""
+		:param hdfFile: name of HDF file
+		:param hdfGroup: path to HDF group
+		:param datasetColumns: list of names of dataset columns comprising the value of the field using HDF storage
+		"""
 		super(HdfStorage, self).__init__(*args, **kwargs)
 		if (default is None):
 			self.default = ''
@@ -509,7 +517,8 @@ class DataSeriesView(Field):
 					('temperature', Quantity('Temperature'))	)
 
 		:param visibleColumns: list of integers specifying which columns are visible in the view
-		
+		:param useHdfStorage: indicates if data is to be stored in HDF
+		:param storage: name of HdfStorage field	
 		"""
 		super(DataSeriesView, self).__init__(*args, **kwargs)
 		if (structTuple is None):
@@ -546,9 +555,7 @@ class DataSeriesView(Field):
 		self.useHdfStorage = useHdfStorage
 		if (useHdfStorage == True):
 			if (storage is None):
-				raise ValueError('Source name is undefined')
-			elif not isinstance(storage, str):
-				raise ValueError('Source name must be a string')
+				raise ValueError('Storage field name is undefined')
 		self.storage = storage
 			
 	@property
@@ -563,7 +570,7 @@ class DataSeriesView(Field):
 			if (isinstance(value, str)):
 				return value
 			else:
-				raise ValueError('Source name must be a string')
+				raise ValueError('Storage field name must be a string')
 		else:
 			if (isinstance(value, np.ndarray)):
 				return value
