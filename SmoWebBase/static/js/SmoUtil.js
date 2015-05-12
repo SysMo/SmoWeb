@@ -419,40 +419,45 @@ smoModule.factory('communicator', function($http, $window, $timeout, $location, 
 		
 		if (this.viewName == 'resultView') {
 			var hdfFields = [];
+			var hdfStorageFields = [];
 			for (var i=0; i<responseData.definitions.length; i++) {
 				for (var j=0; j<responseData.definitions[i].groups.length; j++) {
 					if (responseData.definitions[i].groups[j].type == "ViewGroup") {
 						for (var k=0; k<responseData.definitions[i].groups[j].fields.length; k++) {
-							if (responseData.definitions[i].groups[j].fields[k].type == 'TableView' ||
-								responseData.definitions[i].groups[j].fields[k].type == 'PlotView') {
-								var field = responseData.definitions[i].groups[j].fields[k];
+							var field = responseData.definitions[i].groups[j].fields[k];
+							if (field.type == 'TableView' || field.type == 'PlotView') {
 								if (field.useHdfStorage == true) {
 									hdfFields.push({"name": field.name,
-														"hdfFile": field.hdfFile, 
+													"storage": responseData.values[field.name]});
+								}
+							}
+							if (field.type == 'HdfStorage') {
+								hdfStorageFields.push({"name": field.name,
+														"hdfFile": field.hdfFile,
 														"hdfGroup": field.hdfGroup, 
 														"dataset": responseData.values[field.name],
 														"datasetColumns": field.datasetColumns});
-								}
 							}
 						}
 					}
 				}
 			}
 			
-			if (hdfFields.length > 0) {
+			if (hdfStorageFields.length > 0) {
 				var modelComm = this;
 				var onFetchSuccess = function(comm) {
-					for (var fieldName in comm.data) {
-						responseData.values[fieldName] = angular.copy(comm.data[fieldName]);
+					for (var p=0; p<hdfFields.length; p++) {
+						for (var h=0; h<comm.data.length; h++) {
+							if (hdfFields[p].storage in comm.data[h]) {
+								responseData.values[hdfFields[p].name] = comm.data[h][hdfFields[p].storage];
+							}
+						}
 					}
 					Communicator.prototype.setResponseData.call(modelComm, responseData);
 					updateRecordId(modelComm);
 				}
 				hdfDataComm = new Communicator();
-				var onFail = function(comm) {
-					console.log(comm);
-				};
-				hdfDataComm.fetchData('loadHdfValues', hdfFields, onFetchSuccess, onFail);
+				hdfDataComm.fetchData('loadHdfValues', hdfStorageFields, onFetchSuccess);
 				return;
 			}
 		}
@@ -1525,10 +1530,10 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 					
 					
 					if (i==0){
-						navPills.push('<li class="active"><a id="' + field.name + 'Tab" data-target="#' + field.name + '" role="tab" data-toggle="tab"><div data-toggle="tooltip" data-viewport="[smo-view-group]" title="' + field.description + '" tooltip>' + field.label + '</div></a></li>');
+						navPills.push('<li class="active" ' + showCode + '><a id="' + field.name + 'Tab" data-target="#' + field.name + '" role="tab" data-toggle="tab"><div data-toggle="tooltip" data-viewport="[smo-view-group]" title="' + field.description + '" tooltip>' + field.label + '</div></a></li>');
 						navPillPanes.push('<div class="tab-pane active" id="' + field.name + '">');
 					} else {
-						navPills.push('<li><a id="' + field.name + 'Tab" data-target="#' + field.name + '" role="tab" data-toggle="tab"><div data-toggle="tooltip" data-viewport="[smo-view-group]", title="' + field.description + '" tooltip>' + field.label + '</div></a></li>');
+						navPills.push('<li ' + showCode + '><a id="' + field.name + 'Tab" data-target="#' + field.name + '" role="tab" data-toggle="tab"><div data-toggle="tooltip" data-viewport="[smo-view-group]", title="' + field.description + '" tooltip>' + field.label + '</div></a></li>');
 						navPillPanes.push('<div class="tab-pane" id="' + field.name + '">');
 					}
 					

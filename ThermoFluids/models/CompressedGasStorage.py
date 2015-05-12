@@ -75,15 +75,16 @@ class CompressedGasStorage(NumericalModel):
     datasetColumns = ['t', 'pTank', 'rhoTank', 'mTank', 'TTank', 'TLiner_2', 'TComp_4', 'TCompressorOut', 'TCoolerOut',
                           'QDotCooler', 'QDotComp', 'mDotFueling', 'WRealCompressor']
     
+    storage = F.HdfStorage(hdfFile = 'TankSimulations_SimulationResults.h5',
+        hdfGroup = '/TankModel', datasetColumns = datasetColumns)
+    
     plotTank = F.PlotView(
         resultColumns,
         label = 'Vessel state', 
         options = {'ylabel' : None},
         visibleColumns = [0, 1, 4, 5, 6],
-        datasetColumns = datasetColumns,
         useHdfStorage = True,
-        hdfFile = 'TankSimulations_SimulationResults.h5',
-        hdfGroup = '/TankModel'
+        storage = 'storage'
     )
     
     plotTankFluidMass = F.PlotView(
@@ -91,10 +92,8 @@ class CompressedGasStorage(NumericalModel):
         label = 'Fill mass', 
         options = {'ylabel' : None},
         visibleColumns = [0, 3],
-        datasetColumns = datasetColumns,
         useHdfStorage = True,
-        hdfFile = 'TankSimulations_SimulationResults.h5',
-        hdfGroup = '/TankModel'
+        storage = 'storage'
     )
     
     plotFueling = F.PlotView(
@@ -102,10 +101,8 @@ class CompressedGasStorage(NumericalModel):
         label = 'Fueling', 
         options = {'ylabel' : None},
         visibleColumns = [0, 4, 8, 11],
-        datasetColumns = datasetColumns,
         useHdfStorage = True,
-        hdfFile = 'TankSimulations_SimulationResults.h5',
-        hdfGroup = '/TankModel'
+        storage = 'storage'
     )
     
     plotQDot = F.PlotView(
@@ -113,10 +110,8 @@ class CompressedGasStorage(NumericalModel):
         label = 'Heat flow rates', 
         options = {'ylabel' : None},
         visibleColumns = [0, 9, 10],
-        datasetColumns = datasetColumns,
         useHdfStorage = True,
-        hdfFile = 'TankSimulations_SimulationResults.h5',
-        hdfGroup = '/TankModel'
+        storage = 'storage'
     )
     
     plotCompressor = F.PlotView(
@@ -124,24 +119,22 @@ class CompressedGasStorage(NumericalModel):
         label = 'Compressor', 
         options = {'ylabel' : None},
         visibleColumns = [0, 12],
-        datasetColumns = datasetColumns,
         useHdfStorage = True,
-        hdfFile = 'TankSimulations_SimulationResults.h5',
-        hdfGroup = '/TankModel'
+        storage = 'storage'
     )
     
+    
     plotsVG = F.ViewGroup([plotTank, plotTankFluidMass, plotFueling, plotQDot, plotCompressor], label = 'Results')
-    plotsSG = F.SuperGroup([plotsVG], label = 'Plots')
+    storageVG = F.ViewGroup([storage], show="false")
+    plotsSG = F.SuperGroup([plotsVG, storageVG], label = 'Plots')
     
     #2.3 Table 
     table = F.TableView(
         resultColumns,
         label = 'Table', 
         options = {'title': 'Compressed gas storage fueling-extraction', 'formats': ['0.00']},
-        datasetColumns = datasetColumns,
         useHdfStorage = True,
-        hdfFile = 'TankSimulations_SimulationResults.h5',
-        hdfGroup = '/TankModel'
+        storage = 'storage'
     )
     tableVG = F.ViewGroup([table], label = 'Results')
     tableSG = F.SuperGroup([tableVG], label = 'Table')
@@ -213,13 +206,14 @@ class CompressedGasStorage(NumericalModel):
         
         # Show plots and table
         
-        simName = tankModel.resultStorage.simulationName
-        self.plotTank = simName
-        self.plotTankFluidMass = simName
-        self.plotFueling = simName
-        self.plotQDot = simName
-        self.plotCompressor = simName
-        self.table = simName
+        self.storage = tankModel.resultStorage.simulationName
+#         simName = tankModel.resultStorage.simulationName
+#         self.plotTank = simName
+#         self.plotTankFluidMass = simName
+#         self.plotFueling = simName
+#         self.plotQDot = simName
+#         self.plotCompressor = simName
+#         self.table = simName
 
 class CompressedGasStorageDoc(RestModule):
     label = 'Compressed Gas Storage (Doc)'

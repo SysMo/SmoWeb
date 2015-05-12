@@ -288,17 +288,21 @@ class ModularPageView(object):
 	
 	@action.post()
 	def loadHdfValues(self, model, view, parameters):
-		resultDict = {}
+		resultList = []
 		for field in parameters:
+			fieldDict = {}
 			h5File = h5py.File(field['hdfFile'], 'r')
 			datasetPath = field['hdfGroup'] + '/' + field['dataset']
-			dataList = []
-			for column in field['datasetColumns']:
-				dataList.append(h5File[datasetPath][column])
-			resultDict[field['name']] = np.array(dataList).transpose().tolist()
-			#resultDict[field['name']] = h5File[datasetPath][...].tolist()
+			if field['datasetColumns'] is None:
+				fieldDict[field['name']] = h5File[datasetPath][...].tolist()
+			else:
+				dataList = []
+				for column in field['datasetColumns']:
+					dataList.append(h5File[datasetPath][column])
+				fieldDict[field['name']] = np.array(dataList).transpose().tolist()
 			h5File.close()
-		return resultDict
+			resultList.append(fieldDict)
+		return resultList
 	
 	@action.post()
 	def startCompute(self, model, view, parameters):
