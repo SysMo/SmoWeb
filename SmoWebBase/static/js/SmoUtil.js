@@ -418,8 +418,11 @@ smoModule.factory('communicator', function($http, $window, $timeout, $location, 
 		}
 		
 		if (this.viewName == 'resultView') {
-			var hdfFields = [];
-			var hdfStorageFields = [];
+			// data views using hdf storage
+			var hdfViews = [];
+			// hdf storage fields
+			var storageFields = [];
+			// looping over hierarchical structure to identify such fields
 			for (var i=0; i<responseData.definitions.length; i++) {
 				for (var j=0; j<responseData.definitions[i].groups.length; j++) {
 					if (responseData.definitions[i].groups[j].type == "ViewGroup") {
@@ -427,12 +430,12 @@ smoModule.factory('communicator', function($http, $window, $timeout, $location, 
 							var field = responseData.definitions[i].groups[j].fields[k];
 							if (field.type == 'TableView' || field.type == 'PlotView') {
 								if (field.useHdfStorage == true) {
-									hdfFields.push({"name": field.name,
+									hdfViews.push({"name": field.name,
 													"storage": responseData.values[field.name]});
 								}
 							}
 							if (field.type == 'HdfStorage') {
-								hdfStorageFields.push({"name": field.name,
+								storageFields.push({"name": field.name,
 														"hdfFile": field.hdfFile,
 														"hdfGroup": field.hdfGroup, 
 														"dataset": responseData.values[field.name],
@@ -443,21 +446,23 @@ smoModule.factory('communicator', function($http, $window, $timeout, $location, 
 				}
 			}
 			
-			if (hdfStorageFields.length > 0) {
+			if (storageFields.length > 0) {
 				var modelComm = this;
 				var onFetchSuccess = function(comm) {
-					for (var p=0; p<hdfFields.length; p++) {
-						for (var h=0; h<comm.data.length; h++) {
-							if (hdfFields[p].storage in comm.data[h]) {
-								responseData.values[hdfFields[p].name] = comm.data[h][hdfFields[p].storage];
+					// on fetch success assign data to plots and tables
+					for (var i=0; i<hdfViews.length; i++) {
+						for (var j=0; j<comm.data.length; j++) {
+							if (hdfViews[i].storage in comm.data[j]) {
+								responseData.values[hdfViews[i].name] = comm.data[j][hdfViews[i].storage];
 							}
 						}
 					}
 					Communicator.prototype.setResponseData.call(modelComm, responseData);
 					updateRecordId(modelComm);
 				}
+				// if there are hdf storage fields, request the data they point to 
 				hdfDataComm = new Communicator();
-				hdfDataComm.fetchData('loadHdfValues', hdfStorageFields, onFetchSuccess);
+				hdfDataComm.fetchData('loadHdfValues', storageFields, onFetchSuccess);
 				return;
 			}
 		}
