@@ -15,8 +15,17 @@ import smo.model.quantity as Q
 from StressTensorCalculator import StressTensorCalculator as STC
 import smo_ext.Mechanical as Mech
 
+
 import logging
 appLogger = logging.getLogger('AppLogger')
+
+# Read settings
+import imp
+try:
+	S = imp.load_source('Settings', 'AppData/Settings.py')
+except:
+	raise RuntimeError('Cannot find settings file "Settings.py" in folder AppData')
+
 
 class MultiaxialDamageCalculator(object):
 	def __init__(self, SNCurveParameters, numStressBins = 100, meanStressCorrectionFactor = 0.24, useCompiledExtensions = True):
@@ -189,25 +198,18 @@ class MultiaxialDamageCalculator(object):
 		
 class DamageCalculationExecutor(object):
 	def __init__(self):
-		# Read settings
-		import imp
-		try:
-			self.S = imp.load_source('Settings', 'AppData/Settings.py')
-		except:
-			raise RuntimeError('Cannot find settings file "Settings.py" in folder AppData')
-		
 		# Create stress calculator
-		self.stressCalculator = StressCalculator3D(self.S.stressTablesPath)
+		self.stressCalculator = StressCalculator3D(S.stressTablesPath)
 		
 		# Create damage calculator
 		self.damageCalculator = MultiaxialDamageCalculator(
-					SNCurveParameters=self.S.SNCurveParameters['Liner'], 
-					numStressBins = self.S.numStressBins, 
-					meanStressCorrectionFactor = self.S.meanStressCorrectionFactor)
+					SNCurveParameters=S.SNCurveParameters['Liner'], 
+					numStressBins = S.numStressBins, 
+					meanStressCorrectionFactor = S.meanStressCorrectionFactor)
 		# Set up plane orientations
 		self.damageCalculator.computeRotationMatrices(
-					numThetaSteps = self.S.numThetaSteps, 
-					numPhiSteps = self.S.numPhiSteps)		
+					numThetaSteps = S.numThetaSteps, 
+					numPhiSteps = S.numPhiSteps)		
 		
 		# Set-up result structure to critical plane damage
 		self.critPlaneDamage = []
@@ -219,8 +221,8 @@ class DamageCalculationExecutor(object):
 					TData = TData
 		)
 		# Write resulting stress
-		if (self.S.writeStressResultsToHdf5):
-			self.stressCalculator.writeStresses(self.S.stressResultFile, dataName)
+		if (S.writeStressResultsToHdf5):
+			self.stressCalculator.writeStresses(S.stressResultFile, dataName)
 			
 		critPlaneDamage = [dataName]
 		self.critPlaneDamage.append(critPlaneDamage)
@@ -230,14 +232,14 @@ class DamageCalculationExecutor(object):
 			self.damageCalculator.scaleStresses()
 			self.damageCalculator.computeDamage()
 			self.damageCalculator.saveDamage(
-				filePath = self.S.damageHDFResultFile,
+				filePath = S.damageHDFResultFile,
 				groupPath = '/' + dataName + '/' + channel)
-			if (self.S.saveDamagePlots):
-				self.damageCalculator.saveDamagePlot(self.S.damagePlotsFolder, dataName, channel, self.S.damagePlots_numContours)
+			if (S.saveDamagePlots):
+				self.damageCalculator.saveDamagePlot(S.damagePlotsFolder, dataName, channel, S.damagePlots_numContours)
 			critPlaneDamage.append(self.damageCalculator.damage.max())
 	
 	def saveDamageCSV(self):
-		resFile = open(self.S.damageCSVResultFile, 'w')
+		resFile = open(S.damageCSVResultFile, 'w')
 		resFile.write('DataName,')
 		resFile.write(','.join(self.stressCalculator.channelNames))
 		resFile.write('\n')
@@ -248,63 +250,102 @@ class DamageCalculationExecutor(object):
 		resFile.close()
 				
 	def processCSVInputFiles(self, filePattern = '*.csv'):
-		if (not self.S.readCSVFiles):
+		if (not S.readCSVFiles):
 			appLogger.info('Reading CSV input files disabled. You can enable it by setting "readCSVFiles = True" in Settings.py')
 			return
 		# Read each input file
-		for fileName in glob.glob(os.path.join(self.S.inputFolder, filePattern)):
+		for fileName in glob.glob(os.path.join(S.inputFolder, filePattern)):
 			dataName, _ = os.path.splitext(os.path.basename(fileName))
 			appLogger.info('From input file "{}" reading columns ({}, {}) ...'.format(
-						fileName, self.S.csvPressureChannel, self.S.csvTemperatureChannel))
-			#appLogger.info('Temperature unit: {}'.format(self.S.temperatureUnit))
+						fileName, S.csvPressureChannel, S.csvTemperatureChannel))
+			#appLogger.info('Temperature unit: {}'.format(S.temperatureUnit))
 			data = np.genfromtxt(fileName, delimiter = ',', names = True)
 			appLogger.info('... {} values read'.format(len(data)))
-			pTData = data[[self.S.csvPressureChannel[0], self.S.csvTemperatureChannel[0]]].copy()
+			pTData = data[[S.csvPressureChannel[0], S.csvTemperatureChannel[0]]].copy()
 			# Clean up the data
-			pTData, stat = RecArrayManipulator.removeNaN(pTData, maxConsecutiveNaNs = self.S.maxConsecutiveNaNs)
+			pTData, stat = RecArrayManipulator.removeNaN(pTData, maxConsecutiveNaNs = S.maxConsecutiveNaNs)
 			if (stat['numRemoved'] > 0):
 				appLogger.warning('{numRemoved} rows with NaN values removed from the input data, max NaN sequence length: {maxConsecutiveNaN}'.format(**stat))			
-			pData = pTData[self.S.csvPressureChannel[0]]
-			TData = pTData[self.S.csvTemperatureChannel[0]]
+			pData = pTData[S.csvPressureChannel[0]]
+			TData = pTData[S.csvTemperatureChannel[0]]
 			# Convert units if necessary
 			Q.convertUnit(pData, quantity = 'Pressure', 
-				fromUnit = self.S.csvPressureChannel[1], toUnit = 'bar')
+				fromUnit = S.csvPressureChannel[1], toUnit = 'bar')
 			Q.convertUnit(TData, quantity = 'Temperature', 
-				fromUnit = self.S.csvTemperatureChannel[1], toUnit = 'K')
+				fromUnit = S.csvTemperatureChannel[1], toUnit = 'K')
 			# Compute damage
 			self.compute(dataName, 
 						pData = pData, TData = TData)
 
 	def processAMRInputFiles(self, filePattern = '*.amr'):
-		if (not self.S.readAMRFiles):
+		if (not S.readAMRFiles):
 			appLogger.info('Reading AMR input files disabled. You can enable it by setting "readAMRFiles = True" in Settings.py')
 			return
 		from smo.math.io import AMRFileReader
 		# Read each input file
-		for fileName in glob.glob(os.path.join(self.S.inputFolder, filePattern)):
+		for fileName in glob.glob(os.path.join(S.inputFolder, filePattern)):
 			dataName, _ = os.path.splitext(os.path.basename(fileName))
 			appLogger.info('From input file "{}" reading channels ({}, {}) ...'.format(
-						fileName, self.S.amrPressureChannel, self.S.amrTemperatureChannel))
+						fileName, S.amrPressureChannel, S.amrTemperatureChannel))
 			# Read the AMR file
 			reader = AMRFileReader()
 			reader.openFile(fileName)
-			pChannel = reader.findChannel(*self.S.amrPressureChannel)
-			TChannel = reader.findChannel(*self.S.amrTemperatureChannel)
-			pData = reader.getChannelData(pChannel)['value'].copy()
-			TData = reader.getChannelData(TChannel)['value'].copy()
-			appLogger.info('... {} values read'.format(len(TData)))
+			pChannel = reader.findChannel(*S.amrPressureChannel)
+			TChannel = reader.findChannel(*S.amrTemperatureChannel)
+			# Get channel names
+			pName = S.amrPressureChannel[0]
+			TName = S.amrTemperatureChannel[0]
+			# Read channels data
+			pData = reader.getChannelData(pChannel)[['time', 'value']].copy()
+			TData = reader.getChannelData(TChannel)[['time', 'value']].copy()			
+			appLogger.info('... {} values read from {} channel'.format(len(pData), pName))
+			appLogger.info('... {} values read from {} channel'.format(len(TData), TName))
+			# Remove duplicate time rows
+			pData = reader.removeDuplicateTimes(pData)
+			TData = reader.removeDuplicateTimes(TData)
 			# Convert units if necessary
 			Q.convertUnit(pData, quantity = 'Pressure', 
-				fromUnit = self.S.csvPressureChannel[1], toUnit = 'bar')
+				fromUnit = S.amrPressureChannel[1], toUnit = 'bar')
 			Q.convertUnit(TData, quantity = 'Temperature', 
-				fromUnit = self.S.csvTemperatureChannel[1], toUnit = 'K')
+				fromUnit = S.amrTemperatureChannel[1], toUnit = 'K')
+			# Merge and clean the channel data (use common time column)			
+			channelData = reader.mergeChannels(
+					channelList = [pData, TData], channelNames = [pName, TName], 
+					resamplingInterval = S.resamplingInterval, maxIntervalNoValue = S.maxSamplingInterval)
+			if (S.saveInputPlots):
+				self.plotAMRPTData(pData, TData, channelData, [pName, TName], dataName = dataName)
 			# Compute damage
 			self.compute(dataName, 
-					pData = pData, TData = TData)
+					pData = channelData[pName], TData = channelData[TName])
 
 	
+	def plotAMRPTData(self, pData, TData, pTData, channelNames, dataName = ''):
+		import pylab as plt
+		from matplotlib.dates import AutoDateFormatter, DateFormatter
+		from smo.math.io.AMRFileReader import AMRFileReader
+		toDate = AMRFileReader.AMRTime2MPLDate
+		fig = plt.figure()
+		ax = fig.add_subplot(111)		
+		ax.plot_date(toDate(pTData['time']), pTData[channelNames[0]], 'g-', label = channelNames[0])
+		ax.plot_date(toDate(pTData['time']), pTData[channelNames[1]], 'r-', label = channelNames[1])
+# 		if (S.DEBUG):
+# 			ax.plot_date(toDate(pData['time']), pData['value'], 'g.', label = channelNames[0])
+# 			ax.plot_date(toDate(TData['time']), TData['value'], 'r.', label = channelNames[1])
+
+		formatter = AutoDateFormatter(ax.xaxis.get_major_locator())
+		formatter.scaled[1/ (24. * 60.)] = '%H:%M:%S'
+		ax.xaxis.set_major_formatter(formatter)
+		
+		ax.set_xlabel('Time')
+		ax.set_ylabel('Pressure [bar], Temperature [K]')
+		ax.set_title(dataName)
+		ax.legend()
+		ax.grid(True)
+		fig.set_size_inches(20, 4)
+		fig.savefig(os.path.join(S.inputPlotsFolder, '{}.png'.format(dataName)), dpi = 300)
+
 def main():
-	_logConfigurator = SimpleAppLoggerConfgigurator('MultiaxialDamageCalculator', debug = True)
+	_logConfigurator = SimpleAppLoggerConfgigurator('MultiaxialDamageCalculator', debug = S.DEBUG)
 	executor = DamageCalculationExecutor()
 	executor.processCSVInputFiles()
 	executor.processAMRInputFiles()
