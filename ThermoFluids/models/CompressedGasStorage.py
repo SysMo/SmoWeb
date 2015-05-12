@@ -4,7 +4,6 @@ Created on April 01, 2015
 @author: Milen Borisov
 @copyright: SysMo Ltd, Bulgaria
 '''
-import numpy as np
 import smo.model.fields as F
 import lib.CompressedGasStorageComponents as GSC
 import smo.media.CoolProp as CP
@@ -56,7 +55,7 @@ class CompressedGasStorage(NumericalModel):
     tankResSG = F.SuperGroup([tankRes], label = 'Vessel')
     
     #2.2 Plots
-    resultColumns = (
+    dataSeries = (
         ('t', F.Quantity('Time', default = (1, 's'), label = 'time')),
         ('pTank', F.Quantity('Pressure', default = (1, 'bar'), label = 'vessel pressure')),
         ('rhoTank', F.Quantity('Density', default = (1, 'kg/m**3'), label = 'vessel density')),
@@ -79,7 +78,7 @@ class CompressedGasStorage(NumericalModel):
         hdfGroup = '/TankModel', datasetColumns = datasetColumns)
     
     plotTank = F.PlotView(
-        resultColumns,
+        dataSeries,
         label = 'Vessel state', 
         options = {'ylabel' : None},
         visibleColumns = [0, 1, 4, 5, 6],
@@ -88,7 +87,7 @@ class CompressedGasStorage(NumericalModel):
     )
     
     plotTankFluidMass = F.PlotView(
-        resultColumns,
+        dataSeries,
         label = 'Fill mass', 
         options = {'ylabel' : None},
         visibleColumns = [0, 3],
@@ -97,7 +96,7 @@ class CompressedGasStorage(NumericalModel):
     )
     
     plotFueling = F.PlotView(
-        resultColumns,
+        dataSeries,
         label = 'Fueling', 
         options = {'ylabel' : None},
         visibleColumns = [0, 4, 8, 11],
@@ -106,7 +105,7 @@ class CompressedGasStorage(NumericalModel):
     )
     
     plotQDot = F.PlotView(
-        resultColumns,
+        dataSeries,
         label = 'Heat flow rates', 
         options = {'ylabel' : None},
         visibleColumns = [0, 9, 10],
@@ -115,7 +114,7 @@ class CompressedGasStorage(NumericalModel):
     )
     
     plotCompressor = F.PlotView(
-        resultColumns,
+        dataSeries,
         label = 'Compressor', 
         options = {'ylabel' : None},
         visibleColumns = [0, 12],
@@ -130,7 +129,7 @@ class CompressedGasStorage(NumericalModel):
     
     #2.3 Table 
     table = F.TableView(
-        resultColumns,
+        dataSeries,
         label = 'Table', 
         options = {'title': 'Compressed gas storage fueling-extraction', 'formats': ['0.00']},
         useHdfStorage = True,
@@ -205,15 +204,7 @@ class CompressedGasStorage(NumericalModel):
         self.tankRes.compositeMass = tankModel.composite.mass
         
         # Show plots and table
-        
         self.storage = tankModel.resultStorage.simulationName
-#         simName = tankModel.resultStorage.simulationName
-#         self.plotTank = simName
-#         self.plotTankFluidMass = simName
-#         self.plotFueling = simName
-#         self.plotQDot = simName
-#         self.plotCompressor = simName
-#         self.table = simName
 
 class CompressedGasStorageDoc(RestModule):
     label = 'Compressed Gas Storage (Doc)'
