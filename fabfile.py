@@ -275,6 +275,8 @@ def installPipPackages():
 		'thrift',
 		# graph visualization
 		'pygraphviz',
+		# Flower: Real-time Celery web-monitor
+		'flower'
 		# graph library
 		'networkx',
 	]

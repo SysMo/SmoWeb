@@ -1,7 +1,8 @@
 '''
-Created on March 23, 2015
+Created on Mar 23, 2015
 
 @author: Milen Borisov
+@copyright: SysMo Ltd, Bulgaria
 '''
 import pylab as plt
 from pydelay import dde23
@@ -71,7 +72,11 @@ class ChemostatDDE():
         self.solverParams = params
                 
         # Set the simulation parameters
-        self.dde.set_sim_params(tfinal=self.solverParams.tFinal, dtmax=None)
+        self.dde.set_sim_params(
+            tfinal = self.solverParams.tFinal, 
+            AbsTol = params.absTol, 
+            RelTol = params.relTol,
+            dtmax=None)
         
         # Run the simulator
         self.dde.run()
@@ -120,12 +125,12 @@ def TestChemostatDDE():
         k_s1 = 7.1
         k_s2 = 9.28
         k_I = 16.
-        D = 0.89
+        D = 0.3
         tau1 = 2.
         tau2 = 3.
-        s1_hist_vals = 3.
+        s1_hist_vals = 2.
         x1_hist_vals = 0.7
-        s2_hist_vals = 12.
+        s2_hist_vals = 5.
         x2_hist_vals = 0.1
     modelParams = ModelParams()
     

@@ -308,6 +308,7 @@ smoModule.factory('smoJson', function () {
 
 smoModule.factory('communicator', function($http, $window, $timeout, $location, smoJson) {
 	
+	// Generic communicator
 	function Communicator(url) {
 		this.url = url || '';
 		// true if waiting to load from the server
@@ -328,6 +329,7 @@ smoModule.factory('communicator', function($http, $window, $timeout, $location, 
 	}
 	Communicator.prototype.setResponseData = function(responseData) {
 		this.data = responseData;
+		this.dataReceived = true;
 	}
 	Communicator.prototype.fetchData = function(action, parameters, onSuccess, onFailure) {
 		this.setPostData(parameters);
@@ -341,13 +343,10 @@ smoModule.factory('communicator', function($http, $window, $timeout, $location, 
 		if (typeof this.data === 'undefined') {
 			this.data = {};
 		}
-		
-		this.dataReceived = false;
 		// Variable introduced so that success and error functions can access this object
 		var communicator = this;
 		this.onSuccess = onSuccess;
 		this.onFailure = onFailure;
-		//this.action = action;
 		$http({
 	        method  : 'POST',
 	        url     : this.url,
@@ -361,8 +360,8 @@ smoModule.factory('communicator', function($http, $window, $timeout, $location, 
 			if (!response.errStatus) {
 				communicator.serverError = false;
 				communicator.setResponseData(response.data);
-				communicator.dataReceived = true;
-				if (!(typeof onSuccess === 'undefined')) {
+				//communicator.dataReceived = true;
+				if (typeof onSuccess !== 'undefined') {
 					communicator.onSuccess(communicator);
 				}
 			} else {
@@ -386,14 +385,15 @@ smoModule.factory('communicator', function($http, $window, $timeout, $location, 
 	    });
 	}
 	
-	ModelCommunicator.prototype = new Communicator();
-	
+	// Model communicator
 	function ModelCommunicator(model, modelName, viewName, url) {
-			Communicator.apply(this, url);	
 			this.model = model;
 			this.modelName = modelName;
 			this.viewName = viewName;
+			Communicator.call(this, url);	
 	}
+	
+	ModelCommunicator.prototype = Object.create(Communicator.prototype);
 
 	ModelCommunicator.prototype.setPostData = function(parameters) {
 		this.postData = {
@@ -404,14 +404,73 @@ smoModule.factory('communicator', function($http, $window, $timeout, $location, 
 	}
 	
 	ModelCommunicator.prototype.setResponseData = function(responseData) {
-		// If the communicator has received the definitions once, just the values are updated
-		if (this.data.definitions) {
-			this.data.values = responseData.values;
-		} else {
-			this.data = responseData;
+		var updateRecordId = function(comm) {
+			if (comm.data.values.recordId) {
+				comm.model.recordId = comm.data.values.recordId;
+			}
+		};
+		
+		if (responseData.keepDefaultDefs == false) {
+			//If the definitions have been received once, on next occasions they are discarded
+			if (this.data.definitions) {
+				responseData.definitions = this.data.definitions;
+			}
 		}
+		
+		if (this.viewName == 'resultView') {
+			// data views using hdf storage
+			var hdfViews = [];
+			// hdf storage fields
+			var storageFields = [];
+			// looping over hierarchical structure to identify such fields
+			for (var i=0; i<responseData.definitions.length; i++) {
+				for (var j=0; j<responseData.definitions[i].groups.length; j++) {
+					if (responseData.definitions[i].groups[j].type == "ViewGroup") {
+						for (var k=0; k<responseData.definitions[i].groups[j].fields.length; k++) {
+							var field = responseData.definitions[i].groups[j].fields[k];
+							if (field.type == 'TableView' || field.type == 'PlotView') {
+								if (field.useHdfStorage == true) {
+									hdfViews.push({"name": field.name,
+													"storage": responseData.values[field.name]});
+								}
+							}
+							if (field.type == 'HdfStorage') {
+								storageFields.push({"name": field.name,
+														"hdfFile": field.hdfFile,
+														"hdfGroup": field.hdfGroup, 
+														"dataset": responseData.values[field.name],
+														"datasetColumns": field.datasetColumns});
+							}
+						}
+					}
+				}
+			}
+			
+			if (storageFields.length > 0) {
+				var modelComm = this;
+				var onFetchSuccess = function(comm) {
+					// on fetch success assign data to plots and tables
+					for (var i=0; i<hdfViews.length; i++) {
+						for (var j=0; j<comm.data.length; j++) {
+							if (hdfViews[i].storage in comm.data[j]) {
+								responseData.values[hdfViews[i].name] = comm.data[j][hdfViews[i].storage];
+							}
+						}
+					}
+					Communicator.prototype.setResponseData.call(modelComm, responseData);
+					updateRecordId(modelComm);
+				}
+				// if there are hdf storage fields, request the data they point to 
+				hdfDataComm = new Communicator();
+				hdfDataComm.fetchData('loadHdfValues', storageFields, onFetchSuccess);
+				return;
+			}
+		}
+		
+		Communicator.prototype.setResponseData.call(this, responseData);
+		updateRecordId(this);	
 	}
-
+	
 	ModelCommunicator.prototype.saveUserInput = function() {
 		var communicator = this;
 		this.saveFeedbackMsg = "";
@@ -438,22 +497,90 @@ smoModule.factory('communicator', function($http, $window, $timeout, $location, 
 					+ '?model=' + response.data.model + '&view=' + response.data.view + '&id=' + response.data.id;
 				communicator.saveSuccess = true;
 				communicator.saveFeedbackMsg = "Input data saved.";
-				//$timeout($window.alert("Input data saved"));
 			} else {
-				//$timeout($window.alert("Failed to save input data"));
 				communicator.saveFeedbackMsg = "Failed to save input data";
 			}
 	    })
 	    .error(function(response) {
 	    	communicator.saveFeedbackMsg = "Failed to save input data";
-	    	//$timeout($window.alert("Failed to save input data"));
 	    });
 	}
-
-	return {
-			"Communicator": Communicator,
-			"ModelCommunicator": ModelCommunicator
+	
+	// Asynchronous model communicator
+	function AsyncModelCommunicator(model, modelName, viewName, url) {
+		this.progressBarDivID = modelName + '_' + viewName + 'ProgressBar';
+		this.onFetchSuccess = function(comm) {
+			comm.loading = true;
+			comm.dataReceived = false;
+			//angular.element('#' + this.modelName + '_abortButton').prop('disabled', true);
+		}
+		ModelCommunicator.call(this, model, modelName, viewName, url);
+	}
+	
+	AsyncModelCommunicator.prototype = Object.create(ModelCommunicator.prototype);
+	
+	AsyncModelCommunicator.prototype.computeAsync = function(parameters) {
+		this.current = 0;
+		$('#' + this.modelName + '_computeButton').prop('disabled', true);
+		this.fetchData('startCompute', parameters, this.onFetchSuccess);
+	}
+	
+	AsyncModelCommunicator.prototype.abortAsync = function() {
+		var onFetchSuccess = function(comm) {
+			comm.loading = true;
+			comm.dataReceived = false;
+			$('#' + this.modelName + '_computeButton').prop('disabled', false);
+		}
+		if (this.jobID) {
+			this.fetchData('abort', {"jobID" : this.jobID}, onFetchSuccess);
+		}
+	}
+	
+	AsyncModelCommunicator.prototype.checkProgress = function() {
+		var comm = this;
+		setTimeout(function(){
+			comm.fetchData('checkProgress', {"jobID" : comm.jobID}, comm.onFetchSuccess);
+		}, 1000);
+	}
+	
+	AsyncModelCommunicator.prototype.setResponseData = function(responseData) {
+		if (responseData.jobID) {
+			this.jobID = responseData.jobID;
+		}
+		if (responseData.fractionOutput) {
+			this.fractionOutput = responseData.fractionOutput;
+		}
+		if (responseData.suffix) {
+			this.suffix = responseData.suffix;
+		}
+		
+		this.state = responseData.state;
+		if (typeof this.state !== 'undefined') {
+			if (this.state == 'PENDING') {
+				this.checkProgress();
 			}
+			if (this.state == 'STARTED') {
+				this.current = 0;
+				this.total = 1.;
+				this.checkProgress();
+			} else if (this.state =='PROGRESS') {
+				this.current = responseData.current;
+				this.total = responseData.total;
+				this.checkProgress();
+			} else if (this.state == 'SUCCESS') {
+				$('#' + this.modelName + '_computeButton').prop('disabled', false);
+				this.onSuccess = function(comm) {};
+				ModelCommunicator.prototype.setResponseData.call(this, responseData);
+			} else if (this.state == 'FAILURE') {
+			} else if (this.state == 'REVOKED') {
+			}
+		} else {
+			ModelCommunicator.prototype.setResponseData.call(this, responseData);
+		}
+	}
+
+	return {"Communicator": Communicator, "ModelCommunicator": ModelCommunicator, 
+			"AsyncModelCommunicator": AsyncModelCommunicator}
 })
 
 
@@ -530,12 +657,20 @@ smoModule.directive('tooltip', function(){
     return {
         restrict: 'A',
         link: function(scope, element, attrs){
-            $(element).hover(function(){
+            var mouseIn;
+        	$(element).hover(function(){
                 // on mouseenter
+        		mouseIn = true;
                 $(element).tooltip('show');
             }, function(){
                 // on mouseleave
+            	mouseIn = false;
                 $(element).tooltip('hide');
+            });
+            $(element).keyup(function(){
+            	if (mouseIn) {
+            		$(element).tooltip('show');
+            	}
             });
         }
     };
@@ -610,7 +745,7 @@ smoModule.directive('smoInt', ['$compile', function($compile) {
 				template += '\
 					<div class="field-input"> \
 						<div ng-form name="' + scope.fieldVar.name + 'Form">\
-							<input name="input" required type="number" ng-model="smoDataSource.' + scope.fieldVar.name + '" min="' + scope.fieldVar.minValue + '" max="' + scope.fieldVar.maxValue + '">\
+							<input style="width:' + scope.fieldVar.inputBoxWidth + 'px" name="input" required type="number" ng-model="smoDataSource.' + scope.fieldVar.name + '" min="' + scope.fieldVar.minValue + '" max="' + scope.fieldVar.maxValue + '">\
 						</div>\
 					</div>';
 			}
@@ -773,11 +908,11 @@ smoModule.directive('smoQuantity', ['$compile', 'util', function($compile, util)
 				template += '\
 					<div class="field-input"> \
 						<div ng-form name="' + scope.fieldVar.name + 'Form">\
-							<input name="input" required type="text" ng-pattern="/^[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$/" ng-model="fieldVar.displayValue" ng-change="checkValueValidity();">\
+							<input name="input" style="width:' + scope.fieldVar.inputBoxWidth + 'px" required type="text" ng-pattern="/^[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$/" ng-model="fieldVar.displayValue" ng-change="checkValueValidity();">\
 						</div>\
 					</div>';
 				template += '\
-					<div class="field-select quantity"> \
+					<div ng-hide="fieldVar.quantity==\'Float\'" class="field-select quantity"> \
 						<select ng-disabled="!' + scope.fieldVar.name + 'Form.$valid" ng-model="fieldVar.displayUnit" ng-options="pair[0] as pair[0] for pair in fieldVar.units" ng-change="changeUnit()"></select> \
 					</div>';
 				
@@ -788,7 +923,7 @@ smoModule.directive('smoQuantity', ['$compile', 'util', function($compile, util)
 						<div class="output" ng-bind="fieldVar.displayValue"></div>\
 					</div>';
 				template += '\
-					<div class="field-select quantity"> \
+					<div ng-hide="fieldVar.quantity==\'Float\'" class="field-select quantity"> \
 						<select ng-model="fieldVar.displayUnit" ng-options="pair[0] as pair[0] for pair in fieldVar.units" ng-change="changeUnit()"></select> \
 					</div>';
 				
@@ -867,7 +1002,7 @@ smoModule.directive('smoString', ['$compile', function($compile) {
 				template += '\
 					<div class="field-input"> \
 						<div ng-form name="' + scope.fieldVar.name + 'Form">\
-							<input name="input" required type="text" ng-model="fieldVar.value" ng-change="updateValue()">\
+							<input style="width:' + scope.fieldVar.inputBoxWidth + 'px" name="input" type="text" ng-model="fieldVar.value" ng-change="updateValue()" data-toggle="tooltip" data-original-title="{{fieldVar.value}}" tooltip>\
 						</div>\
 					</div>';
 			else if (scope.viewType == 'output'){
@@ -884,9 +1019,9 @@ smoModule.directive('smoString', ['$compile', function($compile) {
 				}
 				
 			}
-			if (scope.viewType == 'input')
-				template += '\
-					<div class="input-validity-error" ng-show="' + scope.fieldVar.name + 'Form.input.$error.required">Required value</div>';
+//			if (scope.viewType == 'input')
+//				template += '\
+//					<div class="input-validity-error" ng-show="' + scope.fieldVar.name + 'Form.input.$error.required">Required value</div>';
 
 		var el = angular.element(template);
         compiled = $compile(el);
@@ -1159,7 +1294,6 @@ smoModule.directive('smoDataSeriesView', ['$compile', 'communicator', 'util', fu
 				
 				for (var col=0; col<$scope.numCols; col++){
 					var field = $scope.fieldVar.fields[col];
-						
 					field.unit 
 						= field.unit || field.SIUnit;
 					field.displayUnit 
@@ -1351,12 +1485,18 @@ smoModule.directive('smoFieldGroup', ['$compile', 'util', function($compile, uti
 			var template = "";
 			
 			if (scope.smoFieldGroup.label) {
-				template += '<div class="field-group-label" style="margin-top: 25px;">' + scope.smoFieldGroup.label + '</div>';
+				template += '<div ng-hide="' + scope.smoFieldGroup.hideContainer + '" class="field-group-label" style="margin-top: 25px;">' + scope.smoFieldGroup.label + '</div>';	
 			} 
 			
-			template += '<div class="field-group-container">' +
-							groupFields.join("") +
-						'</div>';
+			if (scope.smoFieldGroup.hideContainer) {
+				var style = "background-color: transparent; border: none;";
+			} else {
+				style = "";
+			}
+			
+			template += '<div style="' + style + '" class="field-group-container">';
+			
+			template += groupFields.join("") + '</div>';
 
 			var el = angular.element(template);
 	        compiled = $compile(el);
@@ -1384,8 +1524,9 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 			
 			var template = "";
 			if (scope.smoViewGroup.label) {
-				template += '<div class="field-group-label" style="margin-top: 25px;">' + scope.smoViewGroup.label + '</div>';
+				template += '<div ng-hide="' + scope.smoViewGroup.hideContainer + '" class="field-group-label" style="margin-top: 25px;">' + scope.smoViewGroup.label + '</div>';
 			}
+			
 			
 			if (scope.smoViewGroup.fields.length > 1) {
 				var navPills = [];
@@ -1402,10 +1543,10 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 					
 					
 					if (i==0){
-						navPills.push('<li class="active"><a id="' + field.name + 'Tab" data-target="#' + field.name + '" role="tab" data-toggle="tab"><div data-toggle="tooltip" data-viewport="[smo-view-group]" title="' + field.description + '" tooltip>' + field.label + '</div></a></li>');
+						navPills.push('<li class="active" ' + showCode + '><a id="' + field.name + 'Tab" data-target="#' + field.name + '" role="tab" data-toggle="tab"><div data-toggle="tooltip" data-viewport="[smo-view-group]" title="' + field.description + '" tooltip>' + field.label + '</div></a></li>');
 						navPillPanes.push('<div class="tab-pane active" id="' + field.name + '">');
 					} else {
-						navPills.push('<li><a id="' + field.name + 'Tab" data-target="#' + field.name + '" role="tab" data-toggle="tab"><div data-toggle="tooltip" data-viewport="[smo-view-group]", title="' + field.description + '" tooltip>' + field.label + '</div></a></li>');
+						navPills.push('<li ' + showCode + '><a id="' + field.name + 'Tab" data-target="#' + field.name + '" role="tab" data-toggle="tab"><div data-toggle="tooltip" data-viewport="[smo-view-group]", title="' + field.description + '" tooltip>' + field.label + '</div></a></li>');
 						navPillPanes.push('<div class="tab-pane" id="' + field.name + '">');
 					}
 					
@@ -1419,15 +1560,21 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 					
 				}
 				
+				if (scope.smoViewGroup.hideContainer) {
+					var style = "background-color: transparent; border: none;";
+				} else {
+					style = "";
+				}
+				
 				template += '\
-					<div class="view-group-container">\
-						<div style="vertical-align: top; cursor: pointer; margin-bottom: 10px;">\
-							<ul class="nav nav-pills nav-stacked">' + navPills.join("") + '</ul>\
-						</div>\
-						<div class="tab-content" style="overflow-x:auto;">'
-							+ navPillPanes.join("") + 
-						'</div>\
-					</div>';
+						<div class="view-group-container" style="' + style + '">\
+							<div style="vertical-align: top; cursor: pointer; margin-bottom: 10px;">\
+								<ul class="nav nav-pills nav-stacked">' + navPills.join("") + '</ul>\
+							</div>\
+							<div class="tab-content" style="overflow-x:auto;">'
+								+ navPillPanes.join("") + 
+							'</div>\
+						</div>';
 				
 			} else if (scope.smoViewGroup.fields.length == 1) {
 				var field = scope.smoViewGroup.fields[0];
@@ -1437,8 +1584,13 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 				}
 				
 				
-				template += '\
-					<div style="background-color: white; padding :10px; text-align: center;">';
+				if (scope.smoViewGroup.hideContainer) {
+					var style = "background-color: transparent; border: none;";
+				} else {
+					style = "background-color: white; padding :10px; text-align: center;";
+				}
+				
+				template += '<div style="' + style + '">';
 				
 				if (field.type == 'TableView' || field.type == 'PlotView') {
 					template += '<div ' + showCode + ' smo-data-series-view field-var="smoViewGroup.fields[0]" model-name="' + scope.modelName + '" smo-data-source="smoDataSource"></div>';
@@ -1562,12 +1714,12 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 			smoDataSource : '='
 		},
 		controller: function($scope){
-			
-			$scope.expanded = false;
-			$scope.toggle = function(){
-				$scope.expanded = !$scope.expanded;
+			if ($scope.smoRecordArray.toggle == true) {
+				$scope.expanded = false;
+				$scope.toggle = function(){
+					$scope.expanded = !$scope.expanded;
+				}
 			}
-			
 			
 			$scope.checkValueValidity = function(row, col, form){
 				var field = $scope.smoRecordArray.fields[col];
@@ -1674,7 +1826,7 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 								<div style="margin-bottom: 5px;">\
 									{{smoRecordArray.fields[' + String(col) + '].label}}\
 								</div>\
-								<div class="field-select quantity"> \
+								<div ng-hide="smoRecordArray.fields[' + String(col) + '].quantity==\'Float\'" class="field-select quantity"> \
 									<select ng-model="smoRecordArray.fields[' + String(col) + '].displayUnit" \
 										ng-options="pair[0] as pair[0] for pair in smoRecordArray.fields[' + String(col) + '].units" \
 										ng-change="changeUnit(' + String(col) + ')"></select>\
@@ -1727,7 +1879,7 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 						<td>\
 							<div class="field-input">\
 								<div ng-form name="' + scope.smoRecordArray.name + '_{{i}}_' + String(col) + 'Form">\
-									<input name="input" required type="text" ng-pattern="/^[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$/" \
+									<input style="width:' + field.inputBoxWidth + 'px" name="input" required type="text" ng-pattern="/^[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$/" \
 										ng-model="arrDisplayValue[i][' + String(col) + ']" ng-change="checkValueValidity(i,' + String(col) + ', ' + scope.smoRecordArray.name + '_{{i}}_' + String(col) + 'Form)">\
 								</div>\
 							</div>\
@@ -1742,7 +1894,7 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 						<td>\
 							<div class="field-input">\
 								<div ng-form name="' + scope.smoRecordArray.name + '_{{i}}_' + String(col) + 'Form">\
-									<input name="input" required type="number" \
+									<input style="width:' + field.inputBoxWidth + 'px" name="input" required type="number" \
 										ng-model="arrValue[i][' + String(col) + ']" \
 										min="' + scope.smoRecordArray.fields[col].minValue + '" max="' + scope.smoRecordArray.fields[col].maxValue + '">\
 								</div>\
@@ -1761,13 +1913,13 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 						<td>\
 							<div class="field-input">\
 								<div ng-form name="' + scope.smoRecordArray.name + '_{{i}}_' + String(col) + 'Form">\
-									<input name="input" required type="text" \
-										ng-model="arrValue[i][' + String(col) + ']">\
+									<input style="width:' + field.inputBoxWidth + 'px" name="input" type="text" \
+										ng-model="arrValue[i][' + String(col) + ']" data-toggle="tooltip" data-original-title="{{arrValue[i][' + String(col) + ']}}" tooltip>\
 								</div>\
-							</div>\
-							<div style="margin-left: 5px; color:red;" ng-show="' + scope.smoRecordArray.name + '_{{i}}_' + String(col) + 'Form.input.$error.required">Required value\
-							</div>\
-						</td>';
+							</div>';
+//							<div style="margin-left: 5px; color:red;" ng-show="' + scope.smoRecordArray.name + '_{{i}}_' + String(col) + 'Form.input.$error.required">Required value\
+//							</div>\
+					rowTemplate += '</td>';
 				} else if (field.type == 'Choices') {
 					rowTemplate += '\
 					<td>\
@@ -1780,13 +1932,20 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 				}
 			}
 			
-			var template = '\
-			<div class="field-label"><div style="display: inline-block;" data-toggle="tooltip" title="' + scope.smoRecordArray.description + '" tooltip>' + scope.smoRecordArray.label + '</div></div>\
-			<div class="field-input"><smo-button action="toggle()" icon="edit" tip="Edit" size="md"></smo-button></div>';
-			//			<div class="field-input"><button class="btn btn-primary" style="height: 30px;" ng-click="toggle()">Edit</button></div>';
+			var template = '';
 			
-			template += '\
-			<div class="record-array" ng-show="expanded" ng-click="toggle()">\
+			if (scope.smoRecordArray.toggle == true) {
+				template += '\
+				<div class="field-label"><div style="display: inline-block;" data-toggle="tooltip" title="' + scope.smoRecordArray.description + '" tooltip>' + scope.smoRecordArray.label + '</div></div>\
+				<div class="field-input"><smo-button action="toggle()" icon="edit" tip="Edit" size="md"></smo-button></div>';
+			}
+			
+			if (scope.smoRecordArray.toggle == true) {
+				template += '\
+					<div class="record-array" ng-show="expanded" ng-click="toggle()">';
+			}
+			
+			editModeTemplate = '\
 				<table class="nice-table">\
 					<tr>\
 						<th style="min-width: 10px;">\
@@ -1806,8 +1965,13 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 							<div><smo-button action="delRow(i)" icon="minus" tip="Remove row"></smo-button></div>\
 						</td>\
 					</tr>\
-				</table>\
-			</div>';
+				</table>';
+			
+			template += editModeTemplate;
+			
+			if (scope.smoRecordArray.toggle == true) {
+				template += '</div>';
+			}
 			
 	        var el = angular.element(template);
 	        compiled = $compile(el);
@@ -1831,11 +1995,11 @@ smoModule.directive('smoViewToolbar', ['$compile', '$rootScope', 'util', functio
 		controller: function($scope) {
 			var formName = $scope.model.name + $scope.viewName + 'Form';
 			$scope.form = $scope.$parent[formName];
-			var onFetchSuccess = function(comm){
-				if (comm.data.values.recordId){
-					comm.model.recordId = comm.data.values.recordId;
-				} 
-			}
+//			var onFetchSuccess = function(comm){
+//				if (comm.data.values.recordId){
+//					comm.model.recordId = comm.data.values.recordId;
+//				} 
+//			}
 			
 			$scope.actionHandler = function(action, params) {
 				var targetView = action.outputView || $scope.viewName;
@@ -1880,9 +2044,16 @@ smoModule.directive('smoViewToolbar', ['$compile', '$rootScope', 'util', functio
 						parameters['recordId'] =
 							communicator.model.recordId;
 					}
+					if ($scope.model.computeAsync) {
+						communicator.computeAsync(parameters);
+						return;
+					}
+				} else if (action.name == 'abort') {
+					communicator.abortAsync();
+					return;	
 				}
 				communicator.fetchData(action.name,
-						parameters, onFetchSuccess);
+						parameters);
 			}
 		},
 		link : function(scope, element, attr) {
@@ -1900,7 +2071,7 @@ smoModule.directive('smoViewToolbar', ['$compile', '$rootScope', 'util', functio
 					</div>');
 					
 				} else {
-					buttons.push('<button type="button" ng-disabled="!form.$valid" class="btn btn-primary" ng-click="actionHandler(actions[' + i + '])">' + scope.actions[i].label + '</button>');
+					buttons.push('<button type="button" ng-hide="actions[' + i + '].name==\'abort\' && !model.computeAsync" id="' + scope.model.name + '_' + scope.actions[i].name + 'Button" ng-disabled="!form.$valid" class="btn btn-primary" ng-click="actionHandler(actions[' + i + '])">' + scope.actions[i].label + '</button>');
 				}
 			}
 			
@@ -1934,17 +2105,47 @@ smoModule.directive('smoModelView', ['$compile', '$location', 'communicator',
 			viewRecordId: '@viewRecordId'
 		},
 		controller: function($scope) {
+			$scope.Math = window.Math
 			$scope.formName = $scope.modelName + $scope.viewName + 'Form';
 			$scope.model = $scope.$parent[$scope.modelName];
-			$scope.communicator = new communicator.ModelCommunicator($scope.model, $scope.modelName, $scope.viewName);
+			if ($scope.model.computeAsync) {
+				$scope.communicator = new communicator.AsyncModelCommunicator($scope.model, $scope.modelName, $scope.viewName);
+			} else {
+				$scope.communicator = new communicator.ModelCommunicator($scope.model, $scope.modelName, $scope.viewName);
+			}
 			$scope.model[$scope.viewName + 'Communicator'] = $scope.communicator;
 			if ($scope.autoFetch) {
 				$scope.communicator.fetchData("load", {viewRecordId: $scope.viewRecordId});				
 			}
+			
+			$scope.showProgress = false;
+			if ($scope.model.computeAsync) {
+				if ($scope.viewType == 'output') {
+					$scope.showProgress = true;
+				}
+			} 
 		},
 		link : function(scope, element, attr) {
 			var template = '\
-				<div ng-if="communicator.loading" class="alert alert-info" role="alert">Loading... (may well take a few moments)</div>\
+				<div ng-if="communicator.loading" class="alert alert-info" role="alert">\
+					<div ng-if="!showProgress">Loading... (may well take a few moments)</div>\
+					<div ng-if="showProgress">\
+				  	  <div ng-if="communicator.state==\'PENDING\'">Pending...</div>\
+					  <div ng-if="communicator.state==\'STARTED\' || communicator.state==\'PROGRESS\'">\
+						In progress...\
+						<div class="progress" style="margin-top: 10px; margin-bottom: 0px;">\
+						  <div id="' + scope.modelName + '_' + scope.viewName + 'ProgressBar" class="progress-bar progress-bar-info" role="progressbar"\
+						  		aria-valuenow="{{communicator.current}}" aria-valuemin="0" aria-valuemax="{{communicator.total}}" style="background-color: #31708F; width: {{communicator.current/communicator.total*100}}%; min-width: 10%;">\
+						  			<span ng-if="communicator.fractionOutput">{{Math.round(communicator.current)}} / {{Math.round(communicator.total)}}&nbsp{{communicator.suffix}}</span>\
+						  			<span ng-if="!communicator.fractionOutput">{{Math.round(communicator.current/communicator.total*100)}}{{communicator.suffix}}</span>\
+						  </div>\
+						</div>\
+					  </div>\
+					  <div ng-if="communicator.state==\'FAILURE\'">Failed</div>\
+					  <div ng-if="communicator.state==\'SUCCESS\'">Success</div>\
+					  <div ng-if="communicator.state==\'REVOKED\'">Aborted</div>\
+					</div>\
+				</div>\
 				<div ng-if="communicator.commError" class="alert alert-danger" role="alert">Communication error: <span ng-bind="communicator.errorMsg"></span></div>\
 				<div ng-if="communicator.serverError" class="alert alert-danger" role="alert">Server error: <span ng-bind="communicator.errorMsg"></span>\
 					<div>Stack trace:</div><pre><div ng-bind="communicator.stackTrace"></div></pre>\

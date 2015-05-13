@@ -36,12 +36,6 @@ class FreeConvectionView(ModularPageView):
 	label = "Free convection"
 	modules = [FreeConvection_External, FreeConvection_Internal, FreeConvectionDoc]
 
-# @registerView(router)
-# class ThermodynamicComponents(ModularPageView):
-# 	label = "Thermodynamic components (Doc)"
-# 	modules = [ThermodynamicComponentsDoc]
-# 	
-
 @registerView(router)
 class HeatingCoolingCyces(ModularPageView):
 	label = "Heating/cooling cycles"
@@ -87,8 +81,8 @@ class HeatExchangerDesignView(ModularPageView):
 from models.TestModule import ABC
 @registerView(router)
 class TestPage(ModularPageView):
+	showInMenu = False
 	label = 'Test'
-	modules = [ABC]
 	requireJS = ['dygraph', 'dygraphExport']
 	requireGoogle = ['visualization']
- 	
+	modules = [ABC]

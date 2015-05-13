@@ -107,6 +107,7 @@ class HeatExchangerSolver(object):
 		self.extChannelCalc.sections[0].fState.update_Tp(heatExch.externalFlowIn.T, heatExch.externalFlowIn.p)
 		# Solve for a single cross section
 		for i in range(self.numSectionSteps):
+			heatExch.updateProgress((i + 1.0) / self.numSectionSteps, 1.)
 			primSection = self.primChannelCalc.sections[i]
 			secSection = self.secChannelCalc.sections[i]
 			extSection = self.extChannelCalc.sections[i]

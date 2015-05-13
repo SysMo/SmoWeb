@@ -1,3 +1,9 @@
+'''
+Created on Mar 4, 2015
+
+@author: Milen Borisov
+@copyright: SysMo Ltd, Bulgaria
+'''
 import numpy as np
 import smo.model.fields as F
 import smo.dynamical_models.bioreactors.ChemostatSimple as DM
@@ -8,7 +14,10 @@ from smo.web.modules import RestModule
 class ChemostatSimple(NumericalModel):
     label = "Simple Chemostat"
     description = F.ModelDescription("Simple chemostat model with ordinary differential equations (ODE)", show = True)
-    figure = F.ModelFigure(src="BioReactors/img/ModuleImages/SimpleChemostat.png", show=False)
+    figure = F.ModelFigure(src="BioReactors/img/ModuleImages/SimpleChemostat.png", show = False)
+    
+    async = True
+    progressOptions = {'suffix': 'day', 'fractionOutput': True}
     
     #1. ############ Inputs ###############
     #1.1 Fields - Input values
@@ -41,26 +50,32 @@ class ChemostatSimple(NumericalModel):
     inputView = F.ModelView(ioType = "input", superGroups = [inputValuesSuperGroup, settingsSuperGroup], autoFetch = True)
     
     #2. ############ Results ###############    
-    plot = F.PlotView((
-                        ('time', F.Quantity('Bio_Time', default=(1, 'day'))),
-                        ('S', F.Quantity('Bio_MassConcentration', default=(1, 'g/L'))),
-                        ('X', F.Quantity('Bio_MassConcentration', default=(1, 'g/L'))),
-                        ('D', F.Quantity('Bio_TimeRate', default=(1, '1/day'))),
-                    ),
+    dataSeries = (
+                    ('time', F.Quantity('Bio_Time', default=(1, 'day'))),
+                    ('S', F.Quantity('Bio_MassConcentration', default=(1, 'g/L'))),
+                    ('X', F.Quantity('Bio_MassConcentration', default=(1, 'g/L'))),
+                    ('D', F.Quantity('Bio_TimeRate', default=(1, '1/day')))
+                )
+    
+    
+    storage = F.HdfStorage(hdfFile = 'BioReactors_SimulationResults.h5',
+        hdfGroup = '/ChemostatSimple')
+    
+    plot = F.PlotView(dataSeries,
                     label='Plot', 
-                    options = {'ylabel' : None})
-    table = F.TableView((
-                        ('time', F.Quantity('Bio_Time', default=(1, 'day'))),
-                        ('S', F.Quantity('Bio_MassConcentration', default=(1, 'g/L'))),
-                        ('X', F.Quantity('Bio_MassConcentration', default=(1, 'g/L'))),
-                        ('D', F.Quantity('Bio_TimeRate', default=(1, '1/day'))),
-                      ),
+                    options = {'ylabel' : None},
+                    useHdfStorage = True,
+                    storage = 'storage')
+    table = F.TableView(dataSeries,
                       label='Table', 
-                      options = {'title': 'Simple Chemostat', 'formats': ['0.000', '0.000', '0.000', '0.000']})
+                      options = {'title': 'Simple Chemostat', 'formats': ['0.000', '0.000', '0.000', '0.000']},
+                      useHdfStorage = True,
+                      storage = 'storage')
 
     
     resultsVG = F.ViewGroup([plot, table], label = 'Results')
-    resultsSG = F.SuperGroup([resultsVG])
+    storageVG = F.ViewGroup([storage], show="false")
+    resultsSG = F.SuperGroup([resultsVG, storageVG])
     
     #2.1 Model view
     resultView = F.ModelView(ioType = "output", superGroups = [resultsSG])
@@ -69,18 +84,13 @@ class ChemostatSimple(NumericalModel):
     modelBlocks = [inputView, resultView]
     
     
-    def compute(self):
+    def computeAsync(self):
         chemostat = DM.ChemostatSimple(self)
         
         chemostat.prepareSimulation()
         chemostat.run(self)
         
-        res = chemostat.getResults()
-        print res
-        results = np.array(res)
-        print results
-        self.plot = results
-        self.table = results
+        self.storage = chemostat.resultStorage.simulationName
         
 
 class ChemostatSimpleDoc(RestModule):

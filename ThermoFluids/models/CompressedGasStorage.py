@@ -4,7 +4,6 @@ Created on April 01, 2015
 @author: Milen Borisov
 @copyright: SysMo Ltd, Bulgaria
 '''
-import numpy as np
 import smo.model.fields as F
 import lib.CompressedGasStorageComponents as GSC
 import smo.media.CoolProp as CP
@@ -17,7 +16,10 @@ from smo.web.modules import RestModule
 class CompressedGasStorage(NumericalModel):
     label = "Compressed Gas Storage"
     description = F.ModelDescription("Compressed gas storage model with fueling and extraction", show = True)
-    figure = F.ModelFigure(src="ThermoFluids/img/ModuleImages/CompressedGasStorage.svg") 
+    figure = F.ModelFigure(src="ThermoFluids/img/ModuleImages/CompressedGasStorage.svg")
+    
+    async = True
+    progressOptions = {'suffix': 's', 'fractionOutput': True}
     
     #1. ############ Inputs ###############
     #1.1 Fields - Input values
@@ -53,65 +55,85 @@ class CompressedGasStorage(NumericalModel):
     tankResSG = F.SuperGroup([tankRes], label = 'Vessel')
     
     #2.2 Plots
-    resultColumns = (
-        ('time', F.Quantity('Time', default = (1, 's'))),
-        ('vessel pressure', F.Quantity('Pressure', default = (1, 'bar'))),
-        ('vessel density', F.Quantity('Density', default = (1, 'kg/m**3'))),
-        ('mass', F.Quantity('Mass', default = (1, 'kg'))),
-        ('vessel temperature', F.Quantity('Temperature', default = (1, 'degC'))),
-        ('liner temperature', F.Quantity('Temperature', default = (1, 'degC'))),
-        ('composite surface temperature', F.Quantity('Temperature', default = (1, 'degC'))),
-        ('compressor outlet temperature', F.Quantity('Temperature', default = (1, 'degC'))),
-        ('cooler outlet temperature', F.Quantity('Temperature', default = (1, 'degC'))),
-        ('cooler heat flow', F.Quantity('HeatFlowRate', default = (1, 'kW'))),
-        ('vessel heat flow', F.Quantity('HeatFlowRate', default = (1, 'W'))),
-        ('fueling flow rate', F.Quantity('MassFlowRate', default = (1, 'kg/h'))),
-        ('integrated compressor work', F.Quantity('Energy', default = (1, 'kWh'))),
+    dataSeries = (
+        ('t', F.Quantity('Time', default = (1, 's'), label = 'time')),
+        ('pTank', F.Quantity('Pressure', default = (1, 'bar'), label = 'vessel pressure')),
+        ('rhoTank', F.Quantity('Density', default = (1, 'kg/m**3'), label = 'vessel density')),
+        ('mTank', F.Quantity('Mass', default = (1, 'kg'), label = 'mass')),
+        ('TTank', F.Quantity('Temperature', default = (1, 'degC'), label = 'vessel temperature')),
+        ('TLiner_2', F.Quantity('Temperature', default = (1, 'degC'), label = 'liner temperature')),
+        ('TComp_4', F.Quantity('Temperature', default = (1, 'degC'), label = 'composite surface temperature')),
+        ('TCompressorOut', F.Quantity('Temperature', default = (1, 'degC'), label = 'compressor outlet temperature')),
+        ('TCoolerOut', F.Quantity('Temperature', default = (1, 'degC'), label = 'cooler outlet temperature')),
+        ('QDotCooler', F.Quantity('HeatFlowRate', default = (1, 'kW'), label = 'cooler heat flow')),
+        ('QDotComp', F.Quantity('HeatFlowRate', default = (1, 'W'), label = 'vessel heat flow')),
+        ('mDotFueling', F.Quantity('MassFlowRate', default = (1, 'kg/h'), label = 'fueling flow rate')),
+        ('WRealCompressor', F.Quantity('Energy', default = (1, 'kWh'), label = 'integrated compressor work')),
     )
     
+    datasetColumns = ['t', 'pTank', 'rhoTank', 'mTank', 'TTank', 'TLiner_2', 'TComp_4', 'TCompressorOut', 'TCoolerOut',
+                          'QDotCooler', 'QDotComp', 'mDotFueling', 'WRealCompressor']
+    
+    storage = F.HdfStorage(hdfFile = 'TankSimulations_SimulationResults.h5',
+        hdfGroup = '/TankModel', datasetColumns = datasetColumns)
+    
     plotTank = F.PlotView(
-        resultColumns,
+        dataSeries,
         label = 'Vessel state', 
         options = {'ylabel' : None},
         visibleColumns = [0, 1, 4, 5, 6],
+        useHdfStorage = True,
+        storage = 'storage'
     )
     
     plotTankFluidMass = F.PlotView(
-        resultColumns,
+        dataSeries,
         label = 'Fill mass', 
         options = {'ylabel' : None},
         visibleColumns = [0, 3],
+        useHdfStorage = True,
+        storage = 'storage'
     )
     
     plotFueling = F.PlotView(
-        resultColumns,
+        dataSeries,
         label = 'Fueling', 
         options = {'ylabel' : None},
         visibleColumns = [0, 4, 8, 11],
+        useHdfStorage = True,
+        storage = 'storage'
     )
     
     plotQDot = F.PlotView(
-        resultColumns,
+        dataSeries,
         label = 'Heat flow rates', 
         options = {'ylabel' : None},
         visibleColumns = [0, 9, 10],
+        useHdfStorage = True,
+        storage = 'storage'
     )
     
     plotCompressor = F.PlotView(
-        resultColumns,
+        dataSeries,
         label = 'Compressor', 
         options = {'ylabel' : None},
         visibleColumns = [0, 12],
+        useHdfStorage = True,
+        storage = 'storage'
     )
     
+    
     plotsVG = F.ViewGroup([plotTank, plotTankFluidMass, plotFueling, plotQDot, plotCompressor], label = 'Results')
-    plotsSG = F.SuperGroup([plotsVG], label = 'Plots')
+    storageVG = F.ViewGroup([storage], show="false")
+    plotsSG = F.SuperGroup([plotsVG, storageVG], label = 'Plots')
     
     #2.3 Table 
     table = F.TableView(
-        resultColumns,
+        dataSeries,
         label = 'Table', 
         options = {'title': 'Compressed gas storage fueling-extraction', 'formats': ['0.00']},
+        useHdfStorage = True,
+        storage = 'storage'
     )
     tableVG = F.ViewGroup([table], label = 'Results')
     tableSG = F.SuperGroup([tableVG], label = 'Table')
@@ -158,8 +180,10 @@ class CompressedGasStorage(NumericalModel):
         self.tank.hConvInternalWaiting = (50., 'W/m**2-K')
         self.tank.hConvInternalExtraction = (100., 'W/m**2-K')
         self.tank.hConvInternalFueling = (500., 'W/m**2-K')
+              
+    def computeAsync(self):
+        #self.updateProgress = lambda x : x
         
-    def compute(self):        
         # Initialize the fluids
         self.fluid = CP.Fluid(self.fluidName)
         self.ambientFluid = CP.Fluid(self.fluidAmbientName)
@@ -180,31 +204,7 @@ class CompressedGasStorage(NumericalModel):
         self.tankRes.compositeMass = tankModel.composite.mass
         
         # Show plots and table
-        res = tankModel.getResults()
-        results = np.array([
-            res['t'], 
-            res['pTank'], 
-            res['rhoTank'],
-            res['mTank'],
-            res['TTank'], 
-            res['TLiner_2'], 
-            res['TComp_4'],
-            res['TCompressorOut'],
-            res['TCoolerOut'],
-            res['QDotCooler'],
-            res['QDotComp'],
-            res['mDotFueling'],
-            res['WRealCompressor']
-        ])
-        results = results.transpose()
-        
-        self.plotTank = results
-        self.plotTankFluidMass = results
-        self.plotFueling = results
-        self.plotQDot = results
-        self.plotCompressor = results
-        self.table = results
+        self.storage = tankModel.resultStorage.simulationName
 
 class CompressedGasStorageDoc(RestModule):
     label = 'Compressed Gas Storage (Doc)'
-        

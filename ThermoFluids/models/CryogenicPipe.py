@@ -306,6 +306,7 @@ class CryogenicPipe(NumericalModel):
 	############# Page structure ########
 	modelBlocks = [inputView, resultView]
 	
+	
 	############# Methods ###############
 	def compute(self):
 		# Initial checks

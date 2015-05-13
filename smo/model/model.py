@@ -3,6 +3,10 @@ from collections import OrderedDict
 from smo.model.fields import FieldGroup, BasicGroup, ModelView, SuperGroup
 from smo.web.blocks import HtmlBlock, JsBlock
 import smo.web.exceptions as E
+from smo.model.actions import ServerAction
+
+# Global registry of numerical models
+modelRegistry = OrderedDict()
 
 class NumericalModelMeta(type):
 	"""Metaclass facilitating the creation of a numerical
@@ -14,6 +18,11 @@ class NumericalModelMeta(type):
 			attrs['label'] = name
 		if ('showOnHome' not in attrs):
 			attrs['showOnHome'] = True
+		if ('async' not in attrs):
+			attrs['async'] = False
+		if (attrs['async'] == True):
+			if ('progressOptions' not in attrs):
+				attrs['progressOptions'] = {'suffix': '%', 'fractionOutput': False}
 		if ('abstract' not in attrs):
 			attrs['abstract'] = False
 		# Collect fields from current class.
@@ -180,6 +189,9 @@ class NumericalModelMeta(type):
 				if (isinstance(klass.modelBlocks[i], basestring)):
 					klass.modelBlocks[i] = klass.declared_modelViews[klass.modelBlocks[i]]
 			#print("NumericalModel class: {}, {}".format(name, [modelBlock.name for modelBlock in klass.modelBlocks])) 
+		
+		if (klass.__name__ != 'NumericalModel'):
+			modelRegistry[klass.__name__] = klass
 		return klass
 
 class NumericalModel(object):
@@ -191,6 +203,8 @@ class NumericalModel(object):
 		* :attr:`showOnHome`: used to specify if a thumbnail of the model is to show on the home page (default is True)
 		* :attr:`figure`: ModelFigure object representing a figure, displayed on the page module of the model and on its thumbnail
 		* :attr:`description`: ModelDescription object representing a description for the model, also used as tooltip of the model's thumbnail
+		* :attr:`async`: Boolean value indicating if the computation is to be done asynchronously
+		* :attr:`progressOptions`: dictionary of progress display options in an asynchronous computation. Includes keys 'suffix', a string, and 'fractionOutput', boolean indicating if the progress value is to show in fraction format  
 		* :attr:`declared_fields`: OrderedDict containing the fields declared in the model
 		* :attr:`declared_submodels`: OrderedDict containing the submodels declared in the model
 		* :attr:`declared_attrs`: dictionary containing the declared fields and submodels
@@ -236,6 +250,12 @@ class NumericalModel(object):
 	def __getattr__(self, name):
 		return object.__getattribute__(self, name)
 	
+	def redefineField(self, fieldName, basicGroupName, newField):
+		newField.name = fieldName
+		i = self.declared_basicGroups[basicGroupName].fields.index(self.declared_fields[fieldName])
+		self.declared_basicGroups[basicGroupName].fields[i] = newField
+		self.declared_fields[fieldName] = newField
+	
 	def modelView2Json(self, modelView):
 		"""Creates JSON representation of the modelView including 
 		field definitions, field values and actions"""
@@ -255,7 +275,8 @@ class NumericalModel(object):
 		if (modelView.actionBar is not None):
 			for action in modelView.actionBar.actionList:
 				actions.append(action.toJson())
-		return {'definitions': definitions, 'values': fieldValues, 'actions': actions}
+		return {'definitions': definitions, 'values': fieldValues, 'actions': actions, 
+					'keepDefaultDefs': modelView.keepDefaultDefs, 'computeAsync' : self.async}
 
 	def superGroup2Json(self, group, fieldValues):
 		"""
@@ -283,6 +304,7 @@ class NumericalModel(object):
 		jsonObject = {'name': group.name, 'label': group.label}
 		if (group.show is not None):
 			jsonObject['show'] = group.show
+		jsonObject['hideContainer'] = group.hideContainer
 		if (isinstance(group, FieldGroup)):
 			jsonObject['type'] = 'FieldGroup'
 		else:
@@ -326,4 +348,14 @@ class NumericalModel(object):
 			elif (key in self.declared_submodels):
 				self.__getattr__(key).fieldValuesFromJson(value)
 			else:
-				raise E.FieldError('No field with name {} in model {}'.format(key, self.name)) 
+				raise E.FieldError('No field with name {} in model {}'.format(key, self.name))
+	
+	def updateProgress(self, current, total): 
+		"""
+		Updates the progress state of asynchronous computation
+		
+		:param current: the current progress value 
+		:param total: the total progress value
+		"""
+		self.task.update_state(state='PROGRESS', 
+									meta={'current': current, 'total': total})

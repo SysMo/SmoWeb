@@ -5,6 +5,9 @@ import numpy as np
 from quantity import Quantities
 from smo.web.exceptions import *
 from smo.model.actions import ActionBar
+import os
+from SmoWeb.settings import MEDIA_ROOT
+tmpFolderPath = os.path.join (MEDIA_ROOT, 'tmp')
 
 class Field(object):
 	"""
@@ -65,7 +68,7 @@ class Quantity(Field):
 	Represents a physical quantity (e.g. Length, Time, Mass etc.). Allows values to 
 	be set using units e.g. (2, 'km')  
 	'''
-	def __init__(self, type = 'Dimensionless', default = None, minValue = None, maxValue = None, *args, **kwargs):
+	def __init__(self, type = 'Dimensionless', default = None, minValue = None, maxValue = None, inputBoxWidth = None, *args, **kwargs):
 		"""
 		:param str type: the quantity type (Length, Mass, Time etc.)
 		:param default: default value for the field. Could be value in SI unit or tuple (value, unit) like (2, 'mm').
@@ -84,6 +87,10 @@ class Quantity(Field):
 			self.maxValue = Quantities[self.type].get('maxValue', 1e99)
 		else:
 			self.maxValue = self.parseValue(maxValue)
+		
+		if (inputBoxWidth is None):
+			inputBoxWidth = 120
+		self.inputBoxWidth = inputBoxWidth
 		
 		if (default is None):
 			self.default = 1.0
@@ -132,13 +139,14 @@ class Quantity(Field):
 		fieldDict['title'] = Quantities[self.type]['title']
 		fieldDict['nominalValue'] = Quantities[self.type]['nominalValue']
 		fieldDict['SIUnit'] = Quantities[self.type]['SIUnit']
+		fieldDict['inputBoxWidth'] = self.inputBoxWidth
 		return fieldDict
 
 class Integer(Field):
 	"""
 	Integer field
 	"""
-	def __init__(self, default = None, minValue = None, maxValue = None, *args, **kwargs):
+	def __init__(self, default = None, minValue = None, maxValue = None, inputBoxWidth = None, *args, **kwargs):
 		super(Integer, self).__init__(*args, **kwargs)
 		
 		if (minValue is None):
@@ -148,6 +156,10 @@ class Integer(Field):
 		if (maxValue is None):
 			maxValue = 1e6
 		self.maxValue = self.parseValue(maxValue)
+		
+		if (inputBoxWidth is None):
+			inputBoxWidth = 120
+		self.inputBoxWidth = inputBoxWidth
 		
 		if (default is None):
 			default = 1
@@ -164,6 +176,7 @@ class Integer(Field):
 		fieldDict['type'] = 'Integer'
 		fieldDict['minValue'] = self.minValue
 		fieldDict['maxValue'] = self.maxValue
+		fieldDict['inputBoxWidth'] = self.inputBoxWidth
 		return fieldDict
 
 class Complex(Field):
@@ -196,7 +209,7 @@ class String(Field):
 	"""
 	Represents a string field
 	"""
-	def __init__(self, default = None, maxLength = None, multiline = None, *args, **kwargs):
+	def __init__(self, default = None, maxLength = None, multiline = None, inputBoxWidth = None, *args, **kwargs):
 		"""
 		:param str default: default value
 		:param int maxLength: the maximum number of characters in the string
@@ -217,6 +230,10 @@ class String(Field):
 			self.maxLength = 100
 		else:
 			self.maxLength = maxLength
+			
+		if (inputBoxWidth is None):
+			inputBoxWidth = 120
+		self.inputBoxWidth = inputBoxWidth
 
 	def parseValue(self, value):
 		return value	
@@ -238,6 +255,7 @@ class String(Field):
 	def toFormDict(self):
 		fieldDict = super(String, self).toFormDict()
 		fieldDict['type'] = 'String'
+		fieldDict['inputBoxWidth'] = self.inputBoxWidth
 		fieldDict['multiline'] = self.multiline
 		return fieldDict
 
@@ -345,13 +363,15 @@ class RecordArray(Field):
 	"""
 	Composite input field for representing a structured table (array of records)
 	"""
-	def __init__(self, structTuple = None, numRows = 1, empty = False, *args, **kwargs):
+	def __init__(self, structTuple = None, numRows = 1, empty = False, toggle = True, *args, **kwargs):
 		"""
 		:param structTuple: tuple defining the structure of the 
 			record array. It consists of ``(name, type)`` pairs, 
 			where ``name`` is the column name, and ``type`` is one of the basic
 			field types (:class:`Quantity`, :class:`String`, :class:`Boolean` etc.)
 		:param int numRows: the initial number of rows in the table
+		:param bool empty: indicates whether the record array can be emptied
+		:param bool toggle: indicates if the array can be toggled in edit mode
 		
 		Example::
 		
@@ -372,6 +392,7 @@ class RecordArray(Field):
 		
 		self.empty = empty
 		self.numRows = numRows
+		self.toggle = toggle
 		
 		if (structTuple is None):
 			raise ValueError('The structure of the array is not defined')
@@ -396,16 +417,16 @@ class RecordArray(Field):
 				typeList.append((field.name, np.dtype('S' + str(field.maxLength))))
 
 		self.dtype = np.dtype(typeList)
-	
-	@property
-	def default(self):
 		self.defaultRow = []
 		for field in self.fieldList:
 			self.defaultRow.append(field.default)
-		defaultRowTuple = tuple(self.defaultRow)
+		self.defaultRow = tuple(self.defaultRow)
+	
+	@property
+	def default(self):
 		default = np.zeros((self.numRows,), dtype = self.dtype)
 		for i in range(self.numRows):
-			default[i] = defaultRowTuple
+			default[i] = self.defaultRow
 		return default
 		
 	def parseValue(self, value):
@@ -436,13 +457,55 @@ class RecordArray(Field):
 		fieldDict['fields'] = jsonFieldList
 		fieldDict['defaultRow'] = self.defaultRow
 		fieldDict['empty'] = self.empty
+		fieldDict['toggle'] = self.toggle
+		return fieldDict
+
+class HdfStorage(Field):
+	"""
+	Field specifying HDF storage. Its value is dataset name
+	"""
+	def __init__(self, default = None, hdfFile = None, hdfGroup = None, datasetColumns = None, *args, **kwargs):
+		"""
+		:param hdfFile: name of HDF file
+		:param hdfGroup: path to HDF group
+		:param datasetColumns: list of names of dataset columns comprising the value of the field using HDF storage
+		"""
+		super(HdfStorage, self).__init__(*args, **kwargs)
+		if (default is None):
+			self.default = ''
+		else:
+			self.default = self.parseValue(default)
+		
+		if (hdfFile is None or hdfGroup is None):
+				raise ValueError('Hdf file or hdf group is undefined')
+		hdfFile = os.path.join(tmpFolderPath, hdfFile)
+		self.hdfFile = hdfFile
+		self.hdfGroup = hdfGroup
+		self.datasetColumns = datasetColumns
+		self.show = 'false'
+	
+	def parseValue(self, value):
+		if (isinstance(value, str)):
+			return value
+		else:
+			raise ValueError('Dataset name must be a string')
+	
+	def getValueRepr(self, value):
+		return value
+	
+	def toFormDict(self):
+		fieldDict = super(HdfStorage, self).toFormDict()
+		fieldDict['type'] = 'HdfStorage'
+		fieldDict['hdfFile'] = self.hdfFile
+		fieldDict['hdfGroup'] = self.hdfGroup
+		fieldDict['datasetColumns'] = self.datasetColumns
 		return fieldDict
 	
 class DataSeriesView(Field):
 	"""
 	Composite output field for representing a table or plot
 	"""
-	def __init__(self, structTuple = None, visibleColumns = None, *args, **kwargs):
+	def __init__(self, structTuple = None, visibleColumns = None, useHdfStorage = False, storage = None, *args, **kwargs):
 		"""
 		:param structTuple: tuple defining the structure of the 
 			view data. It consists of ``(name, type)`` pairs, 
@@ -454,7 +517,8 @@ class DataSeriesView(Field):
 					('temperature', Quantity('Temperature'))	)
 
 		:param visibleColumns: list of integers specifying which columns are visible in the view
-		
+		:param useHdfStorage: indicates if data is to be stored in HDF
+		:param storage: name of HdfStorage field	
 		"""
 		super(DataSeriesView, self).__init__(*args, **kwargs)
 		if (structTuple is None):
@@ -466,14 +530,18 @@ class DataSeriesView(Field):
 		self.fieldList = []
 		typeList = []
 		self.dataLabels = []
+		fieldNames = []
 		
 		for name, field in structDict.items():
-			structField = field
-			structField.name = name
-			self.dataLabels.append(name)
-			self.fieldList.append(structField)
+			field.name = name
+			fieldNames.append(name)
+			if (field.label != ""):
+				self.dataLabels.append(field.label)
+			else:
+				self.dataLabels.append(name)
+			self.fieldList.append(field)
 			if isinstance(field, Quantity):
-				typeList.append((field.name, np.float64))
+				typeList.append((name, np.float64))
 			else:
 				raise ValueError('Unsupported type for a data series')
 			
@@ -484,28 +552,46 @@ class DataSeriesView(Field):
 		else:
 			self.visibleColumns = visibleColumns
 			
+		self.useHdfStorage = useHdfStorage
+		if (useHdfStorage == True):
+			if (storage is None):
+				raise ValueError('Storage field name is undefined')
+		self.storage = storage
+			
 	@property
 	def default(self):
-		return np.zeros((1,), dtype = self.dtype)
+		if (self.useHdfStorage == True):
+			return self.storage
+		else:
+			return np.zeros((1,), dtype = self.dtype)
 		
 	def parseValue(self, value):
-		if (isinstance(value, np.ndarray)):
-			return value
-		elif (isinstance(value, list)):
-			array = np.zeros((len(value),), dtype = self.dtype)
-			i = 0
-			for elem in value:
-				if isinstance(elem, list):
-					array[i] = tuple(elem)
-				else:
-					raise ArgumentTypeError('Trying to set row of View from non-list object')
-				i += 1
-			return array
+		if (self.useHdfStorage == True):
+			if (isinstance(value, str)):
+				return value
+			else:
+				raise ValueError('Storage field name must be a string')
 		else:
-			raise ArgumentTypeError('The value of View must be a numpy structured array or a list of lists')
+			if (isinstance(value, np.ndarray)):
+				return value
+			elif (isinstance(value, list)):
+				array = np.zeros((len(value),), dtype = self.dtype)
+				i = 0
+				for elem in value:
+					if isinstance(elem, list):
+						array[i] = tuple(elem)
+					else:
+						raise ArgumentTypeError('Trying to set row of View from non-list object')
+					i += 1
+				return array
+			else:
+				raise ArgumentTypeError('The value of View must be a numpy structured array or a list of lists')
 	
 	def getValueRepr(self, value):
-		return value.tolist()
+		if (self.useHdfStorage == True):
+			return value
+		else:
+			return value.tolist()
 
 	def toFormDict(self):
 		fieldDict = super(DataSeriesView, self).toFormDict()
@@ -516,7 +602,9 @@ class DataSeriesView(Field):
 		fieldDict['fields'] = jsonFieldList
 		fieldDict['labels'] = self.dataLabels
 		fieldDict['visibleColumns'] = self.visibleColumns
+		fieldDict['useHdfStorage'] = self.useHdfStorage
 		return fieldDict
+	
 
 class TableView(DataSeriesView):
 	"""
@@ -664,7 +752,7 @@ class Image(Field):
 	"""
 	def __init__(self, default = "", width = None, height = None, *args, **kwargs):
 		"""
-		:param str src: path to image source
+		:param str default: path to image source
 		:param int width: image width in pixels
 		:param int height: image height in pixels
 		"""
@@ -692,9 +780,13 @@ class Image(Field):
 
 class MPLPlot(Field):
 	"""
-	Field for displaying an image 
+	Field for displaying a matplotlib plot 
 	"""
 	def __init__(self, width = None, height = None, *args, **kwargs):
+		"""
+		:param int width: image width in pixels
+		:param int height: image height in pixels
+		"""
 		super(MPLPlot, self).__init__(*args, **kwargs)
 		self.width = width
 		self.height = height
@@ -793,12 +885,13 @@ class Group(object):
 
 class BasicGroup(Group):
 	"""Abstract class for group of fields"""
-	def __init__(self, fields = None, *args, **kwargs):
+	def __init__(self, fields = None, hideContainer = False, *args, **kwargs):
 		super(BasicGroup, self).__init__(*args, **kwargs)
 		self.fields = []
 		if (fields is not None):
 			for field in fields:
 				self.fields.append(field)
+		self.hideContainer = hideContainer
 	
 	def copyByName(self):
 		newObject = copy.copy(self)
@@ -844,13 +937,14 @@ class ModelView(object):
 	:param ActionBar actionBar: an ``ActionBar`` object	
 	:param bool autoFetch: used to specify whether the view should be loaded automatically at the client
 	"""
-	def __init__(self, ioType, superGroups, actionBar = None, autoFetch = False):
+	def __init__(self, ioType, superGroups, actionBar = None, autoFetch = False, keepDefaultDefs = False):
 		self.ioType = ioType
 		self.superGroups = superGroups
 		if actionBar is None:
 			actionBar = ActionBar()
 		self.actionBar = actionBar
 		self.autoFetch = autoFetch
+		self.keepDefaultDefs = keepDefaultDefs
 		
 	def copyByName(self):
 		newObject = copy.copy(self)

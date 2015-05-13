@@ -1,7 +1,8 @@
 '''
-Created on March 08, 2015
+Created on Mar 08, 2015
 
 @author: Milen Borisov
+@copyright: SysMo Ltd, Bulgaria
 '''
 import numpy as np
 import pylab as plt
@@ -41,6 +42,9 @@ class ChemostatSimple(Simulation):
 		super(ChemostatSimple, self).__init__(**kwargs)
 		if params == None:
 			params = AttributeDict(kwargs)
+		
+		# Initialize update progress function
+		self.updateProgress = params.updateProgress
 					
 		# Initialize parameters
 		self.m = params.m
@@ -57,8 +61,9 @@ class ChemostatSimple(Simulation):
 		self.yDot = NamedStateVector(stateVarNames)
 
 		# Initialize data storage
-		self.resultStorage = ResultStorage(filePath = dataStorageFilePath,
-										datasetPath = dataStorageDatasetPath)
+		self.resultStorage = ResultStorage(
+			filePath = dataStorageFilePath,
+			datasetPath = dataStorageDatasetPath)
 		if (kwargs.get('initDataStorage', True)):
 			self.resultStorage.initializeWriting(
 				varList = ['t'] + stateVarNames + ['D'],
@@ -135,6 +140,7 @@ class ChemostatSimple(Simulation):
 	
 	def handle_result(self, solver, t, y):
 		super(ChemostatSimple, self).handle_result(solver, t, y)
+		self.updateProgress(t, self.tFinal)
 		
 		self.yRes.set(y)
 		self.resultStorage.record[:] = (t, self.yRes.S, self.yRes.X, self.D)
@@ -153,7 +159,7 @@ class ChemostatSimple(Simulation):
 		plt.plot(xData, data['X'], 'b', label = 'X')
 		plt.plot(xData, data['D'], 'g', label = 'D')
 		
-		plt.gca().set_xlim([0, len(xData) - 1])
+		plt.gca().set_xlim([0, xData[-1]])
 		plt.legend()
 		plt.show()
 
@@ -166,8 +172,8 @@ def TestChemostatSimple():
 	
 	# Initialize simulation parameters
 	solverParams = AttributeDict({
-		'tFinal' : 500., 
-		'tPrint' : 1.0
+		'tFinal' : 10., 
+		'tPrint' : 0.1
 	})
 		
 	# Initialize model parameters

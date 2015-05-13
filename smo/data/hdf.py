@@ -8,7 +8,7 @@ import h5py
 import numpy as np
 import json
 from decimal import Decimal
-from smo.web.util import DecimalEncoder
+from smo.data.util import DecimalEncoder
 
 class HDFInterface(object):
 	def __init__(self, filePath):
@@ -37,6 +37,7 @@ class HDFInterface(object):
 		return fileContent
 	
 	def getDatasetContent(self, datasetPath):
+		print self.filePath, datasetPath
 		hdfFile = h5py.File(self.filePath)
 		dataset = hdfFile[datasetPath]
 		

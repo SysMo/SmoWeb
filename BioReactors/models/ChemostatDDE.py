@@ -1,3 +1,9 @@
+'''
+Created on Mar 4, 2015
+
+@author: Milen Borisov
+@copyright: SysMo Ltd, Bulgaria
+'''
 import numpy as np
 import smo.model.fields as F
 import smo.dynamical_models.bioreactors.ChemostatDDE as DM
@@ -43,20 +49,20 @@ class ChemostatDDE(NumericalModel):
     parametersMuFG = F.FieldGroup([m1, m2, k_s1, k_s2, k_I], label = 'Parameters - specific growth rates')
     
     # Parameters - time delays
-    tau1 = F.Quantity('Bio_Time', default = (2., 'day'), minValue = (0, 'day'), label = '&#964<sub>1</sub>',
+    tau1 = F.Quantity('Bio_Time', default = (10.1, 'day'), minValue = (0, 'day'), label = '&#964<sub>1</sub>',
                     description = 'time delay in conversion of the substrate-1 to viable biomass for bacteria-1')
-    tau2 = F.Quantity('Bio_Time', default = (3., 'day'), minValue = (0, 'day'), label = '&#964<sub>2</sub>',
+    tau2 = F.Quantity('Bio_Time', default = (5.7, 'day'), minValue = (0, 'day'), label = '&#964<sub>2</sub>',
                     description = 'time delay in conversion of the substrate-2 to viable biomass for bacteria-2')
     parametersTauFG = F.FieldGroup([tau1, tau2], label = 'Parameters - time delay')
     
     # historical initial conditions
     s1_hist_vals = F.Quantity('Bio_MassConcentration', default = (3., 'g/L'), label ='s<sub>1</sub><sup>&#91-&#964<sub>1</sub>, 0&#93</sup>', 
                             description = 'historical initial condition for substrate-1 concentration')
-    x1_hist_vals = F.Quantity('Bio_MassConcentration', default = (0.7, 'g/L'), label ='x<sub>1</sub><sup>&#91-&#964<sub>1</sub>, 0&#93</sup>', 
+    x1_hist_vals = F.Quantity('Bio_MassConcentration', default = (0.5, 'g/L'), label ='x<sub>1</sub><sup>&#91-&#964<sub>1</sub>, 0&#93</sup>', 
                         description = 'historical initial condition for bacteria-1 concentration')
-    s2_hist_vals = F.Quantity('Bio_MassConcentration', default = (12., 'g/L'), label ='s<sub>2</sub><sup>&#91-&#964<sub>1</sub>, 0&#93</sup>', 
+    s2_hist_vals = F.Quantity('Bio_MassConcentration', default = (15., 'g/L'), label ='s<sub>2</sub><sup>&#91-&#964<sub>2</sub>, 0&#93</sup>', 
                         description = 'historical initial condition for substrate-2 concentration')
-    x2_hist_vals = F.Quantity('Bio_MassConcentration', default = (0.1, 'g/L'), label ='x<sub>2</sub><sup>&#91-&#964<sub>1</sub>, 0&#93</sup>', 
+    x2_hist_vals = F.Quantity('Bio_MassConcentration', default = (0.1, 'g/L'), label ='x<sub>2</sub><sup>&#91-&#964<sub>2</sub>, 0&#93</sup>', 
                     description = 'historical initial condition for bacteria-2 concentration')
     parametersHistFG = F.FieldGroup([s1_hist_vals, x1_hist_vals, s2_hist_vals, x2_hist_vals], label = 'Historical initial conditions')
         
@@ -65,7 +71,9 @@ class ChemostatDDE(NumericalModel):
     #1.2 Fields - Settings
     tFinal = F.Quantity('Bio_Time', default = (100, 'day'), minValue = (0, 'day'), maxValue=(1000, 'day'), label = 'simulation time')
     tPrint = F.Quantity('Bio_Time', default = (0.1, 'day'), minValue = (1e-5, 'day'), maxValue = (100, 'day'), label = 'print interval')
-    solverFG = F.FieldGroup([tFinal, tPrint], label = 'Solver')
+    absTol = F.Quantity('Bio_Time', default = (1e-12, 'day'), minValue = (1e-16, 'day'), maxValue = (1e-5, 'day'), label = 'absolute tolerance')
+    relTol = F.Quantity('Bio_Time', default = (1e-12, 'day'), minValue = (1e-16, 'day'), maxValue = (1e-3, 'day'), label = 'relative tolerance')
+    solverFG = F.FieldGroup([tFinal, tPrint, absTol, relTol], label = 'Solver')
     
     settingsSG = F.SuperGroup([solverFG], label = 'Settings')
     

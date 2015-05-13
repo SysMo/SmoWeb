@@ -4,6 +4,12 @@ from SmoWeb.settings import JINJA_TEMPLATE_IMPORTS
 import json
 import traceback
 import logging
+#from smo.data.hdf import HDFInterface
+from SmoWebBase.tasks import celeryCompute
+from celery.result import AsyncResult
+from celery.task.control import revoke
+import h5py
+import numpy as np
 logger = logging.getLogger('django.request.smo.view')
 
 from pymongo import MongoClient
@@ -46,6 +52,8 @@ class ModularPageViewMeta(type):
 		# Label
 		if ('label' not in attrs):
 			attrs['label'] = name
+		if ('showInMenu' not in attrs):
+			attrs['showInMenu'] = True
 		if ('controllerName' not in attrs):
 			attrs['controllerName'] = name + 'Controller'
 		# Containers to collect actions, library and module names
@@ -93,6 +101,7 @@ class ModularPageView(object):
 	Class attributes:
 		* :attr:`label`: label for the page view class (default is the page view class name)
 		* :attr:`controllerName`: name of the AngularJS contoller for the page view (default is the page view class name + 'Controller')
+		* :attr:`showInMenu`: used to specify if the page is to show in the navigation bar menus
 		* :attr:`modules`: modules making up the page view
 		* :attr:`injectVariables`: list of names of AngularJS dependencies required for the page view
 		* :attr:`jsLibraries`: registry of common Java Script libraries used in the applicaions
@@ -275,6 +284,59 @@ class ModularPageView(object):
 		instance = model()
 		getattr(instance, parameters)()
 		return instance.modelView2Json(view)
+	
+	
+	@action.post()
+	def loadHdfValues(self, model, view, parameters):
+		# List of dict of storage field names and data to be returned to the client
+		resultList = []
+		for field in parameters:
+			# Looping over received data about storage fields
+			fieldDict = {}
+			h5File = h5py.File(field['hdfFile'], 'r')
+			datasetPath = field['hdfGroup'] + '/' + field['dataset']
+			if field['datasetColumns'] is None:
+				fieldDict[field['name']] = h5File[datasetPath][...].tolist()
+			else:
+				print field['datasetColumns']
+				fieldDict[field['name']] = np.array(h5File[datasetPath][tuple(field['datasetColumns'])]).transpose().tolist()
+			h5File.close()
+			resultList.append(fieldDict)
+		return resultList
+	
+	@action.post()
+	def startCompute(self, model, view, parameters):
+		job = celeryCompute.delay(model.__name__, view.name, parameters)
+		if (job.failed()):
+			raise job.result
+		return {'jobID': job.id,
+				'fractionOutput': model.progressOptions['fractionOutput'], 
+				'suffix': model.progressOptions['suffix'],
+				'state': job.state
+				}
+	
+	@action.post()
+	def checkProgress(self, model, view, parameters):
+		job = AsyncResult(parameters['jobID'])
+		state = job.state
+		if (state == 'FAILURE'):
+			raise job.result
+		responseDict = {'state': job.state}
+		if (state == 'SUCCESS'):
+			responseDict.update(job.result)
+		elif (state == 'PROGRESS'):
+			responseDict.update({'current': job.info['current'], 'total': job.info['total']})
+		return responseDict
+	
+	@action.post()
+	def abort(self, model, view, parameters):
+		if (model.async == True):
+			job = AsyncResult(parameters['jobID'])
+			job.revoke(terminate=True)
+			return {'state': job.state}
+		else:
+			return {}
+		
 				
 	@classmethod
 	def asView(cls):

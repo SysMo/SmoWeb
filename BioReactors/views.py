@@ -12,3 +12,19 @@ class ChemostatView(ModularPageView):
     modules = [M.ChemostatSimple, M.ChemostatSimpleDoc, M.ChemostatDDE, M.ChemostatDDEDoc]
     requireJS = ['dygraph', 'dygraphExport']
     requireGoogle = ['visualization']
+
+# :TRICKY: This model is not ready yet
+# @registerView(router)
+# class ADM1BioreactorsView(ModularPageView):
+#     label = 'ADM1 Bioreactors'
+#     modules = [M.ADM1H2CH4Bioreactors]
+#     requireJS = ['dygraph', 'dygraphExport']
+#     requireGoogle = ['visualization']
+    
+
+@registerView(router)
+class BiochemicalReactionsView(ModularPageView):
+    label = 'Biochemical Reactions'
+    modules = [M.BiochemicalReactions, M.BiochemicalReactionsDoc]
+    requireJS = ['dygraph', 'dygraphExport']
+    requireGoogle = ['visualization']

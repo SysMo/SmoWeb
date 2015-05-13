@@ -7,6 +7,11 @@ import glob
 import os
 import json
 from decimal import Decimal
+import uuid
+import time
+
+def genTimestampUUID():
+	return time.strftime('%Y%m%d_%H%M%S', time.gmtime()) + '_' + uuid.uuid4().hex
 
 def handle_uploaded_file(f, media_path):
 	destination = open(os.path.join(media_path, f.name), 'wb+')
@@ -16,7 +21,7 @@ def handle_uploaded_file(f, media_path):
 	return destination
 
 
-import uuid
+
 class TemporaryObjectsHash:
 	def __init__(self, klass = object):
 		self.klass = klass
