@@ -60,7 +60,7 @@ class BiochemicalReactions(NumericalModel):
     #1.4 Model view
     exampleAction = A.ServerAction("loadEg", label = "Examples", options = (
             ('exampleMMK', 'Michaelis-Menten kinetics'),
-            ('exampleMMKI', 'Michaelis-Menten kinetics with inhibition'),
+            #('exampleMMKI', 'Michaelis-Menten kinetics with inhibition'),
     ))
     
     inputView = F.ModelView(
