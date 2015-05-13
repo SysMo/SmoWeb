@@ -130,6 +130,12 @@ the field. This attribute is crated in the constructor of :class:`~smo.model.mod
 .. autoclass:: ObjectReference
    :show-inheritance:
 
+:class:`HdfStorage`
+-------------------
+
+.. autoclass:: HdfStorage
+   :show-inheritance:
+
 :class:`DataSeriesView`
 -----------------------
 

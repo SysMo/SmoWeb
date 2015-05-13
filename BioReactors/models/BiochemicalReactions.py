@@ -15,7 +15,10 @@ from smo.web.modules import RestModule
 class BiochemicalReactions(NumericalModel):
     label = "Biochemical reactions"
     description = F.ModelDescription("Solver for elementary biochemical reactions", show = True)
-    figure = F.ModelFigure(src="BioReactors/img/ModuleImages/BiochemicalReactions.png", show = False)   
+    figure = F.ModelFigure(src="BioReactors/img/ModuleImages/BiochemicalReactions.png", show = False)
+    
+    async = True
+    progressOptions = {'suffix': 's', 'fractionOutput': True}   
     
     #1. ############ Inputs ###############
     #1.1 Fields - Input values
@@ -67,27 +70,33 @@ class BiochemicalReactions(NumericalModel):
         actionBar = A.ActionBar([exampleAction]),
     )
     
-    #2. ############ Results ###############    
+    #2. ############ Results ###############
+    storage = F.HdfStorage(hdfFile = 'BioReactors_SimulationResults.h5',
+        hdfGroup = '/BiochemicalReactions')
+    
+    dataSeries = (
+                    ('time', F.Quantity('Time', default=(1, 's'))),
+                    ('E', F.Quantity('Bio_MolarConcentration', default=(1, 'M'))),
+                )
+    
     plot = F.PlotView(
-        (
-            ('time', F.Quantity('Time', default=(1, 's'))),
-            ('E', F.Quantity('Bio_MolarConcentration', default=(1, 'M'))),
-        ),
-        label = 'Plot'
+        dataSeries,
+        label = 'Plot',
+        useHdfStorage = True,
+        storage = 'storage'
     )
     
     table = F.TableView(
-        (
-            ('time', F.Quantity('Time', default=(1, 's'))),
-            ('E', F.Quantity('Bio_MolarConcentration', default=(1, 'M'))),
-        ),
+        dataSeries,
         label = 'Table', 
-        options = {'formats': ['0.000', '0.000', '0.000', '0.000']}
+        options = {'formats': ['0.000', '0.000', '0.000', '0.000']},
+        useHdfStorage = True,
+        storage = 'storage'
     )
 
-    
+    storageVG = F.ViewGroup([storage], show="false")
     resultsVG = F.ViewGroup([plot, table], label = 'Results')
-    resultsSG = F.SuperGroup([resultsVG], label = 'Results')
+    resultsSG = F.SuperGroup([resultsVG, storageVG], label = 'Results')
     
     # 2.2 ODEs plot
     odesPlot = F.MPLPlot(label = 'ODEs')
@@ -101,7 +110,6 @@ class BiochemicalReactions(NumericalModel):
     
     #2.1 Model view
     resultView = F.ModelView(ioType = "output", superGroups = [resultsSG, odesSG, chartPlotSG], keepDefaultDefs = True)
-    
     
     ############# Page structure ########
     modelBlocks = [inputView, resultView]
@@ -140,7 +148,7 @@ class BiochemicalReactions(NumericalModel):
         self.tFinal = 10.0
         self.tPrint = 0.01
          
-    def compute(self):
+    def computeAsync(self):
         # Redefine some fields
         self.redefineFileds()
         
@@ -152,10 +160,7 @@ class BiochemicalReactions(NumericalModel):
         model.run(self)
          
         # Show results
-        res = model.getResults()
-        results = np.array(res)
-        self.plot = results
-        self.table = results
+        self.storage = model.resultStorage.simulationName
         
         # Plot results
         model.plotODEsTxt(self.odesPlot)
@@ -164,18 +169,26 @@ class BiochemicalReactions(NumericalModel):
     def redefineFileds(self):
         # Create tuples for species
         speciesTuples = (('time', F.Quantity('Time', default=(1, 's'))),)
+        datasetColumns = ['t']
         for itSpecies in self.species:
             X = itSpecies[0] #species variable
             speciesTuple = (('%s'%X, F.Quantity('Bio_MolarConcentration', default=(1, 'M'))),)
             speciesTuples += speciesTuple
+            datasetColumns.append('%s'%X)
             
-        # Redefine Files
+        # Redefine Fields
+        redefinedStorage = F.HdfStorage(hdfFile = 'BioReactors_SimulationResults.h5',
+                                        hdfGroup = '/BiochemicalReactions', datasetColumns=datasetColumns)
+        self.redefineField('storage', 'storageVG', redefinedStorage)
+        
         redefinedPlot = F.PlotView(speciesTuples, 
-            label = 'Plot', options = {'ylabel' : 'concentration', 'title' : ''})
+            label = 'Plot', options = {'ylabel' : 'concentration', 'title' : ''}, useHdfStorage = True,
+            storage = 'storage')
         self.redefineField('plot', 'resultsVG', redefinedPlot)
         
         redefinedTable = F.TableView(speciesTuples,
-            label = 'Table', options = {'formats': ['0.000', '0.000', '0.000', '0.000']})
+            label = 'Table', options = {'formats': ['0.000', '0.000', '0.000', '0.000']}, useHdfStorage = True,
+            storage = 'storage')
         self.redefineField('table', 'resultsVG', redefinedTable)
 
 class BiochemicalReactionsDoc(RestModule):

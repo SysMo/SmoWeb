@@ -288,21 +288,25 @@ class ModularPageView(object):
 	
 	@action.post()
 	def loadHdfValues(self, model, view, parameters):
-		resultDict = {}
+		# List of dict of storage field names and data to be returned to the client
+		resultList = []
 		for field in parameters:
+			# Looping over received data about storage fields
+			fieldDict = {}
 			h5File = h5py.File(field['hdfFile'], 'r')
 			datasetPath = field['hdfGroup'] + '/' + field['dataset']
-			dataList = []
-			for column in field['datasetColumns']:
-				dataList.append(h5File[datasetPath][column])
-			resultDict[field['name']] = np.array(dataList).transpose().tolist()
-			#resultDict[field['name']] = h5File[datasetPath][...].tolist()
+			if field['datasetColumns'] is None:
+				fieldDict[field['name']] = h5File[datasetPath][...].tolist()
+			else:
+				print field['datasetColumns']
+				fieldDict[field['name']] = np.array(h5File[datasetPath][tuple(field['datasetColumns'])]).transpose().tolist()
 			h5File.close()
-		return resultDict
+			resultList.append(fieldDict)
+		return resultList
 	
 	@action.post()
 	def startCompute(self, model, view, parameters):
-		job = celeryCompute.delay(model, view, parameters)
+		job = celeryCompute.delay(model.__name__, view.name, parameters)
 		if (job.failed()):
 			raise job.result
 		return {'jobID': job.id,

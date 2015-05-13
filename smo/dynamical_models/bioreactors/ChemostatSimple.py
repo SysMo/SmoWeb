@@ -42,6 +42,9 @@ class ChemostatSimple(Simulation):
 		super(ChemostatSimple, self).__init__(**kwargs)
 		if params == None:
 			params = AttributeDict(kwargs)
+		
+		# Initialize update progress function
+		self.updateProgress = params.updateProgress
 					
 		# Initialize parameters
 		self.m = params.m
@@ -137,6 +140,7 @@ class ChemostatSimple(Simulation):
 	
 	def handle_result(self, solver, t, y):
 		super(ChemostatSimple, self).handle_result(solver, t, y)
+		self.updateProgress(t, self.tFinal)
 		
 		self.yRes.set(y)
 		self.resultStorage.record[:] = (t, self.yRes.S, self.yRes.X, self.D)

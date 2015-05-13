@@ -459,13 +459,53 @@ class RecordArray(Field):
 		fieldDict['empty'] = self.empty
 		fieldDict['toggle'] = self.toggle
 		return fieldDict
+
+class HdfStorage(Field):
+	"""
+	Field specifying HDF storage. Its value is dataset name
+	"""
+	def __init__(self, default = None, hdfFile = None, hdfGroup = None, datasetColumns = None, *args, **kwargs):
+		"""
+		:param hdfFile: name of HDF file
+		:param hdfGroup: path to HDF group
+		:param datasetColumns: list of names of dataset columns comprising the value of the field using HDF storage
+		"""
+		super(HdfStorage, self).__init__(*args, **kwargs)
+		if (default is None):
+			self.default = ''
+		else:
+			self.default = self.parseValue(default)
+		
+		if (hdfFile is None or hdfGroup is None):
+				raise ValueError('Hdf file or hdf group is undefined')
+		hdfFile = os.path.join(tmpFolderPath, hdfFile)
+		self.hdfFile = hdfFile
+		self.hdfGroup = hdfGroup
+		self.datasetColumns = datasetColumns
+		self.show = 'false'
+	
+	def parseValue(self, value):
+		if (isinstance(value, str)):
+			return value
+		else:
+			raise ValueError('Dataset name must be a string')
+	
+	def getValueRepr(self, value):
+		return value
+	
+	def toFormDict(self):
+		fieldDict = super(HdfStorage, self).toFormDict()
+		fieldDict['type'] = 'HdfStorage'
+		fieldDict['hdfFile'] = self.hdfFile
+		fieldDict['hdfGroup'] = self.hdfGroup
+		fieldDict['datasetColumns'] = self.datasetColumns
+		return fieldDict
 	
 class DataSeriesView(Field):
 	"""
 	Composite output field for representing a table or plot
 	"""
-	def __init__(self, structTuple = None, visibleColumns = None, useHdfStorage = False, hdfFile = None,
-				hdfGroup = None, datasetColumns = None, *args, **kwargs):
+	def __init__(self, structTuple = None, visibleColumns = None, useHdfStorage = False, storage = None, *args, **kwargs):
 		"""
 		:param structTuple: tuple defining the structure of the 
 			view data. It consists of ``(name, type)`` pairs, 
@@ -477,7 +517,8 @@ class DataSeriesView(Field):
 					('temperature', Quantity('Temperature'))	)
 
 		:param visibleColumns: list of integers specifying which columns are visible in the view
-		
+		:param useHdfStorage: indicates if data is to be stored in HDF
+		:param storage: name of HdfStorage field	
 		"""
 		super(DataSeriesView, self).__init__(*args, **kwargs)
 		if (structTuple is None):
@@ -513,21 +554,14 @@ class DataSeriesView(Field):
 			
 		self.useHdfStorage = useHdfStorage
 		if (useHdfStorage == True):
-			if (hdfFile is None or hdfGroup is None):
-				raise ValueError('Hdf file or hdf group is undefined')
-			hdfFile = os.path.join(tmpFolderPath, hdfFile)
-		
-		self.hdfFile = hdfFile
-		self.hdfGroup = hdfGroup
-		
-		if datasetColumns is None:
-			datasetColumns = fieldNames[:]
-		self.datasetColumns = datasetColumns
+			if (storage is None):
+				raise ValueError('Storage field name is undefined')
+		self.storage = storage
 			
 	@property
 	def default(self):
 		if (self.useHdfStorage == True):
-			return ''
+			return self.storage
 		else:
 			return np.zeros((1,), dtype = self.dtype)
 		
@@ -536,7 +570,7 @@ class DataSeriesView(Field):
 			if (isinstance(value, str)):
 				return value
 			else:
-				raise ValueError('Dataset name must be a string')
+				raise ValueError('Storage field name must be a string')
 		else:
 			if (isinstance(value, np.ndarray)):
 				return value
@@ -569,9 +603,6 @@ class DataSeriesView(Field):
 		fieldDict['labels'] = self.dataLabels
 		fieldDict['visibleColumns'] = self.visibleColumns
 		fieldDict['useHdfStorage'] = self.useHdfStorage
-		fieldDict['hdfFile'] = self.hdfFile
-		fieldDict['hdfGroup'] = self.hdfGroup
-		fieldDict['datasetColumns'] = self.datasetColumns
 		return fieldDict
 	
 

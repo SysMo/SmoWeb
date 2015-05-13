@@ -9,7 +9,8 @@ import h5py
 from blist import sortedlist
 from assimulo.solvers import CVode
 from assimulo.problem import Explicit_Problem
-from smo.util import AttributeDict 
+from smo.util import AttributeDict
+from smo.data.util import genTimestampUUID
 
 class TimeEvent(object):
 	def __init__(self, t, eventType, description = None):
@@ -24,26 +25,17 @@ class ResultStorage(object):
 		"""
 		Writes and reads simulation results from HDF file
 		"""
+		self.filePath = filePath
 		self.h5File = h5py.File(filePath, 'a')
 		self.datasetPath = datasetPath
 	
-	def initializeWriting(self, varList, chunkSize, datasetFamily = 'simulation_{:0>4d}'):
+	def initializeWriting(self, varList, chunkSize):
 		# Size of result chunks
 		self.chunkSize = int(chunkSize)
-		# Naming convention for the results
-		self.datasetFamily = datasetFamily
 		# Create the group for the result if not present
 		if (self.datasetPath not in self.h5File):
 			self.h5File.create_group(self.datasetPath)
-			self.h5File[self.datasetPath].attrs['numResults'] = 0
-			self.h5File[self.datasetPath].attrs['family'] = self.datasetFamily
-		else:
-			self.datasetFamily = self.h5File[self.datasetPath].attrs['family']
-		# Increase the counter of the results in the group
-		resGroup = self.h5File[self.datasetPath]
-		resGroup.attrs['numResults'] += 1
-		simIndex = resGroup.attrs['numResults']
-		self.simulationName = self.datasetFamily.format(simIndex)
+		self.simulationName = genTimestampUUID()
 		# Create column type
 		dtype = self.makeDType(varList = varList)
 		# Create numpy array used as a buffer for writing
@@ -87,12 +79,14 @@ class ResultStorage(object):
 		self.h5File.flush()
 		self.h5File.close()
 	
-	def loadResult(self, simIndex = None):
-		self.datasetFamily = self.h5File[self.datasetPath].attrs['family']
-		if (simIndex is None):
-			simIndex = self.h5File[self.datasetPath].attrs['numResults']
-		self.simulationName = self.datasetFamily.format(simIndex)
-		self.data = self.h5File[self.datasetPath][self.simulationName]
+	def openStorage(self):
+		self.h5File = h5py.File(self.filePath, 'r')
+	
+	def closeStorage(self):
+		self.h5File.close()
+	
+	def loadResult(self):
+		return self.h5File[self.datasetPath][self.simulationName]
 	
 	def exportToCsv(self, fileName, tPrint = None):
 		f = open(fileName, 'w')
