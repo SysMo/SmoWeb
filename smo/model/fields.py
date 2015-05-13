@@ -5,6 +5,9 @@ import numpy as np
 from quantity import Quantities
 from smo.web.exceptions import *
 from smo.model.actions import ActionBar
+import os
+from SmoWeb.settings import MEDIA_ROOT
+tmpFolderPath = os.path.join (MEDIA_ROOT, 'tmp')
 
 class Field(object):
 	"""
@@ -461,8 +464,8 @@ class DataSeriesView(Field):
 	"""
 	Composite output field for representing a table or plot
 	"""
-	def __init__(self, structTuple = None, visibleColumns = None, useHdfData = False, hdfFile = None,
-				hdfGroup = None, *args, **kwargs):
+	def __init__(self, structTuple = None, visibleColumns = None, useHdfStorage = False, hdfFile = None,
+				hdfGroup = None, datasetColumns = None, *args, **kwargs):
 		"""
 		:param structTuple: tuple defining the structure of the 
 			view data. It consists of ``(name, type)`` pairs, 
@@ -486,14 +489,18 @@ class DataSeriesView(Field):
 		self.fieldList = []
 		typeList = []
 		self.dataLabels = []
+		fieldNames = []
 		
 		for name, field in structDict.items():
-			structField = field
-			structField.name = name
-			self.dataLabels.append(name)
-			self.fieldList.append(structField)
+			field.name = name
+			fieldNames.append(name)
+			if (field.label != ""):
+				self.dataLabels.append(field.label)
+			else:
+				self.dataLabels.append(name)
+			self.fieldList.append(field)
 			if isinstance(field, Quantity):
-				typeList.append((field.name, np.float64))
+				typeList.append((name, np.float64))
 			else:
 				raise ValueError('Unsupported type for a data series')
 			
@@ -504,23 +511,28 @@ class DataSeriesView(Field):
 		else:
 			self.visibleColumns = visibleColumns
 			
-		self.useHdfData = useHdfData
-		if (useHdfData == True):
+		self.useHdfStorage = useHdfStorage
+		if (useHdfStorage == True):
 			if (hdfFile is None or hdfGroup is None):
 				raise ValueError('Hdf file or hdf group is undefined')
-			
+			hdfFile = os.path.join(tmpFolderPath, hdfFile)
+		
 		self.hdfFile = hdfFile
 		self.hdfGroup = hdfGroup
+		
+		if datasetColumns is None:
+			datasetColumns = fieldNames[:]
+		self.datasetColumns = datasetColumns
 			
 	@property
 	def default(self):
-		if (self.useHdfData == True):
+		if (self.useHdfStorage == True):
 			return ''
 		else:
 			return np.zeros((1,), dtype = self.dtype)
 		
 	def parseValue(self, value):
-		if (self.useHdfData == True):
+		if (self.useHdfStorage == True):
 			if (isinstance(value, str)):
 				return value
 			else:
@@ -542,7 +554,7 @@ class DataSeriesView(Field):
 				raise ArgumentTypeError('The value of View must be a numpy structured array or a list of lists')
 	
 	def getValueRepr(self, value):
-		if (self.useHdfData == True):
+		if (self.useHdfStorage == True):
 			return value
 		else:
 			return value.tolist()
@@ -556,13 +568,10 @@ class DataSeriesView(Field):
 		fieldDict['fields'] = jsonFieldList
 		fieldDict['labels'] = self.dataLabels
 		fieldDict['visibleColumns'] = self.visibleColumns
-		fieldDict['useHdfData'] = self.useHdfData
+		fieldDict['useHdfStorage'] = self.useHdfStorage
 		fieldDict['hdfFile'] = self.hdfFile
 		fieldDict['hdfGroup'] = self.hdfGroup
-# 		if (self.hdfFile is not None):
-# 			fieldDict['hdfFile'] = self.hdfFile
-# 		if (self.hdfGroup is not None):
-# 			fieldDict['hdfGroup'] = self.hdfGroup
+		fieldDict['datasetColumns'] = self.datasetColumns
 		return fieldDict
 	
 

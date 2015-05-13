@@ -418,7 +418,7 @@ smoModule.factory('communicator', function($http, $window, $timeout, $location, 
 		}
 		
 		if (this.viewName == 'resultView') {
-			var hdfDataFields = [];
+			var hdfFields = [];
 			for (var i=0; i<responseData.definitions.length; i++) {
 				for (var j=0; j<responseData.definitions[i].groups.length; j++) {
 					if (responseData.definitions[i].groups[j].type == "ViewGroup") {
@@ -426,11 +426,12 @@ smoModule.factory('communicator', function($http, $window, $timeout, $location, 
 							if (responseData.definitions[i].groups[j].fields[k].type == 'TableView' ||
 								responseData.definitions[i].groups[j].fields[k].type == 'PlotView') {
 								var field = responseData.definitions[i].groups[j].fields[k];
-								if (field.useHdfData == true) {
-									hdfDataFields.push({"name": field.name,
+								if (field.useHdfStorage == true) {
+									hdfFields.push({"name": field.name,
 														"hdfFile": field.hdfFile, 
 														"hdfGroup": field.hdfGroup, 
-														"dataset": responseData.values[field.name]});
+														"dataset": responseData.values[field.name],
+														"datasetColumns": field.datasetColumns});
 								}
 							}
 						}
@@ -438,7 +439,7 @@ smoModule.factory('communicator', function($http, $window, $timeout, $location, 
 				}
 			}
 			
-			if (hdfDataFields.length > 0) {
+			if (hdfFields.length > 0) {
 				var modelComm = this;
 				var onFetchSuccess = function(comm) {
 					for (var fieldName in comm.data) {
@@ -447,8 +448,11 @@ smoModule.factory('communicator', function($http, $window, $timeout, $location, 
 					Communicator.prototype.setResponseData.call(modelComm, responseData);
 					updateRecordId(modelComm);
 				}
-				loadHdfComm = new Communicator();
-				loadHdfComm.fetchData('loadHdfValues', hdfDataFields, onFetchSuccess);
+				hdfDataComm = new Communicator();
+				var onFail = function(comm) {
+					console.log(comm);
+				};
+				hdfDataComm.fetchData('loadHdfValues', hdfFields, onFetchSuccess, onFail);
 				return;
 			}
 		}
@@ -1280,7 +1284,6 @@ smoModule.directive('smoDataSeriesView', ['$compile', 'communicator', 'util', fu
 				
 				for (var col=0; col<$scope.numCols; col++){
 					var field = $scope.fieldVar.fields[col];
-						
 					field.unit 
 						= field.unit || field.SIUnit;
 					field.displayUnit 
