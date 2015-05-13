@@ -36,6 +36,9 @@ class BiochemicalReactions(Simulation):
         super(BiochemicalReactions, self).__init__(**kwargs)
         if params == None:
             params = AttributeDict(kwargs)
+            
+        # Initialize update progress function
+        self.updateProgress = params.updateProgress
         
         # Get the species variables Xs = [X1, X2, ..., Xn] and their initial values
         self.Xs = np.empty(len(params.species), dtype=(np.str_, 256))
@@ -226,15 +229,10 @@ class BiochemicalReactions(Simulation):
     
     def handle_result(self, solver, t, y):
         super(BiochemicalReactions, self).handle_result(solver, t, y)
+        self.updateProgress(t, self.tFinal)
         
         self.resultStorage.record[:] = (t,) + tuple(y)
         self.resultStorage.saveTimeStep()
-        
-    def getResults(self):
-        return self.resultStorage.data
-    
-    def loadResult(self, simIndex):
-        self.resultStorage.loadResult(simIndex)
         
     def plotHDFResults(self, ax = None):
         if (ax is None):
@@ -242,13 +240,16 @@ class BiochemicalReactions(Simulation):
             ax = fig.add_subplot(111)
         
         # Get results
-        data = self.resultStorage.data
+        self.resultStorage.openStorage()
+        data = self.resultStorage.loadResult()
         
         # Plot results
         xData = data['t']
         colors = self.getColors()
         for i, X in enumerate(self.Xs):
             ax.plot(xData, data[X], '%s'%colors[i%len(colors)], label = X)
+            
+        self.resultStorage.closeStorage()
     
         ax.set_xlim([0, xData[-1]])
         

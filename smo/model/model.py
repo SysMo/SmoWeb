@@ -5,6 +5,9 @@ from smo.web.blocks import HtmlBlock, JsBlock
 import smo.web.exceptions as E
 from smo.model.actions import ServerAction
 
+# Global registry of numerical models
+modelRegistry = OrderedDict()
+
 class NumericalModelMeta(type):
 	"""Metaclass facilitating the creation of a numerical
 	model class. Collects all declared fields, submodels, basic groups, supergroups and model views in 
@@ -186,6 +189,9 @@ class NumericalModelMeta(type):
 				if (isinstance(klass.modelBlocks[i], basestring)):
 					klass.modelBlocks[i] = klass.declared_modelViews[klass.modelBlocks[i]]
 			#print("NumericalModel class: {}, {}".format(name, [modelBlock.name for modelBlock in klass.modelBlocks])) 
+		
+		if (klass.__name__ != 'NumericalModel'):
+			modelRegistry[klass.__name__] = klass
 		return klass
 
 class NumericalModel(object):

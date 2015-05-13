@@ -298,6 +298,7 @@ class ModularPageView(object):
 			if field['datasetColumns'] is None:
 				fieldDict[field['name']] = h5File[datasetPath][...].tolist()
 			else:
+				print field['datasetColumns']
 				fieldDict[field['name']] = np.array(h5File[datasetPath][tuple(field['datasetColumns'])]).transpose().tolist()
 			h5File.close()
 			resultList.append(fieldDict)
@@ -305,7 +306,7 @@ class ModularPageView(object):
 	
 	@action.post()
 	def startCompute(self, model, view, parameters):
-		job = celeryCompute.delay(model, view, parameters)
+		job = celeryCompute.delay(model.__name__, view.name, parameters)
 		if (job.failed()):
 			raise job.result
 		return {'jobID': job.id,

@@ -25,6 +25,7 @@ class ResultStorage(object):
 		"""
 		Writes and reads simulation results from HDF file
 		"""
+		self.filePath = filePath
 		self.h5File = h5py.File(filePath, 'a')
 		self.datasetPath = datasetPath
 	
@@ -78,8 +79,14 @@ class ResultStorage(object):
 		self.h5File.flush()
 		self.h5File.close()
 	
+	def openStorage(self):
+		self.h5File = h5py.File(self.filePath, 'r')
+	
+	def closeStorage(self):
+		self.h5File.close()
+	
 	def loadResult(self):
-		self.data = self.h5File[self.datasetPath][self.simulationName]
+		return self.h5File[self.datasetPath][self.simulationName]
 	
 	def exportToCsv(self, fileName, tPrint = None):
 		f = open(fileName, 'w')
