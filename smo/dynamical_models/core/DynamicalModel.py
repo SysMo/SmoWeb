@@ -6,69 +6,12 @@ Created on Feb 25, 2015
 '''
 from collections import OrderedDict
 import StringIO
-from smo.web.exceptions import ConnectionError
-
-class Causality(object):
-	Parameter = 0
-	CalculatedParameter = 1
-	Input = 2
-	Output = 3
-	Local = 4
-	Independent = 5
-	
-class Variability(object):
-	Constant = 0
-	Fixed = 1
-	Tunable = 2
-	Discrete = 3
-	Continuous = 4
-
-class ModelField(object):
-	"""
-	Abstract base class for all the field types.
-	"""
-	# Tracks each time an instance is created. Used to retain order.
-	creation_counter = 0
-	def __init__(self, label = None, description = None):
-		self.label = label
-		self.description = description
-
-		# Increase the creation counter, and save our local copy.
-		self.creation_counter = ModelField.creation_counter
-		ModelField.creation_counter += 1
-
-	def setName(self, name):
-		self.name = name
-		if (self.label is None):
-			self.label = self.name
-		if (self.description is None):
-			self.description = self.label
-	
-
-class ScalarVariable(ModelField):
-	def __init__(self, causality, variability, **kwargs):
-		"""
-	 	:param str label: the text label used in the user interface usually in front of the field
-	 	:param str description: description to show as tooltip when hovering over the field label
-		"""
-		super(ScalarVariable, self).__init__(**kwargs)
-		self.causality = causality
-		self.variability = variability
-
-class RealVariable(ScalarVariable):
-	def __init__(self, **kwargs):
-		super(RealVariable, self).__init__(**kwargs)
-
-class RealState(RealVariable):
-	def __init__(self, der, **kwargs):
-		super(RealState, self).__init__(causality = Causality.Output, 
-				variability = Variability.Continuous, **kwargs)
-		self.der = der
-
-class SubModel(ModelField):
-	def __init__(self, klass, **kwargs):
-		super(SubModel, self).__init__(**kwargs)
-		self.klass = klass
+import networkx as nx
+import pylab as plt
+import numpy as np
+from smo.web.exceptions import ConnectionError, FieldError
+import SimulationActions as SA
+from Fields import *
 
 class DynamicalModelMeta(type):
 	def __new__(cls, name, bases, attrs):
@@ -79,9 +22,22 @@ class DynamicalModelMeta(type):
 		# Collect fields from current class.
 		dm_variables = []
 		dm_submodels = []
+		dm_realStates = []
+		dm_functions = []
+		dm_ports = []
 		for key, value in attrs.items():
 			if isinstance(value, ScalarVariable):
 				dm_variables.append((key, value))
+				value.setName(key)
+				attrs.pop(key)
+				if (isinstance(value, RealState)):
+					dm_realStates.append((key, value))
+			elif isinstance(value, Function):
+				dm_functions.append((key, value))
+				value.setName(key)
+				attrs.pop(key)
+			elif isinstance(value, Port):
+				dm_ports.append((key, value))
 				value.setName(key)
 				attrs.pop(key)
 			elif isinstance(value, SubModel):
@@ -92,6 +48,12 @@ class DynamicalModelMeta(type):
 		# Create special class variables with the collected fields
 		dm_variables.sort(key=lambda x: x[1].creation_counter)
 		attrs['dm_variables'] = OrderedDict(dm_variables)
+		dm_realStates.sort(key=lambda x: x[1].creation_counter)
+		attrs['dm_realStates'] = OrderedDict(dm_realStates)
+		dm_functions.sort(key=lambda x: x[1].creation_counter)
+		attrs['dm_functions'] = OrderedDict(dm_functions)
+		dm_ports.sort(key=lambda x: x[1].creation_counter)
+		attrs['dm_ports'] = OrderedDict(dm_ports)
 		dm_submodels.sort(key=lambda x: x[1].creation_counter)
 		attrs['dm_submodels'] = OrderedDict(dm_submodels)
 		
@@ -100,53 +62,28 @@ class DynamicalModelMeta(type):
 		
 		return new_class
 
-class InstanceVariable(object):
-	def __init__(self, instance, clsVar):
-		self.instance = instance
-		self.clsVar = clsVar
-		self.connectedVars = []
 		
-	@property
-	def name(self):
-		return self.clsVar.name
-	@property
-	def qPath(self):
-		return self.instance.qPath + [self.name]
-	@property
-	def qName(self):
-		return '.'.join(self.qPath)
-	
-	def connect(self, other, complement = True):
-		if (self.clsVar.causality == Causality.Input):
-			if (len(self.connectedVars) != 0):
-				raise ConnectionError(self, other, 'Cannot connect input to more than one variable')
-			elif (other.clsVar.causality == Causality.Output):
-				self.connectedVars.append(other)
-				if (complement):
-					other.connect(self, complement = False)
-			else:
-				raise ConnectionError(self, other, 'Can only connect input variable to an output variable')
-
-		elif (self.clsVar.causality == Causality.Output):
-			if (other.clsVar.causality == Causality.Input):
-				if(other not in self.connectedVars):
-					self.connectedVars.append(other)
-					if (complement):
-						other.connect(self, complement = False)
-				else:
-					pass
-			else:
-				raise ConnectionError(self, other, 'Can only connect output variable to an input variable')
-		else:
-			raise ConnectionError(self, other, 'Connected variables must have causality input or output')
 class InstanceMeta(object):
 	def __init__(self):
 		self.dm_variables = {}
+		self.dm_submodels = {}
+		self.dm_functions = {}
+		self.dm_ports = {}
 		
-	def addVariable(self, instanceVariable):
+	def addInstanceVariable(self, instanceVariable):
 		varName = instanceVariable.clsVar.name
 		self.dm_variables[varName] = instanceVariable
 		self.__setattr__(varName, instanceVariable)
+		
+	def addInstanceFunction(self, instanceFunction):
+		funcName = instanceFunction.clsVar.name
+		self.dm_functions[funcName] = instanceFunction
+		self.__setattr__(funcName, instanceFunction)
+		
+	def addInstancePort(self, instancePort):
+		portName = instancePort.clsVar.name
+		self.dm_ports[portName] = instancePort
+		self.__setattr__(portName, instancePort)
 
 class DynamicalModel(object):
 	__metaclass__ = DynamicalModelMeta
@@ -165,13 +102,22 @@ class DynamicalModel(object):
 			self.qPath = [self.name]
 		# Create instance meta
 		self.meta = InstanceMeta()
+		# Create derivative vector
+		self.der = DerivativeVector(self)
 		# Create instance variables
 		for name, clsVar in cls.dm_variables.iteritems():
-			self.meta.addVariable(InstanceVariable(self, clsVar))
+			self.meta.addInstanceVariable(InstanceVariable(self, clsVar))
+		# Create instance functions
+		for name, clsVar in cls.dm_functions.iteritems():
+			self.meta.addInstanceFunction(InstanceFunction(self, clsVar))
+		# Create instance ports
+		for name, clsVar in cls.dm_ports.iteritems():
+			self.meta.addInstancePort(InstancePort(self, clsVar))
 		# Create submodel instances
 		for name, submodel in cls.dm_submodels.iteritems():
 			instance = submodel.klass(name, self)
 			self.__dict__[name] = instance
+			self.meta.dm_submodels[name] = instance
 			
 		return self
 	
@@ -189,15 +135,15 @@ class DynamicalModel(object):
 			buf.write("\t{}: \n".format(k))
 		buf.write("-------------------------------------\n")		
 		buf.write("SubModels:\n")
-		for k, v in self.__class__.dm_submodels.iteritems():
+		for k, v in self.meta.dm_submodels.iteritems():
 			buf.write("{}: \n".format(k))
+			buf.write(v.describeFields())
 		buf.write("=====================================\n")
 		result = buf.getvalue()
 		buf.close()
 		return result
 	
 	def createModelGraph(self, graph = None):
-		import networkx as nx
 		if (graph is None):
 			graph = nx.DiGraph()
 			graph.add_node('stateVector')
@@ -205,11 +151,14 @@ class DynamicalModel(object):
 		else:
 			graph.add_node(self)
 		
-		self.dm_graph = graph 
+		self.dm_graph = graph
+		# Add all the variables 
 		for k, v in self.meta.dm_variables.iteritems():
 			if isinstance(v.clsVar, RealState):
 				self.dm_graph.add_edge('stateVector', v)
-				print v
+				self.dm_graph.add_edge(v, self)
+				self.dm_graph.add_edge(v.qName + '.der', 'stateDerivativeVector')
+				self.dm_graph.add_edge(self, v.qName + '.der')
 			if (v.clsVar.causality == Causality.Input):
 				self.dm_graph.add_node(v)
 				self.dm_graph.add_edge(v, self)
@@ -218,25 +167,143 @@ class DynamicalModel(object):
 			elif (v.clsVar.causality == Causality.Output):
 				self.dm_graph.add_node(v)
 				self.dm_graph.add_edge(self, v)
+		# Insert functions and fix causality
+		for k, v in self.meta.dm_functions.iteritems():
+			self.dm_graph.add_node(v)
+			for inVar in v.inputs:
+				self.dm_graph.add_edge(inVar, v)
+			for outVar in v.outputs:
+				self.dm_graph.add_edge(v, outVar)
+				self.dm_graph.remove_edge(self, outVar)
+				self.dm_graph.add_edge(outVar, self)
+				
+		# Include recursively the submodels
 		for k, v in self.__class__.dm_submodels.iteritems():
 			self.__dict__[k].createModelGraph(graph)
 				
 	def plotModelGraph(self):
-		import networkx as nx
-		import pylab as plt
-		import numpy as np
 		#pos = nx.spring_layout(self.dm_graph)
 		pos = nx.graphviz_layout(self.dm_graph, prog = 'neato', root = 'stateVector')
 		posLabels = {}
-		nx.draw_networkx_nodes(self.dm_graph, pos, node_size = 100)
 		labels = {}
+		colors = np.zeros(shape = (len(self.dm_graph.nodes())), dtype = 'S')
+		colors.fill('r')
+		# Assign colors and labels to nodes
+		i = 0
 		for node in self.dm_graph.nodes_iter():
 			posLabels[node] = pos[node] + np.array([0, -0.05])
-			labels[node] = node if isinstance(node, basestring) else node.qName
-		nx.draw_networkx_labels(self.dm_graph, posLabels, labels)
+			if (isinstance(node, basestring)):
+				labels[node] = node
+			elif (isinstance(node, InstanceVariable)):
+				labels[node] = node.qName
+				colors[i] = 'b'
+			elif (isinstance(node, InstanceFunction)):
+				labels[node] = node.qName
+				colors[i] = 'g'
+			elif (isinstance(node, DynamicalModel)):
+				labels[node] = node.qName + '.compute'
+				colors[i] = 'g'
+			i += 1
+
+		# Draw nodes
+		nx.draw_networkx_nodes(self.dm_graph, 
+				pos, node_size = 200, node_color= colors, alpha=0.5)
+		# Draw edges
 		nx.draw_networkx_edges(self.dm_graph, pos)
+		# Draw labels
+		draw_networkx_labels(self.dm_graph, posLabels, labels, 
+				horizontalalignment = 'left', rotation = 30.)
 		plt.show()
-				
-	def connect(self, n1, n2):
-		self.dm_graph.add_edge(n1, n2)
 		
+	def generateSimulationSequence(self):
+		if (self.dm_graph is None):
+			self.createModelGraph()
+		# Sequence of all actions in execution order
+		self.simSequence = []
+		# Sequence of functions to be called
+		self.functionCallSequence = []
+		# Set real states
+		i = 0
+		for state in self.dm_graph.successors('stateVector'):
+			self.simSequence.append(SA.SetRealState(i, state))
+			i += 1
+			
+		# Topological sort will return a node list with proper causality
+		try:
+			sortedGraph = nx.topological_sort(self.dm_graph)
+		except nx.exception.NetworkXUnfeasible, e:
+			raise RuntimeError("Cannot perfrom topological sort of the execution \
+graph. Probably there are cyclic dependancies. \n \
+Original error message: {}".format(e))
+			
+		for node in sortedGraph:
+			if isinstance(node, DynamicalModel):
+				self.simSequence.append(SA.CallMethod(node, 'compute'))
+			elif isinstance(node, InstanceFunction):
+				self.simSequence.append(SA.CallMethod(node.instance, node.name))
+			elif isinstance(node, InstanceVariable):				
+				pred = self.dm_graph.predecessors(node)
+				if (len(pred) > 0):
+					pred = pred[0]
+					if (isinstance(pred, InstanceVariable)):
+						self.simSequence.append(SA.AssignValue(pred, node))
+				else:
+					print("Warning variable {.qName} receives no value".format(node))
+		# Get real derivatives
+		i = 0
+		for state in self.dm_graph.successors('stateVector'):
+			self.simSequence.append(SA.GetRealStateDerivative(i, state))
+			i += 1
+	
+	def printSimulationSequence(self):
+		for action in self.simSequence:
+			print action
+			
+def draw_networkx_labels(G, pos,
+						 labels=None,
+						 font_size=12,
+						 font_color='k',
+						 font_family='sans-serif',
+						 font_weight='normal',
+						 alpha=1.0,
+						 ax=None,
+						 **kwds):
+	try:
+		import matplotlib.pyplot as plt
+		import matplotlib.cbook as cb
+	except ImportError:
+		raise ImportError("Matplotlib required for draw()")
+	except RuntimeError:
+		print("Matplotlib unable to open display")
+		raise
+
+	if ax is None:
+		ax = plt.gca()
+
+	if labels is None:
+		labels = dict((n, n) for n in G.nodes())
+
+	# set optional alignment
+	horizontalalignment = kwds.get('horizontalalignment', 'center')
+	verticalalignment = kwds.get('verticalalignment', 'center')
+	rotation = kwds.get('rotation', 0)
+	text_items = {}  # there is no text collection so we'll fake one
+	for n, label in labels.items():
+		(x, y) = pos[n]
+		if not cb.is_string_like(label):
+			label = str(label)  # this will cause "1" and 1 to be labeled the same
+		t = ax.text(x, y,
+				  label,
+				  size=font_size,
+				  color=font_color,
+				  family=font_family,
+				  weight=font_weight,
+				  horizontalalignment=horizontalalignment,
+				  verticalalignment=verticalalignment,
+				  transform=ax.transData,
+				  clip_on=True,
+				  rotation = rotation
+				  )
+		text_items[n] = t
+
+	return text_items

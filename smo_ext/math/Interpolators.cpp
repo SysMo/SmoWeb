@@ -220,6 +220,9 @@ double Interpolator2D::operator()(double xValue, double yValue) {
 }
 
 void Interpolator2D::operator()(MemoryView1D<double>* inXValues, MemoryView1D<double>* inYValues, MemoryView1D<double>* outZValues) {
+	if (inXValues->shape(0) != inYValues->shape(0)) {
+		RaiseError("Different length of x and y vectors: " << inXValues->shape(0) << " and " << inYValues->shape(0) << " respectively")
+	}
 	for (int i = 0; i < inXValues->len(); i++) {
 		(*outZValues)(i) = (*this)((*inXValues)(i), (*inYValues)(i));
 	}
