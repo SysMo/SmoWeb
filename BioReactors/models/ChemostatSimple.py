@@ -4,7 +4,6 @@ Created on Mar 4, 2015
 @author: Milen Borisov
 @copyright: SysMo Ltd, Bulgaria
 '''
-import numpy as np
 import smo.model.fields as F
 import smo.dynamical_models.bioreactors.ChemostatSimple as DM
 
