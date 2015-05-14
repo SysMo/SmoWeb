@@ -152,13 +152,21 @@ class ChemostatSimple(Simulation):
 	def loadResult(self, simIndex):
 		self.resultStorage.loadResult(simIndex)
 	
-	def plotHDFResults(self):		
-		data = self.resultStorage.data
+	def plotHDFResults(self):
+		# Load the results
+		self.resultStorage.openStorage()
+		data = self.resultStorage.loadResult()
+		
+		# Set the results
 		xData = data['t']
 		plt.plot(xData, data['S'], 'r', label = 'S')
 		plt.plot(xData, data['X'], 'b', label = 'X')
 		plt.plot(xData, data['D'], 'g', label = 'D')
 		
+		# Close the result storage
+		self.resultStorage.closeStorage()
+		
+		# Plot the results
 		plt.gca().set_xlim([0, xData[-1]])
 		plt.legend()
 		plt.show()
@@ -178,6 +186,7 @@ def TestChemostatSimple():
 		
 	# Initialize model parameters
 	modelParams = AttributeDict({
+		'updateProgress' : lambda x, y : x, #:TRICKY: not used,
 		'm' : 3.0,
 		'K' : 3.7,
 		'S_in' : 2.2,

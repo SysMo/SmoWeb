@@ -89,6 +89,11 @@ class ResultStorage(object):
 		return self.h5File[self.datasetPath][self.simulationName]
 	
 	def exportToCsv(self, fileName, tPrint = None):
+		# Load the results
+		self.openStorage()
+		self.data = self.loadResult()
+		
+		# Export the results
 		f = open(fileName, 'w')
 		f.write(",".join(self.data.dtype.names))
 		f.write('\n')
@@ -100,6 +105,9 @@ class ResultStorage(object):
 			# Here the resampling code should be added
 			pass
 		f.close()
+		
+		# Close the result storage
+		self.closeStorage()
 	
 class Simulation(Explicit_Problem):
 	def __init__(self, **kwargs):

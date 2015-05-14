@@ -248,7 +248,11 @@ class TankModel(DMC.Simulation):
 		return self.resultStorage.data
 
 	def plotHDFResults(self):
-		data = self.resultStorage.data
+		# Load the results
+		self.resultStorage.openStorage()
+		data = self.resultStorage.loadResult()
+		
+		# Set the results
 		xData = data['t']
 		plt.plot(xData, data['pTank']/1e5, 'g', label = 'tank pressure [bar]')
 		plt.plot(xData, data['TTank'], 'r', label = 'tank temperature [K]')
@@ -261,6 +265,10 @@ class TankModel(DMC.Simulation):
 		plt.plot(xData, data['QDotComp'], 'y--', label = 'composite heat flow rate [W]')
 		#plt.plot(xData, data['WRealCompressor']/1e3, 'y--', label = 'compressor real work [kJ]')
 		
+		# Close the result storage
+		self.resultStorage.closeStorage()
+		
+		# Plot the results
 		plt.gca().set_xlim([0, len(xData)])
 		plt.legend()
 		plt.show()
@@ -365,7 +373,7 @@ def testTankModel():
 	
 	# Create the model
 	tankModel = TankModelFactory.create(
-		updateProgress = lambda x : x,
+		updateProgress = lambda x, y : x, #:TRICKY: not used
 		fluid = CP.Fluid('ParaHydrogen'),
 		ambientFluid = CP.Fluid('Air'),
 		TAmbient = 288.15,

@@ -362,6 +362,7 @@ def TestBiochemicalReactions():
     ], dtype = dt_vars)
         
     modelParams = AttributeDict({
+        'updateProgress' : lambda x, y : x, #:TRICKY: not used,
         'reactions' : reactions,
         'species' : species,
     })

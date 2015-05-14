@@ -109,7 +109,9 @@ def TestChemostatDDE():
     # Initialize simulation parameters
     solverParams = AttributeDict({
         'tFinal' : 50., 
-        'tPrint' : 0.1
+        'tPrint' : 0.1,
+        'absTol' : 1e-12,
+        'relTol' : 1e-12,
     })
         
     # Initialize model parameters
@@ -125,9 +127,9 @@ def TestChemostatDDE():
         k_s1 = 7.1
         k_s2 = 9.28
         k_I = 16.
-        D = 0.3
-        tau1 = 2.
-        tau2 = 3.
+        D = 0.9
+        tau1 = 12.
+        tau2 = 13.
         s1_hist_vals = 2.
         x1_hist_vals = 0.7
         s2_hist_vals = 5.
