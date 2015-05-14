@@ -70,7 +70,7 @@ class BiochemicalReactions(NumericalModel):
     )
     
     #2. ############ Results ###############
-    storage = F.HdfStorage(hdfFile = 'BioReactors_SimulationResults.h5', hdfGroup = '/BiochemicalReactions')
+    storage = F.HdfStorage(hdfFile = DM.dataStorageFilePath, hdfGroup = DM.dataStorageDatasetPath)
     
     dataSeries = (
         ('time', F.Quantity('Time', default=(1, 's'))),
@@ -128,7 +128,7 @@ class BiochemicalReactions(NumericalModel):
         self.tPrint = 0.01
         
     def exampleMMKI(self):
-        #:TODO: (MILEN) exampleMMKI 
+        #:TODO: (MILEN) BiochemicalReactions exampleMMKI 
         #@see http://en.wikipedia.org/wiki/Enzyme_kinetics 
         #     Michaelis-Menten kinetics with intermediate
         #     Multi-substrate reactions

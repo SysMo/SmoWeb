@@ -49,7 +49,7 @@ class ChemostatSimple(NumericalModel):
     inputView = F.ModelView(ioType = "input", superGroups = [inputValuesSG, settingsSG], autoFetch = True)
     
     #2. ############ Results ###############    
-    storage = F.HdfStorage(hdfFile = 'BioReactors_SimulationResults.h5', hdfGroup = '/ChemostatSimple')
+    storage = F.HdfStorage(hdfFile = DM.dataStorageFilePath, hdfGroup = DM.dataStorageDatasetPath)
 
     dataSeries = (
         ('time', F.Quantity('Bio_Time', default=(1, 'day'))),

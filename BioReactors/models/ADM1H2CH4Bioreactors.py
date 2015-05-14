@@ -4,11 +4,10 @@ Created on Mar 4, 2015
 @author: Milen Borisov
 @copyright: SysMo Ltd, Bulgaria
 '''
-import numpy as np
 import smo.model.fields as F
 import smo.model.actions as A 
-import smo.dynamical_models.bioreactors.ADM1H2Bioreactor as DM
-import smo.dynamical_models.bioreactors.ADM1CH4Bioreactor as DM1
+import smo.dynamical_models.bioreactors.ADM1H2Bioreactor as DM_RH2
+import smo.dynamical_models.bioreactors.ADM1CH4Bioreactor as DM_RCH4
 
 from smo.model.model import NumericalModel
 #from smo.web.modules import RestModule
@@ -395,7 +394,7 @@ class H2Bioreactor(NumericalModel):
 class ADM1H2CH4Bioreactors(NumericalModel):
     label = "(H2,CH4) Bioreactors"
     description = F.ModelDescription("A model of two separate contiguous bioreactors for producing of hydrogen and methane, respectively.", show = True)
-    figure = F.ModelFigure(src="BioReactors/img/ModuleImages/SimpleChemostat.png", show = False) #:TODO: (MILEN)
+    figure = F.ModelFigure(src="BioReactors/img/ModuleImages/SimpleChemostat.png", show = False) #:TODO: (MILEN) ADM1H2CH4Bioreactors png
     
     async = True
     progressOptions = {'suffix': 'day', 'fractionOutput': True}
@@ -430,7 +429,7 @@ class ADM1H2CH4Bioreactors(NumericalModel):
     )
     
     #2. ############ Results (R-H2) ###############
-    storageRH2 = F.HdfStorage(hdfFile = 'BioReactors_SimulationResults.h5', hdfGroup = '/ADM1H2Bioreactor')
+    storageRH2 = F.HdfStorage(hdfFile = DM_RH2.dataStorageFilePath, hdfGroup = DM_RH2.dataStorageDatasetPath)
     
     varTuplesRH2 = (
         ('time', F.Quantity('Bio_Time', default=(1, 'day'))),
@@ -472,7 +471,7 @@ class ADM1H2CH4Bioreactors(NumericalModel):
     resultsRH2SG = F.SuperGroup([resultsRH2VG, storageRH2VG], label = 'Results (R-H2)')
     
     #2. ############ Results (R-CH4) ###############
-    storageRCH4 = F.HdfStorage(hdfFile = 'BioReactors_SimulationResults.h5', hdfGroup = '/ADM1CH4Bioreactor')
+    storageRCH4 = F.HdfStorage(hdfFile = DM_RCH4.dataStorageFilePath, hdfGroup = DM_RCH4.dataStorageDatasetPath)
     
     varTuplesRCH4 = (
         ('time', F.Quantity('Bio_Time', default=(1, 'day'))),
@@ -642,7 +641,7 @@ class ADM1H2CH4Bioreactors(NumericalModel):
                     
     def computeAsync(self):
         # Simulate R-H2 Bioreactor
-        bioreactorRH2 = DM.ADM1H2Bioreactor(self, self.parametersRH2, self.concentrationsRH2)
+        bioreactorRH2 = DM_RH2.ADM1H2Bioreactor(self, self.parametersRH2, self.concentrationsRH2)
         
         bioreactorRH2.prepareSimulation()
         bioreactorRH2.run(self.solverSettingsRH2)
@@ -657,7 +656,7 @@ class ADM1H2CH4Bioreactors(NumericalModel):
      
      
         # Simulate R-CH4 Bioreactor
-        bioreactorRCH4 = DM1.ADM1CH4Bioreactor(self, self.parametersRCH4, self.concentrationsRCH4)
+        bioreactorRCH4 = DM_RCH4.ADM1CH4Bioreactor(self, self.parametersRCH4, self.concentrationsRCH4)
          
         bioreactorRCH4.prepareSimulation()
         bioreactorRCH4.run(self.solverSettingsRCH4)
