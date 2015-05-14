@@ -998,14 +998,23 @@ smoModule.directive('smoString', ['$compile', function($compile) {
 					<div class="field-label"><div style="display: inline-block;" data-toggle="tooltip" title="' + scope.fieldVar.description + '" tooltip>' + scope.fieldVar.label + '</div></div>';
 			}			
 			
-			if (scope.viewType == 'input')
+			if (scope.viewType == 'input') {
 				template += '\
 					<div class="field-input"> \
-						<div ng-form name="' + scope.fieldVar.name + 'Form">\
-							<input style="width:' + scope.fieldVar.inputBoxWidth + 'px" name="input" type="text" ng-model="fieldVar.value" ng-change="updateValue()" data-toggle="tooltip" data-original-title="{{fieldVar.value}}" tooltip>\
+						<div ng-form name="' + scope.fieldVar.name + 'Form">';
+				if (scope.field.showTooltip) {
+					template += '\
+							<input style="width:' + scope.fieldVar.inputBoxWidth + 'px" name="input" type="text"\
+								ng-model="fieldVar.value" ng-change="updateValue()" data-toggle="tooltip" data-original-title="{{fieldVar.value}}" tooltip>';
+				} else {
+					template += '\
+							<input style="width:' + scope.fieldVar.inputBoxWidth + 'px" name="input" type="text"\
+								ng-model="fieldVar.value" ng-change="updateValue()">';
+				}
+				template += '\
 						</div>\
 					</div>';
-			else if (scope.viewType == 'output'){
+			} else if (scope.viewType == 'output') {
 				if (scope.fieldVar.multiline==true){
 					template += '\
 						<div class="field-output"> \
@@ -1912,9 +1921,17 @@ smoModule.directive('smoRecordArray', ['$compile', 'util', function($compile, ut
 					rowTemplate += '\
 						<td>\
 							<div class="field-input">\
-								<div ng-form name="' + scope.smoRecordArray.name + '_{{i}}_' + String(col) + 'Form">\
+								<div ng-form name="' + scope.smoRecordArray.name + '_{{i}}_' + String(col) + 'Form">';
+					if (field.showTooltip) {
+						rowTemplate += '\
 									<input style="width:' + field.inputBoxWidth + 'px" name="input" type="text" \
-										ng-model="arrValue[i][' + String(col) + ']" data-toggle="tooltip" data-original-title="{{arrValue[i][' + String(col) + ']}}" tooltip>\
+										ng-model="arrValue[i][' + String(col) + ']" data-toggle="tooltip" data-original-title="{{arrValue[i][' + String(col) + ']}}" tooltip>';
+					} else {
+						rowTemplate += '\
+									<input style="width:' + field.inputBoxWidth + 'px" name="input" type="text" \
+										ng-model="arrValue[i][' + String(col) + ']">';
+					}
+					rowTemplate += '\
 								</div>\
 							</div>';
 //							<div style="margin-left: 5px; color:red;" ng-show="' + scope.smoRecordArray.name + '_{{i}}_' + String(col) + 'Form.input.$error.required">Required value\

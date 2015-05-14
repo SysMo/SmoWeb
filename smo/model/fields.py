@@ -209,11 +209,13 @@ class String(Field):
 	"""
 	Represents a string field
 	"""
-	def __init__(self, default = None, maxLength = None, multiline = None, inputBoxWidth = None, *args, **kwargs):
+	def __init__(self, default = None, maxLength = None, multiline = None, inputBoxWidth = None, showTooltip = False, *args, **kwargs):
 		"""
 		:param str default: default value
 		:param int maxLength: the maximum number of characters in the string
 		:param bool multiline: whether line breaks are allowed in the string
+		:param inputBoxWidth: sets the input box width in pixels
+		:param showTooltip: specifies if tooltip with the string value should be displayed
 		"""
 		super(String, self).__init__(*args, **kwargs)
 		if (default is None):
@@ -234,6 +236,8 @@ class String(Field):
 		if (inputBoxWidth is None):
 			inputBoxWidth = 120
 		self.inputBoxWidth = inputBoxWidth
+		
+		self.showTooltip = showTooltip
 
 	def parseValue(self, value):
 		return value	
@@ -257,6 +261,7 @@ class String(Field):
 		fieldDict['type'] = 'String'
 		fieldDict['inputBoxWidth'] = self.inputBoxWidth
 		fieldDict['multiline'] = self.multiline
+		fieldDict['showTooltip'] = self.showTooltip
 		return fieldDict
 
 class Boolean(Field):

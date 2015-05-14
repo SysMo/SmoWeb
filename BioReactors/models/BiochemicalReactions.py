@@ -24,7 +24,7 @@ class BiochemicalReactions(NumericalModel):
     reactions = F.RecordArray((     
             ('reactionEquation', F.String('E + S <-> ES', label = 'Equation', inputBoxWidth = 160)),           
             ('rateConstnats', F.String('0.0, 0.0', label = 'Rate constants', inputBoxWidth = 100)),
-            ('reactionName', F.String('enzyme binding to a substrate', label = 'Name', inputBoxWidth = 400)),
+            ('reactionName', F.String('enzyme binding to a substrate', label = 'Name', inputBoxWidth = 400, showTooltip = True)),
         ),
         toggle = False, 
         label = 'Reactions',
