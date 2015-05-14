@@ -146,12 +146,6 @@ class ChemostatSimple(Simulation):
 		self.resultStorage.record[:] = (t, self.yRes.S, self.yRes.X, self.D)
 		self.resultStorage.saveTimeStep()
 		
-	def getResults(self):
-		return self.resultStorage.data
-	
-	def loadResult(self, simIndex):
-		self.resultStorage.loadResult(simIndex)
-	
 	def plotHDFResults(self):
 		# Load the results
 		self.resultStorage.openStorage()

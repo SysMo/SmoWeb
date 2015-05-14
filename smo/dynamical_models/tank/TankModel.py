@@ -240,12 +240,6 @@ class TankModel(DMC.Simulation):
 			-self.composite.port2.flow.QDot,
 			self.cooler.mDot)
 		self.resultStorage.saveTimeStep()
-		
-	def loadResult(self, simIndex):
-		self.resultStorage.loadResult(simIndex)
-		
-	def getResults(self):
-		return self.resultStorage.data
 
 	def plotHDFResults(self):
 		# Load the results
