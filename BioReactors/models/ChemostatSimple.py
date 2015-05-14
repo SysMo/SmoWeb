@@ -30,48 +30,46 @@ class ChemostatSimple(NumericalModel):
                          ('D', F.Quantity('Bio_TimeRate', default = (1, '1/day'), minValue = (0, '1/day'), label = 'D')),
                          ), 
                          label = 'D', description = 'dilution (or washout) rate')  
-    parametersFieldGroup = F.FieldGroup([S_in, X_in, m, K, gamma, D_vals], label = "Parameters")
+    parametersFG = F.FieldGroup([S_in, X_in, m, K, gamma, D_vals], label = "Parameters")
     
     S0 = F.Quantity('Bio_MassConcentration', default = (0, 'g/L'), minValue = 0, label = 'S<sub>0</sub>', description = 'initial substrate concentration')
     X0 = F.Quantity('Bio_MassConcentration', default = (0.5, 'g/L'), minValue = 0, label = 'X<sub>0</sub>', description = 'initial microorganisms concentration')
-    initialValuesFieldGroup = F.FieldGroup([S0, X0], label = "Initial values")
+    initialValuesFG = F.FieldGroup([S0, X0], label = "Initial values")
         
-    inputValuesSuperGroup = F.SuperGroup([parametersFieldGroup, initialValuesFieldGroup], label = "Input values")
+    inputValuesSG = F.SuperGroup([parametersFG, initialValuesFG], label = "Input values")
 
     #1.2 Fields - Settings
     tFinal = F.Quantity('Bio_Time', default = (100, 'day'), minValue = (0, 'day'), maxValue=(1000, 'day'), label = 'simulation time')
     tPrint = F.Quantity('Bio_Time', default = (0.1, 'day'), minValue = (1e-5, 'day'), maxValue = (100, 'day'), label = 'print interval')
-    solverFieldGourp = F.FieldGroup([tFinal, tPrint], label = 'Solver')
+    solverFG = F.FieldGroup([tFinal, tPrint], label = 'Solver')
     
-    settingsSuperGroup = F.SuperGroup([solverFieldGourp], label = 'Settings')
+    settingsSG = F.SuperGroup([solverFG], label = 'Settings')
     
     #1.4 Model view
-    inputView = F.ModelView(ioType = "input", superGroups = [inputValuesSuperGroup, settingsSuperGroup], autoFetch = True)
+    inputView = F.ModelView(ioType = "input", superGroups = [inputValuesSG, settingsSG], autoFetch = True)
     
     #2. ############ Results ###############    
+    storage = F.HdfStorage(hdfFile = 'BioReactors_SimulationResults.h5', hdfGroup = '/ChemostatSimple')
+
     dataSeries = (
-                    ('time', F.Quantity('Bio_Time', default=(1, 'day'))),
-                    ('S', F.Quantity('Bio_MassConcentration', default=(1, 'g/L'))),
-                    ('X', F.Quantity('Bio_MassConcentration', default=(1, 'g/L'))),
-                    ('D', F.Quantity('Bio_TimeRate', default=(1, '1/day')))
-                )
-    
-    
-    storage = F.HdfStorage(hdfFile = 'BioReactors_SimulationResults.h5',
-        hdfGroup = '/ChemostatSimple')
+        ('time', F.Quantity('Bio_Time', default=(1, 'day'))),
+        ('S', F.Quantity('Bio_MassConcentration', default=(1, 'g/L'))),
+        ('X', F.Quantity('Bio_MassConcentration', default=(1, 'g/L'))),
+        ('D', F.Quantity('Bio_TimeRate', default=(1, '1/day')))
+    )
     
     plot = F.PlotView(dataSeries,
                     label='Plot', 
                     options = {'ylabel' : None},
                     useHdfStorage = True,
                     storage = 'storage')
+    
     table = F.TableView(dataSeries,
                       label='Table', 
                       options = {'title': 'Simple Chemostat', 'formats': ['0.000', '0.000', '0.000', '0.000']},
                       useHdfStorage = True,
                       storage = 'storage')
 
-    
     resultsVG = F.ViewGroup([plot, table], label = 'Results')
     storageVG = F.ViewGroup([storage], show="false")
     resultsSG = F.SuperGroup([resultsVG, storageVG])
@@ -84,11 +82,14 @@ class ChemostatSimple(NumericalModel):
     
     
     def computeAsync(self):
+        # Create the model
         chemostat = DM.ChemostatSimple(self)
         
+        # Run simulation
         chemostat.prepareSimulation()
         chemostat.run(self)
         
+        # Show results
         self.storage = chemostat.resultStorage.simulationName
         
 

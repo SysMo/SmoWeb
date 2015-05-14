@@ -81,26 +81,24 @@ class ChemostatDDE(NumericalModel):
     inputView = F.ModelView(ioType = "input", superGroups = [inputValuesSG, settingsSG], autoFetch = True)
     
     #2. ############ Results ###############
-    plot = F.PlotView((
-                        ('time', F.Quantity('Bio_Time', default=(1, 'day'))),
-                        ('s1', F.Quantity('Bio_MassConcentration', default=(1, 'g/L'))),
-                        ('x1', F.Quantity('Bio_MassConcentration', default=(1, 'g/L'))),
-                        ('s2', F.Quantity('Bio_MassConcentration', default=(1, 'g/L'))),
-                        ('x2', F.Quantity('Bio_MassConcentration', default=(1, 'g/L'))),
-                    ),
-                    label='Plot', 
-                    options = {'ylabel' : None, 'title': 'Chemostat (DDE)'},
-                    )
-    table = F.TableView((
-                            ('time', F.Quantity('Bio_Time', default=(1, 'day'))),
-                            ('s1', F.Quantity('Bio_MassConcentration', default=(1, 'g/L'))),
-                            ('x1', F.Quantity('Bio_MassConcentration', default=(1, 'g/L'))),
-                            ('s2', F.Quantity('Bio_MassConcentration', default=(1, 'g/L'))),
-                            ('x2', F.Quantity('Bio_MassConcentration', default=(1, 'g/L'))),
-                        ),
-                      label='Table', 
-                      options = {'title': 'Title', 'formats': ['0.0000', '0.0000', '0.0000', '0.0000', '0.0000']}
-                     )
+    dataSeries = (
+        ('time', F.Quantity('Bio_Time', default=(1, 'day'))),
+        ('s1', F.Quantity('Bio_MassConcentration', default=(1, 'g/L'))),
+        ('x1', F.Quantity('Bio_MassConcentration', default=(1, 'g/L'))),
+        ('s2', F.Quantity('Bio_MassConcentration', default=(1, 'g/L'))),
+        ('x2', F.Quantity('Bio_MassConcentration', default=(1, 'g/L'))),
+    )
+    
+    plot = F.PlotView(
+        dataSeries,
+        label='Plot', 
+        options = {'ylabel' : None, 'title': 'Chemostat (DDE)'},
+    )
+    table = F.TableView(
+        dataSeries,
+        label='Table', 
+        options = {'title': 'Title', 'formats': ['0.0000', '0.0000', '0.0000', '0.0000', '0.0000']}
+    )
 
     resultsVG = F.ViewGroup([plot, table], label = 'Results')
     resultsSG = F.SuperGroup([resultsVG])

@@ -22,8 +22,8 @@ class BiochemicalReactions(NumericalModel):
     #1. ############ Inputs ###############
     #1.1 Fields - Input values
     reactions = F.RecordArray((     
-            ('reactionEquation', F.String('E + S -> ES', label = 'Equation', inputBoxWidth = 160)),           
-            ('rateConstnats', F.String('1.0, 2.0', label = 'Rate constants', inputBoxWidth = 100)),
+            ('reactionEquation', F.String('E + S <-> ES', label = 'Equation', inputBoxWidth = 160)),           
+            ('rateConstnats', F.String('0.0, 0.0', label = 'Rate constants', inputBoxWidth = 100)),
             ('reactionName', F.String('enzyme binding to a substrate', label = 'Name', inputBoxWidth = 400)),
         ),
         toggle = False, 
@@ -58,8 +58,8 @@ class BiochemicalReactions(NumericalModel):
     
     #1.4 Model view
     exampleAction = A.ServerAction("loadEg", label = "Examples", options = (
-            ('exampleMMK', 'Michaelis-Menten kinetics'),
-            #('exampleMMKI', 'Michaelis-Menten kinetics with inhibition'),
+        ('exampleMMK', 'Michaelis-Menten kinetics'),
+        #('exampleMMKI', 'Michaelis-Menten kinetics with inhibition'),
     ))
     
     inputView = F.ModelView(
@@ -70,13 +70,12 @@ class BiochemicalReactions(NumericalModel):
     )
     
     #2. ############ Results ###############
-    storage = F.HdfStorage(hdfFile = 'BioReactors_SimulationResults.h5',
-        hdfGroup = '/BiochemicalReactions')
+    storage = F.HdfStorage(hdfFile = 'BioReactors_SimulationResults.h5', hdfGroup = '/BiochemicalReactions')
     
     dataSeries = (
-                    ('time', F.Quantity('Time', default=(1, 's'))),
-                    ('E', F.Quantity('Bio_MolarConcentration', default=(1, 'M'))),
-                )
+        ('time', F.Quantity('Time', default=(1, 's'))),
+        ('E', F.Quantity('Bio_MolarConcentration', default=(1, 'M'))),
+    )
     
     plot = F.PlotView(
         dataSeries,
@@ -143,7 +142,6 @@ class BiochemicalReactions(NumericalModel):
         self.reactions.resize(1)
         self.reactions[0] = ('E + S = ES', '2.0, 1.0', 'an enzyme binding to a substrate form a complex (reversible process)')
         
-        
         self.tFinal = 10.0
         self.tPrint = 0.01
          
@@ -154,7 +152,7 @@ class BiochemicalReactions(NumericalModel):
         # Create the model
         model = DM.BiochemicalReactions(self)
          
-        # Run simulations 
+        # Tun simulation
         model.prepareSimulation()
         model.run(self)
          
@@ -176,21 +174,21 @@ class BiochemicalReactions(NumericalModel):
             datasetColumns.append('%s'%X)
             
         # Redefine Fields
-        redefinedStorage = F.HdfStorage(hdfFile = 'BioReactors_SimulationResults.h5',
-                                        hdfGroup = '/BiochemicalReactions', datasetColumns=datasetColumns)
+        redefinedStorage = F.HdfStorage(
+            hdfFile = 'BioReactors_SimulationResults.h5',
+            hdfGroup = '/BiochemicalReactions', datasetColumns=datasetColumns)
         self.redefineField('storage', 'storageVG', redefinedStorage)
         
         redefinedPlot = F.PlotView(speciesTuples, 
-            label = 'Plot', options = {'ylabel' : 'concentration', 'title' : ''}, useHdfStorage = True,
-            storage = 'storage')
+            label = 'Plot', options = {'ylabel' : 'concentration', 'title' : ''}, 
+            useHdfStorage = True, storage = 'storage')
         self.redefineField('plot', 'resultsVG', redefinedPlot)
         
         redefinedTable = F.TableView(speciesTuples,
-            label = 'Table', options = {'formats': ['0.000', '0.000', '0.000', '0.000']}, useHdfStorage = True,
-            storage = 'storage')
+            label = 'Table', options = {'formats': ['0.000', '0.000', '0.000', '0.000']}, 
+            useHdfStorage = True, storage = 'storage')
         self.redefineField('table', 'resultsVG', redefinedTable)
 
 class BiochemicalReactionsDoc(RestModule):
     label = 'Biochemical reactions (Doc)'
-    
     
