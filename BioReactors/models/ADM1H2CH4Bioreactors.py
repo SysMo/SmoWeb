@@ -397,6 +397,9 @@ class ADM1H2CH4Bioreactors(NumericalModel):
     description = F.ModelDescription("A model of two separate contiguous bioreactors for producing of hydrogen and methane, respectively.", show = True)
     figure = F.ModelFigure(src="BioReactors/img/ModuleImages/SimpleChemostat.png", show = False) #:TODO: (MILEN)
     
+    async = True
+    progressOptions = {'suffix': 'day', 'fractionOutput': True}
+    
     #1. ############ Inputs ###############
     #1.1 Fields - Input values
     parametersRH2 = F.SubModelGroup(H2Bioreactor, 'parametersSG', label = 'Parameters (R-H2)')
@@ -427,6 +430,8 @@ class ADM1H2CH4Bioreactors(NumericalModel):
     )
     
     #2. ############ Results (R-H2) ###############
+    storageRH2 = F.HdfStorage(hdfFile = 'BioReactors_SimulationResults.h5', hdfGroup = '/ADM1H2Bioreactor')
+    
     varTuplesRH2 = (
         ('time', F.Quantity('Bio_Time', default=(1, 'day'))),
         ('S_su', F.Quantity('Bio_CODConcentration', default=(1, 'kgCOD/m**3'))),
@@ -450,18 +455,25 @@ class ADM1H2CH4Bioreactors(NumericalModel):
         varTuplesRH2,
         label='Plot', 
         options = {'ylabel' : None}, 
-        visibleColumns = [0, 4, 6, 13]
+        visibleColumns = [0, 4, 6, 13],
+        useHdfStorage = True,
+        storage = 'storageRH2',
     )
     tableRH2 = F.TableView(
         varTuplesRH2,
         label='Table', 
-        options = {'title': 'H2 Bioreactor', 'formats': ['0.000', '0.000', '0.000', '0.000']}
+        options = {'title': 'H2 Bioreactor', 'formats': ['0.000', '0.000', '0.000', '0.000']},
+        useHdfStorage = True,
+        storage = 'storageRH2',
     )
     
+    storageRH2VG = F.ViewGroup([storageRH2], show="false")
     resultsRH2VG = F.ViewGroup([plotRH2, tableRH2])
-    resultsRH2SG = F.SuperGroup([resultsRH2VG], label = 'Results (R-H2)')
+    resultsRH2SG = F.SuperGroup([resultsRH2VG, storageRH2VG], label = 'Results (R-H2)')
     
     #2. ############ Results (R-CH4) ###############
+    storageRCH4 = F.HdfStorage(hdfFile = 'BioReactors_SimulationResults.h5', hdfGroup = '/ADM1CH4Bioreactor')
+    
     varTuplesRCH4 = (
         ('time', F.Quantity('Bio_Time', default=(1, 'day'))),
         ('S_ac', F.Quantity('Bio_CODConcentration', default=(1, 'kgCOD/m**3'))),
@@ -476,16 +488,21 @@ class ADM1H2CH4Bioreactors(NumericalModel):
         varTuplesRCH4,
         label='Plot', 
         options = {'ylabel' : None},
-        visibleColumns = [0, 1, 2, 4]
+        visibleColumns = [0, 1, 2, 4],
+        useHdfStorage = True,
+        storage = 'storageRCH4',
     )
     tableRCH4 = F.TableView(
         varTuplesRCH4,
         label='Table', 
-        options = {'title': 'CH4 Bioreactor', 'formats': ['0.000', '0.000', '0.000', '0.000']}
+        options = {'title': 'CH4 Bioreactor', 'formats': ['0.000', '0.000', '0.000', '0.000']},
+        useHdfStorage = True,
+        storage = 'storageRCH4',
     )
     
+    storageRCH4VG = F.ViewGroup([storageRCH4], show="false")
     resultsRCH4VG = F.ViewGroup([plotRCH4, tableRCH4])
-    resultsRCH4SG = F.SuperGroup([resultsRCH4VG], label = 'Results (R-CH4)')
+    resultsRCH4SG = F.SuperGroup([resultsRCH4VG, storageRCH4VG], label = 'Results (R-CH4)')
     
     #2.1 Model view
     resultView = F.ModelView(ioType = "output", superGroups = [resultsRH2SG, resultsRCH4SG])
@@ -622,31 +639,28 @@ class ADM1H2CH4Bioreactors(NumericalModel):
         # Solver settings
         self.solverSettingsRCH4.tFinal = (50.0, 'day')
         self.solverSettingsRCH4.tPrint = (0.025, 'day')
-        
                     
-    def compute(self):
-        # Simulate H2 Bioreactor
-        bioreactorRH2 = DM.ADM1H2Bioreactor(self.parametersRH2, self.concentrationsRH2)
+    def computeAsync(self):
+        # Simulate R-H2 Bioreactor
+        bioreactorRH2 = DM.ADM1H2Bioreactor(self, self.parametersRH2, self.concentrationsRH2)
         
         bioreactorRH2.prepareSimulation()
         bioreactorRH2.run(self.solverSettingsRH2)
         
-        resRH2 = bioreactorRH2.getResults()
-        resultsRH2 = np.array(resRH2)
-        self.plotRH2 = resultsRH2
-        self.tableRH2 = resultsRH2
+        # Show results R-H2 Bioreactor
+        self.storageRH2 = bioreactorRH2.resultStorage.simulationName
+        
         
         # Connnect the two bioreactors
         if self.concentrationsRCH4.S_ac_from_RH2:
-            self.concentrationsRCH4.S_ac_0 = resultsRH2['S_ac'][-1]
-    
-        # Simulate CH4 Bioreactor
-        bioreactorRCH4 = DM1.ADM1CH4Bioreactor(self.parametersRCH4, self.concentrationsRCH4)
-        
+            self.concentrationsRCH4.S_ac_0 = 1.0 #:TODO: (Milen) resultsRH2['S_ac'][-1]
+     
+     
+        # Simulate R-CH4 Bioreactor
+        bioreactorRCH4 = DM1.ADM1CH4Bioreactor(self, self.parametersRCH4, self.concentrationsRCH4)
+         
         bioreactorRCH4.prepareSimulation()
         bioreactorRCH4.run(self.solverSettingsRCH4)
-        
-        resRCH4 = bioreactorRCH4.getResults()
-        resultsRCH4 = np.array(resRCH4)
-        self.plotRCH4 = resultsRCH4
-        self.tableRCH4 = resultsRCH4
+         
+        # Show results R-CH4 Bioreactor
+        self.storageRCH4 = bioreactorRCH4.resultStorage.simulationName

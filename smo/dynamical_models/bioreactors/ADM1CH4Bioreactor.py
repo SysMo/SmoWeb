@@ -38,8 +38,11 @@ class ADM1CH4Bioreactor(Simulation):
 	"""
 	name = 'Model of a bioreactor that produces hydrogen.'
 	
-	def __init__(self, params, concentrs, **kwargs):
+	def __init__(self, webModel, params, concentrs, **kwargs):
 		super(ADM1CH4Bioreactor, self).__init__(**kwargs)
+		
+		# Initialize update progress function
+		self.updateProgress = webModel.updateProgress
 					
 		# Initialize parameters		
 		self.params = params
@@ -165,6 +168,7 @@ class ADM1CH4Bioreactor(Simulation):
 	
 	def handle_result(self, solver, t, y):
 		super(ADM1CH4Bioreactor, self).handle_result(solver, t, y)
+		self.updateProgress(t, self.tFinal)
 			
 		self.yRes.set(y)
 		self.resultStorage.record[:] = (t, 
@@ -174,15 +178,13 @@ class ADM1CH4Bioreactor(Simulation):
 			self.D,
 		)
 		self.resultStorage.saveTimeStep()
-		
-	def getResults(self):
-		return self.resultStorage.data
-	
-	def loadResult(self, simIndex):
-		self.resultStorage.loadResult(simIndex)
 	
 	def plotHDFResults(self):		
-		data = self.resultStorage.data
+		# Load the results
+		self.resultStorage.openStorage()
+		data = self.resultStorage.loadResult()
+		
+		# Set the results
 		xData = data['t']
 		plt.plot(xData, data['S_ac'], 'r', label = 'S_ac')
 		plt.plot(xData, data['S_ch4'], 'b', label = 'S_ch4')
@@ -190,6 +192,10 @@ class ADM1CH4Bioreactor(Simulation):
 		plt.plot(xData, data['S_gas_ch4'], 'g--', label = 'S_gas_ch4')
 		plt.plot(xData, data['D'], 'm', label = 'D')
 		
+		# Close the result storage
+		self.resultStorage.closeStorage()
+		
+		# Plot the results
 		plt.gca().set_xlim([0, xData[-1]])
 		plt.legend()
 		plt.show()
@@ -249,9 +255,12 @@ def TestADM1CH4Bioreactor():
 		S_gas_ch4_0 = 1e-5 #kgCOD/m**3
 	modelConcentrs = ModelConcentrs()
 
-	
+	webModel = AttributeDict({
+		'updateProgress' : lambda x, y : x, #:TRICKY: not used,
+	})
+		
 	# Create the model
-	bioreactor = ADM1CH4Bioreactor(params = modelParams, concentrs = modelConcentrs, initDataStorage = simulate)
+	bioreactor = ADM1CH4Bioreactor(webModel = webModel, params = modelParams, concentrs = modelConcentrs, initDataStorage = simulate)
 	
 	# Run simulation or load old results
 	if (simulate == True):
