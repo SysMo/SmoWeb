@@ -49,13 +49,6 @@ class ADM1CH4Bioreactor(Simulation):
 		self.K_H_ch4 = 0.0014 * np.exp(
 			-14240./(Const.R*100.) * (1/params.T_base - 1/params.T_op))
 		
-		self.D_gas = params.q_gas/params.V_gas
-		#:TRICKY: compute D values using D = q/V
-		self.D_liq_vals = np.copy(params.q_liq_vals)
-		for D_liq in self.D_liq_vals:
-			q_liq = D_liq[1]
-			D_liq[1] = q_liq / params.V_liq
-			
 		# Initialize concentrations
 		self.concentrs = concentrs
 		
@@ -79,11 +72,11 @@ class ADM1CH4Bioreactor(Simulation):
 				chunkSize = 1e4)
 		
 		# Register time event (changed of D)
-		D_liq = self.D_liq_vals[0]
+		D_liq = params.D_liq_vals[0]
 		self.D = D_liq[1]
 		tChangedD = D_liq[0]
 		
-		for i in range(len(self.D_liq_vals)-1):
+		for i in range(len(params.D_liq_vals)-1):
 			D_liq = self.D_liq_vals[i+1]
 			self.timeEventRegistry.add(ADM1TimeEvent(t = tChangedD, newValue_D = D_liq[1]))
 			tChangedD += D_liq[0]
@@ -127,8 +120,9 @@ class ADM1CH4Bioreactor(Simulation):
 			S_ch4_dot = self.D*(concentrs.S_ch4_in - S_ch4) + \
 				(1-params.Y_ac)*r11 - r_T_9 #9.2
 			X_ac_dot = self.D*(concentrs.X_ac_in - X_ac) + params.Y_ac * r11 #22.2
-			S_gas_ch4_dot = self.D_gas*(0. - S_gas_ch4) + r_T_9 * params.V_liq / params.V_gas #1.2
-			m_gas_ch4_dot = params.q_gas * S_gas_ch4
+			
+			S_gas_ch4_dot = params.D_gas*(0. - S_gas_ch4) + r_T_9 * params.V_liq_del_V_gas #1.2
+			m_gas_ch4_dot = params.D_gas * S_gas_ch4
 			
 		except Exception, e:
 			self.resultStorage.finalizeResult()
@@ -190,6 +184,7 @@ class ADM1CH4Bioreactor(Simulation):
 		plt.plot(xData, data['S_ch4'], 'b', label = 'S_ch4')
 		plt.plot(xData, data['X_ac'], 'g', label = 'X_ac')
 		plt.plot(xData, data['S_gas_ch4'], 'g--', label = 'S_gas_ch4')
+		plt.plot(xData, data['m_gas_ch4'], 'm--', label = 'm_gas_ch4 [kg/m**3]')
 		plt.plot(xData, data['D'], 'm', label = 'D')
 		
 		# Close the result storage
@@ -225,7 +220,7 @@ def TestADM1CH4Bioreactor():
 		
 		#Biochemical parameter values
 		k_m_ac = 8.0 #1/day
-		K_S_ac = 0.15 #kgCOD/m**3
+		K_S_ac = 0.15 #g/L
 		
 		# Physiochemical parameter values
 		T_base = 298.15 #K
@@ -234,25 +229,24 @@ def TestADM1CH4Bioreactor():
 		kLa_ch4 = 200 #1/day
 		
 		# Physical parameters
-		V_liq = 3.4 #L
-		V_gas = 0.3 #L
+		V_liq_del_V_gas = 3.0 #L/L 
 		
 		# Controller - D = q/V
-		q_liq_vals = np.array([[100, 0.17], ]) #[day, L/day] (liquid)
-		q_gas = 3.0 #L/day
+		D_liq_vals = np.array([[100, 5], ]) #[day, 1/day] (liquid)
+		D_gas = 3.0 #L/day
 	modelParams = ModelParams()		
 		
 	class ModelConcentrs:
 		# Input concentrations 
-		S_ac_in = 0.2 #kgCOD/m**3
-		S_ch4_in = 1e-5 #kgCOD/m**3
-		X_ac_in = 0 * 0.01 #kgCOD/m**3
+		S_ac_in = 0.2 #gCOD/L
+		S_ch4_in = 1e-5 #gCOD/L
+		X_ac_in = 0 * 0.01 #g/L
 		
 		# Initial values of state variables 
-		S_ac_0 = 0.2 #kgCOD/m**3
-		S_ch4_0 = 0.055 #kgCOD/m**3
-		X_ac_0 = 0.76 #kgCOD/m**3
-		S_gas_ch4_0 = 1e-5 #kgCOD/m**3
+		S_ac_0 = 0.2 #gCOD/L
+		S_ch4_0 = 0.055 #gCOD/L
+		X_ac_0 = 0.76 #g/L
+		S_gas_ch4_0 = 1e-5 #gCOD/L
 	modelConcentrs = ModelConcentrs()
 
 	webModel = AttributeDict({

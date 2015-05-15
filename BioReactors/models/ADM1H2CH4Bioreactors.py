@@ -68,35 +68,33 @@ class CH4Bioreactor(NumericalModel):
     )
 
     # Physical parameters
-    V_liq = F.Quantity('Volume', default = (0.0, 'L'),
-        label = 'V<sub>liq</sub>', description = 'volume of the liquid part of the reactor')
-    V_gas = F.Quantity('Volume', default = (0.0, 'L'),
-        label = 'V<sub>gas</sub>', description = 'volume of the gas headspace of the reactor')
-
+    V_liq_del_V_gas = F.Quantity(default = 0.0,
+        label = 'V<sub>liq</sub>/V<sub>gas</sub>', description = 'fraction between the volume of the liquid part and the volume of the gas headspace of the reactor')
+    
     physicalParametersFG = F.FieldGroup([
-            V_liq, V_gas,
+            V_liq_del_V_gas,
         ],
         label = 'Physical parameters (R-CH4)'
     )
     
     # Volumetri flow rates
-    q_liq_vals = F.RecordArray(
+    D_liq_vals = F.RecordArray(
         (
             ('time', F.Quantity('Bio_Time', default = (10.0, 'day'), minValue = (0, 'day'), label = 'Duration')),
-            ('q', F.Quantity('Bio_VolumetricFlowRate', default = (0.17, 'L/day'), minValue = (0, 'L/day'), label = 'Flow rate')),
+            ('D', F.Quantity('Bio_TimeRate', default = (1.0, '1/day'), minValue = (0, '1/day'), label = 'dilution rate')),
         ), 
-        label = 'q<sub> liq</sub>', 
-        description = 'liquid flow rate (dilution/wash-out)',
+        label = 'D<sub> liq</sub>', 
+        description = 'liquid dilution (or washout) rate',
         toggle = True,
     ) 
     
-    q_gas = F.Quantity('Bio_VolumetricFlowRate', default = (0.0, 'L/day'), minValue = (0, 'L/day'), 
-        label = 'q<sub> gas</sub>', description = 'gas flow rate (wash-out)')
+    D_gas = F.Quantity('Bio_TimeRate', default = (0.0, '1/day'), minValue = (0, '1/day'), 
+        label = 'D<sub> gas</sub>', description = 'gas dilution (or washout) rate')
 
-    volumetricFlowRatesFG = F.FieldGroup([
-            q_liq_vals, q_gas
+    dilutionRatesFG = F.FieldGroup([
+            D_liq_vals, D_gas
         ],
-        label = 'Volumetric flow rates (R-CH4)' #'Controller
+        label = 'Dilution rates (R-CH4)'
     )
     
     # Input concentrations of components
@@ -146,7 +144,7 @@ class CH4Bioreactor(NumericalModel):
     parametersSG = F.SuperGroup([
             stoichiometricParametersFG, biochemicalParametersFG,
             temperatureParametersFG, physiochemicalParametersFG, 
-            physicalParametersFG, volumetricFlowRatesFG,
+            physicalParametersFG, dilutionRatesFG,
         ], 
         label = "Parameters (R-CH4)"
     )
@@ -251,35 +249,34 @@ class H2Bioreactor(NumericalModel):
     )
 
     # Physical parameters
-    V_liq = F.Quantity('Volume', default = (0.0, 'L'),
-        label = 'V<sub>liq</sub>', description = 'volume of the liquid part of the reactor')
-    V_gas = F.Quantity('Volume', default = (0.0, 'L'),
-        label = 'V<sub>gas</sub>', description = 'volume of the gas headspace of the reactor')
+    V_liq_del_V_gas = F.Quantity(default = 0.0,
+        label = 'V<sub>liq</sub>/V<sub>gas</sub>', 
+        description = 'fraction between the volume of the liquid part and the volume of the gas headspace of the reactor')
 
     physicalParametersFG = F.FieldGroup([
-            V_liq, V_gas,
+            V_liq_del_V_gas,
         ],
         label = 'Physical parameters (R-H2)'
     )
     
-    # Volumetri flow rates
-    q_liq_vals = F.RecordArray(
+    # Dilution rates
+    D_liq_vals = F.RecordArray(
         (
             ('time', F.Quantity('Bio_Time', default = (10.0, 'day'), minValue = (0, 'day'), label = 'Duration')),
-            ('q', F.Quantity('Bio_VolumetricFlowRate', default = (0.17, 'L/day'), minValue = (0, 'L/day'), label = 'Flow rate')),
+            ('D', F.Quantity('Bio_TimeRate', default = (1.0, '1/day'), minValue = (0, '1/day'), label = 'dilution rate')),
         ), 
-        label = 'q<sub> liq</sub>', 
-        description = 'liquid flow rate (dilution/wash-out)',
+        label = 'D<sub> liq</sub>', 
+        description = 'liquid dilution (or washout) rate',
         toggle = True,
     ) 
     
-    q_gas = F.Quantity('Bio_VolumetricFlowRate', default = (0.0, 'L/day'), minValue = (0, 'L/day'), 
-        label = 'q<sub> gas</sub>', description = 'gas flow rate (wash-out)')
+    D_gas = F.Quantity('Bio_TimeRate', default = (0.0, '1/day'), minValue = (0, '1/day'), 
+        label = 'D<sub> gas</sub>', description = 'gas dilution (or washout) rate')
 
-    volumetricFlowRatesFG = F.FieldGroup([
-            q_liq_vals, q_gas
+    dilutionRatesFG = F.FieldGroup([
+            D_liq_vals, D_gas
         ],
-        label = 'Volumetric flow rates (R-H2)' #'Controller
+        label = 'Dilution rates (R-H2)'
     )
     
     # Input concentrations of components
@@ -378,7 +375,7 @@ class H2Bioreactor(NumericalModel):
     parametersSG = F.SuperGroup([
             stoichiometricParametersFG, biochemicalParametersFG,
             temperatureParametersFG, physiochemicalParametersFG, 
-            physicalParametersFG, volumetricFlowRatesFG,
+            physicalParametersFG, dilutionRatesFG,
         ], 
         label = "Parameters (R-H2)"
     )
@@ -446,7 +443,7 @@ class ADM1H2CH4Bioreactors(NumericalModel):
         ('X_aa', F.Quantity('Bio_MassConcentration', default=(1, 'g/L'))),
         ('X_fa', F.Quantity('Bio_MassConcentration', default=(1, 'g/L'))),
         ('S_gas_h2', F.Quantity('Bio_CODConcentration', default=(1, 'gCOD/L'))),
-        ('m_gas_h2', F.Quantity('Bio_Mass', default=(1, 'kgCOD'))),
+        ('m_gas_h2', F.Quantity('Bio_CODConcentration', default=(1, 'gCOD/L'))),
         ('D', F.Quantity('Bio_TimeRate', default=(1, '1/day'))),
     )
     
@@ -479,7 +476,7 @@ class ADM1H2CH4Bioreactors(NumericalModel):
         ('S_ch4', F.Quantity('Bio_CODConcentration', default=(1, 'gCOD/L'))),
         ('X_ac', F.Quantity('Bio_MassConcentration', default=(1, 'g/L'))),
         ('S_gas_ch4', F.Quantity('Bio_CODConcentration', default=(1, 'gCOD/L'))),
-        ('m_gas_ch4', F.Quantity('Bio_Mass', default=(1, 'kgCOD'))),
+        ('m_gas_ch4', F.Quantity('Bio_CODConcentration', default=(1, 'gCOD/L'))),
         ('D', F.Quantity('Bio_TimeRate', default=(1, '1/day'))),
     )
     
@@ -556,12 +553,11 @@ class ADM1H2CH4Bioreactors(NumericalModel):
         self.parametersRH2.kLa_h2 = (200, '1/day')
         
         # Physical parameter valures
-        self.parametersRH2.V_liq = (3.0, 'L')
-        self.parametersRH2.V_gas = (1.0, 'L')
+        self.parametersRH2.V_liq_del_V_gas = 3.0 #L/L
         
         # Volumetric flow rate values
-        self.parametersRH2.q_liq_vals[0] = (10, 0) #(day, m**3/day)
-        self.parametersRH2.q_gas = (0.125, 'L/day')
+        self.parametersRH2.D_liq_vals[0] = (10, 0.0) #(day, 1/day)
+        self.parametersRH2.D_gas = (1.0, '1/day')
         
         # Input concentrations 
         self.concentrationsRH2.S_su_in = (0, 'gCOD/L')
@@ -614,13 +610,9 @@ class ADM1H2CH4Bioreactors(NumericalModel):
         self.parametersRCH4.kLa_ch4 = (200, '1/day')
         
         # Physical parameter valures
-        self.parametersRCH4.V_liq = (150.0, 'L')
-        self.parametersRCH4.V_gas = ( 50.0, 'L')
-        
-        # Volumetric flow rate values
-        self.parametersRCH4.q_liq_vals[0] = (10, 0.5) #(day, m**3/day)
-        self.parametersRCH4.q_gas = (0.125, 'L/day')
-        
+        self.parametersRCH4.D_liq_vals[0] = (10, 1.0) #(day, 1/day)
+        self.parametersRCH4.D_gas = (1.0, '1/day')
+
         # Input concentrations 
         self.concentrationsRCH4.S_ac_in = (0.44, 'gCOD/L')
         self.concentrationsRCH4.S_ch4_in = (0, 'gCOD/L')
@@ -649,7 +641,7 @@ class ADM1H2CH4Bioreactors(NumericalModel):
         
         # Connnect the two bioreactors
         if self.concentrationsRCH4.S_ac_from_RH2:
-            self.concentrationsRCH4.S_ac_0 = 1.0 #:TODO: (Milen) resultsRH2['S_ac'][-1]
+            self.concentrationsRCH4.S_ac_0 = 10.0 #:TODO: (Milen) resultsRH2['S_ac'][-1]
      
      
         # Simulate R-CH4 Bioreactor

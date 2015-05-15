@@ -48,14 +48,7 @@ class ADM1H2Bioreactor(Simulation):
 		self.params = params
 		self.K_H_h2 = 7.8e-4 * np.exp(
 			-4180./(Const.R*100.) * (1/params.T_base - 1/params.T_op))
-		
-		self.D_gas = params.q_gas/params.V_gas
-		#:TRICKY: compute D values using D = q/V
-		self.D_liq_vals = np.copy(params.q_liq_vals)
-		for D_liq in self.D_liq_vals:
-			q_liq = D_liq[1]
-			D_liq[1] = q_liq / params.V_liq
-			
+				
 		# Initialize concentrations
 		self.concentrs = concentrs
 		
@@ -79,11 +72,11 @@ class ADM1H2Bioreactor(Simulation):
 				chunkSize = 1e4)
 		
 		# Register time event (changed of D)
-		D_liq = self.D_liq_vals[0]
+		D_liq = params.D_liq_vals[0]
 		self.D = D_liq[1]
 		tChangedD = D_liq[0]
 		
-		for i in range(len(self.D_liq_vals)-1):
+		for i in range(len(params.D_liq_vals)-1):
 			D_liq = self.D_liq_vals[i+1]
 			self.timeEventRegistry.add(ADM1TimeEvent(t = tChangedD, newValue_D = D_liq[1]))
 			tChangedD += D_liq[0]
@@ -165,8 +158,8 @@ class ADM1H2Bioreactor(Simulation):
 			X_aa_dot = self.D*(concentrs.X_aa_in - X_aa) + params.Y_aa*r6 #18.1
 			X_fa_dot = self.D*(concentrs.X_aa_in - X_fa) + params.Y_fa*r7 #19.1
 			
-			S_gas_h2_dot = self.D_gas*(0. - S_gas_h2) + r_T_8 * params.V_liq / params.V_gas #1.1
-			m_gas_h2_dot = params.q_gas * S_gas_h2
+			S_gas_h2_dot = params.D_gas*(0. - S_gas_h2) + r_T_8 * params.V_liq_del_V_gas #1.1
+			m_gas_h2_dot = params.D_gas * S_gas_h2
 			
 		except Exception, e:
 			self.resultStorage.finalizeResult()
@@ -237,6 +230,7 @@ class ADM1H2Bioreactor(Simulation):
 		plt.plot(xData, data['S_aa'], 'b', label = 'S_aa')
 		plt.plot(xData, data['S_h2'], 'g', label = 'S_h2')
 		plt.plot(xData, data['S_gas_h2'], 'g--', label = 'S_gas_h2')
+		plt.plot(xData, data['m_gas_h2'], 'm--', label = 'm_gas_h2 [kg/m**3]')
 		plt.plot(xData, data['D'], 'm', label = 'D')
 		
 		# Close the result storage
@@ -294,13 +288,13 @@ def TestADM1H2Bioreactor():
 		k_hyd_li = 10.0 #1/day
 		
 		k_m_su = 30.0 #1/day
-		K_S_su = 0.5 #kgCOD/m**3
+		K_S_su = 0.5 #g/L
 		
 		k_m_aa = 50.0 #1/day
-		K_S_aa = 0.3 #kgCOD/m**3 
+		K_S_aa = 0.3 #g/L 
 		
 		k_m_fa = 6.0 #1/day
-		K_S_fa = 0.4 #kgCOD/m**3
+		K_S_fa = 0.4 #g/L
 		
 		# Physiochemical parameter values
 		T_base = 298.15 #K
@@ -309,43 +303,42 @@ def TestADM1H2Bioreactor():
 		kLa_h2 = 200 #1/day
 		
 		# Physical parameters
-		V_liq = 3.4 #L
-		V_gas = 0.3 #L
+		V_liq_del_V_gas = 3.0 #L/L 
 		
 		# Controller - D = q/V
-		q_liq_vals = np.array([[100, 0.17], ]) #[day, L/day] (liquid)
-		q_gas = 3.0 #L/day
+		D_liq_vals = np.array([[100, 1], ]) #[day, 1/day] (liquid)
+		D_gas = 3.0 #1/day
 	modelParams = ModelParams()		
 		
 	class ModelConcentrs:
 		# Input concentrations 
-		S_su_in = 0 * 0.01 #kgCOD/m**3
-		S_aa_in = 0 * 0.001 #kgCOD/m**3
-		S_fa_in = 0 * 0.001 #kgCOD/m**3
-		S_ac_in = 0 * 0.001 #kgCOD/m**3
-		S_h2_in = 0 * 1e-8 #kgCOD/m**3
-		X_c_in = 2.0 #kgCOD/m**3
-		X_ch_in = 5.0 #kgCOD/m**3
-		X_pr_in = 20.0 #kgCOD/m**3
-		X_li_in = 5.0 #kgCOD/m**3
-		X_su_in = 0 * 0.01 #kgCOD/m**3
-		X_aa_in = 0 * 0.01 #kgCOD/m**3
-		X_fa_in = 0 * 0.01 #kgCOD/m**3
+		S_su_in = 0 * 0.01 #gCOD/L
+		S_aa_in = 0 * 0.001 #gCOD/L
+		S_fa_in = 0 * 0.001 #gCOD/L
+		S_ac_in = 0 * 0.001 #gCOD/L
+		S_h2_in = 0 * 1e-8 #gCOD/L
+		X_c_in = 2.0 #gCOD/L
+		X_ch_in = 5.0 #gCOD/L
+		X_pr_in = 20.0 #gCOD/L
+		X_li_in = 5.0 #gCOD/L
+		X_su_in = 0 * 0.01 #g/L
+		X_aa_in = 0 * 0.01 #g/L
+		X_fa_in = 0 * 0.01 #g/L
 		
 		# Initial values of state variables 
-		S_su_0 = 0.01 #kgCOD/m**3
-		S_aa_0 = 0.001 #kgCOD/m**3
-		S_fa_0 = 0.001 #kgCOD/m**3
-		S_ac_0 = 0.001 #kgCOD/m**3
-		S_h2_0 = 1e-8 #kgCOD/m**3
-		X_c_0 = 2.0 #kgCOD/m**3
-		X_ch_0 = 5.0 #kgCOD/m**3
-		X_pr_0 = 20.0 #kgCOD/m**3
-		X_li_0 = 5.0 #kgCOD/m**3
-		X_su_0 = 0.01 #kgCOD/m**3
-		X_aa_0 = 0.01 #kgCOD/m**3
-		X_fa_0 = 0.01 #kgCOD/m**3
-		S_gas_h2_0 = 1e-5 #kgCOD/m**3
+		S_su_0 = 0.01 #gCOD/L
+		S_aa_0 = 0.001 #gCOD/L
+		S_fa_0 = 0.001 #gCOD/L
+		S_ac_0 = 0.001 #gCOD/L
+		S_h2_0 = 1e-8 #gCOD/L
+		X_c_0 = 2.0 #gCOD/L
+		X_ch_0 = 5.0 #gCOD/L
+		X_pr_0 = 20.0 #gCOD/L
+		X_li_0 = 5.0 #gCOD/L
+		X_su_0 = 0.01 #g/L
+		X_aa_0 = 0.01 #g/L
+		X_fa_0 = 0.01 #g/L
+		S_gas_h2_0 = 1e-5 #gCOD/L
 	modelConcentrs = ModelConcentrs()
 	
 	webModel = AttributeDict({
