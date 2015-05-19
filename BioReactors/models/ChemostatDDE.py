@@ -100,7 +100,10 @@ class ChemostatDDE(NumericalModel):
         options = {'title': 'Title', 'formats': ['0.0000', '0.0000', '0.0000', '0.0000', '0.0000']}
     )
 
-    resultsVG = F.ViewGroup([plot, table], label = 'Results')
+    chartSs = F.MPLPlot(label = 'Chart (s<sub>1</sub>, s<sub>2</sub>)')
+    chartXs = F.MPLPlot(label = 'Chart (x<sub>1</sub>, x<sub>2</sub>)')
+
+    resultsVG = F.ViewGroup([plot, table, chartSs, chartXs], label = 'Results')
     resultsSG = F.SuperGroup([resultsVG])
     
     #2.1 Model view
@@ -109,7 +112,26 @@ class ChemostatDDE(NumericalModel):
     ############# Page structure ########
     modelBlocks = [inputView, resultView]
     
-    
+    def __init__(self):
+        self.k1 = 10.53
+        self.k2 = 28.6
+        self.k3 = 1074
+        self.s1_in = 7.5
+        self.s2_in = 75
+        self.a = 0.5
+        self.m1 = 1.2
+        self.m2 = 0.74
+        self.k_s1 = 7.1
+        self.k_s2 = 9.28
+        self.k_I = 16
+        self.D = 0.85
+        self.tau1 = 2
+        self.tau2 = 7
+        self.s1_hist_vals = 2
+        self.x1_hist_vals = 0.1
+        self.s2_hist_vals = 10
+        self.x2_hist_vals = 0.05
+        
     def compute(self):
         chemostatDDE = DM.ChemostatDDE(self)
         chemostatDDE.run(self)
@@ -118,6 +140,9 @@ class ChemostatDDE(NumericalModel):
         results = np.array([res['t'], res['s1'], res['x1'], res['s2'], res['x2']]).transpose()
         self.plot = results
         self.table = results
+        
+        chemostatDDE.plotS1S2(self.chartSs)
+        chemostatDDE.plotX1X2(self.chartXs)
         
 class ChemostatDDEDoc(RestModule):
     label = 'Chemostat with DDE (Doc)'

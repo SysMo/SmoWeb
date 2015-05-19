@@ -85,7 +85,11 @@ class ChemostatDDE():
         # Fetch the results from t=0 to t=tFinal with a step-size of dt=tPrint:
         return self.dde.sample(0, self.solverParams.tFinal + self.solverParams.tPrint, self.solverParams.tPrint)
         
-    def plotResults(self):
+    def plotResults(self, ax = None):
+        if (ax is None):
+            fig = plt.figure()
+            ax = fig.add_subplot(111)
+            
         sol = self.getResults()
         t = sol['t']
         s1 = sol['s1']
@@ -94,12 +98,65 @@ class ChemostatDDE():
         x2 = sol['x2']
         
         # Plot the results
-        plt.plot(t, s1, 'r-', label='s1(t)')
-        plt.plot(t, x1, 'b-', label='x1(t)')
-        plt.plot(t, s2, 'g-', label='s2(t)')
-        plt.plot(t, x2, 'm-', label='x2(t)')
-        plt.xlabel('$t$')
-        plt.legend()
+        ax.plot(t, s1, 'r-', label = 's$_{1}$')
+        ax.plot(t, x1, 'b-', label = 'x$_{1}$')
+        ax.plot(t, s2, 'g-', label = 's$_{2}$')
+        ax.plot(t, x2, 'm-', label = 'x$_{2}$')
+        ax.set_xlabel('Time')
+        ax.set_ylabel('Concentrations')
+        ax.legend()
+        plt.show()
+        
+    def plotX1X2(self, ax = None):
+        if (ax is None):
+            fig = plt.figure()
+            ax = fig.add_subplot(111)
+        
+        # Plot the results    
+        sol = self.getResults()
+        t = sol['t']
+        x1 = sol['x1']
+        x2 = sol['x2']
+        
+        ax.plot(t, x1, 'b-', linewidth=2.0, label = 'x$_{1}$')
+        ax.plot(t, x2, 'm--', linewidth=2.0, label = 'x$_{2}$')
+        
+        # Shrink current axis by 20%
+        box = ax.get_position()
+        ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+
+        # Put a legend to the right of the current axis
+        ax.legend(loc='center left', bbox_to_anchor = (1, 0.9275))
+        ax.set_xlabel('Time')
+        ax.set_ylabel('Biomass concentrations')
+        
+        # Show
+        plt.show()
+        
+    def plotS1S2(self, ax = None):
+        if (ax is None):
+            fig = plt.figure()
+            ax = fig.add_subplot(111)
+        
+        # Plot the results    
+        sol = self.getResults()
+        t = sol['t']
+        s1 = sol['s1']
+        s2 = sol['s2']
+        
+        ax.plot(t, s1, 'r-', linewidth=2.0, label = 's$_{1}$')
+        ax.plot(t, s2, 'g--', linewidth=2.0, label = 's$_{2}$')
+        
+        # Shrink current axis by 20%
+        box = ax.get_position()
+        ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+
+        # Put a legend to the right of the current axis
+        ax.legend(loc='center left', bbox_to_anchor = (1, 0.9275))
+        ax.set_xlabel('Time')
+        ax.set_ylabel('Substrate concentrations')
+        
+        # Show
         plt.show()
         
 
@@ -138,7 +195,8 @@ def TestChemostatDDE():
     
     chemostat = ChemostatDDE(modelParams)
     chemostat.run(solverParams)
-    chemostat.plotResults()
+    #chemostat.plotResults()
+    chemostat.plotX1X2()
     
     print "=== END: TestChemostatDDE ==="
     
