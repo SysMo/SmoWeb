@@ -9,6 +9,62 @@ var smoGui = {};
 	//},
 //});
 
+smoGui.editProperties = function(figure) {
+	var dialog = $( "#properties-dialog" ).dialog({
+	    autoOpen: false,
+	    height: 300,
+	    width: 350,
+	    modal: true,
+	    buttons: {
+	      "Update": function(){console.log('Updated');},
+	      Cancel: function() {
+	        dialog.dialog( "close" );
+	      }
+	    }
+	});
+	dialog.dialog( "open" );
+}
+
+smoGui.FigureEditPolicy = draw2d.policy.figure.FigureEditPolicy.extend({
+	NAME : "smoGui.FigureEditPolicy",
+	onRightMouseDown:function(figure, x, y, shiftKey, ctrlKey){
+		this._super(figure, x, y, shiftKey, ctrlKey);
+		$.contextMenu({
+			selector: 'body',
+			reposition: false,
+			events: {  
+				hide: function() {
+					$.contextMenu('destroy');
+				}
+			},
+            callback: $.proxy(function(key, options) {
+            	switch(key){
+					case "properties":
+						smoGui.editProperties(this);
+						break;
+					case "delete":
+						// without undo/redo support
+						// this.getCanvas().remove(this)
+						// with undo/redo support
+						var cmd = new draw2d.command.CommandDelete(this);
+						this.getCanvas().getCommandStack().execute(cmd);
+					default:
+						break;
+            	}
+            
+            }, figure),
+            x: x,
+            y: y,
+            items: 
+            {
+                "properties":    {name: "Properties", icon: "edit"},
+//                "sep1":   "---------",
+                "delete": {name: "Delete", icon: "delete"}
+            }
+        });
+	}
+});
+
 smoGui.Canvas = draw2d.Canvas.extend({
 	NAME : "smoGui.Canvas",
 	init:function(id){
@@ -27,6 +83,9 @@ smoGui.Canvas = draw2d.Canvas.extend({
 		this.writer.marshal(canvas, function(json){
 			canvas.json = json;
 		});
+	},
+	getJson: function(){
+		return this.json;
 	}
 });
 smoGui.Console = Class.extend({

@@ -1,7 +1,7 @@
 var jsonData = 
 [
   {
-	  "type": "draw2d.shape.node.Start",
+	  "type": "MyRectangle",
 	  "id": "ebfb35bb-5767-8155-c804-14bd48789dc21",
 	  "x": 50,
 	  "y": 50,
@@ -10,9 +10,10 @@ var jsonData =
 	}
   ,
   {
-	  "type": "draw2d.shape.node.End",
+	  "type": "MyCircle",
 	  "id": "ebfb35bb-5767-8155-c804-14bd48789dc22",
 	  "x": 250,
-	  "y": 50
+	  "y": 50,
+	  "radius": 100
 	}
 ];
