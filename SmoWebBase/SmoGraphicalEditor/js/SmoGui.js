@@ -9,8 +9,22 @@ var smoGui = {};
 	//},
 //});
 
-smoGui.editProperties = function(figure) {
-	var dialog = $( "#properties-dialog" ).dialog({
+smoGui.addComponentModal = function(figure) {
+	var modalTemplate = '\
+		<div id="' + figure.id + '-properties-dialog">\
+			<form>\
+				<fieldset>';
+	for (var property in figure.properties) {
+		modalTemplate += '\
+		      <label for="' + figure.id + '-' + property + '">' + property + '</label>\
+		      <input type="text" + name="' + figure.id + '-' + property + '" id="' + figure.id + '-' + property + '" value="' + String(figure.properties[property]) + '" class="text ui-widget-content ui-corner-all">';
+	}
+	modalTemplate += '\
+		    </fieldset>\
+		  </form>\
+		</div>';
+	$('#component-modals-container').append(modalTemplate);
+	$( '#' + figure.id + '-properties-dialog').dialog({
 	    autoOpen: false,
 	    height: 300,
 	    width: 350,
@@ -18,11 +32,18 @@ smoGui.editProperties = function(figure) {
 	    buttons: {
 	      "Update": function(){console.log('Updated');},
 	      Cancel: function() {
-	        dialog.dialog( "close" );
+	        $(this).dialog( "close" );
 	      }
 	    }
 	});
-	dialog.dialog( "open" );
+}
+
+smoGui.removeComponentModal = function(figure) {
+	$( '#' + figure.id + '-properties-dialog').remove();
+}
+
+smoGui.editProperties = function(figure) {
+	$( '#' + figure.id + '-properties-dialog').dialog( "open" );
 }
 
 smoGui.FigureEditPolicy = draw2d.policy.figure.FigureEditPolicy.extend({
@@ -48,6 +69,7 @@ smoGui.FigureEditPolicy = draw2d.policy.figure.FigureEditPolicy.extend({
 						// with undo/redo support
 						var cmd = new draw2d.command.CommandDelete(this);
 						this.getCanvas().getCommandStack().execute(cmd);
+						smoGui.removeComponentModal(this);
 					default:
 						break;
             	}

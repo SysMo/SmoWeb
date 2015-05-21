@@ -16,7 +16,8 @@
         <script src="http://draw2d.org/draw2d_touch/jsdoc_5/draw2d/src/draw2d.js"></script>
         <!-- jQuery UI -->
 		<script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
-		<link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+		<link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+		
 		
 		<script src="js/SmoGui.js"></script>
 		<script src="js/shapes.js"></script>
@@ -35,6 +36,10 @@
 				app = new smoGui.Application("canvas");
 				app.canvas.setDimension({width: 1000, height: 430});
 				app.canvas.loadFromJson(jsonData);
+				var jsonObj = app.canvas.getJson();
+				for (var figKey in jsonObj) {
+					smoGui.addComponentModal(app.canvas.getFigure(jsonObj[figKey].id));
+				}
 				
 				$('#components ul>li').each(function(index, element){
 					$(element)
@@ -52,7 +57,7 @@
 									}
 									app.canvas.add(myShape, cloneOffset.left - app.canvas.getAbsoluteX(), 
 									cloneOffset.top - app.canvas.getAbsoluteY());
-									console.log(myShape);	
+									smoGui.addComponentModal(myShape);
 								}
 					});
 				});
@@ -71,18 +76,9 @@
 		<div id="console-header" style="margin-bottom: 5px;">
 			Console 
 			<span><button onclick="app.console.clear()">Clear</button></span>
-			<span><button onclick="app.canvas.updateJson()">Json</button></span></div>
+			<span><button onclick="app.canvas.updateJson()">Update Json</button></span></div>
 		<div id="events"></div>
 	</div>
-	<div id="properties-dialog"> 
-	  <form>
-	    <fieldset>
-	      <label for="length">Length</label>
-	      <input type="number" name="length" id="length" value="10" class="text ui-widget-content ui-corner-all">
-	      <label for="height">Height</label>
-	      <input type="number" name="height" id="height" value="1" class="text ui-widget-content ui-corner-all">
-	    </fieldset>
-	  </form>
-	</div>
+	<div id="component-modals-container"></div>
 </body>
 </html>
