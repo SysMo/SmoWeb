@@ -5,6 +5,7 @@ Created on Mar 23, 2015
 @copyright: SysMo Ltd, Bulgaria
 '''
 import pylab as plt
+import numpy as np
 from pydelay import dde23
 from smo.util import AttributeDict 
 
@@ -15,6 +16,7 @@ class ChemostatDDE():
     def __init__(self, params = None, **kwargs):   
         if params == None:
             params = AttributeDict(kwargs)
+        self.params = params
         
         # Define the specific growth rates (in 'C' source code)
         support_c_code = """
@@ -108,6 +110,8 @@ class ChemostatDDE():
         plt.show()
         
     def plotX1X2(self, ax = None):
+        params = self.params
+        
         if (ax is None):
             fig = plt.figure()
             ax = fig.add_subplot(111)
@@ -119,14 +123,25 @@ class ChemostatDDE():
         x2 = sol['x2']
         
         ax.plot(t, x1, 'b-', linewidth=2.0, label = 'x$_{1}$')
-        ax.plot(t, x2, 'm--', linewidth=2.0, label = 'x$_{2}$')
+        ax.plot(t, x2, 'r--', linewidth=2.0, label = 'x$_{2}$')
         
-        # Shrink current axis by 20%
-        box = ax.get_position()
-        ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+        ax.set_ylim([0, 1.25*np.max([np.max(x1), np.max(x2)])])
+        
+        # Legend (v1)
+        #box = ax.get_position()
+        #ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+        #ax.legend(loc='center left', bbox_to_anchor = (1, 0.9275))
 
-        # Put a legend to the right of the current axis
-        ax.legend(loc='center left', bbox_to_anchor = (1, 0.9275))
+        # Legend (v2)
+        legentTitle = r'$\mathrm{\bar{u} = %g,\;\tau_{1} = %g,\;\tau_{2} = %g}$'%(params.D, params.tau1, params.tau2)
+        legend = ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.125), ncol=3, 
+            fancybox=True, shadow=True, title=legentTitle, fontsize=18)
+        plt.setp(legend.get_title(),fontsize=18)
+        
+        ax.annotate("%.4f"%x1[-1],xy=(t[-1], x1[-1]), xytext=(5,-2), textcoords='offset points')
+        ax.annotate("%.4f"%x2[-1],xy=(t[-1], x2[-1]), xytext=(5,-2), textcoords='offset points')
+        
+        # Set labels
         ax.set_xlabel('Time')
         ax.set_ylabel('Biomass concentrations')
         
@@ -134,6 +149,8 @@ class ChemostatDDE():
         plt.show()
         
     def plotS1S2(self, ax = None):
+        params = self.params
+        
         if (ax is None):
             fig = plt.figure()
             ax = fig.add_subplot(111)
@@ -144,15 +161,26 @@ class ChemostatDDE():
         s1 = sol['s1']
         s2 = sol['s2']
         
-        ax.plot(t, s1, 'r-', linewidth=2.0, label = 's$_{1}$')
-        ax.plot(t, s2, 'g--', linewidth=2.0, label = 's$_{2}$')
+        ax.plot(t, s1, 'g-', linewidth=2.0, label = 's$_{1}$')
+        ax.plot(t, s2, 'm--', linewidth=2.0, label = 's$_{2}$')
+    
+        ax.set_ylim([0, 1.125*np.max([np.max(s1), np.max(s2)])])
         
-        # Shrink current axis by 20%
-        box = ax.get_position()
-        ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+        # Legend (v1)
+        #box = ax.get_position()
+        #ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+        #ax.legend(loc='center left', bbox_to_anchor = (1, 0.9275))
 
-        # Put a legend to the right of the current axis
-        ax.legend(loc='center left', bbox_to_anchor = (1, 0.9275))
+        # Legend (v2)
+        legentTitle = r'$\mathrm{\bar{u} = %g,\;\tau_{1} = %g,\;\tau_{2} = %g}$'%(params.D, params.tau1, params.tau2)
+        legend = ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.125), ncol=3, 
+            fancybox=True, shadow=True, title=legentTitle, fontsize=18)
+        plt.setp(legend.get_title(),fontsize=18)
+        
+        ax.annotate("%.4f"%s1[-1],xy=(t[-1], s1[-1]), xytext=(5,-3), textcoords='offset points')
+        ax.annotate("%.4f"%s2[-1],xy=(t[-1], s2[-1]), xytext=(5,-3), textcoords='offset points')
+        
+        # Set labels
         ax.set_xlabel('Time')
         ax.set_ylabel('Substrate concentrations')
         
@@ -196,7 +224,8 @@ def TestChemostatDDE():
     chemostat = ChemostatDDE(modelParams)
     chemostat.run(solverParams)
     #chemostat.plotResults()
-    chemostat.plotX1X2()
+    #chemostat.plotX1X2()
+    chemostat.plotS1S2()
     
     print "=== END: TestChemostatDDE ==="
     
