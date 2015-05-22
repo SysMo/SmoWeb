@@ -28,6 +28,7 @@ Server side documentation
    :numbered:
 
    server/NumericalModel
+   server/DynamicalModel
    server/ModularPageView
    server/ObjectCreationAndSerialization.rst
    server/DataStorage

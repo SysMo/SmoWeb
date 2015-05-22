@@ -128,7 +128,6 @@ class PipeFlow(NumericalModel):
         self.fluidVolume = self.crossSectionalArea * self.length
         self.internalSurfaceArea = np.pi * self.internalDiameter * self.length
         self.externalSurfaceArea = np.pi * self.externalDiameter * self.length
-        print self.pipeMaterial
         self.pipeSolidMass = self.pipeMaterial['refValues']['density'] \
             * np.pi / 4 * (self.externalDiameter**2 - self.internalDiameter**2) * self.length
         
@@ -174,12 +173,12 @@ class PipeFlow(NumericalModel):
             Nu_high = ((xi / 8.) * 1e4 * self.Pr) / (1 + 12.7 * math.sqrt(xi / 8.) * (self.Pr**(2 / 3.) - 1)) * \
             (1 + (self.internalDiameter / self.length)**(2 / 3.))
             self.Nu = interpCoeff * Nu_high + (1 - interpCoeff) * Nu_low
-        elif (self.Re >= 1e4 and self.Re <= 1e6):
+        elif (self.Re >= 1e4): # and self.Re <= 1e6):
             # turbulent flow
             xi = (1.8 * math.log(self.Re, 10) - 1.5)**(-2)
             self.Nu = ((xi / 8.) * self.Re * self.Pr) / (1 + 12.7 * math.sqrt(xi / 8.) * (self.Pr**(2 / 3.) - 1))
-        elif (self.Re > 1e6):
-            raise ValueError("Outside range of validity")
+        #elif (self.Re > 1e6):
+        #    raise ValueError("Reynolds Number outside range of validity")
         
         self.alpha = self.cond * self.Nu / self.internalDiameter
         
