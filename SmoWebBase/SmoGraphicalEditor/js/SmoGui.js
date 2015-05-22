@@ -1,4 +1,4 @@
-var smoGui = {};
+var smoGui = {shapes: {}};
 
 //smoGui.CanvasPolicy = draw2d.policy.canvas.CanvasPolicy.extend({
 	//NAME : "smoGui.CanvasPolicy",
@@ -92,7 +92,8 @@ smoGui.Canvas = draw2d.Canvas.extend({
 	init:function(id){
 		this._super(id, 500,500);
 		this.setScrollArea("#"+id);
-		this.reader = new draw2d.io.json.Reader();
+		//this.reader = new draw2d.io.json.Reader();
+		this.reader = new smoGui.jsonReader();
 		this.writer = new draw2d.io.json.Writer();
 		this.json = null;
 	},

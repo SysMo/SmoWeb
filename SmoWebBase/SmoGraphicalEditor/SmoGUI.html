@@ -20,14 +20,14 @@
 		
 		
 		<script src="js/SmoGui.js"></script>
-		<script src="js/shapes.js"></script>
-		<script src="js/jsonData.json"></script>
+		<script src="js/shapes.json"></script>
 		
 		<!-- ContextMenu -->
 		<link rel="stylesheet" href="css/jquery.contextMenu.css">
 		<script src="js/contextMenu/jquery.ui.position.js"></script>
 		<script src="js/contextMenu/jquery.contextMenu.js"></script>
 		
+		<script src="js/jsonIO.js"></script>
 		<script src="js/jsonData.json"></script>
         
         <script>			
@@ -35,7 +35,7 @@
 			$(document).ready(function() {
 				app = new smoGui.Application("canvas");
 				app.canvas.setDimension({width: 1000, height: 430});
-				app.canvas.loadFromJson(jsonData);
+				app.canvas.loadFromJson(shapesData);
 				var jsonObj = app.canvas.getJson();
 				for (var figKey in jsonObj) {
 					smoGui.addComponentModal(app.canvas.getFigure(jsonObj[figKey].id));
@@ -51,9 +51,9 @@
 									var cloneOffset = ui.helper.offset();
 									var id = $(this).context.id;
 									if (id == 'MyRectangle') {
-										myShape = new MyRectangle();
+										myShape = new smoGui.shapes.MyRectangle();
 									} else if (id == 'MyCircle') {
-										myShape = new MyCircle();
+										myShape = new smoGui.shapes.MyCircle();
 									}
 									app.canvas.add(myShape, cloneOffset.left - app.canvas.getAbsoluteX(), 
 									cloneOffset.top - app.canvas.getAbsoluteY());
