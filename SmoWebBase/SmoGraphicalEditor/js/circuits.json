@@ -1,0 +1,17 @@
+var circuits = 
+[
+  {
+	  "type": "OpAmp",
+	  "id": "ebfb35bb-5767-8155-c804-14bd48789dc21",
+	  "x": 50,
+	  "y": 50
+	}
+  ,
+  {
+	  "type": "OpAmp",
+	  "extendsWhich": "draw2d.shape.basic.Circle",
+	  "id": "ebfb35bb-5767-8155-c804-14bd48789dc22",
+	  "x": 250,
+	  "y": 50
+	}
+];

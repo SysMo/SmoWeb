@@ -18,24 +18,24 @@
 		<script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
 		<link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
 		
-		
-		<script src="js/SmoGui.js"></script>
-		<script src="js/shapes.json"></script>
-		
 		<!-- ContextMenu -->
 		<link rel="stylesheet" href="css/jquery.contextMenu.css">
 		<script src="js/contextMenu/jquery.ui.position.js"></script>
 		<script src="js/contextMenu/jquery.contextMenu.js"></script>
 		
+		<script src="js/SmoGui.js"></script>
 		<script src="js/jsonIO.js"></script>
-		<script src="js/jsonData.json"></script>
+		<script src="js/components.json"></script>
+		<script src="js/circuits.json"></script>
         
         <script>			
 			var app;
 			$(document).ready(function() {
-				app = new smoGui.Application("canvas");
-				app.canvas.setDimension({width: 1000, height: 430});
-				app.canvas.loadFromJson(shapesData);
+				app = new smoGui.Application("app")
+				app.addCanvas("canvas", {width: 1000, height: 430});
+				app.addComponents(componentDefinitions);
+				app.canvas.loadFromJson(circuits);
+				
 				var jsonObj = app.canvas.getJson();
 				for (var figKey in jsonObj) {
 					smoGui.addComponentModal(app.canvas.getFigure(jsonObj[figKey].id));
@@ -50,10 +50,8 @@
 									var myShape;
 									var cloneOffset = ui.helper.offset();
 									var id = $(this).context.id;
-									if (id == 'MyRectangle') {
-										myShape = new smoGui.shapes.MyRectangle();
-									} else if (id == 'MyCircle') {
-										myShape = new smoGui.shapes.MyCircle();
+									if (id == 'OpAmp') {
+										myShape = new app.components.OpAmp();
 									}
 									app.canvas.add(myShape, cloneOffset.left - app.canvas.getAbsoluteX(), 
 									cloneOffset.top - app.canvas.getAbsoluteY());
@@ -68,8 +66,7 @@
 	<div id="canvas" style="border: 3px solid grey;"></div>
 	<div id="components" style="width: 200px; height: 650px; position: absolute; top: 10px; left: 1050px; border: 3px solid green; overflow-y: auto;">
 		<ul>
-			<li id="MyRectangle">MyRectangle</li>
-			<li id="MyCircle">MyCircle</li>
+			<li id="OpAmp">OpAmp</li>
 		</ul>
 	</div>
 	<div id="console" style="width: 1000px; height: 200px; position: absolute; top: 460px; border: 3px solid blue; overflow-y: auto;">

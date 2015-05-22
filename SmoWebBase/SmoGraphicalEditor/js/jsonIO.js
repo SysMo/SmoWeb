@@ -1,6 +1,6 @@
-smoGui.jsonReader = draw2d.io.json.Reader.extend({
+smoGui.io.json.circuitsReader = draw2d.io.Reader.extend({
     
-    NAME : "smoGui.jsonReader",
+    NAME : "smoGui.io.json.circuitsReader",
     
     init: function(){
         this._super();
@@ -24,26 +24,7 @@ smoGui.jsonReader = draw2d.io.json.Reader.extend({
         var node=null;
         $.each(json, $.proxy(function(i, element){
             try{
-            	var portsData = {};
-            	if (typeof element.attrs.ports !== 'undefined') {
-	            	eval('var portsData = ' + JSON.stringify(element.attrs.ports));    	
-            	}
-            	eval('smoGui.shapes.' + element.type + ' = ' +
-            			element.extendsWhich + '.extend({\
-                    		NAME : "' + element.type + '",\
-                    		init : function(attr)\
-                    		{\
-                    			this._super('+JSON.stringify(element.attrs)+');\
-                    			for (var portType in portsData) {\
-            	            		for (var n=1; n<=portsData[portType]; n++) {\
-            	            			this.addPort(eval("new draw2d." + portType + "()"));\
-            	            		}\
-            	            	}\
-                    			this.installEditPolicy(new smoGui.FigureEditPolicy());\
-                    		}\
-                    	});'
-            	);            	
-                var o = eval("new smoGui.shapes."+element.type+"()");
+            	var o = eval("new "+canvas.appName+".components."+element.type+"()");
                 var source= null;
                 var target=null;
                 for(i in element){
@@ -67,9 +48,6 @@ smoGui.jsonReader = draw2d.io.json.Reader.extend({
                         if(target===null){
                             throw "Unable to find target port '"+val.port+"' at figure '"+val.node+"' to unmarschal '"+element.type+"'";
                         }
-                    }
-                    else if (i === "properties"){
-                    	
                     }
                 }
                 if(source!==null && target!==null){
@@ -111,6 +89,55 @@ smoGui.jsonReader = draw2d.io.json.Reader.extend({
 
         canvas.showDecoration();
         
+        return result;
+    }
+});
+
+smoGui.io.json.componentsReader = draw2d.io.json.Reader.extend({
+    
+    NAME : "smoGui.io.json.componentsReader",
+    
+    init: function(){
+        this._super();
+    },
+    
+    read: function(json){
+    	var result = {}
+        if(typeof json ==="string"){
+            json = JSON.parse(json);
+        }
+        
+        $.each(json, $.proxy(function(i, componentDef){
+            try{
+            	var portsData = {};
+            	if (typeof componentDef.ports !== 'undefined') {
+	            	eval('var portsData = ' + JSON.stringify(componentDef.ports));    	
+            	}
+            	eval('result.' + componentDef.name + ' = draw2d.SVGFigure\
+            			.extend({\
+                    		NAME : "' + componentDef.name + '",\
+                    		init : function(attr, setter, getter)\
+                    		{\
+                    			this._super(attr, setter, getter);\
+                    			for (var portType in portsData) {\
+            	            		for (var n=1; n<=portsData[portType]; n++) {\
+            	            			this.addPort(eval("new draw2d." + portType + "()"));\
+            	            		}\
+            	            	}\
+                    			this.installEditPolicy(new smoGui.FigureEditPolicy());\
+                    		},\
+                    		getSVG: function(){\
+                    			return \'' + componentDef.geometry +
+                    		'\';}\
+                    	});'
+            	);
+            }
+            catch(exc){
+                debug.error(componentDef,"Unable to create component name '"+ componentDef.name);
+                debug.error(exc);
+                debug.warn(componentDef);
+            }
+        },this));
         return result;
     }
 });

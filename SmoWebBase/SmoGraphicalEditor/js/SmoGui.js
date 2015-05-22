@@ -1,13 +1,4 @@
-var smoGui = {shapes: {}};
-
-//smoGui.CanvasPolicy = draw2d.policy.canvas.CanvasPolicy.extend({
-	//NAME : "smoGui.CanvasPolicy",
-	//onMouseDown:function(canvas, x, y, shiftKey, ctrlKey){
-		//this._super( canvas, x, y, shiftKey, ctrlKey);
-		//canvas.updateJson();
-		//console.log(canvas.json);
-	//},
-//});
+var smoGui = {io: {json: {}}};
 
 smoGui.addComponentModal = function(figure) {
 	var modalTemplate = '\
@@ -92,14 +83,13 @@ smoGui.Canvas = draw2d.Canvas.extend({
 	init:function(id){
 		this._super(id, 500,500);
 		this.setScrollArea("#"+id);
-		//this.reader = new draw2d.io.json.Reader();
-		this.reader = new smoGui.jsonReader();
 		this.writer = new draw2d.io.json.Writer();
 		this.json = null;
+		this.appName = null;
 	},
 	loadFromJson: function(json){
 		this.json = $.extend(true, {}, json);
-		this.reader.unmarshal(this, json);
+		new smoGui.io.json.circuitsReader().unmarshal(this, json);
 	},
 	updateJson: function(){
 		var canvas = this;
@@ -146,10 +136,20 @@ smoGui.Console = Class.extend({
 });
 smoGui.Application = Class.extend({
 	NAME : "smoGui.Application",
-	init : function(id) 
+	init : function(name) 
+	{
+		this.name = name;	
+		this.components = null;
+	},
+	addCanvas : function(id, dimensions)
 	{
 		this.canvas = new smoGui.Canvas(id);
-		//this.canvas.installEditPolicy(new smoGui.CanvasPolicy());
+		this.canvas.setDimension(dimensions);
+		this.canvas.appName = this.name;
 		this.console = new smoGui.Console(this.canvas);
+	},
+	addComponents : function(defs)
+	{
+		this.components = new smoGui.io.json.componentsReader().read(defs);
 	}
 });
