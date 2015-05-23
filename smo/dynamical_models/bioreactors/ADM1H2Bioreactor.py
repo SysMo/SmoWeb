@@ -140,7 +140,7 @@ class ADM1H2Bioreactor(Simulation):
 			r_T_8 = params.kLa_h2 * (S_h2 - 16 * self.K_H_h2 * p_gas_h2)
 			
 			# Compute state derivatives		
-			S_su_dot = self.D*(concentrs.S_su_in - S_su) + r2 + (1 - params.f_fa_li)*r4 - r5 #1.1
+			S_su_dot = self.D*(concentrs.S_su_in - S_su) + r2 + params.f_su_li*r4 - r5 #1.1
 			S_aa_dot = self.D*(concentrs.S_aa_in - S_aa) + r3 - r6 #2.1
 			S_fa_dot = self.D*(concentrs.S_fa_in - S_fa) + params.f_fa_li*r4 - r7 #3.1
 			S_ac_dot = self.D*(concentrs.S_ac_in - S_ac) + (1 - params.Y_su)*params.f_ac_su*r5 \
@@ -257,6 +257,7 @@ def TestADM1H2Bioreactor():
 	# Initialize model parameters
 
 	# Validation of prameters
+	#f_su_li + f_fa_li <= 1.0
 	#f_ch_xc + f_pr_xc + f_li_xc + [f_xI_xc + f_sI_xc] = 1.0
 	#[f_bu_su + f_pro_su] + f_ac_su + f_h2_su = 1.0
 	#[f_va_aa + f_bu_aa + f_pro_aa] + f_ac_aa + f_h2_aa = 1.0
@@ -268,7 +269,8 @@ def TestADM1H2Bioreactor():
 		f_pr_xc = 0.2 #-
 		f_li_xc = 0.3 #-
 		
-		f_fa_li = 0.95 #-
+		f_su_li = 0.05 #-
+		f_fa_li = 0.90 #-
 		
 		f_ac_su = 0.41 #-
 		f_h2_su = 0.19 #-

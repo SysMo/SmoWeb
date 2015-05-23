@@ -166,6 +166,8 @@ class H2Bioreactor(NumericalModel):
     f_li_xc = F.Quantity(default = 0.0, minValue = 0.0,
         label = 'f<sub>li,xc</sub>', description = 'yield of lipids on composites')
     
+    f_su_li = F.Quantity(default = 0.0, minValue = 0.0,
+        label = 'f<sub>su,li</sub>', description = 'yield of sugar on lipids')
     f_fa_li = F.Quantity(default = 0.0, minValue = 0.0,
         label = 'f<sub>fa,li</sub>', description = 'yield of LCFA on lipids')
     
@@ -187,7 +189,7 @@ class H2Bioreactor(NumericalModel):
         label = 'Y<sub>fa</sub>', description = 'yield of LCFA degraders on LCFA')
     
     stoichiometricParametersFG = F.FieldGroup([
-            f_ch_xc, f_pr_xc, f_li_xc, f_fa_li, f_ac_su, f_h2_su,
+            f_ch_xc, f_pr_xc, f_li_xc, f_su_li, f_fa_li, f_ac_su, f_h2_su,
             f_ac_aa, f_h2_aa, Y_su, Y_aa, Y_fa
         ],
         label = 'Stoichiometric parameters (R-H2)'
@@ -517,6 +519,7 @@ class ADM1H2CH4Bioreactors(NumericalModel):
         self.parametersRH2.f_pr_xc = 0.15 #-
         self.parametersRH2.f_li_xc = 0.15 #-
         
+        self.parametersRH2.f_su_li = 0.05 #-
         self.parametersRH2.f_fa_li = 0.9 #-
         
         self.parametersRH2.f_ac_su = 0.41 #-
@@ -628,7 +631,7 @@ class ADM1H2CH4Bioreactors(NumericalModel):
         self.solverSettingsRCH4.tFinal = (2.0, 'day')
         self.solverSettingsRCH4.tPrint = (0.01, 'day')
                     
-    def computeAsync(self):
+    def computeAsync(self):        
         # Simulate R-H2 Bioreactor
         bioreactorRH2 = DM_RH2.ADM1H2Bioreactor(self, self.parametersRH2, self.concentrationsRH2)
         
@@ -641,7 +644,11 @@ class ADM1H2CH4Bioreactors(NumericalModel):
         
         # Connnect the two bioreactors
         if self.concentrationsRCH4.S_ac_from_RH2:
-            self.concentrationsRCH4.S_ac_0 = 10.0 #:TODO: (Milen) resultsRH2['S_ac'][-1]
+            resultStorageRH2 = bioreactorRH2.resultStorage
+            resultStorageRH2.openStorage()
+            data = resultStorageRH2.loadResult()
+            self.concentrationsRCH4.S_ac_0 = data['S_ac'][-1]
+            resultStorageRH2.closeStorage()
      
      
         # Simulate R-CH4 Bioreactor
