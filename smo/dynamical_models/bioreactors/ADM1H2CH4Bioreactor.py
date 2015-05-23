@@ -17,9 +17,9 @@ from smo.math.util import NamedStateVector
 import os
 from SmoWeb.settings import MEDIA_ROOT
 tmpFolderPath = os.path.join (MEDIA_ROOT, 'tmp')
-csvFileName = os.path.join(tmpFolderPath, 'BioReactors_ADM1H2Bioreactor_SimulationResults.csv')
+csvFileName = os.path.join(tmpFolderPath, 'BioReactors_ADM1H2CH4Bioreactor_SimulationResults.csv')
 dataStorageFilePath =  os.path.join(tmpFolderPath, 'BioReactors_SimulationResults.h5')
-dataStorageDatasetPath = '/ADM1H2Bioreactor'
+dataStorageDatasetPath = '/ADM1H2CH4Bioreactor'
 
 class ADM1TimeEvent(TimeEvent):	
 	"""
@@ -32,14 +32,14 @@ class ADM1TimeEvent(TimeEvent):
 		self.eventType = "ADM1_TIME_EVENT"
 		self.description = "Change the dilution rate (D) to {0}".format(newValue_D)
 		
-class ADM1H2Bioreactor(Simulation):
+class ADM1H2CH4Bioreactor(Simulation):
 	"""
-	Class for implementation the model of a ADM1 H2Bioreactor
+	Class for implementation the model of a ADM1 H2 and CH4 Bioreactors
 	"""
 	name = 'Model of a bioreactor that produces hydrogen.'
 	
 	def __init__(self, webModel, params, concentrs, **kwargs):
-		super(ADM1H2Bioreactor, self).__init__(**kwargs)
+		super(ADM1H2CH4Bioreactor, self).__init__(**kwargs)
 		
 		# Initialize update progress function
 		self.updateProgress = webModel.updateProgress
@@ -68,18 +68,19 @@ class ADM1H2Bioreactor(Simulation):
 			datasetPath = dataStorageDatasetPath)
 		if (kwargs.get('initDataStorage', True)):
 			self.resultStorage.initializeWriting(
-				varList = ['t'] + stateVarNames + ['D'],
+				varList = ['t'] + stateVarNames + ['D_h2', 'D_ch4'],
 				chunkSize = 1e4)
 		
 		# Register time event (changed of D)
-		D_liq = params.D_liq_vals[0]
-		self.D = D_liq[1]
-		tChangedD = D_liq[0]
+		D_liq_h2 = params.D_liq_h2_vals[0]
+		self.D_h2 = D_liq_h2[1]
+		self.D_ch4 = self.D_h2 / params.V_liq_ch4_del_V_liq_h2
+		tChangedD = D_liq_h2[0]
 		
-		for i in range(len(params.D_liq_vals)-1):
-			D_liq = self.D_liq_vals[i+1]
-			self.timeEventRegistry.add(ADM1TimeEvent(t = tChangedD, newValue_D = D_liq[1]))
-			tChangedD += D_liq[0]
+		for i in range(len(params.D_liq_h2_vals)-1):
+			D_liq_h2 = self.D_liq_h2_vals[i+1]
+			self.timeEventRegistry.add(ADM1TimeEvent(t = tChangedD, newValue_D = D_liq_h2[1]))
+			tChangedD += D_liq_h2[0]
 		
 		# Set initial values of the states
 		self.y.S_su = concentrs.S_su_0
@@ -140,26 +141,26 @@ class ADM1H2Bioreactor(Simulation):
 			r_T_8 = params.kLa_h2 * (S_h2 - 16 * self.K_H_h2 * p_gas_h2)
 			
 			# Compute state derivatives		
-			S_su_dot = self.D*(concentrs.S_su_in - S_su) + r2 + params.f_su_li*r4 - r5 #1.1
-			S_aa_dot = self.D*(concentrs.S_aa_in - S_aa) + r3 - r6 #2.1
-			S_fa_dot = self.D*(concentrs.S_fa_in - S_fa) + params.f_fa_li*r4 - r7 #3.1
-			S_ac_dot = self.D*(concentrs.S_ac_in - S_ac) + (1 - params.Y_su)*params.f_ac_su*r5 \
+			S_su_dot = self.D_h2*(concentrs.S_su_in - S_su) + r2 + params.f_su_li*r4 - r5 #1.1
+			S_aa_dot = self.D_h2*(concentrs.S_aa_in - S_aa) + r3 - r6 #2.1
+			S_fa_dot = self.D_h2*(concentrs.S_fa_in - S_fa) + params.f_fa_li*r4 - r7 #3.1
+			S_ac_dot = self.D_h2*(concentrs.S_ac_in - S_ac) + (1 - params.Y_su)*params.f_ac_su*r5 \
 				+ (1 - params.Y_aa)*params.f_ac_aa*r6 \
 				+ (1 - params.Y_fa)*0.7*r7 #7.1
-			S_h2_dot = self.D*(concentrs.S_h2_in - S_h2) + (1 - params.Y_su)*params.f_h2_su*r5 \
+			S_h2_dot = self.D_h2*(concentrs.S_h2_in - S_h2) + (1 - params.Y_su)*params.f_h2_su*r5 \
 				+ (1 - params.Y_aa)*params.f_h2_aa*r6 \
 				+ (1 - params.Y_fa)*0.3*r7 \
 				- r_T_8 #8.1
-			X_c_dot = self.D*(concentrs.X_c_in - X_c) - r1 #13.1
-			X_ch_dot = self.D*(concentrs.X_ch_in - X_ch) + params.f_ch_xc*r1 - r2 #14.1
-			X_pr_dot = self.D*(concentrs.X_pr_in - X_pr) + params.f_pr_xc*r1 - r3 #15.1
-			X_li_dot = self.D*(concentrs.X_li_in - X_li) + params.f_li_xc*r1 - r4 #16.1
-			X_su_dot = self.D*(concentrs.X_su_in - X_su) + params.Y_su*r5 #17.1
-			X_aa_dot = self.D*(concentrs.X_aa_in - X_aa) + params.Y_aa*r6 #18.1
-			X_fa_dot = self.D*(concentrs.X_aa_in - X_fa) + params.Y_fa*r7 #19.1
+			X_c_dot = self.D_h2*(concentrs.X_c_in - X_c) - r1 #13.1
+			X_ch_dot = self.D_h2*(concentrs.X_ch_in - X_ch) + params.f_ch_xc*r1 - r2 #14.1
+			X_pr_dot = self.D_h2*(concentrs.X_pr_in - X_pr) + params.f_pr_xc*r1 - r3 #15.1
+			X_li_dot = self.D_h2*(concentrs.X_li_in - X_li) + params.f_li_xc*r1 - r4 #16.1
+			X_su_dot = self.D_h2*(concentrs.X_su_in - X_su) + params.Y_su*r5 #17.1
+			X_aa_dot = self.D_h2*(concentrs.X_aa_in - X_aa) + params.Y_aa*r6 #18.1
+			X_fa_dot = self.D_h2*(concentrs.X_aa_in - X_fa) + params.Y_fa*r7 #19.1
 			
-			S_gas_h2_dot = params.D_gas*(0. - S_gas_h2) + r_T_8 * params.V_liq_del_V_gas #1.1
-			m_gas_h2_dot = params.D_gas * S_gas_h2
+			S_gas_h2_dot = params.D_gas_h2*(0. - S_gas_h2) + r_T_8 * params.V_liq_del_V_gas #1.1
+			m_gas_h2_dot = params.D_gas_h2 * S_gas_h2
 			
 		except Exception, e:
 			self.resultStorage.finalizeResult()
@@ -193,13 +194,16 @@ class ADM1H2Bioreactor(Simulation):
 		pass
 	
 	def handle_event(self, solver, eventInfo):
+		params = self.params
+		
 		reportEvents = True
 		_stateEventInfo, timeEvent = eventInfo
 		
 		# Handle time events
 		if (timeEvent):
 			timeEventList = self.processTimeEvent(solver.t)
-			self.D = timeEventList[0].newValue_D
+			self.D_h2 = timeEventList[0].newValue_D
+			self.D_ch4 = self.D_h2 / params.V_liq_ch4_del_V_liq_h2
 			if (reportEvents):
 				print("Time event located at time: {} - {}".format(solver.t, timeEventList[0].description))
 	
@@ -207,7 +211,7 @@ class ADM1H2Bioreactor(Simulation):
 			raise TerminateSimulation()
 	
 	def handle_result(self, solver, t, y):
-		super(ADM1H2Bioreactor, self).handle_result(solver, t, y)
+		super(ADM1H2CH4Bioreactor, self).handle_result(solver, t, y)
 		self.updateProgress(t, self.tFinal)
 			
 		self.yRes.set(y)
@@ -215,7 +219,7 @@ class ADM1H2Bioreactor(Simulation):
 			self.yRes.S_su, self.yRes.S_aa, self.yRes.S_fa, self.yRes.S_ac, self.yRes.S_h2,  
 			self.yRes.X_c, self.yRes.X_ch, self.yRes.X_pr, self.yRes.X_li, self.yRes.X_su, self.yRes.X_aa, self.yRes.X_fa,
 			self.yRes.S_gas_h2, self.yRes.m_gas_h2,
-			self.D,
+			self.D_h2, self.D_ch4
 		)
 		self.resultStorage.saveTimeStep()
 			
@@ -229,9 +233,10 @@ class ADM1H2Bioreactor(Simulation):
 		plt.plot(xData, data['S_su'], 'r', label = 'S_su')
 		plt.plot(xData, data['S_aa'], 'b', label = 'S_aa')
 		plt.plot(xData, data['S_h2'], 'g', label = 'S_h2')
-		plt.plot(xData, data['S_gas_h2'], 'g--', label = 'S_gas_h2')
-		plt.plot(xData, data['m_gas_h2'], 'm--', label = 'm_gas_h2 [kg/m**3]')
-		plt.plot(xData, data['D'], 'm', label = 'D')
+		#plt.plot(xData, data['S_gas_h2'], 'g--', label = 'S_gas_h2')
+		#plt.plot(xData, data['m_gas_h2'], 'm--', label = 'm_gas_h2 [kg/m**3]')
+		plt.plot(xData, data['D_h2'], 'm', label = 'D_h2')
+		plt.plot(xData, data['D_ch4'], 'm--', label = 'D_ch4')
 		
 		# Close the result storage
 		self.resultStorage.closeStorage()
@@ -242,8 +247,8 @@ class ADM1H2Bioreactor(Simulation):
 		plt.show()
 
 
-def TestADM1H2Bioreactor():
-	print "=== BEGIN: TestADM1H2Bioreactor ==="
+def TestADM1H2CH4Bioreactor():
+	print "=== BEGIN: TestADM1H2CH4Bioreactor ==="
 	
 	# Settings
 	simulate = True #True - run simulation; False - plot an old results 
@@ -282,6 +287,9 @@ def TestADM1H2Bioreactor():
 		Y_aa = 0.08 #-
 		Y_fa = 0.06 #-
 		
+		Y_ac = 0.05 #-
+		
+		
 		#Biochemical parameter values
 		k_dis = 0.5 #1/day
 		
@@ -298,18 +306,26 @@ def TestADM1H2Bioreactor():
 		k_m_fa = 6.0 #1/day
 		K_S_fa = 0.4 #g/L
 		
+		k_m_ac = 8.0 #1/day
+		K_S_ac = 0.15 #g/L
+		
 		# Physiochemical parameter values
 		T_base = 298.15 #K
 		T_op = 308.15 #K
 	
 		kLa_h2 = 200 #1/day
+		kLa_ch4 = 200 #1/day
 		
 		# Physical parameters
-		V_liq_del_V_gas = 3.0 #L/L 
+		V_liq_del_V_gas = 3.0 #L/L - for H2 and CH4
+		V_liq_ch4_del_V_liq_h2 = 5. #L/L V2/V1
 		
 		# Controller - D = q/V
-		D_liq_vals = np.array([[100, 1], ]) #[day, 1/day] (liquid)
-		D_gas = 3.0 #1/day
+		D_liq_h2_vals = np.array([[100., 1.], ]) #[day, 1/day] (liquid)
+		#D_ch4 = D_h2 / V_liq_ch4_del_V_liq_h2
+		D_gas_h2 = 3.0 #1/day
+		D_gas_ch4 = 3.0 #1/day
+		
 	modelParams = ModelParams()		
 		
 	class ModelConcentrs:
@@ -349,7 +365,7 @@ def TestADM1H2Bioreactor():
 	
 	
 	# Create the model
-	bioreactor = ADM1H2Bioreactor(webModel = webModel, params = modelParams, concentrs = modelConcentrs, initDataStorage = simulate)
+	bioreactor = ADM1H2CH4Bioreactor(webModel = webModel, params = modelParams, concentrs = modelConcentrs, initDataStorage = simulate)
 	
 	# Run simulation or load old results
 	if (simulate == True):
@@ -368,4 +384,4 @@ def TestADM1H2Bioreactor():
 	
 	
 if __name__ == '__main__':
-	TestADM1H2Bioreactor()
+	TestADM1H2CH4Bioreactor()

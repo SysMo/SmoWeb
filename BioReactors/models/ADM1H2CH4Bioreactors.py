@@ -6,7 +6,7 @@ Created on Mar 4, 2015
 '''
 import smo.model.fields as F
 import smo.model.actions as A 
-import smo.dynamical_models.bioreactors.ADM1H2Bioreactor as DM_RH2
+import smo.dynamical_models.bioreactors.ADM1H2CH4Bioreactor as DM_RH2
 import smo.dynamical_models.bioreactors.ADM1CH4Bioreactor as DM_RCH4
 
 from smo.model.model import NumericalModel
@@ -633,7 +633,7 @@ class ADM1H2CH4Bioreactors(NumericalModel):
                     
     def computeAsync(self):        
         # Simulate R-H2 Bioreactor
-        bioreactorRH2 = DM_RH2.ADM1H2Bioreactor(self, self.parametersRH2, self.concentrationsRH2)
+        bioreactorRH2 = DM_RH2.ADM1H2CH4Bioreactor(self, self.parametersRH2, self.concentrationsRH2)
         
         bioreactorRH2.prepareSimulation()
         bioreactorRH2.run(self.solverSettingsRH2)

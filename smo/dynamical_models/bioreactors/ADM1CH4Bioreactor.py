@@ -233,7 +233,7 @@ def TestADM1CH4Bioreactor():
 		
 		# Controller - D = q/V
 		D_liq_vals = np.array([[100, 5], ]) #[day, 1/day] (liquid)
-		D_gas = 3.0 #L/day
+		D_gas = 3.0 #1/day
 	modelParams = ModelParams()		
 		
 	class ModelConcentrs:
