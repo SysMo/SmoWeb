@@ -138,8 +138,8 @@ class ChemostatDDE():
             fancybox=True, shadow=True, title=legentTitle, fontsize=18)
         plt.setp(legend.get_title(),fontsize=18)
         
-        ax.annotate("%.4f"%x1[-1],xy=(t[-1], x1[-1]), xytext=(5,-2), textcoords='offset points')
-        ax.annotate("%.4f"%x2[-1],xy=(t[-1], x2[-1]), xytext=(5,-2), textcoords='offset points')
+        ax.annotate("%.2f"%x1[-1],xy=(t[-1], x1[-1]), xytext=(5,-2), textcoords='offset points')
+        ax.annotate("%.2f"%x2[-1],xy=(t[-1], x2[-1]), xytext=(5,-2), textcoords='offset points')
         
         # Set labels
         ax.set_xlabel('Time')
@@ -177,8 +177,8 @@ class ChemostatDDE():
             fancybox=True, shadow=True, title=legentTitle, fontsize=18)
         plt.setp(legend.get_title(),fontsize=18)
         
-        ax.annotate("%.4f"%s1[-1],xy=(t[-1], s1[-1]), xytext=(5,-3), textcoords='offset points')
-        ax.annotate("%.4f"%s2[-1],xy=(t[-1], s2[-1]), xytext=(5,-3), textcoords='offset points')
+        ax.annotate("%.2f"%s1[-1],xy=(t[-1], s1[-1]), xytext=(5,-3), textcoords='offset points')
+        ax.annotate("%.2f"%s2[-1],xy=(t[-1], s2[-1]), xytext=(5,-3), textcoords='offset points')
         
         # Set labels
         ax.set_xlabel('Time')
