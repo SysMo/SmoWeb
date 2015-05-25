@@ -65,13 +65,13 @@ class CallMethod(SimulationAction):
 		"""		
 		self.modelInstance = modelInstance
 		self.methodName = methodName
+		self.method = getattr(self.modelInstance, self.methodName)
 		
 	def __str__(self):
 		return "{.qName}.{}()".format(self.modelInstance, self.methodName)
 	
-	def execute(self):
-		method = getattr(self.modelInstance, self.methodName)
-		method()
+	def execute(self, t):
+		self.method(t)
 
 class AssignValue(SimulationAction):
 	"""

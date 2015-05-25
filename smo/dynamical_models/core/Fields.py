@@ -144,6 +144,10 @@ class RealState(RealVariable):
 		super(RealState, self).__init__(causality = Causality.RealState, 
 				variability = Variability.Continuous, **kwargs)
 		self.start = start
+
+	@property
+	def default(self):
+		return self.start
 		
 class SubModel(ModelField):
 	"""

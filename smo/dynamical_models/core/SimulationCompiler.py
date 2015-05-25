@@ -33,9 +33,8 @@ class SimulationCompiler(object):
 		self.depGraph.add_node('stateVector')
 		self.depGraph.add_node('stateDerivativeVector')
 		self.addModelToDependencyGraph(self.model)
-		self.numRealStates = len(self.depGraph.successors('stateVector'))
-		print("Num real states: {}".format(self.numRealStates))
-		
+		self.realStates = self.depGraph.successors('stateVector')
+		print("Real states ({}): [{}]".format(len(self.realStates), ", ".join(state.qName for state in self.realStates)))
 	
 	def addModelToDependencyGraph(self, model):
 		self.depGraph.add_node(model)
@@ -124,8 +123,8 @@ class SimulationCompiler(object):
 		try:
 			sortedGraph = nx.topological_sort(self.depGraph)
 		except nx.exception.NetworkXUnfeasible, e:
-			raise RuntimeError("Cannot perfrom topological sort of the execution \
-graph. Probably there are cyclic dependancies. \n \
+			raise RuntimeError("Cannot perform topological sort of the execution \
+graph. Probably there are cyclic dependencies. \n \
 Original error message: {}".format(e))
 			
 		for node in sortedGraph:

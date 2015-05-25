@@ -5,8 +5,6 @@ Created on Feb 25, 2015
 @copyright: SysMo Ltd, Bulgaria
 '''
 from collections import OrderedDict
-import StringIO
-import SimulationActions as SA
 import Fields as F
 
 class DynamicalModelMeta(type):
@@ -128,9 +126,7 @@ class DynamicalModel(object):
 		if (self.parent is not None):
 			self.qPath = self.parent.qPath + [self.name]
 		else:
-			from SimulationCompiler import SimulationCompiler
 			self.qPath = [self.name]
-			self.simCmpl = SimulationCompiler(self)
 		# Create instance meta
 		self.meta = InstanceMeta()
 		# Create derivative vector
@@ -161,38 +157,43 @@ class DynamicalModel(object):
 		""""""
 		return '.'.join(self.qPath)
 	
-	def compute(self):
-		#print("Executing compute for {}".format(self.qName))
-		pass
-			
-	def computeDerivatives(self, stateVector, stateDerivatives):
+	# Methods that models can/should implement 
+	def initialize(self):
 		"""
-		Execute the simulation sequence to compute derivatives
-		"""		
-		for action in self.simCmpl.actionSequence:
-			if isinstance(action , SA.SetRealState):
-				action.execute(stateVector)
-			elif isinstance(action, SA.GetRealStateDerivative):
-				action.execute(stateDerivatives)
-			else:
-				action.execute()
-
-	def describeFields(self):
-		buf = StringIO.StringIO()
-		buf.write("=====================================\n")
-		buf.write("Model: {}\n".format(self.__class__.__name__))
-		buf.write("-------------------------------------\n")
-		buf.write("Variables:\n")
-		for k, v in self.__class__.dm_variables.iteritems():
-			buf.write("\t{}: \n".format(k))
-		buf.write("-------------------------------------\n")		
-		buf.write("SubModels:\n")
-		for k, v in self.meta.dm_submodels.iteritems():
-			buf.write("{}: \n".format(k))
-			buf.write(v.describeFields())
-		buf.write("=====================================\n")
-		result = buf.getvalue()
-		buf.close()
-		return result
+		Called at initialization
+		"""
+		#print("Initialized {}".format(self.qName))
 	
+	def compute(self, t):
+		"""
+		Called during simulation run
+		"""
+	
+	# Methods used from the solver
+	# Run submodel initializing functions
+	def recursiveInitialize(self):		
+		for _, submodel in self.meta.dm_submodels.items():
+			submodel.recursiveInitialize()
+		self.initialize()
+				
+	
+# 	# Other methods
+# 	def describeFields(self):
+# 		buf = StringIO.StringIO()
+# 		buf.write("=====================================\n")
+# 		buf.write("Model: {}\n".format(self.__class__.__name__))
+# 		buf.write("-------------------------------------\n")
+# 		buf.write("Variables:\n")
+# 		for k, v in self.__class__.dm_variables.iteritems():
+# 			buf.write("\t{}: \n".format(k))
+# 		buf.write("-------------------------------------\n")		
+# 		buf.write("SubModels:\n")
+# 		for k, v in self.meta.dm_submodels.iteritems():
+# 			buf.write("{}: \n".format(k))
+# 			buf.write(v.describeFields())
+# 		buf.write("=====================================\n")
+# 		result = buf.getvalue()
+# 		buf.close()
+# 		return result
+# 	
 			
