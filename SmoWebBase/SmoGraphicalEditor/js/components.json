@@ -2,7 +2,7 @@ var componentDefinitions =
 [{
 	  "name": "OpAmp",
 	  "extends": "draw2d.SVGFigure",
-	  "ports": {"InputPort" : 2, "OutputPort": 1},
+	  "ports": [["opAmpInputPort", "input", [0.5, 0.7]], ["opAmpOutputPort", "output", [1., 0.5]]],
 	  "geometry":	"<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" width=\"50\"  height=\"50\">\
 <path d=\"m8.2627,0l0,35.36035l31.23926,-17.76025l-31.23926,-17.60011l0,0l0,0.00001zm2.27832,27.36719l4.08105,0m-2.10449,-2.20703l0,4.27979m2.26367,-21.35938l-4.15918,0\"  stroke=\"#1B1B1B\" fill=\"none\"/>\
 <line x1=\"0.53516\"  y1=\"8\"  x2=\"8.21191\"  y2=\"8\"  stroke=\"#010101\"/>\

@@ -111,19 +111,32 @@ smoGui.io.json.componentsReader = draw2d.io.json.Reader.extend({
             try{
             	var portsData = {};
             	if (typeof componentDef.ports !== 'undefined') {
-	            	eval('var portsData = ' + JSON.stringify(componentDef.ports));    	
+	            	eval('var ports = ' + JSON.stringify(componentDef.ports)); 
             	}
             	eval('result.' + componentDef.name + ' = draw2d.SVGFigure\
             			.extend({\
                     		NAME : "' + componentDef.name + '",\
+                    		SmoPortLocator : draw2d.layout.locator.PortLocator.extend({\
+                    	        init: function(x_frac, y_frac){\
+                    	            this._super();\
+                    				this.x_frac = x_frac;\
+                    				this.y_frac = y_frac;\
+                    	        },\
+	                    		relocate:function(index, port){\
+	                    			var x = port.getParent().getWidth() * this.x_frac;\
+	                    			var y = port.getParent().getHeight() * this.y_frac;\
+		                            this.applyConsiderRotation(port, x, y);\
+		                        }\
+            				}),\
                     		init : function(attr, setter, getter)\
                     		{\
                     			this._super(attr, setter, getter);\
-                    			for (var portType in portsData) {\
-            	            		for (var n=1; n<=portsData[portType]; n++) {\
-            	            			this.addPort(eval("new draw2d." + portType + "()"));\
-            	            		}\
+                    			for (var i=0; i<ports.length; i++) {\
+                    				var portLocator =  new this.SmoPortLocator(ports[i][2][0], ports[i][2][1]);\
+                    				var port = this.createPort(ports[i][1], portLocator);\
+                    				port.setName(ports[i][0]);\
             	            	}\
+                    			console.log(this.getPorts());\
                     			this.installEditPolicy(new smoGui.FigureEditPolicy());\
                     		},\
                     		getSVG: function(){\
