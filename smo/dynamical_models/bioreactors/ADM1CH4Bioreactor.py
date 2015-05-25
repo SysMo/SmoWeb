@@ -72,12 +72,12 @@ class ADM1CH4Bioreactor(Simulation):
 				chunkSize = 1e4)
 		
 		# Register time event (changed of D)
-		D_liq = params.D_liq_vals[0]
+		D_liq = params.D_liq_arr[0]
 		self.D = D_liq[1]
 		tChangedD = D_liq[0]
 		
-		for i in range(len(params.D_liq_vals)-1):
-			D_liq = self.D_liq_vals[i+1]
+		for i in range(len(params.D_liq_arr)-1):
+			D_liq = self.D_liq_arr[i+1]
 			self.timeEventRegistry.add(ADM1TimeEvent(t = tChangedD, newValue_D = D_liq[1]))
 			tChangedD += D_liq[0]
 		
@@ -232,7 +232,7 @@ def TestADM1CH4Bioreactor():
 		V_liq_del_V_gas = 3.0 #L/L 
 		
 		# Controller - D = q/V
-		D_liq_vals = np.array([[100, 5], ]) #[day, 1/day] (liquid)
+		D_liq_arr = np.array([[100, 5], ]) #[day, 1/day] (liquid)
 		D_gas = 3.0 #1/day
 	modelParams = ModelParams()		
 		
