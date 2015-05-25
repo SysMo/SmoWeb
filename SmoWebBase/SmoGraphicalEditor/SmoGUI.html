@@ -34,11 +34,11 @@
 				app = new smoGui.Application("app")
 				app.addCanvas("canvas", {width: 1000, height: 430});
 				app.addComponents(componentDefinitions);
-				app.canvas.loadFromJson(circuits);
-				
-				var jsonObj = app.canvas.getJson();
-				for (var figKey in jsonObj) {
-					smoGui.addComponentModal(app.canvas.getFigure(jsonObj[figKey].id));
+				app.canvas.addCircuits(circuits);
+				var componetFiguresArr = app.canvas.getComponetFigures();
+				for (var i=0; i<componetFiguresArr.length; i++) {
+					//smoGui.addComponentModal(app.canvas.getFigure(jsonObj[figKey].id));
+					smoGui.addComponentModal(componetFiguresArr[i]);
 				}
 				
 				$('#components ul>li').each(function(index, element){

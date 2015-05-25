@@ -85,9 +85,10 @@ smoGui.Canvas = draw2d.Canvas.extend({
 		this.setScrollArea("#"+id);
 		this.writer = new draw2d.io.json.Writer();
 		this.json = null;
+		this.circuits = {};
 		this.appName = null;
 	},
-	loadFromJson: function(json){
+	addCircuits: function(json){
 		this.json = $.extend(true, {}, json);
 		new smoGui.io.json.circuitsReader().unmarshal(this, json);
 	},
@@ -97,8 +98,15 @@ smoGui.Canvas = draw2d.Canvas.extend({
 			canvas.json = json;
 		});
 	},
-	getJson: function(){
-		return this.json;
+	getComponetFigures: function(){
+		var componentFigures = [];
+		var canvas = this;
+		$.each(this.circuits, function(name, circuit){
+            $.each(circuit.components, function(name, id){
+            	componentFigures.push(canvas.getFigure(id));
+            });
+		});
+		return componentFigures;
 	}
 });
 smoGui.Console = Class.extend({
