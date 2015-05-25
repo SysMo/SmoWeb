@@ -130,7 +130,7 @@ smoGui.Application = Class.extend({
 	init : function(name) 
 	{
 		this.name = name;	
-		this.components = null;
+		this.componentTypes = null;
 		this.circuit = null;
 	},
 	addCanvas : function(id, dimensions)

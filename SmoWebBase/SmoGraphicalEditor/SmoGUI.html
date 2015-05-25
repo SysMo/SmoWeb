@@ -47,11 +47,16 @@
 								appendTo: "body",
 								helper: "clone",
 								stop: function(event, ui) {
+									var	name = prompt("Please enter component name");
+									if (name == "" || name == null) {
+										return;
+									}
 									var myShape;
 									var cloneOffset = ui.helper.offset();
 									var id = $(this).context.id;
 									if (id == 'OpAmp') {
 										myShape = new app.componentTypes.OpAmp();
+										myShape.name = name;
 									}
 									app.canvas.add(myShape, cloneOffset.left - app.canvas.getAbsoluteX(), 
 									cloneOffset.top - app.canvas.getAbsoluteY());

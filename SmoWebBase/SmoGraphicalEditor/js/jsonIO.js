@@ -131,10 +131,13 @@ smoGui.io.json.circuitsWriter = draw2d.io.Writer.extend({
     			components.push(figures[i]);
     		}
     	}
+    	
     	for (var i=0; i<components.length; i++) {
     		components[i] = {"name": canvas.getFigure(components[i].id).name,
     						"type": components[i].type,
-    						"id": components[i].id};
+    						"id": components[i].id,
+    						"x": components[i].x,
+    						"y": components[i].y};
     	}
     	for (var i=0; i<connections.length; i++) {
     		connections[i] = [canvas.getFigure(connections[i].source.node).name+"."+connections[i].source.port,
