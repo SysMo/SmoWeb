@@ -81,7 +81,7 @@ class ADM1H2CH4Bioreactor(Simulation):
 			datasetPath = dataStorageDatasetPath)
 		if (kwargs.get('initDataStorage', True)):
 			self.resultStorage.initializeWriting(
-				varList = ['t'] + stateVarNames + ['D_RH2', 'D_RCH4'],
+				varList = ['time'] + stateVarNames + ['D_RH2', 'D_RCH4'],
 				chunkSize = 1e4
 			)
 		
@@ -89,7 +89,7 @@ class ADM1H2CH4Bioreactor(Simulation):
 		tChangedD =  paramsRH2.D_liq_arr[0][0]
 		self.D_RH2 =  paramsRH2.D_liq_arr[0][1]
 
-		self.D_RCH4 = self.D_RH2 / paramsRH2.V_liq_RCH4_del_V_liq_RH2
+		self.D_RCH4 = self.D_RH2 / paramsRCH4.V_liq_RCH4_del_V_liq_RH2
 		
 		for i in range(len(paramsRH2.D_liq_arr)-1):
 			self.timeEventRegistry.add(
@@ -233,7 +233,7 @@ class ADM1H2CH4Bioreactor(Simulation):
 			r_T_9 = paramsRCH4.kLa_ch4 * (S_ch4_RCH4 - 64 * self.K_H_ch4_RCH4 * p_gas_ch4)
 			
 			# Compute state derivatives		
-			S_ac_RCH4_dot = self.D_RCH4*(concentrsRCH4.S_ac_in - S_ac_RCH4) \
+			S_ac_RCH4_dot = self.D_RCH4*(S_ac_RH2 - S_ac_RCH4) \
 				-r11#7.2
 			S_ch4_RCH4_dot = self.D_RCH4*(concentrsRCH4.S_ch4_in - S_ch4_RCH4) \
 				+ (1-paramsRCH4.Y_ac)*r11 - r_T_9 #9.2
@@ -269,7 +269,7 @@ class ADM1H2CH4Bioreactor(Simulation):
 		pass
 	
 	def handle_event(self, solver, eventInfo):
-		paramsRH2 = self.paramsRH2
+		paramsRCH4 = self.paramsRCH4
 		
 		reportEvents = True
 		_stateEventInfo, timeEvent = eventInfo
@@ -278,7 +278,7 @@ class ADM1H2CH4Bioreactor(Simulation):
 		if (timeEvent):
 			timeEventList = self.processTimeEvent(solver.t)
 			self.D_RH2 = timeEventList[0].newValue_D
-			self.D_RCH4 = self.D_RH2 / paramsRH2.V_liq_RCH4_del_V_liq_RH2
+			self.D_RCH4 = self.D_RH2 / paramsRCH4.V_liq_RCH4_del_V_liq_RH2
 			if (reportEvents):
 				print("Time event located at time: {} - {}".format(solver.t, timeEventList[0].description))
 	
@@ -309,7 +309,7 @@ class ADM1H2CH4Bioreactor(Simulation):
 		data = self.resultStorage.loadResult()
 		
 		# Set the results
-		xData = data['t']
+		xData = data['time']
 		plt.plot(xData, data['S_su_RH2'], 'r', label = 'S_su_RH2')
 		plt.plot(xData, data['S_aa_RH2'], 'b', label = 'S_aa_RH2')
 		plt.plot(xData, data['S_h2_RH2'], 'g', label = 'S_h2_RH2')
@@ -392,7 +392,6 @@ def TestADM1H2CH4Bioreactor():
 		
 		# Physical parameters
 		V_liq_del_V_gas = 3.0 #L/L - for H2 and CH4
-		V_liq_RCH4_del_V_liq_RH2 = 5. #L/L V2/V1 #:TODO: (Milen) V_liq_RCH4_del_V_liq_RH2
 		
 		# Controller - D = q/V
 		D_liq_arr = np.array([[10., 1.], [20.,2.]]) #[day, 1/day] (liquid)
@@ -452,15 +451,14 @@ def TestADM1H2CH4Bioreactor():
 		
 		# Physical parameters
 		V_liq_del_V_gas = 3.0 #L/L 
+		V_liq_RCH4_del_V_liq_RH2 = 5. #L/L V2/V1 #:TODO: (Milen) V_liq_RCH4_del_V_liq_RH2
 		
 		# Controller - D = q/V
-		D_liq_arr = np.array([[100, 5], ]) #[day, 1/day] (liquid)
 		D_gas = 3.0 #1/day
 	modelParamsRCH4 = ModelParamsRCH4()
 	
 	class ModelConcentrsRCH4:
 		# Input concentrations 
-		S_ac_in = 0.2 #gCOD/L
 		S_ch4_in = 1e-5 #gCOD/L
 		X_ac_in = 0 * 0.01 #g/L
 		
