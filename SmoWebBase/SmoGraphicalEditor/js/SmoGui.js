@@ -88,7 +88,7 @@ smoGui.Canvas = draw2d.Canvas.extend({
 	dumpToJson: function(){
 		var canvas = this;
 		new smoGui.io.json.circuitsWriter().marshal(canvas, function(json){
-			canvas.json = json;
+			console.log(json);
 		});
 	},
 });

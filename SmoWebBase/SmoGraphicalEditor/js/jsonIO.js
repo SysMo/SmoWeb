@@ -23,6 +23,7 @@ smoGui.io.json.circuitsReader = draw2d.io.Reader.extend({
             try{
             	var o = eval("new "+canvas.appName+".componentTypes."+element.type+"()");
                 o.setPersistentAttributes(element);
+                o.name = element.name;
                 canvas.add(o);
                 circuit.components[element.name] = o.getId();
             }
@@ -109,40 +110,39 @@ smoGui.io.json.circuitsWriter = draw2d.io.Writer.extend({
         if(typeof resultCallback !== "function"){
             throw "Writer.marshal method signature has been change from version 2.10.1 to version 3.0.0. Please consult the API documentation about this issue.";
         }
-        var result = [];
+        var figures = [];
         canvas.getFigures().each(function(i, figure){
-            result.push(figure.getPersistentAttributes());
+            figures.push(figure.getPersistentAttributes());
         });
         canvas.getLines().each(function(i, element){
-            result.push(element.getPersistentAttributes());
+            figures.push(element.getPersistentAttributes());
         });
-    	var base64Content = draw2d.util.Base64.encode(JSON.stringify(result, null, 2));
+    	var base64Content = draw2d.util.Base64.encode(JSON.stringify(figures, null, 2));
     	
-    	circuitsJson = this.dump(canvas, result);
-    	resultCallback(result, base64Content);
+    	resultCallback(this.toCircuit(canvas, figures), base64Content);
     },
-    dump: function(canvas, result) {
-    	var circuits = [];
+    toCircuit: function(canvas, figures) {
     	var components = [];
     	var connections = [];
-    	for (var i=0; i<result.length; i++){
-    		if (result[i].type == "draw2d.Connection") {
-    			connections.push(result[i]);
+    	for (var i=0; i<figures.length; i++){
+    		if (figures[i].type == "draw2d.Connection") {
+    			connections.push(figures[i]);
     		} else {
-    			components.push(result[i]);
+    			components.push(figures[i]);
     		}
     	}
-    	while (connections.length > 0) {
-    		var circuit = {"components": [], "connections": []};
-    		var connection = connections[length - 1];
-    		circuit.connections.push(connection);
-    		circuit.components.push(canvas.getFigure(connection.sourcenode));
-    		
+    	for (var i=0; i<components.length; i++) {
+    		components[i] = {"name": canvas.getFigure(components[i].id).name,
+    						"type": components[i].type,
+    						"id": components[i].id};
     	}
-    	return {}
+    	for (var i=0; i<connections.length; i++) {
+    		connections[i] = [canvas.getFigure(connections[i].source.node).name+"."+connections[i].source.port,
+    		                  canvas.getFigure(connections[i].target.node).name+"."+connections[i].target.port];
+    	}
+    	return {"components": components, "connections": connections};
     }   
 });
-    
 
 smoGui.io.json.componentsReader = draw2d.io.Reader.extend({
     
