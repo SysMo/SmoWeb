@@ -14,78 +14,73 @@ smoGui.io.json.circuitsReader = draw2d.io.Reader.extend({
      * @param {draw2d.Canvas} canvas the canvas to restore
      * @param {Object} document the json object to load.
      */
-    unmarshal: function(canvas, json){
-//    	var result = new draw2d.util.ArrayList();      
+    unmarshal: function(canvas, json){   
         if(typeof json === "string"){
             json = JSON.parse(json);
         }
-        $.each(json, $.proxy(function(i, circuit){
-        	canvas.circuits[circuit.name] = {"components": {}, "connections": []};
-            $.each(circuit.components, $.proxy(function(i, element){
-                try{
-                	var o = eval("new "+canvas.appName+".components."+element.type+"()");
-                    o.setPersistentAttributes(element);
-                    canvas.add(o);
-                    canvas.circuits[circuit.name].components[element.name] = o.getId();
+        var circuit = {"components": {}, "connections": []};
+        $.each(json.components, $.proxy(function(i, element){
+            try{
+            	var o = eval("new "+canvas.appName+".componentTypes."+element.type+"()");
+                o.setPersistentAttributes(element);
+                canvas.add(o);
+                circuit.components[element.name] = o.getId();
+            }
+            catch(exc){
+                debug.error(element,"Unable to instantiate figure type '"+element.type+"' with id '"+element.id+"' during unmarshal by "+this.NAME+". Skipping figure..");
+                debug.error(exc);
+                debug.warn(element);
+            }
+        },this));
+        
+        $.each(json.connections, $.proxy(function(i, element){
+            try{
+            	var o = new draw2d.Connection();
+            	var sourceData = element[0].split(".");
+            	var targetData = element[1].split(".");
+                var source= null;
+                var target=null;
+                sourceNode = canvas.getFigure(circuit.components[sourceData[0]]);
+                if(sourceNode===null){
+                    throw "Source figure with id '"+sourceNode.getId()+"' not found";
                 }
-                catch(exc){
-                    debug.error(element,"Unable to instantiate figure type '"+element.type+"' with id '"+element.id+"' during unmarshal by "+this.NAME+". Skipping figure..");
-                    debug.error(exc);
-                    debug.warn(element);
+                source = sourceNode.getPort(sourceData[1]);
+                if(source===null){
+                    throw "Unable to find source port '"+sourceData[1]+"' at figure '"+sourceData[0]+"' to unmarshal '"+element.type+"'";
                 }
-            },this));
-            
-            $.each(circuit.connections, $.proxy(function(i, element){
-                try{
-                	var o = new draw2d.Connection();
-                	var sourceData = element[0].split(".");
-                	var targetData = element[1].split(".");
-                	//console.log(canvas.circuits[circuit.name].components[sourceData[0]]);
-                	//console.log(targetData);
-                    var source= null;
-                    var target=null;
-                    sourceNode = canvas.getFigure(canvas.circuits[circuit.name].components[sourceData[0]]);
-                    if(sourceNode===null){
-                        throw "Source figure with id '"+sourceNode.getId()+"' not found";
-                    }
-                    source = sourceNode.getPort(sourceData[1]);
-                    if(source===null){
-                        throw "Unable to find source port '"+sourceData[1]+"' at figure '"+sourceData[0]+"' to unmarshal '"+element.type+"'";
-                    }
-                    targetNode = canvas.getFigure(canvas.circuits[circuit.name].components[targetData[0]]);
-                    if(targetNode===null){
-                        throw "Source figure with id '"+targetNode.getId()+"' not found";
-                    }
-                    target = targetNode.getPort(targetData[1]);
-                    if(target===null){
-                        throw "Unable to find target port '"+targetData[1]+"' at figure '"+targetData[0]+"' to unmarshal '"+element.type+"'";
-                    }
-                    if(source!==null && target!==null){
-                        o.setSource(source);
-                        o.setTarget(target);
-                    }
-                    o.setPersistentAttributes(element);
-                    canvas.add(o);
-                    canvas.circuits[circuit.name].connections.push(o);
+                targetNode = canvas.getFigure(circuit.components[targetData[0]]);
+                if(targetNode===null){
+                    throw "Source figure with id '"+targetNode.getId()+"' not found";
                 }
-                catch(exc){
-                    debug.error(element,"Unable to instantiate figure type '"+element.type+"' with id '"+element.id+"' during unmarshal by "+this.NAME+". Skipping figure..");
-                    debug.error(exc);
-                    debug.warn(element);
+                target = targetNode.getPort(targetData[1]);
+                if(target===null){
+                    throw "Unable to find target port '"+targetData[1]+"' at figure '"+targetData[0]+"' to unmarshal '"+element.type+"'";
                 }
-            },this));
-            // restore group assignment
-            //
-            $.each(circuit.components, $.proxy(function(i, element){
-                if(typeof element.composite !== "undefined"){
-                   var figure = canvas.getFigure(element.id);
-                   if(figure===null){
-                       figure =canvas.getLine(element.id);
-                   }
-                   var group = canvas.getFigure(element.composite);
-                   group.assignFigure(figure);
+                if(source!==null && target!==null){
+                    o.setSource(source);
+                    o.setTarget(target);
                 }
-            },this));
+                o.setPersistentAttributes(element);
+                canvas.add(o);
+                circuit.connections.push(o);
+            }
+            catch(exc){
+                debug.error(element,"Unable to instantiate figure type '"+element.type+"' with id '"+element.id+"' during unmarshal by "+this.NAME+". Skipping figure..");
+                debug.error(exc);
+                debug.warn(element);
+            }
+        },this));
+        // restore group assignment
+        //
+        $.each(circuit.components, $.proxy(function(i, element){
+            if(typeof element.composite !== "undefined"){
+               var figure = canvas.getFigure(element.id);
+               if(figure===null){
+                   figure = canvas.getLine(element.id);
+               }
+               var group = canvas.getFigure(element.composite);
+               group.assignFigure(figure);
+            }
         },this));
         // recalculate all crossings and repaint the connections with 
         // possible crossing decoration
@@ -97,12 +92,59 @@ smoGui.io.json.circuitsReader = draw2d.io.Reader.extend({
         canvas.linesToRepaintAfterDragDrop = canvas.getLines().clone();
 
         canvas.showDecoration();
-        
-//        return result;
+        return circuit;
     }
 });
 
-smoGui.io.json.componentsReader = draw2d.io.json.Reader.extend({
+smoGui.io.json.circuitsWriter = draw2d.io.Writer.extend({
+    
+    NAME : "smoGui.io.json.circuitsWriter",
+    
+    init: function(){
+        this._super();
+    },
+    marshal: function(canvas, resultCallback) {
+        // I change the API signature from version 2.10.1 to 3.0.0. Throw an exception
+        // if any application not care about this changes.
+        if(typeof resultCallback !== "function"){
+            throw "Writer.marshal method signature has been change from version 2.10.1 to version 3.0.0. Please consult the API documentation about this issue.";
+        }
+        var result = [];
+        canvas.getFigures().each(function(i, figure){
+            result.push(figure.getPersistentAttributes());
+        });
+        canvas.getLines().each(function(i, element){
+            result.push(element.getPersistentAttributes());
+        });
+    	var base64Content = draw2d.util.Base64.encode(JSON.stringify(result, null, 2));
+    	
+    	circuitsJson = this.dump(canvas, result);
+    	resultCallback(result, base64Content);
+    },
+    dump: function(canvas, result) {
+    	var circuits = [];
+    	var components = [];
+    	var connections = [];
+    	for (var i=0; i<result.length; i++){
+    		if (result[i].type == "draw2d.Connection") {
+    			connections.push(result[i]);
+    		} else {
+    			components.push(result[i]);
+    		}
+    	}
+    	while (connections.length > 0) {
+    		var circuit = {"components": [], "connections": []};
+    		var connection = connections[length - 1];
+    		circuit.connections.push(connection);
+    		circuit.components.push(canvas.getFigure(connection.sourcenode));
+    		
+    	}
+    	return {}
+    }   
+});
+    
+
+smoGui.io.json.componentsReader = draw2d.io.Reader.extend({
     
     NAME : "smoGui.io.json.componentsReader",
     

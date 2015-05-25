@@ -83,31 +83,14 @@ smoGui.Canvas = draw2d.Canvas.extend({
 	init:function(id){
 		this._super(id, 500,500);
 		this.setScrollArea("#"+id);
-		this.writer = new draw2d.io.json.Writer();
-		this.json = null;
-		this.circuits = {};
 		this.appName = null;
 	},
-	addCircuits: function(json){
-		this.json = $.extend(true, {}, json);
-		new smoGui.io.json.circuitsReader().unmarshal(this, json);
-	},
-	updateJson: function(){
+	dumpToJson: function(){
 		var canvas = this;
-		this.writer.marshal(canvas, function(json){
+		new smoGui.io.json.circuitsWriter().marshal(canvas, function(json){
 			canvas.json = json;
 		});
 	},
-	getComponetFigures: function(){
-		var componentFigures = [];
-		var canvas = this;
-		$.each(this.circuits, function(name, circuit){
-            $.each(circuit.components, function(name, id){
-            	componentFigures.push(canvas.getFigure(id));
-            });
-		});
-		return componentFigures;
-	}
 });
 smoGui.Console = Class.extend({
 	NAME : "smoGui.Console",
@@ -148,6 +131,7 @@ smoGui.Application = Class.extend({
 	{
 		this.name = name;	
 		this.components = null;
+		this.circuit = null;
 	},
 	addCanvas : function(id, dimensions)
 	{
@@ -156,8 +140,19 @@ smoGui.Application = Class.extend({
 		this.canvas.appName = this.name;
 		this.console = new smoGui.Console(this.canvas);
 	},
-	addComponents : function(defs)
+	addComponentTypes : function(defs)
 	{
-		this.components = new smoGui.io.json.componentsReader().read(defs);
+		this.componentTypes = new smoGui.io.json.componentsReader().read(defs);
+	},
+	addCircuit: function(json){
+		this.circuit = new smoGui.io.json.circuitsReader().unmarshal(this.canvas, json);
+	}, 
+	getComponetFigures: function(){
+		var componentFigures = [];
+		var app = this;
+        $.each(this.circuit.components, function(name, id){
+        	componentFigures.push(app.canvas.getFigure(id));
+        });
+		return componentFigures;
 	}
 });

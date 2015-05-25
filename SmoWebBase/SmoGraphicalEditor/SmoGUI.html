@@ -26,16 +26,16 @@
 		<script src="js/SmoGui.js"></script>
 		<script src="js/jsonIO.js"></script>
 		<script src="js/components.json"></script>
-		<script src="js/circuits.json"></script>
+		<script src="js/circuit.json"></script>
         
         <script>			
 			var app;
 			$(document).ready(function() {
 				app = new smoGui.Application("app")
 				app.addCanvas("canvas", {width: 1000, height: 430});
-				app.addComponents(componentDefinitions);
-				app.canvas.addCircuits(circuits);
-				var componetFiguresArr = app.canvas.getComponetFigures();
+				app.addComponentTypes(componentDefinitions);
+				app.addCircuit(circuit);
+				var componetFiguresArr = app.getComponetFigures();
 				for (var i=0; i<componetFiguresArr.length; i++) {
 					//smoGui.addComponentModal(app.canvas.getFigure(jsonObj[figKey].id));
 					smoGui.addComponentModal(componetFiguresArr[i]);
@@ -51,7 +51,7 @@
 									var cloneOffset = ui.helper.offset();
 									var id = $(this).context.id;
 									if (id == 'OpAmp') {
-										myShape = new app.components.OpAmp();
+										myShape = new app.componentTypes.OpAmp();
 									}
 									app.canvas.add(myShape, cloneOffset.left - app.canvas.getAbsoluteX(), 
 									cloneOffset.top - app.canvas.getAbsoluteY());
@@ -73,7 +73,7 @@
 		<div id="console-header" style="margin-bottom: 5px;">
 			Console 
 			<span><button onclick="app.console.clear()">Clear</button></span>
-			<span><button onclick="app.canvas.updateJson()">Update Json</button></span></div>
+			<span><button onclick="app.canvas.dumpToJson()">Dump to Json</button></span></div>
 		<div id="events"></div>
 	</div>
 	<div id="component-modals-container"></div>
