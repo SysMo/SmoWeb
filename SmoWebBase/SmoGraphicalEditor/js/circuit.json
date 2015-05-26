@@ -2,7 +2,7 @@ var circuit =
 {
 	"components": [
 					{
-					  "name": "OpAmp1",
+					  "name": "OpAmp5",
 					  "type": "OpAmp",
 					  "id": "ebfb35bb-5767-8155-c804-14bd48789dc21",
 					  "x": 50,
@@ -11,7 +11,7 @@ var circuit =
 					}
 				  	,
 				  	{
-					  "name": "OpAmp2",
+					  "name": "OpAmp6",
 					  "type": "OpAmp",
 					  "id": "ebfb35bb-5767-8155-c804-14bd48789dc22",
 					  "x": 250,
@@ -26,7 +26,7 @@ var circuit =
 					}
 				],
 	"connections": [ 
-					["OpAmp1.opAmpOutputPort", "Voltage1.VoltageInputPort"],
-					["Voltage1.VoltageOutputPort", "OpAmp2.opAmpInputPlus"]
+					["OpAmp5.opAmpOutputPort", "Voltage1.VoltageInputPort"],
+					["Voltage1.VoltageOutputPort", "OpAmp6.opAmpInputPlus"]
 				]
 };

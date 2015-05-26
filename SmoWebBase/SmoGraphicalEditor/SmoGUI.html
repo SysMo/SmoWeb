@@ -56,14 +56,17 @@
 									var	name;
 									var cloneOffset = ui.helper.offset();
 									var id = $(this).context.id;
-									myShape = eval('new app.componentTypes.' + id + '()');
+									do {
+										myShape = eval('new app.componentTypes.' + id + '()');
+									} while ((id+myShape.count) in app.circuit.componentFigures);
 									do {
 										name = prompt("Please enter component name", id+myShape.count);
-									} while (name == "")
+									} while (name == "");
 									if (name == null) {
 										return;
 									}
 									myShape.name = name;
+									app.circuit.componentFigures[name] = myShape.getId();
 									app.canvas.add(myShape, cloneOffset.left - app.canvas.getAbsoluteX(), 
 									cloneOffset.top - app.canvas.getAbsoluteY());
 									smoGui.addComponentModal(myShape);

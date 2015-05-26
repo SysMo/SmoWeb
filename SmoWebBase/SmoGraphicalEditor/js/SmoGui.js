@@ -3,6 +3,7 @@ var smoGui = {io: {json: {}}};
 smoGui.addComponentModal = function(figure) {
 	var modalTemplate = '\
 		<div id="' + figure.id + '-properties-dialog">\
+			<div>' + figure.name + '</div>\
 			<form>\
 				<fieldset>';
 	for (var property in figure.properties) {
@@ -180,7 +181,7 @@ smoGui.Application = Class.extend({
 	getComponetFigures: function(){
 		var componentFigures = [];
 		var app = this;
-        $.each(this.circuit.components, function(name, id){
+        $.each(this.circuit.componentFigures, function(name, id){
         	componentFigures.push(app.canvas.getFigure(id));
         });
 		return componentFigures;
