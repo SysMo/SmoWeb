@@ -125,6 +125,35 @@ smoGui.Console = Class.extend({
 		$("#events").empty();
 	}	
 });
+
+smoGui.SVGFigure = draw2d.SVGFigure.extend({
+	NAME : "smoGui.SVGFigure",
+	SmoPortLocator : draw2d.layout.locator.PortLocator.extend({
+        init: function(x_frac, y_frac){
+            this._super();
+			this.x_frac = x_frac;
+			this.y_frac = y_frac;			
+        },
+		relocate:function(index, port){
+			var x = port.getParent().getWidth() * this.x_frac;
+			var y = port.getParent().getHeight() * this.y_frac;
+            this.applyConsiderRotation(port, x, y);
+        }
+	}),
+	init : function(attr, setter, getter)
+	{
+		this._super(attr, setter, getter);
+		this.ports = attr["ports"] || [];
+		for (var i=0; i<this.ports.length; i++) {
+			var portLocator =  new this.SmoPortLocator(this.ports[i][2][0], this.ports[i][2][1]);
+			var port = this.createPort(this.ports[i][1], portLocator);
+			port.setName(this.ports[i][0]);
+    	}
+		this.installEditPolicy(new smoGui.FigureEditPolicy());
+	},
+});
+
+
 smoGui.Application = Class.extend({
 	NAME : "smoGui.Application",
 	init : function(name) 

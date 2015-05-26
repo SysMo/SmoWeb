@@ -170,36 +170,17 @@ smoGui.io.json.componentsReader = draw2d.io.Reader.extend({
             	if (typeof componentDef.ports !== 'undefined') {
 	            	eval('var ports = ' + JSON.stringify(componentDef.ports)); 
             	}
-            	eval('result.' + componentDef.name + ' = draw2d.SVGFigure\
+            	eval('result.' + componentDef.name + ' = smoGui.SVGFigure\
             			.extend({\
-                    		NAME : "' + componentDef.name + '",\
-                    		SmoPortLocator : draw2d.layout.locator.PortLocator.extend({\
-                    	        init: function(x_frac, y_frac){\
-                    	            this._super();\
-                    				this.x_frac = x_frac;\
-                    				this.y_frac = y_frac;\
-                    	        },\
-	                    		relocate:function(index, port){\
-	                    			var x = port.getParent().getWidth() * this.x_frac;\
-	                    			var y = port.getParent().getHeight() * this.y_frac;\
-		                            this.applyConsiderRotation(port, x, y);\
-		                        }\
-            				}),\
-                    		init : function(attr, setter, getter)\
-                    		{\
-                    			this._super(attr, setter, getter);\
-                    			for (var i=0; i<ports.length; i++) {\
-                    				var portLocator =  new this.SmoPortLocator(ports[i][2][0], ports[i][2][1]);\
-                    				var port = this.createPort(ports[i][1], portLocator);\
-                    				port.setName(ports[i][0]);\
-            	            	}\
-                    			this.installEditPolicy(new smoGui.FigureEditPolicy());\
-                    		},\
+            				NAME : "' + componentDef.name + '",\
+	            			init : function(attr, setter, getter)\
+	            			{\
+            					this._super($.extend({ports: ports}, attr), setter, getter);\
+            				},\
                     		getSVG: function(){\
                     			return \'' + componentDef.geometry +
                     		'\';}\
-                    	});'
-            	);
+                    	});');
             }
             catch(exc){
                 debug.error(componentDef,"Unable to create component name '"+ componentDef.name);
