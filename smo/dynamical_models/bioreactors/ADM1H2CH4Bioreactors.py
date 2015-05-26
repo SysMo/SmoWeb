@@ -178,11 +178,11 @@ class ADM1H2CH4Bioreactors(Simulation):
 			S_fa_RH2_dot = self.D_RH2*(concentrsRH2.S_fa_in - S_fa_RH2) \
 				+ paramsRH2.f_fa_li*r4 - r7 #3.1
 			S_ac_RH2_dot = self.D_RH2*(concentrsRH2.S_ac_in - S_ac_RH2) \
-				+ (1 - paramsRH2.Y_su)*paramsRH2.f_ac_su*r5 \
-				+ (1 - paramsRH2.Y_aa)*paramsRH2.f_ac_aa*r6 \
+				+ (1 - paramsRH2.Y_suaa)*paramsRH2.f_ac_su*r5 \
+				+ (1 - paramsRH2.Y_suaa)*paramsRH2.f_ac_aa*r6 \
 				+ (1 - paramsRH2.Y_fa)*0.7*r7 #7.1
-			S_h2_RH2_dot = self.D_RH2*(concentrsRH2.S_h2_in - S_h2_RH2) + (1 - paramsRH2.Y_su)*paramsRH2.f_h2_su*r5 \
-				+ (1 - paramsRH2.Y_aa)*paramsRH2.f_h2_aa*r6 \
+			S_h2_RH2_dot = self.D_RH2*(concentrsRH2.S_h2_in - S_h2_RH2) + (1 - paramsRH2.Y_suaa)*paramsRH2.f_h2_su*r5 \
+				+ (1 - paramsRH2.Y_suaa)*paramsRH2.f_h2_aa*r6 \
 				+ (1 - paramsRH2.Y_fa)*0.3*r7 \
 				- r_T_8 #8.1
 			X_c_RH2_dot = self.D_RH2*(concentrsRH2.X_c_in - X_c_RH2) \
@@ -194,7 +194,8 @@ class ADM1H2CH4Bioreactors(Simulation):
 			X_li_RH2_dot = self.D_RH2*(concentrsRH2.X_li_in - X_li_RH2) \
 				+ paramsRH2.f_li_xc*r1 - r4 #16.1
 			X_suaa_RH2_dot = self.D_RH2*(concentrsRH2.X_suaa_in - X_suaa_RH2) \
-				+ paramsRH2.Y_su*r5 #17.1
+				+ paramsRH2.Y_suaa*r5 \
+				+ paramsRH2.Y_suaa*r6 #17.1
 			X_fa_RH2_dot = self.D_RH2*(concentrsRH2.X_fa_in - X_fa_RH2) \
 				+ paramsRH2.Y_fa*r7 #19.1
 			
@@ -243,7 +244,7 @@ class ADM1H2CH4Bioreactors(Simulation):
 				+ r_T_9 * paramsRCH4.V_liq_del_V_gas #1.2
 			m_gas_ch4_RCH4_dot = paramsRCH4.D_gas * S_gas_ch4_RCH4
 			
-			self.Q_ch4_RCH4_NEW = paramsRCH4.K_Y_ch4 * r11 
+			self.Q_ch4_RCH4_NEW = paramsRCH4.Y_ch4_ac * r11 
 			m_gas_ch4_RCH4_NEW_dot = self.Q_ch4_RCH4_NEW
 			
 			# Set state derivatives
@@ -370,8 +371,7 @@ def TestADM1H2CH4Bioreactor():
 		f_ac_aa = 0.4 #-
 		f_h2_aa = 0.06 #-
 		
-		Y_su = 0.1 #-
-		Y_aa = 0.08 #-
+		Y_suaa = 0.1 #-
 		Y_fa = 0.06 #-
 		
 		
@@ -450,7 +450,7 @@ def TestADM1H2CH4Bioreactor():
 		T_op = 308.15 #K
 	
 		kLa_ch4 = 200 #1/day
-		K_Y_ch4 = 1.0 #-
+		Y_ch4_ac = 1.0 #-
 		
 		# Physical parameters
 		V_liq_del_V_gas = 3.0 #L/L 

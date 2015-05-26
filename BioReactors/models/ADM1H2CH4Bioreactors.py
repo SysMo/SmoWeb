@@ -63,20 +63,20 @@ class CH4Bioreactor(NumericalModel):
     kLa_ch4 = F.Quantity('Bio_TimeRate', default = (0.0, '1/day'), minValue = (0, '1/day'), 
         label = 'k<sub>L</sub>a<sub> ch4</sub>', description = 'gas-liquid transfer coefficient of methane')
     
-    K_Y_ch4 = F.Quantity(default = 0.0, minValue = 0.0,
-        label = 'K<sub>Y,ac</sub>', description = 'yield of methane')
+    Y_ch4_ac = F.Quantity(default = 0.0, minValue = 0.0,
+        label = 'Y<sub>ch4,ac</sub>', description = 'yield coefficient of methane on acetate')
 
     physiochemicalParametersFG = F.FieldGroup([
-           kLa_ch4, K_Y_ch4
+           kLa_ch4, Y_ch4_ac
         ],
         label = 'Physiochemical parameters (R-CH4)'
     )
 
     # Physical parameters
-    V_liq_del_V_gas = F.Quantity(default = 0.0,
+    V_liq_del_V_gas = F.Quantity('Fraction', default = (0.0, '-'),
         label = 'V<sub>liq</sub>/V<sub>gas</sub>', description = 'fraction between the volume of the liquid part and the volume of the gas headspace of the reactor')
     
-    V_liq_RCH4_del_V_liq_RH2 = F.Quantity(default = 0.0,
+    V_liq_RCH4_del_V_liq_RH2 = F.Quantity('Fraction', default = (0.0, '-'),
         label = 'V<sub>liq,RCH4</sub>/V<sub>liq,RH2</sub>', description = 'fraction between the volume of the liquid part of the H2 and CH4 bioreactors')
     
     
@@ -172,16 +172,14 @@ class H2Bioreactor(NumericalModel):
     f_h2_aa = F.Quantity(default = 0.0, minValue = 0.0,
         label = 'f<sub>h2,aa</sub>', description = 'yield of hydrogen on amino acids')
     
-    Y_su = F.Quantity(default = 0.0, minValue = 0.0,
-        label = 'Y<sub>su</sub>', description = 'yield of sugar degraders on sugars')
-    Y_aa = F.Quantity(default = 0.0, minValue = 0.0,
-        label = 'Y<sub>aa</sub>', description = 'yield of amino acids degraders on amino acids')
+    Y_suaa = F.Quantity(default = 0.0, minValue = 0.0,
+        label = 'Y<sub>su-aa</sub>', description = 'yield of sugar and amino acid degraders on sugars and amino acids')
     Y_fa = F.Quantity(default = 0.0, minValue = 0.0,
         label = 'Y<sub>fa</sub>', description = 'yield of LCFA degraders on LCFA')
     
     stoichiometricParametersFG = F.FieldGroup([
             f_ch_xc, f_pr_xc, f_li_xc, f_su_li, f_fa_li, f_ac_su, f_h2_su,
-            f_ac_aa, f_h2_aa, Y_su, Y_aa, Y_fa
+            f_ac_aa, f_h2_aa, Y_suaa, Y_fa
         ],
         label = 'Stoichiometric parameters (R-H2)'
     )
@@ -237,7 +235,7 @@ class H2Bioreactor(NumericalModel):
     )
 
     # Physical parameters
-    V_liq_del_V_gas = F.Quantity(default = 0.0,
+    V_liq_del_V_gas = F.Quantity('Fraction', default = (0.0, '-'),
         label = 'V<sub>liq</sub>/V<sub>gas</sub>', 
         description = 'fraction between the volume of the liquid part and the volume of the gas headspace of the reactor')
 
@@ -532,8 +530,7 @@ class ADM1H2CH4Bioreactors(NumericalModel):
         self.parametersRH2.f_ac_aa = 0.4 #-
         self.parametersRH2.f_h2_aa = 0.06 #-
         
-        self.parametersRH2.Y_su = 0.1 #-
-        self.parametersRH2.Y_aa = 0.08 #-
+        self.parametersRH2.Y_suaa = 0.1 #-
         self.parametersRH2.Y_fa = 0.06 #-
         
         #Biochemical parameter values
@@ -557,7 +554,7 @@ class ADM1H2CH4Bioreactors(NumericalModel):
         self.parametersRH2.kLa_h2 = (200.0, '1/day')
         
         # Physical parameter values
-        self.parametersRH2.V_liq_del_V_gas = 3.0 #L/L
+        self.parametersRH2.V_liq_del_V_gas = (3.0, '-') #L/L
         
         # Volumetric flow rate values
         self.parametersRH2.D_liq_arr[0] = (10.0, 0.0) #(day, 1/day)
@@ -608,11 +605,11 @@ class ADM1H2CH4Bioreactors(NumericalModel):
     
         # Physiochemical parameter values
         self.parametersRCH4.kLa_ch4 = (200.0, '1/day')
-        self.parametersRCH4.K_Y_ch4 = 1.0 #-
+        self.parametersRCH4.Y_ch4_ac = 1.0 #-
         
         # Physical parameter values
-        self.parametersRCH4.V_liq_del_V_gas = 3.0 #L/L
-        self.parametersRCH4.V_liq_RCH4_del_V_liq_RH2 = 50.0 #L/L
+        self.parametersRCH4.V_liq_del_V_gas = (3.0, '-') #L/L
+        self.parametersRCH4.V_liq_RCH4_del_V_liq_RH2 = (50.0, '-') #L/L
         self.parametersRCH4.D_gas = (1.0, '1/day')
 
         # Input concentrations 
