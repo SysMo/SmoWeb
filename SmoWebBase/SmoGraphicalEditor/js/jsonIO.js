@@ -24,6 +24,9 @@ smoGui.io.json.circuitsReader = draw2d.io.Reader.extend({
             	var o = eval("new "+canvas.appName+".componentTypes."+element.type+"()");
                 o.setPersistentAttributes(element);
                 o.name = element.name;
+                if (element.rotation !== undefined) {
+                	o.setRotationAngle(element.rotation);
+                } 
                 canvas.add(o);
                 circuit.components[element.name] = o.getId();
             }
