@@ -6,19 +6,11 @@ smoGui.io.json.circuitsReader = draw2d.io.Reader.extend({
         this._super();
     },
     
-    /**
-     * @method
-     * 
-     * Restore the canvas from a given JSON object.
-     * 
-     * @param {draw2d.Canvas} canvas the canvas to restore
-     * @param {Object} document the json object to load.
-     */
     unmarshal: function(canvas, json){   
         if(typeof json === "string"){
             json = JSON.parse(json);
         }
-        var circuit = {"componentFigures": {}, "connections": []};
+        var circuit = {"components": {}, "connections": []};
         $.each(json.components, $.proxy(function(i, element){
             try{
             	var o = eval("new "+canvas.appName+".componentTypes."+element.type+"()");
@@ -28,7 +20,7 @@ smoGui.io.json.circuitsReader = draw2d.io.Reader.extend({
                 	o.setRotationAngle(element.rotation);
                 } 
                 canvas.add(o);
-                circuit.componentFigures[element.name] = o.getId();
+                circuit.components[element.name] = o;
             }
             catch(exc){
                 debug.error(element,"Unable to instantiate figure type '"+element.type+"' with id '"+element.id+"' during unmarshal by "+this.NAME+". Skipping figure..");
@@ -44,7 +36,7 @@ smoGui.io.json.circuitsReader = draw2d.io.Reader.extend({
             	var targetData = element[1].split(".");
                 var source= null;
                 var target=null;
-                sourceNode = canvas.getFigure(circuit.componentFigures[sourceData[0]]);
+                sourceNode = circuit.components[sourceData[0]];
                 if(sourceNode===null){
                     throw "Source figure with id '"+sourceNode.getId()+"' not found";
                 }
@@ -52,7 +44,7 @@ smoGui.io.json.circuitsReader = draw2d.io.Reader.extend({
                 if(source===null){
                     throw "Unable to find source port '"+sourceData[1]+"' at figure '"+sourceData[0]+"' to unmarshal '"+element.type+"'";
                 }
-                targetNode = canvas.getFigure(circuit.componentFigures[targetData[0]]);
+                targetNode = circuit.components[targetData[0]];
                 if(targetNode===null){
                     throw "Source figure with id '"+targetNode.getId()+"' not found";
                 }
@@ -76,8 +68,8 @@ smoGui.io.json.circuitsReader = draw2d.io.Reader.extend({
         },this));
         // restore group assignment
         //
-        $.each(circuit.componentFigures, $.proxy(function(i, element){
-            if(typeof element.composite !== "undefined"){
+        $.each(circuit.components, $.proxy(function(i, element){
+        	if(element.composite){
                var figure = canvas.getFigure(element.id);
                if(figure===null){
                    figure = canvas.getLine(element.id);
