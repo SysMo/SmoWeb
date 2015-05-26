@@ -332,6 +332,8 @@ def TestADM1H2CH4Bioreactor():
 	solverParams = AttributeDict({
 		'tFinal' : 50., 
 		'tPrint' : .1,
+		'absTol' : 1e-9,
+		'relTol' : 1e-7,
 	})
 		
 	# Initialize model parameters
@@ -471,7 +473,7 @@ def TestADM1H2CH4Bioreactor():
 	
 	# Run simulation or load old results
 	if (simulate == True):
-		bioreactor.prepareSimulation()
+		bioreactor.prepareSimulation(solverParams)
 		bioreactor.run(solverParams)
 	else:
 		bioreactor.loadResult(simIndex = 1)

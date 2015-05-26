@@ -137,7 +137,13 @@ class Simulation(Explicit_Problem):
 		del self.timeEventRegistry[:j]
 		return timeEventList
 
-	def prepareSimulation(self):
+	def prepareSimulation(self, params = None):
+		if params == None:
+			params = AttributeDict({
+				'absTol' : 1e-6, 
+				'relTol' : 1e-6,
+			})
+		
 		#Define an explicit solver 
 		simSolver = CVode(self) 
 		#Create a CVode solver
@@ -147,8 +153,8 @@ class Simulation(Explicit_Problem):
 		simSolver.iter = 'Newton' #Default 'FixedPoint'
 		simSolver.discr = 'BDF' #Default 'Adams'
 		#simSolver.discr = 'Adams' 
-		simSolver.atol = [1e-6]	#Default 1e-6 
-		simSolver.rtol = 1e-6 	#Default 1e-6
+		simSolver.atol = [params.absTol]	#Default 1e-6 
+		simSolver.rtol = params.relTol 	#Default 1e-6		
 		simSolver.problem_info['step_events'] = True # activates step events
 		#simSolver.maxh = 1.0
 		simSolver.store_event_points = True

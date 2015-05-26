@@ -12,10 +12,13 @@ from smo.model.model import NumericalModel
 #from smo.web.modules import RestModule
 
 class SolverSettings(NumericalModel):
-    tFinal = F.Quantity('Bio_Time', default = (0., 'day'), minValue = (0, 'day'), maxValue=(1000, 'day'), label = 'simulation time')
-    tPrint = F.Quantity('Bio_Time', default = (0., 'day'), minValue = (1e-5, 'day'), maxValue = (100, 'day'), label = 'print interval')
+    tFinal = F.Quantity('Bio_Time', default = (0.0, 'day'), minValue = (0, 'day'), maxValue=(1000, 'day'), label = 'simulation time')
+    tPrint = F.Quantity('Bio_Time', default = (0.0, 'day'), minValue = (1e-5, 'day'), maxValue = (100, 'day'), label = 'print interval')
     
-    FG = F.FieldGroup([tFinal, tPrint], label = 'Solver')
+    absTol = F.Quantity('Bio_Time', default = (0.0, 'day'), minValue = (1e-16, 'day'), maxValue = (1e-5, 'day'), label = 'absolute tolerance')
+    relTol = F.Quantity('Bio_Time', default = (0.0, 'day'), minValue = (1e-16, 'day'), maxValue = (1e-3, 'day'), label = 'relative tolerance')
+    
+    FG = F.FieldGroup([tFinal, tPrint, absTol, relTol], label = 'Solver')
     SG = F.SuperGroup([FG], label = 'Settings')
     
     modelBlocks = []
@@ -600,6 +603,8 @@ class ADM1H2CH4Bioreactors(NumericalModel):
         ############# Solver settings ###############
         self.solverSettings.tFinal = (50.0, 'day')
         self.solverSettings.tPrint = (0.1, 'day')
+        self.solverSettings.absTol = (1e-9, 'day')
+        self.solverSettings.relTol = (1e-7, 'day')
                     
     def computeAsync(self):        
         # Simulate RH2 and RCH4 Bioreactors
@@ -607,7 +612,7 @@ class ADM1H2CH4Bioreactors(NumericalModel):
                 self.parametersRH2, self.concentrationsRH2,
                 self.parametersRCH4, self.concentrationsRCH4)
         
-        bioreactor.prepareSimulation()
+        bioreactor.prepareSimulation(self.solverSettings)
         bioreactor.run(self.solverSettings)
         
         # Show results
