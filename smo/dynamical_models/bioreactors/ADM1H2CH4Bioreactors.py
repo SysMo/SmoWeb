@@ -69,7 +69,8 @@ class ADM1H2CH4Bioreactors(Simulation):
 			
 			'S_ac_RCH4', 'S_ch4_RCH4', 
 			'X_ac_RCH4', 
-			'S_gas_ch4_RCH4', 'm_gas_ch4_RCH4'
+			'S_gas_ch4_RCH4', 'm_gas_ch4_RCH4',
+			'm_gas_ch4_RCH4_NEW'
 		] 
 		self.y = NamedStateVector(stateVarNames)
 		self.yRes = NamedStateVector(stateVarNames)
@@ -81,7 +82,7 @@ class ADM1H2CH4Bioreactors(Simulation):
 			datasetPath = dataStorageDatasetPath)
 		if (kwargs.get('initDataStorage', True)):
 			self.resultStorage.initializeWriting(
-				varList = ['time'] + stateVarNames + ['D_RH2', 'D_RCH4'],
+				varList = ['time'] + stateVarNames + ['Q_ch4_RCH4_NEW', 'D_RH2', 'D_RCH4'],
 				chunkSize = 1e4
 			)
 		
@@ -119,7 +120,10 @@ class ADM1H2CH4Bioreactors(Simulation):
 		self.y.S_ch4_RCH4 = concentrsRCH4.S_ch4_0
 		self.y.X_ac_RCH4 = concentrsRCH4.X_ac_0
 		self.y.S_gas_ch4_RCH4 = concentrsRCH4.S_gas_ch4_0
-		self.y.m_gas_ch4_RCH4 = 0.0	
+		self.y.m_gas_ch4_RCH4 = 0.0
+		self.y.m_gas_ch4_RCH4_NEW = 0.0		
+		
+		self.Q_ch4_RCH4_NEW = 0.0
 				
 		# Set all the initial state values
 		self.y0 = self.y.get(copy = True)
@@ -239,12 +243,16 @@ class ADM1H2CH4Bioreactors(Simulation):
 				+ r_T_9 * paramsRCH4.V_liq_del_V_gas #1.2
 			m_gas_ch4_RCH4_dot = paramsRCH4.D_gas * S_gas_ch4_RCH4
 			
+			self.Q_ch4_RCH4_NEW = paramsRCH4.K_Y_ch4 * r11 
+			m_gas_ch4_RCH4_NEW_dot = self.Q_ch4_RCH4_NEW
+			
 			# Set state derivatives
 			self.yDot.S_ac_RCH4 = S_ac_RCH4_dot
 			self.yDot.S_ch4_RCH4 = S_ch4_RCH4_dot
 			self.yDot.X_ac_RCH4 = X_ac_RCH4_dot
 			self.yDot.S_gas_ch4_RCH4 = S_gas_ch4_RCH4_dot
 			self.yDot.m_gas_ch4_RCH4 = m_gas_ch4_RCH4_dot
+			self.yDot.m_gas_ch4_RCH4_NEW = m_gas_ch4_RCH4_NEW_dot
 			
 		except Exception, e:
 			self.resultStorage.finalizeResult()
@@ -294,6 +302,8 @@ class ADM1H2CH4Bioreactors(Simulation):
 			self.yRes.X_ac_RCH4, 
 			self.yRes.S_gas_ch4_RCH4, self.yRes.m_gas_ch4_RCH4,
 			
+			self.yRes.m_gas_ch4_RCH4_NEW, self.Q_ch4_RCH4_NEW,
+			 
 			self.D_RH2, self.D_RCH4
 		)
 		self.resultStorage.saveTimeStep()
@@ -440,10 +450,11 @@ def TestADM1H2CH4Bioreactor():
 		T_op = 308.15 #K
 	
 		kLa_ch4 = 200 #1/day
+		K_Y_ch4 = 1.0 #-
 		
 		# Physical parameters
 		V_liq_del_V_gas = 3.0 #L/L 
-		V_liq_RCH4_del_V_liq_RH2 = 5. #L/L V2/V1 #:TODO: (Milen) V_liq_RCH4_del_V_liq_RH2
+		V_liq_RCH4_del_V_liq_RH2 = 5.
 		
 		# Controller - D = q/V
 		D_gas = 3.0 #1/day

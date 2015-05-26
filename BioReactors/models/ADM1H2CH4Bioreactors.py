@@ -62,9 +62,12 @@ class CH4Bioreactor(NumericalModel):
     # Physiochemical parameters
     kLa_ch4 = F.Quantity('Bio_TimeRate', default = (0.0, '1/day'), minValue = (0, '1/day'), 
         label = 'k<sub>L</sub>a<sub> ch4</sub>', description = 'gas-liquid transfer coefficient of methane')
+    
+    K_Y_ch4 = F.Quantity(default = 0.0, minValue = 0.0,
+        label = 'K<sub>Y,ac</sub>', description = 'yield of methane')
 
     physiochemicalParametersFG = F.FieldGroup([
-           kLa_ch4,
+           kLa_ch4, K_Y_ch4
         ],
         label = 'Physiochemical parameters (R-CH4)'
     )
@@ -428,9 +431,12 @@ class ADM1H2CH4Bioreactors(NumericalModel):
         ('X_ac_RCH4', F.Quantity('Bio_MassConcentration', default=(1, 'g/L'))), #16
         ('S_gas_ch4_RCH4', F.Quantity('Bio_CODConcentration', default=(1, 'gCOD/L'))), #17
         ('m_gas_ch4_RCH4', F.Quantity('Bio_CODConcentration', default=(1, 'gCOD/L'))), #18
-  
-        ('D_RH2', F.Quantity('Bio_TimeRate', default=(1, '1/day'))), #19
-        ('D_RCH4', F.Quantity('Bio_TimeRate', default=(1, '1/day'))), #20
+        
+        ('m_gas_ch4_RCH4_NEW', F.Quantity('Bio_CODConcentration', default=(1, 'gCOD/L'))), #19
+        ('Q_ch4_RCH4_NEW', F.Quantity('Bio_CODConcentrationFlowRate', default=(1, 'gCOD/L/day'))), #20
+        
+        ('D_RH2', F.Quantity('Bio_TimeRate', default=(1, '1/day'))), #21
+        ('D_RCH4', F.Quantity('Bio_TimeRate', default=(1, '1/day'))), #22
     )
     
     plot1RH2 = F.PlotView(
@@ -460,11 +466,29 @@ class ADM1H2CH4Bioreactors(NumericalModel):
         storage = 'storage',
     )
     
+    plot4RH2 = F.PlotView(
+        varTuples,
+        label='RH2 (H<sub>2</sub>)', 
+        options = {'ylabel' : None}, 
+        visibleColumns = [0, 12, 13],
+        useHdfStorage = True,
+        storage = 'storage',
+    )
+    
+    plot1RCH4 = F.PlotView(
+        varTuples,
+        label='RCH4 (CH<sub>4</sub>)', 
+        options = {'ylabel' : None}, 
+        visibleColumns = [0, 17, 18, 19, 20],
+        useHdfStorage = True,
+        storage = 'storage',
+    )
+    
     plotD = F.PlotView(
         varTuples,
         label='(D<sub>RH2</sub>, D<sub>RCH4</sub>)', 
         options = {'ylabel' : None}, 
-        visibleColumns = [0, 19, 20],
+        visibleColumns = [0, 21, 22],
         useHdfStorage = True,
         storage = 'storage',
     )
@@ -478,7 +502,7 @@ class ADM1H2CH4Bioreactors(NumericalModel):
     )
     
     storageVG = F.ViewGroup([storage], show="false")
-    resultsVG = F.ViewGroup([plot1RH2, plot2RH2, plot3RH2, plotD, table])
+    resultsVG = F.ViewGroup([plot1RH2, plot2RH2, plot3RH2, plot4RH2, plot1RCH4, plotD, table])
     resultsSG = F.SuperGroup([resultsVG, storageVG], label = 'Results')
     
  
@@ -584,6 +608,7 @@ class ADM1H2CH4Bioreactors(NumericalModel):
     
         # Physiochemical parameter values
         self.parametersRCH4.kLa_ch4 = (200.0, '1/day')
+        self.parametersRCH4.K_Y_ch4 = 1.0 #-
         
         # Physical parameter values
         self.parametersRCH4.V_liq_del_V_gas = 3.0 #L/L
