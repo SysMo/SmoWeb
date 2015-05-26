@@ -170,12 +170,15 @@ smoGui.io.json.componentsReader = draw2d.io.Reader.extend({
             	if (typeof componentDef.ports !== 'undefined') {
 	            	eval('var ports = ' + JSON.stringify(componentDef.ports)); 
             	}
+            	var count = 0;
             	eval('result.' + componentDef.name + ' = smoGui.SVGFigure\
             			.extend({\
             				NAME : "' + componentDef.name + '",\
 	            			init : function(attr, setter, getter)\
 	            			{\
+            					this.count = count;\
             					this._super($.extend({ports: ports}, attr), setter, getter);\
+            					count++;\
             				},\
                     		getSVG: function(){\
                     			return \'' + componentDef.geometry +

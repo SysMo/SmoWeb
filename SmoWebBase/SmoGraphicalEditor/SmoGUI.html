@@ -33,31 +33,37 @@
 			$(document).ready(function() {
 				app = new smoGui.Application("app")
 				app.addCanvas("canvas", {width: 1000, height: 430});
-				app.addComponentTypes(componentDefinitions);
+				var componentTypes = app.addComponentTypes(componentDefinitions);
+				$.each(componentTypes, function(index, element){
+					$('#components > ul').append('<li id="' + element + '">' + element + '</li>');
+				});
 				app.addCircuit(circuit);
 				var componetFiguresArr = app.getComponetFigures();
 				for (var i=0; i<componetFiguresArr.length; i++) {
-					//smoGui.addComponentModal(app.canvas.getFigure(jsonObj[figKey].id));
 					smoGui.addComponentModal(componetFiguresArr[i]);
 				}
-				
-				$('#components ul>li').each(function(index, element){
+				$('#components > ul > li').each(function(index, element){
 					$(element)
 					.draggable({
 								appendTo: "body",
 								helper: "clone",
+								start: function(e, ui)
+								{
+								  $(ui.helper).css("list-style-type", "none");
+								},
 								stop: function(event, ui) {
-									var	name = prompt("Please enter component name");
-									if (name == "" || name == null) {
-										return;
-									}
 									var myShape;
+									var	name;
 									var cloneOffset = ui.helper.offset();
 									var id = $(this).context.id;
-									if (id == 'OpAmp') {
-										myShape = new app.componentTypes.OpAmp();
-										myShape.name = name;
+									myShape = eval('new app.componentTypes.' + id + '()');
+									do {
+										name = prompt("Please enter component name", id+myShape.count);
+									} while (name == "")
+									if (name == null) {
+										return;
 									}
+									myShape.name = name;
 									app.canvas.add(myShape, cloneOffset.left - app.canvas.getAbsoluteX(), 
 									cloneOffset.top - app.canvas.getAbsoluteY());
 									smoGui.addComponentModal(myShape);
@@ -70,9 +76,7 @@
 <body id="container">
 	<div id="canvas" style="border: 3px solid grey;"></div>
 	<div id="components" style="width: 200px; height: 650px; position: absolute; top: 10px; left: 1050px; border: 3px solid green; overflow-y: auto;">
-		<ul>
-			<li id="OpAmp">OpAmp</li>
-		</ul>
+		<ul style="list-style-type: none;"></ul>
 	</div>
 	<div id="console" style="width: 1000px; height: 200px; position: absolute; top: 460px; border: 3px solid blue; overflow-y: auto;">
 		<div id="console-header" style="margin-bottom: 5px;">

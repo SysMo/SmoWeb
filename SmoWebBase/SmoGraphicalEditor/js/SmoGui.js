@@ -172,6 +172,7 @@ smoGui.Application = Class.extend({
 	addComponentTypes : function(defs)
 	{
 		this.componentTypes = new smoGui.io.json.componentsReader().read(defs);
+		return Object.keys(this.componentTypes);
 	},
 	addCircuit: function(json){
 		this.circuit = new smoGui.io.json.circuitsReader().unmarshal(this.canvas, json);

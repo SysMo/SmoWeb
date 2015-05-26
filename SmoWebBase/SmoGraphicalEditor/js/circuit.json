@@ -16,9 +16,17 @@ var circuit =
 					  "id": "ebfb35bb-5767-8155-c804-14bd48789dc22",
 					  "x": 250,
 					  "y": 50
+					},
+					{
+					  "name": "Voltage1",
+					  "type": "Voltage",
+					  "id": "d6eb61d9-7a2d-483b-b661-bc76fec4c436",
+					  "x": 100,
+					  "y": 150
 					}
 				],
 	"connections": [ 
-					["OpAmp1.opAmpInputPort", "OpAmp2.opAmpOutputPort"]
+					["OpAmp1.opAmpOutputPort", "Voltage1.VoltageInputPort"],
+					["Voltage1.VoltageOutputPort", "OpAmp2.opAmpInputPlus"]
 				]
 };
