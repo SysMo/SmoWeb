@@ -19,7 +19,7 @@ from SmoWeb.settings import MEDIA_ROOT
 tmpFolderPath = os.path.join (MEDIA_ROOT, 'tmp')
 csvFileName = os.path.join(tmpFolderPath, 'BioReactors_ADM1H2CH4Bioreactor_SimulationResults.csv')
 dataStorageFilePath =  os.path.join(tmpFolderPath, 'BioReactors_SimulationResults.h5')
-dataStorageDatasetPath = '/ADM1H2CH4Bioreactor'
+dataStorageDatasetPath = '/ADM1H2CH4Bioreactors'
 
 class ADM1TimeEvent(TimeEvent):	
 	"""
@@ -32,7 +32,7 @@ class ADM1TimeEvent(TimeEvent):
 		self.eventType = "ADM1_TIME_EVENT"
 		self.description = "Change the dilution rate (D) to {0}".format(newValue_D)
 		
-class ADM1H2CH4Bioreactor(Simulation):
+class ADM1H2CH4Bioreactors(Simulation):
 	"""
 	Class for implementation the model of a ADM1 H2 and CH4 Bioreactors
 	"""
@@ -42,7 +42,7 @@ class ADM1H2CH4Bioreactor(Simulation):
 				paramsRH2, concentrsRH2, 
 				paramsRCH4, concentrsRCH4,
 				**kwargs):
-		super(ADM1H2CH4Bioreactor, self).__init__(**kwargs)
+		super(ADM1H2CH4Bioreactors, self).__init__(**kwargs)
 		
 		# Initialize update progress function
 		self.updateProgress = webModel.updateProgress
@@ -281,7 +281,7 @@ class ADM1H2CH4Bioreactor(Simulation):
 			raise TerminateSimulation()
 	
 	def handle_result(self, solver, t, y):
-		super(ADM1H2CH4Bioreactor, self).handle_result(solver, t, y)
+		super(ADM1H2CH4Bioreactors, self).handle_result(solver, t, y)
 		self.updateProgress(t, self.tFinal)
 			
 		self.yRes.set(y)
@@ -463,7 +463,7 @@ def TestADM1H2CH4Bioreactor():
 	
 	
 	# Create the model
-	bioreactor = ADM1H2CH4Bioreactor(
+	bioreactor = ADM1H2CH4Bioreactors(
 		webModel = webModel, 
 		paramsRH2 = modelParamsRH2, 
 		concentrsRH2 = modelConcentrsRH2,
