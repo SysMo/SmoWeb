@@ -64,7 +64,7 @@ class ADM1H2CH4Bioreactor(Simulation):
 		# Create state vector and derivative vector
 		stateVarNames = [
 			'S_su_RH2', 'S_aa_RH2', 'S_fa_RH2', 'S_ac_RH2', 'S_h2_RH2',
-			'X_c_RH2', 'X_ch_RH2', 'X_pr_RH2', 'X_li_RH2', 'X_su_RH2', 'X_aa_RH2', 'X_fa_RH2', 
+			'X_c_RH2', 'X_ch_RH2', 'X_pr_RH2', 'X_li_RH2', 'X_suaa_RH2', 'X_fa_RH2', 
 			'S_gas_h2_RH2', 'm_gas_h2_RH2',
 			
 			'S_ac_RCH4', 'S_ch4_RCH4', 
@@ -110,8 +110,7 @@ class ADM1H2CH4Bioreactor(Simulation):
 		self.y.X_ch_RH2 = concentrsRH2.X_ch_0
 		self.y.X_pr_RH2 = concentrsRH2.X_pr_0
 		self.y.X_li_RH2 = concentrsRH2.X_li_0
-		self.y.X_su_RH2 = concentrsRH2.X_su_0
-		self.y.X_aa_RH2 = concentrsRH2.X_aa_0
+		self.y.X_suaa_RH2 = concentrsRH2.X_suaa_0
 		self.y.X_fa_RH2 = concentrsRH2.X_fa_0
 		self.y.S_gas_h2_RH2 = concentrsRH2.S_gas_h2_0
 		self.y.m_gas_h2_RH2 = 0.0		
@@ -150,8 +149,7 @@ class ADM1H2CH4Bioreactor(Simulation):
 			X_ch_RH2 = self.y.X_ch_RH2
 			X_pr_RH2 = self.y.X_pr_RH2
 			X_li_RH2 = self.y.X_li_RH2
-			X_su_RH2 = self.y.X_su_RH2
-			X_aa_RH2 = self.y.X_aa_RH2
+			X_suaa_RH2 = self.y.X_suaa_RH2
 			X_fa_RH2 = self.y.X_fa_RH2
 			S_gas_h2_RH2 = self.y.S_gas_h2_RH2
 			
@@ -160,8 +158,8 @@ class ADM1H2CH4Bioreactor(Simulation):
 			r2 = paramsRH2.k_hyd_ch * X_ch_RH2
 			r3 = paramsRH2.k_hyd_pr * X_pr_RH2
 			r4 = paramsRH2.k_hyd_li * X_li_RH2
-			r5 = paramsRH2.k_m_su * (S_su_RH2 / (paramsRH2.K_S_su + S_su_RH2)) * X_su_RH2
-			r6 = paramsRH2.k_m_aa * (S_aa_RH2 / (paramsRH2.K_S_aa + S_aa_RH2)) * X_aa_RH2
+			r5 = paramsRH2.k_m_suaa * (S_su_RH2 / (paramsRH2.K_S_suaa + S_su_RH2)) * X_suaa_RH2 * (S_su_RH2/(S_su_RH2+S_aa_RH2))
+			r6 = paramsRH2.k_m_suaa * (S_aa_RH2 / (paramsRH2.K_S_suaa + S_aa_RH2)) * X_suaa_RH2 * (S_aa_RH2/(S_su_RH2+S_aa_RH2))
 			r7 = paramsRH2.k_m_fa * (S_fa_RH2 / (paramsRH2.K_S_fa + S_fa_RH2)) * X_fa_RH2
 			
 			# Compute transfer rates
@@ -191,11 +189,9 @@ class ADM1H2CH4Bioreactor(Simulation):
 				+ paramsRH2.f_pr_xc*r1 - r3 #15.1
 			X_li_RH2_dot = self.D_RH2*(concentrsRH2.X_li_in - X_li_RH2) \
 				+ paramsRH2.f_li_xc*r1 - r4 #16.1
-			X_su_RH2_dot = self.D_RH2*(concentrsRH2.X_su_in - X_su_RH2) \
+			X_suaa_RH2_dot = self.D_RH2*(concentrsRH2.X_suaa_in - X_suaa_RH2) \
 				+ paramsRH2.Y_su*r5 #17.1
-			X_aa_RH2_dot = self.D_RH2*(concentrsRH2.X_aa_in - X_aa_RH2) \
-				+ paramsRH2.Y_aa*r6 #18.1
-			X_fa_RH2_dot = self.D_RH2*(concentrsRH2.X_aa_in - X_fa_RH2) \
+			X_fa_RH2_dot = self.D_RH2*(concentrsRH2.X_fa_in - X_fa_RH2) \
 				+ paramsRH2.Y_fa*r7 #19.1
 			
 			S_gas_h2_RH2_dot = paramsRH2.D_gas*(0. - S_gas_h2_RH2) \
@@ -212,8 +208,7 @@ class ADM1H2CH4Bioreactor(Simulation):
 			self.yDot.X_ch_RH2 = X_ch_RH2_dot
 			self.yDot.X_pr_RH2 = X_pr_RH2_dot
 			self.yDot.X_li_RH2 = X_li_RH2_dot
-			self.yDot.X_su_RH2 = X_su_RH2_dot
-			self.yDot.X_aa_RH2 = X_aa_RH2_dot
+			self.yDot.X_suaa_RH2 = X_suaa_RH2_dot
 			self.yDot.X_fa_RH2 = X_fa_RH2_dot
 			self.yDot.S_gas_h2_RH2 = S_gas_h2_RH2_dot
 			self.yDot.m_gas_h2_RH2 = m_gas_h2_RH2_dot
@@ -292,7 +287,7 @@ class ADM1H2CH4Bioreactor(Simulation):
 		self.yRes.set(y)
 		self.resultStorage.record[:] = (t, 
 			self.yRes.S_su_RH2, self.yRes.S_aa_RH2, self.yRes.S_fa_RH2, self.yRes.S_ac_RH2, self.yRes.S_h2_RH2,  
-			self.yRes.X_c_RH2, self.yRes.X_ch_RH2, self.yRes.X_pr_RH2, self.yRes.X_li_RH2, self.yRes.X_su_RH2, self.yRes.X_aa_RH2, self.yRes.X_fa_RH2,
+			self.yRes.X_c_RH2, self.yRes.X_ch_RH2, self.yRes.X_pr_RH2, self.yRes.X_li_RH2, self.yRes.X_suaa_RH2, self.yRes.X_fa_RH2,
 			self.yRes.S_gas_h2_RH2, self.yRes.m_gas_h2_RH2,
 			
 			self.yRes.S_ac_RCH4, self.yRes.S_ch4_RCH4,  
@@ -375,11 +370,8 @@ def TestADM1H2CH4Bioreactor():
 		k_hyd_pr = 10.0 #1/day
 		k_hyd_li = 10.0 #1/day
 		
-		k_m_su = 30.0 #1/day
-		K_S_su = 0.5 #g/L
-		
-		k_m_aa = 50.0 #1/day
-		K_S_aa = 0.3 #g/L 
+		k_m_suaa = 30.0 #1/day
+		K_S_suaa = 0.5 #g/L
 		
 		k_m_fa = 6.0 #1/day
 		K_S_fa = 0.4 #g/L
@@ -410,8 +402,7 @@ def TestADM1H2CH4Bioreactor():
 		X_ch_in = 5.0 #gCOD/L
 		X_pr_in = 20.0 #gCOD/L
 		X_li_in = 5.0 #gCOD/L
-		X_su_in = 0 * 0.01 #g/L
-		X_aa_in = 0 * 0.01 #g/L
+		X_suaa_in = 0 * 0.01 #g/L
 		X_fa_in = 0 * 0.01 #g/L
 		
 		# Initial values of state variables 
@@ -424,8 +415,7 @@ def TestADM1H2CH4Bioreactor():
 		X_ch_0 = 5.0 #gCOD/L
 		X_pr_0 = 20.0 #gCOD/L
 		X_li_0 = 5.0 #gCOD/L
-		X_su_0 = 0.01 #g/L
-		X_aa_0 = 0.01 #g/L
+		X_suaa_0 = 0.01 #g/L
 		X_fa_0 = 0.01 #g/L
 		S_gas_h2_0 = 1e-5 #gCOD/L
 	modelConcentrsRH2 = ModelConcentrsRH2()
