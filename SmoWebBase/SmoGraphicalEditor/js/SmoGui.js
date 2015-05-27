@@ -24,7 +24,7 @@ smoGui.createUIList = function (app, listIdSelector) {
 						var id = $(this).context.id;
 						do {
 							myShape = eval('new app.componentTypes.' + id + '()');
-						} while ((id+myShape.count) in app.scope.circuit.components);
+						} while ((id+myShape.count) in app.circuit.components);
 						do {
 							name = prompt("Please enter component name", id+myShape.count);
 						} while (name == "");
@@ -32,7 +32,7 @@ smoGui.createUIList = function (app, listIdSelector) {
 							return;
 						}
 						myShape.name = name;
-						app.scope.circuit.components[name] = myShape;
+						app.circuit.components[name] = myShape;
 						app.canvas.add(myShape, cloneOffset.left - app.canvas.getAbsoluteX(), 
 						cloneOffset.top - app.canvas.getAbsoluteY());
 						myShape.addToScope();
@@ -117,13 +117,13 @@ smoGui.SVGFigure = draw2d.SVGFigure.extend({
         }
         
         var canvas = this.getCanvas();
-        canvas.app.scope.circuit.components[this.name] = this;
+        canvas.app.circuit.components[this.name] = this;
         canvas.app.scope.$digest();
 	},
 	
 	removeFromScope : function() {
 		var canvas = this.getCanvas();
-		delete canvas.app.scope.circuit.components[this.name];
+		delete canvas.app.circuit.components[this.name];
 		canvas.app.scope.$digest();
 	},
 	
@@ -137,7 +137,7 @@ smoGui.SVGFigure = draw2d.SVGFigure.extend({
 smoGui.Application = Class.extend({
 	
 	NAME : "smoGui.Application",
-	// Canvas, communicates with figures and vice versa
+	// Canvas is linked with app and with figures
 	smoCanvas : draw2d.Canvas.extend({
 		NAME : "smoCanvas",
 		init:function(id, app, dimensions){
@@ -153,13 +153,13 @@ smoGui.Application = Class.extend({
 			});
 		},
 	}),
-	//Console
+	// Console is linked with app
 	smoConsole : Class.extend({
 		NAME : "smoConsole",
-		init:function(app)
+		init:function(app, consoleIdSelector)
 		{
 			var log= function(msg){
-				$("#events").prepend($("<div>"+new Date().toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1")+" - "+msg+"</div>"));
+				$(consoleIdSelector).prepend($("<div>"+new Date().toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1")+" - "+msg+"</div>"));
 			};
 			app.canvas.on("figure:add", function(emitter, event){
 				log("Figure added");
@@ -184,10 +184,10 @@ smoGui.Application = Class.extend({
 		},
 		clear:function()
 		{
-			$("#events").empty();
+			$(consoleIdSelector).empty();
 		}	
 	}),
-	// UI List
+	// UI List is linked with app
 	smoUiList : Class.extend({
 		NAME : "smoUiList",
 		init:function(app, listIdSelector)
@@ -215,7 +215,7 @@ smoGui.Application = Class.extend({
 								var id = $(this).context.id;
 								do {
 									myShape = eval('new app.componentTypes.' + id + '()');
-								} while ((id+myShape.count) in app.scope.circuit.components);
+								} while ((id+myShape.count) in app.circuit.components);
 								do {
 									name = prompt("Please enter component name", id+myShape.count);
 								} while (name == "");
@@ -223,7 +223,7 @@ smoGui.Application = Class.extend({
 									return;
 								}
 								myShape.name = name;
-								app.scope.circuit.components[name] = myShape;
+								app.circuit.components[name] = myShape;
 								app.canvas.add(myShape, cloneOffset.left - app.canvas.getAbsoluteX(), 
 								cloneOffset.top - app.canvas.getAbsoluteY());
 								myShape.addToScope();
@@ -236,10 +236,10 @@ smoGui.Application = Class.extend({
 	init : function(name, scope) 
 	{
 		this.name = name;
-		// Angular scope communicates with app and vice verca
+		// App is linked with scope
 		this.scope = scope;
-		this.scope.circuit = {components: {}, connections: []};
-		// App communicates with canvas and vice versa
+		// General scope object for angular, e.g. for ng-repeat
+		this.circuit = {components: {}, connections: []};
 		this.canvas = null;
 		this.componentTypes = null;
 	},
@@ -248,9 +248,9 @@ smoGui.Application = Class.extend({
 	{
 		this.canvas = new this.smoCanvas(id, this, dimensions);
 	},
-	addConsole : function()
+	addConsole : function(consoleIdSelector)
 	{
-		new this.smoConsole(this);
+		new this.smoConsole(this, consoleIdSelector);
 	},
 	addComponentTypes : function(defs)
 	{

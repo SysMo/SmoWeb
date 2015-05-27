@@ -46,7 +46,7 @@
 				//Creating the GUI app
 				$scope.smoGuiApp = new smoGui.Application("smoGuiApp", $scope);
 				$scope.smoGuiApp.addCanvas("canvas", {width: 1000, height: 430});
-				$scope.smoGuiApp.addConsole();
+				$scope.smoGuiApp.addConsole("#events");
 				$scope.smoGuiApp.addComponentTypes(componentDefinitions);
 				$scope.smoGuiApp.createUIList("#components");
 				$scope.smoGuiApp.addCircuit(circuit);
@@ -68,7 +68,7 @@
 		<div id="events"></div>
 	</div>
 	<div id="component-modals-container">
-		<div ng-repeat="(name, component) in circuit.components">
+		<div ng-repeat="(name, component) in smoGuiApp.circuit.components">
 			<div smo-modal="component"></div>
 		</div>
 	</div>
