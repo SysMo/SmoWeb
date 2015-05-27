@@ -29,32 +29,41 @@ class SimulationCompiler(object):
 		"""
 		Builds dependancy graph for all variables and functions in the model
 		"""
+		# Create dependency graph
 		self.depGraph = nx.DiGraph()
 		self.depGraph.add_node('stateVector')
 		self.depGraph.add_node('stateDerivativeVector')
+		# Allocate containers for model attributes 
+		self.stateEventDefinitions = []
+		# Process module
 		self.addModelToDependencyGraph(self.model)
+		# Extract more attributes
 		self.realStates = self.depGraph.successors('stateVector')
 		print("Real states ({}): [{}]".format(len(self.realStates), ", ".join(state.qName for state in self.realStates)))
 	
 	def addModelToDependencyGraph(self, model):
 		self.depGraph.add_node(model)
 		# Add all the variables 
-		for k, v in model.meta.dm_variables.iteritems():
+		for _, v in model.meta.dm_variables.iteritems():
+			# Real states
 			if isinstance(v.clsVar, F.RealState):
 				self.depGraph.add_edge('stateVector', v)
 				self.depGraph.add_edge(v, model)
 				self.depGraph.add_edge(v.qName + '.der', 'stateDerivativeVector')
 				self.depGraph.add_edge(model, v.qName + '.der')
-			if (v.clsVar.causality == F.Causality.Input):
+			# Continuous inputs
+			if (v.clsVar.variability == F.Variability.Continuous and v.clsVar.causality == F.Causality.Input):
 				self.depGraph.add_node(v)
 				self.depGraph.add_edge(v, model)
 				if (len(v.connectedVars) > 0):
 					self.depGraph.add_edge(v.connectedVars[0], v)
-			elif (v.clsVar.causality == F.Causality.Output):
+			# Continuous outputs
+			elif (v.clsVar.variability == F.Variability.Continuous and v.clsVar.causality == F.Causality.Output):
 				self.depGraph.add_node(v)
 				self.depGraph.add_edge(model, v)
+			# TODO: constant/fixed/tunable outputs
 		# Insert functions and fix causality
-		for k, v in model.meta.dm_functions.iteritems():
+		for _, v in model.meta.dm_functions.iteritems():
 			self.depGraph.add_node(v)
 			for inVar in v.inputs:
 				self.depGraph.add_edge(inVar, v)
@@ -62,7 +71,9 @@ class SimulationCompiler(object):
 				self.depGraph.add_edge(v, outVar)
 				self.depGraph.remove_edge(model, outVar)
 				self.depGraph.add_edge(outVar, model)
-				
+		# Extract state events
+		for _, v in model.__class__.dm_stateEvents.iteritems():
+			self.stateEventDefinitions.append((model, v))
 		# Include recursively the submodels
 		for subModelName in model.__class__.dm_submodels.iterkeys():
 			self.addModelToDependencyGraph(getattr(model, subModelName))

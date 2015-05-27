@@ -29,10 +29,28 @@ class HeatSource(DynamicalModel):
 	T = F.RealVariable(causality = CS.Input)
 	QDot = F.RealVariable(causality = CS.Output)
 	p = ThermalPort('R', TVar = T, QVar = QDot)
+	isHeating = F.IntegerVariable(default = 1)
 
 	def compute(self, t):
-		self.QDot = 100 * math.sin(t / 1000) # 10 * (350 - self.T)
+		#self.QDot = 100 * math.sin(t / 1000)
+		#self.QDot = 10 * (350 - self.T)
+		self.QDot = 100 * (self.isHeating - 0.5)
+	
+	def checkState(self):
+		newState = -1
+		if (self.isHeating == 1 and self.T > 350):
+			newState = 1
+		elif (self.isHeating == 0 and self.T < 250):
+			newState = 2
+		return newState
+
+	@F.StateEvent(locate = checkState)
+	def onHeatSwitch(self):
+		self.isHeating = self.checkState() - 1
+		print ("isHeating = {}".format(self.isHeating))
+			
 		
+
 class ThermalMass(DynamicalModel):
 	m = F.RealVariable(causality = CS.Parameter, variability = VR.Constant, default = 10.)
 	cp = F.RealVariable(causality = CS.Parameter, variability = VR.Constant, default = 100.)

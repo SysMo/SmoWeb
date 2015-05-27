@@ -17,7 +17,7 @@ class Causality(object):
 	Local = 4
 	Independent = 5
 	RealState = 6
-	TimeDerivative = 7
+	#TimeDerivative = 7
 	
 class Variability(object):
 	"""
@@ -149,6 +149,30 @@ class RealState(RealVariable):
 	def default(self):
 		return self.start
 		
+class IntegerVariable(ScalarVariable):
+	"""
+	Scalar variable of type integer
+	"""
+	def __init__(self, causality = Causality.Local, variability = Variability.Discrete, default = 0, **kwargs):
+		super(IntegerVariable, self).__init__(causality, variability, **kwargs)
+		self.defaultValue = int(default)
+		
+	@property
+	def default(self):
+		return self.defaultValue
+	
+
+class StateEvent(ModelField):
+	"""
+	"""
+	def __init__(self, locate, **kwargs):
+		super(StateEvent, self).__init__(**kwargs)
+		self.locate = locate
+		
+	def __call__(self, update):
+		self.update = update
+		return self
+
 class SubModel(ModelField):
 	"""
 	Submodel as part of a larger model
@@ -267,6 +291,7 @@ class InstancePort(InstanceField):
 		self.clsVar.checkConnect(other.clsVar)
 		for (thisVar, otherVar) in zip(self.variables, other.variables):
 			thisVar.connect(otherVar)
+
 
 class DerivativeVector(object):
 	"""

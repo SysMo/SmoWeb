@@ -22,6 +22,7 @@ class DynamicalModelMeta(type):
 		dm_realStates = []
 		dm_functions = []
 		dm_ports = []
+		dm_stateEvents = {}
 		for key, value in attrs.items():
 			if isinstance(value, F.ScalarVariable):
 				dm_variables.append((key, value))
@@ -41,6 +42,10 @@ class DynamicalModelMeta(type):
 				dm_submodels.append((key, value))
 				value.setName(key)
 				attrs.pop(key)
+			elif isinstance(value, F.StateEvent):
+				dm_stateEvents[key] = value
+				value.setName(key)
+				attrs.pop(key)
 		
 		# Create special class variables with the collected fields
 		dm_variables.sort(key=lambda x: x[1].creation_counter)
@@ -53,6 +58,7 @@ class DynamicalModelMeta(type):
 		attrs['dm_ports'] = OrderedDict(dm_ports)
 		dm_submodels.sort(key=lambda x: x[1].creation_counter)
 		attrs['dm_submodels'] = OrderedDict(dm_submodels)
+		attrs['dm_stateEvents'] = dm_stateEvents
 		
 		new_class = (super(DynamicalModelMeta, cls)
 			.__new__(cls, name, bases, attrs))
