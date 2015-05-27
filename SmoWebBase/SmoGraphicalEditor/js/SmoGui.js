@@ -24,7 +24,7 @@ smoGui.createUIList = function (app, listIdSelector) {
 						var id = $(this).context.id;
 						do {
 							myShape = eval('new app.componentTypes.' + id + '()');
-						} while ((id+myShape.count) in app.circuit.components);
+						} while ((id+myShape.count) in app.scope.circuit.components);
 						do {
 							name = prompt("Please enter component name", id+myShape.count);
 						} while (name == "");
@@ -32,10 +32,10 @@ smoGui.createUIList = function (app, listIdSelector) {
 							return;
 						}
 						myShape.name = name;
-						app.circuit.components[name] = myShape;
+						app.scope.circuit.components[name] = myShape;
 						app.canvas.add(myShape, cloneOffset.left - app.canvas.getAbsoluteX(), 
 						cloneOffset.top - app.canvas.getAbsoluteY());
-						myShape.addModal();
+						myShape.addToScope();
 					}
 		});
 	});
@@ -65,7 +65,7 @@ smoGui.FigureEditPolicy = draw2d.policy.figure.FigureEditPolicy.extend({
 						// with undo/redo support
 						var cmd = new draw2d.command.CommandDelete(this);
 						this.getCanvas().getCommandStack().execute(cmd);
-						this.removeModal();
+						this.removeFromScope();
 					default:
 						break;
             	}
@@ -103,49 +103,25 @@ smoGui.SVGFigure = draw2d.SVGFigure.extend({
 	init : function(attr, setter, getter)
 	{
 		this._super(attr, setter, getter);
-		this.ports = attr["ports"];
-		this.fields = attr["fields"];
 		for (var i=0; i<this.ports.length; i++) {
 			var portLocator =  new this.SmoPortLocator(this.ports[i][2][0], this.ports[i][2][1]);
 			var port = this.createPort(this.ports[i][1], portLocator);
 			port.setName(this.ports[i][0]);
     	}
 		this.installEditPolicy(new smoGui.FigureEditPolicy());
-	}, 
-	
-	addModal : function() {
-		var modalTemplate = '\<div class="modal fade" id="' + this.id + '-modal">\
-								<div class="modal-dialog">\
-							    	<div class="modal-content">\
-								      <div class="modal-header">\
-								        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>\
-								        <h4 class="modal-title">' + this.name + '</h4>\
-								      </div>\
-								      <div class="modal-body">';
-		app.scope[this.name] = {};
-		app.scope[this.name].fields = this.fields;
-		app.scope[this.name].values = this.values;
-		for (var i=0; i<app.scope[this.name].fields.length; i++) {
-			if (app.scope[this.name].values === undefined) continue;
-			modalTemplate += '<div smo-quantity view-type="input" field-var="' + this.name + '.fields[' + i + ']" smo-data-source="' + this.name + '.values"></div>';
-		}
-		modalTemplate += '\
-								      </div>\
-								      <div class="modal-footer">\
-								        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>\
-								        <button type="button" class="btn btn-primary">Save changes</button>\
-								      </div>\
-							      </div>\
-							  </div>\
-							</div>';
-
-
-
-		$('#component-modals-container').append(app.compile(modalTemplate)(app.scope));
 	},
 	
-	removeModal : function() {
-		$( '#' + this.id + '-modal').remove();
+	addToScope : function() {
+        if (this.values === undefined) {
+        	this.values = this.fieldgroup.defaultValues;
+        }
+		app.scope.circuit.components[this.name] = this;
+		app.scope.$digest();
+	},
+	
+	removeFromScope : function() {
+		delete app.scope.circuit.components[this.name];
+		app.scope.$digest();
 	},
 	
 	editProperties : function() {
@@ -210,9 +186,11 @@ smoGui.Application = Class.extend({
 	
 	init : function(name) 
 	{
-		this.name = name;	
+		this.name = name;
+		this.canvas = null;
+		this.console = null;
 		this.componentTypes = null;
-		this.circuit = null;
+		this.scope = null;
 	},
 	
 	addCanvas : function(id, dimensions)
@@ -229,12 +207,7 @@ smoGui.Application = Class.extend({
 	},
 	
 	addCircuit: function(json){
-		this.circuit = new smoGui.io.json.circuitsReader().unmarshal(this.canvas, json);
-		
-		//Adding modals to component figures present on the canvas
-        $.each(this.circuit.components, function(name, element){
-        	element.addModal();
-        });
+		new smoGui.io.json.circuitsReader().unmarshal(this, json);
 	}, 
 	
 	getComponentTypeNames : function()

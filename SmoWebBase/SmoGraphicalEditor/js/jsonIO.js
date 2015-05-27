@@ -6,24 +6,21 @@ smoGui.io.json.circuitsReader = draw2d.io.Reader.extend({
         this._super();
     },
     
-    unmarshal: function(canvas, json){   
+    unmarshal: function(app, json){   
         if(typeof json === "string"){
             json = JSON.parse(json);
         }
-        var circuit = {"components": {}, "connections": []};
         $.each(json.components, $.proxy(function(i, element){
             try{
-            	var o = eval("new "+canvas.appName+".componentTypes."+element.type+"()");
+            	var o = eval("new "+ app.canvas.appName+".componentTypes."+element.type+"()");
                 o.setPersistentAttributes(element);
                 o.name = element.name;
                 if (element.rotation !== undefined) {
                 	o.setRotationAngle(element.rotation);
                 }
-                if (element.values !== undefined) {
-                	o.values = element.values;
-                } 
-                canvas.add(o);
-                circuit.components[element.name] = o;
+                app.canvas.add(o);
+                o.values = element.values;
+                o.addToScope();
             }
             catch(exc){
                 debug.error(element,"Unable to instantiate figure type '"+element.type+"' with id '"+element.id+"' during unmarshal by "+this.NAME+". Skipping figure..");
@@ -39,7 +36,7 @@ smoGui.io.json.circuitsReader = draw2d.io.Reader.extend({
             	var targetData = element[1].split(".");
                 var source= null;
                 var target=null;
-                sourceNode = circuit.components[sourceData[0]];
+                sourceNode = app.scope.circuit.components[sourceData[0]];
                 if(sourceNode===null){
                     throw "Source figure with id '"+sourceNode.getId()+"' not found";
                 }
@@ -47,7 +44,7 @@ smoGui.io.json.circuitsReader = draw2d.io.Reader.extend({
                 if(source===null){
                     throw "Unable to find source port '"+sourceData[1]+"' at figure '"+sourceData[0]+"' to unmarshal '"+element.type+"'";
                 }
-                targetNode = circuit.components[targetData[0]];
+                targetNode = app.scope.circuit.components[targetData[0]];
                 if(targetNode===null){
                     throw "Source figure with id '"+targetNode.getId()+"' not found";
                 }
@@ -60,8 +57,8 @@ smoGui.io.json.circuitsReader = draw2d.io.Reader.extend({
                     o.setTarget(target);
                 }
                 o.setPersistentAttributes(element);
-                canvas.add(o);
-                circuit.connections.push(o);
+                app.canvas.add(o);
+                app.scope.circuit.connections.push(o);
             }
             catch(exc){
                 debug.error(element,"Unable to instantiate figure type '"+element.type+"' with id '"+element.id+"' during unmarshal by "+this.NAME+". Skipping figure..");
@@ -71,26 +68,25 @@ smoGui.io.json.circuitsReader = draw2d.io.Reader.extend({
         },this));
         // restore group assignment
         //
-        $.each(circuit.components, $.proxy(function(i, element){
+        $.each(app.scope.circuit.components, $.proxy(function(i, element){
         	if(element.composite){
-               var figure = canvas.getFigure(element.id);
+               var figure = app.canvas.getFigure(element.id);
                if(figure===null){
-                   figure = canvas.getLine(element.id);
+                   figure = app.canvas.getLine(element.id);
                }
-               var group = canvas.getFigure(element.composite);
+               var group = app.canvas.getFigure(element.composite);
                group.assignFigure(figure);
             }
         },this));
         // recalculate all crossings and repaint the connections with 
         // possible crossing decoration
-        canvas.calculateConnectionIntersection();
-        canvas.getLines().each(function(i,line){
+        app.canvas.calculateConnectionIntersection();
+        app.canvas.getLines().each(function(i,line){
             line.svgPathString=null;
             line.repaint();
         });
-        canvas.linesToRepaintAfterDragDrop = canvas.getLines().clone();
-
-        canvas.showDecoration();
+        app.canvas.linesToRepaintAfterDragDrop = app.canvas.getLines().clone();
+        app.canvas.showDecoration();
         return circuit;
     }
 });
@@ -161,19 +157,22 @@ smoGui.io.json.componentsReader = draw2d.io.Reader.extend({
         
         $.each(json, $.proxy(function(i, componentDef){
             try{
-            	var portsData = {};
             	var ports;
-            	var fields;
+            	var fieldgroup;
             	if (typeof componentDef.ports !== 'undefined') {
 	            	eval('ports = ' + JSON.stringify(componentDef.ports)); 
             	} else {
             		ports = [];
             	}
-            	if (typeof componentDef.fields !== 'undefined') {
-	            	eval('var fields = ' + JSON.stringify(componentDef.fields)); 
+            	if (typeof componentDef.fieldgroup !== 'undefined') {
+	            	eval('var fieldgroup = ' + JSON.stringify(componentDef.fieldgroup)); 
             	} else {
-            		fields = [];
+            		throw ('Fieldgroup is undefined.');
             	}
+            	fieldgroup.defaultValues = {};
+            	$.each(fieldgroup.fields, function(index, field) {
+            		fieldgroup.defaultValues[field.name] = field.nominalValue;
+            	});
             	var count = 0;
             	eval('result.' + componentDef.name + ' = smoGui.SVGFigure\
             			.extend({\
@@ -181,7 +180,9 @@ smoGui.io.json.componentsReader = draw2d.io.Reader.extend({
 	            			init : function(attr, setter, getter)\
 	            			{\
             					this.count = count;\
-            					this._super($.extend({ports: ports, fields: fields}, attr), setter, getter);\
+            					this.ports = ports;\
+            					this.fieldgroup = angular.copy(fieldgroup);\
+            					this._super(attr, setter, getter);\
             					count++;\
             				},\
                     		getSVG: function(){\

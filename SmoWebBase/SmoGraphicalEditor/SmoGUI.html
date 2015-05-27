@@ -44,12 +44,11 @@
         //The GUI app
         var app;
         angular.module('SmoGui', ['smo']).controller('SmoGuiController', [ '$scope', '$compile', function($scope, $compile) {
-	        $scope.circuit = {"components":{}, "connections":{}};
 	        $(document).ready(function() {
 				//Initializing the GUI app
 				app = new smoGui.Application("app");
 				app.scope = $scope;
-	        	app.compile = $compile;
+				app.scope.circuit = {components: {}, connections: []};
 				app.addCanvas("canvas", {width: 1000, height: 430});
 				app.addComponentTypes(componentDefinitions);
 				app.addCircuit(circuit);
@@ -72,7 +71,11 @@
 			<span><button onclick="app.canvas.dumpToJson()">Dump to Json</button></span></div>
 		<div id="events"></div>
 	</div>
-	<div id="component-modals-container"></div>
+	<div id="component-modals-container">
+		<div ng-repeat="(name, component) in circuit.components">
+			<div smo-modal="component"></div>
+		</div>
+	</div>
 <div>
 </body>
 </html>

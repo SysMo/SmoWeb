@@ -8,17 +8,23 @@ var componentDefinitions =
 <line x1=\"39.14941\" y1=\"18\" x2=\"45.81055\" y2=\"18\" stroke=\"#010101\" />\
 <line x1=\"0.53516\"  y1=\"27\" x2=\"8.21191\"  y2=\"27\" stroke=\"#010101\" />\
 </svg>",
-	"fields": [
+	"fieldgroup": { "hideContainer": false, "fields": 
+		[
 				{"nominalValue": 1.0, "title": "bio: mass concentration", "minValue": 0.0, "SIUnit": "kg/m**3", "maxValue": 1e+99, "name": "S0", "units": [["kg/m**3", {"mult": 1}], ["g/L", {"mult": 1}], ["g/cm**3", {"mult": 1000.0}]], "defaultDispUnit": "g/L", "label": "S<sub>0</sub>", "type": "Quantity", "quantity": "Bio_MassConcentration"}, 
 				{"nominalValue": 1.0, "title": "bio: mass concentration", "minValue": 0.0, "SIUnit": "kg/m**3", "maxValue": 1e+99, "name": "X0", "units": [["kg/m**3", {"mult": 1}], ["g/L", {"mult": 1}], ["g/cm**3", {"mult": 1000.0}]], "defaultDispUnit": "g/L", "label": "X<sub>0</sub>", "type": "Quantity", "quantity": "Bio_MassConcentration"}
-	]
-	},
+		], "type": "FieldGroup", "name": "initialValuesFG", "label": "Initial values" }
+},
 {
 	  "name": "Voltage",
 	  "ports": [["VoltageInputPort", "input", [0, 0.5]], ["VoltageOutputPort", "output", [1., 0.5]]],
 	  "geometry":	"<svg width=\"49\" height=\"28\" xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">\
 	  <path d=\"m24.99933,18.95592l0,-9.54576m-5.78374,-9.40907l0,28.35939m-5.78718,-9.40457l0,-9.54576m-5.78374,-9.40907l0,28.35939\" id=\"path10566\" stroke-miterlimit=\"14.3\" stroke=\"#010101\" fill=\"none\"/>\
 	  <path d=\"m26.79878,14.13039l6.90583,0m-33.22691,0l6.90583,0\" id=\"path10568\" stroke-miterlimit=\"14.3\" stroke-linecap=\"square\" stroke=\"#010101\" fill=\"none\"/>\
-	  </svg>"
-	}
+	  </svg>",
+	  	"fieldgroup": { "hideContainer": false, "fields": 
+		[
+				{"nominalValue": 1.0, "title": "bio: mass concentration", "minValue": 0.0, "SIUnit": "kg/m**3", "maxValue": 1e+99, "name": "S0", "units": [["kg/m**3", {"mult": 1}], ["g/L", {"mult": 1}], ["g/cm**3", {"mult": 1000.0}]], "defaultDispUnit": "g/L", "label": "S<sub>0</sub>", "type": "Quantity", "quantity": "Bio_MassConcentration"}, 
+				{"nominalValue": 1.0, "title": "bio: mass concentration", "minValue": 0.0, "SIUnit": "kg/m**3", "maxValue": 1e+99, "name": "X0", "units": [["kg/m**3", {"mult": 1}], ["g/L", {"mult": 1}], ["g/cm**3", {"mult": 1000.0}]], "defaultDispUnit": "g/L", "label": "X<sub>0</sub>", "type": "Quantity", "quantity": "Bio_MassConcentration"}
+		], "type": "FieldGroup", "name": "initialValuesFG", "label": "Initial values" }
+}
 ];

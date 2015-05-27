@@ -8,7 +8,8 @@ var circuit =
 					  "x": 50,
 					  "y": 50,
 					  "rotation": 90,
-					  "values": {"S0": 2., "X0": 3.}
+					  "values": { "K": 3.7, "S0": 0, "m": 3, "X_in": 0, "X0": 0.5, "S_in": 5, "tFinal": 100, 
+					  			"gamma": 0.6, "tPrint": 0.1 }
 					}
 				  	,
 				  	{
@@ -16,14 +17,17 @@ var circuit =
 					  "type": "OpAmp",
 					  "id": "ebfb35bb-5767-8155-c804-14bd48789dc22",
 					  "x": 250,
-					  "y": 50
+					  "y": 50,
+					  "values": { "K": 3.7, "S0": 1, "m": 3, "X_in": 0, "X0": 0.7, "S_in": 5, "tFinal": 100, 
+					  			"gamma": 0.6, "tPrint": 0.1 }
 					},
 					{
 					  "name": "Voltage1",
 					  "type": "Voltage",
 					  "id": "d6eb61d9-7a2d-483b-b661-bc76fec4c436",
 					  "x": 100,
-					  "y": 150
+					  "y": 150,
+					  
 					}
 				],
 	"connections": [ 

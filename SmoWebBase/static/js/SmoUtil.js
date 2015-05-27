@@ -2212,3 +2212,35 @@ smoModule.directive('smoModelView', ['$compile', '$location', 'communicator',
 		}	
 	}
 }]);
+
+smoModule.directive('smoModal', ['$compile', function($compile) {
+	return {
+		restrict : 'A',
+		scope : {
+			component : '=smoModal',
+		},
+		link : function(scope, element, attr) {
+			var template = '\<div class="modal fade" id="' + scope.component.id + '-modal">\
+								<div class="modal-dialog">\
+							    	<div class="modal-content">\
+								      <div class="modal-header">\
+								        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>\
+								        <h4 class="modal-title">' + scope.component.name + '</h4>\
+								      </div>\
+								      <div class="modal-body">\
+								        <div smo-field-group="component.fieldgroup" view-type="input" smo-data-source="component.values"></div>\
+							          </div>\
+								        <div class="modal-footer">\
+								          <button type="button" class="btn btn-default" data-dismiss="modal">OK</button>\
+								        </div>\
+							        </div>\
+							    </div>\
+							  </div>';
+			
+			var el = angular.element(template);
+	        compiled = $compile(el);
+	        element.append(el);
+	        compiled(scope);
+		}	
+	}
+}]);
