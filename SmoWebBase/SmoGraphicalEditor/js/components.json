@@ -7,7 +7,11 @@ var componentDefinitions =
 <line x1=\"0.53516\"  y1=\"8\"  x2=\"8.21191\"  y2=\"8\"  stroke=\"#010101\"/>\
 <line x1=\"39.14941\" y1=\"18\" x2=\"45.81055\" y2=\"18\" stroke=\"#010101\" />\
 <line x1=\"0.53516\"  y1=\"27\" x2=\"8.21191\"  y2=\"27\" stroke=\"#010101\" />\
-</svg>"
+</svg>",
+	"fields": [
+				{"nominalValue": 1.0, "title": "bio: mass concentration", "minValue": 0.0, "SIUnit": "kg/m**3", "maxValue": 1e+99, "name": "S0", "units": [["kg/m**3", {"mult": 1}], ["g/L", {"mult": 1}], ["g/cm**3", {"mult": 1000.0}]], "defaultDispUnit": "g/L", "label": "S<sub>0</sub>", "type": "Quantity", "quantity": "Bio_MassConcentration"}, 
+				{"nominalValue": 1.0, "title": "bio: mass concentration", "minValue": 0.0, "SIUnit": "kg/m**3", "maxValue": 1e+99, "name": "X0", "units": [["kg/m**3", {"mult": 1}], ["g/L", {"mult": 1}], ["g/cm**3", {"mult": 1000.0}]], "defaultDispUnit": "g/L", "label": "X<sub>0</sub>", "type": "Quantity", "quantity": "Bio_MassConcentration"}
+	]
 	},
 {
 	  "name": "Voltage",

@@ -103,7 +103,8 @@ smoGui.SVGFigure = draw2d.SVGFigure.extend({
 	init : function(attr, setter, getter)
 	{
 		this._super(attr, setter, getter);
-		this.ports = attr["ports"] || [];
+		this.ports = attr["ports"];
+		this.fields = attr["fields"];
 		for (var i=0; i<this.ports.length; i++) {
 			var portLocator =  new this.SmoPortLocator(this.ports[i][2][0], this.ports[i][2][1]);
 			var port = this.createPort(this.ports[i][1], portLocator);
@@ -113,41 +114,42 @@ smoGui.SVGFigure = draw2d.SVGFigure.extend({
 	}, 
 	
 	addModal : function() {
-		var modalTemplate = '\
-			<div id="' + this.id + '-properties-dialog">\
-				<div>' + this.name + '</div>\
-				<form>\
-					<fieldset>';
-		for (var property in this.properties) {
-			modalTemplate += '\
-			      <label for="' + this.id + '-' + property + '">' + property + '</label>\
-			      <input type="text" + name="' + this.id + '-' + property + '" id="' + this.id + '-' + property + '" value="' + String(this.properties[property]) + '" class="text ui-widget-content ui-corner-all">';
+		var modalTemplate = '\<div class="modal fade" id="' + this.id + '-modal">\
+								<div class="modal-dialog">\
+							    	<div class="modal-content">\
+								      <div class="modal-header">\
+								        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>\
+								        <h4 class="modal-title">' + this.name + '</h4>\
+								      </div>\
+								      <div class="modal-body">';
+		app.scope[this.name] = {};
+		app.scope[this.name].fields = this.fields;
+		app.scope[this.name].values = this.values;
+		for (var i=0; i<app.scope[this.name].fields.length; i++) {
+			if (app.scope[this.name].values === undefined) continue;
+			modalTemplate += '<div smo-quantity view-type="input" field-var="' + this.name + '.fields[' + i + ']" smo-data-source="' + this.name + '.values"></div>';
 		}
 		modalTemplate += '\
-			    </fieldset>\
-			  </form>\
-			</div>';
-		$('#component-modals-container').append(modalTemplate);
-		$( '#' + this.id + '-properties-dialog').dialog({
-		    autoOpen: false,
-		    height: 300,
-		    width: 350,
-		    modal: true,
-		    buttons: {
-		      "Update": function(){console.log('Updated');},
-		      Cancel: function() {
-		        $(this).dialog( "close" );
-		      }
-		    }
-		});
+								      </div>\
+								      <div class="modal-footer">\
+								        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>\
+								        <button type="button" class="btn btn-primary">Save changes</button>\
+								      </div>\
+							      </div>\
+							  </div>\
+							</div>';
+
+
+
+		$('#component-modals-container').append(app.compile(modalTemplate)(app.scope));
 	},
 	
 	removeModal : function() {
-		$( '#' + this.id + '-properties-dialog').remove();
+		$( '#' + this.id + '-modal').remove();
 	},
 	
 	editProperties : function() {
-		$( '#' + this.id + '-properties-dialog').dialog( "open" );
+		$( '#' + this.id + '-modal').modal( "show" );
 	},
 
 });

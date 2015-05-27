@@ -18,6 +18,9 @@ smoGui.io.json.circuitsReader = draw2d.io.Reader.extend({
                 o.name = element.name;
                 if (element.rotation !== undefined) {
                 	o.setRotationAngle(element.rotation);
+                }
+                if (element.values !== undefined) {
+                	o.values = element.values;
                 } 
                 canvas.add(o);
                 circuit.components[element.name] = o;
@@ -159,8 +162,17 @@ smoGui.io.json.componentsReader = draw2d.io.Reader.extend({
         $.each(json, $.proxy(function(i, componentDef){
             try{
             	var portsData = {};
+            	var ports;
+            	var fields;
             	if (typeof componentDef.ports !== 'undefined') {
-	            	eval('var ports = ' + JSON.stringify(componentDef.ports)); 
+	            	eval('ports = ' + JSON.stringify(componentDef.ports)); 
+            	} else {
+            		ports = [];
+            	}
+            	if (typeof componentDef.fields !== 'undefined') {
+	            	eval('var fields = ' + JSON.stringify(componentDef.fields)); 
+            	} else {
+            		fields = [];
             	}
             	var count = 0;
             	eval('result.' + componentDef.name + ' = smoGui.SVGFigure\
@@ -169,7 +181,7 @@ smoGui.io.json.componentsReader = draw2d.io.Reader.extend({
 	            			init : function(attr, setter, getter)\
 	            			{\
             					this.count = count;\
-            					this._super($.extend({ports: ports}, attr), setter, getter);\
+            					this._super($.extend({ports: ports, fields: fields}, attr), setter, getter);\
             					count++;\
             				},\
                     		getSVG: function(){\

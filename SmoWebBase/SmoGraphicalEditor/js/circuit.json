@@ -7,7 +7,8 @@ var circuit =
 					  "id": "ebfb35bb-5767-8155-c804-14bd48789dc21",
 					  "x": 50,
 					  "y": 50,
-					  "rotation": 90
+					  "rotation": 90,
+					  "values": {"S0": 2., "X0": 3.}
 					}
 				  	,
 				  	{

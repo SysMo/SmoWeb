@@ -2,6 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
+    	<link rel="stylesheet" href="/data/Workspace/Django/django-example/SmoWeb/SmoWebBase/static/css/bootstrap.min.css">
+		<link rel="stylesheet" href="/data/Workspace/Django/django-example/SmoWeb/SmoWebBase/static/css/SmoInputOutputView.css">
+        
+        <!-- Draw2D -->
         <script src="http://draw2d.org/draw2d_touch/jsdoc_5/draw2d/lib/jquery-1.10.2.min.js"></script>
         <script src="http://draw2d.org/draw2d_touch/jsdoc_5/draw2d/lib/jquery.autoresize.js"></script>
         <script src="http://draw2d.org/draw2d_touch/jsdoc_5/draw2d/lib/jquery-touch_punch.js"></script>
@@ -14,6 +18,7 @@
         <script src="http://draw2d.org/draw2d_touch/jsdoc_5/draw2d/lib/json2.js"></script>
         <script src="http://draw2d.org/draw2d_touch/jsdoc_5/draw2d/lib/pathfinding-browser.min.js"></script>
         <script src="http://draw2d.org/draw2d_touch/jsdoc_5/draw2d/src/draw2d.js"></script>
+        
         <!-- jQuery UI -->
 		<script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
 		<link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
@@ -28,20 +33,34 @@
 		<script src="js/components.json"></script>
 		<script src="js/circuit.json"></script>
         
-        <script>			
-			var app;
-			$(document).ready(function() {
-				//Initializing the app
+        <!-- AngularJS & SmoUtil -->   
+    	<script src="/data/Workspace/Django/django-example/SmoWeb/SmoWebBase/static/js/angular.min.js"></script> 
+        <script src="/data/Workspace/Django/django-example/SmoWeb/SmoWebBase/static/js/SmoUtil.js"></script>
+        
+         <!-- Bootstrap --> 
+        <script src="/data/Workspace/Django/django-example/SmoWeb/SmoWebBase/static/js/bootstrap.min.js"></script>
+        
+        <script>
+        //The GUI app
+        var app;
+        angular.module('SmoGui', ['smo']).controller('SmoGuiController', [ '$scope', '$compile', function($scope, $compile) {
+	        $scope.circuit = {"components":{}, "connections":{}};
+	        $(document).ready(function() {
+				//Initializing the GUI app
 				app = new smoGui.Application("app");
+				app.scope = $scope;
+	        	app.compile = $compile;
 				app.addCanvas("canvas", {width: 1000, height: 430});
 				app.addComponentTypes(componentDefinitions);
 				app.addCircuit(circuit);
 				//Creating UI components list
 				smoGui.createUIList(app, "#components");
 			});
+		}]);
         </script>
 </head>
-<body id="container">
+<body id="container" ng-app="SmoGui" ng-controller="SmoGuiController">
+<div>
 	<div id="canvas" style="border: 3px solid grey;"></div>
 	<div style="width: 200px; height: 650px; position: absolute; top: 10px; left: 1050px; border: 3px solid green; overflow-y: auto;">
 		<ul id="components" style="list-style-type: none;"></ul>
@@ -54,5 +73,6 @@
 		<div id="events"></div>
 	</div>
 	<div id="component-modals-container"></div>
+<div>
 </body>
 </html>
