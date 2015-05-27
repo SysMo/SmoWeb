@@ -140,10 +140,10 @@ smoGui.Application = Class.extend({
 	// Canvas is linked with app and with figures
 	smoCanvas : draw2d.Canvas.extend({
 		NAME : "smoCanvas",
-		init:function(id, app, dimensions){
+		init:function(id, app){
 			this._super(id, 500,500);
 			this.setScrollArea("#"+id);
-			this.setDimension(dimensions);
+			this.setDimension({"width": $("#"+id).width(), "height": $("#"+id).height()});
 			this.app = app;
 		},
 		dumpToJson: function(){
@@ -158,33 +158,35 @@ smoGui.Application = Class.extend({
 		NAME : "smoConsole",
 		init:function(app, consoleIdSelector)
 		{
+			this.app = app;
+			this.consoleIdSelector = consoleIdSelector;
 			var log= function(msg){
 				$(consoleIdSelector).prepend($("<div>"+new Date().toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1")+" - "+msg+"</div>"));
 			};
-			app.canvas.on("figure:add", function(emitter, event){
+			this.app.canvas.on("figure:add", function(emitter, event){
 				log("Figure added");
 			});
-			app.canvas.on("figure:remove", function(emitter, event){
+			this.app.canvas.on("figure:remove", function(emitter, event){
 				log("Figure removed");
 			});
-			app.canvas.on("select", function(emitter, event){
+			this.app.canvas.on("select", function(emitter, event){
 				log("Figure selected: "+event);
 			});
 			
 			// use figure.on("dblclick",..) if want determine the related figure...
-			app.canvas.on("dblclick", function(emitter, event){
+			this.app.canvas.on("dblclick", function(emitter, event){
 				log("double click: "+JSON.stringify(event));
 			});
-			app.canvas.on("click", function(emitter, event){
+			this.app.canvas.on("click", function(emitter, event){
 				log("click: "+JSON.stringify(event));
 			});
-			app.canvas.on("contextmenu", function(emitter, event){
+			this.app.canvas.on("contextmenu", function(emitter, event){
 				log("Context Menu: "+JSON.stringify(event));
 			});
 		},
 		clear:function()
 		{
-			$(consoleIdSelector).empty();
+			$(this.consoleIdSelector).empty();
 		}	
 	}),
 	// UI List is linked with app
@@ -241,16 +243,17 @@ smoGui.Application = Class.extend({
 		// General scope object for angular, e.g. for ng-repeat
 		this.circuit = {components: {}, connections: []};
 		this.canvas = null;
+		this.console = null;
 		this.componentTypes = null;
 	},
 	
-	addCanvas : function(id, dimensions)
+	addCanvas : function(id)
 	{
-		this.canvas = new this.smoCanvas(id, this, dimensions);
+		this.canvas = new this.smoCanvas(id, this);
 	},
 	addConsole : function(consoleIdSelector)
 	{
-		new this.smoConsole(this, consoleIdSelector);
+		this.console = new this.smoConsole(this, consoleIdSelector);
 	},
 	addComponentTypes : function(defs)
 	{

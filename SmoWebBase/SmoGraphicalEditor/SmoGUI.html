@@ -45,7 +45,7 @@
 	        $(document).ready(function() {
 				//Creating the GUI app
 				$scope.smoGuiApp = new smoGui.Application("smoGuiApp", $scope);
-				$scope.smoGuiApp.addCanvas("canvas", {width: 1000, height: 430});
+				$scope.smoGuiApp.addCanvas("canvas");
 				$scope.smoGuiApp.addConsole("#events");
 				$scope.smoGuiApp.addComponentTypes(componentDefinitions);
 				$scope.smoGuiApp.createUIList("#components");
@@ -53,25 +53,39 @@
 			});
 		}]);
         </script>
+<style>
+	.row { margin-top:20px; }
+</style>
 </head>
 <body id="container" ng-app="SmoGui" ng-controller="SmoGuiController">
-<div>
-	<div id="canvas" style="border: 3px solid grey;"></div>
-	<div style="width: 200px; height: 650px; position: absolute; top: 10px; left: 1050px; border: 3px solid green; overflow-y: auto;">
-		<ul id="components" style="list-style-type: none;"></ul>
+<div class="container-fluid">
+  <div class="row">
+	<div class="col-md-10">
+		<div id="canvas" style="height: 400px; border: 3px solid grey;"></div>
 	</div>
-	<div id="console" style="width: 1000px; height: 200px; position: absolute; top: 460px; border: 3px solid blue; overflow-y: auto;">
-		<div id="console-header" style="margin-bottom: 5px;">
-			Console 
-			<span><button ng-click="smoGuiApp.console.clear()">Clear</button></span>
-			<span><button ng-click="smoGuiApp.canvas.dumpToJson()">Dump to Json</button></span></div>
-		<div id="events"></div>
-	</div>
-	<div id="component-modals-container">
-		<div ng-repeat="(name, component) in smoGuiApp.circuit.components">
-			<div smo-modal="component"></div>
+	<div class="col-md-2">
+		<div style="height: 394px; border: 3px solid green;">
+			<ul id="components" style="list-style-type: none;"></ul>
 		</div>
 	</div>
+  </div>
+  <div class="row">
+	<div class="col-md-12" id="console">
+		<div style="height: 200px; border: 3px solid blue; overflow-y: auto;">
+			<div id="console-header" style="margin-bottom: 5px;">
+				Console 
+				<span><button ng-click="smoGuiApp.console.clear()">Clear</button></span>
+				<span><button ng-click="smoGuiApp.canvas.dumpToJson()">Dump to Json</button></span>
+			</div>
+			<div id="events"></div>
+		</div>
+	</div>
+  </div>
+  <div id="component-modals-container">
+	<div ng-repeat="(name, component) in smoGuiApp.circuit.components">
+		<div smo-modal="component"></div>
+	</div>
+  </div>
 <div>
 </body>
 </html>
