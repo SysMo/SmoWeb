@@ -41,19 +41,15 @@
         <script src="/data/Workspace/Django/django-example/SmoWeb/SmoWebBase/static/js/bootstrap.min.js"></script>
         
         <script>
-        //The GUI app
-        var app;
         angular.module('SmoGui', ['smo']).controller('SmoGuiController', [ '$scope', '$compile', function($scope, $compile) {
 	        $(document).ready(function() {
-				//Initializing the GUI app
-				app = new smoGui.Application("app");
-				app.scope = $scope;
-				app.scope.circuit = {components: {}, connections: []};
-				app.addCanvas("canvas", {width: 1000, height: 430});
-				app.addComponentTypes(componentDefinitions);
-				app.addCircuit(circuit);
-				//Creating UI components list
-				smoGui.createUIList(app, "#components");
+				//Creating the GUI app
+				$scope.smoGuiApp = new smoGui.Application("smoGuiApp", $scope);
+				$scope.smoGuiApp.addCanvas("canvas", {width: 1000, height: 430});
+				$scope.smoGuiApp.addConsole();
+				$scope.smoGuiApp.addComponentTypes(componentDefinitions);
+				$scope.smoGuiApp.createUIList("#components");
+				$scope.smoGuiApp.addCircuit(circuit);
 			});
 		}]);
         </script>
@@ -67,8 +63,8 @@
 	<div id="console" style="width: 1000px; height: 200px; position: absolute; top: 460px; border: 3px solid blue; overflow-y: auto;">
 		<div id="console-header" style="margin-bottom: 5px;">
 			Console 
-			<span><button onclick="app.console.clear()">Clear</button></span>
-			<span><button onclick="app.canvas.dumpToJson()">Dump to Json</button></span></div>
+			<span><button ng-click="smoGuiApp.console.clear()">Clear</button></span>
+			<span><button ng-click="smoGuiApp.canvas.dumpToJson()">Dump to Json</button></span></div>
 		<div id="events"></div>
 	</div>
 	<div id="component-modals-container">

@@ -12,7 +12,7 @@ smoGui.io.json.circuitsReader = draw2d.io.Reader.extend({
         }
         $.each(json.components, $.proxy(function(i, element){
             try{
-            	var o = eval("new "+ app.canvas.appName+".componentTypes."+element.type+"()");
+            	var o = eval("new app.componentTypes."+element.type+"()");
                 o.setPersistentAttributes(element);
                 o.name = element.name;
                 if (element.rotation !== undefined) {
@@ -87,7 +87,6 @@ smoGui.io.json.circuitsReader = draw2d.io.Reader.extend({
         });
         app.canvas.linesToRepaintAfterDragDrop = app.canvas.getLines().clone();
         app.canvas.showDecoration();
-        return circuit;
     }
 });
 
@@ -137,6 +136,8 @@ smoGui.io.json.circuitsWriter = draw2d.io.Writer.extend({
     		connections[i] = [canvas.getFigure(connections[i].source.node).name+"."+connections[i].source.port,
     		                  canvas.getFigure(connections[i].target.node).name+"."+connections[i].target.port];
     	}
+    	
+    	canvas.app.scope.circuit.connections = connections;
     	return {"components": components, "connections": connections};
     }   
 });

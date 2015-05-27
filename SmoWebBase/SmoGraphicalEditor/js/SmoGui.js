@@ -63,9 +63,9 @@ smoGui.FigureEditPolicy = draw2d.policy.figure.FigureEditPolicy.extend({
 						// without undo/redo support
 						// this.getCanvas().remove(this)
 						// with undo/redo support
-						var cmd = new draw2d.command.CommandDelete(this);
-						this.getCanvas().getCommandStack().execute(cmd);
 						this.removeFromScope();
+						var cmd = new draw2d.command.CommandDelete(this);
+						this.getCanvas().getCommandStack().execute(cmd);						
 					default:
 						break;
             	}
@@ -115,13 +115,16 @@ smoGui.SVGFigure = draw2d.SVGFigure.extend({
         if (this.values === undefined) {
         	this.values = this.fieldgroup.defaultValues;
         }
-		app.scope.circuit.components[this.name] = this;
-		app.scope.$digest();
+        
+        var canvas = this.getCanvas();
+        canvas.app.scope.circuit.components[this.name] = this;
+        canvas.app.scope.$digest();
 	},
 	
 	removeFromScope : function() {
-		delete app.scope.circuit.components[this.name];
-		app.scope.$digest();
+		var canvas = this.getCanvas();
+		delete canvas.app.scope.circuit.components[this.name];
+		canvas.app.scope.$digest();
 	},
 	
 	editProperties : function() {
@@ -130,17 +133,18 @@ smoGui.SVGFigure = draw2d.SVGFigure.extend({
 
 });
 
-
+// The overall structure of the GUI
 smoGui.Application = Class.extend({
 	
 	NAME : "smoGui.Application",
-	
+	// Canvas, communicates with figures and vice versa
 	smoCanvas : draw2d.Canvas.extend({
 		NAME : "smoCanvas",
-		init:function(id){
+		init:function(id, app, dimensions){
 			this._super(id, 500,500);
 			this.setScrollArea("#"+id);
-			this.appName = null;
+			this.setDimension(dimensions);
+			this.app = app;
 		},
 		dumpToJson: function(){
 			var canvas = this;
@@ -149,32 +153,32 @@ smoGui.Application = Class.extend({
 			});
 		},
 	}),
-	
+	//Console
 	smoConsole : Class.extend({
 		NAME : "smoConsole",
-		init:function(canvas)
+		init:function(app)
 		{
 			var log= function(msg){
 				$("#events").prepend($("<div>"+new Date().toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1")+" - "+msg+"</div>"));
 			};
-			canvas.on("figure:add", function(emitter, event){
+			app.canvas.on("figure:add", function(emitter, event){
 				log("Figure added");
 			});
-			canvas.on("figure:remove", function(emitter, event){
+			app.canvas.on("figure:remove", function(emitter, event){
 				log("Figure removed");
 			});
-			canvas.on("select", function(emitter, event){
+			app.canvas.on("select", function(emitter, event){
 				log("Figure selected: "+event);
 			});
 			
 			// use figure.on("dblclick",..) if want determine the related figure...
-			canvas.on("dblclick", function(emitter, event){
+			app.canvas.on("dblclick", function(emitter, event){
 				log("double click: "+JSON.stringify(event));
 			});
-			canvas.on("click", function(emitter, event){
+			app.canvas.on("click", function(emitter, event){
 				log("click: "+JSON.stringify(event));
 			});
-			canvas.on("contextmenu", function(emitter, event){
+			app.canvas.on("contextmenu", function(emitter, event){
 				log("Context Menu: "+JSON.stringify(event));
 			});
 		},
@@ -183,29 +187,79 @@ smoGui.Application = Class.extend({
 			$("#events").empty();
 		}	
 	}),
+	// UI List
+	smoUiList : Class.extend({
+		NAME : "smoUiList",
+		init:function(app, listIdSelector)
+		{
+			//Creating list items
+			var componentTypeNames = app.getComponentTypeNames();
+			$.each(componentTypeNames, function(index, element){
+				$(listIdSelector).append('<li id="' + element + '">' + element + '</li>');
+			});
+			
+			// Enabling dragging of list items
+			$(listIdSelector + ' > li').each(function(index, element){
+				$(element)
+				.draggable({
+							appendTo: "body",
+							helper: "clone",
+							start: function(e, ui)
+							{
+							  $(ui.helper).css("list-style-type", "none");
+							},
+							stop: function(event, ui) {
+								var myShape;
+								var	name;
+								var cloneOffset = ui.helper.offset();
+								var id = $(this).context.id;
+								do {
+									myShape = eval('new app.componentTypes.' + id + '()');
+								} while ((id+myShape.count) in app.scope.circuit.components);
+								do {
+									name = prompt("Please enter component name", id+myShape.count);
+								} while (name == "");
+								if (name == null) {
+									return;
+								}
+								myShape.name = name;
+								app.scope.circuit.components[name] = myShape;
+								app.canvas.add(myShape, cloneOffset.left - app.canvas.getAbsoluteX(), 
+								cloneOffset.top - app.canvas.getAbsoluteY());
+								myShape.addToScope();
+							}
+				});
+			});
+		}
+	}),
 	
-	init : function(name) 
+	init : function(name, scope) 
 	{
 		this.name = name;
+		// Angular scope communicates with app and vice verca
+		this.scope = scope;
+		this.scope.circuit = {components: {}, connections: []};
+		// App communicates with canvas and vice versa
 		this.canvas = null;
-		this.console = null;
 		this.componentTypes = null;
-		this.scope = null;
 	},
 	
 	addCanvas : function(id, dimensions)
 	{
-		this.canvas = new this.smoCanvas(id);
-		this.canvas.setDimension(dimensions);
-		this.canvas.appName = this.name;
-		this.console = new this.smoConsole(this.canvas);
+		this.canvas = new this.smoCanvas(id, this, dimensions);
 	},
-	
+	addConsole : function()
+	{
+		new this.smoConsole(this);
+	},
 	addComponentTypes : function(defs)
 	{
 		this.componentTypes = new smoGui.io.json.componentsReader().read(defs);
 	},
-	
+	createUIList : function(listIdSelector)
+	{
+		new this.smoUiList(this, listIdSelector);
+	},
 	addCircuit: function(json){
 		new smoGui.io.json.circuitsReader().unmarshal(this, json);
 	}, 

@@ -2220,7 +2220,7 @@ smoModule.directive('smoModal', ['$compile', function($compile) {
 			component : '=smoModal',
 		},
 		link : function(scope, element, attr) {
-			var template = '\<div class="modal fade" id="' + scope.component.id + '-modal">\
+			var template = '\<div class="modal" id="' + scope.component.id + '-modal">\
 								<div class="modal-dialog">\
 							    	<div class="modal-content">\
 								      <div class="modal-header">\
