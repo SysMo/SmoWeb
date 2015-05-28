@@ -123,7 +123,7 @@ smoGui.io.json.circuitsWriter = draw2d.io.Writer.extend({
     			components.push(figures[i]);
     		}
     	}
-    	
+    	//console.log(canvas.app.components);
     	for (var i=0; i<components.length; i++) {
     		components[i] = {"name": canvas.getFigure(components[i].id).name,
     						"type": components[i].type,
