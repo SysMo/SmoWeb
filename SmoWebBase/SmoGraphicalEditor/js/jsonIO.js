@@ -36,7 +36,7 @@ smoGui.io.json.circuitsReader = draw2d.io.Reader.extend({
             	var targetData = element[1].split(".");
                 var source= null;
                 var target=null;
-                sourceNode = app.circuit.components[sourceData[0]];
+                sourceNode = app.components[sourceData[0]];
                 if(sourceNode===null){
                     throw "Source figure with id '"+sourceNode.getId()+"' not found";
                 }
@@ -44,7 +44,7 @@ smoGui.io.json.circuitsReader = draw2d.io.Reader.extend({
                 if(source===null){
                     throw "Unable to find source port '"+sourceData[1]+"' at figure '"+sourceData[0]+"' to unmarshal '"+element.type+"'";
                 }
-                targetNode = app.circuit.components[targetData[0]];
+                targetNode = app.components[targetData[0]];
                 if(targetNode===null){
                     throw "Source figure with id '"+targetNode.getId()+"' not found";
                 }
@@ -58,7 +58,6 @@ smoGui.io.json.circuitsReader = draw2d.io.Reader.extend({
                 }
                 o.setPersistentAttributes(element);
                 app.canvas.add(o);
-                app.circuit.connections.push(o);
             }
             catch(exc){
                 debug.error(element,"Unable to instantiate figure type '"+element.type+"' with id '"+element.id+"' during unmarshal by "+this.NAME+". Skipping figure..");
@@ -68,7 +67,7 @@ smoGui.io.json.circuitsReader = draw2d.io.Reader.extend({
         },this));
         // restore group assignment
         //
-        $.each(app.circuit.components, $.proxy(function(i, element){
+        $.each(app.components, $.proxy(function(i, element){
         	if(element.composite){
                var figure = app.canvas.getFigure(element.id);
                if(figure===null){
@@ -136,8 +135,6 @@ smoGui.io.json.circuitsWriter = draw2d.io.Writer.extend({
     		connections[i] = [canvas.getFigure(connections[i].source.node).name+"."+connections[i].source.port,
     		                  canvas.getFigure(connections[i].target.node).name+"."+connections[i].target.port];
     	}
-    	
-    	canvas.app.circuit.connections = connections;
     	return {"components": components, "connections": connections};
     }   
 });

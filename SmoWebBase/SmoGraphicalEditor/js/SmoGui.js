@@ -1,46 +1,5 @@
 var smoGui = {io: {json: {}}};
 
-smoGui.createUIList = function (app, listIdSelector) {
-	//Creating list items
-	var componentTypeNames = app.getComponentTypeNames();
-	$.each(componentTypeNames, function(index, element){
-		$(listIdSelector).append('<li id="' + element + '">' + element + '</li>');
-	});
-	
-	// Enabling dragging of list items
-	$(listIdSelector + ' > li').each(function(index, element){
-		$(element)
-		.draggable({
-					appendTo: "body",
-					helper: "clone",
-					start: function(e, ui)
-					{
-					  $(ui.helper).css("list-style-type", "none");
-					},
-					stop: function(event, ui) {
-						var myShape;
-						var	name;
-						var cloneOffset = ui.helper.offset();
-						var id = $(this).context.id;
-						do {
-							myShape = eval('new app.componentTypes.' + id + '()');
-						} while ((id+myShape.count) in app.circuit.components);
-						do {
-							name = prompt("Please enter component name", id+myShape.count);
-						} while (name == "");
-						if (name == null) {
-							return;
-						}
-						myShape.name = name;
-						app.circuit.components[name] = myShape;
-						app.canvas.add(myShape, cloneOffset.left - app.canvas.getAbsoluteX(), 
-						cloneOffset.top - app.canvas.getAbsoluteY());
-						myShape.addToScope();
-					}
-		});
-	});
-}
-
 smoGui.FigureEditPolicy = draw2d.policy.figure.FigureEditPolicy.extend({
 	NAME : "smoGui.FigureEditPolicy",
 	
@@ -83,6 +42,57 @@ smoGui.FigureEditPolicy = draw2d.policy.figure.FigureEditPolicy.extend({
 	}
 });
 
+smoGui.KeyboardPolicy = draw2d.policy.canvas.KeyboardPolicy.extend({
+
+    NAME : "smoGui.KeyboardPolicy",
+    
+    /**
+     * @constructor 
+     */
+    init: function(){
+        this._super();
+    },
+    
+    /**
+     * @method
+     * Callback if the user press a key.<br>
+     * This implementation checks only if the <b>DEL</b> has been pressed and creates an
+     * CommandDelete if this happens.
+     * 
+     * @param {draw2d.Canvas} canvas the related canvas
+     * @param {Number} keyCode the pressed key
+     * @param {Boolean} shiftKey true if the shift key has been pressed during this event
+     * @param {Boolean} ctrlKey true if the ctrl key has been pressed during the event
+     * @private
+     **/
+    onKeyDown:function(canvas, keyCode, shiftKey, ctrlKey){
+        //
+        if(keyCode===46 && canvas.getCurrentSelection()!==null){
+            // create a single undo/redo transaction if the user delete more than one element. 
+            // This happens with command stack transactions.
+            //
+            canvas.getCommandStack().startTransaction(draw2d.Configuration.i18n.command.deleteShape);
+            canvas.getSelection().each(function(index, figure){
+               if (!(figure instanceof draw2d.Connection)) {
+            	   figure.removeFromScope();
+               }
+               var cmd = figure.createCommand(new draw2d.command.CommandType(draw2d.command.CommandType.DELETE));
+               if(cmd!==null){
+                   canvas.getCommandStack().execute(cmd);
+               }
+           });
+           // execute all single commands at once.
+           canvas.getCommandStack().commitTransaction();
+        }
+        else{
+            this._super(canvas, keyCode, shiftKey, ctrlKey);
+         }
+        
+    }
+
+
+});
+
 smoGui.SVGFigure = draw2d.SVGFigure.extend({
 	
 	NAME : "smoGui.SVGFigure",
@@ -117,13 +127,13 @@ smoGui.SVGFigure = draw2d.SVGFigure.extend({
         }
         
         var canvas = this.getCanvas();
-        canvas.app.circuit.components[this.name] = this;
+        canvas.app.components[this.name] = this;
         canvas.app.scope.$digest();
 	},
 	
 	removeFromScope : function() {
 		var canvas = this.getCanvas();
-		delete canvas.app.circuit.components[this.name];
+		delete canvas.app.components[this.name];
 		canvas.app.scope.$digest();
 	},
 	
@@ -145,6 +155,8 @@ smoGui.Application = Class.extend({
 			this.setScrollArea("#"+id);
 			this.setDimension({"width": $("#"+id).width(), "height": $("#"+id).height()});
 			this.app = app;
+			this.uninstallEditPolicy("draw2d.policy.canvas.DefaultKeyboardPolicy");
+			this.installEditPolicy(new smoGui.KeyboardPolicy());
 		},
 		dumpToJson: function(){
 			var canvas = this;
@@ -217,7 +229,7 @@ smoGui.Application = Class.extend({
 								var id = $(this).context.id;
 								do {
 									myShape = eval('new app.componentTypes.' + id + '()');
-								} while ((id+myShape.count) in app.circuit.components);
+								} while ((id+myShape.count) in app.components);
 								do {
 									name = prompt("Please enter component name", id+myShape.count);
 								} while (name == "");
@@ -225,7 +237,7 @@ smoGui.Application = Class.extend({
 									return;
 								}
 								myShape.name = name;
-								app.circuit.components[name] = myShape;
+								app.components[name] = myShape;
 								app.canvas.add(myShape, cloneOffset.left - app.canvas.getAbsoluteX(), 
 								cloneOffset.top - app.canvas.getAbsoluteY());
 								myShape.addToScope();
@@ -241,7 +253,7 @@ smoGui.Application = Class.extend({
 		// App is linked with scope
 		this.scope = scope;
 		// General scope object for angular, e.g. for ng-repeat
-		this.circuit = {components: {}, connections: []};
+		this.components = {};
 		this.canvas = null;
 		this.console = null;
 		this.componentTypes = null;
