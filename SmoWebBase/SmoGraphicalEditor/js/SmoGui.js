@@ -157,6 +157,7 @@ smoGui.Application = Class.extend({
 			this.app = app;
 			this.uninstallEditPolicy("draw2d.policy.canvas.DefaultKeyboardPolicy");
 			this.installEditPolicy(new smoGui.KeyboardPolicy());
+			this.id = id;
 		},
 		dumpToJson: function(){
 			var canvas = this;
@@ -220,29 +221,35 @@ smoGui.Application = Class.extend({
 							helper: "clone",
 							start: function(e, ui)
 							{
-							  $(ui.helper).css("list-style-type", "none");
+								$(this).draggable("option", "revert", true);
+								$(ui.helper).css("list-style-type", "none");
 							},
-							stop: function(event, ui) {
-								var myShape;
-								var	name;
-								var cloneOffset = ui.helper.offset();
-								var id = $(this).context.id;
-								do {
-									myShape = eval('new app.componentTypes.' + id + '()');
-								} while ((id+myShape.count) in app.components);
-								do {
-									name = prompt("Please enter component name", id+myShape.count);
-								} while (name == "");
-								if (name == null) {
-									return;
-								}
-								myShape.name = name;
-								app.components[name] = myShape;
-								app.canvas.add(myShape, cloneOffset.left - app.canvas.getAbsoluteX(), 
-								cloneOffset.top - app.canvas.getAbsoluteY());
-								myShape.addToScope();
-							}
 				});
+			});
+			// Enabling dropping on canvas
+			$('#' + app.canvas.id).droppable({
+				accept: listIdSelector + ' > li',
+				drop: function( event, ui ) {
+					var myShape;
+					var	name;
+					var cloneOffset = ui.helper.offset();
+					var id = ui.draggable.context.id;
+					$('#'+id).draggable("option", "revert", false);
+					do {
+						myShape = eval('new app.componentTypes.' + id + '()');
+					} while ((id+myShape.count) in app.components);
+					do {
+						name = prompt("Please enter component name", id+myShape.count);
+					} while (name == "");
+					if (name == null) {
+						return;
+					}
+					myShape.name = name;
+					app.components[name] = myShape;
+					app.canvas.add(myShape, cloneOffset.left - app.canvas.getAbsoluteX(), 
+					cloneOffset.top - app.canvas.getAbsoluteY());
+					myShape.addToScope();
+				}
 			});
 		}
 	}),
