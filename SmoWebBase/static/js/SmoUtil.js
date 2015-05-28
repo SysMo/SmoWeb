@@ -2217,7 +2217,7 @@ smoModule.directive('smoModal', ['$compile', function($compile) {
 	return {
 		restrict : 'A',
 		scope : {
-			component : '=smoModal',
+			component : '=smoModal'
 		},
 		link : function(scope, element, attr) {
 			var template = '\<div class="modal fade" id="' + scope.component.id + '-modal">\
@@ -2228,7 +2228,7 @@ smoModule.directive('smoModal', ['$compile', function($compile) {
 								        <h4 class="modal-title">' + scope.component.name + '</h4>\
 								      </div>\
 								      <div class="modal-body">\
-								        <div smo-field-group="component.fieldgroup" view-type="input" smo-data-source="component.values"></div>\
+								      <div smo-super-group-set="component.superGroupSet.superGroups" model-name="Blah" view-type="input" smo-data-source="component.values"></div>\
 							          </div>\
 								        <div class="modal-footer">\
 								          <button type="button" class="btn btn-default" data-dismiss="modal">OK</button>\

@@ -123,7 +123,7 @@ smoGui.SVGFigure = draw2d.SVGFigure.extend({
 	
 	addToScope : function() {
         if (this.values === undefined) {
-        	this.values = this.fieldgroup.defaultValues;
+        	this.values = this.superGroupSet.defaultValues;
         }
         
         var canvas = this.getCanvas();

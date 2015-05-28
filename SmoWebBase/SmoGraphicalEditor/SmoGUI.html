@@ -27,11 +27,6 @@
 		<link rel="stylesheet" href="css/jquery.contextMenu.css">
 		<script src="js/contextMenu/jquery.ui.position.js"></script>
 		<script src="js/contextMenu/jquery.contextMenu.js"></script>
-		
-		<script src="js/SmoGui.js"></script>
-		<script src="js/jsonIO.js"></script>
-		<script src="js/components.json"></script>
-		<script src="js/circuit.json"></script>
         
         <!-- AngularJS & SmoUtil -->   
     	<script src="/data/Workspace/Django/django-example/SmoWeb/SmoWebBase/static/js/angular.min.js"></script> 
@@ -39,6 +34,14 @@
         
          <!-- Bootstrap --> 
         <script src="/data/Workspace/Django/django-example/SmoWeb/SmoWebBase/static/js/bootstrap.min.js"></script>
+        
+        <!-- SmoGui -->
+		<script src="js/SmoGui.js"></script>
+		<script src="js/jsonIO.js"></script>
+		
+		<!-- JSON -->
+		<script src="json/components.json"></script>
+		<script src="json/circuit.json"></script>
         
         <script>
         angular.module('SmoGui', ['smo']).controller('SmoGuiController', [ '$scope', '$compile', function($scope, $compile) {

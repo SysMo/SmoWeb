@@ -23,7 +23,11 @@ smoGui.io.json.circuitsReader = draw2d.io.Reader.extend({
                 }
                 app.canvas.add(o);
                 o.type = element.type;
-                o.values = element.values;
+                if (element.values === undefined) {
+                	o.values = o.superGroupSet.defaultValues;
+                } else {
+                	o.values = element.values;
+                }
                 o.addToScope();
             }
             catch(exc){
@@ -162,21 +166,17 @@ smoGui.io.json.componentsReader = draw2d.io.Reader.extend({
         $.each(json, $.proxy(function(i, componentDef){
             try{
             	var ports;
-            	var fieldgroup;
+            	var superGroupSet;
             	if (typeof componentDef.ports !== 'undefined') {
 	            	eval('ports = ' + JSON.stringify(componentDef.ports)); 
             	} else {
             		ports = [];
             	}
-            	if (typeof componentDef.fieldgroup !== 'undefined') {
-	            	eval('var fieldgroup = ' + JSON.stringify(componentDef.fieldgroup)); 
+            	if (typeof componentDef.superGroupSet !== 'undefined') {
+	            	eval('var superGroupSet = ' + JSON.stringify(componentDef.superGroupSet));
             	} else {
-            		throw ('Fieldgroup is undefined.');
+            		throw ('Super-group set is undefined.');
             	}
-            	fieldgroup.defaultValues = {};
-            	$.each(fieldgroup.fields, function(index, field) {
-            		fieldgroup.defaultValues[field.name] = field.default;
-            	});
             	var count = 0;
             	eval('result.' + componentDef.name + ' = smoGui.SVGFigure\
             			.extend({\
@@ -185,7 +185,7 @@ smoGui.io.json.componentsReader = draw2d.io.Reader.extend({
 	            			{\
             					this.count = count;\
             					this.ports = ports;\
-            					this.fieldgroup = angular.copy(fieldgroup);\
+            					this.superGroupSet = angular.copy(superGroupSet);\
             					this._super(attr, setter, getter);\
             					count++;\
             				},\
