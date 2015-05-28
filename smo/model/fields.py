@@ -5,7 +5,6 @@ import numpy as np
 from quantity import Quantities
 from smo.web.exceptions import *
 from smo.model.actions import ActionBar
-import os
 from SmoWeb.settings import MEDIA_ROOT
 tmpFolderPath = os.path.join (MEDIA_ROOT, 'tmp')
 
@@ -140,6 +139,7 @@ class Quantity(Field):
 		fieldDict['nominalValue'] = Quantities[self.type]['nominalValue']
 		fieldDict['SIUnit'] = Quantities[self.type]['SIUnit']
 		fieldDict['inputBoxWidth'] = self.inputBoxWidth
+		fieldDict['default'] = self.default
 		return fieldDict
 
 class Integer(Field):
@@ -177,6 +177,7 @@ class Integer(Field):
 		fieldDict['minValue'] = self.minValue
 		fieldDict['maxValue'] = self.maxValue
 		fieldDict['inputBoxWidth'] = self.inputBoxWidth
+		fieldDict['default'] = self.default
 		return fieldDict
 
 class Complex(Field):
@@ -203,6 +204,7 @@ class Complex(Field):
 	def toFormDict(self):
 		fieldDict = super(Complex, self).toFormDict()			
 		fieldDict['type'] = 'Complex'
+		fieldDict['default'] = self.default
 		return fieldDict
 		
 class String(Field):
@@ -262,6 +264,7 @@ class String(Field):
 		fieldDict['inputBoxWidth'] = self.inputBoxWidth
 		fieldDict['multiline'] = self.multiline
 		fieldDict['showTooltip'] = self.showTooltip
+		fieldDict['default'] = self.default
 		return fieldDict
 
 class Boolean(Field):
@@ -291,7 +294,8 @@ class Boolean(Field):
 	
 	def toFormDict(self):
 		fieldDict = super(Boolean, self).toFormDict()
-		fieldDict['type'] = 'Boolean'		
+		fieldDict['type'] = 'Boolean'
+		fieldDict['default'] = self.default		
 		return fieldDict
 
 class Choices(Field):
@@ -328,6 +332,7 @@ class Choices(Field):
 		for key in self.options.keys():			
 			optionsList.append([key, self.options[key]])
 		fieldDict['options'] = optionsList
+		fieldDict['default'] = self.default
 		return fieldDict
 
 class ObjectReference(Field):
@@ -361,6 +366,7 @@ class ObjectReference(Field):
 		for key in self.targetContainer.keys():			
 			optionsList.append([key, self.targetContainer[key]['label']])
 		fieldDict['options'] = optionsList
+		fieldDict['default'] = self.default
 # 		fieldDict['options'] = {key : value['label'] for key, value in self.targetContainer.iteritems()}
 		return fieldDict
 
@@ -463,6 +469,7 @@ class RecordArray(Field):
 		fieldDict['defaultRow'] = self.defaultRow
 		fieldDict['empty'] = self.empty
 		fieldDict['toggle'] = self.toggle
+		fieldDict['default'] = self.default
 		return fieldDict
 
 class HdfStorage(Field):

@@ -23,8 +23,8 @@ var componentDefinitions =
 	  </svg>",
 	  	"fieldgroup": { "hideContainer": true, "fields": 
 		[
-				{"nominalValue": 1.0, "title": "bio: mass concentration", "minValue": 0.0, "SIUnit": "kg/m**3", "maxValue": 1e+99, "name": "S0", "units": [["kg/m**3", {"mult": 1}], ["g/L", {"mult": 1}], ["g/cm**3", {"mult": 1000.0}]], "defaultDispUnit": "g/L", "label": "S<sub>0</sub>", "type": "Quantity", "quantity": "Bio_MassConcentration"}, 
-				{"nominalValue": 1.0, "title": "bio: mass concentration", "minValue": 0.0, "SIUnit": "kg/m**3", "maxValue": 1e+99, "name": "X0", "units": [["kg/m**3", {"mult": 1}], ["g/L", {"mult": 1}], ["g/cm**3", {"mult": 1000.0}]], "defaultDispUnit": "g/L", "label": "X<sub>0</sub>", "type": "Quantity", "quantity": "Bio_MassConcentration"}
+				{"default": 1.0, "title": "bio: mass concentration", "minValue": 0.0, "SIUnit": "kg/m**3", "maxValue": 1e+99, "name": "S0", "units": [["kg/m**3", {"mult": 1}], ["g/L", {"mult": 1}], ["g/cm**3", {"mult": 1000.0}]], "defaultDispUnit": "g/L", "label": "S<sub>0</sub>", "type": "Quantity", "quantity": "Bio_MassConcentration"}, 
+				{"default": 1.0, "title": "bio: mass concentration", "minValue": 0.0, "SIUnit": "kg/m**3", "maxValue": 1e+99, "name": "X0", "units": [["kg/m**3", {"mult": 1}], ["g/L", {"mult": 1}], ["g/cm**3", {"mult": 1000.0}]], "defaultDispUnit": "g/L", "label": "X<sub>0</sub>", "type": "Quantity", "quantity": "Bio_MassConcentration"}
 		], "type": "FieldGroup", "name": "initialValuesFG", "label": "Initial values" }
 }
 ];

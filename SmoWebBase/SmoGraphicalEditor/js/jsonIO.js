@@ -13,12 +13,16 @@ smoGui.io.json.circuitsReader = draw2d.io.Reader.extend({
         $.each(json.components, $.proxy(function(i, element){
             try{
             	var o = eval("new app.componentTypes."+element.type+"()");
-                o.setPersistentAttributes(element);
+                if (element.id === undefined) {
+                	element.id = draw2d.util.UUID.create();
+                }
+            	o.setPersistentAttributes(element);
                 o.name = element.name;
                 if (element.rotation !== undefined) {
                 	o.setRotationAngle(element.rotation);
                 }
                 app.canvas.add(o);
+                o.type = element.type;
                 o.values = element.values;
                 o.addToScope();
             }
@@ -32,25 +36,25 @@ smoGui.io.json.circuitsReader = draw2d.io.Reader.extend({
         $.each(json.connections, $.proxy(function(i, element){
             try{
             	var o = new draw2d.Connection();
-            	var sourceData = element[0].split(".");
-            	var targetData = element[1].split(".");
+            	var sourceData = element[0];
+            	var targetData = element[1];
                 var source= null;
                 var target=null;
-                sourceNode = app.components[sourceData[0]];
+                sourceNode = app.components[sourceData.component];
                 if(sourceNode===null){
                     throw "Source figure with id '"+sourceNode.getId()+"' not found";
                 }
-                source = sourceNode.getPort(sourceData[1]);
+                source = sourceNode.getPort(sourceData.port);
                 if(source===null){
-                    throw "Unable to find source port '"+sourceData[1]+"' at figure '"+sourceData[0]+"' to unmarshal '"+element.type+"'";
+                    throw "Unable to find source port '"+sourceData.port+"' at figure '"+sourceData.component+"' to unmarshal '"+element.type+"'";
                 }
-                targetNode = app.components[targetData[0]];
+                targetNode = app.components[targetData.component];
                 if(targetNode===null){
                     throw "Source figure with id '"+targetNode.getId()+"' not found";
                 }
-                target = targetNode.getPort(targetData[1]);
+                target = targetNode.getPort(targetData.port);
                 if(target===null){
-                    throw "Unable to find target port '"+targetData[1]+"' at figure '"+targetData[0]+"' to unmarshal '"+element.type+"'";
+                    throw "Unable to find target port '"+targetData.port+"' at figure '"+targetData.component+"' to unmarshal '"+element.type+"'";
                 }
                 if(source!==null && target!==null){
                     o.setSource(source);
@@ -96,44 +100,46 @@ smoGui.io.json.circuitsWriter = draw2d.io.Writer.extend({
     init: function(){
         this._super();
     },
-    marshal: function(canvas, resultCallback) {
+    marshal: function(app, resultCallback) {
         // I change the API signature from version 2.10.1 to 3.0.0. Throw an exception
         // if any application not care about this changes.
         if(typeof resultCallback !== "function"){
             throw "Writer.marshal method signature has been change from version 2.10.1 to version 3.0.0. Please consult the API documentation about this issue.";
         }
         var figures = [];
-        canvas.getFigures().each(function(i, figure){
+        app.canvas.getFigures().each(function(i, figure){
             figures.push(figure.getPersistentAttributes());
         });
-        canvas.getLines().each(function(i, element){
+        app.canvas.getLines().each(function(i, element){
             figures.push(element.getPersistentAttributes());
         });
     	var base64Content = draw2d.util.Base64.encode(JSON.stringify(figures, null, 2));
     	
-    	resultCallback(this.toCircuit(canvas, figures), base64Content);
+    	resultCallback(this.toCircuit(app, figures), base64Content);
     },
-    toCircuit: function(canvas, figures) {
+    toCircuit: function(app, figures) {
     	var components = [];
     	var connections = [];
     	for (var i=0; i<figures.length; i++){
     		if (figures[i].type == "draw2d.Connection") {
     			connections.push(figures[i]);
-    		} else {
-    			components.push(figures[i]);
     		}
     	}
-    	//console.log(canvas.app.components);
-    	for (var i=0; i<components.length; i++) {
-    		components[i] = {"name": canvas.getFigure(components[i].id).name,
-    						"type": components[i].type,
-    						"id": components[i].id,
-    						"x": components[i].x,
-    						"y": components[i].y};
-    	}
     	for (var i=0; i<connections.length; i++) {
-    		connections[i] = [canvas.getFigure(connections[i].source.node).name+"."+connections[i].source.port,
-    		                  canvas.getFigure(connections[i].target.node).name+"."+connections[i].target.port];
+    		connections[i] = [
+    		                  {"component": app.canvas.getFigure(connections[i].source.node).name, 
+    							"port": connections[i].source.port}, 
+    						  {"component": app.canvas.getFigure(connections[i].target.node).name,
+    						  	"port": connections[i].target.port}
+    						 ];
+    	}
+    	for (var componentName in app.components) {
+    		components.push({"name": componentName,
+    						"type": app.components[componentName].type,
+    						"id": app.components[componentName].id,
+    						"values": app.components[componentName].values,
+    						"x": app.components[componentName].x,
+    						"y": app.components[componentName].y});
     	}
     	return {"components": components, "connections": connections};
     }   
@@ -169,7 +175,7 @@ smoGui.io.json.componentsReader = draw2d.io.Reader.extend({
             	}
             	fieldgroup.defaultValues = {};
             	$.each(fieldgroup.fields, function(index, field) {
-            		fieldgroup.defaultValues[field.name] = field.nominalValue;
+            		fieldgroup.defaultValues[field.name] = field.default;
             	});
             	var count = 0;
             	eval('result.' + componentDef.name + ' = smoGui.SVGFigure\

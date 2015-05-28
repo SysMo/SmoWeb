@@ -158,13 +158,7 @@ smoGui.Application = Class.extend({
 			this.uninstallEditPolicy("draw2d.policy.canvas.DefaultKeyboardPolicy");
 			this.installEditPolicy(new smoGui.KeyboardPolicy());
 			this.id = id;
-		},
-		dumpToJson: function(){
-			var canvas = this;
-			new smoGui.io.json.circuitsWriter().marshal(canvas, function(json){
-				console.log(json);
-			});
-		},
+		}
 	}),
 	// Console is linked with app
 	smoConsole : Class.extend({
@@ -285,7 +279,11 @@ smoGui.Application = Class.extend({
 	addCircuit: function(json){
 		new smoGui.io.json.circuitsReader().unmarshal(this, json);
 	}, 
-	
+	exportCircuit: function(){
+		new smoGui.io.json.circuitsWriter().marshal(this, function(json){
+			console.log(json);
+		});
+	}, 
 	getComponentTypeNames : function()
 	{
 		return Object.keys(this.componentTypes);
