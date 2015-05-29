@@ -2,7 +2,7 @@ var circuit =
 {
 	"components": [
 					{
-					  "name": "OpAmp5",
+					  "name": "OpAmp1",
 					  "type": "OpAmp",
 					  "x": 50,
 					  "y": 50,
@@ -10,13 +10,13 @@ var circuit =
 					}
 				  	,
 				  	{
-					  "name": "OpAmp6",
+					  "name": "OpAmp2",
 					  "type": "OpAmp",
 					  "x": 250,
 					  "y": 50
 					}
 				],
 	"connections": [
-					[{"component": "OpAmp5", "port": "opAmpOutputPort"}, {"component": "OpAmp6", "port": "opAmpInputMinus"}]
+					[{"component": "OpAmp1", "port": "opAmpOutputPort"}, {"component": "OpAmp2", "port": "opAmpInputMinus"}]
 				]
 };

@@ -1,5 +1,6 @@
 var smoGui = {io: {json: {}}};
 
+// Sets behaviour for actions on the figure 
 smoGui.FigureEditPolicy = draw2d.policy.figure.FigureEditPolicy.extend({
 	NAME : "smoGui.FigureEditPolicy",
 	
@@ -42,6 +43,7 @@ smoGui.FigureEditPolicy = draw2d.policy.figure.FigureEditPolicy.extend({
 	}
 });
 
+// Sets behaviour for keyboard actions
 smoGui.KeyboardPolicy = draw2d.policy.canvas.KeyboardPolicy.extend({
 
     NAME : "smoGui.KeyboardPolicy",
@@ -53,20 +55,8 @@ smoGui.KeyboardPolicy = draw2d.policy.canvas.KeyboardPolicy.extend({
         this._super();
     },
     
-    /**
-     * @method
-     * Callback if the user press a key.<br>
-     * This implementation checks only if the <b>DEL</b> has been pressed and creates an
-     * CommandDelete if this happens.
-     * 
-     * @param {draw2d.Canvas} canvas the related canvas
-     * @param {Number} keyCode the pressed key
-     * @param {Boolean} shiftKey true if the shift key has been pressed during this event
-     * @param {Boolean} ctrlKey true if the ctrl key has been pressed during the event
-     * @private
-     **/
     onKeyDown:function(canvas, keyCode, shiftKey, ctrlKey){
-        //
+        // the DEL key
         if(keyCode===46 && canvas.getCurrentSelection()!==null){
             // create a single undo/redo transaction if the user delete more than one element. 
             // This happens with command stack transactions.
@@ -93,11 +83,14 @@ smoGui.KeyboardPolicy = draw2d.policy.canvas.KeyboardPolicy.extend({
 
 });
 
+// Custom SVG figure
 smoGui.SVGFigure = draw2d.SVGFigure.extend({
 	
 	NAME : "smoGui.SVGFigure",
 	
+	// Custom port
 	SmoPortLocator : draw2d.layout.locator.PortLocator.extend({
+		// Port location is set as relative within the figure
 		init: function(x_frac, y_frac){
             this._super();
 			this.x_frac = x_frac;
@@ -113,16 +106,20 @@ smoGui.SVGFigure = draw2d.SVGFigure.extend({
 	init : function(attr, setter, getter)
 	{
 		this._super(attr, setter, getter);
+		// Creating the ports
 		for (var i=0; i<this.ports.length; i++) {
 			var portLocator =  new this.SmoPortLocator(this.ports[i][2][0], this.ports[i][2][1]);
 			var port = this.createPort(this.ports[i][1], portLocator);
 			port.setName(this.ports[i][0]);
     	}
+		// Installing custom figure edit policy
 		this.installEditPolicy(new smoGui.FigureEditPolicy());
 	},
 	
+	// Adding to the angular scope
 	addToScope : function() {
-        if (this.values === undefined) {
+        // default values are taken from the definitions
+		if (this.values === undefined) {
         	this.values = this.superGroupSet.defaultValues;
         }
         
@@ -131,6 +128,7 @@ smoGui.SVGFigure = draw2d.SVGFigure.extend({
         canvas.app.scope.$digest();
 	},
 	
+	// Removing from the angular scope
 	removeFromScope : function() {
 		var canvas = this.getCanvas();
 		delete canvas.app.components[this.name];
@@ -159,6 +157,8 @@ smoGui.Application = Class.extend({
 			this.uninstallEditPolicy("draw2d.policy.canvas.DefaultKeyboardPolicy");
 			this.installEditPolicy(new smoGui.KeyboardPolicy());
 			this.id = id;
+			// counts up on every figure creation
+			this.count = 1;
 		}
 	}),
 	// Console is linked with app
@@ -226,27 +226,31 @@ smoGui.Application = Class.extend({
 			$('#' + app.canvas.id).droppable({
 				accept: listIdSelector + ' > li',
 				drop: function( event, ui ) {
-					var myShape;
+					var component;
 					var	name;
 					var cloneOffset = ui.helper.offset();
-					var id = ui.draggable.context.id; // id of li element; is the same as component type
-					$('#'+id).draggable("option", "revert", false);
+					var listItemId = ui.draggable.context.id; // id of li element; is the same as component type
+					$('#'+listItemId).draggable("option", "revert", false);
+					//Ensuring unique default component name
+					while (("Component" +app.canvas.count) in app.components) {
+						app.canvas.count++;
+					};
+					// Creating the component
+					component = eval('new app.componentTypes.' + listItemId + '()');
+					// Prompting the user for a name of the component
 					do {
-						// creating the component instance
-						myShape = eval('new app.componentTypes.' + id + '()');
-					} while ((id+myShape.count) in app.components);
-					do {
-						name = prompt("Please enter component name", id+myShape.count);
+						name = prompt("Please enter component name", "Component" + app.canvas.count);
 					} while (name == "");
 					if (name == null) {
 						return;
 					}
-					myShape.name = name;
-					myShape.type = id;
-					app.components[name] = myShape;
-					app.canvas.add(myShape, cloneOffset.left - app.canvas.getAbsoluteX(), 
+					component.name = name;
+					component.type = listItemId;
+					// Adding the figure to the canvas
+					app.canvas.add(component, cloneOffset.left - app.canvas.getAbsoluteX(), 
 					cloneOffset.top - app.canvas.getAbsoluteY());
-					myShape.addToScope();
+					// Adding the component to the angular scope
+					component.addToScope();
 				}
 			});
 		}
@@ -281,10 +285,10 @@ smoGui.Application = Class.extend({
 		new this.smoUiList(this, listIdSelector);
 	},
 	addCircuit: function(json){
-		new smoGui.io.json.circuitsReader().unmarshal(this, json);
+		new smoGui.io.json.circuitReader().unmarshal(this, json);
 	}, 
 	exportCircuit: function(){
-		new smoGui.io.json.circuitsWriter().marshal(this, function(json){
+		new smoGui.io.json.circuitWriter().marshal(this, function(json){
 			console.log(json);
 		});
 	}, 

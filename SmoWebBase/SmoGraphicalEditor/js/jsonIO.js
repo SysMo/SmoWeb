@@ -1,6 +1,8 @@
-smoGui.io.json.circuitsReader = draw2d.io.Reader.extend({
+// Json reader for the circuit
+
+smoGui.io.json.circuitReader = draw2d.io.Reader.extend({
     
-    NAME : "smoGui.io.json.circuitsReader",
+    NAME : "smoGui.io.json.circuitReader",
     
     init: function(){
         this._super();
@@ -10,10 +12,12 @@ smoGui.io.json.circuitsReader = draw2d.io.Reader.extend({
         if(typeof json === "string"){
             json = JSON.parse(json);
         }
+        // Creatng the components
         $.each(json.components, $.proxy(function(i, element){
             try{
             	var o = eval("new app.componentTypes."+element.type+"()");
-                if (element.id === undefined) {
+                // Assigning UUIDs
+            	if (element.id === undefined) {
                 	element.id = draw2d.util.UUID.create();
                 }
             	o.setPersistentAttributes(element);
@@ -21,13 +25,16 @@ smoGui.io.json.circuitsReader = draw2d.io.Reader.extend({
                 if (element.rotation !== undefined) {
                 	o.setRotationAngle(element.rotation);
                 }
+                // Adding the component to th canvas
                 app.canvas.add(o);
                 o.type = element.type;
+                // Setting default values if values are not defined for the component
                 if (element.values === undefined) {
                 	o.values = o.superGroupSet.defaultValues;
                 } else {
                 	o.values = element.values;
                 }
+                // Adding to the angular scope
                 o.addToScope();
             }
             catch(exc){
@@ -37,10 +44,13 @@ smoGui.io.json.circuitsReader = draw2d.io.Reader.extend({
             }
         },this));
         
+        // Creating the connnections
         $.each(json.connections, $.proxy(function(i, element){
             try{
             	var o = new draw2d.Connection();
+            	// The connection source data
             	var sourceData = element[0];
+            	// The connection target data
             	var targetData = element[1];
                 var source= null;
                 var target=null;
@@ -65,6 +75,7 @@ smoGui.io.json.circuitsReader = draw2d.io.Reader.extend({
                     o.setTarget(target);
                 }
                 o.setPersistentAttributes(element);
+                // Adding the connnection to the canvas
                 app.canvas.add(o);
             }
             catch(exc){
@@ -97,13 +108,17 @@ smoGui.io.json.circuitsReader = draw2d.io.Reader.extend({
     }
 });
 
-smoGui.io.json.circuitsWriter = draw2d.io.Writer.extend({
+// Json writer for the circuit
+
+smoGui.io.json.circuitWriter = draw2d.io.Writer.extend({
     
-    NAME : "smoGui.io.json.circuitsWriter",
+    NAME : "smoGui.io.json.circuitWriter",
     
     init: function(){
         this._super();
     },
+    // draw2d marshal method returning an array of figures on the canvas. It is modified to call a custom method
+    // to create the circuit json
     marshal: function(app, resultCallback) {
         // I change the API signature from version 2.10.1 to 3.0.0. Throw an exception
         // if any application not care about this changes.
@@ -121,6 +136,7 @@ smoGui.io.json.circuitsWriter = draw2d.io.Writer.extend({
     	
     	resultCallback(this.toCircuit(app, figures), base64Content);
     },
+    // Custom method creating the circuit json
     toCircuit: function(app, figures) {
     	var components = [];
     	var connections = [];
@@ -149,6 +165,7 @@ smoGui.io.json.circuitsWriter = draw2d.io.Writer.extend({
     }   
 });
 
+// Reader for the component types
 smoGui.io.json.componentsReader = draw2d.io.Reader.extend({
     
     NAME : "smoGui.io.json.componentsReader",
@@ -167,35 +184,36 @@ smoGui.io.json.componentsReader = draw2d.io.Reader.extend({
             try{
             	var ports;
             	var superGroupSet;
+            	// Reading the array of ports
             	if (typeof componentDef.ports !== 'undefined') {
 	            	eval('ports = ' + JSON.stringify(componentDef.ports)); 
             	} else {
             		ports = [];
             	}
+            	// Reading the super group set definition
             	if (typeof componentDef.superGroupSet !== 'undefined') {
 	            	eval('var superGroupSet = ' + JSON.stringify(componentDef.superGroupSet));
             	} else {
             		throw ('Super-group set is undefined.');
             	}
-            	var count = 0;
+            	// Creating the component types
             	eval('result.' + componentDef.name + ' = smoGui.SVGFigure\
             			.extend({\
             				NAME : "' + componentDef.name + '",\
 	            			init : function(attr, setter, getter)\
 	            			{\
-            					this.count = count;\
             					this.ports = ports;\
             					this.superGroupSet = angular.copy(superGroupSet);\
             					this._super(attr, setter, getter);\
-            					count++;\
             				},\
                     		getSVG: function(){\
+            					this.getCanvas().count++;\
                     			return \'' + componentDef.geometry +
                     		'\';}\
                     	});');
             }
             catch(exc){
-                debug.error(componentDef,"Unable to create component name '"+ componentDef.name);
+                debug.error(componentDef,"Unable to create component type '"+ componentDef.name);
                 debug.error(exc);
                 debug.warn(componentDef);
             }
