@@ -4,7 +4,28 @@
     <meta charset="utf-8">
     	<link rel="stylesheet" href="/data/Workspace/Django/django-example/SmoWeb/SmoWebBase/static/css/bootstrap.min.css">
 		<link rel="stylesheet" href="/data/Workspace/Django/django-example/SmoWeb/SmoWebBase/static/css/SmoInputOutputView.css">
-        
+        <style>
+			.field-group-label {
+				background-color: transparent;
+				color: black;
+				border: 2px solid #0875CA;
+				border-bottom: none;
+				border-top-left-radius: 10px;
+				border-top-right-radius: 10px;
+			}
+			.field-group-container { 
+				background-color: transparent; 
+				border: 2px solid #0875CA;
+				border-top: none;
+			}
+			.row { 
+				margin-top:20px; 
+			}
+			.modal-dialog {
+			     width: 80%;
+			}
+		</style>
+		
         <!-- Draw2D -->
         <script src="http://draw2d.org/draw2d_touch/jsdoc_5/draw2d/lib/jquery-1.10.2.min.js"></script>
         <script src="http://draw2d.org/draw2d_touch/jsdoc_5/draw2d/lib/jquery.autoresize.js"></script>
@@ -56,9 +77,6 @@
 			});
 		}]);
         </script>
-<style>
-	.row { margin-top:20px; }
-</style>
 </head>
 <body id="container" ng-app="SmoGui" ng-controller="SmoGuiController">
 <div class="container-fluid">

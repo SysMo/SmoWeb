@@ -155,6 +155,7 @@ smoGui.Application = Class.extend({
 			this.setScrollArea("#"+id);
 			this.setDimension({"width": $("#"+id).width(), "height": $("#"+id).height()});
 			this.app = app;
+			// Uninstalling default keyboard policy and installing a custom one
 			this.uninstallEditPolicy("draw2d.policy.canvas.DefaultKeyboardPolicy");
 			this.installEditPolicy(new smoGui.KeyboardPolicy());
 			this.id = id;
@@ -191,12 +192,13 @@ smoGui.Application = Class.extend({
 				log("Context Menu: "+JSON.stringify(event));
 			});
 		},
+		// Emptying console
 		clear:function()
 		{
 			$(this.consoleIdSelector).empty();
 		}	
 	}),
-	// UI List is linked with app
+	// UI List containing draggable items to create components; it is linked with app
 	smoUiList : Class.extend({
 		NAME : "smoUiList",
 		init:function(app, listIdSelector)
@@ -227,9 +229,10 @@ smoGui.Application = Class.extend({
 					var myShape;
 					var	name;
 					var cloneOffset = ui.helper.offset();
-					var id = ui.draggable.context.id;
+					var id = ui.draggable.context.id; // id of li element; is the same as component type
 					$('#'+id).draggable("option", "revert", false);
 					do {
+						// creating the component instance
 						myShape = eval('new app.componentTypes.' + id + '()');
 					} while ((id+myShape.count) in app.components);
 					do {
@@ -239,6 +242,7 @@ smoGui.Application = Class.extend({
 						return;
 					}
 					myShape.name = name;
+					myShape.type = id;
 					app.components[name] = myShape;
 					app.canvas.add(myShape, cloneOffset.left - app.canvas.getAbsoluteX(), 
 					cloneOffset.top - app.canvas.getAbsoluteY());
