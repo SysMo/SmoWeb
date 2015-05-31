@@ -58,7 +58,7 @@ class CH4Bioreactor(NumericalModel):
     )
 
     # Physical parameters
-    V_liq_RCH4_del_V_liq_RH2 = F.Quantity('Fraction', default = (0.0, '-'),
+    V_liq_RCH4_del_V_liq_RH2 = F.Quantity(default = (0.0, '-'),
         label = 'V<sub>liq,RCH4</sub>/V<sub>liq,RH2</sub>', description = 'fraction between the volume of the liquid part of the H2 and CH4 bioreactors')
     
     
@@ -124,13 +124,9 @@ class H2Bioreactor(NumericalModel):
     
     f_ac_su = F.Quantity(default = 0.0, minValue = 0.0,
         label = 'f<sub>ac,su</sub>', description = 'yield of acetate on sugars')
-    f_h2_su = F.Quantity(default = 0.0, minValue = 0.0,
-        label = 'f<sub>h2,su</sub>', description = 'yield of hydrogen on sugars')
     
     f_ac_aa = F.Quantity(default = 0.0, minValue = 0.0,
         label = 'f<sub>ac,aa</sub>', description = 'yield of acetate on amino acids')
-    f_h2_aa = F.Quantity(default = 0.0, minValue = 0.0,
-        label = 'f<sub>h2,aa</sub>', description = 'yield of hydrogen on amino acids')
     
     Y_suaa = F.Quantity(default = 0.0, minValue = 0.0,
         label = 'Y<sub>su-aa</sub>', description = 'yield of sugar and amino acid degraders on sugars and amino acids')
@@ -138,8 +134,8 @@ class H2Bioreactor(NumericalModel):
         label = 'Y<sub>fa</sub>', description = 'yield of LCFA degraders on LCFA')
     
     stoichiometricParametersFG = F.FieldGroup([
-            f_ch_xc, f_pr_xc, f_li_xc, f_su_li, f_fa_li, f_ac_su, f_h2_su,
-            f_ac_aa, f_h2_aa, Y_suaa, Y_fa
+            f_ch_xc, f_pr_xc, f_li_xc, f_su_li, f_fa_li, f_ac_su,
+            f_ac_aa, Y_suaa, Y_fa
         ],
         label = 'Stoichiometric parameters (R-H2)'
     )
@@ -172,37 +168,20 @@ class H2Bioreactor(NumericalModel):
         label = 'Biochemical parameters (R-H2)'
     )
     
-    # Physiochemical parameters (Temperatures)
-    T_base = F.Quantity('Temperature', default = (0.0, 'degC'),
-        label = 'T<sub>base</sub>', description = 'base (ambient) temperature')
-    T_op = F.Quantity('Temperature', default = (0.0, 'degC'),
-        label = 'T<sub>op</sub>', description = 'operating temperature')
-    
-    temperatureParametersFG = F.FieldGroup([
-            T_base, T_op,
-        ],
-        label = 'Temperatures (R-H2)'
-    )
-    
     # Physiochemical parameters
-    kLa_h2 = F.Quantity('Bio_TimeRate', default = (0.0, '1/day'), minValue = (0, '1/day'), 
-        label = 'k<sub>L</sub>a<sub> h2</sub>', description = 'gas-liquid transfer coefficient of hydrogen')
+    Y_h2_su = F.Quantity(default = 0.0, minValue = 0.0,
+        label = 'Y<sub>h2,su</sub>', description = 'yield coefficient of hydrogen on sugar')
+
+    Y_h2_aa = F.Quantity(default = 0.0, minValue = 0.0,
+            label = 'Y<sub>h2,aa</sub>', description = 'yield coefficient of hydrogen on amino acids')
+    
+    Y_h2_fa = F.Quantity(default = 0.0, minValue = 0.0,
+            label = 'Y<sub>h2,fa</sub>', description = 'yield coefficient of hydrogen on LCFA')
 
     physiochemicalParametersFG = F.FieldGroup([
-           kLa_h2,
+           Y_h2_su, Y_h2_aa, Y_h2_fa
         ],
         label = 'Physiochemical parameters (R-H2)'
-    )
-
-    # Physical parameters
-    V_liq_del_V_gas = F.Quantity('Fraction', default = (0.0, '-'),
-        label = 'V<sub>liq</sub>/V<sub>gas</sub>', 
-        description = 'fraction between the volume of the liquid part and the volume of the gas headspace of the reactor')
-
-    physicalParametersFG = F.FieldGroup([
-            V_liq_del_V_gas,
-        ],
-        label = 'Physical parameters (R-H2)'
     )
     
     # Dilution rates
@@ -217,11 +196,8 @@ class H2Bioreactor(NumericalModel):
         toggle = True,
     ) 
     
-    D_gas = F.Quantity('Bio_TimeRate', default = (0.0, '1/day'), minValue = (0, '1/day'), 
-        label = 'D<sub> gas</sub>', description = 'gas dilution (or washout) rate')
-
     dilutionRatesFG = F.FieldGroup([
-            D_liq_arr, D_gas
+            D_liq_arr,
         ],
         label = 'Dilution rates (R-H2)'
     )
@@ -238,10 +214,7 @@ class H2Bioreactor(NumericalModel):
 
     S_ac_in = F.Quantity('Bio_CODConcentration', default = (0.0, 'gCOD/L'), minValue = (0, 'gCOD/L'), 
         label = 'S<sub>ac</sub><sup> (in)</sup>', description = 'input concentration of acetate')
-
-    S_h2_in = F.Quantity('Bio_CODConcentration', default = (0.0, 'gCOD/L'), minValue = (0, 'gCOD/L'), 
-        label = 'S<sub>h2</sub><sup> (in)</sup>', description = 'input concentration of hydrogen (liquid)')
-    
+ 
     X_c_in = F.Quantity('Bio_CODConcentration', default = (0.0, 'gCOD/L'), minValue = (0, 'gCOD/L'), 
         label = 'X<sub>c</sub><sup> (in)</sup>', description = 'input concentration of composites')
 
@@ -261,7 +234,7 @@ class H2Bioreactor(NumericalModel):
         label = 'X<sub>fa</sub><sup> (in)</sup>', description = 'input concentration of LCFA degraders')
         
     inputConcentrationsFG = F.FieldGroup([
-            S_su_in, S_aa_in, S_fa_in, S_ac_in, S_h2_in,
+            S_su_in, S_aa_in, S_fa_in, S_ac_in,
             X_c_in, X_ch_in, X_pr_in, X_li_in,X_suaa_in, X_fa_in,
         ],
         label = 'Input concentrations (R-H2)'
@@ -280,9 +253,6 @@ class H2Bioreactor(NumericalModel):
     S_ac_0 = F.Quantity('Bio_CODConcentration', default = (0.0, 'gCOD/L'), minValue = (0, 'gCOD/L'), 
         label = 'S<sub>ac</sub><sup> (0)</sup>', description = 'initial concentration of acetate')
 
-    S_h2_0 = F.Quantity('Bio_CODConcentration', default = (0.0, 'gCOD/L'), minValue = (0, 'gCOD/L'), 
-        label = 'S<sub>h2</sub><sup> (0)</sup>', description = 'initial concentration of hydrogen (liquid)')
-  
     X_c_0 = F.Quantity('Bio_CODConcentration', default = (0.0, 'gCOD/L'), minValue = (0, 'gCOD/L'), 
         label = 'X<sub>c</sub><sup> (0)</sup>', description = 'initial concentration of composites')
   
@@ -301,13 +271,9 @@ class H2Bioreactor(NumericalModel):
     X_fa_0 = F.Quantity('Bio_MassConcentration', default = (0.0, 'g/L'), minValue = (0, 'g/L'), 
         label = 'X<sub>fa</sub><sup> (0)</sup>', description = 'initial concentration of LCFA degraders')
    
-    S_gas_h2_0 = F.Quantity('Bio_CODConcentration', default = (0.0, 'gCOD/L'), minValue = (0, 'gCOD/L'), 
-        label = 'S<sub>gas,h2</sub><sup> (0)</sup>', description = 'initial concentration of hydrogen (gas)')
-
     initialConcentrationsFG = F.FieldGroup([
-            S_su_0, S_aa_0, S_fa_0, S_ac_0, S_h2_0,
+            S_su_0, S_aa_0, S_fa_0, S_ac_0,
             X_c_0, X_ch_0, X_pr_0, X_li_0, X_suaa_0, X_fa_0,
-            S_gas_h2_0,
         ],
         label = 'Initial concentrations (R-H2)'
     )
@@ -315,8 +281,7 @@ class H2Bioreactor(NumericalModel):
     #1.2 Super groups - parameters & concentrations   
     parametersSG = F.SuperGroup([
             stoichiometricParametersFG, biochemicalParametersFG,
-            temperatureParametersFG, physiochemicalParametersFG, 
-            physicalParametersFG, dilutionRatesFG,
+            physiochemicalParametersFG, dilutionRatesFG,
         ], 
         label = "Parameters (R-H2)"
     )
@@ -331,7 +296,7 @@ class H2Bioreactor(NumericalModel):
 
 class ADM1H2CH4Bioreactors(NumericalModel):
     label = "(H2,CH4) Bioreactors"
-    description = F.ModelDescription("A model of two separate contiguous bioreactors for producing of hydrogen and methane, respectively.", show = True)
+    description = F.ModelDescription("A model of two separate contiguous bioreactors for hydrogen and methane prodoction, respectively.", show = True)
     figure = F.ModelFigure(src="BioReactors/img/ModuleImages/SimpleChemostat.png", show = False) #:TODO: (MILEN) ADM1H2CH4Bioreactors png
     
     async = True
@@ -354,7 +319,8 @@ class ADM1H2CH4Bioreactors(NumericalModel):
         "loadEg", 
         label = "Examples", 
         options = (
-            ('exampleDef', 'Reset to default values'), 
+            ('exampleDef', 'Reset to default values'),
+            ('exampleADM1', 'Reset to ADM1 values'),  
         )
     )
      
@@ -374,29 +340,28 @@ class ADM1H2CH4Bioreactors(NumericalModel):
         ('S_aa_RH2', F.Quantity('Bio_CODConcentration', default=(1, 'gCOD/L'))), #2
         ('S_fa_RH2', F.Quantity('Bio_CODConcentration', default=(1, 'gCOD/L'))), #3
         ('S_ac_RH2', F.Quantity('Bio_CODConcentration', default=(1, 'gCOD/L'))), #4
-        ('S_h2_RH2', F.Quantity('Bio_CODConcentration', default=(1, 'gCOD/L'))), #5
-        ('X_c_RH2', F.Quantity('Bio_CODConcentration', default=(1, 'gCOD/L'))), #6
-        ('X_ch_RH2', F.Quantity('Bio_CODConcentration', default=(1, 'gCOD/L'))), #7
-        ('X_pr_RH2', F.Quantity('Bio_CODConcentration', default=(1, 'gCOD/L'))), #8
-        ('X_li_RH2', F.Quantity('Bio_CODConcentration', default=(1, 'gCOD/L'))), #9
-        ('X_suaa_RH2', F.Quantity('Bio_MassConcentration', default=(1, 'g/L'))), #10
-        ('X_fa_RH2', F.Quantity('Bio_MassConcentration', default=(1, 'g/L'))), #11
-        ('S_gas_h2_RH2', F.Quantity('Bio_CODConcentration', default=(1, 'gCOD/L'))), #12
-        ('m_gas_h2_RH2', F.Quantity('Bio_CODConcentration', default=(1, 'gCOD/L'))), #13
+        ('X_c_RH2', F.Quantity('Bio_CODConcentration', default=(1, 'gCOD/L'))), #5
+        ('X_ch_RH2', F.Quantity('Bio_CODConcentration', default=(1, 'gCOD/L'))), #6
+        ('X_pr_RH2', F.Quantity('Bio_CODConcentration', default=(1, 'gCOD/L'))), #7
+        ('X_li_RH2', F.Quantity('Bio_CODConcentration', default=(1, 'gCOD/L'))), #8
+        ('X_suaa_RH2', F.Quantity('Bio_MassConcentration', default=(1, 'g/L'))), #9
+        ('X_fa_RH2', F.Quantity('Bio_MassConcentration', default=(1, 'g/L'))), #10
+        ('intQ_h2_RH2', F.Quantity('Bio_CODConcentration', default=(1, 'gCOD/L'))), #11
         
-        ('S_ac_RCH4', F.Quantity('Bio_CODConcentration', default=(1, 'gCOD/L'))), #14     
-        ('X_ac_RCH4', F.Quantity('Bio_MassConcentration', default=(1, 'g/L'))), #15
+        ('S_ac_RCH4', F.Quantity('Bio_CODConcentration', default=(1, 'gCOD/L'))), #12   
+        ('X_ac_RCH4', F.Quantity('Bio_MassConcentration', default=(1, 'g/L'))), #13
+        ('intQ_ch4_RCH4', F.Quantity('Bio_CODConcentration', default=(1, 'gCOD/L'))), #14
         
-        ('intQ_ch4_RCH4', F.Quantity('Bio_CODConcentration', default=(1, 'gCOD/L'))), #16
-        ('Q_ch4_RCH4', F.Quantity('Bio_CODConcentrationFlowRate', default=(1, 'gCOD/L/day'))), #17
+        ('Q_h2_RH2', F.Quantity('Bio_CODConcentrationFlowRate', default=(1, 'gCOD/L/day'))), #15
+        ('Q_ch4_RCH4', F.Quantity('Bio_CODConcentrationFlowRate', default=(1, 'gCOD/L/day'))), #16
         
-        ('D_RH2', F.Quantity('Bio_TimeRate', default=(1, '1/day'))), #18
-        ('D_RCH4', F.Quantity('Bio_TimeRate', default=(1, '1/day'))), #19
+        ('D_RH2', F.Quantity('Bio_TimeRate', default=(1, '1/day'))), #17
+        ('D_RCH4', F.Quantity('Bio_TimeRate', default=(1, '1/day'))), #18
     )
     
     plot1RH2 = F.PlotView(
         varTuples,
-        label='RH2 (S<sub>su</sub>, S<sub>aa</sub>, S<sub>fa</sub>)', 
+        label='R-H2 (S<sub>su</sub>, S<sub>aa</sub>, S<sub>fa</sub>)', 
         options = {'ylabel' : None}, 
         visibleColumns = [0, 1, 2, 3],
         useHdfStorage = True,
@@ -405,45 +370,54 @@ class ADM1H2CH4Bioreactors(NumericalModel):
     
     plot2RH2 = F.PlotView(
         varTuples,
-        label='RH2 (X<sub>ch</sub>, X<sub>pr</sub>, X<sub>li</sub>)', 
+        label='R-H2 (X<sub>ch</sub>, X<sub>pr</sub>, X<sub>li</sub>)', 
         options = {'ylabel' : None}, 
-        visibleColumns = [0, 7, 8, 9],
+        visibleColumns = [0, 6, 7, 8],
         useHdfStorage = True,
         storage = 'storage',
     )
     
     plot3RH2 = F.PlotView(
         varTuples,
-        label='RH2 (X<sub>su-aa</sub>,X<sub>fa</sub>)', 
+        label='R-H2 (X<sub>su-aa</sub>,X<sub>fa</sub>)', 
         options = {'ylabel' : None}, 
-        visibleColumns = [0, 10, 11],
+        visibleColumns = [0, 9, 10],
         useHdfStorage = True,
         storage = 'storage',
     )
     
     plot4RH2 = F.PlotView(
         varTuples,
-        label='RH2 (H<sub>2</sub>)', 
+        label='R-H2 (H<sub>2</sub>)', 
         options = {'ylabel' : None}, 
-        visibleColumns = [0, 12, 13],
+        visibleColumns = [0, 11, 15],
         useHdfStorage = True,
         storage = 'storage',
     )
     
     plot1RCH4 = F.PlotView(
         varTuples,
-        label='RCH4 (CH<sub>4</sub>)', 
+        label='R-CH4 (S<sub>ac</sub>, X<sub>ac</sub>)', 
         options = {'ylabel' : None}, 
-        visibleColumns = [0, 14, 15, 16, 17],
+        visibleColumns = [0, 12, 13],
         useHdfStorage = True,
         storage = 'storage',
     )
-    
+
+    plot2RCH4 = F.PlotView(
+        varTuples,
+        label='R-CH4 (CH<sub>4</sub>)', 
+        options = {'ylabel' : None}, 
+        visibleColumns = [0, 14, 16],
+        useHdfStorage = True,
+        storage = 'storage',
+    )
+        
     plotD = F.PlotView(
         varTuples,
         label='(D<sub>RH2</sub>, D<sub>RCH4</sub>)', 
         options = {'ylabel' : None}, 
-        visibleColumns = [0, 18, 19],
+        visibleColumns = [0, 17, 18],
         useHdfStorage = True,
         storage = 'storage',
     )
@@ -457,7 +431,7 @@ class ADM1H2CH4Bioreactors(NumericalModel):
     )
     
     storageVG = F.ViewGroup([storage], show="false")
-    resultsVG = F.ViewGroup([plot1RH2, plot2RH2, plot3RH2, plot4RH2, plot1RCH4, plotD, table])
+    resultsVG = F.ViewGroup([plot1RH2, plot2RH2, plot3RH2, plot4RH2, plot1RCH4, plot2RCH4, plotD, table])
     resultsSG = F.SuperGroup([resultsVG, storageVG], label = 'Results')
     
  
@@ -469,7 +443,7 @@ class ADM1H2CH4Bioreactors(NumericalModel):
     
     ############# Methods ###############
     def __init__(self):
-        self.exampleDef()
+        self.exampleADM1()
         
     def exampleDef(self):
         ############# H2 Bioreactor ###############
@@ -482,10 +456,8 @@ class ADM1H2CH4Bioreactors(NumericalModel):
         self.parametersRH2.f_fa_li = 0.9 #-
         
         self.parametersRH2.f_ac_su = 0.41 #-
-        self.parametersRH2.f_h2_su = 0.19 #-
         
         self.parametersRH2.f_ac_aa = 0.4 #-
-        self.parametersRH2.f_h2_aa = 0.06 #-
         
         self.parametersRH2.Y_suaa = 0.1 #-
         self.parametersRH2.Y_fa = 0.06 #-
@@ -502,51 +474,41 @@ class ADM1H2CH4Bioreactors(NumericalModel):
         
         self.parametersRH2.k_m_fa = (6.0, '1/day')
         self.parametersRH2.K_S_fa = (0.4, 'g/L')
-        
-        # Physiochemical parameter values (Temperatures)
-        self.parametersRH2.T_base = (15.0, 'degC')
-        self.parametersRH2.T_op = (35.0, 'degC')
     
         # Physiochemical parameter values
-        self.parametersRH2.kLa_h2 = (200.0, '1/day')
-        
-        # Physical parameter values
-        self.parametersRH2.V_liq_del_V_gas = (3.0, '-') #L/L
+        self.parametersRH2.Y_h2_su = 1.0 #-
+        self.parametersRH2.Y_h2_aa = 1.0 #-
+        self.parametersRH2.Y_h2_fa = 1.0 #-
         
         # Volumetric flow rate values
         self.parametersRH2.D_liq_arr[0] = (10.0, 0.0) #(day, 1/day)
         self.parametersRH2.D_liq_arr[1] = (10.0, 0.1) #(day, 1/day)
         self.parametersRH2.D_liq_arr[2] = (10.0, 0.05) #(day, 1/day)
         self.parametersRH2.D_liq_arr[3] = (10.0, 0.15) #(day, 1/day)
-        self.parametersRH2.D_gas = (1.0, '1/day')
         
         # Input concentrations 
         self.concentrationsRH2.S_su_in = (0.0, 'gCOD/L')
         self.concentrationsRH2.S_aa_in = (0.0, 'gCOD/L')
         self.concentrationsRH2.S_fa_in = (0.0, 'gCOD/L')
         self.concentrationsRH2.S_ac_in = (0.0, 'gCOD/L')
-        self.concentrationsRH2.S_h2_in = (0.0, 'gCOD/L')
         self.concentrationsRH2.X_c_in = (2.0, 'gCOD/L')
         self.concentrationsRH2.X_ch_in = (0.0, 'gCOD/L')
         self.concentrationsRH2.X_pr_in = (0.0, 'gCOD/L')
         self.concentrationsRH2.X_li_in = (0.0, 'gCOD/L')
         self.concentrationsRH2.X_suaa_in = (0.0, 'g/L')
         self.concentrationsRH2.X_fa_in = (0.0, 'g/L')
-        self.concentrationsRH2.S_gas_h2_in = (0.0, 'gCOD/L')
         
         # Initial values of state variables 
         self.concentrationsRH2.S_su_0 = (0.012, 'gCOD/L')
         self.concentrationsRH2.S_aa_0 = (0.005, 'gCOD/L')
         self.concentrationsRH2.S_fa_0 = (0.099, 'gCOD/L')
         self.concentrationsRH2.S_ac_0 = (0.20, 'gCOD/L')
-        self.concentrationsRH2.S_h2_0 = (0.0, 'gCOD/L')
         self.concentrationsRH2.X_c_0 = (30.0, 'gCOD/L')
         self.concentrationsRH2.X_ch_0 = (0.028, 'gCOD/L')
         self.concentrationsRH2.X_pr_0 = (0.10, 'gCOD/L')
         self.concentrationsRH2.X_li_0 = (0.03, 'gCOD/L')
         self.concentrationsRH2.X_suaa_0 = (0.42, 'g/L')
         self.concentrationsRH2.X_fa_0 = (0.24, 'g/L')
-        self.concentrationsRH2.S_gas_h2_0 = (0.0, 'gCOD/L')        
         
         ############# CH4 Bioreactor ###############
         #Stoichiometric parameter values
@@ -574,6 +536,98 @@ class ADM1H2CH4Bioreactors(NumericalModel):
         self.solverSettings.tPrint = (0.1, 'day')
         self.solverSettings.absTol = (1e-9, 'day')
         self.solverSettings.relTol = (1e-7, 'day')
+        
+    def exampleADM1(self):
+        ############# H2 Bioreactor ###############
+        #Stoichiometric parameter values
+        self.parametersRH2.f_ch_xc = 0.2 #-
+        self.parametersRH2.f_pr_xc = 0.2 #-
+        self.parametersRH2.f_li_xc = 0.3 #-
+        
+        self.parametersRH2.f_su_li = 0.05 #-
+        self.parametersRH2.f_fa_li = 0.95 #-
+        
+        self.parametersRH2.f_ac_su = 0.41 #-
+        
+        self.parametersRH2.f_ac_aa = 0.4 #-
+        
+        self.parametersRH2.Y_suaa = 0.1 #-
+        self.parametersRH2.Y_fa = 0.06 #-
+        
+        #Biochemical parameter values
+        self.parametersRH2.k_dis = (0.5, '1/day')
+        
+        self.parametersRH2.k_hyd_ch = (10.0, '1/day')
+        self.parametersRH2.k_hyd_pr = (10.0, '1/day')
+        self.parametersRH2.k_hyd_li = (10.0, '1/day')
+        
+        self.parametersRH2.k_m_suaa = (30.0, '1/day')
+        self.parametersRH2.K_S_suaa = (0.5, 'g/L')
+        
+        self.parametersRH2.k_m_fa = (6.0, '1/day')
+        self.parametersRH2.K_S_fa = (0.4, 'g/L')
+    
+        # Physiochemical parameter values
+        self.parametersRH2.Y_h2_su = 1.0 #-
+        self.parametersRH2.Y_h2_aa = 1.0 #-
+        self.parametersRH2.Y_h2_fa = 1.0 #-
+        
+        # Volumetric flow rate values
+        self.parametersRH2.D_liq_arr[0] = (10.0, 0.0) #(day, 1/day)
+        self.parametersRH2.D_liq_arr[1] = (10.0, 0.1) #(day, 1/day)
+        self.parametersRH2.D_liq_arr[2] = (10.0, 0.05) #(day, 1/day)
+        self.parametersRH2.D_liq_arr[3] = (10.0, 0.15) #(day, 1/day)
+        
+        # Input concentrations 
+        self.concentrationsRH2.S_su_in = (0.01, 'gCOD/L')
+        self.concentrationsRH2.S_aa_in = (0.001, 'gCOD/L')
+        self.concentrationsRH2.S_fa_in = (0.001, 'gCOD/L')
+        self.concentrationsRH2.S_ac_in = (0.001, 'gCOD/L')
+        self.concentrationsRH2.X_c_in = (2.0, 'gCOD/L')
+        self.concentrationsRH2.X_ch_in = (5.0, 'gCOD/L')
+        self.concentrationsRH2.X_pr_in = (20.0, 'gCOD/L')
+        self.concentrationsRH2.X_li_in = (5.0, 'gCOD/L')
+        self.concentrationsRH2.X_suaa_in = (0.0, 'g/L')
+        self.concentrationsRH2.X_fa_in = (0.01, 'g/L')
+        
+        # Initial values of state variables 
+        self.concentrationsRH2.S_su_0 = (0.012, 'gCOD/L')
+        self.concentrationsRH2.S_aa_0 = (0.005, 'gCOD/L')
+        self.concentrationsRH2.S_fa_0 = (0.099, 'gCOD/L')
+        self.concentrationsRH2.S_ac_0 = (0.20, 'gCOD/L')
+        self.concentrationsRH2.X_c_0 = (0.31, 'gCOD/L')
+        self.concentrationsRH2.X_ch_0 = (0.028, 'gCOD/L')
+        self.concentrationsRH2.X_pr_0 = (0.10, 'gCOD/L')
+        self.concentrationsRH2.X_li_0 = (0.03, 'gCOD/L')
+        self.concentrationsRH2.X_suaa_0 = (0.42, 'g/L')
+        self.concentrationsRH2.X_fa_0 = (0.24, 'g/L')
+        
+        ############# CH4 Bioreactor ###############
+        #Stoichiometric parameter values
+        self.parametersRCH4.Y_ac = 0.05 #-
+        
+        #Biochemical parameter values
+        self.parametersRCH4.k_m_ac = (8.0, '1/day')
+        self.parametersRCH4.K_S_ac = (0.15, 'g/L') 
+    
+        # Physiochemical parameter values
+        self.parametersRCH4.Y_ch4_ac = 1.0 #-
+        
+        # Physical parameter values
+        self.parametersRCH4.V_liq_RCH4_del_V_liq_RH2 = (50.0, '-') #L/L
+
+        # Input concentrations 
+        self.concentrationsRCH4.X_ac_in = (0.0, 'g/L')
+        
+        # Initial values of state variables 
+        self.concentrationsRCH4.S_ac_0 = (0.0, 'gCOD/L')
+        self.concentrationsRCH4.X_ac_0 = (0.76, 'g/L')
+        
+        ############# Solver settings ###############
+        self.solverSettings.tFinal = (50.0, 'day')
+        self.solverSettings.tPrint = (0.1, 'day')
+        self.solverSettings.absTol = (1e-12, 'day')
+        self.solverSettings.relTol = (1e-10, 'day')
                     
     def computeAsync(self):        
         # Simulate RH2 and RCH4 Bioreactors
