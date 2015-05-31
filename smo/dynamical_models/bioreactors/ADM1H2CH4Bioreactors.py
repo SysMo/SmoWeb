@@ -47,15 +47,12 @@ class ADM1H2CH4Bioreactors(Simulation):
 		# Initialize update progress function
 		self.updateProgress = webModel.updateProgress
 					
-		# Initialize parameters		
+		# Initialize parameters
 		self.paramsRH2 = paramsRH2
 		self.K_H_h2_RH2 = 7.8e-4 * np.exp(
 			-4180./(Const.R*100.) * (1/paramsRH2.T_base - 1/paramsRH2.T_op))
 		
-		self.paramsRCH4 = paramsRCH4
-		self.K_H_ch4_RCH4 = 0.0014 * np.exp(
-			-14240./(Const.R*100.) * (1/paramsRCH4.T_base - 1/paramsRCH4.T_op))
-	
+		self.paramsRCH4 = paramsRCH4	
 				
 		# Initialize concentrations
 		self.concentrsRH2 = concentrsRH2
@@ -67,10 +64,9 @@ class ADM1H2CH4Bioreactors(Simulation):
 			'X_c_RH2', 'X_ch_RH2', 'X_pr_RH2', 'X_li_RH2', 'X_suaa_RH2', 'X_fa_RH2', 
 			'S_gas_h2_RH2', 'm_gas_h2_RH2',
 			
-			'S_ac_RCH4', 'S_ch4_RCH4', 
+			'S_ac_RCH4',
 			'X_ac_RCH4', 
-			'S_gas_ch4_RCH4', 'm_gas_ch4_RCH4',
-			'm_gas_ch4_RCH4_NEW'
+			'intQ_ch4_RCH4'
 		] 
 		self.y = NamedStateVector(stateVarNames)
 		self.yRes = NamedStateVector(stateVarNames)
@@ -82,7 +78,7 @@ class ADM1H2CH4Bioreactors(Simulation):
 			datasetPath = dataStorageDatasetPath)
 		if (kwargs.get('initDataStorage', True)):
 			self.resultStorage.initializeWriting(
-				varList = ['time'] + stateVarNames + ['Q_ch4_RCH4_NEW', 'D_RH2', 'D_RCH4'],
+				varList = ['time'] + stateVarNames + ['Q_ch4_RCH4', 'D_RH2', 'D_RCH4'],
 				chunkSize = 1e4
 			)
 		
@@ -117,13 +113,9 @@ class ADM1H2CH4Bioreactors(Simulation):
 		self.y.m_gas_h2_RH2 = 0.0		
 		
 		self.y.S_ac_RCH4 = concentrsRCH4.S_ac_0
-		self.y.S_ch4_RCH4 = concentrsRCH4.S_ch4_0
 		self.y.X_ac_RCH4 = concentrsRCH4.X_ac_0
-		self.y.S_gas_ch4_RCH4 = concentrsRCH4.S_gas_ch4_0
-		self.y.m_gas_ch4_RCH4 = 0.0
-		self.y.m_gas_ch4_RCH4_NEW = 0.0		
-		
-		self.Q_ch4_RCH4_NEW = 0.0
+		self.y.intQ_ch4_RCH4 = 0.0
+		self.Q_ch4_RCH4 = 0.0
 				
 		# Set all the initial state values
 		self.y0 = self.y.get(copy = True)
@@ -221,39 +213,23 @@ class ADM1H2CH4Bioreactors(Simulation):
 		# Bioreactor - RCH4
 			# Get state values
 			S_ac_RCH4 = self.y.S_ac_RCH4
-			S_ch4_RCH4 = self.y.S_ch4_RCH4
 			X_ac_RCH4 = self.y.X_ac_RCH4
-			S_gas_ch4_RCH4 = self.y.S_gas_ch4_RCH4
 			
 			# Compute biochemical process rates
 			r11 = paramsRCH4.k_m_ac * (S_ac_RCH4 / (paramsRCH4.K_S_ac + S_ac_RCH4)) * X_ac_RCH4
 			
-			# Compute transfer rates
-			p_gas_ch4 = S_gas_ch4_RCH4 * (Const.R * paramsRCH4.T_op)/64.
-			r_T_9 = paramsRCH4.kLa_ch4 * (S_ch4_RCH4 - 64 * self.K_H_ch4_RCH4 * p_gas_ch4)
-			
 			# Compute state derivatives		
 			S_ac_RCH4_dot = self.D_RCH4*(S_ac_RH2 - S_ac_RCH4) \
 				-r11#7.2
-			S_ch4_RCH4_dot = self.D_RCH4*(concentrsRCH4.S_ch4_in - S_ch4_RCH4) \
-				+ (1-paramsRCH4.Y_ac)*r11 - r_T_9 #9.2
 			X_ac_RCH4_dot = self.D_RCH4*(concentrsRCH4.X_ac_in - X_ac_RCH4) \
 				+ paramsRCH4.Y_ac * r11 #22.2
-			
-			S_gas_ch4_RCH4_dot = paramsRCH4.D_gas*(0. - S_gas_ch4_RCH4) \
-				+ r_T_9 * paramsRCH4.V_liq_del_V_gas #1.2
-			m_gas_ch4_RCH4_dot = paramsRCH4.D_gas * S_gas_ch4_RCH4
-			
-			self.Q_ch4_RCH4_NEW = paramsRCH4.Y_ch4_ac * r11 
-			m_gas_ch4_RCH4_NEW_dot = self.Q_ch4_RCH4_NEW
+			self.Q_ch4_RCH4 = paramsRCH4.Y_ch4_ac * r11 
+			intQ_ch4_RCH4_dot = self.Q_ch4_RCH4
 			
 			# Set state derivatives
 			self.yDot.S_ac_RCH4 = S_ac_RCH4_dot
-			self.yDot.S_ch4_RCH4 = S_ch4_RCH4_dot
 			self.yDot.X_ac_RCH4 = X_ac_RCH4_dot
-			self.yDot.S_gas_ch4_RCH4 = S_gas_ch4_RCH4_dot
-			self.yDot.m_gas_ch4_RCH4 = m_gas_ch4_RCH4_dot
-			self.yDot.m_gas_ch4_RCH4_NEW = m_gas_ch4_RCH4_NEW_dot
+			self.yDot.intQ_ch4_RCH4 = intQ_ch4_RCH4_dot
 			
 		except Exception, e:
 			self.resultStorage.finalizeResult()
@@ -299,11 +275,9 @@ class ADM1H2CH4Bioreactors(Simulation):
 			self.yRes.X_c_RH2, self.yRes.X_ch_RH2, self.yRes.X_pr_RH2, self.yRes.X_li_RH2, self.yRes.X_suaa_RH2, self.yRes.X_fa_RH2,
 			self.yRes.S_gas_h2_RH2, self.yRes.m_gas_h2_RH2,
 			
-			self.yRes.S_ac_RCH4, self.yRes.S_ch4_RCH4,  
-			self.yRes.X_ac_RCH4, 
-			self.yRes.S_gas_ch4_RCH4, self.yRes.m_gas_ch4_RCH4,
-			
-			self.yRes.m_gas_ch4_RCH4_NEW, self.Q_ch4_RCH4_NEW,
+			self.yRes.S_ac_RCH4,
+			self.yRes.X_ac_RCH4, 	
+			self.yRes.intQ_ch4_RCH4, self.Q_ch4_RCH4,
 			 
 			self.D_RH2, self.D_RCH4
 		)
@@ -445,31 +419,20 @@ def TestADM1H2CH4Bioreactor():
 		k_m_ac = 8.0 #1/day
 		K_S_ac = 0.15 #g/L
 		
-		# Physiochemical parameter values
-		T_base = 298.15 #K
-		T_op = 308.15 #K
-	
-		kLa_ch4 = 200 #1/day
+		#kLa_ch4 = 200 #1/day
 		Y_ch4_ac = 1.0 #-
 		
 		# Physical parameters
-		V_liq_del_V_gas = 3.0 #L/L 
 		V_liq_RCH4_del_V_liq_RH2 = 5.
-		
-		# Controller - D = q/V
-		D_gas = 3.0 #1/day
 	modelParamsRCH4 = ModelParamsRCH4()
 	
 	class ModelConcentrsRCH4:
 		# Input concentrations 
-		S_ch4_in = 1e-5 #gCOD/L
 		X_ac_in = 0 * 0.01 #g/L
 		
 		# Initial values of state variables 
 		S_ac_0 = 0.2 #gCOD/L
-		S_ch4_0 = 0.055 #gCOD/L
 		X_ac_0 = 0.76 #g/L
-		S_gas_ch4_0 = 1e-5 #gCOD/L
 	modelConcentrsRCH4 = ModelConcentrsRCH4()		
 	
 	
