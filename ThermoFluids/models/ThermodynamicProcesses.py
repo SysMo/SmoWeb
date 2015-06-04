@@ -163,6 +163,9 @@ class HeatExchangerTwoStreams(ThermodynamicalProcessTwoStreams):
 	heatExchanger = F.SubModelGroup(TC.HeatExchangerTwoStreams, 'FG', label  = 'Heat exchanger')
 	inputs = F.SuperGroup(['fluidSource1', 'fluidSource2', heatExchanger])
 	
+	def __init__(self):
+		self.fluidSource2.T2 = (350, 'K')
+	
 	def compute(self):
 		self.cycleDiagram.enable = False
 		self.initCompute(self.fluidSource1.fluidName)
