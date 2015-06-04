@@ -69,7 +69,7 @@ class ChemostatDDE(NumericalModel):
     inputValuesSG = F.SuperGroup([parametersMuFG, parametersFG, parametersTauFG, parametersHistFG], label = "Input values")
 
     #1.2 Fields - Settings
-    tFinal = F.Quantity('Bio_Time', default = (100, 'day'), minValue = (0, 'day'), maxValue=(1000, 'day'), label = 'simulation time')
+    tFinal = F.Quantity('Bio_Time', default = (100, 'day'), minValue = (0, 'day'), maxValue=(5000, 'day'), label = 'simulation time')
     tPrint = F.Quantity('Bio_Time', default = (0.1, 'day'), minValue = (1e-5, 'day'), maxValue = (100, 'day'), label = 'print interval')
     absTol = F.Quantity('Bio_Time', default = (1e-12, 'day'), minValue = (1e-16, 'day'), maxValue = (1e-5, 'day'), label = 'absolute tolerance')
     relTol = F.Quantity('Bio_Time', default = (1e-12, 'day'), minValue = (1e-16, 'day'), maxValue = (1e-3, 'day'), label = 'relative tolerance')
@@ -81,6 +81,7 @@ class ChemostatDDE(NumericalModel):
     inputView = F.ModelView(ioType = "input", superGroups = [inputValuesSG, settingsSG], autoFetch = True)
     
     #2. ############ Results ###############
+    # 2.1. Results
     dataSeries = (
         ('time', F.Quantity('Bio_Time', default=(1, 'day'))),
         ('s1', F.Quantity('Bio_MassConcentration', default=(1, 'g/L'))),
@@ -104,10 +105,23 @@ class ChemostatDDE(NumericalModel):
     chartXs = F.MPLPlot(label = 'Chart (x<sub>1</sub>, x<sub>2</sub>)')
 
     resultsVG = F.ViewGroup([plot, table, chartSs, chartXs], label = 'Results')
-    resultsSG = F.SuperGroup([resultsVG])
+    resultsSG = F.SuperGroup([resultsVG], label = "Results")
+    
+    # 2.2 Equilibrium point
+    s1_eqpnt = F.Quantity('Bio_MassConcentration', default = (0., 'g/L'), 
+        label ='s<sub>1</sub><sup>*</sup>', description = 'substrate-1 concentration at the equilibrium point')
+    x1_eqpnt = F.Quantity('Bio_MassConcentration', default = (0., 'g/L'), 
+        label ='x<sub>1</sub><sup>*</sup>', description = 'bacteria-1 concentration at the equilibrium point')
+    s2_eqpnt = F.Quantity('Bio_MassConcentration', default = (0., 'g/L'), 
+        label ='s<sub>2</sub><sup>*</sup>', description = 'substrate-2 concentration at the equilibrium point')
+    x2_eqpnt = F.Quantity('Bio_MassConcentration', default = (0., 'g/L'), 
+        label ='x<sub>2</sub><sup>*</sup>', description = 'bacteria-1 concentration at the equilibrium point')
+    
+    equilibriumPointFG = F.FieldGroup([s1_eqpnt, x1_eqpnt, s2_eqpnt, x2_eqpnt], label = 'Equilibrium point') 
+    equilibriumPointSG = F.SuperGroup([equilibriumPointFG], label = 'Equilibrium point')
     
     #2.1 Model view
-    resultView = F.ModelView(ioType = "output", superGroups = [resultsSG])
+    resultView = F.ModelView(ioType = "output", superGroups = [resultsSG, equilibriumPointSG])
     
     ############# Page structure ########
     modelBlocks = [inputView, resultView]
@@ -143,6 +157,11 @@ class ChemostatDDE(NumericalModel):
         
         chemostatDDE.plotS1S2(self.chartSs)
         chemostatDDE.plotX1X2(self.chartXs)
+        
+        self.s1_eqpnt = (chemostatDDE.equilibriumPoint[0], 'kg/m**3')
+        self.x1_eqpnt = (chemostatDDE.equilibriumPoint[1], 'kg/m**3')
+        self.s2_eqpnt = (chemostatDDE.equilibriumPoint[2], 'kg/m**3')
+        self.x2_eqpnt = (chemostatDDE.equilibriumPoint[3], 'kg/m**3')
         
 class ChemostatDDEDoc(RestModule):
     label = 'Chemostat with DDE (Doc)'
