@@ -225,15 +225,15 @@ class FreeConvection_Internal(NumericalModel):
 	geomConf = Choices(GeometryConfigurationsInternal, default = 'HP', label = 'configuration')
 	TWallTop = Quantity('Temperature', default = (50, 'degC'), label = 'temeprature top',
 					show = '(self.geomConf == "HP") || (self.geomConf == "IP")')
-	TWallBottom = Quantity('Temperature', default = (50, 'degC'), label = 'temeprature bottom',
+	TWallBottom = Quantity('Temperature', default = (55, 'degC'), label = 'temeprature bottom',
 					show = '(self.geomConf == "HP") || (self.geomConf == "IP")')
 	TWallLeft = Quantity('Temperature', default = (50, 'degC'), label = 'temeprature left',
 					show = '(self.geomConf == "VP")')
-	TWallRight = Quantity('Temperature', default = (50, 'degC'), label = 'temeprature right',
+	TWallRight = Quantity('Temperature', default = (55, 'degC'), label = 'temeprature right',
 					show = '(self.geomConf == "VP")')
 	TInner = Quantity('Temperature', default = (50, 'degC'), label = 'temeprature inner',
 					show = '(self.geomConf == "HA")')
-	TOuter = Quantity('Temperature', default = (50, 'degC'), label = 'temeprature outer',
+	TOuter = Quantity('Temperature', default = (55, 'degC'), label = 'temeprature outer',
 					show = '(self.geomConf == "HA")')
 	pressure = Quantity('Pressure', default = (1, 'bar'), label = 'fluid pressure') 
 	heatExchangeGain = Quantity('Dimensionless', label = 'heat exchange gain')
