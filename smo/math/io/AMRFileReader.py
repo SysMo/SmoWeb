@@ -182,7 +182,7 @@ class AMRFileReader(object):
 		appLogger.info('{}: New startTime = {}; stopTime = {}; size = {}'.format(__funcName, self.AMRTime2DateTime(startTime), 
 																			self.AMRTime2DateTime(startTime), newLen))
 		newDType = [(name, np.float64) for name in channelNames]
-		newDType.insert(0, ('time', np.uint32))
+		newDType.insert(0, ('time', np.float64))
 		newChannelData = np.zeros(shape = (newLen,), dtype = newDType)
 		newChannelData['time'] = np.arange(startTime, stopTime, resamplingInterval)
 		# Resample channels using interpolation

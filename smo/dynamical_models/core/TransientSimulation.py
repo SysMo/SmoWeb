@@ -18,9 +18,9 @@ class TransientSimulation(Explicit_Problem):
 	def initializeModel(self):
 		self.compiler = SimulationCompiler(self.model)
 		self.compiler.createModelGraph()
+		self.compiler.plotDependencyGraph()
 		self.compiler.generateSimulationSequence()
-		#model.simCmpl.printSimulationSequence()
-		#self.compiler.plotDependencyGraph()
+		self.compiler.printSimulationSequence()
 		numRealStates = len(self.compiler.realStates)
 		numStateSwitches = len(self.compiler.stateEventDefinitions)
 
