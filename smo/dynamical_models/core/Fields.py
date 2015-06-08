@@ -8,7 +8,7 @@ from smo.web.exceptions import ConnectionError, FieldError
 
 class Causality(object):
 	"""
-	Defines information direction for the variable
+	Defines information direction for a variable
 	"""
 	Parameter = 0
 	CalculatedParameter = 1
@@ -31,14 +31,14 @@ class Variability(object):
 
 class ModelField(object):
 	"""
-	Abstract base class for all the field types.
+	Abstract base class for all field types
 	"""
 	# Tracks each time an instance is created. Used to retain order.
 	creation_counter = 0
 	def __init__(self, label = None, description = None):
 		"""
 	 	:param str label: text
-	 	:param str description: verboose description
+	 	:param str description: verbose description
 		"""
 		self.label = label
 		self.description = description
@@ -135,7 +135,7 @@ class RealVariable(ScalarVariable):
 
 class RealState(RealVariable):
 	"""
-	Real variable which is continuous state. Its value cannot be set directly
+	Real variable which is a continuous state. Its value cannot be set directly
 	by the model, but rather its derivative is calculated and then passed to 
 	the integrator, which computes the value over time.   
 	"""
@@ -179,14 +179,14 @@ class SubModel(ModelField):
 	"""
 	def __init__(self, klass, **kwargs):
 		"""
-		:param klass: submodel class (must be subclass of :class:`DynamicalModel`)
+		:param klass: submodel class (must be a subclass of :class:`DynamicalModel`)
 		"""
 		super(SubModel, self).__init__(**kwargs)
 		self.klass = klass
 
 class InstanceField(object):
 	"""
-	An abstract base class for a field in a :class:`DynamicalModel` instance, 
+	Abstract base class for a field in a :class:`DynamicalModel` instance, 
 	corresponding to a field in the	model definition.
 	"""
 	def __init__(self, modelInstance, clsVar):

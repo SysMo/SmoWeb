@@ -102,13 +102,14 @@ class InstanceMeta(object):
 class DynamicalModel(object):
 	"""
 	Base class for all dynamical models
+	
 	Attributes:
 	
-		* :attr:`meta` : an instance of :class:`InstanceMeta`, used to access
+		* :attr:`meta` : instance of :class:`InstanceMeta`, used to access
 		  field definitions
 		* :attr:`der` : instance of :class:`DerivativeVector`, used to work with
 		  the model derivatives
-		* :attr:`qPath` : qualified pathof this model instance in the hierarcy
+		* :attr:`qPath` : qualified path of this model instance in the hierarcy
 		  of the root model
 		* :attr:`sim` : the simulation compiler assigned to the top-leve model
 		  

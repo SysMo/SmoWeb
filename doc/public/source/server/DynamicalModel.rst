@@ -4,14 +4,14 @@ Dynamical model
 
 .. |m2| replace:: m\ :sup:`2`
 
-------------------------
-Defining dynamical model
-------------------------
+-------------------------
+Defining dynamical models
+-------------------------
 
 Example model: water tower
 --------------------------
 
-Let's create a model for the hydraulic system shown on the figure:
+Let's create a model for the hydraulic system shown in the figure:
 
 .. figure:: img/WaterTowerExample1.svg
    :align: center
@@ -21,15 +21,15 @@ Let's create a model for the hydraulic system shown on the figure:
 
 The circuit consists of:
 
-* a water source, with constant flow rate of 100 kg/h
-* a water tower (open vertical cylindrical container, with cross-sectional area
+* a water source, with a constant flow rate of 100 kg/h
+* a water tower (open vertical cylindrical container, with a cross-sectional area
   of 1 |m2|.
 * a valve for the outflow from the tower, with K\ :sub:`v` = 1000
-* athmospheric pressure source ( 1 bar)    
+* an athmospheric pressure source ( 1 bar)    
 
 The tower is being continuously filled with water from the water source, and emptied through the valve. The inlet mass
-flow rate is constant, but as the level rises, the hydrostatic pressure inside rises, and the outlet flow increases.
-The water level approaches asymptotically certain height, at which the two flows balance out. 
+flow rate is constant, but as the level rises, the hydrostatic pressure inside rises and the outlet flow increases.
+The water level approaches asymptotically a certain height, at which the two flows balance out. 
 
 Let's define each component in Python. We start with the sources::
 
@@ -71,8 +71,8 @@ The water tower model is defined as follows::
       def compute(self, t):
          self.der.hWater = (self.mDotIn + self.mDotOut) / 1000. / self.ACrossSection
 
-This model contains a state variable ``hWater`` with initial value of 0.5. A state variables (and more precisely continuous states) 
-are variables, which describe the time evolution of the system. They are continuous (under normal conditions) and their value at each
+This model contains a state variable ``hWater`` with an initial value of 0.5. State variables (and more precisely continuous states) 
+are variables which describe the time evolution of the system. They are continuous (under normal conditions) and their value at each
 time instant is computed by the integrator. The user has to compute the **derivative** of the state variables (in our case
 ``self.der.hWater``).
 The model has a ``compute()`` method, which will be called on each integration step. All the *input* variables and all the *state*
@@ -129,7 +129,7 @@ Dynamical models, like the one we defined, are described by a set of ordinary di
 numerically using fixed or variable step solvers. Both types of solvers require the user to define a set of 'user' functions,
 which will be automatically called during the integration process. The most important ones are:
 
-* ``init``: a function which initializes all the model data, it is called at the beginning of the simulation
+* ``init``: a function which initializes all the model data; it is called at the beginning of the simulation
 * ``compute``: a function which is called at each time step, with the purpose of computing all the state variable derivatives.
   Inputs to the function are the values of the state variables (computed by the solver) and the solver expects to get back 
   the values of all the continuos state derivatives. 
@@ -137,7 +137,7 @@ which will be automatically called during the integration process. The most impo
 Therefore, before we can run a simulation, the top level model (in this case FluidSystem) must be analyzed and the user functions
 generated. The analysis collects information
 about the variables and subcomponents in the model, about all the connections and dependencies, and creates a dependency graph for all the variables.
-Using the information from this graph, the individual computational methods can be sorted in execution sequence, such that each computational function is called,
+Using the information from this graph, the individual computational methods can be sorted in an execution sequence, such that each computational function is called,
 only after all of its inputs are already calculated. Let's illustrate this with the case of the water tower model.
 
 .. figure:: img/WaterTowerExample1_DependencyGraph.svg
@@ -157,11 +157,12 @@ The direction of the arrows indicates the flow of information.
 
 
 To generate the dependency graph the following information is used:
+
 * causality of component variables (inputs/outputs for the computational functions)
 * connections between variables
 
-Once the dependency graph is available, performing topolgical sort puts the nodes in proper order: a node, whose value
-depends of other nodes will be found behind thsese node in the sorted sequence. Now we can trace the graph, and generate 
+Once the dependency graph is available, performing a topolgical sort puts the nodes in proper order: a node whose value
+depends on other nodes will be found behind these nodes in the sorted sequence. Now we can trace the graph and generate 
 a simulation sequence containing the following actions:
 
 * for each continuous state variable copy the value from the state vector
@@ -171,17 +172,17 @@ a simulation sequence containing the following actions:
 * finally, for each state derivative, copy its value to the state derivative vector
 
 Now let's go back and see why we need the extra ``compute_p`` function. As we can see on the graph, if we didn't have this function, a problem
-would arrise: in order to compute ``FluidSystem.valveOut.mDot1``, the value of ``FluidSystem.waterTower.p`` is needed, but 
-had we not defined the  ``compute_p`` function, this value would have to be calculated in the ``FluidSystem.waterTower.compute`` function,
-which needs ``FluidSystem.valveOut.mDot1`` as input. Topological sort on this graph, containing dependency cycle, would have failed, and no
+would arise: in order to compute ``FluidSystem.valveOut.mDot1``, the value of ``FluidSystem.waterTower.p`` is needed, but 
+had we not defined the  ``compute_p`` function, this value would have had to be calculated in the ``FluidSystem.waterTower.compute`` function,
+which needs ``FluidSystem.valveOut.mDot1`` as input. The topological sort on this graph, containing a dependency cycle, would have failed, and no
 proper simulation sequence could have been generated. The cycle would have been caused by imprecise specifications of dependencies;
-in reality ``FluidSystem.waterTower.p`` depends only on the water level, which is a state variable, and is available as input since
-the start of the time step. Defining ``compute_p`` breaks the dependency loop, and permits a sequential computation of all the 
-variables. If ``FluidSystem.waterTower.p`` was a state variable, the ``compute_p`` function would not have been necessary, because state
+in reality ``FluidSystem.waterTower.p`` depends only on the water level, which is a state variable and is available as input since
+the start of the time step. Defining ``compute_p`` breaks the dependency loop and permits a sequential computation of all the 
+variables. If ``FluidSystem.waterTower.p`` was a state variable, the ``compute_p`` function would not have been necessary because state
 variables values are always available for calculations even at the beginning of the time step.
 
-Once the simulation sequence is generated, the simulation could be run, and the result plotted as shown in the figure below
-(the simulation was executed using variable step variable order CVODE solver, invoked through the Assimulo Python library): 
+Once the simulation sequence is generated, the simulation can be run and the result plotted as shown in the figure below
+(the simulation was executed using the variable-step variable-order CVODE solver, invoked through the Assimulo Python library): 
 
 .. figure:: img/WaterTowerExample1_Result1.svg
    :align: center
@@ -193,14 +194,14 @@ Once the simulation sequence is generated, the simulation could be run, and the 
 Handling events
 ---------------
 
-Using the outlined methodology any causal continuous time systems can be simulated. A more general class of
-dynamical systems, are the systems described by hybrid ODEs. Hybrid ODEs have state variables, which are continuous
-most of the time, but can change discontinuously at special time moments, called events. Events can be **time events**
+Using the outlined methodology, any causal continuous time systems can be simulated. A more general class of
+dynamical systems are the systems described by hybrid ODEs. Hybrid ODEs have state variables, which are continuous
+most of the time but can change discontinuously at special time moments, called events. Events can be **time events**
 (which happen at regular time intervals) or **state events** (which happen if some condition becomes true).
 
-Currently event handling is at a very basic level, and will likely change significantly. To illustrate the existing
-methods to handle event, a controller will be added to the circult, which will close the outlet valve, when the 
-water level falls below 0.35 m and reopen it, when it rises above 0.5 m::
+Currently event handling is at a very basic level and will likely change significantly. To illustrate the existing
+methods to handle an event, a controller will be added to the circult, which will close the outlet valve when the 
+water level falls below 0.35 m and reopen it when it rises above 0.5 m::
 
    class FlowController(DynamicalModel):
       waterLevel = F.RealVariable(causality = CS.Input)
@@ -218,9 +219,9 @@ water level falls below 0.35 m and reopen it, when it rises above 0.5 m::
          self.valveOpen = 1 - self.valveOpen
 
 
-Therea are two functions necessary to handle state events:
+There are two functions necessary to handle state events:
 
-* ``detectLevelEvent`` returns a value which changes sign at event; it is used by the integrator to locate the 
+* ``detectLevelEvent`` returns a value which changes sign at event occurance; it is used by the integrator to locate the 
   exact moment in time when the event occured
 * ``onLevelEvent`` is called once the event has been located and the integrator restarted; its goal is to modify
    the state of the controller (switch the valve on/off)
@@ -264,8 +265,6 @@ Field classes
 .. autoclass:: Port
 
 .. autoclass:: ScalarVariable
-
-.. autoclass:: RealVariable
 
 .. autoclass:: RealVariable
 
