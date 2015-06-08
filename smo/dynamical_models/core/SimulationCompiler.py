@@ -92,7 +92,7 @@ class SimulationCompiler(object):
 		# Assign colors and labels to nodes
 		i = 0
 		for node in self.depGraph.nodes_iter():
-			posLabels[node] = pos[node] + np.array([0, -0.05])
+			posLabels[node] = pos[node] + np.array([0, -0.0])
 			if (isinstance(node, basestring)):
 				labels[node] = node
 			elif (isinstance(node, F.InstanceVariable)):

@@ -30,11 +30,22 @@ def runMechanicalMass(plot = False):
 	sim.run(tFinal = 10., tPrint = 0.1)
 	if (plot):
 		plotResults(sim)
-	
+
+def runFluidSystem(plot = False):
+	from FluidSystem import FluidSystem	
+	from smo.dynamical_models.core.TransientSimulation import TransientSimulation
+	cir = FluidSystem()
+	sim = TransientSimulation(cir)
+	sim.initializeModel()
+	sim.run(tFinal = 100., tPrint = 0.1)
+	if (plot):
+		plotResults(sim)
+
 
 def main(plot):
 	#runThermalMass(plot)
-	runMechanicalMass(plot)
+	#runMechanicalMass(plot)
+	runFluidSystem(plot)
 	
 def stat():
 	import pstats, cProfile
