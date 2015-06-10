@@ -5,7 +5,6 @@ import numpy as np
 from quantity import Quantities
 from smo.web.exceptions import *
 from smo.model.actions import ActionBar
-import os
 from SmoWeb.settings import MEDIA_ROOT
 tmpFolderPath = os.path.join (MEDIA_ROOT, 'tmp')
 
@@ -291,7 +290,7 @@ class Boolean(Field):
 	
 	def toFormDict(self):
 		fieldDict = super(Boolean, self).toFormDict()
-		fieldDict['type'] = 'Boolean'		
+		fieldDict['type'] = 'Boolean'
 		return fieldDict
 
 class Choices(Field):

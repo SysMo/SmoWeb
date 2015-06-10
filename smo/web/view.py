@@ -298,7 +298,6 @@ class ModularPageView(object):
 			if field['datasetColumns'] is None:
 				fieldDict[field['name']] = h5File[datasetPath][...].tolist()
 			else:
-				print field['datasetColumns']
 				fieldDict[field['name']] = np.array(h5File[datasetPath][tuple(field['datasetColumns'])]).transpose().tolist()
 			h5File.close()
 			resultList.append(fieldDict)

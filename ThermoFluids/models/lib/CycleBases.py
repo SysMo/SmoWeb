@@ -359,7 +359,7 @@ class LiquefactionCycle(ThermodynamicalCycle):
 	etaSecondLaw = F.Quantity('Efficiency', label = 'figure of merit (FOM)', 
 		description = 'minimum energy required for liquefaction to the actual energy required \
 			in the cycle; equivalent to second law efficiency')
-	efficiencyFieldGroup = F.FieldGroup([liqEnergy, minLiqEnergy, etaSecondLaw], 'Efficiency')
+	efficiencyFieldGroup = F.FieldGroup([liqEnergy, minLiqEnergy, etaSecondLaw], label = 'Efficiency')
 	
 class LiquefactionCyclesDoc(RestModule):
 	label = 'Documentation'

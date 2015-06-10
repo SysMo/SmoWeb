@@ -275,6 +275,7 @@ class NumericalModel(object):
 		if (modelView.actionBar is not None):
 			for action in modelView.actionBar.actionList:
 				actions.append(action.toJson())
+		print fieldValues
 		return {'definitions': definitions, 'values': fieldValues, 'actions': actions, 
 					'keepDefaultDefs': modelView.keepDefaultDefs, 'computeAsync' : self.async}
 
