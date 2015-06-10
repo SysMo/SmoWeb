@@ -296,8 +296,8 @@ class H2Bioreactor(NumericalModel):
 
 class ADM1H2CH4Bioreactors(NumericalModel):
     label = "(H2,CH4) Bioreactors"
-    description = F.ModelDescription("A model of two separate contiguous bioreactors for hydrogen and methane prodoction, respectively.", show = True)
-    figure = F.ModelFigure(src="BioReactors/img/ModuleImages/SimpleChemostat.png", show = False) #:TODO: (MILEN) ADM1H2CH4Bioreactors png
+    description = F.ModelDescription("A model of the process of hydrogen and methane production by anaerobic digestion of organic wastes in a cascade of two continuously stirred bioreactors.", show = True)
+    figure = F.ModelFigure(src="BioReactors/img/ModuleImages/ADM1H2CH4Bioreactors.png", show = True)
     
     async = True
     progressOptions = {'suffix': 'day', 'fractionOutput': True}
@@ -319,7 +319,7 @@ class ADM1H2CH4Bioreactors(NumericalModel):
         "loadEg", 
         label = "Examples", 
         options = (
-            ('exampleDef', 'Reset to default values'),
+            #('exampleDef', 'Reset to default values'),
             ('exampleADM1', 'Reset to ADM1 values'),  
         )
     )
