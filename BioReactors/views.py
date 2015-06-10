@@ -15,7 +15,7 @@ class ChemostatView(ModularPageView):
 
 @registerView(router)
 class ADM1BioreactorsView(ModularPageView):
-    label = 'ADM1 Bioreactors'
+    label = 'Anaerobic Digestion'
     modules = [M.ADM1H2CH4Bioreactors]
     requireJS = ['dygraph', 'dygraphExport']
     requireGoogle = ['visualization']
