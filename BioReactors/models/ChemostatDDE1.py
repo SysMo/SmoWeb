@@ -6,14 +6,13 @@ Created on Mar 4, 2015
 '''
 import numpy as np
 import smo.model.fields as F
-import smo.dynamical_models.bioreactors.ChemostatDDE as DM
+import smo.dynamical_models.bioreactors.ChemostatDDE1 as DM
 
 from smo.model.model import NumericalModel
-from smo.web.modules import RestModule
 
-class ChemostatDDE(NumericalModel):
-    label = "Chemostat with DDE"
-    description = F.ModelDescription("Chemostat model with delay differential equations (DDE)", show = True)
+class ChemostatDDE1(NumericalModel):
+    label = "DDE Chemostat (Example 1)"
+    description = F.ModelDescription("Chemostat model with delay differential equations (DDE) - Example 1", show = True)
     figure = F.ModelFigure(src="BioReactors/img/ModuleImages/SimpleChemostat.png", show=False)
     
     #1. ############ Inputs ###############
@@ -69,7 +68,7 @@ class ChemostatDDE(NumericalModel):
     inputValuesSG = F.SuperGroup([parametersMuFG, parametersFG, parametersTauFG, parametersHistFG], label = "Input values")
 
     #1.2 Fields - Settings
-    tFinal = F.Quantity('Bio_Time', default = (100, 'day'), minValue = (0, 'day'), maxValue=(5000, 'day'), label = 'simulation time')
+    tFinal = F.Quantity('Bio_Time', default = (100, 'day'), minValue = (0, 'day'), maxValue=(1000, 'day'), label = 'simulation time')
     tPrint = F.Quantity('Bio_Time', default = (0.1, 'day'), minValue = (1e-5, 'day'), maxValue = (100, 'day'), label = 'print interval')
     absTol = F.Quantity('Bio_Time', default = (1e-12, 'day'), minValue = (1e-16, 'day'), maxValue = (1e-5, 'day'), label = 'absolute tolerance')
     relTol = F.Quantity('Bio_Time', default = (1e-12, 'day'), minValue = (1e-16, 'day'), maxValue = (1e-3, 'day'), label = 'relative tolerance')
@@ -81,7 +80,6 @@ class ChemostatDDE(NumericalModel):
     inputView = F.ModelView(ioType = "input", superGroups = [inputValuesSG, settingsSG], autoFetch = True)
     
     #2. ############ Results ###############
-    # 2.1. Results
     dataSeries = (
         ('time', F.Quantity('Bio_Time', default=(1, 'day'))),
         ('s1', F.Quantity('Bio_MassConcentration', default=(1, 'g/L'))),
@@ -147,7 +145,7 @@ class ChemostatDDE(NumericalModel):
         self.x2_hist_vals = 0.05
         
     def compute(self):
-        chemostatDDE = DM.ChemostatDDE(self)
+        chemostatDDE = DM.ChemostatDDE1(self)
         chemostatDDE.run(self)
         
         res = chemostatDDE.getResults()
@@ -162,8 +160,3 @@ class ChemostatDDE(NumericalModel):
         self.x1_eqpnt = (chemostatDDE.equilibriumPoint[1], 'kg/m**3')
         self.s2_eqpnt = (chemostatDDE.equilibriumPoint[2], 'kg/m**3')
         self.x2_eqpnt = (chemostatDDE.equilibriumPoint[3], 'kg/m**3')
-        
-class ChemostatDDEDoc(RestModule):
-    label = 'Chemostat with DDE (Doc)'
-    
-    

@@ -9,7 +9,7 @@ router = ViewRouter('BioReactors', BioReactors)
 @registerView(router)
 class ChemostatView(ModularPageView):
     label = 'Chemostat'
-    modules = [M.ChemostatSimple, M.ChemostatSimpleDoc, M.ChemostatDDE, M.ChemostatDDEDoc]
+    modules = [M.ChemostatSimple, M.ChemostatSimpleDoc, M.ChemostatDDE1, M.ChemostatDDE2, M.ChemostatDDEDoc]
     requireJS = ['dygraph', 'dygraphExport']
     requireGoogle = ['visualization']
 

@@ -18,18 +18,20 @@ x'(t) = f(t, x(t), x_{t})
 </div>
 <div class="section" id="mathematical-model">
 <h1>2.&nbsp;&nbsp;&nbsp;Mathematical model</h1>
-<p>One example of a mathematical model of a chemostat with delay differential equations (DDE) is:</p>
+<p>Examples of a mathematical model of a chemostat with delay differential equations (DDE) are:</p>
+<blockquote>
+<p><strong>Example 1:</strong></p>
+<p><span class="math">\(s'_{1}(t)=D\left(s_{1}^{in}-s_{1}(t)\right)-k_{1}\mu_{1}\left(s_{1}(t)\right)x_{1}(t)\)</span></p>
+<p><span class="math">\(x'_{1}(t)=\mu_{1}\left(s_{1}(t-\tau_{1})\right)x_{1}(t-\tau_{1})-\alpha Dx_{1}(t)\)</span></p>
+<p><span class="math">\(s'_{2}(t)=D\left(s_{2}^{in}-s_{2}(t)\right)+k_{2}\mu_{1}\left(s_{1}(t)\right)x_{1}(t)-k_{3}\mu_{2}\left(s_{2}(t)\right)x_{2}(t)\)</span></p>
+<p><span class="math">\(x'_{2}(t)=\mu_{2}\left(s_{2}(t-\tau_{2})\right)x_{2}(t-\tau_{2})-\alpha Dx_{2}(t)\)</span></p>
+<p><strong>Example 2:</strong></p>
 <p><span class="math">\(s'_{1}(t)=D\left(s_{1}^{in}-s_{1}(t)\right)-k_{1}\mu_{1}\left(s_{1}(t)\right)x_{1}(t)\)</span></p>
 <p><span class="math">\(x'_{1}(t)=e^{-\alpha D \tau_{1}}\mu_{1}\left(s_{1}(t-\tau_{1})\right)x_{1}(t-\tau_{1})-\alpha Dx_{1}(t)\)</span></p>
 <p><span class="math">\(s'_{2}(t)=D\left(s_{2}^{in}-s_{2}(t)\right)+k_{2}\mu_{1}\left(s_{1}(t)\right)x_{1}(t)-k_{3}\mu_{2}\left(s_{2}(t)\right)x_{2}(t)\)</span></p>
 <p><span class="math">\(x'_{2}(t)=e^{-\alpha D \tau_{2}}\mu_{2}\left(s_{2}(t-\tau_{2})\right)x_{2}(t-\tau_{2})-\alpha Dx_{2}(t)\)</span></p>
-<div class="line-block">
-<div class="line"><br /></div>
-</div>
+</blockquote>
 <p>where:</p>
-<div class="line-block">
-<div class="line"><br /></div>
-</div>
 <p><span class="math">\(s_{1}, s_{2}\)</span> - the substrate concentrations</p>
 <p><span class="math">\(x_{1}, x_{2}\)</span> - the bacteria concentrations</p>
 <p><span class="math">\(s_{1}^{in}, s_{2}^{in}\)</span> - the input substrate concentrations</p>

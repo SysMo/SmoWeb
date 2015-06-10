@@ -26,21 +26,31 @@ where :math:`x_t=\{x(\tau):\tau\leq t\}` represents the trajectory of the soluti
 
 Mathematical model
 ------------------
-One example of a mathematical model of a chemostat with delay differential equations (DDE) is:
+Examples of a mathematical model of a chemostat with delay differential equations (DDE) are:
 
-:math:`s'_{1}(t)=D\left(s_{1}^{in}-s_{1}(t)\right)-k_{1}\mu_{1}\left(s_{1}(t)\right)x_{1}(t)`
+   **Example 1:**
    
-:math:`x'_{1}(t)=e^{-\alpha D \tau_{1}}\mu_{1}\left(s_{1}(t-\tau_{1})\right)x_{1}(t-\tau_{1})-\alpha Dx_{1}(t)`
+   :math:`s'_{1}(t)=D\left(s_{1}^{in}-s_{1}(t)\right)-k_{1}\mu_{1}\left(s_{1}(t)\right)x_{1}(t)`
+      
+   :math:`x'_{1}(t)=\mu_{1}\left(s_{1}(t-\tau_{1})\right)x_{1}(t-\tau_{1})-\alpha Dx_{1}(t)`
+      
+   :math:`s'_{2}(t)=D\left(s_{2}^{in}-s_{2}(t)\right)+k_{2}\mu_{1}\left(s_{1}(t)\right)x_{1}(t)-k_{3}\mu_{2}\left(s_{2}(t)\right)x_{2}(t)`
+      
+   :math:`x'_{2}(t)=\mu_{2}\left(s_{2}(t-\tau_{2})\right)x_{2}(t-\tau_{2})-\alpha Dx_{2}(t)`
    
-:math:`s'_{2}(t)=D\left(s_{2}^{in}-s_{2}(t)\right)+k_{2}\mu_{1}\left(s_{1}(t)\right)x_{1}(t)-k_{3}\mu_{2}\left(s_{2}(t)\right)x_{2}(t)`
-   
-:math:`x'_{2}(t)=e^{-\alpha D \tau_{2}}\mu_{2}\left(s_{2}(t-\tau_{2})\right)x_{2}(t-\tau_{2})-\alpha Dx_{2}(t)`
-   
-|
+   **Example 2:**
+
+   :math:`s'_{1}(t)=D\left(s_{1}^{in}-s_{1}(t)\right)-k_{1}\mu_{1}\left(s_{1}(t)\right)x_{1}(t)`
+      
+   :math:`x'_{1}(t)=e^{-\alpha D \tau_{1}}\mu_{1}\left(s_{1}(t-\tau_{1})\right)x_{1}(t-\tau_{1})-\alpha Dx_{1}(t)`
+      
+   :math:`s'_{2}(t)=D\left(s_{2}^{in}-s_{2}(t)\right)+k_{2}\mu_{1}\left(s_{1}(t)\right)x_{1}(t)-k_{3}\mu_{2}\left(s_{2}(t)\right)x_{2}(t)`
+      
+   :math:`x'_{2}(t)=e^{-\alpha D \tau_{2}}\mu_{2}\left(s_{2}(t-\tau_{2})\right)x_{2}(t-\tau_{2})-\alpha Dx_{2}(t)`
 
 where:
 
-|
+
    
 :math:`s_{1}, s_{2}` - the substrate concentrations
    
