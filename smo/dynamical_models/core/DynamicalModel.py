@@ -5,15 +5,12 @@ Created on Feb 25, 2015
 @copyright: SysMo Ltd, Bulgaria
 '''
 from collections import OrderedDict
-import StringIO
-import networkx as nx
-import pylab as plt
-import numpy as np
-from smo.web.exceptions import ConnectionError, FieldError
-import SimulationActions as SA
-from Fields import *
+import Fields as F
 
 class DynamicalModelMeta(type):
+	"""
+	Meta-model for creating dynamical model classes 
+	"""
 	def __new__(cls, name, bases, attrs):
 		# Label
 		if ('label' not in attrs):
@@ -25,23 +22,28 @@ class DynamicalModelMeta(type):
 		dm_realStates = []
 		dm_functions = []
 		dm_ports = []
+		dm_stateEvents = {}
 		for key, value in attrs.items():
-			if isinstance(value, ScalarVariable):
+			if isinstance(value, F.ScalarVariable):
 				dm_variables.append((key, value))
 				value.setName(key)
 				attrs.pop(key)
-				if (isinstance(value, RealState)):
+				if (isinstance(value, F.RealState)):
 					dm_realStates.append((key, value))
-			elif isinstance(value, Function):
+			elif isinstance(value, F.Function):
 				dm_functions.append((key, value))
 				value.setName(key)
-				attrs.pop(key)
-			elif isinstance(value, Port):
+				attrs[key] = value.funcDef
+			elif isinstance(value, F.Port):
 				dm_ports.append((key, value))
 				value.setName(key)
 				attrs.pop(key)
-			elif isinstance(value, SubModel):
+			elif isinstance(value, F.SubModel):
 				dm_submodels.append((key, value))
+				value.setName(key)
+				attrs.pop(key)
+			elif isinstance(value, F.StateEvent):
+				dm_stateEvents[key] = value
 				value.setName(key)
 				attrs.pop(key)
 		
@@ -56,6 +58,7 @@ class DynamicalModelMeta(type):
 		attrs['dm_ports'] = OrderedDict(dm_ports)
 		dm_submodels.sort(key=lambda x: x[1].creation_counter)
 		attrs['dm_submodels'] = OrderedDict(dm_submodels)
+		attrs['dm_stateEvents'] = dm_stateEvents
 		
 		new_class = (super(DynamicalModelMeta, cls)
 			.__new__(cls, name, bases, attrs))
@@ -64,6 +67,17 @@ class DynamicalModelMeta(type):
 
 		
 class InstanceMeta(object):
+	"""
+	InstanceMeta links instance attributes (variables , functions, ports) to
+	class definitions (fields declared in a DynamicalModel subclass). It has
+	the following attributes:
+	
+		* :attr:`dm_variables` 
+		* :attr:`dm_submodels` 
+		* :attr:`dm_functions` 
+		* :attr:`dm_ports` 
+	 
+	"""
 	def __init__(self):
 		self.dm_variables = {}
 		self.dm_submodels = {}
@@ -86,11 +100,31 @@ class InstanceMeta(object):
 		self.__setattr__(portName, instancePort)
 
 class DynamicalModel(object):
+	"""
+	Base class for all dynamical models
+	
+	Attributes:
+	
+		* :attr:`meta` : instance of :class:`InstanceMeta`, used to access
+		  field definitions
+		* :attr:`der` : instance of :class:`DerivativeVector`, used to work with
+		  the model derivatives
+		* :attr:`qPath` : qualified path of this model instance in the hierarcy
+		  of the root model
+		* :attr:`sim` : the simulation compiler assigned to the top-leve model
+		  
+	
+	"""
 	__metaclass__ = DynamicalModelMeta
 	
 	def __new__(cls, name = None, parent = None, *args, **kwargs):
-		"""Constructor for all dynamical models. 
-		Sets default values for all model fields"""
+		"""
+		Constructor for all dynamical models. Sets default values for all model fields
+
+		:param name: name of the instance
+		:param parent : if this is submodel in another model, this is the 
+			parent model instance
+		"""
 		self = object.__new__(cls)
 		if (name is None):
 			name = cls.__name__
@@ -103,16 +137,20 @@ class DynamicalModel(object):
 		# Create instance meta
 		self.meta = InstanceMeta()
 		# Create derivative vector
-		self.der = DerivativeVector(self)
+		self.der = F.DerivativeVector(self)
 		# Create instance variables
 		for name, clsVar in cls.dm_variables.iteritems():
-			self.meta.addInstanceVariable(InstanceVariable(self, clsVar))
+			self.meta.addInstanceVariable(F.InstanceVariable(
+					modelInstance = self, clsVar = clsVar))
+			setattr(self, clsVar.name, clsVar.default)
 		# Create instance functions
 		for name, clsVar in cls.dm_functions.iteritems():
-			self.meta.addInstanceFunction(InstanceFunction(self, clsVar))
+			self.meta.addInstanceFunction(F.InstanceFunction(
+					modelInstance = self, clsVar = clsVar))
 		# Create instance ports
 		for name, clsVar in cls.dm_ports.iteritems():
-			self.meta.addInstancePort(InstancePort(self, clsVar))
+			self.meta.addInstancePort(F.InstancePort(
+					modelInstance = self, clsVar = clsVar))
 		# Create submodel instances
 		for name, submodel in cls.dm_submodels.iteritems():
 			instance = submodel.klass(name, self)
@@ -123,187 +161,46 @@ class DynamicalModel(object):
 	
 	@property
 	def qName(self):
+		""""""
 		return '.'.join(self.qPath)
-			
-	def describeFields(self):
-		buf = StringIO.StringIO()
-		buf.write("=====================================\n")
-		buf.write("Model: {}\n".format(self.__class__.__name__))
-		buf.write("-------------------------------------\n")
-		buf.write("Variables:\n")
-		for k, v in self.__class__.dm_variables.iteritems():
-			buf.write("\t{}: \n".format(k))
-		buf.write("-------------------------------------\n")		
-		buf.write("SubModels:\n")
-		for k, v in self.meta.dm_submodels.iteritems():
-			buf.write("{}: \n".format(k))
-			buf.write(v.describeFields())
-		buf.write("=====================================\n")
-		result = buf.getvalue()
-		buf.close()
-		return result
 	
-	def createModelGraph(self, graph = None):
-		if (graph is None):
-			graph = nx.DiGraph()
-			graph.add_node('stateVector')
-			graph.add_node('stateDerivativeVector')
-		else:
-			graph.add_node(self)
-		
-		self.dm_graph = graph
-		# Add all the variables 
-		for k, v in self.meta.dm_variables.iteritems():
-			if isinstance(v.clsVar, RealState):
-				self.dm_graph.add_edge('stateVector', v)
-				self.dm_graph.add_edge(v, self)
-				self.dm_graph.add_edge(v.qName + '.der', 'stateDerivativeVector')
-				self.dm_graph.add_edge(self, v.qName + '.der')
-			if (v.clsVar.causality == Causality.Input):
-				self.dm_graph.add_node(v)
-				self.dm_graph.add_edge(v, self)
-				if (len(v.connectedVars) > 0):
-					self.dm_graph.add_edge(v.connectedVars[0], v)
-			elif (v.clsVar.causality == Causality.Output):
-				self.dm_graph.add_node(v)
-				self.dm_graph.add_edge(self, v)
-		# Insert functions and fix causality
-		for k, v in self.meta.dm_functions.iteritems():
-			self.dm_graph.add_node(v)
-			for inVar in v.inputs:
-				self.dm_graph.add_edge(inVar, v)
-			for outVar in v.outputs:
-				self.dm_graph.add_edge(v, outVar)
-				self.dm_graph.remove_edge(self, outVar)
-				self.dm_graph.add_edge(outVar, self)
-				
-		# Include recursively the submodels
-		for k, v in self.__class__.dm_submodels.iteritems():
-			self.__dict__[k].createModelGraph(graph)
-				
-	def plotModelGraph(self):
-		#pos = nx.spring_layout(self.dm_graph)
-		pos = nx.graphviz_layout(self.dm_graph, prog = 'neato', root = 'stateVector')
-		posLabels = {}
-		labels = {}
-		colors = np.zeros(shape = (len(self.dm_graph.nodes())), dtype = 'S')
-		colors.fill('r')
-		# Assign colors and labels to nodes
-		i = 0
-		for node in self.dm_graph.nodes_iter():
-			posLabels[node] = pos[node] + np.array([0, -0.05])
-			if (isinstance(node, basestring)):
-				labels[node] = node
-			elif (isinstance(node, InstanceVariable)):
-				labels[node] = node.qName
-				colors[i] = 'b'
-			elif (isinstance(node, InstanceFunction)):
-				labels[node] = node.qName
-				colors[i] = 'g'
-			elif (isinstance(node, DynamicalModel)):
-				labels[node] = node.qName + '.compute'
-				colors[i] = 'g'
-			i += 1
-
-		# Draw nodes
-		nx.draw_networkx_nodes(self.dm_graph, 
-				pos, node_size = 200, node_color= colors, alpha=0.5)
-		# Draw edges
-		nx.draw_networkx_edges(self.dm_graph, pos)
-		# Draw labels
-		draw_networkx_labels(self.dm_graph, posLabels, labels, 
-				horizontalalignment = 'left', rotation = 30.)
-		plt.show()
-		
-	def generateSimulationSequence(self):
-		if (self.dm_graph is None):
-			self.createModelGraph()
-		# Sequence of all actions in execution order
-		self.simSequence = []
-		# Sequence of functions to be called
-		self.functionCallSequence = []
-		# Set real states
-		i = 0
-		for state in self.dm_graph.successors('stateVector'):
-			self.simSequence.append(SA.SetRealState(i, state))
-			i += 1
-			
-		# Topological sort will return a node list with proper causality
-		try:
-			sortedGraph = nx.topological_sort(self.dm_graph)
-		except nx.exception.NetworkXUnfeasible, e:
-			raise RuntimeError("Cannot perfrom topological sort of the execution \
-graph. Probably there are cyclic dependancies. \n \
-Original error message: {}".format(e))
-			
-		for node in sortedGraph:
-			if isinstance(node, DynamicalModel):
-				self.simSequence.append(SA.CallMethod(node, 'compute'))
-			elif isinstance(node, InstanceFunction):
-				self.simSequence.append(SA.CallMethod(node.instance, node.name))
-			elif isinstance(node, InstanceVariable):				
-				pred = self.dm_graph.predecessors(node)
-				if (len(pred) > 0):
-					pred = pred[0]
-					if (isinstance(pred, InstanceVariable)):
-						self.simSequence.append(SA.AssignValue(pred, node))
-				else:
-					print("Warning variable {.qName} receives no value".format(node))
-		# Get real derivatives
-		i = 0
-		for state in self.dm_graph.successors('stateVector'):
-			self.simSequence.append(SA.GetRealStateDerivative(i, state))
-			i += 1
+	# Methods that models can/should implement 
+	def initialize(self):
+		"""
+		Called at initialization
+		"""
+		#print("Initialized {}".format(self.qName))
 	
-	def printSimulationSequence(self):
-		for action in self.simSequence:
-			print action
+	def compute(self, t):
+		"""
+		Called during simulation run
+		"""
+	
+	# Methods used from the solver
+	# Run submodel initializing functions
+	def recursiveInitialize(self):		
+		for _, submodel in self.meta.dm_submodels.items():
+			submodel.recursiveInitialize()
+		self.initialize()
+				
+	
+# 	# Other methods
+# 	def describeFields(self):
+# 		buf = StringIO.StringIO()
+# 		buf.write("=====================================\n")
+# 		buf.write("Model: {}\n".format(self.__class__.__name__))
+# 		buf.write("-------------------------------------\n")
+# 		buf.write("Variables:\n")
+# 		for k, v in self.__class__.dm_variables.iteritems():
+# 			buf.write("\t{}: \n".format(k))
+# 		buf.write("-------------------------------------\n")		
+# 		buf.write("SubModels:\n")
+# 		for k, v in self.meta.dm_submodels.iteritems():
+# 			buf.write("{}: \n".format(k))
+# 			buf.write(v.describeFields())
+# 		buf.write("=====================================\n")
+# 		result = buf.getvalue()
+# 		buf.close()
+# 		return result
+# 	
 			
-def draw_networkx_labels(G, pos,
-						 labels=None,
-						 font_size=12,
-						 font_color='k',
-						 font_family='sans-serif',
-						 font_weight='normal',
-						 alpha=1.0,
-						 ax=None,
-						 **kwds):
-	try:
-		import matplotlib.pyplot as plt
-		import matplotlib.cbook as cb
-	except ImportError:
-		raise ImportError("Matplotlib required for draw()")
-	except RuntimeError:
-		print("Matplotlib unable to open display")
-		raise
-
-	if ax is None:
-		ax = plt.gca()
-
-	if labels is None:
-		labels = dict((n, n) for n in G.nodes())
-
-	# set optional alignment
-	horizontalalignment = kwds.get('horizontalalignment', 'center')
-	verticalalignment = kwds.get('verticalalignment', 'center')
-	rotation = kwds.get('rotation', 0)
-	text_items = {}  # there is no text collection so we'll fake one
-	for n, label in labels.items():
-		(x, y) = pos[n]
-		if not cb.is_string_like(label):
-			label = str(label)  # this will cause "1" and 1 to be labeled the same
-		t = ax.text(x, y,
-				  label,
-				  size=font_size,
-				  color=font_color,
-				  family=font_family,
-				  weight=font_weight,
-				  horizontalalignment=horizontalalignment,
-				  verticalalignment=verticalalignment,
-				  transform=ax.transData,
-				  clip_on=True,
-				  rotation = rotation
-				  )
-		text_items[n] = t
-
-	return text_items

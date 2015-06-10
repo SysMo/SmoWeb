@@ -359,3 +359,12 @@ def configureApache():
 </VirtualHost>
 """
 #######################################################################
+def configureConda():
+	"""
+	Install and configure conda packages in anaconda environment
+	"""
+	packages = [
+		"django",
+			
+	
+	]

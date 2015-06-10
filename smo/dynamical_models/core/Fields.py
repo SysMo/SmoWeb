@@ -7,6 +7,9 @@ Created on May 10, 2015
 from smo.web.exceptions import ConnectionError, FieldError
 
 class Causality(object):
+	"""
+	Defines information direction for a variable
+	"""
 	Parameter = 0
 	CalculatedParameter = 1
 	Input = 2
@@ -14,9 +17,12 @@ class Causality(object):
 	Local = 4
 	Independent = 5
 	RealState = 6
-	TimeDerivative = 7
+	#TimeDerivative = 7
 	
 class Variability(object):
+	"""
+	Defines the variability of a variable
+	"""
 	Constant = 0
 	Fixed = 1
 	Tunable = 2
@@ -25,11 +31,15 @@ class Variability(object):
 
 class ModelField(object):
 	"""
-	Abstract base class for all the field types.
+	Abstract base class for all field types
 	"""
 	# Tracks each time an instance is created. Used to retain order.
 	creation_counter = 0
 	def __init__(self, label = None, description = None):
+		"""
+	 	:param str label: text
+	 	:param str description: verbose description
+		"""
 		self.label = label
 		self.description = description
 
@@ -38,6 +48,12 @@ class ModelField(object):
 		ModelField.creation_counter += 1
 
 	def setName(self, name):
+		"""		
+		This method is explicitly called to set the field name
+
+		:param name: field name
+		
+		"""
 		self.name = name
 		if (self.label is None):
 			self.label = self.name
@@ -45,63 +61,161 @@ class ModelField(object):
 			self.description = self.label
 	
 class Function(ModelField):
+	"""
+	Represents a calculation function in the model
+	"""
 	def __init__(self, inputs, outputs, **kwargs):
+		"""
+		:param inputs: input variable list
+		:param outputs: output variable list
+		"""
 		super(Function, self).__init__(**kwargs)
 		self.inputs = inputs
 		self.outputs = outputs
 		# TODO: check causalities
+	
+	def __call__(self, funcDef):
+		self.funcDef = funcDef
+		return self
 
 class Port(ModelField):
+	"""
+	Port is a group of model variables exposed to the external world, 
+	used to connect to other models
+	"""
 	def __init__(self, variables, subType = None, **kwargs):
+		'''
+		:param variables: list of the port variables 
+		:param subtype: derived classes can define special subtypes (e.g. C-port or R-port) 
+		'''
 		super(Port, self).__init__(**kwargs)
 		self.variables = variables		
 		self.subType = subType		
-	def checkConnect(self, other):
+	
+	def checkConnect(self, other):		
+		'''
+		Perform basic check whether this port can be connected to the other one. Currently it checks:
+		
+		 * the two ports have the same number of variables 
+		
+		:param other: other port that this one is connected to
+		:type other: :class:`Port`
+		'''
 		if (len(self.variables) != len(other.variables)):
 			raise ConnectionError('Cannot connect ports with different number of variables')
 	
 class ScalarVariable(ModelField):
+	"""
+	A fundamental variable field for the model 
+	"""
 	def __init__(self, causality, variability, **kwargs):
 		"""
-	 	:param str label: the text label used in the user interface usually in front of the field
-	 	:param str description: description to show as tooltip when hovering over the field label
+	 	:param causality: causality
+	 	:param variabilty: variability
 		"""
 		super(ScalarVariable, self).__init__(**kwargs)
 		self.causality = causality
 		self.variability = variability
-
+	
+	@property
+	def default(self):
+		raise NotImplementedError("{} does not implement 'default' property".format(self.__class__))
+	
 class RealVariable(ScalarVariable):
-	def __init__(self, causality = Causality.Local, variability = Variability.Continuous, **kwargs):
+	"""
+	Scalar variable of type real
+	"""
+	def __init__(self, causality = Causality.Local, variability = Variability.Continuous, default = 0., **kwargs):
 		super(RealVariable, self).__init__(causality, variability, **kwargs)
+		self.defaultValue = float(default)
+		
+	@property
+	def default(self):
+		return self.defaultValue
 
 class RealState(RealVariable):
+	"""
+	Real variable which is a continuous state. Its value cannot be set directly
+	by the model, but rather its derivative is calculated and then passed to 
+	the integrator, which computes the value over time.   
+	"""
 	def __init__(self, start, **kwargs):
+		
 		super(RealState, self).__init__(causality = Causality.RealState, 
 				variability = Variability.Continuous, **kwargs)
 		self.start = start
+
+	@property
+	def default(self):
+		return self.start
 		
+class IntegerVariable(ScalarVariable):
+	"""
+	Scalar variable of type integer
+	"""
+	def __init__(self, causality = Causality.Local, variability = Variability.Discrete, default = 0, **kwargs):
+		super(IntegerVariable, self).__init__(causality, variability, **kwargs)
+		self.defaultValue = int(default)
+		
+	@property
+	def default(self):
+		return self.defaultValue
+	
+
+class StateEvent(ModelField):
+	"""
+	"""
+	def __init__(self, locate, **kwargs):
+		super(StateEvent, self).__init__(**kwargs)
+		self.locate = locate
+		
+	def __call__(self, update):
+		self.update = update
+		return self
+
 class SubModel(ModelField):
+	"""
+	Submodel as part of a larger model
+	"""
 	def __init__(self, klass, **kwargs):
+		"""
+		:param klass: submodel class (must be a subclass of :class:`DynamicalModel`)
+		"""
 		super(SubModel, self).__init__(**kwargs)
 		self.klass = klass
 
 class InstanceField(object):
-	def __init__(self, instance, clsVar):
-		self.instance = instance
+	"""
+	Abstract base class for a field in a :class:`DynamicalModel` instance, 
+	corresponding to a field in the	model definition.
+	"""
+	def __init__(self, modelInstance, clsVar):
+		"""
+		:param modelInstance: dynamical model instance
+		:param clsVar: class variable corresponding to this instance variable
+		  defined in the dynamical model
+		"""
+		self.modelInstance = modelInstance
 		self.clsVar = clsVar
 	@property
 	def name(self):
+		""""""
 		return self.clsVar.name
 	@property
 	def qPath(self):
-		return self.instance.qPath + [self.name]
+		""""""
+		return self.modelInstance.qPath + [self.name]
 	@property
 	def qName(self):
+		""""""
 		return '.'.join(self.qPath)
 
 class InstanceVariable(InstanceField):
-	def __init__(self, instance, clsVar):
-		super(InstanceVariable, self).__init__(instance, clsVar)
+	"""
+	Variable in a model instance
+	"""
+	def __init__(self, **kwargs):
+		super(InstanceVariable, self).__init__(**kwargs)
 		self.connectedVars = []
 	def connect(self, other, complement = True):
 		# Input variables
@@ -142,35 +256,52 @@ class InstanceVariable(InstanceField):
 		# Other
 		else:
 			raise ConnectionError(self, other, 'Connected variables must have causality Input, Output or RealState')
+	
+	def setValue(self, value):
+		setattr(self.modelInstance, self.clsVar.name, value)
+		
+	def getValue(self):
+		return getattr(self.modelInstance, self.clsVar.name)
 
 class InstanceFunction(InstanceField):
-	def __init__(self, instance, clsVar):
-		super(InstanceFunction, self).__init__(instance, clsVar)
+	"""
+	Function in a model instance
+	"""
+	def __init__(self, **kwargs):
+		super(InstanceFunction, self).__init__(**kwargs)
 		self.inputs = []
 		self.outputs = []
-		for inVar in clsVar.inputs:
-			self.inputs.append(instance.meta.dm_variables[inVar.name])
-		for outVar in clsVar.outputs:
-			self.outputs.append(instance.meta.dm_variables[outVar.name])
+		for inVar in self.clsVar.inputs:
+			self.inputs.append(self.modelInstance.meta.dm_variables[inVar.name])
+		for outVar in self.clsVar.outputs:
+			self.outputs.append(self.modelInstance.meta.dm_variables[outVar.name])
+	
 
 class InstancePort(InstanceField):
-	def __init__(self, instance, clsVar):
-		super(InstancePort, self).__init__(instance, clsVar)
+	"""
+	Port in a model instance
+	"""
+	def __init__(self, **kwargs):
+		super(InstancePort, self).__init__(**kwargs)
 		self.variables = []
-		for var in clsVar.variables:
-			self.variables.append(instance.meta.dm_variables[var.name])
+		for var in self.clsVar.variables:
+			self.variables.append(self.modelInstance.meta.dm_variables[var.name])
 	
 	def connect(self, other):
 		self.clsVar.checkConnect(other.clsVar)
 		for (thisVar, otherVar) in zip(self.variables, other.variables):
 			thisVar.connect(otherVar)
 
+
 class DerivativeVector(object):
+	"""
+	Derivative vector in a model instance
+	"""
 	def __init__(self, model):
 		object.__setattr__(self, 'model', model)
 		object.__setattr__(self, 'dm_realStates', model.__class__.dm_realStates)
 		for name in self.dm_realStates.keys():
-			object.__setattr__(self, name, 0)
+			object.__setattr__(self, name, 0.)
 	
 	def __setattr__(self, name, value):
 		if (name in self.dm_realStates.keys()):			
