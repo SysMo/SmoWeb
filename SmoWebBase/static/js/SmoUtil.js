@@ -1552,11 +1552,11 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 					
 					
 					if (i==0){
-						navPills.push('<li class="active" ' + showCode + '><a id="' + field.name + 'Tab" data-target="#' + field.name + '" role="tab" data-toggle="tab"><div data-toggle="tooltip" data-viewport="[smo-view-group]" title="' + field.description + '" tooltip>' + field.label + '</div></a></li>');
-						navPillPanes.push('<div class="tab-pane active" id="' + field.name + '">');
+						navPills.push('<li class="active" ' + showCode + '><a id="' + scope.modelName + scope.smoViewGroup.name + field.name + 'Tab" data-target="#' + scope.modelName + scope.smoViewGroup.name + field.name + '" role="tab" data-toggle="tab"><div data-toggle="tooltip" data-viewport="[smo-view-group]" title="' + field.description + '" tooltip>' + field.label + '</div></a></li>');
+						navPillPanes.push('<div class="tab-pane active" id="' + scope.modelName + scope.smoViewGroup.name + field.name + '">');
 					} else {
-						navPills.push('<li ' + showCode + '><a id="' + field.name + 'Tab" data-target="#' + field.name + '" role="tab" data-toggle="tab"><div data-toggle="tooltip" data-viewport="[smo-view-group]", title="' + field.description + '" tooltip>' + field.label + '</div></a></li>');
-						navPillPanes.push('<div class="tab-pane" id="' + field.name + '">');
+						navPills.push('<li ' + showCode + '><a id="' + scope.modelName + scope.smoViewGroup.name + field.name + 'Tab" data-target="#' + scope.modelName + scope.smoViewGroup.name + field.name + '" role="tab" data-toggle="tab"><div data-toggle="tooltip" data-viewport="[smo-view-group]", title="' + field.description + '" tooltip>' + field.label + '</div></a></li>');
+						navPillPanes.push('<div class="tab-pane" id="' + scope.modelName + scope.smoViewGroup.name + field.name + '">');
 					}
 					
 					if (field.type == 'TableView' || field.type == 'PlotView') {
@@ -1666,7 +1666,7 @@ smoModule.directive('smoSuperGroupSet', ['$compile', function($compile) {
 			modelName: '@modelName',
 			viewType: '@viewType'
 		},
-		link : function(scope, element, attr) {
+		link : function(scope, element, attr) {	
 			if (scope.smoSuperGroupSet.length > 1) {
 				var navTabs = [];
 				var navTabPanes = [];
