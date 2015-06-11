@@ -64,6 +64,7 @@ def deploy():
 	local('unison -ignore "Name {*.pyc, *.sql*}" -ignore "Path Log/*" -ignore "Path Media/*" /srv/SmoWeb ssh://' + srvAddress + '//srv/SmoWeb')
 	sudo('chown -R www-data:www-data /srv/SmoWeb ')
 	sudo('service apache2 restart')
+	sudo('/etc/init.d/celeryd restart')
 #######################################################################
 def buildExtModules():
 	"""
