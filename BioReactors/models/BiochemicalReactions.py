@@ -59,7 +59,7 @@ class BiochemicalReactions(NumericalModel):
     #1.4 Model view
     exampleAction = A.ServerAction("loadEg", label = "Examples", options = (
         ('exampleMMK', 'Michaelis-Menten kinetics'),
-        #('exampleMMKI', 'Michaelis-Menten kinetics with inhibition'),
+        ('exampleMMKI', 'Michaelis-Menten kinetics with inhibition'),
     ))
     
     inputView = F.ModelView(
@@ -121,28 +121,27 @@ class BiochemicalReactions(NumericalModel):
         self.species[2] = ('ES', 0.0, 'complex')
         self.species[3] = ('P', 0.0, 'product')
         
-        self.reactions[0] = ('E + S = ES', '2.0, 1.0', 'an enzyme binding to a substrate form a complex (reversible process)')
-        self.reactions[1] = ('ES -> E + P', '1.5', 'a complex decomposition to a product and the enzyme')
+        self.reactions[0] = ('E + S <=> ES', '2.0, 1.0', 'an enzyme binding to a substrate form an enzyme-substrate complex (reversible process)')
+        self.reactions[1] = ('ES -> E + P', '1.5', 'an enzyme-substrate complex decomposition to a product and the enzyme')
         
-        self.tFinal = 10.0
+        self.tFinal = 20.0
         self.tPrint = 0.01
         
     def exampleMMKI(self):
-        #:TODO: (MILEN) BiochemicalReactions exampleMMKI 
-        #@see http://en.wikipedia.org/wiki/Enzyme_kinetics 
-        #     Michaelis-Menten kinetics with intermediate
-        #     Multi-substrate reactions
-        #     Enzyme inhibition and activation 
-        #@see others
-        self.species.resize(3)
+        self.species.resize(6)
         self.species[0] = ('E', 4.0, 'enzyme')
         self.species[1] = ('S', 8.0, 'substrate')
-        self.species[2] = ('ES', 0.0, 'complex')
+        self.species[2] = ('ES', 0.0, 'enzyme-substrate complex')
+        self.species[3] = ('P', 0.0, 'product')
+        self.species[4] = ('I', 5.0, 'inhibitor')
+        self.species[5] = ('EI', 0.0, 'inactive enzyme-inhibitor complex')
         
-        self.reactions.resize(1)
-        self.reactions[0] = ('E + S = ES', '2.0, 1.0', 'an enzyme binding to a substrate form a complex (reversible process)')
+        self.reactions.resize(3)
+        self.reactions[0] = ('E + S <=> ES', '2.0, 1.0', 'an enzyme binding to a substrate form an enzyme-substrate complex (reversible process)')
+        self.reactions[1] = ('ES -> E + P', '1.5', 'an enzyme-substrate complex decomposition to a product and an enzyme')
+        self.reactions[2] = ('E + I <=> EI', '2.0, 0.5', 'an inhibitor binding to the active site of an enzyme form an inactive enzyme-inhibitor complex (reversible processes)')
         
-        self.tFinal = 10.0
+        self.tFinal = 20.0
         self.tPrint = 0.01
          
     def computeAsync(self):
