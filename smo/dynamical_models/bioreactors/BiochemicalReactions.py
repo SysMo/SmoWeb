@@ -252,13 +252,14 @@ class BiochemicalReactions(Simulation):
         self.resultStorage.closeStorage()
     
         ax.set_xlim([0, xData[-1]])
+        ax.set_ylim(bottom = 0.)
         
         # Shrink current axis by 20%
         box = ax.get_position()
         ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
 
         # Put a legend to the right of the current axis
-        ax.legend(loc='center left', bbox_to_anchor=(1, 0.875))
+        ax.legend(loc=2, bbox_to_anchor=(1.0, 1.0))
         
         # Set lables and titles
         ax.set_xlabel('Time')
@@ -286,7 +287,7 @@ class BiochemicalReactions(Simulation):
         xCoord = 0.0
         yCoord = 0.9  
         yCoordOffset = -0.1
-        fontsize = 24  
+        fontsize = 18  
         
         # Plot ODEs
         for i, X in enumerate(self.Xs):
@@ -343,20 +344,20 @@ def TestBiochemicalReactions():
     # Initialize simulation parameters
     solverParams = AttributeDict({
         'tFinal' : 20., 
-        'tPrint' : 0.1,
+        'tPrint' : 0.01,
     })
     
     # Initialize model parameters
     dt = np.dtype([('reactionEquation', np.str_, 256), ('rateConstants', np.str_, 256)])
     reactions = np.array([
-        ("E + S = ES", "10.1, 1.1"),  
-        ("ES -> E + P", "2.1"),
+        ("E + S = ES", "2., 1."),  
+        ("ES -> E + P", "1.5"),
     ], dtype = dt)
     
     dt_vars = np.dtype([('speciesVariable', np.str_, 256), ('initialValue', np.float64, (1))])
     species = np.array([
-        ('E', 0.1),
-        ('S', 0.2),
+        ('E', 4.),
+        ('S', 8.),
         ('ES', 0.0),
         ('P', 0.0),
     ], dtype = dt_vars)
