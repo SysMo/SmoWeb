@@ -830,6 +830,42 @@ class MPLPlot(Field):
 		fieldDict['height'] = self.height			
 		return fieldDict
 
+class TextArea(Field):
+	"""
+	Represents a text area read-only field
+	"""
+	def __init__(self, default = None, width = None, height = None, showTooltip = False, *args, **kwargs):
+		"""
+		:param str default: default value
+		:param int width: the width of the text area
+		:param int height: the height of the text area
+		:param showTooltip: specifies if tooltip with the string value should be displayed
+		"""
+		super(TextArea, self).__init__(*args, **kwargs)
+		if (default is None):
+			self.default = "..."
+		else:
+			self.default = self.parseValue(default)
+			
+		self.width = width
+		self.height = height
+		
+		self.showTooltip = showTooltip
+
+	def parseValue(self, value):
+		return value	
+
+	def getValueRepr(self, value):
+		return value
+	
+	def toFormDict(self):
+		fieldDict = super(TextArea, self).toFormDict()
+		fieldDict['type'] = 'TextArea'
+		fieldDict['width'] = self.width
+		fieldDict['height'] = self.height
+		fieldDict['showTooltip'] = self.showTooltip
+		return fieldDict
+
 class Port(Field):
 	"""
 	Used to create ports for linking to other components

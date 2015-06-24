@@ -730,6 +730,39 @@ smoModule.directive('smoImg', ['$compile', function($compile) {
 	}
 }]);
 
+smoModule.directive('smoTextArea', ['$compile', function($compile) {
+	return {
+		restrict : 'A',
+		scope : {
+			fieldVar: '=',
+			smoDataSource : '=',
+			modelName: '@modelName'
+		},
+		link : function(scope, element, attr) {
+			var el_id = scope.modelName + '_' + scope.fieldVar.name;
+			var template;
+			if (scope.fieldVar.width == null) {
+				scope.fieldVar.width = "100%";
+			} else {
+				scope.fieldVar.width = scope.fieldVar.width + "px";
+			}
+			if (scope.fieldVar.height == null) {
+				scope.fieldVar.height = "200px";
+			} else {
+				scope.fieldVar.height = scope.fieldVar.height + "px";
+			}
+			
+			template = '<textarea readonly id="' + el_id + '" style="width:' + scope.fieldVar.width + '; height:' + scope.fieldVar.height + '; max-width: 100%;">' +
+			scope.smoDataSource[scope.fieldVar.name] + '</textarea>';
+			
+			var el = angular.element(template);
+			compiled = $compile(el);
+			element.replaceWith(el);
+			compiled(scope);
+		}
+	}
+}]);
+
 smoModule.directive('smoInt', ['$compile', function($compile) {
 	return {
 		restrict : 'A',
@@ -1563,6 +1596,8 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 						navPillPanes.push('<div ' + showCode + ' smo-data-series-view field-var="fields.' + field.name + '" model-name="' + scope.modelName + '" smo-data-source="smoDataSource"></div>');
 					} else if (field.type == 'Image' || field.type == 'MPLPlot') {
 						navPillPanes.push('<div ' + showCode + ' smo-img field-var="fields.' + field.name + '" model-name="' + scope.modelName + '" smo-data-source="smoDataSource"></div>');
+					} else if (field.type == 'TextArea') {
+						navPillPanes.push('<div ' + showCode + ' smo-text-area field-var="fields.' + field.name + '" model-name="' + scope.modelName + '" smo-data-source="smoDataSource"></div>');
 					}
 					
 					navPillPanes.push('</div>'); 
@@ -1572,7 +1607,7 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 				if (scope.smoViewGroup.hideContainer) {
 					var style = "background-color: transparent; border: none;";
 				} else {
-					style = "";
+					style = "text-align: left;";
 				}
 				
 				template += '\
@@ -1596,7 +1631,7 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 				if (scope.smoViewGroup.hideContainer) {
 					var style = "background-color: transparent; border: none;";
 				} else {
-					style = "background-color: white; padding :10px; text-align: center;";
+					style = "background-color: white; padding :10px; text-align: left;";
 				}
 				
 				template += '<div style="' + style + '">';
@@ -1605,6 +1640,8 @@ smoModule.directive('smoViewGroup', ['$compile', 'util', function($compile, util
 					template += '<div ' + showCode + ' smo-data-series-view field-var="smoViewGroup.fields[0]" model-name="' + scope.modelName + '" smo-data-source="smoDataSource"></div>';
 				} else if (field.type == 'Image' || field.type == 'MPLPlot') {
 					template += '<div ' + showCode + ' smo-img field-var="smoViewGroup.fields[0]" model-name="' + scope.modelName + '" smo-data-source="smoDataSource"></div>';
+				} else if (field.type == 'TextArea') {
+					template += '<div ' + showCode + ' smo-text-area field-var="smoViewGroup.fields[0]" model-name="' + scope.modelName + '" smo-data-source="smoDataSource"></div>';
 				}
 				
 				template += '</div>';					
