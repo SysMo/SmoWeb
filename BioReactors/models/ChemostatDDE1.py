@@ -99,10 +99,12 @@ class ChemostatDDE1(NumericalModel):
         options = {'title': 'Title', 'formats': ['0.0000', '0.0000', '0.0000', '0.0000', '0.0000']}
     )
 
-    chartSs = F.MPLPlot(label = 'Chart (s<sub>1</sub>, s<sub>2</sub>)')
-    chartXs = F.MPLPlot(label = 'Chart (x<sub>1</sub>, x<sub>2</sub>)')
+    chartS1S2 = F.MPLPlot(label = 'Chart (s<sub>1</sub>, s<sub>2</sub>)')
+    chartX1X2 = F.MPLPlot(label = 'Chart (x<sub>1</sub>, x<sub>2</sub>)')
+    chartS1X1 = F.MPLPlot(label = 'Chart (s<sub>1</sub>, x<sub>1</sub>)')
+    chartS2X2 = F.MPLPlot(label = 'Chart (s<sub>2</sub>, x<sub>2</sub>)')
 
-    resultsVG = F.ViewGroup([plot, table, chartSs, chartXs], label = 'Results')
+    resultsVG = F.ViewGroup([plot, table, chartS1S2, chartX1X2, chartS1X1, chartS2X2], label = 'Results')
     resultsSG = F.SuperGroup([resultsVG], label = "Results")
     
     # 2.2 Equilibrium point
@@ -153,8 +155,10 @@ class ChemostatDDE1(NumericalModel):
         self.plot = results
         self.table = results
         
-        chemostatDDE.plotS1S2(self.chartSs)
-        chemostatDDE.plotX1X2(self.chartXs)
+        chemostatDDE.plotS1S2(self.chartS1S2)
+        chemostatDDE.plotX1X2(self.chartX1X2)
+        chemostatDDE.plotS1X1(self.chartS1X1)
+        chemostatDDE.plotS2X2(self.chartS2X2)
         
         self.s1_eqpnt = (chemostatDDE.equilibriumPoint[0], 'kg/m**3')
         self.x1_eqpnt = (chemostatDDE.equilibriumPoint[1], 'kg/m**3')

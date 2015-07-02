@@ -4,16 +4,15 @@ Created on Mar 23, 2015
 @author: Milen Borisov
 @copyright: SysMo Ltd, Bulgaria
 '''
-import pylab as plt
 import numpy as np
 from pydelay import dde23
-from smo.util import AttributeDict
 from scipy.optimize import fsolve
+from smo.util import AttributeDict 
+from ChemostatDDEBase import ChemostatDDEBase
+from ChemostatDDEBase import plotEqulibriumValuesAtTheEnd
 
-""" Settings """
-plotEqulibriumValuesAtTheEnd = False
 
-class ChemostatDDE1():
+class ChemostatDDE1(ChemostatDDEBase):
     """
     Class for implementation the model of chemostat (2-substrates and 2-organisms) with delay differential equations (DDE) - Example 1
     """
@@ -111,126 +110,6 @@ class ChemostatDDE1():
             'x2': lambda t: params.x2_hist_vals
             }
         self.dde.hist_from_funcs(histfunc, 10.) #:TRICKY: 10. is 'nn' - sample in the interval
-                
-    
-    def run(self, params = None, **kwargs):
-        if params == None:
-            params = AttributeDict(kwargs)
-        self.solverParams = params
-                
-        # Set the simulation parameters
-        self.dde.set_sim_params(
-            tfinal = self.solverParams.tFinal, 
-            AbsTol = params.absTol, 
-            RelTol = params.relTol,
-            dtmax=None)
-        
-        # Run the simulator
-        self.dde.run()
-        
-    def getResults(self):
-        # Fetch the results from t=0 to t=tFinal with a step-size of dt=tPrint:
-        return self.dde.sample(0, self.solverParams.tFinal + self.solverParams.tPrint, self.solverParams.tPrint)
-        
-    def plotResults(self, ax = None):
-        if (ax is None):
-            fig = plt.figure()
-            ax = fig.add_subplot(111)
-            
-        sol = self.getResults()
-        t = sol['t']
-        s1 = sol['s1']
-        x1 = sol['x1']
-        s2 = sol['s2']
-        x2 = sol['x2']
-        
-        # Plot the results
-        ax.plot(t, s1, 'r-', label = 's$_{1}$')
-        ax.plot(t, x1, 'b-', label = 'x$_{1}$')
-        ax.plot(t, s2, 'g-', label = 's$_{2}$')
-        ax.plot(t, x2, 'm-', label = 'x$_{2}$')
-        ax.set_xlabel('Time')
-        ax.set_ylabel('Concentrations')
-        ax.legend()
-        plt.show()
-        
-    def plotX1X2(self, ax = None):
-        params = self.params
-        
-        if (ax is None):
-            fig = plt.figure()
-            ax = fig.add_subplot(111)
-        
-        # Plot the results    
-        sol = self.getResults()
-        t = sol['t']
-        x1 = sol['x1']
-        x2 = sol['x2']
-        
-        ax.plot(t, x1, 'b-', linewidth=2.0, label = 'x$_{1}$')
-        ax.plot(t, x2, 'r--', linewidth=2.0, label = 'x$_{2}$')
-        
-        ax.set_ylim([0, 1.25*np.max([np.max(x1), np.max(x2)])])
-        
-        # Legend (v1)
-        #box = ax.get_position()
-        #ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
-        #ax.legend(loc='center left', bbox_to_anchor = (1, 0.9275))
-
-        # Legend (v2)
-        legentTitle = r'$\mathrm{\bar{u} = %g,\;\tau_{1} = %g,\;\tau_{2} = %g}$'%(params.D, params.tau1, params.tau2)
-        legend = ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.125), ncol=3, 
-            fancybox=True, shadow=True, title=legentTitle, fontsize=18)
-        plt.setp(legend.get_title(),fontsize=18)
-        
-        ax.annotate("%.2f"%x1[-1],xy=(t[-1], x1[-1]), xytext=(5,-2), textcoords='offset points')
-        ax.annotate("%.2f"%x2[-1],xy=(t[-1], x2[-1]), xytext=(5,-2), textcoords='offset points')
-        
-        # Set labels
-        ax.set_xlabel('Time')
-        ax.set_ylabel('Biomass concentrations')
-        
-        # Show
-        plt.show()
-        
-    def plotS1S2(self, ax = None):
-        params = self.params
-        
-        if (ax is None):
-            fig = plt.figure()
-            ax = fig.add_subplot(111)
-        
-        # Plot the results    
-        sol = self.getResults()
-        t = sol['t']
-        s1 = sol['s1']
-        s2 = sol['s2']
-        
-        ax.plot(t, s1, 'g-', linewidth=2.0, label = 's$_{1}$')
-        ax.plot(t, s2, 'm--', linewidth=2.0, label = 's$_{2}$')
-    
-        ax.set_ylim([0, 1.125*np.max([np.max(s1), np.max(s2)])])
-        
-        # Legend (v1)
-        #box = ax.get_position()
-        #ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
-        #ax.legend(loc='center left', bbox_to_anchor = (1, 0.9275))
-
-        # Legend (v2)
-        legentTitle = r'$\mathrm{\bar{u} = %g,\;\tau_{1} = %g,\;\tau_{2} = %g}$'%(params.D, params.tau1, params.tau2)
-        legend = ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.125), ncol=3, 
-            fancybox=True, shadow=True, title=legentTitle, fontsize=18)
-        plt.setp(legend.get_title(),fontsize=18)
-        
-        ax.annotate("%.2f"%s1[-1],xy=(t[-1], s1[-1]), xytext=(5,-3), textcoords='offset points')
-        ax.annotate("%.2f"%s2[-1],xy=(t[-1], s2[-1]), xytext=(5,-3), textcoords='offset points')
-        
-        # Set labels
-        ax.set_xlabel('Time')
-        ax.set_ylabel('Substrate concentrations')
-        
-        # Show
-        plt.show()
         
 
 def TestChemostatDDE():
@@ -238,7 +117,7 @@ def TestChemostatDDE():
     
     # Initialize simulation parameters
     solverParams = AttributeDict({
-        'tFinal' : 50., 
+        'tFinal' : 500., 
         'tPrint' : 0.1,
         'absTol' : 1e-12,
         'relTol' : 1e-12,
@@ -270,7 +149,9 @@ def TestChemostatDDE():
     chemostat.run(solverParams)
     #chemostat.plotResults()
     #chemostat.plotX1X2()
-    chemostat.plotS1S2()
+    #chemostat.plotS1S2()
+    chemostat.plotS1X1()
+    chemostat.plotS2X2()
     
     print "=== END: TestChemostatDDE ==="
     
