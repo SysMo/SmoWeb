@@ -198,6 +198,9 @@ class DamageCalculator:
 	def computeDamage(self):
 		self.damageMagnitudes = 1 / self.N_E * (self.correctedCycleAmplitudes / self.S_E)**self.k
 		self.damage = np.sum(self.damageMagnitudes * self.rainflowMatrix) 
+		#appLogger.info(self.cycleAmplitudes.tolist())
+		#appLogger.info(self.correctedCycleAmplitudes.tolist())
+		#appLogger.info(self.rainflowMatrix)
 		return self.damage
 
 if __name__ == '__main__':
