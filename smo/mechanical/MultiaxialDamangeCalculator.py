@@ -205,7 +205,8 @@ class DamageCalculationExecutor(object):
 		self.damageCalculator = MultiaxialDamageCalculator(
 					SNCurveParameters=S.SNCurveParameters['Liner'], 
 					numStressBins = S.numStressBins, 
-					meanStressCorrectionFactor = S.meanStressCorrectionFactor)
+					meanStressCorrectionFactor = S.meanStressCorrectionFactor,
+					useCompiledExtensions = True)
 		# Set up plane orientations
 		self.damageCalculator.computeRotationMatrices(
 					numThetaSteps = S.numThetaSteps, 
