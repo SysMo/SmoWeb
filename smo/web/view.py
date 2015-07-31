@@ -1,6 +1,6 @@
 from django.http import JsonResponse
 from django.shortcuts import render_to_response, RequestContext
-from SmoWeb.settings import JINJA_TEMPLATE_IMPORTS
+from SmoWeb.settings import JINJA_TEMPLATE_IMPORTS, db
 import json
 import traceback
 import logging
@@ -12,10 +12,7 @@ import h5py
 import numpy as np
 logger = logging.getLogger('django.request.smo.view')
 
-from pymongo import MongoClient
 from bson.objectid import ObjectId
-
-mongoClient = MongoClient()
 
 class Action(object):
 	"""
@@ -250,7 +247,6 @@ class ModularPageView(object):
 		instance = model()
 		if 'viewRecordId' in parameters:
 			viewRecordId = parameters['viewRecordId']
-			db = mongoClient.SmoWeb
 			coll = db.savedViewData
 			record = coll.find_one({'_id': ObjectId(viewRecordId)})
 			if (record is not None):
@@ -264,7 +260,6 @@ class ModularPageView(object):
 		"""
 		Action for saving data in the DB
 		"""
-		db = mongoClient.SmoWeb
 		coll = db.savedViewData
 		recordId = coll.insert({'values' : parameters})
 		return {'model': model.__name__, 'view': view.name, 'id' : str(recordId)}

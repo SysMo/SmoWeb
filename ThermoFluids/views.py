@@ -1,10 +1,7 @@
 from smo.web.view import ModularPageView
 from smo.web.router import ViewRouter, registerView
-from pymongo import MongoClient
 import ThermoFluids
 import models as M
-
-mongoClient = MongoClient()
 
 router = ViewRouter('ThermoFluids', ThermoFluids)
 

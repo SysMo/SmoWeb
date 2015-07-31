@@ -12,10 +12,8 @@ from smo.media.MaterialData import Fluids
 from smo.media.CoolProp.CoolPropReferences import References
 import smo.media.diagrams.StateDiagrams as SD
 
-from pymongo import MongoClient
 from bson.objectid import ObjectId
-mongoClient = MongoClient()
-db = mongoClient.SmoWeb
+from SmoWeb.settings import db
 coll = db["PropertyCalculatorCoolprop"]
 
 
@@ -179,7 +177,6 @@ class PropertyCalculatorCoolprop(NumericalModel):
 		self.computeParamVarTable('paramVarTable', 'recordId', ['T', 'p', 'rho', 'h', 'q', 'u', 'cp', 'cv', 'cond', 'mu'])
 		
 	def computeParamVarTable(self, tableName, recordId, paramNames):
-		db = mongoClient.SmoWeb
 		coll = db[self.__class__.__name__]
 		numCol = len(paramNames)
 		if (self.__getattr__(recordId) != ''):			
