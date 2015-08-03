@@ -61,7 +61,7 @@ def deploy():
 		print("Collected static files")
 		for module in env.folderCopyList:
 			local('cp -r ./{0} {1}'.format(module, os.path.join(env.installDir, 'Platform')), shell='bash')
-	local('unison -ignore "Name {*.pyc, *.sql*}" -ignore "Path Log/*" -ignore "Path Media/*" /srv/SmoWeb ssh://' + srvAddress + '//srv/SmoWeb')
+	local('unison-gtk -ignore "Name {*.pyc, *.sql*}" -ignore "Path Log/*" -ignore "Path Media/*" /srv/SmoWeb ssh://' + srvAddress + '//srv/SmoWeb')
 	sudo('chown -R www-data:www-data /srv/SmoWeb ')
 	sudo('service apache2 restart')
 	sudo('/etc/init.d/celeryd restart')

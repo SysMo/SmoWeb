@@ -174,7 +174,7 @@ class PropertyCalculatorCoolprop(NumericalModel):
 			self.h_V = satV.h
 			self.s_V = satV.s
 
-		self.computeParamVarTable('paramVarTable', 'recordId', ['T', 'p', 'rho', 'h', 'q', 'u', 'cp', 'cv', 'cond', 'mu'])
+		#self.computeParamVarTable('paramVarTable', 'recordId', ['T', 'p', 'rho', 'h', 'q', 'u', 'cp', 'cv', 'cond', 'mu'])
 		
 	def computeParamVarTable(self, tableName, recordId, paramNames):
 		coll = db[self.__class__.__name__]
