@@ -146,11 +146,11 @@ def TestChemostatDDE():
     
     chemostat = ChemostatDDE2(modelParams)
     chemostat.run(solverParams)
-    #chemostat.plotResults()
+    chemostat.plotResults()
     #chemostat.plotX1X2()
     #chemostat.plotS1S2()
-    chemostat.plotS1X1()
-    chemostat.plotS2X2()
+    #chemostat.plotS1X1()
+    #chemostat.plotS2X2()
     
     print "=== END: TestChemostatDDE ==="
     

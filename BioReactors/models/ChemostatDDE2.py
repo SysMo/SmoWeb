@@ -25,6 +25,8 @@ class ChemostatDDE2(NumericalModel):
                   description = 'yield coefficient related to substrate-2 production from bacteria-1')
     k3 = F.Quantity(default = 1074., minValue = 0, maxValue = 1e6, label = 'k<sub>3</sub>', 
                   description = 'yield coefficient related to substrate-2 consumption from bacteria-2')
+    k4 = F.Quantity(default = 1., minValue = 0, maxValue = 1e6, label = 'k<sub>4</sub>', 
+                  description = 'yield coefficient of methane (biogas) on bacteria-2 and substrate-2')
     s1_in = F.Quantity('Bio_MassConcentration', default = (7.5, 'g/L'), label ='s<sub>1</sub><sup>in</sub>', 
                      description = 'input substrate-1 concentration')
     s2_in = F.Quantity('Bio_MassConcentration', default = (75., 'g/L'), label ='s<sub>2</sub><sup>in</sub>', 
@@ -33,7 +35,7 @@ class ChemostatDDE2(NumericalModel):
                  description = 'proportion of organisms that are affected by the dilution rate D')
     D = F.Quantity('Bio_TimeRate', default = (0.89, '1/day'), minValue = (0, '1/day'), label = 'D',
                  description = 'dilution rate')
-    parametersFG = F.FieldGroup([s1_in, s2_in, k1, k2, k3, a, D], label = 'Parameters')
+    parametersFG = F.FieldGroup([s1_in, s2_in, k1, k2, k3, k4, a, D], label = 'Parameters')
                         
     # Parameters - specific growth rates
     m1 = F.Quantity('Bio_TimeRate', default = (1.20, '1/day'), minValue = (0, '1/day'), label = 'm<sub>1</sub>', 
