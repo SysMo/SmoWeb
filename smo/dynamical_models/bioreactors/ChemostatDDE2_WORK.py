@@ -5,12 +5,11 @@ Created on Mar 23, 2015
 @copyright: SysMo Ltd, Bulgaria
 '''
 import numpy as np
-from pydelay import dde23
-from smo.util import AttributeDict
-#from scipy.optimize import fsolve 
-#from ChemostatDDEBase import plotEqulibriumValuesAtTheEnd
-
 import pylab as plt
+from pydelay import dde23
+from scipy.optimize import fsolve
+from smo.util import AttributeDict
+
 PRINT_DEBUG = 0
 
 class ChemostatDDE2():
@@ -61,7 +60,7 @@ class ChemostatDDE2():
         
         # Initialize tauMax
         self.tauMax = np.max([self.params.tau1, self.params.tau2]) + 1 #:TRICKY: give the solver more historical data
-        
+            
     def initHist(self, tMainSim):       
         if (self.params.tau1 == 0 and self.params.tau2 == 0):
             if tMainSim == 0:
@@ -233,6 +232,99 @@ class ChemostatDDE2():
             
             # Write results
             self.writeResults(mainSimStepIndex)
+            
+    def mu1(self, s, m, k):
+        return (m*s)/(k + s)
+    
+    def mu2(self, s, m, k, k_I):
+        return (m*s)/(k + s + (s/k_I)*(s/k_I))
+    
+    def computeEquilibriumPoint(self):
+        params = self.params
+        
+        # Define equations
+        mu1 = self.mu1
+        mu2 = self.mu2
+        
+        def eq_s1(s1, *args):
+            (_k1, _k2, _k3, _s1_in, _s2_in, a, m1, _m2, k_s1, _k_s2, _k_I, D, tau1, _tau2) = args
+            return a*D - np.exp(-a*D*tau1) * mu1(s1, m1, k_s1)
+        
+        def eq_s2(s2, *args):
+            (_k1, _k2, _k3, _s1_in, _s2_in, a, _m1, m2, _k_s1, k_s2, k_I, D, _tau1, tau2) = args
+            return a*D - np.exp(-a*D*tau2) * mu2(s2, m2, k_s2, k_I)
+        
+        eqs_args = (
+            params.k1, params.k2, params.k3, 
+            params.s1_in, params.s2_in, params.a, 
+            params.m1, params.m2, 
+            params.k_s1, params.k_s2, params.k_I, 
+            params.D, params.tau1, params.tau2)
+        
+        # Compute equilibrium point
+        if params.D == 0:
+            equilibriumPoint = [0., 0., 0., 0.]
+        else:
+            s1_eqpnt = fsolve(eq_s1, 1.0, args = eqs_args)[0]
+            x1_eqpnt = np.exp(-params.a*params.D*params.tau1) * (params.s1_in - s1_eqpnt)/(params.a*params.k1)
+            if x1_eqpnt < 0:
+                s1_eqpnt = params.s1_in
+                x1_eqpnt = 0.0
+            
+            s2_eqpnt_sol, _info, ier, _msg  = fsolve(eq_s2, 1.0, args = eqs_args, full_output = True)
+            if ier != 1 or s2_eqpnt_sol[0] < 0:
+                x2_eqpnt = 0.0
+                s2_eqpnt = params.s2_in + params.k2*mu1(s1_eqpnt, params.m1, params.k_s1) * x1_eqpnt / params.D
+            else:
+                s2_eqpnt = s2_eqpnt_sol[0]
+                x2_eqpnt = ((params.s2_in - s2_eqpnt)*params.D + params.k2*mu1(s1_eqpnt, params.m1, params.k_s1)*x1_eqpnt) \
+                    / (params.k3 * mu2(s2_eqpnt, params.m2, params.k_s2, params.k_I))
+            
+            equilibriumPoint = [s1_eqpnt, x1_eqpnt, s2_eqpnt, x2_eqpnt]
+            
+        #print "equilibrium point (s1, x1, s2, x2) = ", equilibriumPoint
+        return equilibriumPoint 
+    
+    def computeQ(self, s2, x2):
+        params = self.params
+        return params.k4 * self.mu2(s2, params.m2, params.k_s2, params.k_I) * x2
+            
+    def plotQ2D(self):
+        params = self.params
+        
+        # Compute Qs
+        step = 0.001
+        D_arr = np.arange(0, 1 + step, step)
+        Q_arr = np.zeros(len(D_arr))
+        
+        i = 0
+        for D in D_arr:
+            params.D = D
+            
+            eqPnt = self.computeEquilibriumPoint()
+            [_eqPnt_s1, _eqPnt_x1, eqPnt_s2, eqPnt_x2] = eqPnt
+            
+            Q = self.computeQ(eqPnt_s2, eqPnt_x2)
+            Q_arr[i] = Q
+            i += 1
+            #print "D = ", D, ", Q = ", Q, ", eqPnt = ", eqPnt
+            if eqPnt_x2 == 0 and D != 0.:
+                break
+        
+        # Remove zeros elements
+        D_arr = np.delete(D_arr, np.s_[i:])     
+        Q_arr = np.delete(Q_arr, np.s_[i:])     
+        #print D_arr, Q_arr
+        
+        # Plot
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+        
+        ax.plot(D_arr, Q_arr, 'ro-', label = 'Q')
+        ax.set_xlabel('D - dilution rate')
+        ax.set_ylabel('Q - methane (biogas) flow rate')
+        ax.legend()
+        plt.show() 
     
     def plotResults(self, ax = None):        
         if (ax is None):
@@ -271,6 +363,7 @@ def TestChemostatDDE():
         k1 = 10.53
         k2 = 28.6
         k3 = 1074.
+        k4 = 1.
         s1_in = 7.5
         s2_in = 75.
         a = 0.5
@@ -289,9 +382,10 @@ def TestChemostatDDE():
     modelParams = ModelParams()
     
     chemostat = ChemostatDDE2(modelParams)
-    chemostat.run(solverParams)
-    chemostat.plotResults()
-    
+    #chemostat.run(solverParams)
+    #chemostat.plotResults()
+    chemostat.plotQ2D()
+     
     print "=== END: TestChemostatDDE ==="
     
     
