@@ -12,8 +12,6 @@ from smo.util import AttributeDict
 from ChemostatDDEBase import ChemostatDDEBase
 from ChemostatDDEBase import plotEqulibriumValuesAtTheEnd
 
-PRINT_DEBUG = 0
-
 class ChemostatDDE2Ext(ChemostatDDEBase):
     """
     Class for implementation the model of chemostat (2-substrates and 2-organisms) with delay differential equations (DDE) - Example 2
@@ -40,24 +38,6 @@ class ChemostatDDE2Ext(ChemostatDDEBase):
             'x1': 'exp(-a*D*tau1)*mu1(s1(t-tau1), m1, k_s1)*x1(t-tau1) - a*D*x1',
             's2': 'D*(s2_in - s2) + k2*mu1(s1, m1, k_s1)*x1 - k3*mu2(s2, m2, k_s2, k_I)*x2',
             'x2': 'exp(-a*D*tau2)*mu2(s2(t-tau2), m2, k_s2, k_I)*x2(t-tau2) - a*D*x2'
-        }
-        
-        # Define the parameters
-        self.eqns_params = {
-            'k1'    : params.k1,
-            'k2'    : params.k2,
-            'k3'    : params.k3,
-            's1_in' : params.s1_in,
-            's2_in' : params.s2_in,
-            'a'     : params.a,
-            'm1'    : params.m1,
-            'm2'    : params.m2,
-            'k_s1'  : params.k_s1,
-            'k_s2'  : params.k_s2,
-            'k_I'   : params.k_I,
-            'D'     : params.D,
-            'tau1'  : params.tau1,
-            'tau2'  : params.tau2,
         }
         
         # Initialize tauMax
@@ -88,9 +68,6 @@ class ChemostatDDE2Ext(ChemostatDDEBase):
             self.dde.hist_from_funcs(histfunc, 10.) #:TRICKY: 10. is 'nn' - sample in the interval
             return
         
-        if PRINT_DEBUG:
-            print ""
-            print "tMainSim: ", tMainSim
         tau1 = self.tauMax
         if (tMainSim < tau1):
             tau1_t_hist_vals = np.linspace(0, tau1 - tMainSim, 9)
@@ -121,12 +98,6 @@ class ChemostatDDE2Ext(ChemostatDDEBase):
             tau1_t_hist_vals = self.tRes[tau1_t_hist_begin_index:tau1_t_hist_end_index + 1] - self.tRes[tau1_t_hist_begin_index]
             s1_hist_vals = self.s1Res[tau1_t_hist_begin_index:tau1_t_hist_end_index + 1]
             x1_hist_vals = self.x1Res[tau1_t_hist_begin_index:tau1_t_hist_end_index + 1]
-            if PRINT_DEBUG:
-                print "t_hist_vals: ", tau1_t_hist_vals + self.tRes[tau1_t_hist_begin_index]
-        if PRINT_DEBUG:
-            print "tau1_t_hist_vals: ", tau1_t_hist_vals
-            print "s1_hist_vals: ", s1_hist_vals
-            print "x1_hist_vals: ", x1_hist_vals
         tau2 = self.tauMax
         if (tMainSim < tau2):
             tau2_t_hist_vals = np.linspace(0, tau2 - tMainSim, 9)
@@ -157,10 +128,6 @@ class ChemostatDDE2Ext(ChemostatDDEBase):
             tau2_t_hist_vals = self.tRes[tau2_t_hist_begin_index:tau2_t_hist_end_index + 1] - self.tRes[tau2_t_hist_begin_index]
             s2_hist_vals = self.s2Res[tau2_t_hist_begin_index:tau2_t_hist_end_index + 1]
             x2_hist_vals = self.x2Res[tau2_t_hist_begin_index:tau2_t_hist_end_index + 1]
-        if PRINT_DEBUG:
-            print "tau2_t_hist_vals: ", tau2_t_hist_vals
-            print "s2_hist_vals: ", s2_hist_vals
-            print "x2_hist_vals: ", x2_hist_vals
         histdic = {
             't':tau2_t_hist_vals, 
             's1':s1_hist_vals, 
@@ -168,29 +135,89 @@ class ChemostatDDE2Ext(ChemostatDDEBase):
             's2':s2_hist_vals, 
             'x2':x2_hist_vals}
         self.dde.hist_from_arrays(histdic)
-
-
-    def writeResults(self, mainSimStepIndex):
-        tFinalSecSim = self.solverParams.mainSimStep
+            
+    def initResults(self):
+        printTimeRange = np.arange(0, self.solverParams.tFinal + self.solverParams.tPrint, self.solverParams.tPrint)
+        self.tRes = printTimeRange
+        self.s1Res = np.zeros(len(printTimeRange))
+        self.x1Res = np.zeros(len(printTimeRange))
+        self.s2Res = np.zeros(len(printTimeRange))
+        self.x2Res = np.zeros(len(printTimeRange))
+        self.DRes = np.zeros(len(printTimeRange))
+        self.QRes = np.zeros(len(printTimeRange))
+        
+    def getResults(self):
+        return {
+            't': self.tRes,
+            's1': self.s1Res,
+            'x1': self.x1Res,
+            's2': self.s2Res,
+            'x2': self.x2Res,
+            'D': self.DRes,
+            'Q': self.QRes,
+        }
+        
+    def writeResultsSecSim(self, mainSimStepIndex):
+        sizeResSecSim = len(np.arange(0, self.solverParams.mainSimStep + self.solverParams.tPrint, self.solverParams.tPrint)) - 1
+        
         # Fetch the secondary simulation results from t=0 to t=tFinal with a step-size of dt=tPrint:
-        res = self.dde.sample(0, tFinalSecSim + self.solverParams.tPrint, self.solverParams.tPrint)
-        s1 = res['s1']
-        x1 = res['x1']
-        s2 = res['s2']
-        x2 = res['x2']
+        tFinalSecSim = self.solverParams.mainSimStep
+        resSecSim = self.dde.sample(0, tFinalSecSim + self.solverParams.tPrint, self.solverParams.tPrint)
+        s1ResSecSim = resSecSim['s1']
+        x1ResSecSim = resSecSim['x1']
+        s2ResSecSim = resSecSim['s2']
+        x2ResSecSim = resSecSim['x2']
+        
+        # Set the current point
+        self.currPnt = np.array([s1ResSecSim[-1], x1ResSecSim[-1], s2ResSecSim[-1], x2ResSecSim[-1]])
         
         # Write the secondary results to the main results
-        self.s1Res[self.sizeResSecSim * mainSimStepIndex : self.sizeResSecSim * (mainSimStepIndex + 1) + 1] = s1
-        self.x1Res[self.sizeResSecSim * mainSimStepIndex : self.sizeResSecSim * (mainSimStepIndex + 1) + 1] = x1
-        self.s2Res[self.sizeResSecSim * mainSimStepIndex : self.sizeResSecSim * (mainSimStepIndex + 1) + 1] = s2
-        self.x2Res[self.sizeResSecSim * mainSimStepIndex : self.sizeResSecSim * (mainSimStepIndex + 1) + 1] = x2
-        if PRINT_DEBUG:
-            print "---"
-            print "s1Res: ", self.s1Res
-            print "x1Res: ", self.x1Res
-            print "s2Res: ", self.s2Res
-            print "x2Res: ", self.x2Res
-            print ""
+        self.s1Res[sizeResSecSim * mainSimStepIndex : sizeResSecSim * (mainSimStepIndex + 1) + 1] = s1ResSecSim
+        self.x1Res[sizeResSecSim * mainSimStepIndex : sizeResSecSim * (mainSimStepIndex + 1) + 1] = x1ResSecSim
+        self.s2Res[sizeResSecSim * mainSimStepIndex : sizeResSecSim * (mainSimStepIndex + 1) + 1] = s2ResSecSim
+        self.x2Res[sizeResSecSim * mainSimStepIndex : sizeResSecSim * (mainSimStepIndex + 1) + 1] = x2ResSecSim
+        
+        # Compute Qs
+        QResSecSim = np.ones(sizeResSecSim + 1)
+        for i in range(len(QResSecSim)):
+            QResSecSim[i] = self.computeQ(s2ResSecSim[i], x2ResSecSim[i])
+            
+        
+        # Write Ds and Qs
+        self.DRes[sizeResSecSim * mainSimStepIndex : sizeResSecSim * (mainSimStepIndex + 1) + 1] = np.ones(sizeResSecSim + 1) * self.params.D
+        self.QRes[sizeResSecSim * mainSimStepIndex : sizeResSecSim * (mainSimStepIndex + 1) + 1] = QResSecSim
+
+    def runSecSim(self, tMainSim):
+        params = self.params
+        
+        # Define the parameters
+        eqns_params = {'k1':params.k1, 
+            'k2':params.k2, 
+            'k3':params.k3, 
+            's1_in':params.s1_in, 
+            's2_in':params.s2_in, 
+            'a':params.a, 
+            'm1':params.m1, 
+            'm2':params.m2, 
+            'k_s1':params.k_s1, 
+            'k_s2':params.k_s2, 
+            'k_I':params.k_I, 
+            'D':params.D, 
+            'tau1':params.tau1, 
+            'tau2':params.tau2}
+        
+        # Initialize the solver
+        self.dde = dde23(eqns=self.eqns, params=eqns_params, supportcode=self.support_c_code)
+        
+        # Initialize history of the state variables
+        self.initHist(tMainSim)
+        
+        # Set the simulation parameters
+        tFinalSecSim = self.solverParams.mainSimStep
+        self.dde.set_sim_params(tfinal=tFinalSecSim, AbsTol=self.solverParams.absTol, RelTol=self.solverParams.relTol, dtmax=None)
+        
+        # Run the secondary simulation
+        self.dde.run()
 
     def run(self, params = None, **kwargs):
         if params == None:
@@ -198,56 +225,30 @@ class ChemostatDDE2Ext(ChemostatDDEBase):
         self.solverParams = params
         
         # Initialize results
-        printTimeRange = np.arange(0, self.solverParams.tFinal + self.solverParams.tPrint, self.solverParams.tPrint)
-        self.tRes = printTimeRange
-        self.s1Res = np.zeros(len(printTimeRange))
-        self.x1Res = np.zeros(len(printTimeRange))
-        self.s2Res = np.zeros(len(printTimeRange))
-        self.x2Res = np.zeros(len(printTimeRange))
+        self.initResults()
         
         # Run the main simulation
-        mainSimTimeRange = np.arange(0, self.solverParams.tFinal, self.solverParams.mainSimStep)
-        self.sizeResSecSim = len(np.arange(0, self.solverParams.mainSimStep + self.solverParams.tPrint, self.solverParams.tPrint)) - 1
-               
         mainSimStepIndex = -1
+        mainSimTimeRange = np.arange(0, self.solverParams.tFinal, self.solverParams.mainSimStep)   
         for tMainSim in mainSimTimeRange:
             mainSimStepIndex += 1
              
             # Change dilution rate
+            #:TEST:
             if mainSimStepIndex == 10:
-                self.eqns_params['D'] = self.params.D + 0.1
+                self.params.D = self.params.D + 0.1
             
             if mainSimStepIndex == 20:
-                self.eqns_params['D'] = self.params.D + 0.2
+                self.params.D = self.params.D + 0.1
             
-            # Initialize the solver
-            self.dde = dde23(eqns=self.eqns, params=self.eqns_params, supportcode=self.support_c_code)
-
-            # Initialize history of the state variables   
-            self.initHist(tMainSim)
-                
-            # Set the simulation parameters
-            tFinalSecSim = self.solverParams.mainSimStep
-            self.dde.set_sim_params(
-                tfinal = tFinalSecSim, 
-                AbsTol = params.absTol, 
-                RelTol = params.relTol,
-                dtmax = None)
-        
-            # Run the secondary simulation
-            self.dde.run()
+            if mainSimStepIndex == 40:
+                self.params.D = self.params.D + 0.1
             
-            # Write results
-            self.writeResults(mainSimStepIndex)
+            # Run the current secondary simulation 
+            self.runSecSim(tMainSim)
             
-    def getResults(self):
-        return {
-            't': self.tRes,
-            's1': self.s1Res,
-            'x1': self.x1Res,
-            's2': self.s2Res,
-            'x2': self.x2Res
-        }
+            # Write secondary simulation results
+            self.writeResultsSecSim(mainSimStepIndex)
     
     def mu1(self, s, m, k):
         return (m*s)/(k + s)
@@ -296,7 +297,7 @@ class ChemostatDDE2Ext(ChemostatDDEBase):
                 x2_eqpnt = ((params.s2_in - s2_eqpnt)*params.D + params.k2*mu1(s1_eqpnt, params.m1, params.k_s1)*x1_eqpnt) \
                     / (params.k3 * mu2(s2_eqpnt, params.m2, params.k_s2, params.k_I))
             
-            equilibriumPoint = [s1_eqpnt, x1_eqpnt, s2_eqpnt, x2_eqpnt]
+            equilibriumPoint = np.array([s1_eqpnt, x1_eqpnt, s2_eqpnt, x2_eqpnt])
             
         #print "equilibrium point (s1, x1, s2, x2) = ", equilibriumPoint
         return equilibriumPoint 
@@ -305,15 +306,16 @@ class ChemostatDDE2Ext(ChemostatDDEBase):
         params = self.params
         return params.k4 * self.mu2(s2, params.m2, params.k_s2, params.k_I) * x2
     
-    def computeQs(self):
+    def computeDsQs(self):
         params = self.params
         
         # Remember D value
         D_old = params.D
         
         # Compute Qs
-        step = 0.001 #:TODO: set as parameters
-        D_arr = np.arange(0, 1 + step, step)
+        step = params.DsQsStep
+        DMax = params.DsQsDMax
+        D_arr = np.arange(0, DMax + step, step) #:SETTINGS: maxD = 1
         Q_arr = np.zeros(len(D_arr))
         
         i = 0
@@ -321,13 +323,13 @@ class ChemostatDDE2Ext(ChemostatDDEBase):
             params.D = D
             
             eqPnt = self.computeEquilibriumPoint()
-            [_eqPnt_s1, _eqPnt_x1, eqPnt_s2, eqPnt_x2] = eqPnt
+            [_s1_eqPnt, _x1_eqPnt, s2_eqPnt, x2_eqPnt] = eqPnt
             
-            Q = self.computeQ(eqPnt_s2, eqPnt_x2)
+            Q = self.computeQ(s2_eqPnt, x2_eqPnt)
             Q_arr[i] = Q
             i += 1
             #print "D = ", D, ", Q = ", Q, ", eqPnt = ", eqPnt
-            if eqPnt_x2 == 0 and D != 0.:
+            if x2_eqPnt == 0 and D != 0.:
                 break
         
         # Remove zeros elements
@@ -339,26 +341,357 @@ class ChemostatDDE2Ext(ChemostatDDEBase):
         
         return (D_arr, Q_arr)
             
-    def plotQ2D(self, ax = None):
+    def plotDsQs(self, ax = None):
         if (ax is None):
             fig = plt.figure()
             ax = fig.add_subplot(111)
             
-        (Ds, Qs) = self.computeQs()
+        (Ds, Qs) = self.computeDsQs()
         
         ax.plot(Ds, Qs, 'mo-', label = 'Q')
         ax.set_xlabel('D - dilution rate')
         ax.set_ylabel('Q - methane (biogas) flow rate')
         ax.legend()
         plt.show() 
-  
+    
+    """ Extremum Seeking Algorithm (ESA) """ 
+    def runESA(self, solverParams = None, **kwargs):
+        if solverParams == None:
+            solverParams = AttributeDict(kwargs)
+        self.solverParams = solverParams
+        
+        # Define helpful function
+        def printStep(tMainSim, nextStep, D):
+            #print "At time ", tMainSim, " do ", nextStep, " with D = ", D, "\n"
+            return
+                
+        # Initialize results
+        self.initResults()
+        
+        # Initialize ESA variables
+        QMaxIsFound = False
+        
+        eps = self.params.ESA_eps
+        eps_z = self.params.ESA_eps_z
+        h = self.params.ESA_h
+        sigma = 1.0
+        
+        # Stage I
+        D0 = None 
+        Q0 = None
+        
+        D1 = None
+        Q1 = None
+        
+        D2 = None
+        Q2 = None
+        
+        D_minus = None
+        D_plus = None
+        
+        # Stage II
+        lmbd = (np.sqrt(5) - 1) / 2.
+        
+        dlt1 = None
+        dlt2 = None
+        dlt3 = None
+        
+        D0_minus = None
+        D0_plus = None
+        
+        D1_minus = None
+        D1_plus = None
+        
+        D_p0 = None
+        Q_p0 = None
+        
+        D_q0 = None
+        Q_q0 = None
+        
+        D_p1 = None
+        Q_p1 = None
+        
+        D_q1 = None
+        Q_q1 = None
+         
+        # Do Step I.0 of ESA
+        self.params.D = (self.params.ESA_DMax + self.params.ESA_DMin) / 2.
+        nextStep = 'Step I.0'
+        
+        # Run the main simulation
+        D_prevStep = None        
+        mainSimStepIndex = -1
+        mainSimTimeRange = np.arange(0, self.solverParams.tFinal, self.solverParams.mainSimStep)   
+        for tMainSim in mainSimTimeRange:
+            mainSimStepIndex += 1
+            
+            # Run the secondary simulation 
+            self.runSecSim(tMainSim)
+            
+            # Write secondary simulation results and compute Qs
+            self.writeResultsSecSim(mainSimStepIndex)
+            
+            # Compute equilibrium and current point
+            if (D_prevStep is None) or (D_prevStep != self.params.D):            
+                D_prevStep = self.params.D
+                eqPnt = self.computeEquilibriumPoint()
+                #[_s1_eqPnt, _x1_eqPnt, s2_eqPnt, x2_eqPnt] = eqPnt
+                #Q_eqPnt = self.computeQ(s2_eqPnt, x2_eqPnt)
+                
+            currPnt = self.currPnt
+            [_s1_currPnt, _x1_currPnt, s2_currPnt, x2_currPnt] = currPnt
+            Q_currPnt = self.computeQ(s2_currPnt, x2_currPnt)
+            
+            if (self.distance(eqPnt, currPnt) > eps_z): # Equilibrium state is not reached
+                #:TODO: compare distance between previous point and currPnt (not between eqPnt and currPnt)
+                continue
+            
+            if (QMaxIsFound):
+                continue
+            
+            # Do a step of ESA
+            doStep = True
+           
+            if nextStep == 'Step I.0' and doStep:
+                printStep(tMainSim, nextStep, self.params.D)
+                doStep = False
+                
+                D0 = self.params.D 
+                Q0 = Q_currPnt
+                
+                # Go to
+                nextStep = 'Step I.1'
+                sigma = 1
+                self.params.D = D0 + sigma*h
+                
+            if nextStep == 'Step I.1' and doStep:
+                printStep(tMainSim, nextStep, self.params.D)
+                doStep = False
+                
+                D1 = self.params.D 
+                Q1 = Q_currPnt
+                
+                if Q1 > Q0:
+                    # Go to
+                    nextStep = 'Step I.3'
+                    h = 2*h
+                    self.params.D = D1 + sigma*h
+                else:
+                    # Go to
+                    nextStep = 'Step I.2'
+                    sigma = -1.0
+                    self.params.D = D0 - sigma*h
+                    
+            if nextStep == 'Step I.2' and doStep:
+                printStep(tMainSim, nextStep, self.params.D)
+                doStep = False
+                
+                D1 = self.params.D 
+                Q1 = Q_currPnt
+                
+                if Q1 > Q0:
+                    # Go to
+                    nextStep = 'Step I.3'
+                    h = 2*h
+                    self.params.D = D1 + sigma*h
+                else:
+                    h = h/2.
+                    if h <= eps/2.:
+                        # Go to
+                        nextStep = 'Step III'
+                        self.params.D = D0
+                    else:
+                        # Go to
+                        nextStep = 'Step I.1'
+                        sigma = 1
+                        self.params.D = D0 + sigma*h                 
+                
+            if nextStep == 'Step I.3' and doStep:
+                printStep(tMainSim, nextStep, self.params.D)
+                doStep = False
+                
+                D2 = self.params.D 
+                Q2 = Q_currPnt
+                
+                if Q2 <= Q1:
+                    D_minus = D0
+                    D_plus = D2
+                    
+                    # Go to
+                    nextStep = 'Step II'
+                    doStep = True
+                else:
+                    D0 = D1
+                    Q0 = Q1
+                    
+                    D1 = D2
+                    Q1 = Q2
+                    
+                    # Go to
+                    nextStep = 'Step I.3'
+                    h = 2*h
+                    self.params.D = D1 + sigma*h
+                    
+            if nextStep == 'Step II' and doStep:
+                printStep(tMainSim, nextStep, self.params.D)
+                doStep = False
+                
+                D0_minus = D_minus
+                D0_plus = D_plus
+                
+                dlt1 = D0_plus - D0_minus
+                
+                # Go to
+                nextStep = 'Step II.0'
+                doStep = True
+                
+            if nextStep == 'Step II.0' and doStep:
+                printStep(tMainSim, nextStep, self.params.D)
+                doStep = False
+                
+                dlt2 = (1 - lmbd)*dlt1
+                
+                D_p0 = D0_minus + dlt2
+                D_q0 = D0_plus - dlt2
+                
+                # Go to
+                nextStep = 'Step II.1.p0'
+                self.params.D = D_p0
+                
+            if nextStep == 'Step II.1.p0' and doStep:
+                printStep(tMainSim, nextStep, self.params.D)
+                doStep = False
+                
+                D_p0 = self.params.D
+                Q_p0 = Q_currPnt
+                
+                # Go to
+                nextStep = 'Step II.1.q0'
+                self.params.D = D_q0
+                
+            if nextStep == 'Step II.1.q0' and doStep:
+                printStep(tMainSim, nextStep, self.params.D)
+                doStep = False
+                
+                D_q0 = self.params.D
+                Q_q0 = Q_currPnt
+                
+                # Go to
+                nextStep = 'Step II.2'
+                doStep = True
+                
+            if nextStep == 'Step II.2' and doStep:
+                printStep(tMainSim, nextStep, self.params.D)
+                doStep = False
+                
+                dlt3 = D_q0 - D_p0
+                
+                if Q_p0 > Q_q0:
+                    D1_minus = D0_minus
+                    D1_plus = D_q0
+                    D_p1 = D1_minus + dlt3
+                    D_q1 = D_p0
+                    
+                if Q_p0 <= Q_q0:
+                    D1_minus = D_p0
+                    D1_plus = D0_plus
+                    D_p1 = D_q0
+                    D_q1 = D1_plus - dlt3
+                    
+                dlt1 = D1_plus - D1_minus
+                    
+                # Go to
+                nextStep = 'Step II.3'
+                doStep = True
+            
+            if nextStep == 'Step II.3' and doStep:
+                printStep(tMainSim, nextStep, self.params.D)
+                doStep = False
+                
+                if dlt1 <= eps:
+                    # Go to
+                    nextStep = 'Step III'
+                    self.params.D = (D1_minus + D1_plus) / 2.
+                else: # if dlt1 > eps:
+                    if D_p1 >= D_q1:
+                        D0_minus = D1_minus
+                        D0_plus = D1_plus
+                        
+                        # Go to
+                        nextStep = 'Step II.0'
+                        doStep = True
+                    else: # if D_p1 < D_q1:
+                        if Q_p0 > Q_q0:
+                            # Go to
+                            nextStep = 'Step II.3.p1'
+                            self.params.D = D_p1
+                        else: # if Q_p0 >= Q_q0:
+                            # Go to
+                            nextStep = 'Step II.3.q1'
+                            self.params.D = D_q1
+                            
+            if nextStep == 'Step II.3.p1' and doStep:
+                printStep(tMainSim, nextStep, self.params.D)
+                doStep = False
+                
+                D_p1 = self.params.D
+                Q_p1 = Q_currPnt
+                
+                # Go to
+                nextStep = 'Step II.3.1'
+                doStep = True
+                
+            if nextStep == 'Step II.3.q1' and doStep:
+                printStep(tMainSim, nextStep, self.params.D)
+                doStep = False
+                
+                D_q1 = self.params.D
+                Q_q1 = Q_currPnt
+                
+                # Go to
+                nextStep = 'Step II.3.1'
+                doStep = True
+            
+            if nextStep == 'Step II.3.1' and doStep:
+                printStep(tMainSim, nextStep, self.params.D)
+                doStep = False
+                
+                D_p0 = D_p1
+                D_q0 = D_q1
+                
+                D0_minus = D1_minus
+                D0_plus = D1_plus
+                
+                Q_p0 = Q_p1
+                Q_q0 = Q_q1
+                
+                # Go to
+                nextStep = 'Step II.2'
+                doStep = True
+                
+            if nextStep == 'Step III' and doStep:
+                printStep(tMainSim, nextStep, self.params.D)
+                doStep = False
+                
+                QMaxIsFound = True
+            
+            #:TRICKY: limit the current seeking D value
+            if self.params.D < self.params.ESA_DMin:
+                self.params.D = self.params.ESA_DMin
+                
+            if self.params.D > self.params.ESA_DMax:
+                self.params.D = self.params.ESA_DMax
+            
+    def distance(self, pnt1, pnt2):
+        return np.max(np.abs(pnt1 - pnt2))
+            
 def TestChemostatDDE():
     print "=== BEGIN: TestChemostatDDE ==="
     
     # Initialize simulation parameters
     solverParams = AttributeDict({
-        'tFinal' : 500.0, 
-        'tPrint' : 0.05,
+        'tFinal' : 2000.0, 
+        'tPrint' : 0.1,
         'absTol' : 1e-16,
         'relTol' : 1e-16,
         'mainSimStep': 10.
@@ -369,12 +702,12 @@ def TestChemostatDDE():
         k1 = 10.53
         k2 = 28.6
         k3 = 1074.
-        k4 = 1.
+        k4 = 100.
         s1_in = 7.5
         s2_in = 75.
         a = 0.5
         m1 = 1.2
-        m2 = 0.74
+        m2 = 0.74 #:TODO: m2 = 10. then there is two maximum for Q vs D (check the calculation of the equilibrium point)
         k_s1 = 7.1
         k_s2 = 9.28
         k_I = 16.
@@ -385,17 +718,36 @@ def TestChemostatDDE():
         x1_hist_vals = 0.1
         s2_hist_vals = 10.
         x2_hist_vals = 0.05
+        
+        DsQsDMax = 1.0
+        DsQsStep = 0.001
+        
+        ESA_DMin = 0.22
+        ESA_DMax = 0.33
+        
+        ESA_eps_z = 0.01
+        ESA_eps = 0.01
+        ESA_h = 0.025
+        
     modelParams = ModelParams()
-    
     chemostat = ChemostatDDE2Ext(modelParams)
-    chemostat.run(solverParams)
-    chemostat.plotResults()
-    #chemostat.plotX1X2()
-    #chemostat.plotS1S2()
-    #chemostat.plotS1X1()
-    #chemostat.plotS2X2()
-    chemostat.plotQ2D()
-     
+    
+    runESA = 1
+    if runESA: #run extremum seeking algorithm
+        chemostat.runESA(solverParams)
+        chemostat.plotAllResults()
+        #chemostat.plotDsQs()
+    else: #run simulation
+        chemostat.run(solverParams)
+        #chemostat.plotAllResults()
+        #chemostat.plotResults()
+        #chemostat.plotX1X2()
+        #chemostat.plotS1S2()
+        #chemostat.plotS1X1()
+        #chemostat.plotS2X2()
+        chemostat.plotDsQs()    
+    
+ 
     print "=== END: TestChemostatDDE ==="
     
 if __name__ == '__main__':

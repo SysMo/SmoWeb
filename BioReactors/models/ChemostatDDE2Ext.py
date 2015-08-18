@@ -6,14 +6,13 @@ Created on Mar 4, 2015
 '''
 import numpy as np
 import smo.model.fields as F
-import smo.dynamical_models.bioreactors.ChemostatDDE2 as DM
+import smo.dynamical_models.bioreactors.ChemostatDDE2Ext as DM
 
 from smo.model.model import NumericalModel
-from smo.web.modules import RestModule
 
-class ChemostatDDE2(NumericalModel):
-    label = "DDE Chemostat (Example 2)"
-    description = F.ModelDescription("Chemostat model with delay differential equations (DDE) - Example 2", show = True)
+class ChemostatDDE2Ext(NumericalModel):
+    label = "DDE Chemostat (Example 2 - Ext)"
+    description = F.ModelDescription("Chemostat model with delay differential equations (DDE) - Example 2 (Extended)", show = True)
     figure = F.ModelFigure(src="BioReactors/img/ModuleImages/SimpleChemostat.png", show=False)
     
     #1. ############ Inputs ###############
@@ -25,6 +24,8 @@ class ChemostatDDE2(NumericalModel):
                   description = 'yield coefficient related to substrate-2 production from bacteria-1')
     k3 = F.Quantity(default = 1074., minValue = 0, maxValue = 1e6, label = 'k<sub>3</sub>', 
                   description = 'yield coefficient related to substrate-2 consumption from bacteria-2')
+    k4 = F.Quantity(default = 1., minValue = 0, maxValue = 1e6, label = 'k<sub>4</sub>', 
+                  description = 'yield coefficient of methane (biogas) on bacteria-2 and substrate-2')
     s1_in = F.Quantity('Bio_MassConcentration', default = (7.5, 'g/L'), label ='s<sub>1</sub><sup>in</sub>', 
                      description = 'input substrate-1 concentration')
     s2_in = F.Quantity('Bio_MassConcentration', default = (75., 'g/L'), label ='s<sub>2</sub><sup>in</sub>', 
@@ -33,7 +34,7 @@ class ChemostatDDE2(NumericalModel):
                  description = 'proportion of organisms that are affected by the dilution rate D')
     D = F.Quantity('Bio_TimeRate', default = (0.89, '1/day'), minValue = (0, '1/day'), label = 'D',
                  description = 'dilution rate')
-    parametersFG = F.FieldGroup([s1_in, s2_in, k1, k2, k3, a, D], label = 'Parameters')
+    parametersFG = F.FieldGroup([s1_in, s2_in, k1, k2, k3, k4, a, D], label = 'Parameters')
                         
     # Parameters - specific growth rates
     m1 = F.Quantity('Bio_TimeRate', default = (1.20, '1/day'), minValue = (0, '1/day'), label = 'm<sub>1</sub>', 
@@ -69,13 +70,20 @@ class ChemostatDDE2(NumericalModel):
     inputValuesSG = F.SuperGroup([parametersMuFG, parametersFG, parametersTauFG, parametersHistFG], label = "Input values")
 
     #1.2 Fields - Settings
+    DsQsDMax = F.Quantity('Bio_TimeRate', default = (1.0, '1/day'), minValue = (0, '1/day'), label = 'D max',
+                 description = 'maximum dilution rate')
+    DsQsStep = F.Quantity('Bio_TimeRate', default = (0.01, '1/day'), minValue = (1e-4, '1/day'), maxValue = (1.0, '1/day'), label = 'D step',
+                 description = 'step of dilution rate')
+    DsQsFG = F.FieldGroup([DsQsDMax, DsQsStep], label = 'Chart (D, Q)')
+    
     tFinal = F.Quantity('Bio_Time', default = (100, 'day'), minValue = (0, 'day'), maxValue=(5000, 'day'), label = 'simulation time')
     tPrint = F.Quantity('Bio_Time', default = (0.1, 'day'), minValue = (1e-5, 'day'), maxValue = (100, 'day'), label = 'print interval')
+    mainSimStep = F.Quantity('Bio_Time', default = (10., 'day'), minValue = (0.25, 'day'), maxValue = (1e3, 'day'), label = '*main simulation step')
     absTol = F.Quantity('Bio_Time', default = (1e-12, 'day'), minValue = (1e-16, 'day'), maxValue = (1e-5, 'day'), label = 'absolute tolerance')
     relTol = F.Quantity('Bio_Time', default = (1e-12, 'day'), minValue = (1e-16, 'day'), maxValue = (1e-3, 'day'), label = 'relative tolerance')
-    solverFG = F.FieldGroup([tFinal, tPrint, absTol, relTol], label = 'Solver')
+    solverFG = F.FieldGroup([tFinal, tPrint, mainSimStep, absTol, relTol], label = 'Solver')
     
-    settingsSG = F.SuperGroup([solverFG], label = 'Settings')
+    settingsSG = F.SuperGroup([DsQsFG, solverFG], label = 'Settings')
     
     #1.4 Model view
     inputView = F.ModelView(ioType = "input", superGroups = [inputValuesSG, settingsSG], autoFetch = True)
@@ -88,6 +96,8 @@ class ChemostatDDE2(NumericalModel):
         ('x1', F.Quantity('Bio_MassConcentration', default=(1, 'g/L'))),
         ('s2', F.Quantity('Bio_MassConcentration', default=(1, 'g/L'))),
         ('x2', F.Quantity('Bio_MassConcentration', default=(1, 'g/L'))),
+        ('D', F.Quantity('Bio_TimeRate', default=(1, '1/day'))),
+        ('Q', F.Quantity('Bio_MassConcentrationFlowRate', default=(1, 'g/L/day'))),
     )
     
     plot = F.PlotView(
@@ -105,8 +115,9 @@ class ChemostatDDE2(NumericalModel):
     chartX1X2 = F.MPLPlot(label = 'Chart (x<sub>1</sub>, x<sub>2</sub>)')
     chartS1X1 = F.MPLPlot(label = 'Chart (s<sub>1</sub>, x<sub>1</sub>)')
     chartS2X2 = F.MPLPlot(label = 'Chart (s<sub>2</sub>, x<sub>2</sub>)')
+    chartDsQs = F.MPLPlot(label = 'Chart (D, Q)')
 
-    resultsVG = F.ViewGroup([plot, table, chartS1S2, chartX1X2,  chartS1X1, chartS2X2], label = 'Results')
+    resultsVG = F.ViewGroup([plot, table, chartS1S2, chartX1X2,  chartS1X1, chartS2X2, chartDsQs], label = 'Results')
     resultsSG = F.SuperGroup([resultsVG], label = "Results")
     
     # 2.2 Equilibrium point
@@ -149,11 +160,11 @@ class ChemostatDDE2(NumericalModel):
         self.x2_hist_vals = 0.05
         
     def compute(self):
-        chemostatDDE = DM.ChemostatDDE2(self)
+        chemostatDDE = DM.ChemostatDDE2Ext(self)
         chemostatDDE.run(self)
         
         res = chemostatDDE.getResults()
-        results = np.array([res['t'], res['s1'], res['x1'], res['s2'], res['x2']]).transpose()
+        results = np.array([res['t'], res['s1'], res['x1'], res['s2'], res['x2'], res['D'], res['Q']]).transpose()
         self.plot = results
         self.table = results
         
@@ -161,13 +172,9 @@ class ChemostatDDE2(NumericalModel):
         chemostatDDE.plotX1X2(self.chartX1X2)
         chemostatDDE.plotS1X1(self.chartS1X1)
         chemostatDDE.plotS2X2(self.chartS2X2)
+        chemostatDDE.plotDsQs(self.chartDsQs)
         
         self.s1_eqpnt = (chemostatDDE.equilibriumPoint[0], 'kg/m**3')
         self.x1_eqpnt = (chemostatDDE.equilibriumPoint[1], 'kg/m**3')
         self.s2_eqpnt = (chemostatDDE.equilibriumPoint[2], 'kg/m**3')
-        self.x2_eqpnt = (chemostatDDE.equilibriumPoint[3], 'kg/m**3')
-        
-class ChemostatDDEDoc(RestModule):
-    label = 'DDE Chemostat (Doc)'
-    
-    
+        self.x2_eqpnt = (chemostatDDE.equilibriumPoint[3], 'kg/m**3') 

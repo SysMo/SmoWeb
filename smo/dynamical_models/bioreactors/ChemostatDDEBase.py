@@ -58,6 +58,32 @@ class ChemostatDDEBase():
         ax.legend()
         plt.show()
         
+    def plotAllResults(self, ax = None):
+        if (ax is None):
+            fig = plt.figure()
+            ax = fig.add_subplot(111)
+            
+        sol = self.getResults()
+        t = sol['t']
+        s1 = sol['s1']
+        x1 = sol['x1']
+        s2 = sol['s2']
+        x2 = sol['x2']
+        D = sol['D']
+        Q = sol['Q']
+        
+        # Plot the results
+        ax.plot(t, s1, 'r-', label = 's$_{1}$')
+        ax.plot(t, x1, 'b-', label = 'x$_{1}$')
+        ax.plot(t, s2, 'g-', label = 's$_{2}$')
+        ax.plot(t, x2, 'm-', label = 'x$_{2}$')
+        ax.plot(t, D, 'c--', label = 'D')
+        ax.plot(t, Q, 'k--', label = 'Q')
+        ax.set_xlabel('Time')
+        ax.set_ylabel('Concentrations')
+        ax.legend()
+        plt.show()
+        
     def plotX1X2(self, ax = None):
         params = self.params
         

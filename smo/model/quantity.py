@@ -126,7 +126,13 @@ Quantities = {
 	'Bio_VolumetricFlowRate' : {'title' : 'bio: volumetric flow rate', 'nominalValue' : 1.0, 'SIUnit' : 'm**3/day', 
 		'units' : OrderedDict((('m**3/s', {'mult' : 86400.}), ('m**3/min', {'mult' : 1440.}), ('m**3/h', {'mult' : 24.}), ('m**3/day', {'mult' : 1.0}),
 							   ('L/s', {'mult' : 1e-3*86400.}), ('L/min', {'mult' : 1e-3*1440.}), ('L/h', {'mult' : 1e-3*24.}), ('L/day', {'mult' : 1e-3*1.0}),))},
-			
+	
+	'Bio_MassConcentrationFlowRate' : {'title' : 'bio: mass concentration flow rate', 'nominalValue' : 1.0, 'minValue' : 0.0, 'SIUnit' : 'kg/m**3/day', 
+		'units' : OrderedDict((
+			('kg/m**3/day', {'mult' : 1}), ('g/L/day', {'mult' : 1}), ('g/cm**3/day', {'mult' : 1e3}), 
+			('kg/m**3/h', {'mult' : 1*24.}), ('g/L/h', {'mult' : 1*24.}), ('g/cm**3/h', {'mult' : 1e3*24.}),
+	))},
+				
 	'Bio_CODConcentrationFlowRate' : {'title' : 'bio: COD concentration flow rate', 'nominalValue' : 1.0, 'minValue' : 0.0, 'SIUnit' : 'kgCOD/m**3/day', 
 		'units' : OrderedDict((
 			('kgCOD/m**3/day', {'mult' : 1}), ('gCOD/L/day', {'mult' : 1}), ('gCOD/cm**3/day', {'mult' : 1e3}), 
