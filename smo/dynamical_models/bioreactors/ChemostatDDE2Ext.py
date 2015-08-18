@@ -9,10 +9,12 @@ import pylab as plt
 from pydelay import dde23
 from scipy.optimize import fsolve
 from smo.util import AttributeDict
+from ChemostatDDEBase import ChemostatDDEBase
+from ChemostatDDEBase import plotEqulibriumValuesAtTheEnd
 
 PRINT_DEBUG = 0
 
-class ChemostatDDE2():
+class ChemostatDDE2Ext(ChemostatDDEBase):
     """
     Class for implementation the model of chemostat (2-substrates and 2-organisms) with delay differential equations (DDE) - Example 2
     """
@@ -60,6 +62,11 @@ class ChemostatDDE2():
         
         # Initialize tauMax
         self.tauMax = np.max([self.params.tau1, self.params.tau2]) + 1 #:TRICKY: give the solver more historical data
+        
+        # Compute equilibrium point
+        self.equilibriumPoint = self.computeEquilibriumPoint()
+        if plotEqulibriumValuesAtTheEnd:
+            print "equilibrium point (s1, x1, s2, x2) = ", self.equilibriumPoint
             
     def initHist(self, tMainSim):       
         if (self.params.tau1 == 0 and self.params.tau2 == 0):
@@ -233,6 +240,15 @@ class ChemostatDDE2():
             # Write results
             self.writeResults(mainSimStepIndex)
             
+    def getResults(self):
+        return {
+            't': self.tRes,
+            's1': self.s1Res,
+            'x1': self.x1Res,
+            's2': self.s2Res,
+            'x2': self.x2Res
+        }
+    
     def mu1(self, s, m, k):
         return (m*s)/(k + s)
     
@@ -288,12 +304,15 @@ class ChemostatDDE2():
     def computeQ(self, s2, x2):
         params = self.params
         return params.k4 * self.mu2(s2, params.m2, params.k_s2, params.k_I) * x2
-            
-    def plotQ2D(self):
+    
+    def computeQs(self):
         params = self.params
         
+        # Remember D value
+        D_old = params.D
+        
         # Compute Qs
-        step = 0.001
+        step = 0.001 #:TODO: set as parameters
         D_arr = np.arange(0, 1 + step, step)
         Q_arr = np.zeros(len(D_arr))
         
@@ -313,38 +332,25 @@ class ChemostatDDE2():
         
         # Remove zeros elements
         D_arr = np.delete(D_arr, np.s_[i:])     
-        Q_arr = np.delete(Q_arr, np.s_[i:])     
-        #print D_arr, Q_arr
+        Q_arr = np.delete(Q_arr, np.s_[i:])
         
-        # Plot
-        fig = plt.figure()
-        ax = fig.add_subplot(111)
+        # Restore D
+        params.D = D_old
         
-        ax.plot(D_arr, Q_arr, 'ro-', label = 'Q')
+        return (D_arr, Q_arr)
+            
+    def plotQ2D(self, ax = None):
+        if (ax is None):
+            fig = plt.figure()
+            ax = fig.add_subplot(111)
+            
+        (Ds, Qs) = self.computeQs()
+        
+        ax.plot(Ds, Qs, 'mo-', label = 'Q')
         ax.set_xlabel('D - dilution rate')
         ax.set_ylabel('Q - methane (biogas) flow rate')
         ax.legend()
         plt.show() 
-    
-    def plotResults(self, ax = None):        
-        if (ax is None):
-            fig = plt.figure()
-            ax = fig.add_subplot(111)
-        t = self.tRes
-        s1 = self.s1Res
-        x1 = self.x1Res
-        s2 = self.s2Res
-        x2 = self.x2Res
-        
-        # Plot the results
-        ax.plot(t, s1, 'r-', label = 's$_{1}$')
-        ax.plot(t, x1, 'b-', label = 'x$_{1}$')
-        ax.plot(t, s2, 'g-', label = 's$_{2}$')
-        ax.plot(t, x2, 'm-', label = 'x$_{2}$')
-        ax.set_xlabel('Time')
-        ax.set_ylabel('Concentrations')
-        ax.legend()
-        plt.show()        
   
 def TestChemostatDDE():
     print "=== BEGIN: TestChemostatDDE ==="
@@ -352,7 +358,7 @@ def TestChemostatDDE():
     # Initialize simulation parameters
     solverParams = AttributeDict({
         'tFinal' : 500.0, 
-        'tPrint' : 0.1,
+        'tPrint' : 0.05,
         'absTol' : 1e-16,
         'relTol' : 1e-16,
         'mainSimStep': 10.
@@ -381,13 +387,16 @@ def TestChemostatDDE():
         x2_hist_vals = 0.05
     modelParams = ModelParams()
     
-    chemostat = ChemostatDDE2(modelParams)
-    #chemostat.run(solverParams)
-    #chemostat.plotResults()
+    chemostat = ChemostatDDE2Ext(modelParams)
+    chemostat.run(solverParams)
+    chemostat.plotResults()
+    #chemostat.plotX1X2()
+    #chemostat.plotS1S2()
+    #chemostat.plotS1X1()
+    #chemostat.plotS2X2()
     chemostat.plotQ2D()
      
     print "=== END: TestChemostatDDE ==="
-    
     
 if __name__ == '__main__':
     TestChemostatDDE()
