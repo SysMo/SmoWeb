@@ -12,7 +12,7 @@ from smo.util import AttributeDict
 from ChemostatDDEBase import ChemostatDDEBase
 from ChemostatDDEBase import plotEqulibriumValuesAtTheEnd
 
-class ChemostatDDE2Ext(ChemostatDDEBase):
+class ChemostatDDE2_ESA(ChemostatDDEBase):
     """
     Class for implementation the model of chemostat (2-substrates and 2-organisms) with delay differential equations (DDE) - Example 2
     """
@@ -146,6 +146,11 @@ class ChemostatDDE2Ext(ChemostatDDEBase):
         self.DRes = np.zeros(len(printTimeRange))
         self.QRes = np.zeros(len(printTimeRange))
         
+        # ESA Results
+        self.ResESA_QMaxIsFound = False
+        self.ResESA_QMax = 0.0
+        self.ResESA_DMax = 0.0
+        
     def getResults(self):
         return {
             't': self.tRes,
@@ -232,17 +237,6 @@ class ChemostatDDE2Ext(ChemostatDDEBase):
         mainSimTimeRange = np.arange(0, self.solverParams.tFinal, self.solverParams.mainSimStep)   
         for tMainSim in mainSimTimeRange:
             mainSimStepIndex += 1
-             
-            # Change dilution rate
-            #:TEST:
-            if mainSimStepIndex == 10:
-                self.params.D = self.params.D + 0.1
-            
-            if mainSimStepIndex == 20:
-                self.params.D = self.params.D + 0.1
-            
-            if mainSimStepIndex == 40:
-                self.params.D = self.params.D + 0.1
             
             # Run the current secondary simulation 
             self.runSecSim(tMainSim)
@@ -313,9 +307,7 @@ class ChemostatDDE2Ext(ChemostatDDEBase):
         D_old = params.D
         
         # Compute Qs
-        step = params.DsQsStep
-        DMax = params.DsQsDMax
-        D_arr = np.arange(0, DMax + step, step) #:SETTINGS: maxD = 1
+        D_arr = np.arange(params.DsQs_DMin, params.DsQs_DMax + params.DsQs_Step, params.DsQs_Step)
         Q_arr = np.zeros(len(D_arr))
         
         i = 0
@@ -340,19 +332,13 @@ class ChemostatDDE2Ext(ChemostatDDEBase):
         params.D = D_old
         
         return (D_arr, Q_arr)
-            
-    def plotDsQs(self, ax = None):
-        if (ax is None):
-            fig = plt.figure()
-            ax = fig.add_subplot(111)
-            
-        (Ds, Qs) = self.computeDsQs()
-        
-        ax.plot(Ds, Qs, 'mo-', label = 'Q')
-        ax.set_xlabel('D - dilution rate')
-        ax.set_ylabel('Q - methane (biogas) flow rate')
-        ax.legend()
-        plt.show() 
+    
+    def getResultsESA(self):
+        return {
+            'QMaxIsFound': self.ResESA_QMaxIsFound,
+            'DMax': self.ResESA_DMax,
+            'QMax': self.ResESA_QMax
+        }
     
     """ Extremum Seeking Algorithm (ESA) """ 
     def runESA(self, solverParams = None, **kwargs):
@@ -362,7 +348,7 @@ class ChemostatDDE2Ext(ChemostatDDEBase):
         
         # Define helpful function
         def printStep(tMainSim, nextStep, D):
-            #print "At time ", tMainSim, " do ", nextStep, " with D = ", D, "\n"
+            print "\nAt time ", tMainSim, " do ", nextStep, " with D = ", D
             return
                 
         # Initialize results
@@ -431,6 +417,10 @@ class ChemostatDDE2Ext(ChemostatDDEBase):
             # Write secondary simulation results and compute Qs
             self.writeResultsSecSim(mainSimStepIndex)
             
+            # Check for stabilization of the system
+            if (QMaxIsFound):
+                continue
+            
             # Compute equilibrium and current point
             if (D_prevStep is None) or (D_prevStep != self.params.D):            
                 D_prevStep = self.params.D
@@ -442,14 +432,12 @@ class ChemostatDDE2Ext(ChemostatDDEBase):
             [_s1_currPnt, _x1_currPnt, s2_currPnt, x2_currPnt] = currPnt
             Q_currPnt = self.computeQ(s2_currPnt, x2_currPnt)
             
-            if (self.distance(eqPnt, currPnt) > eps_z): # Equilibrium state is not reached
-                #:TODO: compare distance between previous point and currPnt (not between eqPnt and currPnt)
+            # Check for the equilibrium point
+            if (self.distance(eqPnt, currPnt) > eps_z): #:TODO:(?) compare distance between previous point and currPnt (not between eqPnt and currPnt) 
+                # The equilibrium point is not reached
                 continue
             
-            if (QMaxIsFound):
-                continue
-            
-            # Do a step of ESA
+            # Do a step of ESA (i.e. the equilibrium point is reached)
             doStep = True
            
             if nextStep == 'Step I.0' and doStep:
@@ -538,6 +526,7 @@ class ChemostatDDE2Ext(ChemostatDDEBase):
                 
                 D0_minus = D_minus
                 D0_plus = D_plus
+                print "Step II [D-, D+] = [", D0_minus, ", ", D0_plus, "]"
                 
                 dlt1 = D0_plus - D0_minus
                 
@@ -585,17 +574,19 @@ class ChemostatDDE2Ext(ChemostatDDEBase):
                 doStep = False
                 
                 dlt3 = D_q0 - D_p0
-                
+                     
                 if Q_p0 > Q_q0:
                     D1_minus = D0_minus
                     D1_plus = D_q0
                     D_p1 = D1_minus + dlt3
                     D_q1 = D_p0
+                    Q_q1 = Q_p0 #:TODO:(?) missing in pdf
                     
                 if Q_p0 <= Q_q0:
                     D1_minus = D_p0
                     D1_plus = D0_plus
                     D_p1 = D_q0
+                    Q_p1 = Q_q0 #:TODO:(?) missing in pdf
                     D_q1 = D1_plus - dlt3
                     
                 dlt1 = D1_plus - D1_minus
@@ -607,6 +598,8 @@ class ChemostatDDE2Ext(ChemostatDDEBase):
             if nextStep == 'Step II.3' and doStep:
                 printStep(tMainSim, nextStep, self.params.D)
                 doStep = False
+                
+                print "Step II.3 [D1-, D1+] = [", D1_minus, ", ", D1_plus, "]"
                 
                 if dlt1 <= eps:
                     # Go to
@@ -674,6 +667,11 @@ class ChemostatDDE2Ext(ChemostatDDEBase):
                 doStep = False
                 
                 QMaxIsFound = True
+                
+                # Set the ESA result
+                self.ResESA_QMaxIsFound = QMaxIsFound
+                self.ResESA_QMax = Q_currPnt
+                self.ResESA_DMax = self.params.D 
             
             #:TRICKY: limit the current seeking D value
             if self.params.D < self.params.ESA_DMin:
@@ -684,13 +682,62 @@ class ChemostatDDE2Ext(ChemostatDDEBase):
             
     def distance(self, pnt1, pnt2):
         return np.max(np.abs(pnt1 - pnt2))
+    
+    def plotDsQs(self, ax = None):
+        if (ax is None):
+            fig = plt.figure()
+            ax = fig.add_subplot(111)
+            
+        (Ds, Qs) = self.computeDsQs()
+        
+        ax.plot(Ds, Qs, 'mo-', label = 'Q')
+        ax.set_xlabel('D - dilution rate')
+        ax.set_ylabel('Q - methane (biogas) flow rate')
+        ax.legend()
+        plt.show() 
+        
+    def plotDQ(self, ax = None):
+        params = self.params
+        
+        if (ax is None):
+            fig = plt.figure()
+            ax = fig.add_subplot(111)
+        
+        # Plot the results    
+        sol = self.getResults()
+        t = sol['t']
+        D = sol['D']
+        Q = sol['Q']
+        
+        ax.plot(t, D, 'k--', linewidth=2.0, label = 'D')
+        ax.plot(t, Q, 'm-', linewidth=2.0, label = 'Q')
+    
+        ax.set_ylim([0, 1.125*np.max(Q)])
+        
+        # Legend (v1)
+        #box = ax.get_position()
+        #ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+        #ax.legend(loc='center left', bbox_to_anchor = (1, 0.9275))
+
+        # Legend (v2)
+        legentTitle = r'$\mathrm{\tau_{1} = %g,\;\tau_{2} = %g}$'%(params.tau1, params.tau2)
+        legend = ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.125), ncol=3, 
+            fancybox=True, shadow=True, title=legentTitle, fontsize=18)
+        plt.setp(legend.get_title(),fontsize=18)
+        
+        # Set labels
+        ax.set_xlabel('D')
+        ax.set_ylabel('Q')
+        
+        # Show
+        plt.show()
             
 def TestChemostatDDE():
     print "=== BEGIN: TestChemostatDDE ==="
     
     # Initialize simulation parameters
     solverParams = AttributeDict({
-        'tFinal' : 2000.0, 
+        'tFinal' : 5000.0, 
         'tPrint' : 0.1,
         'absTol' : 1e-16,
         'relTol' : 1e-16,
@@ -707,7 +754,7 @@ def TestChemostatDDE():
         s2_in = 75.
         a = 0.5
         m1 = 1.2
-        m2 = 0.74 #:TODO: m2 = 10. then there is two maximum for Q vs D (check the calculation of the equilibrium point)
+        m2 = 0.74
         k_s1 = 7.1
         k_s2 = 9.28
         k_I = 16.
@@ -719,26 +766,32 @@ def TestChemostatDDE():
         s2_hist_vals = 10.
         x2_hist_vals = 0.05
         
-        DsQsDMax = 1.0
-        DsQsStep = 0.001
+        DsQs_DMin = 0.0
+        DsQs_DMax = 1.0
+        DsQs_Step = 0.01
         
         ESA_DMin = 0.22
         ESA_DMax = 0.33
         
-        ESA_eps_z = 0.01
-        ESA_eps = 0.01
+        ESA_eps = 0.001
         ESA_h = 0.025
+        ESA_eps_z = 0.01
         
     modelParams = ModelParams()
-    chemostat = ChemostatDDE2Ext(modelParams)
+    chemostat = ChemostatDDE2_ESA(modelParams)
     
-    runESA = 1
+    runESA = 0
     if runESA: #run extremum seeking algorithm
         chemostat.runESA(solverParams)
+        resESA = chemostat.getResultsESA()
+        if resESA['QMaxIsFound']:
+            print "QMax is found: (DMax, QMax) = (", resESA['DMax'], ",", resESA['QMax'], ")."
+        else:
+            print "QMax is not found."
         chemostat.plotAllResults()
-        #chemostat.plotDsQs()
+        chemostat.plotDsQs()
     else: #run simulation
-        chemostat.run(solverParams)
+        #chemostat.run(solverParams)
         #chemostat.plotAllResults()
         #chemostat.plotResults()
         #chemostat.plotX1X2()

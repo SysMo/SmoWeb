@@ -1,6 +1,6 @@
 from ChemostatSimple import ChemostatSimple, ChemostatSimpleDoc
 from BioReactors.models.ChemostatDDE1 import ChemostatDDE1
 from BioReactors.models.ChemostatDDE2 import ChemostatDDE2, ChemostatDDEDoc
-from BioReactors.models.ChemostatDDE2Ext import ChemostatDDE2Ext
+from BioReactors.models.ChemostatDDE2_ESA import ChemostatDDE2_ESA
 from BiochemicalReactions import BiochemicalReactions, BiochemicalReactionsDoc
 from ADM1H2CH4Bioreactors import ADM1H2CH4Bioreactors
