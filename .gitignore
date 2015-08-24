@@ -3,3 +3,4 @@
 *.settings
 *.prof
 tmp
+SmoWeb/settings.py
